@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using ODBCWrapper;
+
+namespace TVPApi
+{
+    public class WSUtils
+    {
+
+        public static int GetGroupIDByMediaType(int mediaType)
+        {
+            int retVal = 0;
+            ConnectionManager connManager = new ConnectionManager(0, PlatformType.Unknown, false);
+            DataSetSelectQuery selectQuery = new DataSetSelectQuery();
+            selectQuery.SetConnectionString(connManager.GetTvinciConnectionString());
+            selectQuery += "select group_id from media_types ";
+            selectQuery += " where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", mediaType);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int count = selectQuery.Table("query").DefaultView.Count;
+                if (count > 0)
+                {
+                    retVal = int.Parse(selectQuery.Table("query").DefaultView[0].Row["group_id"].ToString());
+                }
+            }
+            return retVal;
+        }
+    }
+}

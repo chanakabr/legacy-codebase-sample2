@@ -1,0 +1,105 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Tvinci.Data.DataLoader;
+using Tvinci.Data.TVMDataLoader.Protocols.SingleMedia;
+
+namespace TVPApi
+{
+   [Serializable]
+   public class APIMediaLoader : TVPPro.SiteManager.DataLoaders.TVMMediaLoader
+    {
+
+        public int GroupID
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "GroupID", -1);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "GroupID", value);
+            }
+        }
+
+        public PlatformType Platform
+        {
+            get
+            {
+                return Parameters.GetParameter<PlatformType>(eParameterType.Retrieve, "Platform", PlatformType.Unknown);
+            }
+            set
+            {
+                Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
+            }
+        }
+
+        public APIMediaLoader(string mediaID) : this(string.Empty, string.Empty, mediaID)
+        {
+        }
+
+        public APIMediaLoader(string tvmUn, string tvmPass, string mediaID): base(tvmUn, tvmPass, mediaID)
+        {
+            
+        }
+
+       protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
+       {
+
+           SingleMedia result = new SingleMedia();
+           result.root.request.mediaCollection.Add(new media() { id = MediaID });
+           if (string.IsNullOrEmpty(BrandingFileFormat))
+           {
+               result.root.flashvars.file_quality = file_quality.high;
+               result.root.flashvars.file_format = ConfigManager.GetInstance(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+           }
+           else // for brandig media
+           {
+               result.root.flashvars.pic_size3_quality = "HIGH";
+               result.root.flashvars.pic_size3_format = BrandingFileFormat;
+               result.root.flashvars.pic_size3 = BrandingPicSize;
+               result.root.flashvars.pic_size2 = "full";
+               result.root.flashvars.pic_size2_quality = "HIGH";
+               result.root.flashvars.pic_size2_format = RepeatBrandingPicFormat;
+           }
+
+           result.root.flashvars.player_un = m_tvmUser;
+           result.root.flashvars.player_pass = m_tvmPass;
+           result.root.flashvars.use_final_end_date = UseFinalEndDate;
+
+           result.root.request.@params.with_info = "true";
+           result.root.flashvars.file_quality = file_quality.high;
+           result.root.flashvars.file_format = ConfigManager.GetInstance(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+           //result.root.flashvars.pic_size1_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
+           //result.root.flashvars.pic_size1_quality = "HIGH";
+           result.root.flashvars.pic_size1 = PicSize;
+
+           //Set the response info_struct
+           result.root.request.@params.info_struct.statistics = true;
+           result.root.request.@params.info_struct.name.MakeSchemaCompliant();
+           result.root.request.@params.info_struct.description.MakeSchemaCompliant();
+           result.root.request.@params.info_struct.type.MakeSchemaCompliant();
+
+           string[] MetaNames = ConfigManager.GetInstance(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+           string[] TagNames = ConfigManager.GetInstance(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+
+           foreach (string meta in MetaNames)
+           {
+               result.root.request.@params.info_struct.metaCollection.Add(new meta { name = meta });
+           }
+
+           foreach (string tagName in TagNames)
+           {
+               result.root.request.@params.info_struct.tags.Add(new tag_type { name = tagName });
+           }
+
+           return result;
+       }
+
+       protected override Guid UniqueIdentifier
+       {
+           get { return new Guid("{112EA03B-E369-4088-9998-662BD9C2F91E}"); }
+       }
+    }
+}

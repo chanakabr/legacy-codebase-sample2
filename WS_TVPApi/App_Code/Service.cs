@@ -1,0 +1,1065 @@
+﻿using System;
+using System.Linq;
+using System.Web;
+using System.Web.Services;
+using System.Web.Services.Protocols;
+using System.Xml.Linq;
+using TVPPro.SiteManager.DataLoaders;
+using TVPPro.SiteManager.DataEntities;
+using TVPApi;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Reflection;
+using System.Xml;
+using System.IO;
+using Tvinci.Data.DataLoader;
+using System.Text;
+using System.Web.Script.Serialization;
+using TVPPro.SiteManager.Services;
+
+[WebService(Namespace = "http://tvpapi.tvinci.com/")]
+[WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
+// To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
+[System.Web.Script.Services.ScriptService]
+public class Service : System.Web.Services.WebService
+{
+    public Service()
+    {
+    }
+
+    #region Web Methods
+
+    #region SiteMap
+
+    //Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map
+    [WebMethod]
+    public TVPApi.SiteMap GetSiteMap(InitializationObject initObj, string ws_User, string ws_Pass)
+    {
+       
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSiteMap", ws_User, ws_Pass, GetCallerIP());
+        //LogManager.Instance.Log(groupID, "GetSiteMap", "Start Get Site Map", initObj, ws_User, ws_Pass);
+        Logger.Logger.Log("GetSiteMap", groupID.ToString() + initObj.Platform.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //LogManager.Instance.Log(groupID, "GetSiteMap", "Start Get Site Map", initObj, ws_User, ws_Pass);
+                //InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                TVPApi.SiteMap retVal = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale); 
+                return retVal;
+            } 
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetSiteMap", "Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                //LogManager.Instance.Log(groupID, "GetSiteMap", string.Format("Error : {0}", ex.Message), initObj, ws_User, ws_Pass);
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetSiteMap", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+       
+    
+
+ 
+
+
+    #endregion
+
+    #region Page
+
+    //Get specific page from site map
+    [WebMethod]
+    public TVPApi.PageContext GetPage(InitializationObject initObj, string ws_User, string ws_Pass, long ID, bool withMenu, bool withFooter)
+    {
+       // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetPagByID", groupID.ToString() + initObj.Platform.ToString() + " id :" + ID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return PageDataHelper.GetPageContextByID(initObj, groupID, ID, withMenu, withFooter);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetPage", "ID : " + ID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetPage", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Get specific page from site map
+    [WebMethod]
+    public TVPApi.PageContext GetPageByToken(InitializationObject initObj, string ws_User, string ws_Pass, Pages token, bool withMenu, bool withFooter)
+    {
+        // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetPageByToken", groupID.ToString() + initObj.Platform.ToString() + " Token: " + token.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return PageDataHelper.GetPageContextByToken(initObj, groupID, token, withMenu, withFooter);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetPageByToken", "Token : " + token.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetPageByToken", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+
+    //Get all page galleries from site map
+    [WebMethod]
+    public List<TVPApi.PageGallery> GetPageGalleries(InitializationObject initObj, string ws_User, string ws_Pass, long PageID, int pageSize, int start_index)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetPageGalleries", groupID.ToString() + initObj.Platform.ToString() + "PageID :" + PageID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return PageGalleryHelper.GetPageGallerisByPageID(initObj, PageID, groupID, pageSize, start_index);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetPageGalleries", "ID :" + PageID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetPageByToken", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Get all page galleries from site map
+    [WebMethod]
+    public PageGallery GetGallery(InitializationObject initObj, string ws_User, string ws_Pass, long galleryID, long PageID)
+    {
+       // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetGallery", groupID.ToString() + initObj.Platform.ToString() + "GalleryID: " + galleryID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+               // InitConfigurations(groupID, initObj.Platform);
+                ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return PageGalleryHelper.GetGalleryByID(initObj, galleryID, PageID, groupID);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetGallery", "ID :"  + galleryID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetGallery", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    #endregion
+
+
+    #region Gallery
+
+
+    //Get all gallery items for a specific gallery
+    [WebMethod]
+    public List<GalleryItem> GetGalleryContent(InitializationObject initObj, string ws_User, string ws_Pass, long ID, long PageID, string picSize, int pageSize, int start_index)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetGalleryContent", groupID.ToString() + initObj.Platform.ToString() + "GalleryID :" + ID.ToString() + " PageID :" + PageID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return PageGalleryHelper.GetGalleryContent(initObj, ID, PageID, picSize, groupID);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetGalleryContent", "ID :" + ID.ToString() + " PageID :" + PageID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetGalleryContent", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+
+    //Get content from specific gallery items
+    [WebMethod]
+    public List<Media> GetGalleryItemContent(InitializationObject initObj, string ws_User, string ws_Pass, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetGalleryItemContent", groupID.ToString() + initObj.Platform.ToString() + " ItemID :" + ItemID.ToString() + " GalleryID :" + GalleryID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return PageGalleryHelper.GetGalleryItemContent(initObj, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetGalleryItemContent", "Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetGalleryItemContent", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    #endregion
+
+    #region Footer Menu
+
+
+    //Get specific menu from site map
+    [WebMethod]
+    public Menu GetMenu(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMenu", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetMenu", groupID.ToString() + initObj.Platform.ToString() + " ID :" + ID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MenuHelper.GetMenuByID(initObj, ID, groupID);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetMenu", " ID : " + ID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetGalleryItemContent", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+
+    //Get specific footer from site map
+    [WebMethod]
+    public Menu GetFooter(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetFooter", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetFooter", groupID.ToString() + initObj.Platform.ToString() + " ID :" + ID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MenuHelper.GetFooterByID(initObj, ID, groupID);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetFooter", "ID " + ID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetGalleryItemContent", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    #endregion
+
+    #region Profiles
+
+    //Get full side profile from site map
+    [WebMethod]
+    public Profile GetSideProfile(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
+    {
+        ///ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSideProfile", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetSideProfile", groupID.ToString() + initObj.Platform.ToString() + " ID :" + ID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return ProfileHelper.GetSideProfile(initObj, ID, groupID);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetSideProfile", " ID : " + ID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetSideProfile", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+
+    }
+
+
+    //Get full bottom profile from site map
+    [WebMethod]
+    public Profile GetBottomProfile(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
+    {
+       // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBottomProfile", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetBottomProfile", groupID.ToString() + initObj.Platform.ToString() + " ID :" + ID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return ProfileHelper.GetBottomProfile(initObj, ID, groupID);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetBottomProfile", "ID :" + ID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetBottomProfile", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    #endregion
+
+
+    #region Media
+
+
+    //Get specific media info
+    [WebMethod]
+    [System.Xml.Serialization.XmlInclude(typeof(DynamicData))]
+    public Media GetMediaInfo(InitializationObject initObj, string ws_User, string ws_Pass, long MediaID, int mediaType, string picSize, bool withDynamic)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetMediaInfo", groupID.ToString() + initObj.Platform.ToString() + " ID :" + MediaID.ToString() + " MediaType " + mediaType.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.GetMediaInfo(initObj, MediaID, mediaType, picSize, groupID, withDynamic);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetMediaInfo", "ID :" + MediaID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetMediaInfo", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Get Channel media
+    [WebMethod(MessageName = "GetChannelMediaList")]
+    public List<Media> GetChannelMediaList(InitializationObject initObj, string ws_User, string ws_Pass, long ChannelID, string picSize, int pageSize, int pageIndex)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetChannelMediaList", groupID.ToString() + initObj.Platform.ToString() + " ID :" + ChannelID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.GetChannelMediaList(initObj, ChannelID, picSize, pageSize, pageIndex, groupID);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetChannelMediaList", "ID :" + ChannelID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetMediaInfo", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Get Channel media
+    [WebMethod (MessageName = "GetChannelMediaListWithMediaCount")]
+    public List<Media> GetChannelMediaListWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, long ChannelID, string picSize, int pageSize, int pageIndex, ref long mediaCount)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetChannelMediaListWithMediaCount", groupID.ToString() + initObj.Platform.ToString() + " ID :" + ChannelID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.GetChannelMediaList(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, ref mediaCount);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetChannelMediaListWithMediaCount", "ID :" + ChannelID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetChannelMediaListWithMediaCount", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    [WebMethod]
+    public bool IsMediaFavorite(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("IsMediaFavorite", groupID.ToString() + initObj.Platform.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, PlatformType.Unknown);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.IsFavoriteMedia(initObj.Locale.SiteGuid, mediaID, initObj.Platform.ToString());
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("IsMediaFavorite", "Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return false;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("IsMediaFavorite", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return false;
+        }
+    }
+
+    //Get Related media info
+    [WebMethod]
+    public List<Media> GetRelatedMedias(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetRelatedMedias", groupID.ToString() + initObj.Platform.ToString() + "MediaID: " + mediaID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+               // InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.GetRelatedMediaList(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, groupID);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetRelatedMedias", "MediaID :" + mediaID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetRelatedMedias", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Get Related media info
+    [WebMethod (MessageName = "GetRelatedMediaWithMediaCount")]
+    public List<Media> GetRelatedMediaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, ref long mediaCount)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetRelatedMediaWithMediaCount", groupID.ToString() + initObj.Platform.ToString() + "MediaID: " + mediaID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                // InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.GetRelatedMediaList(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, groupID, ref mediaCount);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetRelatedMediaWithMediaCount", "MediaID :" + mediaID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetRelatedMediaWithMediaCount", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Get Related media info
+    [WebMethod]
+    public List<Media> GetPeopleWhoWatched(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
+    {
+       // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetPeopleWhoWatched", groupID.ToString() + initObj.Platform.ToString() + " MediaID :" + mediaID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+               // InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.GetPeopleWhoWatchedList(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, groupID);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetPeopleWhoWatched", "MediaID :" + mediaID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetPeopleWhoWatched", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Get Related media info
+    [WebMethod]
+    public List<Comment> GetMediaComments(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID, int pageSize, int pageIndex)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetMediaComments", groupID.ToString() + initObj.Platform.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+               // InitConfigurations(groupID, initObj.Platform);
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return CommentHelper.GetMediaComments(mediaID, pageSize, pageIndex);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetMediaComments", "Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetMediaComments", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Serach media by tag
+    [WebMethod]
+    public List<Media> SearchMediaByTag(InitializationObject initObj, string ws_User, string ws_Pass, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("SearchMediaByTag", groupID.ToString() + initObj.Platform.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.SearchMediaByTag(initObj, mediaType, tagName, value, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("SearchMediaByTag", "Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("SearchMediaByTag", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Serach media by meta
+    [WebMethod]
+    public List<Media> SearchMediaByMeta(InitializationObject initObj, string ws_User, string ws_Pass, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("SearchMediaByMeta", groupID.ToString() + initObj.Platform.ToString() + "meta : " + metaName + "value :" + value, "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+                // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.SearchMediaByMeta(initObj, mediaType, metaName, value, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("SearchMediaByMeta", "Meta : " + metaName + " metaValue :" + value + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("SearchMediaByMeta", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Serach media by meta
+    [WebMethod (MessageName = "SearchMediaByMetaWithMediaCount")]
+    public List<Media> SearchMediaByMetaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("SearchMediaByMetaWithMediaCount", groupID.ToString() + initObj.Platform.ToString() + "meta : " + metaName + "value :" + value, "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+                // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.SearchMediaByMeta(initObj, mediaType, metaName, value, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("SearchMediaByMetaWithMediaCount", "Meta :" + metaName + " Value :" + value + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("SearchMediaByMetaWithMediaCount", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Serach media by tag
+    [WebMethod]
+    public Category GetCategory(InitializationObject initObj, string ws_User, string ws_Pass, int categoryID)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetCategory", groupID.ToString() + initObj.Platform.ToString() + " ID :" + categoryID.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return CategoryTreeHelper.GetCategoryTree(categoryID, groupID, initObj.Platform);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetCategory", "ID :" + categoryID.ToString() + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetCategory", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Serach media by free text
+    [WebMethod]
+    public List<Media> SearchMedia(InitializationObject initObj, string ws_User, string ws_Pass, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+    {
+       // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("SearchMedia", groupID.ToString() + initObj.Platform.ToString() + "value : " + text, "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+               // InitConfigurations(groupID, initObj.Platform);
+              //  ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.SearchMedia(initObj, mediaType, text, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("SearchMedia", "Text :" + text + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("SearchMedia", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Serach media by free text
+    [WebMethod (MessageName = "SearchMediaWithMediaCount")]
+    public List<Media> SearchMediaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount)
+    {
+        // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("SearchMediaWithMediaCount", groupID.ToString() + initObj.Platform.ToString() + "value : " + text, "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                // InitConfigurations(groupID, initObj.Platform);
+                //  ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                return MediaHelper.SearchMedia(initObj, mediaType, text, picSize, pageSize, pageIndex, groupID, (int)orderBy, ref mediaCount);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("SearchMediaWithMediaCount", "Text :" + text + "Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("SearchMediaWithMediaCount", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Get User Items (Favorites, Rentals etc..)
+    [WebMethod]
+    public List<Media> GetUserItems(InitializationObject initObj, string ws_User, string ws_Pass, UserItemType itemType, int mediaType, string picSize,  int pageSize, int start_index)
+    {
+        List<Media> retVal = null;
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetUserItems", groupID.ToString() + initObj.Platform.ToString() + " " + itemType.ToString(), "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+                //LogManager.Instance.Log(groupID, "Favorites", "User Items Func enetered");
+                //Patchy - for now take all favorite medias from Web DB
+                if (itemType == UserItemType.Favorite)
+                {
+                    //InitConfigurations(groupID, initObj.Platform, true);
+                }
+                else
+                {
+                   // InitConfigurations(groupID, initObj.Platform);
+                }
+                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                retVal = MediaHelper.GetUserItems(initObj, itemType, mediaType, picSize, pageSize, start_index, groupID);
+                LogManager.Instance.Log(groupID, "UserItems", string.Format("Returned {0} Media Items from UserItems", retVal != null ? retVal.Count.ToString() : "0"));
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetUserItems", "Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return null;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("GetUserItems", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return null;
+        }
+    }
+
+    //Need to implement
+    [WebMethod]
+    public List<string> GetNMostSearchedTexts(InitializationObject initObj, string ws_User, string ws_Pass, int N, int pageSize, int start_index)
+    {
+        List<string> retVal = null;
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        if (groupID > 0)
+        {
+           // InitConfigurations(groupID, initObj.Platform);
+           // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+            return retVal;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    [WebMethod]
+    public string[] GetAutoCompleteSearchList(InitializationObject initObj, string ws_User, string ws_Pass, string prefixText)
+    {
+        string[] retVal = null;
+       // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("GetAutoCompleteSearchList", groupID.ToString() + initObj.Platform.ToString() , "TVPApi");
+        if (groupID > 0)
+        {
+            List<string> lstRet = new List<String>();
+
+            List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, groupID);
+
+            foreach (String sTitle in lstResponse)
+            {
+                if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
+            }
+            retVal = lstRet.ToArray();
+        }
+
+        return retVal;
+    }
+
+    #endregion
+
+    #region Actions
+
+    [WebMethod]
+    public bool ActionDone(InitializationObject initObj, string ws_User, string ws_Pass, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal)
+    {
+        bool retVal = false;
+       // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActionDone", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("ActionDone", groupID.ToString() + initObj.Platform.ToString() + " " + action.ToString(), "TVPApi");
+
+        if (groupID > 0)
+        {
+            try
+            {
+                // InitConfigurations(groupID, PlatformType.Unknown);
+                // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                retVal = ActionHelper.PerformAction(action, mediaID, mediaType, groupID, initObj.Platform, initObj.Locale.SiteGuid, extraVal);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("ActionDone", "On Action " + action.ToString() + "Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return false;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("ActionDone", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            retVal = false;
+        }
+        return retVal;
+    }
+
+    [WebMethod]
+    public List<Media> GetMediasByMostAction(InitializationObject initObj, string ws_User, string ws_Pass, TVPApi.ActionType action, int mediaType)
+    {
+        return null;
+    }
+
+    //[WebMethod]
+    //public bool RateMedia(InitializationObject initObj, string ws_User, string ws_Pass, int rating, int mediaType)
+    //{
+    //    bool retVal = false;
+    //    // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+    //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "RateMedia", ws_User, ws_Pass, GetCallerIP());
+    //    if (groupID > 0)
+    //    {
+    //        // InitConfigurations(groupID, PlatformType.Unknown);
+    //        // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+    //        retVal = ActionHelper.PerformAction(action, mediaID, mediaType, initObj.Locale.SiteGuid, initObj.Platform.ToString());
+    //    }
+    //    else
+    //    {
+    //        retVal = false;
+    //    }
+    //    return retVal;
+    //}
+
+    [WebMethod]
+    public List<Media> GetMediasByRating(InitializationObject initObj, string ws_User, string ws_Pass, int rating)
+    {
+        return null;
+    }
+
+    [WebMethod]
+    public string SignIn(InitializationObject initObj, string ws_User, string ws_Pass, string userName, string password)
+    {
+        //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetTvinciConnectionString;
+        int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, GetCallerIP());
+        Logger.Logger.Log("SignIn", groupID.ToString() + initObj.Platform.ToString() + " username:" + userName + " password : " + password, "TVPApi");
+        if (groupID > 0)
+        {
+            try
+            {
+               // InitConfigurations(groupID, initObj.Platform);
+               // ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+                ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
+                return ActionHelper.GetSiteGuid(userName, password, groupID, initObj.Platform);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("SignIn", "On username " + userName + " Exception is :" + ex.Message + " Stack Trace is :" + ex.StackTrace, "TVPApiExcpeions");
+                return string.Empty;
+            }
+        }
+        else
+        {
+            Logger.Logger.Log("SignIn", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
+            return string.Empty;
+        }
+    }
+
+    #endregion
+
+    #region Private Methods
+
+  
+    //Store the group ID in specific request info
+    //private void InitConfigurations(int groupID, PlatformType platform)
+    //{
+    //    InitConfigurations(groupID, platform, false);
+    //}
+
+    //Store the group ID in specific request info
+    //private void InitConfigurations(int groupID, PlatformType platform, bool isShared)
+    //{
+    //    if (!HttpContext.Current.Items.Contains("GroupID"))
+    //    {
+    //        HttpContext.Current.Items.Add("GroupID", groupID);
+    //    }
+    //    else
+    //    {
+    //        HttpContext.Current.Items["GroupID"] = groupID;
+    //    }
+    //    if (!HttpContext.Current.Items.Contains("Platform"))
+    //    {
+    //        HttpContext.Current.Items.Add("Platform", platform);
+    //    }
+    //    else
+    //    {
+    //        HttpContext.Current.Items["Platform"] = platform;
+    //    }
+    //    if (!HttpContext.Current.Items.Contains("IsShared"))
+    //    {
+    //        HttpContext.Current.Items.Add("IsShared", isShared);
+    //    }
+    //    else
+    //    {
+    //        HttpContext.Current.Items["IsShared"] = isShared;
+    //    }
+    //}
+
+    private string GetCallerIP()
+    {
+        //This is for now - Just for testing mode!! (need to update allowed ips in DB!!
+        return "127.0.0.1";
+        //return GetCallerIP2()
+    }
+
+    static private string GetCallerIP2()
+    {
+        string sIP = "";
+        if (HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"] != null)
+            sIP = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].Trim();
+
+        //if (sIP == "" || sIP.ToLower() == "unknown")
+        //sIP = HttpContext.Current.Request.UserHostAddress.Trim();
+
+        if (sIP == "" || sIP.ToLower() == "unknown")
+            sIP = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"].Trim();
+
+        return sIP;
+    }
+
+
+    #endregion
+
+
+
+
+    //[WebMethod]
+    //public List<TVPApi.PageGallery> GetPageGallerisByPageToken(string languageCode, string token)
+    //{
+    //    return PageGalleryHelper.GetPageGallerisByPageToken(languageCode, token);
+    //}
+
+    //[WebMethod]
+    //public List<Menu> GetMenues(string languageCode)
+    //{
+    //    return MenuHelper.GetMenues(languageCode);
+    //}
+
+    //[WebMethod]
+    //public List<Menu> GetFooters(string languageCode)
+    //{
+    //    return MenuHelper.GetFooters(languageCode);
+    //}
+
+    //[WebMethod]
+    //public List<PageContext> GetPages(string languageCode)
+    //{
+    //    return PageDataHelper.GetPages(languageCode);
+    //}
+
+    //[WebMethod]
+    //public TVPApi.PageContext GetPageContextByToken(string languageCode, string token)
+    //{
+    //    return PageDataHelper.GetPageContextByToken(languageCode, token);
+    //}
+
+    private string GetUniqueCacheString(string funcName, string[] parameters)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append(funcName);
+
+        foreach (string param in parameters)
+        {
+            sb.Append("|");
+            sb.Append(param);
+        }
+
+        return sb.ToString();
+    }
+
+
+    #endregion
+
+
+}
