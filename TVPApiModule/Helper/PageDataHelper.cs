@@ -55,7 +55,7 @@ public class PageDataHelper
     public static List<PageContext> GetPages(InitializationObject initObj, int groupID)
     {
         List<PageContext> retVal = null;
-        Logger.Logger.Log("Get Pages", groupID.ToString() + "_" + initObj.Platform.ToString(), "TVPApi");
+        //TODO: Logger.Logger.Log("Get Pages", groupID.ToString() + "_" + initObj.Platform.ToString(), "TVPApi");
         TVPApi.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
         if (siteMap != null)
         {

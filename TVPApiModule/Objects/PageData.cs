@@ -13,7 +13,6 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Manager;
-using Logger;
 
 namespace TVPApi
 {
@@ -256,7 +255,7 @@ namespace TVPApi
             // Load pages dataset]
             try
             {
-                Logger.Logger.Log("Start load pages", groupID + "_" + platfrom.ToString(), "TVPApi");
+                //TODO: Logger.Logger.Log("Start load pages", groupID + "_" + platfrom.ToString(), "TVPApi");
                 APIPageDataLoader pd = new APIPageDataLoader() { GroupID = groupID, Platform = platfrom };
                 DataOnPage = pd.Execute();
 
@@ -776,20 +775,20 @@ namespace TVPApi
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetTVMAccountByGroupID", "GroupID :" + groupID.ToString(), "TVPApiExcpeions");
+                //TODO: Logger.Logger.Log("GetTVMAccountByGroupID", "GroupID :" + groupID.ToString(), "TVPApiExcpeions");
                 if (DataOnPage == null)
                 {
-                    Logger.Logger.Log("GetTVMAccountByGroupID", "Data on Page is null - GroupID :" + groupID.ToString(), "TVPApiExcpeions");
+                    //TODO: Logger.Logger.Log("GetTVMAccountByGroupID", "Data on Page is null - GroupID :" + groupID.ToString(), "TVPApiExcpeions");
                 }
                 else
                 {
                     if (DataOnPage.TVMAccounts == null)
                     {
-                        Logger.Logger.Log("GetTVMAccountByGroupID", "Accounts is null - GroupID :" + groupID.ToString(), "TVPApiExcpeions");
+                        //TODO: Logger.Logger.Log("GetTVMAccountByGroupID", "Accounts is null - GroupID :" + groupID.ToString(), "TVPApiExcpeions");
                     }
                     else
                     {
-                        Logger.Logger.Log("GetTVMAccountByGroupID", DataOnPage.TVMAccounts.Count.ToString() + "Accounts - GroupID :" + groupID.ToString(), "TVPApiExcpeions");
+                        //TODO: Logger.Logger.Log("GetTVMAccountByGroupID", DataOnPage.TVMAccounts.Count.ToString() + "Accounts - GroupID :" + groupID.ToString(), "TVPApiExcpeions");
                     }
                 }
                 return new TVMAccountType();

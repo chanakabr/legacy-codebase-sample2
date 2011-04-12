@@ -76,12 +76,12 @@
     <Compile Include="Helper\PagingHelper.cs" />
     <Compile Include="Helper\ParserHelper.cs" />
     <Compile Include="Helper\ProfileHelper.cs" />
+    <Compile Include="Helper\SMSCenterSender.cs" />
     <Compile Include="Helper\WSUtils.cs" />
     <Compile Include="Interfaces\IParser.cs" />
     <Compile Include="Manager\CategoryTreeBuilder.cs" />
     <Compile Include="Manager\ConfigManager.cs" />
     <Compile Include="Manager\ConnectionManager.cs" />
-    <Compile Include="Manager\LogManager.cs" />
     <Compile Include="Manager\MenuBuilder.cs" />
     <Compile Include="Manager\SiteMapManager.cs" />
     <Compile Include="Objects\Category.cs" />
@@ -123,6 +123,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
+    <Compile Include="WS\SMSCenterWS.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libs\Core\ODBCWrapper\ODBCWrapper.csproj">
@@ -148,10 +149,6 @@
     <ProjectReference Include="..\..\..\Libs\Tvinci.Helpers\Tvinci.Helpers.csproj">
       <Project>{B76F07E3-91C2-44A7-B80B-EB60BFB07825}</Project>
       <Name>Tvinci.Helpers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVM\Libs\Core\Logger\Logger.csproj">
-      <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
-      <Name>Logger %28Web Services\Logger%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Branch\Libs\TVPPro.Configuration\TVPPro.Configuration.csproj">
       <Project>{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}</Project>
@@ -293,6 +290,9 @@
     <None Include="Web References\users\UserResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="WS\SMSCenterWS_Help.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

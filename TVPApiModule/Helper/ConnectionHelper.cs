@@ -54,7 +54,7 @@ namespace TVPApi
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("exception", ex.StackTrace + " sWSName: " + sWSName + " | sModuleName: " + sModuleName + " | sUN: " + sUN + " | sPass: " + sPass + " | sIP: " + sIP, "ws_utils");
+                //TODO: Logger.Logger.Log("exception", ex.StackTrace + " sWSName: " + sWSName + " | sModuleName: " + sModuleName + " | sUN: " + sUN + " | sPass: " + sPass + " | sIP: " + sIP, "ws_utils");
             }
             return 0;
         }

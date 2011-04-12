@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
-using Logger;
 using Tvinci.Data.DataLoader;
 using System.Threading;
 
@@ -91,11 +90,11 @@ namespace TVPApi
             SiteMap tempMap = null;
             
             
-                Logger.Logger.Log("Start Site Map :", groupID.ToString() + " " + platform.ToString(), "TVPApi");
+                //TODO: Logger.Logger.Log("Start Site Map :", groupID.ToString() + " " + platform.ToString(), "TVPApi");
                 
                 string keyStr = GetKey(groupID, platform);
 
-                Logger.Logger.Log("Site Map Get Instance :", "Key String is " + keyStr, "TVPApi");
+                //TODO: Logger.Logger.Log("Site Map Get Instance :", "Key String is " + keyStr, "TVPApi");
 
                 //SiteMapManager retVal;
                 //if (m_dataCaching.TryGetData<SiteMapManager>(GetUniqueCacheKey(groupID.ToString()), out retVal))
@@ -108,7 +107,7 @@ namespace TVPApi
                 //}
                 if (m_siteMapInstances == null)
                 {
-                    Logger.Logger.Log("New Site Map :", "Key Str" + keyStr, "TVPApi");
+                    //TODO: Logger.Logger.Log("New Site Map :", "Key Str" + keyStr, "TVPApi");
                     m_siteMapInstances = new Dictionary<string, SiteMap>();
                 }
 
@@ -120,7 +119,7 @@ namespace TVPApi
                     {
                         if (!m_siteMapInstances.ContainsKey(keyStr))
                         {
-                            Logger.Logger.Log("New Key Str :", "Key Str" + keyStr, "TVPApi");
+                            //TODO: Logger.Logger.Log("New Key Str :", "Key Str" + keyStr, "TVPApi");
                             m_siteMapInstances.Add(keyStr, CreateSiteMap(groupID, platform));
                         }
                     }
@@ -331,7 +330,7 @@ namespace TVPApi
 
                 foreach (KeyValuePair<string, Dictionary<long, List<MenuItem>>> menuLangPair in menues)
                 {
-                    LogManager.Instance.Log(groupID, "SiteMapManager", "Adding " + menuLangPair.Key + " menues to site map");
+                    //TODO: LogManager.Instance.Log(groupID, "SiteMapManager", "Adding " + menuLangPair.Key + " menues to site map");
                     if (!m_siteMapInstances.ContainsKey(keyStr))
                     {
                         continue;
@@ -357,7 +356,7 @@ namespace TVPApi
 
                 foreach (KeyValuePair<string, Dictionary<long, List<MenuItem>>> menuLangPair in footers)
                 {
-                    LogManager.Instance.Log(groupID, "SiteMapManager", "Adding " + menuLangPair.Key + " menues to site map");
+                    //TODO: LogManager.Instance.Log(groupID, "SiteMapManager", "Adding " + menuLangPair.Key + " menues to site map");
                     if (!m_siteMapInstances.ContainsKey(menuLangPair.Key))
                     {
                         m_siteMapInstances.Add(menuLangPair.Key, new SiteMap());

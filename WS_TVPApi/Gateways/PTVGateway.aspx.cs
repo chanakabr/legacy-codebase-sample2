@@ -9,15 +9,18 @@ using System.Xml;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using Tvinci.Helpers;
+using TVPApiServices;
 
 public partial class Gateways_RSSGateway : System.Web.UI.Page
 {
-   
+    private MediaService m_mediaService = new MediaService();
+    private SiteService m_siteService = new SiteService();
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!Page.IsPostBack)
         {
-            Logger.Logger.Log("PTV Request ", Request.RawUrl, "TVPApi");
+            //TODO: Logger.Logger.Log("PTV Request ", Request.RawUrl, "TVPApi");
             string opCode = Request.QueryString["op"];
             if (!string.IsNullOrEmpty(opCode))
             {
@@ -67,12 +70,11 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
     {
         Response.Clear();
         Response.ContentType = "text/xml";
-        Service service = new Service();
         InitializationObject initObj = GetInitObj();
         string userName = "tvpapi_93";
         string pass = "11111";
-        service.GetSiteMap(initObj, "tvpapi_93", "11111");
-        PageContext page = service.GetPage(initObj, userName, pass, pageID, false, false);
+        m_siteService.GetSiteMap(initObj, "tvpapi_93", "11111");
+        PageContext page = m_siteService.GetPage(initObj, userName, pass, pageID, false, false);
 
         XmlTextWriter writer = new XmlTextWriter(Response.OutputStream, System.Text.Encoding.UTF8);
         RSSWriter rssWriter = new RSSWriter(writer);
@@ -95,14 +97,14 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
     {
         Response.Clear();
         Response.ContentType = "text/xml";
-        Service service = new Service();
+
         InitializationObject initObj = GetInitObj();
         initObj.Locale = new Locale();
         initObj.Locale.SiteGuid = guid;
         string userName = "tvpapi_93";
         string pass = "11111";
-        service.GetSiteMap(initObj, userName, pass);
-        List<Media> userItems = service.GetUserItems(initObj, userName, pass, type, 0, "full", 20, 0);
+        m_siteService.GetSiteMap(initObj, userName, pass);
+        List<Media> userItems = m_mediaService.GetUserItems(initObj, userName, pass, type, 0, "full", 20, 0);
         
 
         XmlTextWriter writer = new XmlTextWriter(Response.OutputStream, System.Text.Encoding.UTF8);
@@ -125,11 +127,11 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
     {
         Response.Clear();
         Response.ContentType = "text/xml";
-        Service service = new Service();
+        SiteService siteService = new SiteService();
         InitializationObject initObj = GetInitObj();
         string userName = "tvpapi_93";
         string pass = "11111";
-        PageGallery pg = service.GetGallery(initObj, userName, pass, galleryID, pageID);
+        PageGallery pg = siteService.GetGallery(initObj, userName, pass, galleryID, pageID);
 
         XmlTextWriter writer = new XmlTextWriter(Response.OutputStream, System.Text.Encoding.UTF8);
         RSSWriter rssWriter = new RSSWriter(writer);

@@ -178,7 +178,7 @@ namespace TVPApi
                     }
                     if (!string.IsNullOrEmpty(media.Duration))
                     {
-                    activaMedia.assetDuration = int.Parse(media.Duration);
+                        activaMedia.assetDuration = int.Parse(media.Duration);
                     }
                     if (!string.IsNullOrEmpty(media.PicURL))
                     {

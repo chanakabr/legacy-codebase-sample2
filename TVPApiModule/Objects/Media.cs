@@ -147,7 +147,7 @@ namespace TVPApi
             BuildTagMetas(groupID, row, initObj.Platform.ToString());
             if (withDynamic && initObj.Locale != null)
             {
-                LogManager.Instance.Log(groupID, "Media", "Start dynamic build");
+                //TODO: LogManager.Instance.Log(groupID, "Media", "Start dynamic build");
                 BuildDynamicObj(initObj.Locale.SiteGuid, initObj.Platform.ToString(), groupID);
             }
         }
@@ -196,7 +196,7 @@ namespace TVPApi
         private void BuildDynamicObj(string guid, string platform, int groupID)
         {
             this.MediaDynamicData = new DynamicData();
-            LogManager.Instance.Log(93, "Media", string.Format("GUID is {0}", guid));
+            //TODO: LogManager.Instance.Log(93, "Media", string.Format("GUID is {0}", guid));
             PermittedMediaContainer[] MediaItems = TVPPro.SiteManager.Services.ConditionalAccessService.Instance.GetUserPermittedItems(guid, string.Format("conditionalaccess_{0}", groupID.ToString()), "11111");
             int mediID = int.Parse(MediaID);
             if (MediaItems != null)
@@ -204,13 +204,13 @@ namespace TVPApi
                 var ItemPermited = (from m in MediaItems where m.m_nMediaID == mediID select m).FirstOrDefault();
                 if (ItemPermited != null)
                 {
-                    LogManager.Instance.Log(93, "Media", "Found purchased item");
+                    //TODO: LogManager.Instance.Log(93, "Media", "Found purchased item");
                     MediaDynamicData.Price = "Free";
                     MediaDynamicData.PriceType = PriceReason.PPVPurchased;
                     if (ItemPermited.m_dEndDate != null)
                     {
                         MediaDynamicData.ExpirationDate = ItemPermited.m_dEndDate;
-                        LogManager.Instance.Log(93, "Media", string.Format("ExpirationDate is {0}", ItemPermited.m_dEndDate));
+                        //TODO: LogManager.Instance.Log(93, "Media", string.Format("ExpirationDate is {0}", ItemPermited.m_dEndDate));
                     }
                 }
                 else
@@ -231,7 +231,7 @@ namespace TVPApi
                 MediaDynamicData.Price = price;
 
             }
-            LogManager.Instance.Log(93, "Media", "Try get is favorite");
+            //TODO: LogManager.Instance.Log(93, "Media", "Try get is favorite");
             if (!string.IsNullOrEmpty(guid))
             {
                 if (IsItemFavorite(int.Parse(MediaID), guid))
@@ -243,7 +243,7 @@ namespace TVPApi
                     MediaDynamicData.IsFavorite = false;
                 }
             }
-            LogManager.Instance.Log(93, "Media", string.Format("IsItemInFavorite:{0}", MediaDynamicData.IsFavorite));
+            //TODO: LogManager.Instance.Log(93, "Media", string.Format("IsItemInFavorite:{0}", MediaDynamicData.IsFavorite));
         }
 
         private bool IsItemFavorite(int mediaID, string userGuid)
@@ -341,16 +341,16 @@ namespace TVPApi
 
         private PriceReason GetMediaPriceReason(PermittedMediaContainer[] MediaItems)
         {
-            LogManager.Instance.Log(93, "Media", "Try get price reason");
+            //TODO: LogManager.Instance.Log(93, "Media", "Try get price reason");
             PriceReason retVal = PriceReason.UnKnown;
             if (!string.IsNullOrEmpty(FileID))
             {
-                LogManager.Instance.Log(93, "Media", string.Format("File ID is:{0}", FileID));
+                //TODO: LogManager.Instance.Log(93, "Media", string.Format("File ID is:{0}", FileID));
                 int MediaFileID = int.Parse(FileID);
                 if (MediaFileID > 0)
                 {
                     string Reason = PriceHelper.GetItemPriceReason(MediaFileID);
-                    LogManager.Instance.Log(93, "Media", string.Format("Reason is:{0}", Reason));
+                    //TODO: LogManager.Instance.Log(93, "Media", string.Format("Reason is:{0}", Reason));
                     switch (Reason)
                     {
                         case "PPVPurchased":

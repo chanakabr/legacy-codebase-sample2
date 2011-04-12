@@ -9,6 +9,7 @@ using TVPApi;
 using TVPPro.SiteManager.DataEntities;
 using Tvinci.Helpers;
 using System.Configuration;
+using TVPApiServices;
 
 /// <summary>
 /// Summary description for RSSWriter
@@ -80,12 +81,12 @@ public class RSSWriter
                 string[] picStr = picSize.ToLower().Split('x');
                // m_writer.WriteElementString("link", string.Concat(LinkHelper.ParseURL(ConfigurationManager.AppSettings["RSSGatewayPath"]), string.Format("PTVGateway.aspx?op=GetFavoriteItems&height={0}&width={1}&itemtype=3", picStr[0], picStr[1])));
                 
-                Service service = new Service();
+                MediaService mediaService = new MediaService();
                 InitializationObject initObj = new InitializationObject();
                 initObj.Locale = new Locale();
                 initObj.Locale.SiteGuid = sID;
                 initObj.Platform = PlatformType.STB;
-                List<Media> userItems = service.GetUserItems(initObj, "tvpapi_93", "11111", userItemType, 0, "full", 50, 0);
+                List<Media> userItems = mediaService.GetUserItems(initObj, "tvpapi_93", "11111", userItemType, 0, "full", 50, 0);
                 HttpContext.Current.Items["Platform"] = PlatformType.STB;
                 
                 string mediaStr = GetIDsString(userItems);

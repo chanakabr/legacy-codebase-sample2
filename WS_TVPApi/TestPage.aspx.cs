@@ -9,10 +9,12 @@ using System.IO;
 using System.Xml;
 using System.Text;
 using System.Web.Script.Serialization;
+using TVPApiServices;
 
 public partial class TestPage : System.Web.UI.Page
 {
-    Service service;
+    SiteService m_siteService = new SiteService();
+    MediaService m_mediaService = new MediaService();
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -20,12 +22,7 @@ public partial class TestPage : System.Web.UI.Page
     }
 
     protected void SiteMapTestClk(object source, EventArgs e)
-    {
-        if (service == null)
-        {
-            service = new Service();
-        }
-        
+    {   
         // System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
         ///StringBuilder sb = new StringBuilder();
         InitializationObject initObj = new InitializationObject();
@@ -64,7 +61,7 @@ public partial class TestPage : System.Web.UI.Page
         long count = 0;
         //service.GetRelatedMediaWithMediaCount(initObj, user, pass, 122682, 0, "full", 5, 0, ref count);
         //service.SignIn(initObj, user, pass, "test3@test.tt", "123456");
-        service.GetMediaInfo(initObj, user, pass, 122632, 257, "full", true);
+        m_mediaService.GetMediaInfo(initObj, user, pass, 122632, 257, "full", true);
         //Media media = service.GetMediaInfo(initObj, user, pass, 122620, 257, "full", true);
        // bool added = service.ActionDone(initObj, user, pass, ActionType.AddFavorite, 83905, 181);
         //bool isFavorite = service.IsMediaFavorite(initObj, user, pass, 88536);

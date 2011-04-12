@@ -45,7 +45,7 @@ namespace TVPApi
                 dsItemInfo.ItemRow row = mediaInfo.Item.Rows[0] as dsItemInfo.ItemRow;
                 if (row != null)
                 {
-                    LogManager.Instance.Log(groupID, "MediaInfo", "Found row");
+                    //TODO: LogManager.Instance.Log(groupID, "MediaInfo", "Found row");
                     retVal = new Media(row, initObj, groupID, withDynamic);
                 }
             }

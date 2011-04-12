@@ -32,10 +32,12 @@
     void Application_Error(object sender, EventArgs e) 
     {
         // Code that runs when an unhandled error occurs
-        Exception objErr = Server.GetLastError().GetBaseException();
-        
-        Logger.Logger.Log("Exception in TVPApi", "Request is : " + Request.RawUrl + " Exception is :" + objErr.Message.ToString() + "StackTrace : " + objErr.StackTrace.ToString(), "TVPApiExceptions");
+        Exception ex = new Exception("Unknown Exception");
+        if (Server.GetLastError() != null && Server.GetLastError().GetBaseException() != null) ex = Server.GetLastError().GetBaseException();
+        else if (Server.GetLastError() != null) ex = Server.GetLastError();
 
+        //TODO: Logger.Logger.Log("Exception in TVPApi", "Request is : " + Request.RawUrl + " Exception is :" + objErr.Message.ToString() + "StackTrace : " + objErr.StackTrace.ToString(), "TVPApiExceptions");
+        
         Server.ClearError();
     }
 

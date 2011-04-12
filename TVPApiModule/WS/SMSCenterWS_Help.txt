@@ -1,0 +1,2 @@
+﻿
+wsdl /language:CS /protocol:SOAP /out:c:\SMSCenterWS.cs http://www.smscenter.co.il/Web/WebServices/SendMessage.asmx?wsdl /namespace:TVPApi
