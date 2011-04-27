@@ -9,16 +9,22 @@ using System.Web.Script.Serialization;
 using System.Text;
 using Logger;
 using Tvinci.Data.DataLoader;
+using System.Configuration;
 using TVPApiServices;
+using log4net;
 
 public partial class Gateways_ActivaGateway : BaseGateway
 {
-    private MediaService m_mediaService = new MediaService();
+    static ILoaderCache m_dataCaching = LoaderCacheLite.Current;
+    private readonly ILog logger = LogManager.GetLogger(typeof(Gateways_ActivaGateway));
+
     private SiteService m_siteService = new SiteService();
+    private MediaService m_mediaService = new MediaService();
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        //TODO: Logger.Logger.Log("Activa Request ", Request.Url.ToString(), "TVPApi");
+        logger.InfoFormat("Activa Request->", Request.Url.ToString());
+        
         long itemsCount = 0;
         string retVal = string.Empty;
         string action = Request.QueryString["Action"];
@@ -29,28 +35,26 @@ public partial class Gateways_ActivaGateway : BaseGateway
         string wsUser = string.Empty;
         string wsPass = string.Empty;
         int groupID = GetGroupIDByBroadcasterName(broadcasterName, ref wsUser, ref wsPass);
+
         int nIndex = 0;
-        if (!string.IsNullOrEmpty(index))
-        {
-            nIndex = int.Parse(index);
-        }
         int nItems = 0;
-        if (!string.IsNullOrEmpty(items))
-        {
-            nItems = int.Parse(items);
-        }
+        int nID = 0;
+
+        int.TryParse(index, out nIndex);
+        int.TryParse(items, out nItems);
+        int.TryParse(id, out nID);
 
         string callBack = Request.QueryString["callback"];
         //Init();
 
-        //TODO: Logger.Logger.Log("Start Call ", "Start query - " + wsUser + " " + wsPass, "TVPApi");
+        logger.InfoFormat("Start Call->", "Start query - ", wsUser, wsPass);
 
         // check if request in cache and write it
         object retObj = HttpRuntime.Cache.Get(HttpContext.Current.Request.Url.ToString().ToLower());
         if (retObj != null && retObj is string)
         {
-            //TODO: Logger.Logger.Log("Response from cache", "query - " + wsUser + " " + wsPass, "TVPApi");
-            
+            logger.InfoFormat("Response from cache-> ", "query - ", wsUser, wsPass);
+
             Response.Clear();
             Response.Write(retObj.ToString());
             Response.End();
@@ -109,16 +113,16 @@ public partial class Gateways_ActivaGateway : BaseGateway
                         }
                     case "getfunctionassets": //<--
                         {
-                            List<Media> mediaList = m_mediaService.GetChannelMediaListWithMediaCount(GetInitObj(), wsUser, wsPass, long.Parse(id), "full", int.Parse(items), int.Parse(index), ref itemsCount);
+                            List<Media> mediaList = m_mediaService.GetChannelMediaListWithMediaCount(GetInitObj(), wsUser, wsPass, nID, "full", nItems, nIndex, ref itemsCount);
                             //List<Media> mediaList = MediaHelper.GetChannelMediaList(GetInitObj(), long.Parse(id), "full", nItems, nIndex, groupID);
-                            retObj = new List<Media>(mediaList);
+                            retObj = mediaList;
                             break;
                         }
                     case "getrelatedmedia": //<--
                         {
 
-                            List<Media> mediaList = m_mediaService.GetRelatedMediaWithMediaCount(GetInitObj(), wsUser, wsPass, int.Parse(id), 0, "full", int.Parse(items), int.Parse(index), ref itemsCount);
-                            retObj = new List<Media>(mediaList);
+                            List<Media> mediaList = m_mediaService.GetRelatedMediaWithMediaCount(GetInitObj(), wsUser, wsPass, nID, 0, "full", nItems, nIndex, ref itemsCount);
+                            retObj = mediaList;
 
                             break;
                         }
@@ -126,9 +130,9 @@ public partial class Gateways_ActivaGateway : BaseGateway
                         {
                             string val = Request.QueryString["query"];
 
-                            List<Media> mediaList = m_mediaService.SearchMediaWithMediaCount(GetInitObj(), wsUser, wsPass, val, 0, "full", int.Parse(items), int.Parse(index), (OrderBy)TVPApi.OrderBy.Added, ref itemsCount);
+                            List<Media> mediaList = m_mediaService.SearchMediaWithMediaCount(GetInitObj(), wsUser, wsPass, val, 0, "full", nItems, nIndex, (OrderBy)TVPApi.OrderBy.Added, ref itemsCount);
                             //List<Media> mediaList = MediaHelper.SearchMedia(GetInitObj(), 0, val, "full", int.Parse(items), 0, groupID, groupID, (int)TVPApi.OrderBy.ABC);
-                            retObj = new List<Media>(mediaList);
+                            retObj = mediaList;
 
                             break;
                         }
@@ -138,8 +142,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
                             List<string> autos = MediaHelper.GetAutoCompleteList(groupID, PlatformType.STB, groupID);
                             //List<Media> mediaList = MediaHelper.SearchMedia(GetInitObj(), 0, val, "full", int.Parse(items), 0, 121, 122, (int)TVPApi.OrderBy.ABC);
                             //retObj = mediaList;
-                            List<string> tmpAutos = new List<string>(autos);
-                            retObj = ParseAutoCompleteList(tmpAutos, val);
+                            retObj = ParseAutoCompleteList(autos, val);
                             retVal = (string)retObj;
                             retVal = string.Format("{0}({1})", callBack, retVal);
                             break;
@@ -147,15 +150,15 @@ public partial class Gateways_ActivaGateway : BaseGateway
                     case "getcatchup": //<--
                         {
                             string dateStr = Request.QueryString["day"].ToString();
-                            List<Media> mediaList = m_mediaService.SearchMediaByMetaWithMediaCount(GetInitObj(), wsUser, wsPass, "Date", dateStr, 0, "full", int.Parse(items), int.Parse(index), OrderBy.Added, ref itemsCount);
-                            retObj = new List<Media>(mediaList);
+                            List<Media> mediaList = m_mediaService.SearchMediaByMetaWithMediaCount(GetInitObj(), wsUser, wsPass, "Date", dateStr, 0, "full", nItems, nIndex, OrderBy.Added, ref itemsCount);
+                            retObj = mediaList;
                             // List<Media> mediaList = MediaHelper.SearchMediaByMeta(GetInitObj(), 0, "Date", dateStr, "full", int.Parse(items), int.Parse(index), groupID, (int)(TVPPro.SiteManager.Context.Enums.eOrderBy.Added));
                             // caMod.get
                             break;
                         }
                     case "GetMediaFilse":
                         {
-                            ca.module caMod = new ca.module();
+                            //ca.module caMod = new ca.module();
                             // caMod.get
                             break;
                         }
@@ -167,9 +170,10 @@ public partial class Gateways_ActivaGateway : BaseGateway
 
             if (retObj != null && !(retObj is string))
             {
-                retVal = ParseObject(retObj, groupID, nItems, nIndex, itemsCount);
+                retVal = ParseObject(retObj, groupID, nItems, nIndex, itemsCount, PlatformType.STB.ToString().ToLower());
                 retVal = string.Format("{0}({1})", callBack, retVal);
-                //TODO: Logger.Logger.Log("Activa Response ", "Request :" + Request.Url.ToString() + " Response :" + retVal, "TVPApi");
+                
+                logger.InfoFormat("Activa Response->", "Request :", Request.Url.ToString(), " Response :", retVal);
             }
         }
         catch (Exception ex)
@@ -178,14 +182,61 @@ public partial class Gateways_ActivaGateway : BaseGateway
 
             errObj.status = string.Format("Error on server : {0}", ex.Message);
             retVal = string.Format("{0}({1})", callBack, CreateJson(errObj));
-            //TODO: Logger.Logger.Log("Activa Error on request ", "Request :" + Request.Url.ToString() + " Error: " + ex.Message + " " + ex.StackTrace, "TVPApiExceptions");
+
+            logger.ErrorFormat("Activa Error on request->", "Request :", Request.Url.ToString(), ex.ToString());
         }
 
         HttpRuntime.Cache.Insert(HttpContext.Current.Request.Url.ToString().ToLower(), retVal, null, DateTime.Now.AddHours(24), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Low, null);
 
         Response.Clear();
         Response.Write(retVal);
+
+        // TODO: 
+        try
+        {
+            if (retVal.ToLower().Contains(@"""videourl"":"""""))
+            {
+                SendSMS(string.Format("{0}->TVPApi::{1},{2}:{3} request has empty VideoURL value. Application pool Restarted", Environment.MachineName, broadcasterName, action, Request.QueryString["day"]));
+                
+                logger.InfoFormat("TVPApi application pool retarted->", "videoURL empty value");
+                HttpRuntime.UnloadAppDomain();
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
         Response.End();
+    }
+
+    private void SendSMS(string sMessage)
+    {
+        try
+        {
+            string sUserName = ConfigurationManager.AppSettings["SMS_WS_UN"];
+            string sPassword = ConfigurationManager.AppSettings["SMS_WS_PW"];
+            object[] sPhones = ConfigurationManager.AppSettings["SMS_WS_PHONES"].Split(';');
+            object[] sMails = ConfigurationManager.AppSettings["SMS_WS_MAILS"].Split(';');
+            string sSenderName = "TVPApi";
+
+            if (sPhones.Length > 0)
+            {
+                string sSMSMessage = sMessage;
+                //if (sMessage.Length > 65)
+                //sSMSMessage = sMessage.Substring(0, 65) + "...";
+                il.co.smscenter.www.SendSMS sender = new il.co.smscenter.www.SendSMS();
+                sender.Url = "http://www.smscenter.co.il/Web/WebServices/SendMessage.asmx";
+                il.co.smscenter.www.SendMessageReturnValues ret = sender.SendMessages(sUserName, sPassword, sSenderName,
+                    sPhones, sSMSMessage, sMails, il.co.smscenter.www.SMSOperation.Push, "", il.co.smscenter.www.DeliveryReportMask.MessageExpired, 0, 60);
+
+                logger.InfoFormat("SMS sent->", "return:", ret.ToString(), sMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.ErrorFormat("SMS send->", ex.Message, ex.StackTrace);
+        }
     }
 
     private int GetGroupIDByBroadcasterName(string broadcasterName, ref string wsUser, ref string wsPass)

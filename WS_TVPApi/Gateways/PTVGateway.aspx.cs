@@ -10,9 +10,12 @@ using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using Tvinci.Helpers;
 using TVPApiServices;
+using log4net;
 
 public partial class Gateways_RSSGateway : System.Web.UI.Page
 {
+    private readonly ILog logger = LogManager.GetLogger(typeof(Gateways_RSSGateway));
+
     private MediaService m_mediaService = new MediaService();
     private SiteService m_siteService = new SiteService();
 
@@ -20,7 +23,8 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
     {
         if (!Page.IsPostBack)
         {
-            //TODO: Logger.Logger.Log("PTV Request ", Request.RawUrl, "TVPApi");
+            logger.InfoFormat("PTV Request->", Request.RawUrl);
+
             string opCode = Request.QueryString["op"];
             if (!string.IsNullOrEmpty(opCode))
             {

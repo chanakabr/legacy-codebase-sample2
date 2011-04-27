@@ -15,13 +15,13 @@ public abstract class BaseGateway : System.Web.UI.Page
 
     protected abstract string GetWSPass();
 
-    protected string ParseObject(object obj, int groupID, int items, int index, long mediaCount)
+    protected string ParseObject(object obj, int groupID, int items, int index, long mediaCount, string platform)
     {
         string retVal = string.Empty;
         IParser parser = ParserHelper.GetParser(groupID);
         if (parser != null)
         {
-            retVal = parser.Parse(obj, items, index, groupID, mediaCount);
+            retVal = parser.Parse(obj, items, index, groupID, mediaCount, platform);
         }
         return retVal;
     }

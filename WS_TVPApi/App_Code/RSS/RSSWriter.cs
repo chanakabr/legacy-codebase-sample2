@@ -72,7 +72,7 @@ public class RSSWriter
             m_writer.WriteStartElement("item");
             int numOfItems = galleryItem.NumberOfItemsPerPage;
             m_writer.WriteElementString("title", galleryItem.Title);
-            string fileType = ConfigManager.GetInstance(93, PlatformType.STB.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            string fileType = ConfigManager.GetInstance().GetConfig(93, PlatformType.STB.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             TVMAccountType account = new PageData(93, PlatformType.STB).GetTVMAccountByUser(galleryItem.TVMUser);
             if (galleryItem.BooleanParam)
             {

@@ -1,7 +1,10 @@
 ﻿<%@ Application Language="C#" %>
+<%@ Import Namespace="TVPApiModule.Helper" %>
+<%@ Import Namespace="log4net" %>
 
 <script runat="server">
-
+    public static ILog logger = log4net.LogManager.GetLogger("GlobalASCX");
+    
     void Application_Start(object sender, EventArgs e) 
     {
         // setting log file name for cloud
@@ -9,10 +12,10 @@
 
         //if (!string.IsNullOrEmpty(TVPPro.Configuration.Technical.TechnicalConfiguration.Instance.Data.Site.LogBasePath))
         {
-            log4net.GlobalContext.Properties["DebuggingLogFilePath"] = string.Format(@"c:\log\TVPApi\Debugging_{0}.log", System.Environment.MachineName);
-            log4net.GlobalContext.Properties["InformationLogFilePath"] = string.Format(@"c:\log\TVPApi\Information_{0}.log", System.Environment.MachineName);
-            log4net.GlobalContext.Properties["ExceptionsLogFilePath"] = string.Format(@"c:\log\TVPApi\Exceptions_{0}.log", System.Environment.MachineName);
-            log4net.GlobalContext.Properties["PerformancesLogFilePath"] = string.Format(@"c:\log\TVPApi\Performances_{0}.log", System.Environment.MachineName);
+            log4net.GlobalContext.Properties["DebuggingLogFilePath"] = string.Format(@"{0}\TVPApi\{1}\Debugging.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], System.Environment.MachineName);
+            log4net.GlobalContext.Properties["InformationLogFilePath"] = string.Format(@"{0}\TVPApi\{1}\Information.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], System.Environment.MachineName);
+            log4net.GlobalContext.Properties["ExceptionsLogFilePath"] = string.Format(@"{0}\TVPApi\{1}\Exceptions.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], System.Environment.MachineName);
+            log4net.GlobalContext.Properties["PerformancesLogFilePath"] = string.Format(@"{0}\TVPApi\{1}\Performances.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], System.Environment.MachineName);
 
             string logConfigPath = ConfigurationManager.AppSettings["Log4NetConfiguration"];
             if (!string.IsNullOrEmpty(logConfigPath))
@@ -21,6 +24,12 @@
                 log4net.Config.XmlConfigurator.ConfigureAndWatch(new System.IO.FileInfo(logConfigPath));
             }
         }
+    }
+
+    protected void Application_BeginRequest(Object sender, EventArgs e)
+    {
+        // Save site data (groupid, platform, wsuser, wspass) on session for further proccesses
+        
     }
     
     void Application_End(object sender, EventArgs e) 
@@ -36,7 +45,7 @@
         if (Server.GetLastError() != null && Server.GetLastError().GetBaseException() != null) ex = Server.GetLastError().GetBaseException();
         else if (Server.GetLastError() != null) ex = Server.GetLastError();
 
-        //TODO: Logger.Logger.Log("Exception in TVPApi", "Request is : " + Request.RawUrl + " Exception is :" + objErr.Message.ToString() + "StackTrace : " + objErr.StackTrace.ToString(), "TVPApiExceptions");
+        logger.Error(string.Concat("Request: ", Request.RawUrl), ex);
         
         Server.ClearError();
     }
@@ -44,8 +53,11 @@
     void Session_Start(object sender, EventArgs e) 
     {
         // Code that runs when a new session is started
-        
 
+        if (!SessionHelperEx.IsValueInSession("GroupID"))
+        {
+            SessionHelperEx.GroupID = 1;
+        }
     }
 
     void Session_End(object sender, EventArgs e) 
