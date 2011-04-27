@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
+using log4net;
 
 /// <summary>
 /// Summary description for PageDataHelper
 /// </summary>
 public class PageDataHelper
 {
+    private static readonly ILog logger = LogManager.GetLogger(typeof(PageDataHelper));
+
     private int m_groupID;
     private PlatformType m_platform;
 
@@ -47,7 +50,7 @@ public class PageDataHelper
         }
 
         AddMenuToPageContext(retVal, initObj, withMenu, withFooter, groupID);
-
+        
         return retVal;
     }
 
@@ -55,7 +58,9 @@ public class PageDataHelper
     public static List<PageContext> GetPages(InitializationObject initObj, int groupID)
     {
         List<PageContext> retVal = null;
-        //TODO: Logger.Logger.Log("Get Pages", groupID.ToString() + "_" + initObj.Platform.ToString(), "TVPApi");
+
+        logger.InfoFormat("GetPages-> [{0}, {1}]", groupID, initObj.Platform);
+
         TVPApi.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
         if (siteMap != null)
         {

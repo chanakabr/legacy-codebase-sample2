@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
+using Logger;
 using Tvinci.Data.DataLoader;
 using System.Threading;
+using log4net;
 
 /// <summary>
 /// Summary description for SiteMapManager
@@ -15,16 +17,17 @@ namespace TVPApi
 {
     public class SiteMapManager
     {
+        private readonly ILog logger = LogManager.GetLogger(typeof(SiteMapManager));
+
         private Dictionary<string, SiteMap> m_siteMapInstances = null;
         private Dictionary<long, Profile> m_Profiles = new Dictionary<long, Profile>();
         private Dictionary<string, PageData> m_pageData = new Dictionary<string, PageData>();
 
-        private static ReaderWriterLockSlim m_SiteMapslocker = new ReaderWriterLockSlim();
-        private static ReaderWriterLockSlim m_Profileslocker = new ReaderWriterLockSlim();
-        private static ReaderWriterLockSlim m_PageDatalocker = new ReaderWriterLockSlim();
+        private static ReaderWriterLockSlim m_SiteMapsLocker = new ReaderWriterLockSlim();
+        private static ReaderWriterLockSlim m_ProfilesLocker = new ReaderWriterLockSlim();
+        private static ReaderWriterLockSlim m_PageDataLocker = new ReaderWriterLockSlim();
 
         private static string m_currentGroupID;
-        //private Dictionary<string, SiteMap> m_siteMaps = new Dictionary<string, SiteMap
         
         private SiteMap m_UnifiedSiteMap;
         private static SiteMapManager m_siteMapManager = null;
@@ -43,42 +46,64 @@ namespace TVPApi
             }
         }
 
+        #region C'tor
+        private SiteMapManager()
+        {
+
+        }
+        #endregion
+
         public PageData GetPageData(int groupID, PlatformType platform)
         {
-            PageData retPageData = null;
-
             string sKey = m_siteMapManager.GetKey(groupID, platform);
 
+            PageData retPageData = null;
 
-            if (m_PageDatalocker.TryEnterWriteLock(6000))
+            // read PageData from shared dictionary
+            if (m_PageDataLocker.TryEnterReadLock(1000))
+            {
+                try
+                {
+                    m_pageData.TryGetValue(sKey, out retPageData);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetPageData->", ex);
+                }
+                finally
+                {
+                    m_PageDataLocker.ExitReadLock();
+                }
+            }
+
+            // if not exsist in shared dictionary create one
+            if (retPageData == null)
+            {
+                retPageData = new PageData(groupID, platform);
+            }
+
+            // add PageData to shared dictionary if not exsist
+            if (m_PageDataLocker.TryEnterWriteLock(1000))
             {
                 try
                 {
                     if (!m_pageData.Keys.Contains(sKey))
                     {
-                        PageData pageData = new PageData(groupID, platform);
-                        m_pageData.Add(sKey, pageData);
+                        m_pageData.Add(sKey, retPageData);
                     }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetPageData->", ex);
                 }
                 finally
                 {
-                    m_PageDatalocker.ExitWriteLock();
+                    m_PageDataLocker.ExitWriteLock();
                 }
             }
 
-
-            retPageData = m_pageData[sKey];
-            
-
             return retPageData;
         }
-
-        private SiteMapManager()
-        {
-            
-        }
-
-       
 
         public Dictionary<string, SiteMap> GetSiteMaps()
         {
@@ -89,69 +114,78 @@ namespace TVPApi
         {
             SiteMap tempMap = null;
             
+            logger.InfoFormat("Start Site Map : {0} {1}", groupID, platform);
+
+            string keyStr = GetKey(groupID, platform);
+
+            logger.InfoFormat("Site Map Get Instance : {0}", keyStr);
+
+            //SiteMapManager retVal;
+            //if (m_dataCaching.TryGetData<SiteMapManager>(GetUniqueCacheKey(groupID.ToString()), out retVal))
+            //{
+            //    Logger.Logger.Log("Site Map Found in cache :", "Group ID " + keyStr, "TVPApi");
+            //    if (retVal != null && retVal is SiteMapManager)
+            //    {
+            //        return retVal;
+            //    }
+            //}
+            if (m_siteMapInstances == null)
+            {
+                logger.InfoFormat("New Site Map :", "Key Str {0}", keyStr);
+
+                m_siteMapInstances = new Dictionary<string, SiteMap>();
+            }
+
+            //If this is the first time a group ID is used - initialize a new manager and all relevent objects
+
+            if (m_SiteMapsLocker.TryEnterWriteLock(1000))
+            {
+                try
+                {
+                    if (!m_siteMapInstances.ContainsKey(keyStr))
+                    {
+                        logger.InfoFormat("New Key Str : {0}", keyStr);
+
+                        m_siteMapInstances.Add(keyStr, CreateSiteMap(groupID, platform));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("GetSiteMapInstance->", ex);
+                }
+                finally
+                {
+                    m_SiteMapsLocker.ExitWriteLock();
+                }
+            }
             
-                //TODO: Logger.Logger.Log("Start Site Map :", groupID.ToString() + " " + platform.ToString(), "TVPApi");
-                
-                string keyStr = GetKey(groupID, platform);
+            
+            // If item already exist
 
-                //TODO: Logger.Logger.Log("Site Map Get Instance :", "Key String is " + keyStr, "TVPApi");
-
-                //SiteMapManager retVal;
-                //if (m_dataCaching.TryGetData<SiteMapManager>(GetUniqueCacheKey(groupID.ToString()), out retVal))
-                //{
-                //    Logger.Logger.Log("Site Map Found in cache :", "Group ID " + keyStr, "TVPApi");
-                //    if (retVal != null && retVal is SiteMapManager)
-                //    {
-                //        return retVal;
-                //    }
-                //}
-                if (m_siteMapInstances == null)
+            if (m_SiteMapsLocker.TryEnterReadLock(1000))
+            {
+                try
                 {
-                    //TODO: Logger.Logger.Log("New Site Map :", "Key Str" + keyStr, "TVPApi");
-                    m_siteMapInstances = new Dictionary<string, SiteMap>();
+                    m_siteMapInstances.TryGetValue(keyStr, out tempMap);
                 }
-
-                //If this is the first time a group ID is used - initialize a new manager and all relevent objects
-
-                if (m_SiteMapslocker.TryEnterWriteLock(6000))
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        if (!m_siteMapInstances.ContainsKey(keyStr))
-                        {
-                            //TODO: Logger.Logger.Log("New Key Str :", "Key Str" + keyStr, "TVPApi");
-                            m_siteMapInstances.Add(keyStr, CreateSiteMap(groupID, platform));
-                        }
-                    }
-                    finally
-                    {
-                        m_SiteMapslocker.ExitWriteLock();
-                    }
+                    logger.Error("GetSiteMapInstance->", ex);
                 }
-                
-                
-                // If item alreadu exist
-
-                if (m_SiteMapslocker.TryEnterReadLock(6000))
+                finally
                 {
-                    try
-                    {
-                        m_siteMapInstances.TryGetValue(keyStr, out tempMap);
-                    }
-                    finally
-                    {
-                        m_SiteMapslocker.ExitReadLock();
-                    }
+                    m_SiteMapsLocker.ExitReadLock();
                 }
-                
-                
-                if (locale != null)
+            }
+            
+            
+            if (locale != null)
+            {
+                foreach (PageContext page in tempMap.GetPages())
                 {
-                    foreach (PageContext page in tempMap.GetPages())
-                    {
-                        page.SetLocaleGalleries(PageDataHelper.GetLocaleGalleries(page.GetGalleries(), locale));
-                    }
+                    page.SetLocaleGalleries(PageDataHelper.GetLocaleGalleries(page.GetGalleries(), locale));
                 }
+            }
 
             return tempMap;
         }
@@ -330,7 +364,8 @@ namespace TVPApi
 
                 foreach (KeyValuePair<string, Dictionary<long, List<MenuItem>>> menuLangPair in menues)
                 {
-                    //TODO: LogManager.Instance.Log(groupID, "SiteMapManager", "Adding " + menuLangPair.Key + " menues to site map");
+                    logger.InfoFormat("Add menu to site map->", menuLangPair.Key);
+                    
                     if (!m_siteMapInstances.ContainsKey(keyStr))
                     {
                         continue;
@@ -346,7 +381,6 @@ namespace TVPApi
                         
                         
                     }
-                   // LogManager.Instance.Log(groupID, "SiteMapManager", "Added " + m_siteMaps[menuLangPair.Key].Menues.Count + " menues to site map");
                 }
 
             }
@@ -356,7 +390,8 @@ namespace TVPApi
 
                 foreach (KeyValuePair<string, Dictionary<long, List<MenuItem>>> menuLangPair in footers)
                 {
-                    //TODO: LogManager.Instance.Log(groupID, "SiteMapManager", "Adding " + menuLangPair.Key + " menues to site map");
+                    logger.InfoFormat("Add footer menu to site map->", menuLangPair.Key);
+                    
                     if (!m_siteMapInstances.ContainsKey(menuLangPair.Key))
                     {
                         m_siteMapInstances.Add(menuLangPair.Key, new SiteMap());
@@ -372,7 +407,6 @@ namespace TVPApi
 
 
                     }
-                    //LogManager.Instance.Log(groupID, "SiteMapManager", "Added " + m_siteMaps[menuLangPair.Key].Menues.Count + " menues to site map");
                 }
 
             }

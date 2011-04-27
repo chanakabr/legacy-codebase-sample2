@@ -24,7 +24,7 @@ namespace TVPApi
 
             //Get the techinchal manager associated with the current request
 
-            string dbInstance = ConfigManager.GetInstance(m_groupID, m_Platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
+            string dbInstance = ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
             //Patchy - for now take all shared items (like favorites) from Web DB! (Waiting for service from Guy)
             if (m_isShared)
             {
@@ -32,10 +32,10 @@ namespace TVPApi
                 dbInstance = dbInstance.Substring(0, index - 1);
             }
             //return ConfigManager.GetInstance(groupID).TechnichalConfiguration.GenerateConnectionString();
-            return string.Concat("Driver={SQL Server};Server=", ConfigManager.GetInstance(m_groupID, m_Platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.IP,
+            return string.Concat("Driver={SQL Server};Server=", ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.IP,
             ";Database=", dbInstance,
-            ";Uid=", ConfigManager.GetInstance(m_groupID, m_Platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.User,
-            ";Pwd=", ConfigManager.GetInstance(m_groupID, m_Platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.Pass,
+            ";Uid=", ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.User,
+            ";Pwd=", ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.Pass,
             ";");
 
 

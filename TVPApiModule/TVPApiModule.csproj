@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,6 +12,25 @@
     <AssemblyName>TVPApiModule</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>http://localhost/TVPApiModule/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL" />
@@ -53,6 +74,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ApiPlatformServicesConfiguration.cs" />
+    <Compile Include="Configuration\ApiSiteConfiguration.cs" />
+    <Compile Include="Configuration\ApiMediaConfiguration.cs" />
     <Compile Include="Context\EnumManager.cs" />
     <Compile Include="DataLoaders\APIAutoCompleteLoader.cs" />
     <Compile Include="DataLoaders\APIChannelLoader.cs" />
@@ -76,7 +100,8 @@
     <Compile Include="Helper\PagingHelper.cs" />
     <Compile Include="Helper\ParserHelper.cs" />
     <Compile Include="Helper\ProfileHelper.cs" />
-    <Compile Include="Helper\SMSCenterSender.cs" />
+    <Compile Include="Helper\RssHelper.cs" />
+    <Compile Include="Helper\SessionHelper.cs" />
     <Compile Include="Helper\WSUtils.cs" />
     <Compile Include="Interfaces\IParser.cs" />
     <Compile Include="Manager\CategoryTreeBuilder.cs" />
@@ -84,6 +109,7 @@
     <Compile Include="Manager\ConnectionManager.cs" />
     <Compile Include="Manager\MenuBuilder.cs" />
     <Compile Include="Manager\SiteMapManager.cs" />
+    <Compile Include="Configuration\ApiTechnicalConfiguration.cs" />
     <Compile Include="Objects\Category.cs" />
     <Compile Include="Objects\Channel.cs" />
     <Compile Include="Objects\Comment.cs" />
@@ -108,6 +134,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Services\ConditionalAccessServiceEx.cs" />
+    <Compile Include="Services\PricingServiceEx.cs" />
     <Compile Include="Web References\ca\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -123,7 +151,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
-    <Compile Include="WS\SMSCenterWS.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libs\Core\ODBCWrapper\ODBCWrapper.csproj">
@@ -149,6 +176,10 @@
     <ProjectReference Include="..\..\..\Libs\Tvinci.Helpers\Tvinci.Helpers.csproj">
       <Project>{B76F07E3-91C2-44A7-B80B-EB60BFB07825}</Project>
       <Name>Tvinci.Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVM\Libs\Core\Logger\Logger.csproj">
+      <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
+      <Name>Logger %28Web Services\Logger%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Branch\Libs\TVPPro.Configuration\TVPPro.Configuration.csproj">
       <Project>{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}</Project>
@@ -292,7 +323,21 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="WS\SMSCenterWS_Help.txt" />
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:s1="http://pricing.tvinci.com/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://ca.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://pricing.tvinci.com/" xmlns:s2="http://ca.tvinci.com/AbstractTypes" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://ca.tvinci.com/">
       <s:import namespace="http://pricing.tvinci.com/" />
@@ -84,6 +84,30 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetLicensedLinkWithCoupon">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sBasicLink" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sRefferer" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="couponCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetLicensedLinkWithCouponResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetLicensedLinkWithCouponResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetUserPermittedSubscriptions">
         <s:complexType>
           <s:sequence>
@@ -118,6 +142,42 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_nSubscriptionPurchaseID" type="s:int" />
         </s:sequence>
       </s:complexType>
+      <s:element name="IsPermittedItem">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="mediaID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="IsPermittedItemResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="IsPermittedItemResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="IsPermittedSubscription">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="subID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="reason" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="IsPermittedSubscriptionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="IsPermittedSubscriptionResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="reason" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetUserBillingHistory">
         <s:complexType>
           <s:sequence>
@@ -742,8 +802,8 @@
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="ArrayOfPermittedSubscriptionContainer" nillable="true" type="tns:ArrayOfPermittedSubscriptionContainer" />
-      <s:element name="BillingTransactionsResponse" nillable="true" type="tns:BillingTransactionsResponse" />
       <s:element name="boolean" type="s:boolean" />
+      <s:element name="BillingTransactionsResponse" nillable="true" type="tns:BillingTransactionsResponse" />
       <s:element name="ArrayOfMediaFileItemPricesContainer" nillable="true" type="tns:ArrayOfMediaFileItemPricesContainer" />
       <s:element name="ArrayOfSubscriptionsPricesContainer" nillable="true" type="tns:ArrayOfSubscriptionsPricesContainer" />
       <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
@@ -776,6 +836,8 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionPriceCode" type="s1:PriceCode" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s1:ArrayOfLanguageContainer" />
               <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionUsageModule" type="s1:UsageModule" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_fictivicMediaID" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_Priority" type="s:long" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -911,11 +973,29 @@
   <wsdl:message name="GetLicensedLinkSoapOut">
     <wsdl:part name="parameters" element="tns:GetLicensedLinkResponse" />
   </wsdl:message>
+  <wsdl:message name="GetLicensedLinkWithCouponSoapIn">
+    <wsdl:part name="parameters" element="tns:GetLicensedLinkWithCoupon" />
+  </wsdl:message>
+  <wsdl:message name="GetLicensedLinkWithCouponSoapOut">
+    <wsdl:part name="parameters" element="tns:GetLicensedLinkWithCouponResponse" />
+  </wsdl:message>
   <wsdl:message name="GetUserPermittedSubscriptionsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedSubscriptions" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedSubscriptionsSoapOut">
     <wsdl:part name="parameters" element="tns:GetUserPermittedSubscriptionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IsPermittedItemSoapIn">
+    <wsdl:part name="parameters" element="tns:IsPermittedItem" />
+  </wsdl:message>
+  <wsdl:message name="IsPermittedItemSoapOut">
+    <wsdl:part name="parameters" element="tns:IsPermittedItemResponse" />
+  </wsdl:message>
+  <wsdl:message name="IsPermittedSubscriptionSoapIn">
+    <wsdl:part name="parameters" element="tns:IsPermittedSubscription" />
+  </wsdl:message>
+  <wsdl:message name="IsPermittedSubscriptionSoapOut">
+    <wsdl:part name="parameters" element="tns:IsPermittedSubscriptionResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserBillingHistorySoapIn">
     <wsdl:part name="parameters" element="tns:GetUserBillingHistory" />
@@ -1074,6 +1154,22 @@
   <wsdl:message name="GetLicensedLinkHttpPostOut">
     <wsdl:part name="Body" element="tns:string" />
   </wsdl:message>
+  <wsdl:message name="GetLicensedLinkWithCouponHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sBasicLink" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sRefferer" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="couponCode" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLicensedLinkWithCouponHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
   <wsdl:message name="GetUserPermittedSubscriptionsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1081,6 +1177,15 @@
   </wsdl:message>
   <wsdl:message name="GetUserPermittedSubscriptionsHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfPermittedSubscriptionContainer" />
+  </wsdl:message>
+  <wsdl:message name="IsPermittedItemHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="mediaID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="IsPermittedItemHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="GetUserBillingHistoryHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1369,9 +1474,21 @@
       <wsdl:input message="tns:GetLicensedLinkSoapIn" />
       <wsdl:output message="tns:GetLicensedLinkSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetLicensedLinkWithCoupon">
+      <wsdl:input message="tns:GetLicensedLinkWithCouponSoapIn" />
+      <wsdl:output message="tns:GetLicensedLinkWithCouponSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedSubscriptions">
       <wsdl:input message="tns:GetUserPermittedSubscriptionsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedSubscriptionsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedItem">
+      <wsdl:input message="tns:IsPermittedItemSoapIn" />
+      <wsdl:output message="tns:IsPermittedItemSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedSubscription">
+      <wsdl:input message="tns:IsPermittedSubscriptionSoapIn" />
+      <wsdl:output message="tns:IsPermittedSubscriptionSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserBillingHistory">
       <wsdl:input message="tns:GetUserBillingHistorySoapIn" />
@@ -1471,9 +1588,17 @@
       <wsdl:input message="tns:GetLicensedLinkHttpPostIn" />
       <wsdl:output message="tns:GetLicensedLinkHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetLicensedLinkWithCoupon">
+      <wsdl:input message="tns:GetLicensedLinkWithCouponHttpPostIn" />
+      <wsdl:output message="tns:GetLicensedLinkWithCouponHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedSubscriptions">
       <wsdl:input message="tns:GetUserPermittedSubscriptionsHttpPostIn" />
       <wsdl:output message="tns:GetUserPermittedSubscriptionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedItem">
+      <wsdl:input message="tns:IsPermittedItemHttpPostIn" />
+      <wsdl:output message="tns:IsPermittedItemHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserBillingHistory">
       <wsdl:input message="tns:GetUserBillingHistoryHttpPostIn" />
@@ -1581,8 +1706,35 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetLicensedLinkWithCoupon">
+      <soap:operation soapAction="http://ca.tvinci.com/GetLicensedLinkWithCoupon" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedSubscriptions">
       <soap:operation soapAction="http://ca.tvinci.com/GetUserPermittedSubscriptions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedItem">
+      <soap:operation soapAction="http://ca.tvinci.com/IsPermittedItem" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedSubscription">
+      <soap:operation soapAction="http://ca.tvinci.com/IsPermittedSubscription" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -1809,8 +1961,35 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetLicensedLinkWithCoupon">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetLicensedLinkWithCoupon" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedSubscriptions">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedSubscriptions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedItem">
+      <soap12:operation soapAction="http://ca.tvinci.com/IsPermittedItem" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedSubscription">
+      <soap12:operation soapAction="http://ca.tvinci.com/IsPermittedSubscription" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -2037,8 +2216,26 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetLicensedLinkWithCoupon">
+      <http:operation location="/GetLicensedLinkWithCoupon" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedSubscriptions">
       <http:operation location="/GetUserPermittedSubscriptions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedItem">
+      <http:operation location="/IsPermittedItem" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

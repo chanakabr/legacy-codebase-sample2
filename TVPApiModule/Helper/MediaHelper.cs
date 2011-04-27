@@ -12,6 +12,7 @@ using System.Text;
 using TVPPro.Configuration.Media;
 using TVPApiModule.users;
 using TVPApiModule.DataLoaders;
+using TVPApiModule.Services;
 
 /// <summary>
 /// Summary description for MediaHelper
@@ -45,7 +46,6 @@ namespace TVPApi
                 dsItemInfo.ItemRow row = mediaInfo.Item.Rows[0] as dsItemInfo.ItemRow;
                 if (row != null)
                 {
-                    //TODO: LogManager.Instance.Log(groupID, "MediaInfo", "Found row");
                     retVal = new Media(row, initObj, groupID, withDynamic);
                 }
             }
@@ -186,8 +186,8 @@ namespace TVPApi
         public static List<string> GetAutoCompleteList(int groupID, PlatformType platform, int subGroupID)
         {
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular);
-            string[] arrMetaNames = ConfigManager.GetInstance(groupID, platform.ToString()).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
-            string[] arrTagNames = ConfigManager.GetInstance(groupID, platform.ToString()).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
+            string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, platform.ToString()).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
+            string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, platform.ToString()).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
 
             CustomAutoCompleteLoader customAutoCompleteLoader = new APICustomAutoCompleteLoader(account.TVMUser, account.TVMPass) { MetaNames = arrMetaNames, TagNames = arrTagNames, Platform = platform, GroupID = groupID };
             List<String> lstResponse = new List<String>(customAutoCompleteLoader.Execute());
@@ -239,7 +239,8 @@ namespace TVPApi
 
         public static List<Media> GetRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, ref long mediaCount)
         {
-            TVMAccountType account; ;
+            TVMAccountType account;
+            
             if (mediaType != 0)
             {
                 account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
@@ -249,7 +250,8 @@ namespace TVPApi
                 account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
             }
 
-            return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.Related, ref mediaCount);
+            List<Media> lstMedia = GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.Related, ref mediaCount);
+            return lstMedia;
         }
 
         public static List<Media> GetRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, int subGroupID)
@@ -392,13 +394,13 @@ namespace TVPApi
                     }
                 case UserItemType.Rental:
                     {
-                        PermittedMediaContainer[] MediaPermitedItems = ConditionalAccessService.Instance.GetUserPermittedItems(guid);
+                        PermittedMediaContainer[] MediaPermitedItems = new ConditionalAccessServiceEx(groupID, initObj.Platform.ToString()).GetUserPermittedItems(guid);
                         mediaInfo = (new TVMRentalMultiMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, picSize, 1) {  MediasIdCotainer = MediaPermitedItems }).Execute();
                         break;
                     }
                 case UserItemType.Package:
                     {
-                        PermittedSubscriptionContainer[] PermitedPackages = ConditionalAccessService.Instance.GetUserPermitedSubscriptions(guid);
+                        PermittedSubscriptionContainer[] PermitedPackages = new ConditionalAccessServiceEx(groupID, initObj.Platform.ToString()).GetUserPermitedSubscriptions(guid);
                         if (PermitedPackages != null && PermitedPackages.Length > 0)
                         {
                             Dictionary<string, string> BaseIdsDict = new Dictionary<string, string>();

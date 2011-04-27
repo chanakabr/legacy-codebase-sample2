@@ -14,6 +14,8 @@ namespace TVPApi
 {
     public class ConnectionHelper
     {
+        private static readonly ILog logger = LogManager.GetLogger(typeof(ConnectionHelper));
+
         public ConnectionHelper()
         {
 
@@ -54,7 +56,7 @@ namespace TVPApi
             }
             catch (Exception ex)
             {
-                //TODO: Logger.Logger.Log("exception", ex.StackTrace + " sWSName: " + sWSName + " | sModuleName: " + sModuleName + " | sUN: " + sUN + " | sPass: " + sPass + " | sIP: " + sIP, "ws_utils");
+                logger.Error(string.Format("GetGroupID-> Params:[sWSName: {0}, sModuleName: {1}, sUN: {2}, sPass: {3}, sIP: {4}]", sWSName, sModuleName, sUN, sPass, sIP), ex);
             }
             return 0;
         }
@@ -120,7 +122,7 @@ namespace TVPApi
             {
                 //Get the techinchal manager associated with the current request
                 int groupID = (int)groupObj;
-                string dbInstance = ConfigManager.GetInstance(groupID, platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
+                string dbInstance = ConfigManager.GetInstance().GetConfig(groupID, platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
                 //Patchy - for now take all shared items (like favorites) from Web DB! (Waiting for service from Guy)
                 if (isShared)
                 {
@@ -128,10 +130,10 @@ namespace TVPApi
                     dbInstance = dbInstance.Substring(0, index - 1);
                 }
                 //return ConfigManager.GetInstance(groupID).TechnichalConfiguration.GenerateConnectionString();
-                return string.Concat("Driver={SQL Server};Server=", ConfigManager.GetInstance(groupID, platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.IP,
+                return string.Concat("Driver={SQL Server};Server=", ConfigManager.GetInstance().GetConfig(groupID, platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.IP,
                 ";Database=", dbInstance,
-                ";Uid=", ConfigManager.GetInstance(groupID, platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.User,
-                ";Pwd=", ConfigManager.GetInstance(groupID, platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.Pass,
+                ";Uid=", ConfigManager.GetInstance().GetConfig(groupID, platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.User,
+                ";Pwd=", ConfigManager.GetInstance().GetConfig(groupID, platform.ToString()).TechnichalConfiguration.Data.DBConfiguration.Pass,
                 ";");
             }
             else

@@ -13,11 +13,15 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Manager;
+using Logger;
+using log4net;
 
 namespace TVPApi
 {
     public class PageData
     {
+        private readonly ILog logger = LogManager.GetLogger(typeof(PageData));
+
         //static PageData()
         //{
         //    m_Instance = new PageData();
@@ -250,7 +254,7 @@ namespace TVPApi
         #region Private Methods
         public void Init(int groupID, PlatformType platfrom)
         {
-          //  m_Logger.Info("Started intializing page information");
+            logger.InfoFormat("Init-> [{0}, {1}] - Started intializing page information", groupID, platfrom.ToString());
 
             // Load pages dataset]
             try
@@ -261,13 +265,14 @@ namespace TVPApi
 
                 if (DataOnPage == null)
                 {
-                   // m_Logger.Error("Page data returned null");
+                    logger.ErrorFormat("Init-> [{0}, {1}] - Page data returned null", groupID, platfrom.ToString());
+                    
                     return;
                 }
             }
             catch (Exception ex)
             {
-               // m_Logger.Error("Failed retrieving page data information", ex);
+                logger.Error("Init-> Failed retrieving page data information", ex);
                 return;
             }
 
@@ -775,20 +780,21 @@ namespace TVPApi
             }
             catch (Exception ex)
             {
-                //TODO: Logger.Logger.Log("GetTVMAccountByGroupID", "GroupID :" + groupID.ToString(), "TVPApiExcpeions");
+                logger.Error(string.Format("GetTVMAccountByGroupID-> Params:[GroupID: {0}]", groupID), ex);
+
                 if (DataOnPage == null)
                 {
-                    //TODO: Logger.Logger.Log("GetTVMAccountByGroupID", "Data on Page is null - GroupID :" + groupID.ToString(), "TVPApiExcpeions");
+                    logger.Error(string.Format("GetTVMAccountByGroupID-> Params:[GroupID: {0}] - Data on Page is null", groupID), ex);
                 }
                 else
                 {
                     if (DataOnPage.TVMAccounts == null)
                     {
-                        //TODO: Logger.Logger.Log("GetTVMAccountByGroupID", "Accounts is null - GroupID :" + groupID.ToString(), "TVPApiExcpeions");
+                        logger.Error(string.Format("GetTVMAccountByGroupID-> Params:[GroupID: {0}] - Accounts is null", groupID), ex);
                     }
                     else
                     {
-                        //TODO: Logger.Logger.Log("GetTVMAccountByGroupID", DataOnPage.TVMAccounts.Count.ToString() + "Accounts - GroupID :" + groupID.ToString(), "TVPApiExcpeions");
+                        logger.Error(string.Format("GetTVMAccountByGroupID-> Params:[GroupID: {0}] - {1} Accounts", groupID, DataOnPage.TVMAccounts.Count), ex);
                     }
                 }
                 return new TVMAccountType();

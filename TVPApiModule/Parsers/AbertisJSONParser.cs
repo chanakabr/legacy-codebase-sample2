@@ -5,16 +5,17 @@ using System.Text;
 using System.Web.Script.Serialization;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Services;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using ODBCWrapper;
 using TVPPro.SiteManager.DataLoaders;
+using TVPApiModule.Services;
+using TVPPro.SiteManager.TvinciPlatform.Pricing;
 namespace TVPApi
 {
     public class AbertisJSONParser : IParser
     {
         #region IParser Members
 
-        public string Parse(object obj, int items, int index, int groupID, long totalItemsCount)
+        public string Parse(object obj, int items, int index, int groupID, long totalItemsCount, string platform)
         {
             object objToParse = null;
             if (obj is Category)
@@ -31,11 +32,11 @@ namespace TVPApi
             }
             if (obj is List<Media>)
             {
-                objToParse = ParseChannelToActivaChannel((List<Media>)obj, totalItemsCount);
+                objToParse = ParseChannelToActivaChannel((List<Media>)obj, totalItemsCount, groupID, platform);
             }
             if (obj is GalleryItem)
             {
-                objToParse = ParseGalleryItemToActivaChannel((GalleryItem)obj, items, index, groupID);
+                objToParse = ParseGalleryItemToActivaChannel((GalleryItem)obj, items, index, groupID, platform);
             }
             StringBuilder sb = new StringBuilder();
             JavaScriptSerializer jsSer = new JavaScriptSerializer();
@@ -135,7 +136,7 @@ namespace TVPApi
             return retVal;
         }
 
-        private ActivaChannel ParseGalleryItemToActivaChannel(GalleryItem item, int items, int index, int groupID)
+        private ActivaChannel ParseGalleryItemToActivaChannel(GalleryItem item, int items, int index, int groupID, string platform)
         {
             ActivaChannel retVal = new ActivaChannel();
             if (item != null)
@@ -145,7 +146,7 @@ namespace TVPApi
                 GetWSUserPass(groupID, ref wsUser, ref wsPass);
                 long mediaCount = 0;
                 List<Media> mediaList = MediaHelper.GetChannelMediaList(GetInitObj(), wsUser, wsPass, item.TVMChannelID, "full", items, index, groupID, ref mediaCount);
-                retVal = ParseChannelToActivaChannel(mediaList, mediaCount);
+                retVal = ParseChannelToActivaChannel(mediaList, mediaCount, groupID, platform);
                 retVal.sectionTitle = item.Title;
                 retVal.test = "TestVal";
                 //retVal.itemsCount = mediaCount;
@@ -154,11 +155,11 @@ namespace TVPApi
             return retVal;
         }
 
-        private ActivaChannel ParseChannelToActivaChannel(List<Media> medias, long totalItemsCount)
+        private ActivaChannel ParseChannelToActivaChannel(List<Media> medias, long totalItemsCount, int groupID, string platform)
         {
             ActivaChannel retVal = new ActivaChannel();
             retVal.itemsCount = totalItemsCount;
-            if (medias != null)
+            if (medias != null && medias.Count > 0)
             {
                 Dictionary<string, ActivaMedia> filesDict = new Dictionary<string, ActivaMedia>();
                 int[] filesArr = new int[medias.Count];
@@ -172,6 +173,7 @@ namespace TVPApi
                     activaMedia.assetDate = media.CreationDate.ToString("dd/MM/yyyy");
                     activaMedia.unique_ID = media.MediaID;
                     activaMedia.videoURL = media.URL;
+
                     if (!string.IsNullOrEmpty(activaMedia.videoURL))
                     {
                         activaMedia.videoHD = IsHD(activaMedia.videoURL);
@@ -182,9 +184,9 @@ namespace TVPApi
                     }
                     if (!string.IsNullOrEmpty(media.PicURL))
                     {
-                        activaMedia.assetSmallThumbnail = GetSizedImage(media.PicURL, "138X90");
-                        activaMedia.assetMedThumbnail = GetSizedImage(media.PicURL, "143X105"); ;
-                        activaMedia.assetBigThumbnail = GetSizedImage(media.PicURL, "824X460");
+                        activaMedia.assetSmallThumbnail = GetSizedImage(media.PicURL, "120X90"); //old "138X90"
+                        activaMedia.assetMedThumbnail = GetSizedImage(media.PicURL, "144X108"); //old "143X105"
+                        activaMedia.assetBigThumbnail = GetSizedImage(media.PicURL, "400X225"); //old 824X460
                     }
 
                     if (!string.IsNullOrEmpty(media.FileID) && media.FileID != "0")
@@ -224,7 +226,7 @@ namespace TVPApi
                         retVal.content.Add(activaMedia);
                     }
                 }
-                MediaFilePPVModule[] modules = PricingService.Instance.GetPPVModuleListForMediaFile(filesArr, string.Empty, string.Empty, string.Empty);
+                MediaFilePPVModule[] modules = new PricingServiceEx(groupID, platform).GetPPVModuleListForMediaFile(filesArr, string.Empty, string.Empty, string.Empty);
                 if (modules != null && modules.Length > 0)
                 {
                     foreach (MediaFilePPVModule module in modules)
@@ -327,7 +329,7 @@ namespace TVPApi
                                     innerRetVal.categoryItems.Add(retChannel);
                                 }
                             }
-                            SerializableDictionary<string, string> picsDict = new PicLoader(picsArr, "138X90", tvmUser, tvmPass) { PicsIDStr = sb.ToString(), PageSize = pg.GalleryItems.Count }.Execute();
+                            SerializableDictionary<string, string> picsDict = new PicLoader(picsArr, "120X90", tvmUser, tvmPass) { PicsIDStr = sb.ToString(), PageSize = pg.GalleryItems.Count }.Execute();
                             foreach (ActivaCategoryChannel gallItem in picGalleries)
                             {
                                 if (picsDict.ContainsKey(gallItem.smallThumbnail))

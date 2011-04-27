@@ -52,7 +52,7 @@ namespace TVPApi
            if (string.IsNullOrEmpty(BrandingFileFormat))
            {
                result.root.flashvars.file_quality = file_quality.high;
-               result.root.flashvars.file_format = ConfigManager.GetInstance(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+               result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
            }
            else // for brandig media
            {
@@ -70,7 +70,7 @@ namespace TVPApi
 
            result.root.request.@params.with_info = "true";
            result.root.flashvars.file_quality = file_quality.high;
-           result.root.flashvars.file_format = ConfigManager.GetInstance(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+           result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
            //result.root.flashvars.pic_size1_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
            //result.root.flashvars.pic_size1_quality = "HIGH";
            result.root.flashvars.pic_size1 = PicSize;
@@ -81,8 +81,8 @@ namespace TVPApi
            result.root.request.@params.info_struct.description.MakeSchemaCompliant();
            result.root.request.@params.info_struct.type.MakeSchemaCompliant();
 
-           string[] MetaNames = ConfigManager.GetInstance(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
-           string[] TagNames = ConfigManager.GetInstance(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+           string[] MetaNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+           string[] TagNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
 
            foreach (string meta in MetaNames)
            {

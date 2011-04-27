@@ -9,6 +9,8 @@ using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Services;
 using TVPApiModule.users;
 using System.Configuration;
+using TVPApiModule.Services;
+using log4net;
 
 /// <summary>
 /// Summary description for Media
@@ -20,6 +22,8 @@ namespace TVPApi
     public class Media
     {
         #region Properties
+
+        private readonly ILog logger = LogManager.GetLogger(typeof(Media));
 
         public string MediaID;
         public string MediaName;
@@ -147,14 +151,15 @@ namespace TVPApi
             BuildTagMetas(groupID, row, initObj.Platform.ToString());
             if (withDynamic && initObj.Locale != null)
             {
-                //TODO: LogManager.Instance.Log(groupID, "Media", "Start dynamic build");
+                logger.InfoFormat("Start Media dynamic build GroupID:", groupID);
+                
                 BuildDynamicObj(initObj.Locale.SiteGuid, initObj.Platform.ToString(), groupID);
             }
         }
 
         private void BuildTagMetas(int groupID, dsItemInfo.ItemRow row, string platform)
         {
-            string[] TagNames = ConfigManager.GetInstance(groupID, platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+            string[] TagNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
             System.Data.DataRow[] tagsRow = row.GetChildRows("Item_Tags");
             if (tagsRow != null && tagsRow.Length > 0)
             {
@@ -168,7 +173,7 @@ namespace TVPApi
                     }
                 }
             }
-            string[] MetaNames = ConfigManager.GetInstance(groupID, platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+            string[] MetaNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
             System.Data.DataRow[] metasRow = row.GetChildRows("Item_Metas");
             if (metasRow != null && metasRow.Length > 0)
             {
@@ -196,28 +201,26 @@ namespace TVPApi
         private void BuildDynamicObj(string guid, string platform, int groupID)
         {
             this.MediaDynamicData = new DynamicData();
-            //TODO: LogManager.Instance.Log(93, "Media", string.Format("GUID is {0}", guid));
-            PermittedMediaContainer[] MediaItems = TVPPro.SiteManager.Services.ConditionalAccessService.Instance.GetUserPermittedItems(guid, string.Format("conditionalaccess_{0}", groupID.ToString()), "11111");
+            
+            PermittedMediaContainer[] MediaItems = new ConditionalAccessServiceEx(groupID, platform).GetUserPermittedItems(guid, string.Format("conditionalaccess_{0}", groupID.ToString()), "11111");
             int mediID = int.Parse(MediaID);
             if (MediaItems != null)
             {
                 var ItemPermited = (from m in MediaItems where m.m_nMediaID == mediID select m).FirstOrDefault();
                 if (ItemPermited != null)
                 {
-                    //TODO: LogManager.Instance.Log(93, "Media", "Found purchased item");
                     MediaDynamicData.Price = "Free";
                     MediaDynamicData.PriceType = PriceReason.PPVPurchased;
                     if (ItemPermited.m_dEndDate != null)
                     {
                         MediaDynamicData.ExpirationDate = ItemPermited.m_dEndDate;
-                        //TODO: LogManager.Instance.Log(93, "Media", string.Format("ExpirationDate is {0}", ItemPermited.m_dEndDate));
                     }
                 }
                 else
                 {
                     string price;
                     PriceReason reason;
-                    GetPrice(out price, out reason, groupID, guid);
+                    GetPrice(out price, out reason, groupID, guid, platform);
                     MediaDynamicData.PriceType = reason;
                     MediaDynamicData.Price = price;
                 }
@@ -226,12 +229,12 @@ namespace TVPApi
             {
                 string price;
                 PriceReason reason;
-                GetPrice(out price, out reason, groupID, guid);
+                GetPrice(out price, out reason, groupID, guid, platform);
                 MediaDynamicData.PriceType = reason;
                 MediaDynamicData.Price = price;
 
             }
-            //TODO: LogManager.Instance.Log(93, "Media", "Try get is favorite");
+            
             if (!string.IsNullOrEmpty(guid))
             {
                 if (IsItemFavorite(int.Parse(MediaID), guid))
@@ -243,7 +246,7 @@ namespace TVPApi
                     MediaDynamicData.IsFavorite = false;
                 }
             }
-            //TODO: LogManager.Instance.Log(93, "Media", string.Format("IsItemInFavorite:{0}", MediaDynamicData.IsFavorite));
+
         }
 
         private bool IsItemFavorite(int mediaID, string userGuid)
@@ -266,7 +269,7 @@ namespace TVPApi
             return retVal;
         }
 
-        private void GetPrice(out string price, out PriceReason reason, int groupID, string userGuid)
+        private void GetPrice(out string price, out PriceReason reason, int groupID, string userGuid, string platform)
         {
             //string MediaPrice = string.Empty;
             price = "Free";
@@ -279,7 +282,7 @@ namespace TVPApi
                 MediasArray[0] = MediaFileID;
 
                 //Get media price from conditional access.
-                Dictionary<int, MediaFileItemPricesContainer> MediasPrices = ConditionalAccessService.Instance.GetItemsPrice(MediasArray,string.Format("conditionalaccess_{0}", groupID), "11111", userGuid, true);
+                Dictionary<int, MediaFileItemPricesContainer> MediasPrices = new ConditionalAccessServiceEx(groupID, platform).GetItemsPrice(MediasArray, string.Format("conditionalaccess_{0}", groupID), "11111", userGuid, true);
                 
                 if (MediasPrices != null && MediasPrices.ContainsKey(MediaFileID))
                 {
@@ -341,16 +344,14 @@ namespace TVPApi
 
         private PriceReason GetMediaPriceReason(PermittedMediaContainer[] MediaItems)
         {
-            //TODO: LogManager.Instance.Log(93, "Media", "Try get price reason");
             PriceReason retVal = PriceReason.UnKnown;
             if (!string.IsNullOrEmpty(FileID))
             {
-                //TODO: LogManager.Instance.Log(93, "Media", string.Format("File ID is:{0}", FileID));
                 int MediaFileID = int.Parse(FileID);
                 if (MediaFileID > 0)
                 {
                     string Reason = PriceHelper.GetItemPriceReason(MediaFileID);
-                    //TODO: LogManager.Instance.Log(93, "Media", string.Format("Reason is:{0}", Reason));
+
                     switch (Reason)
                     {
                         case "PPVPurchased":
