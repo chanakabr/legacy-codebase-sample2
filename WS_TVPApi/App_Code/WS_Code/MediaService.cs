@@ -8,6 +8,7 @@ using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
+using TVPApiModule.ca;
 
 namespace TVPApiServices
 {
@@ -554,9 +555,46 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "")]
         public List<Media> GetMediasByMostAction(InitializationObject initObj, string ws_User, string ws_Pass, TVPApi.ActionType action, int mediaType)
         {
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediasByMostAction", ws_User, ws_Pass, SiteHelper.GetClientIP());
+
             return null;
         }
 
+        #endregion
+
+        #region Purchase
+
+        [WebMethod(EnableSession = true, Description = "Check if item is purchased")]
+        public bool IsItemPurchased(InitializationObject initObj, string ws_User, string ws_Pass, int iFileID, string sUserGuid)
+        {
+            bool bRet = false;
+
+            return bRet;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get list of available subscriptions for a user")]
+        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string ws_User, string ws_Pass, string guid)
+        {
+            PermittedSubscriptionContainer[] permitedSubscriptions = null;
+
+            return permitedSubscriptions;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Perform a user purchase for file")]
+        public BillingResponse ChargeUserForMediaFile(InitializationObject initObj, string ws_User, string ws_Pass, string guid, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
+        {
+            BillingResponse response = null;
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
+        public BillingResponse ChargeUserForSubscription(InitializationObject initObj, string ws_User, string ws_Pass, string guid, double iPrice, string sCurrency, int iFileID, string sSubscriptionID, string sUserIP, string sCoupon)
+        {
+            BillingResponse response = null;
+
+            return response;
+        }
         #endregion
     }
 }

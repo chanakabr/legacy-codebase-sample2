@@ -8,6 +8,8 @@ using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
+using TVPApiModule.users;
+using TVPPro.SiteManager.Services;
 
 
 namespace TVPApiServices
@@ -356,7 +358,7 @@ namespace TVPApiServices
 
         #endregion
 
-        #region SignIn/Logout
+        #region User
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]
         public string SignIn(InitializationObject initObj, string ws_User, string ws_Pass, string userName, string password)
         {
@@ -384,6 +386,44 @@ namespace TVPApiServices
             }
 
             return sRet;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sign-Up a new user")]
+        public UserResponseObject SignUp(InitializationObject initObj, string ws_User, string ws_Pass, UserBasicData userBasicData, UserDynamicData userDynamicData)
+        {
+            UserResponseObject response = new UserResponseObject();
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sign-Out a user")]
+        public void SignOut(InitializationObject initObj, string ws_User, string ws_Pass, string sSiteGuid)
+        {
+            
+        }
+
+        [WebMethod(EnableSession = true, Description = "Check if user is signed in")]
+        public bool IsUserSignedIn(InitializationObject initObj, string ws_User, string ws_Pass, string userName)
+        {
+            bool bRet = false;
+
+            return bRet;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Edit user details info")]
+        public UserResponseObject SetUserData(InitializationObject initObj, string ws_User, string ws_Pass, UserBasicData userBasicData, UserDynamicData userDynamicData)
+        {
+            UserResponseObject response = new UserResponseObject();
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Link device to existing using in domain")]
+        public bool RegisterDevice(InitializationObject initObj, string ws_User, string ws_Pass, string sDomainID, string sUserGUID, string sDeviceGUID)
+        {
+            bool response = new bool();
+
+            return response;
         }
         #endregion
     }

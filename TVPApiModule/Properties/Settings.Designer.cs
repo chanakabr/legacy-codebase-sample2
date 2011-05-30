@@ -36,20 +36,20 @@ namespace TVPApiModule.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/tvapi.asmx")]
-        public string TVPApiModule_tvapi_tvapi {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/users/module.asmx")]
+        public string TVPApiModule_users_UsersService {
             get {
-                return ((string)(this["TVPApiModule_tvapi_tvapi"]));
+                return ((string)(this["TVPApiModule_users_UsersService"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/users/module.asmx")]
-        public string TVPApiModule_users_UsersService {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/tvapi.asmx")]
+        public string TVPApiModule_tvapi_tvapi {
             get {
-                return ((string)(this["TVPApiModule_users_UsersService"]));
+                return ((string)(this["TVPApiModule_tvapi_tvapi"]));
             }
         }
     }

@@ -31,6 +31,7 @@ public class PagingHelper
                 itemsToTake = origDT.Count() - startIndex;
             }
         }
+
         if (itemsToTake > 0)
         {
             // take pages results

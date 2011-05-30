@@ -59,6 +59,8 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -266,7 +268,6 @@
     <None Include="Web References\ca\UserCAStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\tvapi\tvapi.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\tvapi\CategoryObject.datasource">
@@ -294,7 +295,7 @@
     <None Include="Web References\tvapi\TagResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\tvapi\tvapi.disco" />
+    <None Include="Web References\tvapi\tvapi.wsdl" />
     <None Include="Web References\tvapi\UserComment.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -338,6 +339,9 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\tvapi\tvapi.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
