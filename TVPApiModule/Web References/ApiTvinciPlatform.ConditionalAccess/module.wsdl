@@ -678,6 +678,32 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="AD_GetCustomDataID">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dPrice" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCurrencyCode3" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPPVModuleCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCouponCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPaymentMethod" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ppvOrSub" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AD_GetCustomDataIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AD_GetCustomDataIDResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="PU_GetSubscriptionPopupPaymentMethodURL">
         <s:complexType>
           <s:sequence>
@@ -807,6 +833,7 @@
       <s:element name="ArrayOfMediaFileItemPricesContainer" nillable="true" type="tns:ArrayOfMediaFileItemPricesContainer" />
       <s:element name="ArrayOfSubscriptionsPricesContainer" nillable="true" type="tns:ArrayOfSubscriptionsPricesContainer" />
       <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
+      <s:element name="int" type="s:int" />
     </s:schema>
     <s:schema elementFormDefault="qualified" targetNamespace="http://pricing.tvinci.com/">
       <s:complexType name="Price">
@@ -1092,6 +1119,12 @@
   </wsdl:message>
   <wsdl:message name="PU_GetPPVPopupPaymentMethodURLSoapOut">
     <wsdl:part name="parameters" element="tns:PU_GetPPVPopupPaymentMethodURLResponse" />
+  </wsdl:message>
+  <wsdl:message name="AD_GetCustomDataIDSoapIn">
+    <wsdl:part name="parameters" element="tns:AD_GetCustomDataID" />
+  </wsdl:message>
+  <wsdl:message name="AD_GetCustomDataIDSoapOut">
+    <wsdl:part name="parameters" element="tns:AD_GetCustomDataIDResponse" />
   </wsdl:message>
   <wsdl:message name="PU_GetSubscriptionPopupPaymentMethodURLSoapIn">
     <wsdl:part name="parameters" element="tns:PU_GetSubscriptionPopupPaymentMethodURL" />
@@ -1381,6 +1414,24 @@
   <wsdl:message name="PU_GetPPVPopupPaymentMethodURLHttpPostOut">
     <wsdl:part name="Body" element="tns:BillingResponse" />
   </wsdl:message>
+  <wsdl:message name="AD_GetCustomDataIDHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="assetID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sPaymentMethod" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="ppvOrSub" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AD_GetCustomDataIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
   <wsdl:message name="PU_GetSubscriptionPopupPaymentMethodURLHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1554,6 +1605,10 @@
       <wsdl:input message="tns:PU_GetPPVPopupPaymentMethodURLSoapIn" />
       <wsdl:output message="tns:PU_GetPPVPopupPaymentMethodURLSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="AD_GetCustomDataID">
+      <wsdl:input message="tns:AD_GetCustomDataIDSoapIn" />
+      <wsdl:output message="tns:AD_GetCustomDataIDSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="PU_GetSubscriptionPopupPaymentMethodURL">
       <wsdl:input message="tns:PU_GetSubscriptionPopupPaymentMethodURLSoapIn" />
       <wsdl:output message="tns:PU_GetSubscriptionPopupPaymentMethodURLSoapOut" />
@@ -1655,6 +1710,10 @@
     <wsdl:operation name="PU_GetPPVPopupPaymentMethodURL">
       <wsdl:input message="tns:PU_GetPPVPopupPaymentMethodURLHttpPostIn" />
       <wsdl:output message="tns:PU_GetPPVPopupPaymentMethodURLHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AD_GetCustomDataID">
+      <wsdl:input message="tns:AD_GetCustomDataIDHttpPostIn" />
+      <wsdl:output message="tns:AD_GetCustomDataIDHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="PU_GetSubscriptionPopupPaymentMethodURL">
       <wsdl:input message="tns:PU_GetSubscriptionPopupPaymentMethodURLHttpPostIn" />
@@ -1879,6 +1938,15 @@
     </wsdl:operation>
     <wsdl:operation name="PU_GetPPVPopupPaymentMethodURL">
       <soap:operation soapAction="http://ca.tvinci.com/PU_GetPPVPopupPaymentMethodURL" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AD_GetCustomDataID">
+      <soap:operation soapAction="http://ca.tvinci.com/AD_GetCustomDataID" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2141,6 +2209,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="AD_GetCustomDataID">
+      <soap12:operation soapAction="http://ca.tvinci.com/AD_GetCustomDataID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="PU_GetSubscriptionPopupPaymentMethodURL">
       <soap12:operation soapAction="http://ca.tvinci.com/PU_GetSubscriptionPopupPaymentMethodURL" style="document" />
       <wsdl:input>
@@ -2362,6 +2439,15 @@
     </wsdl:operation>
     <wsdl:operation name="PU_GetPPVPopupPaymentMethodURL">
       <http:operation location="/PU_GetPPVPopupPaymentMethodURL" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AD_GetCustomDataID">
+      <http:operation location="/AD_GetCustomDataID" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

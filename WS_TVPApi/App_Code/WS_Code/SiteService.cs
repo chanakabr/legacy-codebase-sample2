@@ -8,8 +8,7 @@ using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
-using TVPApiModule.users;
-using TVPPro.SiteManager.Services;
+using TVPApiModule.ApiTvinciPlatform.Users;
 
 
 namespace TVPApiServices
@@ -31,11 +30,11 @@ namespace TVPApiServices
 
         //Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map
         [WebMethod(EnableSession=true, Description="Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map")]
-        public SiteMap GetSiteMap(InitializationObject initObj, string ws_User, string ws_Pass)
+        public SiteMap GetSiteMap(InitializationObject initObj)
         {
             SiteMap retSiteMap = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSiteMap", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSiteMap", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetSiteMap-> [{0}, {1}]", groupID, initObj.Platform);
 
@@ -52,7 +51,7 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetSiteMap-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetSiteMap-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return retSiteMap;
@@ -64,11 +63,11 @@ namespace TVPApiServices
 
         //Get specific page from site map
         [WebMethod(EnableSession = true, Description = "Get specific page from site map")]
-        public PageContext GetPage(InitializationObject initObj, string ws_User, string ws_Pass, long ID, bool withMenu, bool withFooter)
+        public PageContext GetPage(InitializationObject initObj, long ID, bool withMenu, bool withFooter)
         {
             PageContext retPageContext = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
             logger.InfoFormat("GetPage-> [{0}, {1}], Params:[ID: {2}, withMenu: {3}, withFooter: {4}]", groupID, initObj.Platform, ID, withMenu, withFooter);
 
@@ -86,7 +85,7 @@ namespace TVPApiServices
             else
             {
                 //TODO: Logger.Logger.Log("GetPage", "Unknown group " + "Username : " + ws_User + " Password :" + ws_Pass, "TVPApiExcpeions");
-                logger.ErrorFormat("GetPage-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetPage-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return retPageContext;
@@ -94,11 +93,11 @@ namespace TVPApiServices
 
         //Get specific page from site map
         [WebMethod(EnableSession = true, Description = "Get specific page from site map")]
-        public PageContext GetPageByToken(InitializationObject initObj, string ws_User, string ws_Pass, Pages token, bool withMenu, bool withFooter)
+        public PageContext GetPageByToken(InitializationObject initObj, Pages token, bool withMenu, bool withFooter)
         {
             PageContext retPageContext = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetPageByToken-> [{0}, {1}], Params:[token: {2}, withMenu: {3}, withFooter: {4}]", groupID, initObj.Platform, token, withMenu, withFooter);
 
@@ -115,18 +114,18 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetPageByToken-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetPageByToken-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return retPageContext;
         }
 
         [WebMethod(EnableSession = true, Description = "Get site menu")]
-        public Menu GetMenu(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
+        public Menu GetMenu(InitializationObject initObj, long ID)
         {
             Menu retMenu = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMenu", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMenu", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetMenu-> [{0}, {1}], Params:[ID: {2}]", groupID, initObj.Platform, ID);
 
@@ -144,18 +143,18 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetMenu-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetMenu-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return retMenu;
         }
 
         [WebMethod(EnableSession = true, Description = "Get site footer menu")]
-        public Menu GetFooter(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
+        public Menu GetFooter(InitializationObject initObj, long ID)
         {
             Menu retMenu = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetFooter", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetFooter", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetFooter-> [{0}, {1}], Params:[ID: {2}]", groupID, initObj.Platform, ID);
 
@@ -172,18 +171,18 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetFooter-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetFooter-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return retMenu;
         }
 
         [WebMethod(EnableSession = true, Description = "Get site side galleries")]
-        public Profile GetSideProfile(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
+        public Profile GetSideProfile(InitializationObject initObj, long ID)
         {
             Profile retProfile = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSideProfile", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSideProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetSideProfile-> [{0}, {1}], Params:[ID: {2}]", groupID, initObj.Platform, ID);
             
@@ -200,7 +199,7 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetSideProfile-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetSideProfile-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return retProfile;
@@ -208,11 +207,11 @@ namespace TVPApiServices
 
         //Get full bottom profile from site map
         [WebMethod(EnableSession = true, Description = "Get full bottom profile from site map")]
-        public Profile GetBottomProfile(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
+        public Profile GetBottomProfile(InitializationObject initObj, long ID)
         {
             Profile retProfile = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBottomProfile", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBottomProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
             logger.InfoFormat("GetBottomProfile-> [{0}, {1}], Params:[ID: {2}]", groupID, initObj.Platform, ID);
 
@@ -229,7 +228,7 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetBottomProfile-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetBottomProfile-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return retProfile;
@@ -240,11 +239,11 @@ namespace TVPApiServices
 
         //Get all page galleries from site map
         [WebMethod(EnableSession = true, Description = "Get all page galleries from site map")]
-        public List<PageGallery> GetPageGalleries(InitializationObject initObj, string ws_User, string ws_Pass, long PageID, int pageSize, int start_index)
+        public List<PageGallery> GetPageGalleries(InitializationObject initObj, long PageID, int pageSize, int start_index)
         {
             List<PageGallery> lstPageGallery = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetPageByToken-> [{0}, {1}], Params:[PageID: {2}, pageSize: {3}, start_index: {4}]", groupID, initObj.Platform, PageID, pageSize, start_index);
 
@@ -261,7 +260,7 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetPageGalleries-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetPageGalleries-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return lstPageGallery;
@@ -269,11 +268,11 @@ namespace TVPApiServices
 
         //Get all page galleries from site map
         [WebMethod(EnableSession = true, Description = "Get all page galleries from site map")]
-        public PageGallery GetGallery(InitializationObject initObj, string ws_User, string ws_Pass, long galleryID, long PageID)
+        public PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID)
         {
             PageGallery retPageGallery = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
             logger.InfoFormat("GetGallery-> [{0}, {1}], Params:[galleryID: {2}, PageID: {3}]", groupID, initObj.Platform, PageID, galleryID, PageID);
 
@@ -291,7 +290,7 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetGallery-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetGallery-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return retPageGallery;
@@ -299,11 +298,11 @@ namespace TVPApiServices
 
         //Get all gallery items for a specific gallery
         [WebMethod(EnableSession = true, Description = "Get all gallery items for a specific gallery")]
-        public List<GalleryItem> GetGalleryContent(InitializationObject initObj, string ws_User, string ws_Pass, long ID, long PageID, string picSize, int pageSize, int start_index)
+        public List<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index)
         {
             List<GalleryItem> lstGalleryItem = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetGalleryContent-> [{0}, {1}], Params:[ID: {2}, PageID: {3}, picSize: {4}, pageSize: {5}, start_index: {6}]", groupID, initObj.Platform, ID, PageID, picSize, pageSize, start_index);
 
@@ -320,7 +319,7 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetGalleryContent-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetGalleryContent-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return lstGalleryItem;
@@ -329,11 +328,11 @@ namespace TVPApiServices
 
         //Get content from specific gallery items
         [WebMethod(EnableSession = true, Description = "Get content from specific gallery items")]
-        public List<Media> GetGalleryItemContent(InitializationObject initObj, string ws_User, string ws_Pass, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex)
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetGalleryItemContent-> [{0}, {1}], Params:[ItemID: {2}, GalleryID: {3}, PageID: {4}, picSize: {5}, pageSize: {6}, pageIndex: {7}]", groupID, initObj.Platform, ItemID, GalleryID, PageID, picSize, pageSize, pageIndex);
 
@@ -350,7 +349,7 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetGalleryItemContent-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("GetGalleryItemContent-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return lstMedia;
@@ -360,11 +359,11 @@ namespace TVPApiServices
 
         #region User
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]
-        public string SignIn(InitializationObject initObj, string ws_User, string ws_Pass, string userName, string password)
+        public string SignIn(InitializationObject initObj, string userName, string password)
         {
             string sRet = string.Empty;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", ws_User, ws_Pass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
             logger.InfoFormat("SignIn-> [{0}, {1}], Params:[userName: {2}, password: {3}]", groupID, initObj.Platform, userName, password);
 
@@ -382,14 +381,14 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("SignIn-> 'Unknown group' Username: {0}, Password: {1}", ws_User, ws_Pass);
+                logger.ErrorFormat("SignIn-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return sRet;
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-Up a new user")]
-        public UserResponseObject SignUp(InitializationObject initObj, string ws_User, string ws_Pass, UserBasicData userBasicData, UserDynamicData userDynamicData)
+        public UserResponseObject SignUp(InitializationObject initObj, UserBasicData userBasicData, UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -397,13 +396,13 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-Out a user")]
-        public void SignOut(InitializationObject initObj, string ws_User, string ws_Pass, string sSiteGuid)
+        public void SignOut(InitializationObject initObj, string sSiteGuid)
         {
             
         }
 
         [WebMethod(EnableSession = true, Description = "Check if user is signed in")]
-        public bool IsUserSignedIn(InitializationObject initObj, string ws_User, string ws_Pass, string userName)
+        public bool IsUserSignedIn(InitializationObject initObj, string userName)
         {
             bool bRet = false;
 
@@ -411,7 +410,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Edit user details info")]
-        public UserResponseObject SetUserData(InitializationObject initObj, string ws_User, string ws_Pass, UserBasicData userBasicData, UserDynamicData userDynamicData)
+        public UserResponseObject SetUserData(InitializationObject initObj, UserBasicData userBasicData, UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -419,7 +418,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Link device to existing using in domain")]
-        public bool RegisterDevice(InitializationObject initObj, string ws_User, string ws_Pass, string sDomainID, string sUserGUID, string sDeviceGUID)
+        public bool RegisterDevice(InitializationObject initObj, string sDomainID, string sUserGUID, string sDeviceGUID)
         {
             bool response = new bool();
 

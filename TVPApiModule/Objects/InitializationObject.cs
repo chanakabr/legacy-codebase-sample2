@@ -34,6 +34,7 @@ namespace TVPApi
 
         }
 
-
+        public string ApiUser { get; set; }
+        public string ApiPass { get; set; }
     }
 }

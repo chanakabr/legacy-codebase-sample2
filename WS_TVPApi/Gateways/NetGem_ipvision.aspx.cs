@@ -1,30 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using System.IO;
-using TVPApi;
-using System.Web.Script.Serialization;
+using System.Linq;
 using System.Text;
-using Logger;
-using Tvinci.Data.DataLoader;
+using System.Web.Script.Serialization;
 using System.Xml;
-using TVPPro.SiteManager.Helper;
-using System.Net;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.SiteManager.Services;
-using TVPPro.SiteManager.DataLoaders;
-using TVPPro.SiteManager.DataEntities;
-using System.Data;
-using TVPPro.SiteManager.Context;
-using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.Users;
+using Tvinci.Data.DataLoader;
+using TVPApi;
 using TVPApiModule.DataLoaders;
-using TVPApiModule;
+using TVPApiModule.Services;
+using TVPPro.SiteManager.DataEntities;
+using TVPPro.SiteManager.Helper;
+using TVPApiModule.ApiTvinciPlatform.Users;
+using TVPApiModule.ApiTvinciPlatform.ConditionalAccess;
 
-public partial class Gateways_NetGem : BaseGateway
+public partial class Gateways_NetGem_ipvision : BaseGateway
 {
     static ILoaderCache m_dataCaching = LoaderCacheLite.Current;
     static int counter = 0;
@@ -33,8 +23,8 @@ public partial class Gateways_NetGem : BaseGateway
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        Logger.Logger.Log("Netgem Request ", Request.Url.ToString(), "TVPApi");
-
+        Logger.Logger.Log("Netgem IPVision Request ", Request.Url.ToString(), "TVPApi");
+        
         Service tvpapiService = new Service();
         long itemsCount = 0;
         string retVal = string.Empty;
@@ -46,7 +36,7 @@ public partial class Gateways_NetGem : BaseGateway
         string wsUser = string.Empty;
         string wsPass = string.Empty;
 
-        broadcasterName = "novetest";
+        broadcasterName = "ipvision";
         int groupID = GetGroupIDByBroadcasterName(broadcasterName, ref wsUser, ref wsPass);
         int nIndex = 0;
         if (!string.IsNullOrEmpty(index))
@@ -212,7 +202,7 @@ public partial class Gateways_NetGem : BaseGateway
 
         PageData pd = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB);
 
-        PageContext pc = pd.GetPageByID("es", 69); //
+        PageContext pc = pd.GetPageByID("en", 64); //
 
         DateTime objUTC = DateTime.Now.ToUniversalTime();
         long epoch = (objUTC.Ticks - 62135596800000000) / 10000;
@@ -223,14 +213,9 @@ public partial class Gateways_NetGem : BaseGateway
         switch (sType)
         {
             case "account":
-                ///XXX: Fix
-                if (Request.QueryString["identity"] == "00043047454B")
-                {
-                    Response.Redirect(string.Concat("~/gateways/netgem_ipvision.aspx", Request.Url.Query), true);
-                }
-                //bool bLoginSuccess = new UsersServiceEx(groupID, PlatformType.STB.ToString()).SignIn("idow@gmail.com", "eliron27");
+                
 
-                string sSiteGuid = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
+                string sSiteGuid = string.Empty;//new UsersService(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
 
                 XTM.WriteStartElement("account");
                 XTM.WriteStartElement("information");
@@ -252,7 +237,7 @@ public partial class Gateways_NetGem : BaseGateway
                 XTM.WriteEndElement(); // information
 
                 PermittedMediaContainer[] MediaPermitedItems = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetUserPermittedItems(sSiteGuid);
-
+                
                 XTM.WriteStartElement("streams");
                 if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
                 {
@@ -269,11 +254,11 @@ public partial class Gateways_NetGem : BaseGateway
 
                         int iFileID = int.Parse(ItemInfo.Item[i].FileID);
 
-                        Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrices = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetItemsPrice(new int[] { iFileID }, "conditionalaccess_125", wsPass, sSiteGuid, false);
+                        Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrices = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetItemsPrice(new int[] { iFileID }, "conditionalaccess_125", wsPass, sSiteGuid, true);
 
                         if (dictPrices != null && dictPrices.Keys.Contains(iFileID) && dictPrices[iFileID].m_oItemPrices != null && dictPrices[iFileID].m_oItemPrices.Length > 0)
                         {
-                            XTM.WriteElementString("price", dictPrices[iFileID].m_oItemPrices[0].m_oPrice.m_dPrice.ToString());
+                            XTM.WriteElementString("price", dictPrices[iFileID].m_oItemPrices[0].m_oFullPrice.m_dPrice.ToString());
                             XTM.WriteElementString("realprice", dictPrices[iFileID].m_oItemPrices[0].m_oFullPrice.m_dPrice.ToString());
                         }
                         else
@@ -294,17 +279,152 @@ public partial class Gateways_NetGem : BaseGateway
 
                 break;
             case "content":
-                try
+
+                string sMediaID = titId.Split('-')[0];
+                string sMediaType = (titId.Contains('-')) ? titId.Split('-')[1] : "272";               
+
+                Media media = tvpapiService.GetMediaInfo(GetInitObj(), wsUser, wsPass, long.Parse(sMediaID), int.Parse(sMediaType), "480X430", true);
+
+                if (media != null)
                 {
-                    RedirectGWToChannel(titId.Split('-')[2]);
+                    XTM.WriteStartElement("content");
+                    //XTM.WriteElementString("synopsis", media.Description);
+                    XTM.WriteStartElement("synopsis");
+                    XTM.WriteCData(media.Description.Replace(@"<\p>", " "));
+                    XTM.WriteEndElement();
+                    XTM.WriteElementString("title", media.MediaName.Replace('(', ' ').Replace(')', ' '));
+                    XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
+
+                    XTM.WriteElementString("censorshipRating", string.Format("{0:0}", media.Rating));
+                    XTM.WriteElementString("copyrightStudio", (from meta in media.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault());
+                    XTM.WriteElementString("adult", "false");
+                    XTM.WriteElementString("yearProd", (from meta in media.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault());
+
+                    XTM.WriteElementString("titID", media.MediaID + "-" + media.MediaTypeID + "-" + (int) eChannels.Ipvision);
+                    XTM.WriteElementString("HD", "true"); //<---
+
+                    XTM.WriteStartElement("nationalityNames");
+                    string countires = (from tag in media.Tags where tag.Key.Equals("Country") select tag.Value).FirstOrDefault();
+                    if (countires != null)
+                    {
+                        foreach (string country in countires.Split('-'))
+                        {
+                            XTM.WriteElementString("element", country);
+                        }
+                    }
+                    XTM.WriteEndElement();
+                    
+                    XTM.WriteStartElement("actors");
+                    string actors = (from tag in media.Tags where tag.Key.Equals("Cast") select tag.Value).FirstOrDefault();
+                    if (actors != null)
+                    {
+                        foreach (string actor in actors.Split('|'))
+                        {
+                            XTM.WriteStartElement("xml-link");
+                            XTM.WriteElementString("title", actor);
+                            XTM.WriteElementString("url", "");
+                            XTM.WriteEndElement();
+                        }
+                    }
+                    XTM.WriteEndElement();
+
+                    XTM.WriteStartElement("directors");
+                    string directors = (from tag in media.Tags where tag.Key.Equals("Director") select tag.Value).FirstOrDefault();
+                    if (directors != null)
+                    {
+                        foreach (string director in directors.Split('-'))
+                        {
+                            XTM.WriteStartElement("xml-link");
+                            XTM.WriteElementString("title", director);
+                            XTM.WriteElementString("url", "");
+                            XTM.WriteEndElement();
+                        }
+                    }
+                    XTM.WriteEndElement();
+
+                    #region DTRProduct
+                    XTM.WriteStartElement("DTRProduct");
+                    XTM.WriteStartElement("contentFile");
+
+                    if (!String.IsNullOrEmpty(media.URL))
+                        XTM.WriteElementString("URL", string.Concat(media.URL, "?bla=", counter++));
+                    else
+                        XTM.WriteElementString("URL", string.Concat("http://mystika.tvinci.cdngc.net/Ipvision/trailer.wmv", "?bla=", counter++));
+
+                    //if (media.URL.StartsWith("http://"))                   
+                    //    XTM.WriteElementString("URL", media.URL);
+                    //else 
+                    //    //XXX:  Change
+                    //    XTM.WriteElementString("URL", media.URL); 
+              
+                    XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
+                    XTM.WriteEndElement();
+
+                    //XTM.WriteElementString("title", media.MediaName);
+
+                    //if (TVPPro.SiteManager.Services.UsersService.Instance.GetUserID() == 0)
+                    {
+                        // new UsersServiceEx(groupID, PlatformType.STB.ToString().ToLower()).SignIn("idow@gmail.com", "eliron27");
+                    }
+
+                    int iFileId = int.Parse(media.FileID);
+                    string tmpSiteGuid = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
+                    Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrice = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetItemsPrice(new int[] { iFileId }, "conditionalaccess_125", wsPass, tmpSiteGuid, true);
+                    //Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrice = null;
+
+                    if (dictPrice != null && dictPrice.Keys.Contains(iFileId) && dictPrice[iFileId].m_oItemPrices != null && dictPrice[iFileId].m_oItemPrices.Length > 0)
+                    {
+                        //string response = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).DummyChargeUserForMediaFileEx(dictPrice[iFileId].m_oItemPrices[0].m_oPrice.m_dPrice, dictPrice[iFileId].m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, iFileId, dictPrice[iFileId].m_oItemPrices[0].m_sPPVModuleCode, SiteHelper.GetClientIP(), tmpSiteGuid);
+
+                        string sEndTime = string.Empty;
+
+                        TVPPro.SiteManager.TvinciPlatform.Pricing.MediaFilePPVModule[] ppvmodules = new PricingServiceEx(groupID, PlatformType.STB.ToString()).GetPPVModuleListForMediaFile(new int[] { iFileId }, string.Empty, string.Empty, string.Empty);
+                        if (ppvmodules != null && ppvmodules.Length > 0)
+                        {
+                            sEndTime = DateTime.Now.AddMinutes(ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle).ToString("dd/MM/yyyy HH:mm:ss");
+                        }
+
+                        XTM.WriteElementString("licenceDuration", (ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle/60).ToString());
+                        XTM.WriteElementString("licenceDurationUnit", "H");
+
+                        XTM.WriteStartElement("price");
+                        XTM.WriteElementString("price", string.Format("{0:0.00}", dictPrice[iFileId].m_oItemPrices[0].m_oFullPrice.m_dPrice));
+
+                        XTM.WriteEndElement();
+                        XTM.WriteElementString("endDate", sEndTime);
+                        XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-" + dictPrice[iFileId].m_oItemPrices[0].m_sPPVModuleCode + "-" + dictPrice[iFileId].m_oItemPrices[0].m_oPrice.m_dPrice + "-" + (int) eChannels.Ipvision);
+                    }
+                    else
+                    {
+                        XTM.WriteElementString("licenseDuration", "UL");
+                        XTM.WriteElementString("licenseDurationUnit", "h");
+
+                        XTM.WriteStartElement("price");
+                        XTM.WriteElementString("price", "FREE");
+                        XTM.WriteEndElement();
+
+                        XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-0-FREE-" + (int) eChannels.Ipvision);
+                        XTM.WriteElementString("endDate", "06/06/2011 00:00:00");
+                    }
+                    XTM.WriteEndElement();
+
+                    #endregion
+
+                    XTM.WriteStartElement("trailerContentFileList");
+                    XTM.WriteStartElement("element");
+                    XTM.WriteElementString("URL", "http://mystika.tvinci.cdngc.net/Ipvision/trailer.wmv");
+                    XTM.WriteElementString("encodingType", "");
+
+                    XTM.WriteEndElement();
+                    XTM.WriteEndElement();
+
+                    XTM.WriteElementString("mediumImageRelativePath", media.PicURL.Replace("http://", string.Empty));
+                    XTM.WriteElementString("mediumImageAbsolutePath", media.PicURL);
+                    XTM.WriteEndDocument();
                 }
-                catch (Exception)
-                {
-                    //ignore cached items
-                }
+
                 break;
             case "purchase":
-                // XXX: make this "smart" against the DMS
                 XTM.WriteStartElement("purchase");
                 XTM.WriteElementString("state", "authentication");
                 XTM.WriteElementString("challenge", "b252eb9a533c8ae37a462a267e1f2fa9");
@@ -312,7 +432,39 @@ public partial class Gateways_NetGem : BaseGateway
                 XTM.WriteEndDocument();
                 break;
             case "purchasestatus":
-                RedirectGWToChannel(Request["vtiId"].Split('-')[4]);
+                XTM.WriteStartElement("purchase");
+                try
+                {
+                    string vtiId = Request["vtiId"];
+                    if (!string.IsNullOrEmpty(vtiId) && vtiId.Contains('-'))
+                    {
+                        string stmpFileID = vtiId.Split('-')[0];
+                        string stmpMediaType = "0";// (vtiId.Contains('-')) ? vtiId.Split('-')[1] : "181";
+                        string stmpPPVModule = vtiId.Split('-')[2];
+                        double iPrice;
+                        double.TryParse(vtiId.Split('-')[3], out iPrice);
+                        string snewSiteGuid = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
+                        //ConditionalAccessService.Instance.DummyChargeUserForMediaFile(iPrice, "USD", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP());
+                        string response = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).DummyChargeUserForMediaFileEx(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid);
+                        Logger.Logger.Log("Netgem purchasestatus", string.Format("Price:{0}, FileID:{1}, PPVModule:{2}, IP:{3}", iPrice, int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP()), "TVPApi");
+
+                        XTM.WriteElementString("price", vtiId.Split('-')[3]);
+                    }
+                    else
+                    {
+                        XTM.WriteElementString("price", "3.00");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Netgem purchasestatus Exception ", ex.ToString() ,"TVPApi");
+                }
+
+                
+                XTM.WriteStartElement("status");
+                XTM.WriteCData("OK");                
+                XTM.WriteEndElement();
+                XTM.WriteEndDocument();
                 break;
             case "purchaseConfirmation":
 
@@ -337,54 +489,124 @@ public partial class Gateways_NetGem : BaseGateway
                 //{
                 //    stream.Write(byteArray, 0, byteArray.Length);
                 //    stream.Close();
+                    
+                    // Authentication against the DMS
+                    //HttpWebResponse resp = (HttpWebResponse)HttpWReq.GetResponse();
+                    //StreamReader responseReader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8);
+                    //string res = responseReader.ReadToEnd();
+                    ////XXX: Check if response is OK
+                    //resp.Close();
 
-                // Authentication against the DMS
-                //HttpWebResponse resp = (HttpWebResponse)HttpWReq.GetResponse();
-                //StreamReader responseReader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8);
-                //string res = responseReader.ReadToEnd();
-                ////XXX: Check if response is OK
-                //resp.Close();
-
-                XTM.WriteStartElement("purchase");
-                XTM.WriteElementString("vhiId", mac);
-                XTM.WriteStartElement("signedURL");
-                XTM.WriteCData("http://drm.tvinci.com/GetLicense.aspx?vid=" + Request["vtiId"]);                
-                XTM.WriteEndElement();
-                XTM.WriteStartElement("status");
-                XTM.WriteCData("OK");
+                    XTM.WriteStartElement("purchase");
+                    XTM.WriteElementString("vhiId", mac);
+                    XTM.WriteStartElement("signedURL");
+                    XTM.WriteCData("http://drm.tvinci.com/GetLicense.aspx?vid=" + Request["vtiId"]);                    
+                    XTM.WriteEndElement();
+                    XTM.WriteStartElement("status");
+                    XTM.WriteCData("OK");                    
                 //}
+                
+                XTM.WriteEndDocument();                                 
+                break;
+            case "category":
+                string chid = Request.QueryString["chid"];
+                string picsize = Request.QueryString["picsize"];
+                string tvmChid = Request.QueryString["intChid"];
+
+                XTM.WriteStartElement("collection");
+                XTM.WriteStartElement("items");
+
+                if (chid.Equals("myfavorites"))
+                {
+                    TVPPro.SiteManager.Services.UsersService.Instance.SignIn("idow@gmail.com", "eliron27");
+
+                    Service service = new Service();
+                    InitializationObject initObj = GetInitObj();
+                    initObj.Locale = new Locale();
+                    initObj.Locale.SiteGuid = TVPPro.SiteManager.Services.UsersService.Instance.GetUserID().ToString();
+                    string userName = "tvpapi_93";
+                    string pass = "11111";
+                    UserItemType type = UserItemType.Favorite;
+                    List<Media> userItems = service.GetUserItems(initObj, userName, pass, type, 0, "full", 20, 0);
+
+                    foreach (Media fav in userItems)
+                    {
+                        XTM.WriteElementString("id", string.Concat(fav.MediaID, "-", fav.MediaTypeID + "-" + chid));
+                    }
+                }
+                else
+                {
+                    long mediaCount = 0;
+                    List<Media> lstMedias = tvpapiService.GetChannelMediaListWithMediaCount(GetInitObj(), wsUser, wsPass, long.Parse(tvmChid), "full", 50, 0, ref mediaCount);
+
+                    if (lstMedias != null)
+                    {
+                        foreach (Media item in lstMedias)
+                        {
+                            XTM.WriteElementString("id", item.MediaID + "-" + item.MediaTypeID + "-" + chid);
+                        }
+                    }
+                }
 
                 XTM.WriteEndDocument();
                 break;
-            case "category":                
-                RedirectGWToChannel(Request.QueryString["chid"]);        
-                break;
             case "channel":
-                RedirectGWToChannel(sChID);   
+
+                XTM.WriteStartElement("collections");
+                XTM.WriteAttributeString("adult", "false");
+
+                //XTM.WriteStartElement("xml-link");
+                //XTM.WriteElementString("name", "My Favorites");
+                //XTM.WriteElementString("url", "/gateways/netgem.aspx?type=category&chid=myfavorites&picsize=345X480");
+                //XTM.WriteEndElement();
+
+                foreach (PageGallery pg in pc.MainGalleries)
+                {
+                    foreach (GalleryItem gi in pg.GalleryItems)
+                    {
+                        XTM.WriteStartElement("xml-link");
+                        XTM.WriteElementString("name", gi.Title);
+                        XTM.WriteElementString("url", "/gateways/netgem.aspx?type=category&intChid=" + gi.TVMChannelID + "&picsize=" + gi.PictureSize + "&chid=" + sChID);
+                        XTM.WriteEndElement();
+                    }
+                }
+
+                XTM.WriteEndElement();
+
+                XTM.WriteEndDocument();                
                 break;
             case "searchtitles":
-                // XXX: fix this by channel ID (vsiId coming from the STB)
                 string sSearch = Request["listId"];
                 XTM.WriteStartElement("collections");
                 XTM.WriteElementString("information", sSearch);
                 XTM.WriteStartElement("items");
 
-                dsItemInfo searchItemInfo = new APISearchLoader(wsUser, wsPass) { Name = sSearch, MediaType = 0, PageSize = 20, PictureSize = "0", OrderBy = TVPApi.OrderBy.ABC, IsPosterPic = false, WithInfo = true, GroupID = groupID, Platform = PlatformType.STB }.Execute();
+
+                dsItemInfo searchItemInfo = new APISearchLoader(wsUser, wsPass) { Name = sSearch, MediaType = 0, PageSize = 20, PictureSize = "0", OrderBy = TVPApi.OrderBy.ABC, IsPosterPic = false, WithInfo = true, GroupID=groupID, Platform = PlatformType.STB }.Execute();
 
                 for (int isearch = 0; isearch < searchItemInfo.Item.Rows.Count; isearch++)
                 {
                     XTM.WriteElementString("id", searchItemInfo.Item[isearch].ID + "-" + searchItemInfo.Item[isearch].MediaTypeID);
                 }
 
-                XTM.WriteEndDocument();
+                XTM.WriteEndDocument();//items
+                //XTM.WriteEndDocument();//collections
+                //                <collection>
+                //<information>Search pattern</information>
+                //<items>
+                //<id>Stream ID 0</id>
+                //....
+                //</items>
+                //</collection>
                 break;
             default:
+                /*
                 XTM.WriteStartElement("service");
                 XTM.WriteAttributeString("date", epoch.ToString());
                 XTM.WriteStartElement("settings");
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "base");
-                XTM.WriteCData("http://192.168.16.106/api");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "image");
@@ -396,46 +618,46 @@ public partial class Gateways_NetGem : BaseGateway
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "content");
-                XTM.WriteCData("http://192.168.16.106/api/gateways/netgem.aspx");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/gateways/netgem.aspx");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "purchase");
-                XTM.WriteCData("http://192.168.16.106/api/gateways/netgem.aspx?type=purchase");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/gateways/netgem.aspx?type=purchase");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "purchaseStatus");
-                XTM.WriteCData("http://192.168.16.106/api/gateways/netgem.aspx?type=purchasestatus");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/gateways/netgem.aspx?type=purchasestatus");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "purchaseConfirmation");
-                XTM.WriteCData("http://192.168.16.106/api/gateways/netgem.aspx?type=purchaseConfirmation");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/gateways/netgem.aspx?type=purchaseConfirmation");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "search-titles");
-                XTM.WriteCData("http://192.168.16.106/api/gateways/netgem.aspx?type=searchtitles");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/gateways/netgem.aspx?type=searchtitles");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "search-peoples");
-                XTM.WriteCData("http://192.168.16.106/api/searchPeoples.aspx");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/searchPeoples.aspx");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "account");
-                XTM.WriteCData("http://192.168.16.106/api/gateways/netgem.aspx?type=account");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/gateways/netgem.aspx?type=account");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "logStreamingStart");
-                XTM.WriteCData("http://192.168.16.106/api/gateways/logStreamingStart.aspx");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/gateways/logStreamingStart.aspx");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "logDownloadEnd");
-                XTM.WriteCData("http://192.168.16.106/tvpapi/gateways/logdownloadend.aspx");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/gateways/logdownloadend.aspx");
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "addCallCenterEvent");
-                XTM.WriteCData("http://192.168.16.106/tvpapi/gateways/addCallCenterEvent.aspx");
+                XTM.WriteCData("http://platform-us.tvinci.com/tvpapi/gateways/addCallCenterEvent.aspx");
                 XTM.WriteEndElement();
 
-                XTM.WriteEndDocument();
+                XTM.WriteEndDocument();*/
                 break;
         }
 
@@ -446,25 +668,6 @@ public partial class Gateways_NetGem : BaseGateway
         Response.Clear();
         Response.Write(sw.ToString().Replace("utf-16", "utf-8"));
         Response.End();
-    }
-
-    private void RedirectGWToChannel(string chid)
-    {
-        eChannels pChid = (eChannels)Enum.Parse(typeof(eChannels), chid);
-        switch (pChid)
-        {
-            case eChannels.Novebox:
-                Server.Transfer(string.Concat("netgem_novebox.aspx", Request.Url.Query));
-                break;
-            case eChannels.Orange:
-                Server.Transfer(string.Concat("netgem_orange.aspx", Request.Url.Query));
-                break;
-            case eChannels.Ipvision:
-                Server.Transfer(string.Concat("netgem_ipvision.aspx", Request.Url.Query));
-                break;
-            default:
-                break;
-        }       
     }
 
     private int GetGroupIDByBroadcasterName(string broadcasterName, ref string wsUser, ref string wsPass)
@@ -504,7 +707,7 @@ public partial class Gateways_NetGem : BaseGateway
             case "ipvision":
                 {
                     retVal = 125;
-                    wsUser = "tvpapi_125";
+                    wsUser = "tvpapi_126";
                     wsPass = "11111";
                     break;
                 }
@@ -580,7 +783,7 @@ public partial class Gateways_NetGem : BaseGateway
 
     protected override string GetWSUser()
     {
-        return "tvp_121";
+        return "tvp_125";
     }
 
 

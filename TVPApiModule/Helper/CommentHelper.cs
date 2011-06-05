@@ -15,9 +15,7 @@ namespace TVPApi
     {
         public CommentHelper()
         {
-            //
-            // TODO: Add constructor logic here
-            //
+            
         }
 
         public static List<Comment> GetMediaComments(long mediaID, int pageSize, int pageIndex)

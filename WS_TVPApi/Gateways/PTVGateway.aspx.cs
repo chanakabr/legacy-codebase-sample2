@@ -9,28 +9,21 @@ using System.Xml;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using Tvinci.Helpers;
-using TVPApiServices;
-using log4net;
 
 public partial class Gateways_RSSGateway : System.Web.UI.Page
 {
-    private readonly ILog logger = LogManager.GetLogger(typeof(Gateways_RSSGateway));
-
-    private MediaService m_mediaService = new MediaService();
-    private SiteService m_siteService = new SiteService();
-
+   
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (!Page.IsPostBack)
+        try
         {
-            logger.InfoFormat("PTV Request->", Request.RawUrl);
-
-            string opCode = Request.QueryString["op"];
+            Logger.Logger.Log("PTV Request ", Request.RawUrl, "TVPApi");
+            string opCode = Request.QueryString["op"].ToLower();
             if (!string.IsNullOrEmpty(opCode))
             {
                 switch (opCode)
                 {
-                    case "GetPage":
+                    case "getpage":
                         {
                             if (!string.IsNullOrEmpty(Request.QueryString["id"]))
                             {
@@ -39,7 +32,7 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
                             }
                             break;
                         }
-                    case "GetMainGallery":
+                    case "getmaingallery":
                         {
                             if (!string.IsNullOrEmpty(Request.QueryString["id"]) && !string.IsNullOrEmpty(Request.QueryString["pageid"]) && !string.IsNullOrEmpty(Request.QueryString["sid"]))
                             {
@@ -50,7 +43,7 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
                             }
                             break;
                         }
-                    case "GetFavoriteItems":
+                    case "getfavoriteitems":
                         if (!string.IsNullOrEmpty(Request.QueryString["sid"]) && !string.IsNullOrEmpty(Request.QueryString["itemtype"]))
                         {
                             UserItemType itemType = ((UserItemType)Convert.ToInt32(Request.QueryString["itemtype"]));
@@ -62,12 +55,18 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
                             //GetGalleryRSS(galleryID, pageID);
                         }
                         break;
-                    
+
                     default:
                         break;
                 }
             }
         }
+        catch (Exception ex)
+        {
+            Logger.Logger.Log("PTV Error on request ", "Request :" + Request.Url.ToString() + " Error: " + ex.Message + " " + ex.StackTrace, "TVPApiExceptions");
+        }
+
+        Response.End();
     }
 
     private void GetPageRSS(long pageID)
@@ -77,13 +76,13 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
         InitializationObject initObj = GetInitObj();
         string userName = "tvpapi_93";
         string pass = "11111";
-        m_siteService.GetSiteMap(initObj, "tvpapi_93", "11111");
-        PageContext page = m_siteService.GetPage(initObj, userName, pass, pageID, false, false);
+        
+        PageContext page = SiteMapManager.GetInstance.GetPageData(93, PlatformType.STB).GetPageByID("es", pageID);
 
         XmlTextWriter writer = new XmlTextWriter(Response.OutputStream, System.Text.Encoding.UTF8);
         RSSWriter rssWriter = new RSSWriter(writer);
         
-        rssWriter.WritePageRSS(page, string.Concat(LinkHelper.ParseURL(ConfigurationManager.AppSettings["RSSGatewayPath"]),"PTVGateway.aspx?op=GetMainGallery&id={0}&pageid={1}"));
+        rssWriter.WritePageRSS(page, string.Concat(ConfigurationManager.AppSettings["RSSGatewayPath"],"PTVGateway.aspx?op=GetMainGallery&id={0}&pageid={1}"));
 
         writer.Flush();
 
@@ -91,24 +90,20 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
         
         
         Response.ContentEncoding = System.Text.Encoding.UTF8;
-
-        HttpContext.Current.ApplicationInstance.CompleteRequest();
-
-        Response.End();
     }
 
     private void GetFavoritesRSS(string guid, string height, string width, UserItemType type)
     {
         Response.Clear();
         Response.ContentType = "text/xml";
-
+        Service service = new Service();
         InitializationObject initObj = GetInitObj();
         initObj.Locale = new Locale();
         initObj.Locale.SiteGuid = guid;
         string userName = "tvpapi_93";
         string pass = "11111";
-        m_siteService.GetSiteMap(initObj, userName, pass);
-        List<Media> userItems = m_mediaService.GetUserItems(initObj, userName, pass, type, 0, "full", 20, 0);
+        
+        List<Media> userItems = service.GetUserItems(initObj, userName, pass, type, 0, "full", 20, 0);
         
 
         XmlTextWriter writer = new XmlTextWriter(Response.OutputStream, System.Text.Encoding.UTF8);
@@ -121,21 +116,16 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
         writer.Close();
 
         Response.ContentEncoding = System.Text.Encoding.UTF8;
-
-        HttpContext.Current.ApplicationInstance.CompleteRequest();
-
-        Response.End();
     }
 
     private void GetGalleryRSS(long galleryID, long pageID, string sID)
     {
         Response.Clear();
         Response.ContentType = "text/xml";
-        SiteService siteService = new SiteService();
         InitializationObject initObj = GetInitObj();
         string userName = "tvpapi_93";
         string pass = "11111";
-        PageGallery pg = siteService.GetGallery(initObj, userName, pass, galleryID, pageID);
+        PageGallery pg = SiteMapManager.GetInstance.GetPageData(93, PlatformType.STB).GetPageGallery(galleryID, pageID, "es");// service.GetGallery(initObj, userName, pass, galleryID, pageID);
 
         XmlTextWriter writer = new XmlTextWriter(Response.OutputStream, System.Text.Encoding.UTF8);
         RSSWriter rssWriter = new RSSWriter(writer);
@@ -147,10 +137,6 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
         writer.Close();
 
         Response.ContentEncoding = System.Text.Encoding.UTF8;
-
-        HttpContext.Current.ApplicationInstance.CompleteRequest();
-
-        Response.End();
 
     }
 

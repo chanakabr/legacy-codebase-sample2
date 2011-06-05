@@ -2,14 +2,17 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TVPApiModule.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="TVPApiModule_ca_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://platform-us.tvinci.com/ca/module.asmx</Value>
-    </Setting>
-    <Setting Name="TVPApiModule_users_UsersService" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://platform-us.tvinci.com/users/module.asmx</Value>
-    </Setting>
     <Setting Name="TVPApiModule_tvapi_tvapi" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://platform-us.tvinci.com/tvapi.asmx</Value>
+    </Setting>
+    <Setting Name="TVPApiModule_ApiTvinciPlatform_Pricing_mdoule" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://platform-us.tvinci.com/pricing/module.asmx</Value>
+    </Setting>
+    <Setting Name="TVPApiModule_ApiTivincPlatform_ConditionalAccess_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://platform-us.tvinci.com/ca/module.asmx</Value>
+    </Setting>
+    <Setting Name="TVPApiModule_ApiTvinciPlatform_Users_UsersService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://platform-us.tvinci.com/users/module.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>

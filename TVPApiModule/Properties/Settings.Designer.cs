@@ -26,10 +26,30 @@ namespace TVPApiModule.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/ca/module.asmx")]
-        public string TVPApiModule_ca_module {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/tvapi.asmx")]
+        public string TVPApiModule_tvapi_tvapi {
             get {
-                return ((string)(this["TVPApiModule_ca_module"]));
+                return ((string)(this["TVPApiModule_tvapi_tvapi"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/pricing/module.asmx")]
+        public string TVPApiModule_ApiTvinciPlatform_Pricing_mdoule {
+            get {
+                return ((string)(this["TVPApiModule_ApiTvinciPlatform_Pricing_mdoule"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/ca/module.asmx")]
+        public string TVPApiModule_ApiTivincPlatform_ConditionalAccess_module {
+            get {
+                return ((string)(this["TVPApiModule_ApiTivincPlatform_ConditionalAccess_module"]));
             }
         }
         
@@ -37,19 +57,9 @@ namespace TVPApiModule.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
         [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/users/module.asmx")]
-        public string TVPApiModule_users_UsersService {
+        public string TVPApiModule_ApiTvinciPlatform_Users_UsersService {
             get {
-                return ((string)(this["TVPApiModule_users_UsersService"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://platform-us.tvinci.com/tvapi.asmx")]
-        public string TVPApiModule_tvapi_tvapi {
-            get {
-                return ((string)(this["TVPApiModule_tvapi_tvapi"]));
+                return ((string)(this["TVPApiModule_ApiTvinciPlatform_Users_UsersService"]));
             }
         }
     }

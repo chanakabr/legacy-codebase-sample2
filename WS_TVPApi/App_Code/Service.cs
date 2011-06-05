@@ -39,7 +39,9 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession=true, Description="Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public TVPApi.SiteMap GetSiteMap(InitializationObject initObj, string ws_User, string ws_Pass)
     {
-        return m_siteService.GetSiteMap(initObj, ws_User, ws_Pass);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetSiteMap(initObj);
     }
     #endregion
 
@@ -49,14 +51,18 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession=true, Description="Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public TVPApi.PageContext GetPage(InitializationObject initObj, string ws_User, string ws_Pass, long ID, bool withMenu, bool withFooter)
     {
-        return m_siteService.GetPage(initObj, ws_User, ws_Pass, ID, withMenu, withFooter);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetPage(initObj, ID, withMenu, withFooter);
     }
 
     //Get specific page from site map
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public TVPApi.PageContext GetPageByToken(InitializationObject initObj, string ws_User, string ws_Pass, Pages token, bool withMenu, bool withFooter)
     {
-        return m_siteService.GetPageByToken(initObj, ws_User, ws_Pass, token, withMenu, withFooter);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetPageByToken(initObj, token, withMenu, withFooter);
     }
 
 
@@ -64,14 +70,18 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public List<TVPApi.PageGallery> GetPageGalleries(InitializationObject initObj, string ws_User, string ws_Pass, long PageID, int pageSize, int start_index)
     {
-        return m_siteService.GetPageGalleries(initObj, ws_User, ws_Pass, PageID, pageSize, start_index);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetPageGalleries(initObj, PageID, pageSize, start_index);
     }
 
     //Get all page galleries from site map
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public PageGallery GetGallery(InitializationObject initObj, string ws_User, string ws_Pass, long galleryID, long PageID)
     {
-        return m_siteService.GetGallery(initObj, ws_User, ws_Pass, galleryID, PageID);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetGallery(initObj, galleryID, PageID);
     }
 
     #endregion
@@ -84,7 +94,9 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public List<GalleryItem> GetGalleryContent(InitializationObject initObj, string ws_User, string ws_Pass, long ID, long PageID, string picSize, int pageSize, int start_index)
     {
-        return m_siteService.GetGalleryContent(initObj, ws_User, ws_Pass, ID, PageID, picSize, pageSize, start_index);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetGalleryContent(initObj, ID, PageID, picSize, pageSize, start_index);
     }
 
 
@@ -92,7 +104,9 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public List<Media> GetGalleryItemContent(InitializationObject initObj, string ws_User, string ws_Pass, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex)
     {
-        return m_siteService.GetGalleryItemContent(initObj, ws_User, ws_Pass, ItemID, GalleryID, PageID, picSize, pageSize, pageIndex);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetGalleryItemContent(initObj, ItemID, GalleryID, PageID, picSize, pageSize, pageIndex);
     }
 
     #endregion
@@ -104,7 +118,9 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public Menu GetMenu(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
     {
-        return m_siteService.GetMenu(initObj, ws_User, ws_Pass, ID);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetMenu(initObj, ID);
     }
 
 
@@ -112,7 +128,9 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public Menu GetFooter(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
     {
-        return m_siteService.GetFooter(initObj, ws_User, ws_Pass, ID);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetFooter(initObj, ID);
     }
 
     #endregion
@@ -123,7 +141,9 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public Profile GetSideProfile(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
     {
-        return m_siteService.GetSideProfile(initObj, ws_User, ws_Pass, ID);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetSideProfile(initObj, ID);
     }
 
 
@@ -131,7 +151,9 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public Profile GetBottomProfile(InitializationObject initObj, string ws_User, string ws_Pass, long ID)
     {
-        return m_siteService.GetBottomProfile(initObj, ws_User, ws_Pass, ID);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.GetBottomProfile(initObj, ID);
     }
 
     #endregion
@@ -145,117 +167,151 @@ public class Service : System.Web.Services.WebService
     [System.Xml.Serialization.XmlInclude(typeof(DynamicData))]
     public Media GetMediaInfo(InitializationObject initObj, string ws_User, string ws_Pass, long MediaID, int mediaType, string picSize, bool withDynamic)
     {
-        return m_mediaService.GetMediaInfo(initObj, ws_User, ws_Pass, MediaID, mediaType, picSize, withDynamic);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetMediaInfo(initObj, MediaID, mediaType, picSize, withDynamic);
     }
 
     //Get Channel media
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> GetChannelMediaList(InitializationObject initObj, string ws_User, string ws_Pass, long ChannelID, string picSize, int pageSize, int pageIndex)
     {
-        return m_mediaService.GetChannelMediaList(initObj, ws_User, ws_Pass, ChannelID, picSize, pageSize, pageIndex);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetChannelMediaList(initObj, ChannelID, picSize, pageSize, pageIndex);
     }
 
     //Get Channel media
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> GetChannelMediaListWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, long ChannelID, string picSize, int pageSize, int pageIndex, ref long mediaCount)
     {
-        return m_mediaService.GetChannelMediaListWithMediaCount(initObj, ws_User, ws_Pass, ChannelID, picSize, pageSize, pageIndex, ref mediaCount);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetChannelMediaListWithMediaCount(initObj, ChannelID, picSize, pageSize, pageIndex, ref mediaCount);
     }
 
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public bool IsMediaFavorite(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID)
     {
-        return m_mediaService.IsMediaFavorite(initObj, ws_User, ws_Pass, mediaID);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.IsMediaFavorite(initObj, mediaID);
     }
 
     //Get Related media info
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> GetRelatedMedias(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
     {
-        return m_mediaService.GetRelatedMedias(initObj, ws_User, ws_Pass, mediaID, mediaType, picSize, pageSize, pageIndex);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetRelatedMedias(initObj, mediaID, mediaType, picSize, pageSize, pageIndex);
     }
 
     //Get Related media info
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> GetRelatedMediaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, ref long mediaCount)
     {
-        return m_mediaService.GetRelatedMediaWithMediaCount(initObj, ws_User, ws_Pass, mediaID, mediaType, picSize, pageSize, pageIndex, ref mediaCount);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetRelatedMediaWithMediaCount(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, ref mediaCount);
     }
 
     //Get Related media info
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> GetPeopleWhoWatched(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
     {
-        return m_mediaService.GetPeopleWhoWatched(initObj, ws_User, ws_Pass, mediaID, mediaType, picSize, pageSize, pageIndex);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetPeopleWhoWatched(initObj, mediaID, mediaType, picSize, pageSize, pageIndex);
     }
 
     //Get Related media info
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Comment> GetMediaComments(InitializationObject initObj, string ws_User, string ws_Pass, int mediaID, int pageSize, int pageIndex)
     {
-        return m_mediaService.GetMediaComments(initObj, ws_User, ws_Pass, mediaID, pageSize, pageIndex);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetMediaComments(initObj, mediaID, pageSize, pageIndex);
     }
 
     //Serach media by tag
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> SearchMediaByTag(InitializationObject initObj, string ws_User, string ws_Pass, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
     {
-        return m_mediaService.SearchMediaByTag(initObj, ws_User, ws_Pass, tagName, value, mediaType, picSize, pageSize, pageIndex, orderBy);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.SearchMediaByTag(initObj, tagName, value, mediaType, picSize, pageSize, pageIndex, orderBy);
     }
 
     //Serach media by meta
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> SearchMediaByMeta(InitializationObject initObj, string ws_User, string ws_Pass, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
     {
-        return m_mediaService.SearchMediaByMeta(initObj, ws_User, ws_Pass, metaName, value, mediaType, picSize, pageSize, pageIndex, orderBy);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.SearchMediaByMeta(initObj, metaName, value, mediaType, picSize, pageSize, pageIndex, orderBy);
     }
 
     //Serach media by meta
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> SearchMediaByMetaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount)
     {
-        return m_mediaService.SearchMediaByMetaWithMediaCount(initObj, ws_User, ws_Pass, metaName, value, mediaType, picSize, pageSize, pageIndex, orderBy, ref mediaCount);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.SearchMediaByMetaWithMediaCount(initObj, metaName, value, mediaType, picSize, pageSize, pageIndex, orderBy, ref mediaCount);
     }
 
     //Serach media by tag
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public Category GetCategory(InitializationObject initObj, string ws_User, string ws_Pass, int categoryID)
     {
-        return m_mediaService.GetCategory(initObj, ws_User, ws_Pass, categoryID);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetCategory(initObj, categoryID);
     }
 
     //Serach media by free text
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> SearchMedia(InitializationObject initObj, string ws_User, string ws_Pass, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
     {
-        return m_mediaService.SearchMedia(initObj, ws_User, ws_Pass, text, mediaType, picSize, pageSize, pageIndex, orderBy);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.SearchMedia(initObj, text, mediaType, picSize, pageSize, pageIndex, orderBy);
     }
 
     //Serach media by free text
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> SearchMediaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount)
     {
-        return m_mediaService.SearchMediaWithMediaCount(initObj, ws_User, ws_Pass, text, mediaType, picSize, pageSize, pageIndex, orderBy, ref mediaCount);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.SearchMediaWithMediaCount(initObj, text, mediaType, picSize, pageSize, pageIndex, orderBy, ref mediaCount);
     }
 
     //Get User Items (Favorites, Rentals etc..)
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> GetUserItems(InitializationObject initObj, string ws_User, string ws_Pass, UserItemType itemType, int mediaType, string picSize,  int pageSize, int start_index)
     {
-        return m_mediaService.GetUserItems(initObj, ws_User, ws_Pass, itemType, mediaType, picSize, pageSize, start_index);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetUserItems(initObj, itemType, mediaType, picSize, pageSize, start_index);
     }
 
     //Need to implement
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<string> GetNMostSearchedTexts(InitializationObject initObj, string ws_User, string ws_Pass, int N, int pageSize, int start_index)
     {
-        return m_mediaService.GetNMostSearchedTexts(initObj, ws_User, ws_Pass, N, pageSize, start_index);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetNMostSearchedTexts(initObj, N, pageSize, start_index);
     }
 
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public string[] GetAutoCompleteSearchList(InitializationObject initObj, string ws_User, string ws_Pass, string prefixText)
     {
-        return m_mediaService.GetAutoCompleteSearchList(initObj, ws_User, ws_Pass, prefixText);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetAutoCompleteSearchList(initObj, prefixText);
     }
 
     #endregion
@@ -265,7 +321,9 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public bool ActionDone(InitializationObject initObj, string ws_User, string ws_Pass, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal)
     {
-        return m_mediaService.ActionDone(initObj, ws_User, ws_Pass, action, mediaID, mediaType, extraVal);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.ActionDone(initObj, action, mediaID, mediaType, extraVal);
     }
 
     [WebMethod]
@@ -277,13 +335,17 @@ public class Service : System.Web.Services.WebService
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
     public List<Media> GetMediasByRating(InitializationObject initObj, string ws_User, string ws_Pass, int rating)
     {
-        return m_mediaService.GetMediasByRating(initObj, ws_User, ws_Pass, rating);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_mediaService.GetMediasByRating(initObj, rating);
     }
 
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Site/Service.asmx' instead.")]
     public string SignIn(InitializationObject initObj, string ws_User, string ws_Pass, string userName, string password)
     {
-        return m_siteService.SignIn(initObj, ws_User, ws_Pass, userName, password);
+        initObj.ApiUser = ws_User;
+        initObj.ApiPass = ws_Pass;
+        return m_siteService.SignIn(initObj, userName, password);
     }
 
     #endregion

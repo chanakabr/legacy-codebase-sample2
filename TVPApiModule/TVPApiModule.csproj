@@ -90,6 +90,7 @@
     <Compile Include="DataLoaders\APIPeopleWhoWatchedLoader.cs" />
     <Compile Include="DataLoaders\APIRelatedMediaLoader.cs" />
     <Compile Include="DataLoaders\APISearchLoader.cs" />
+    <Compile Include="DataLoaders\APITVMRentalMultiMediaLoader.cs" />
     <Compile Include="DBConfiguration\TVinciDBConfiguration.cs" />
     <Compile Include="Helper\ActionHelper.cs" />
     <Compile Include="Helper\CategoryTreeHelper.cs" />
@@ -136,19 +137,25 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Services\ConditionalAccessServiceEx.cs" />
-    <Compile Include="Services\PricingServiceEx.cs" />
-    <Compile Include="Web References\ca\Reference.cs">
+    <Compile Include="Services\ConditionalAccessService.cs" />
+    <Compile Include="Services\PricingService.cs" />
+    <Compile Include="Services\UsersService.cs" />
+    <Compile Include="Web References\ApiTvinciPlatform.ConditionalAccess\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\ApiTvinciPlatform.Pricing\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\ApiTvinciPlatform.Users\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
     <Compile Include="Web References\tvapi\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Include="Web References\users\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
@@ -201,14 +208,25 @@
   <ItemGroup>
     <WebReferenceUrl Include="http://platform-us.tvinci.com/ca/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\ca\</RelPath>
+      <RelPath>Web References\ApiTvinciPlatform.ConditionalAccess\</RelPath>
       <UpdateFromURL>http://platform-us.tvinci.com/ca/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>TVPApiModule_ca_module</CachedSettingsPropName>
+      <CachedSettingsPropName>TVPApiModule_ApiTivincPlatform_ConditionalAccess_module</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://platform-us.tvinci.com/pricing/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\ApiTvinciPlatform.Pricing\</RelPath>
+      <UpdateFromURL>http://platform-us.tvinci.com/pricing/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>TVPApiModule_ApiTvinciPlatform_Pricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
     <WebReferenceUrl Include="http://platform-us.tvinci.com/tvapi.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
@@ -223,18 +241,81 @@
     </WebReferenceUrl>
     <WebReferenceUrl Include="http://platform-us.tvinci.com/users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\users\</RelPath>
+      <RelPath>Web References\ApiTvinciPlatform.Users\</RelPath>
       <UpdateFromURL>http://platform-us.tvinci.com/users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>TVPApiModule_users_UsersService</CachedSettingsPropName>
+      <CachedSettingsPropName>TVPApiModule_ApiTvinciPlatform_Users_UsersService</CachedSettingsPropName>
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\ca\module.wsdl" />
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\BillingResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\BillingTransactionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\MediaFileItemPricesContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\module.wsdl" />
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\PermittedMediaContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\PermittedSubscriptionContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\SubscriptionsPricesContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\UserCAStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\CouponData.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\CouponsGroup.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\CouponsStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\Currency.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\DiscountModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\MediaFilePPVModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\module.wsdl" />
+    <None Include="Web References\ApiTvinciPlatform.Pricing\PPVModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\PPVModuleContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\PriceCode.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\Subscription.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\UsageModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -242,34 +323,25 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Web References\ca\BillingResponse.datasource">
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\ApiTvinciPlatform.Users\Country.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\ca\BillingTransactionsResponse.datasource">
+    <None Include="Web References\ApiTvinciPlatform.Users\FavoritObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\ca\MediaFileItemPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ca\module.disco" />
-    <None Include="Web References\ca\PermittedMediaContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ca\PermittedSubscriptionContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ca\Reference.map">
+    <None Include="Web References\ApiTvinciPlatform.Users\module.wsdl" />
+    <None Include="Web References\ApiTvinciPlatform.Users\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Web References\ca\SubscriptionsPricesContainer.datasource">
+    <None Include="Web References\ApiTvinciPlatform.Users\State.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\ca\UserCAStatus.datasource">
+    <None Include="Web References\ApiTvinciPlatform.Users\UserResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Web References\tvapi\CategoryObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -302,26 +374,6 @@
     <None Include="Web References\tvapi\UserIMRequestObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\users\module.wsdl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\users\Country.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\users\FavoritObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\users\module.disco" />
-    <None Include="Web References\users\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\users\State.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\users\UserResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -342,6 +394,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\tvapi\tvapi.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\ApiTvinciPlatform.Pricing\module.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\ApiTvinciPlatform.ConditionalAccess\module.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\ApiTvinciPlatform.Users\module.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -13,7 +13,7 @@
 // 
 #pragma warning disable 1591
 
-namespace TVPApiModule.ca {
+namespace TVPApiModule.ApiTvinciPlatform.ConditionalAccess {
     using System;
     using System.Web.Services;
     using System.Diagnostics;
@@ -36,7 +36,13 @@ namespace TVPApiModule.ca {
         
         private System.Threading.SendOrPostCallback GetLicensedLinkOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetLicensedLinkWithCouponOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserPermittedSubscriptionsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback IsPermittedItemOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback IsPermittedSubscriptionOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetUserBillingHistoryOperationCompleted;
         
@@ -70,6 +76,8 @@ namespace TVPApiModule.ca {
         
         private System.Threading.SendOrPostCallback PU_GetPPVPopupPaymentMethodURLOperationCompleted;
         
+        private System.Threading.SendOrPostCallback AD_GetCustomDataIDOperationCompleted;
+        
         private System.Threading.SendOrPostCallback PU_GetSubscriptionPopupPaymentMethodURLOperationCompleted;
         
         private System.Threading.SendOrPostCallback SMS_ChargeUserForMediaFileOperationCompleted;
@@ -84,7 +92,7 @@ namespace TVPApiModule.ca {
         
         /// <remarks/>
         public module() {
-            this.Url = global::TVPApiModule.Properties.Settings.Default.TVPApiModule_ca_module;
+            this.Url = global::TVPApiModule.Properties.Settings.Default.TVPApiModule_ApiTivincPlatform_ConditionalAccess_module;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -128,7 +136,16 @@ namespace TVPApiModule.ca {
         public event GetLicensedLinkCompletedEventHandler GetLicensedLinkCompleted;
         
         /// <remarks/>
+        public event GetLicensedLinkWithCouponCompletedEventHandler GetLicensedLinkWithCouponCompleted;
+        
+        /// <remarks/>
         public event GetUserPermittedSubscriptionsCompletedEventHandler GetUserPermittedSubscriptionsCompleted;
+        
+        /// <remarks/>
+        public event IsPermittedItemCompletedEventHandler IsPermittedItemCompleted;
+        
+        /// <remarks/>
+        public event IsPermittedSubscriptionCompletedEventHandler IsPermittedSubscriptionCompleted;
         
         /// <remarks/>
         public event GetUserBillingHistoryCompletedEventHandler GetUserBillingHistoryCompleted;
@@ -177,6 +194,9 @@ namespace TVPApiModule.ca {
         
         /// <remarks/>
         public event PU_GetPPVPopupPaymentMethodURLCompletedEventHandler PU_GetPPVPopupPaymentMethodURLCompleted;
+        
+        /// <remarks/>
+        public event AD_GetCustomDataIDCompletedEventHandler AD_GetCustomDataIDCompleted;
         
         /// <remarks/>
         public event PU_GetSubscriptionPopupPaymentMethodURLCompletedEventHandler PU_GetSubscriptionPopupPaymentMethodURLCompleted;
@@ -307,6 +327,55 @@ namespace TVPApiModule.ca {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetLicensedLinkWithCoupon", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string GetLicensedLinkWithCoupon(string sWSUserName, string sWSPassword, string sSiteGUID, int nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCountryCd2, string sLanguageCode3, string sDeviceName, string couponCode) {
+            object[] results = this.Invoke("GetLicensedLinkWithCoupon", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        nMediaFileID,
+                        sBasicLink,
+                        sUserIP,
+                        sRefferer,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName,
+                        couponCode});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetLicensedLinkWithCouponAsync(string sWSUserName, string sWSPassword, string sSiteGUID, int nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCountryCd2, string sLanguageCode3, string sDeviceName, string couponCode) {
+            this.GetLicensedLinkWithCouponAsync(sWSUserName, sWSPassword, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, sDeviceName, couponCode, null);
+        }
+        
+        /// <remarks/>
+        public void GetLicensedLinkWithCouponAsync(string sWSUserName, string sWSPassword, string sSiteGUID, int nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCountryCd2, string sLanguageCode3, string sDeviceName, string couponCode, object userState) {
+            if ((this.GetLicensedLinkWithCouponOperationCompleted == null)) {
+                this.GetLicensedLinkWithCouponOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetLicensedLinkWithCouponOperationCompleted);
+            }
+            this.InvokeAsync("GetLicensedLinkWithCoupon", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        nMediaFileID,
+                        sBasicLink,
+                        sUserIP,
+                        sRefferer,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName,
+                        couponCode}, this.GetLicensedLinkWithCouponOperationCompleted, userState);
+        }
+        
+        private void OnGetLicensedLinkWithCouponOperationCompleted(object arg) {
+            if ((this.GetLicensedLinkWithCouponCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetLicensedLinkWithCouponCompleted(this, new GetLicensedLinkWithCouponCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPermittedSubscriptions", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PermittedSubscriptionContainer[] GetUserPermittedSubscriptions(string sWSUserName, string sWSPassword, string sSiteGUID) {
             object[] results = this.Invoke("GetUserPermittedSubscriptions", new object[] {
@@ -336,6 +405,79 @@ namespace TVPApiModule.ca {
             if ((this.GetUserPermittedSubscriptionsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetUserPermittedSubscriptionsCompleted(this, new GetUserPermittedSubscriptionsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/IsPermittedItem", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool IsPermittedItem(string sWSUserName, string sWSPassword, string sSiteGUID, int mediaID) {
+            object[] results = this.Invoke("IsPermittedItem", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        mediaID});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void IsPermittedItemAsync(string sWSUserName, string sWSPassword, string sSiteGUID, int mediaID) {
+            this.IsPermittedItemAsync(sWSUserName, sWSPassword, sSiteGUID, mediaID, null);
+        }
+        
+        /// <remarks/>
+        public void IsPermittedItemAsync(string sWSUserName, string sWSPassword, string sSiteGUID, int mediaID, object userState) {
+            if ((this.IsPermittedItemOperationCompleted == null)) {
+                this.IsPermittedItemOperationCompleted = new System.Threading.SendOrPostCallback(this.OnIsPermittedItemOperationCompleted);
+            }
+            this.InvokeAsync("IsPermittedItem", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        mediaID}, this.IsPermittedItemOperationCompleted, userState);
+        }
+        
+        private void OnIsPermittedItemOperationCompleted(object arg) {
+            if ((this.IsPermittedItemCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.IsPermittedItemCompleted(this, new IsPermittedItemCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/IsPermittedSubscription", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool IsPermittedSubscription(string sWSUserName, string sWSPassword, string sSiteGUID, int subID, ref string reason) {
+            object[] results = this.Invoke("IsPermittedSubscription", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        subID,
+                        reason});
+            reason = ((string)(results[1]));
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void IsPermittedSubscriptionAsync(string sWSUserName, string sWSPassword, string sSiteGUID, int subID, string reason) {
+            this.IsPermittedSubscriptionAsync(sWSUserName, sWSPassword, sSiteGUID, subID, reason, null);
+        }
+        
+        /// <remarks/>
+        public void IsPermittedSubscriptionAsync(string sWSUserName, string sWSPassword, string sSiteGUID, int subID, string reason, object userState) {
+            if ((this.IsPermittedSubscriptionOperationCompleted == null)) {
+                this.IsPermittedSubscriptionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnIsPermittedSubscriptionOperationCompleted);
+            }
+            this.InvokeAsync("IsPermittedSubscription", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        subID,
+                        reason}, this.IsPermittedSubscriptionOperationCompleted, userState);
+        }
+        
+        private void OnIsPermittedSubscriptionOperationCompleted(object arg) {
+            if ((this.IsPermittedSubscriptionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.IsPermittedSubscriptionCompleted(this, new IsPermittedSubscriptionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -1054,6 +1196,59 @@ namespace TVPApiModule.ca {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/AD_GetCustomDataID", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public int AD_GetCustomDataID(string sWSUserName, string sWSPassword, string sSiteGUID, double dPrice, string sCurrencyCode3, int assetID, string sPPVModuleCode, string sCouponCode, string sPaymentMethod, string sCountryCd2, string sLanguageCode3, string sDeviceName, int ppvOrSub) {
+            object[] results = this.Invoke("AD_GetCustomDataID", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        dPrice,
+                        sCurrencyCode3,
+                        assetID,
+                        sPPVModuleCode,
+                        sCouponCode,
+                        sPaymentMethod,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName,
+                        ppvOrSub});
+            return ((int)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void AD_GetCustomDataIDAsync(string sWSUserName, string sWSPassword, string sSiteGUID, double dPrice, string sCurrencyCode3, int assetID, string sPPVModuleCode, string sCouponCode, string sPaymentMethod, string sCountryCd2, string sLanguageCode3, string sDeviceName, int ppvOrSub) {
+            this.AD_GetCustomDataIDAsync(sWSUserName, sWSPassword, sSiteGUID, dPrice, sCurrencyCode3, assetID, sPPVModuleCode, sCouponCode, sPaymentMethod, sCountryCd2, sLanguageCode3, sDeviceName, ppvOrSub, null);
+        }
+        
+        /// <remarks/>
+        public void AD_GetCustomDataIDAsync(string sWSUserName, string sWSPassword, string sSiteGUID, double dPrice, string sCurrencyCode3, int assetID, string sPPVModuleCode, string sCouponCode, string sPaymentMethod, string sCountryCd2, string sLanguageCode3, string sDeviceName, int ppvOrSub, object userState) {
+            if ((this.AD_GetCustomDataIDOperationCompleted == null)) {
+                this.AD_GetCustomDataIDOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAD_GetCustomDataIDOperationCompleted);
+            }
+            this.InvokeAsync("AD_GetCustomDataID", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        dPrice,
+                        sCurrencyCode3,
+                        assetID,
+                        sPPVModuleCode,
+                        sCouponCode,
+                        sPaymentMethod,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName,
+                        ppvOrSub}, this.AD_GetCustomDataIDOperationCompleted, userState);
+        }
+        
+        private void OnAD_GetCustomDataIDOperationCompleted(object arg) {
+            if ((this.AD_GetCustomDataIDCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AD_GetCustomDataIDCompleted(this, new AD_GetCustomDataIDCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/PU_GetSubscriptionPopupPaymentMethodURL", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public BillingResponse PU_GetSubscriptionPopupPaymentMethodURL(string sWSUserName, string sWSPassword, string sSiteGUID, double dPrice, string sCurrencyCode3, string sSubscriptionCode, string sCouponCode, string sPaymentMethod, string sExtraParameters, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
             object[] results = this.Invoke("PU_GetSubscriptionPopupPaymentMethodURL", new object[] {
@@ -1318,7 +1513,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1411,7 +1606,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1456,7 +1651,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum BillingResponseStatus {
@@ -1481,7 +1676,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1526,7 +1721,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1559,7 +1754,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1616,7 +1811,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum PriceReason {
@@ -1644,7 +1839,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1677,7 +1872,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1782,7 +1977,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1851,7 +2046,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum RelationTypes {
@@ -1864,7 +2059,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1897,7 +2092,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum WhenAlgoType {
@@ -1911,7 +2106,7 @@ namespace TVPApiModule.ca {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DiscountModule))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1968,7 +2163,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2001,7 +2196,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2071,7 +2266,7 @@ namespace TVPApiModule.ca {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Subscription))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2176,7 +2371,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2200,6 +2395,10 @@ namespace TVPApiModule.ca {
         private LanguageContainer[] m_sNameField;
         
         private UsageModule m_oSubscriptionUsageModuleField;
+        
+        private int m_fictivicMediaIDField;
+        
+        private long m_PriorityField;
         
         /// <remarks/>
         public SubscriptionCodeContainer[] m_sCodes {
@@ -2290,10 +2489,30 @@ namespace TVPApiModule.ca {
                 this.m_oSubscriptionUsageModuleField = value;
             }
         }
+        
+        /// <remarks/>
+        public int m_fictivicMediaID {
+            get {
+                return this.m_fictivicMediaIDField;
+            }
+            set {
+                this.m_fictivicMediaIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long m_Priority {
+            get {
+                return this.m_PriorityField;
+            }
+            set {
+                this.m_PriorityField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2386,7 +2605,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2419,7 +2638,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2440,7 +2659,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2629,7 +2848,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum BillingItemsType {
@@ -2645,7 +2864,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum BillingAction {
@@ -2670,7 +2889,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum PaymentMethod {
@@ -2701,7 +2920,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2734,7 +2953,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2851,7 +3070,7 @@ namespace TVPApiModule.ca {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.225")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.1")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
@@ -2955,6 +3174,32 @@ namespace TVPApiModule.ca {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    public delegate void GetLicensedLinkWithCouponCompletedEventHandler(object sender, GetLicensedLinkWithCouponCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetLicensedLinkWithCouponCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetLicensedLinkWithCouponCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
     public delegate void GetUserPermittedSubscriptionsCompletedEventHandler(object sender, GetUserPermittedSubscriptionsCompletedEventArgs e);
     
     /// <remarks/>
@@ -2975,6 +3220,66 @@ namespace TVPApiModule.ca {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((PermittedSubscriptionContainer[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    public delegate void IsPermittedItemCompletedEventHandler(object sender, IsPermittedItemCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class IsPermittedItemCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal IsPermittedItemCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    public delegate void IsPermittedSubscriptionCompletedEventHandler(object sender, IsPermittedSubscriptionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class IsPermittedSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal IsPermittedSubscriptionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+        
+        /// <remarks/>
+        public string reason {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[1]));
             }
         }
     }
@@ -3391,6 +3696,32 @@ namespace TVPApiModule.ca {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((BillingResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    public delegate void AD_GetCustomDataIDCompletedEventHandler(object sender, AD_GetCustomDataIDCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.1")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class AD_GetCustomDataIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal AD_GetCustomDataIDCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public int Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((int)(this.results[0]));
             }
         }
     }
