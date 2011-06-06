@@ -72,7 +72,7 @@ public class RSSWriter
             m_writer.WriteStartElement("item");
             int numOfItems = galleryItem.NumberOfItemsPerPage;
             m_writer.WriteElementString("title", galleryItem.Title);
-            string fileType = ConfigManager.GetInstance().GetConfig(93, PlatformType.STB.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            string fileType = ConfigManager.GetInstance().GetConfig(93, PlatformType.STB).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             TVMAccountType account = new PageData(93, PlatformType.STB).GetTVMAccountByUser(galleryItem.TVMUser);
             if (galleryItem.BooleanParam)
             {
@@ -86,7 +86,9 @@ public class RSSWriter
                 initObj.Locale = new Locale();
                 initObj.Locale.SiteGuid = sID;
                 initObj.Platform = PlatformType.STB;
-                List<Media> userItems = mediaService.GetUserItems(initObj, "tvpapi_93", "11111", userItemType, 0, "full", 50, 0);
+                initObj.ApiUser = "tvpapi_93";
+                initObj.ApiPass = "11111";
+                List<Media> userItems = mediaService.GetUserItems(initObj, userItemType, 0, "full", 50, 0);
                 HttpContext.Current.Items["Platform"] = PlatformType.STB;
                 
                 string mediaStr = GetIDsString(userItems);

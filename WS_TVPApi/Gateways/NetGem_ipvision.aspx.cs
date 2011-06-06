@@ -11,8 +11,8 @@ using TVPApiModule.DataLoaders;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
-using TVPApiModule.ApiTvinciPlatform.Users;
-using TVPApiModule.ApiTvinciPlatform.ConditionalAccess;
+using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 public partial class Gateways_NetGem_ipvision : BaseGateway
 {
@@ -35,6 +35,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
         string broadcasterName = Request.QueryString["broadcasterName"];
         string wsUser = string.Empty;
         string wsPass = string.Empty;
+        PlatformType platform = PlatformType.STB;
 
         broadcasterName = "ipvision";
         int groupID = GetGroupIDByBroadcasterName(broadcasterName, ref wsUser, ref wsPass);
@@ -225,7 +226,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                 XTM.WriteElementString("contract", sSiteGuid);
                 XTM.WriteElementString("date", "05/09/2010 08:39");
 
-                UserResponseObject userResponseObject = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserData(sSiteGuid);
+                UserResponseObject userResponseObject = new ApiUsersService(groupID, platform).GetUserData(sSiteGuid);
 
                 if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
                 {
@@ -236,7 +237,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
                 XTM.WriteEndElement(); // information
 
-                PermittedMediaContainer[] MediaPermitedItems = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetUserPermittedItems(sSiteGuid);
+                PermittedMediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(sSiteGuid);
                 
                 XTM.WriteStartElement("streams");
                 if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
@@ -254,7 +255,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
                         int iFileID = int.Parse(ItemInfo.Item[i].FileID);
 
-                        Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrices = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetItemsPrice(new int[] { iFileID }, "conditionalaccess_125", wsPass, sSiteGuid, true);
+                        Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(new int[] { iFileID }, sSiteGuid, true);
 
                         if (dictPrices != null && dictPrices.Keys.Contains(iFileID) && dictPrices[iFileID].m_oItemPrices != null && dictPrices[iFileID].m_oItemPrices.Length > 0)
                         {
@@ -368,8 +369,8 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                     }
 
                     int iFileId = int.Parse(media.FileID);
-                    string tmpSiteGuid = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
-                    Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrice = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetItemsPrice(new int[] { iFileId }, "conditionalaccess_125", wsPass, tmpSiteGuid, true);
+                    string tmpSiteGuid = new ApiUsersService(groupID, platform).SignIn("adina@tvinci.com", "eliron27");
+                    Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrice = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(new int[] { iFileId }, tmpSiteGuid, true);
                     //Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrice = null;
 
                     if (dictPrice != null && dictPrice.Keys.Contains(iFileId) && dictPrice[iFileId].m_oItemPrices != null && dictPrice[iFileId].m_oItemPrices.Length > 0)
@@ -378,7 +379,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
                         string sEndTime = string.Empty;
 
-                        TVPPro.SiteManager.TvinciPlatform.Pricing.MediaFilePPVModule[] ppvmodules = new PricingServiceEx(groupID, PlatformType.STB.ToString()).GetPPVModuleListForMediaFile(new int[] { iFileId }, string.Empty, string.Empty, string.Empty);
+                        TVPPro.SiteManager.TvinciPlatform.Pricing.MediaFilePPVModule[] ppvmodules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFile(new int[] { iFileId }, string.Empty, string.Empty, string.Empty);
                         if (ppvmodules != null && ppvmodules.Length > 0)
                         {
                             sEndTime = DateTime.Now.AddMinutes(ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle).ToString("dd/MM/yyyy HH:mm:ss");
@@ -443,9 +444,9 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                         string stmpPPVModule = vtiId.Split('-')[2];
                         double iPrice;
                         double.TryParse(vtiId.Split('-')[3], out iPrice);
-                        string snewSiteGuid = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
+                        string snewSiteGuid = new ApiUsersService(groupID, platform).SignIn("adina@tvinci.com", "eliron27");
                         //ConditionalAccessService.Instance.DummyChargeUserForMediaFile(iPrice, "USD", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP());
-                        string response = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).DummyChargeUserForMediaFileEx(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid);
+                        string response = new ApiConditionalAccessService(groupID, platform).DummyChargeUserForMediaFile(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid);
                         Logger.Logger.Log("Netgem purchasestatus", string.Format("Price:{0}, FileID:{1}, PPVModule:{2}, IP:{3}", iPrice, int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP()), "TVPApi");
 
                         XTM.WriteElementString("price", vtiId.Split('-')[3]);

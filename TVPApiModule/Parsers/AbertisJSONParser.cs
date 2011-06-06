@@ -15,7 +15,7 @@ namespace TVPApi
     {
         #region IParser Members
 
-        public string Parse(object obj, int items, int index, int groupID, long totalItemsCount, string platform)
+        public string Parse(object obj, int items, int index, int groupID, long totalItemsCount, PlatformType platform)
         {
             object objToParse = null;
             if (obj is Category)
@@ -136,7 +136,7 @@ namespace TVPApi
             return retVal;
         }
 
-        private ActivaChannel ParseGalleryItemToActivaChannel(GalleryItem item, int items, int index, int groupID, string platform)
+        private ActivaChannel ParseGalleryItemToActivaChannel(GalleryItem item, int items, int index, int groupID, PlatformType platform)
         {
             ActivaChannel retVal = new ActivaChannel();
             if (item != null)
@@ -155,7 +155,7 @@ namespace TVPApi
             return retVal;
         }
 
-        private ActivaChannel ParseChannelToActivaChannel(List<Media> medias, long totalItemsCount, int groupID, string platform)
+        private ActivaChannel ParseChannelToActivaChannel(List<Media> medias, long totalItemsCount, int groupID, PlatformType platform)
         {
             ActivaChannel retVal = new ActivaChannel();
             retVal.itemsCount = totalItemsCount;
@@ -226,7 +226,7 @@ namespace TVPApi
                         retVal.content.Add(activaMedia);
                     }
                 }
-                MediaFilePPVModule[] modules = new PricingServiceEx(groupID, platform).GetPPVModuleListForMediaFile(filesArr, string.Empty, string.Empty, string.Empty);
+                MediaFilePPVModule[] modules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFile(filesArr, string.Empty, string.Empty, string.Empty);
                 if (modules != null && modules.Length > 0)
                 {
                     foreach (MediaFilePPVModule module in modules)

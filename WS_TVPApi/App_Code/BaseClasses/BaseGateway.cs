@@ -15,7 +15,7 @@ public abstract class BaseGateway : System.Web.UI.Page
 
     protected abstract string GetWSPass();
 
-    protected string ParseObject(object obj, int groupID, int items, int index, long mediaCount, string platform)
+    protected string ParseObject(object obj, int groupID, int items, int index, long mediaCount, PlatformType platform)
     {
         string retVal = string.Empty;
         IParser parser = ParserHelper.GetParser(groupID);

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPPro.SiteManager.DataLoaders;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.Services;
-using TVPApiModule.users;
 using System.Configuration;
 using TVPApiModule.Services;
 using log4net;
+using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 /// <summary>
 /// Summary description for Media
@@ -148,16 +147,16 @@ namespace TVPApi
 
             MediaWebLink = GetMediaWebLink(groupID);
 
-            BuildTagMetas(groupID, row, initObj.Platform.ToString());
+            BuildTagMetas(groupID, row, initObj.Platform);
             if (withDynamic && initObj.Locale != null)
             {
                 logger.InfoFormat("Start Media dynamic build GroupID:", groupID);
                 
-                BuildDynamicObj(initObj.Locale.SiteGuid, initObj.Platform.ToString(), groupID);
+                BuildDynamicObj(initObj.Locale.SiteGuid, initObj.Platform, groupID);
             }
         }
 
-        private void BuildTagMetas(int groupID, dsItemInfo.ItemRow row, string platform)
+        private void BuildTagMetas(int groupID, dsItemInfo.ItemRow row, PlatformType platform)
         {
             string[] TagNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
             System.Data.DataRow[] tagsRow = row.GetChildRows("Item_Tags");
@@ -198,11 +197,11 @@ namespace TVPApi
         }
 
         //Build dynamic data if needed (is favorite, price, price status, notifications..)
-        private void BuildDynamicObj(string guid, string platform, int groupID)
+        private void BuildDynamicObj(string guid, PlatformType platform, int groupID)
         {
             this.MediaDynamicData = new DynamicData();
             
-            PermittedMediaContainer[] MediaItems = new ConditionalAccessServiceEx(groupID, platform).GetUserPermittedItems(guid, string.Format("conditionalaccess_{0}", groupID.ToString()), "11111");
+            PermittedMediaContainer[] MediaItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(guid);
             int mediID = int.Parse(MediaID);
             if (MediaItems != null)
             {
@@ -237,7 +236,7 @@ namespace TVPApi
             
             if (!string.IsNullOrEmpty(guid))
             {
-                if (IsItemFavorite(int.Parse(MediaID), guid))
+                if (IsItemFavorite(int.Parse(MediaID), guid, groupID, platform))
                 {
                     MediaDynamicData.IsFavorite = true;
                 }
@@ -249,12 +248,10 @@ namespace TVPApi
 
         }
 
-        private bool IsItemFavorite(int mediaID, string userGuid)
+        private bool IsItemFavorite(int mediaID, string userGuid, int groupID, PlatformType platform)
         {
             bool retVal = false;
-            TVPApiModule.users.UsersService userService = new TVPApiModule.users.UsersService();
-            int groupID = WSUtils.GetGroupIDByMediaType(int.Parse(MediaTypeID));
-            FavoritObject[] favoriteObj = userService.GetUserFavorites(string.Format("users_{0}", groupID.ToString()), "11111", userGuid, string.Empty, string.Empty);
+            FavoritObject[] favoriteObj = new ApiUsersService(groupID, platform).GetUserFavorites(userGuid, platform.ToString(), string.Empty);
             if (favoriteObj != null)
             {
                 for (int i = 0; i < favoriteObj.Length; i++)
@@ -269,7 +266,7 @@ namespace TVPApi
             return retVal;
         }
 
-        private void GetPrice(out string price, out PriceReason reason, int groupID, string userGuid, string platform)
+        private void GetPrice(out string price, out PriceReason reason, int groupID, string userGuid, PlatformType platform)
         {
             //string MediaPrice = string.Empty;
             price = "Free";
@@ -282,7 +279,7 @@ namespace TVPApi
                 MediasArray[0] = MediaFileID;
 
                 //Get media price from conditional access.
-                Dictionary<int, MediaFileItemPricesContainer> MediasPrices = new ConditionalAccessServiceEx(groupID, platform).GetItemsPrice(MediasArray, string.Format("conditionalaccess_{0}", groupID), "11111", userGuid, true);
+                Dictionary<int, MediaFileItemPricesContainer> MediasPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(MediasArray, userGuid, true);
                 
                 if (MediasPrices != null && MediasPrices.ContainsKey(MediaFileID))
                 {

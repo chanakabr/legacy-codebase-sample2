@@ -47,7 +47,7 @@ namespace TVPApi
         }
 
         //Init technichal and platform config (sync from file)
-        public ConfigType GetConfig(int groupID, string platform)
+        public ConfigType GetConfig(int groupID, PlatformType platform)
         {
             string sKey = string.Concat(groupID.ToString(), platform);
 

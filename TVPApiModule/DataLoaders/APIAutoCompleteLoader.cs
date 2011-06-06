@@ -58,7 +58,7 @@ namespace TVPApi
             SearchProtocol protocol = new SearchProtocol();
 
             protocol.root.request.search_data.channel.start_index = "0";
-            protocol.root.request.search_data.channel.media_count = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).SiteConfiguration.Data.Features.MovieFinder.MaxItems.ToString();
+            protocol.root.request.search_data.channel.media_count = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems.ToString();
             protocol.root.flashvars.player_un = m_tvmUser;
             protocol.root.flashvars.player_pass = m_tvmPass;
             protocol.root.request.@params.with_info = "true";

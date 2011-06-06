@@ -70,7 +70,7 @@ namespace TVPApi
             result.root.flashvars.player_un = m_tvmUser;
             result.root.flashvars.player_pass = m_tvmPass;
 
-            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
             result.root.request.@params.with_info = WithInfo.ToString();
             result.root.request.@params.info_struct.statistics = true;
@@ -78,13 +78,13 @@ namespace TVPApi
 
             if (WithInfo)
             {
-                string[] arrMetas = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+                string[] arrMetas = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
                 foreach (string metaName in arrMetas)
                 {
                     result.root.request.@params.info_struct.metaCollection.Add(new meta() { name = metaName });
                 }
 
-                string[] arrTags = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+                string[] arrTags = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
                 foreach (string tagName in arrTags)
                 {
                     result.root.request.@params.info_struct.tags.tag_typeCollection.Add(new tag_type() { name = tagName });

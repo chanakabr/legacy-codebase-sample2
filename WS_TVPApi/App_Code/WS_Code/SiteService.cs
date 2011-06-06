@@ -8,7 +8,7 @@ using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
-using TVPApiModule.ApiTvinciPlatform.Users;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 
 namespace TVPApiServices
@@ -371,8 +371,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
-                    sRet = ActionHelper.GetSiteGuid(userName, password, groupID, initObj.Platform);
+                    sRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignIn(userName, password);
                 }
                 catch (Exception ex)
                 {

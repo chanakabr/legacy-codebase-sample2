@@ -230,7 +230,7 @@ public partial class Gateways_NetGem : BaseGateway
                 }
                 //bool bLoginSuccess = new UsersServiceEx(groupID, PlatformType.STB.ToString()).SignIn("idow@gmail.com", "eliron27");
 
-                string sSiteGuid = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
+                string sSiteGuid = new ApiUsersService(groupID, PlatformType.STB).SignIn("adina@tvinci.com", "eliron27");
 
                 XTM.WriteStartElement("account");
                 XTM.WriteStartElement("information");
@@ -240,7 +240,7 @@ public partial class Gateways_NetGem : BaseGateway
                 XTM.WriteElementString("contract", sSiteGuid);
                 XTM.WriteElementString("date", "05/09/2010 08:39");
 
-                UserResponseObject userResponseObject = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserData(sSiteGuid);
+                UserResponseObject userResponseObject = new ApiUsersService(groupID, PlatformType.STB).GetUserData(sSiteGuid);
 
                 if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
                 {
@@ -251,7 +251,7 @@ public partial class Gateways_NetGem : BaseGateway
 
                 XTM.WriteEndElement(); // information
 
-                PermittedMediaContainer[] MediaPermitedItems = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetUserPermittedItems(sSiteGuid);
+                PermittedMediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, PlatformType.STB).GetUserPermittedItems(sSiteGuid);
 
                 XTM.WriteStartElement("streams");
                 if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
@@ -269,7 +269,7 @@ public partial class Gateways_NetGem : BaseGateway
 
                         int iFileID = int.Parse(ItemInfo.Item[i].FileID);
 
-                        Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrices = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetItemsPrice(new int[] { iFileID }, "conditionalaccess_125", wsPass, sSiteGuid, false);
+                        Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrices = new ApiConditionalAccessService(groupID, PlatformType.STB).GetItemsPrice(new int[] { iFileID }, sSiteGuid, false);
 
                         if (dictPrices != null && dictPrices.Keys.Contains(iFileID) && dictPrices[iFileID].m_oItemPrices != null && dictPrices[iFileID].m_oItemPrices.Length > 0)
                         {

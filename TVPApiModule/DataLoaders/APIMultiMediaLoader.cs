@@ -81,8 +81,8 @@ namespace TVPApiModule.DataLoaders
                 //// META1_STR_NAME
                 //result.root.request.@params.info_struct.tags.Add(new tag_type { name = "Series Name" });
 
-                string[] MetaNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
-                string[] TagNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+                string[] MetaNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+                string[] TagNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
 
                 foreach (string meta in MetaNames)
                 {
@@ -101,7 +101,7 @@ namespace TVPApiModule.DataLoaders
                 }
 
                 result.root.flashvars.file_quality = file_quality.high;
-                result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+                result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
 
             }
             return result;

@@ -8,8 +8,7 @@ using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
-using TVPApiModule.ca;
-using TVPApiModule.ApiTvinciPlatform.ConditionalAccess;
+using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 namespace TVPApiServices
 {

@@ -53,7 +53,7 @@ namespace TVPApi
         {
             ConnectionManager connMng = new ConnectionManager(GroupID, Platform, IsShared);
             dsPageData result = new dsPageData();
-            
+            Logger.Logger.Log("Page Data Loader", "Start Retrieve Data - " + GroupID.ToString() + "_" + Platform.ToString(), "TVPApi"); 
             // Fill pages table
             new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
             {
@@ -277,6 +277,7 @@ namespace TVPApi
             }, result.TVMAccounts).Execute();
 
             
+            Logger.Logger.Log("Page Data Loader", "Finish retrieve data " + GroupID.ToString() + "_" + Platform.ToString(), "TVPApi");
             return result;
         }
 

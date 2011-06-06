@@ -224,7 +224,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
             case "account":
                 //bool bLoginSuccess = new UsersServiceEx(groupID, PlatformType.STB.ToString()).SignIn("idow@gmail.com", "eliron27");
 
-                string sSiteGuid = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
+                string sSiteGuid = new ApiUsersService(groupID, PlatformType.STB).SignIn("adina@tvinci.com", "eliron27");
 
                 XTM.WriteStartElement("account");
                 XTM.WriteStartElement("information");
@@ -234,7 +234,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                 XTM.WriteElementString("contract", sSiteGuid);
                 XTM.WriteElementString("date", "05/09/2010 08:39");
 
-                UserResponseObject userResponseObject = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserData(sSiteGuid);
+                UserResponseObject userResponseObject = new ApiUsersService(groupID, PlatformType.STB).GetUserData(sSiteGuid);
 
                 if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
                 {
@@ -245,7 +245,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
 
                 XTM.WriteEndElement(); // information
 
-                PermittedMediaContainer[] MediaPermitedItems = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetUserPermittedItems(sSiteGuid);
+                PermittedMediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, PlatformType.STB).GetUserPermittedItems(sSiteGuid);
 
                 XTM.WriteStartElement("streams");
                 if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
@@ -263,7 +263,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
 
                         int iFileID = int.Parse(ItemInfo.Item[i].FileID);
 
-                        Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrices = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).GetItemsPrice(new int[] { iFileID }, "conditionalaccess_125", wsPass, sSiteGuid, false);
+                        Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> dictPrices = new ApiConditionalAccessService(groupID, PlatformType.STB).GetItemsPrice(new int[] { iFileID }, sSiteGuid, false);
 
                         if (dictPrices != null && dictPrices.Keys.Contains(iFileID) && dictPrices[iFileID].m_oItemPrices != null && dictPrices[iFileID].m_oItemPrices.Length > 0)
                         {
@@ -435,8 +435,8 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                         double iPrice;
                         double.TryParse(vtiId.Split('-')[3], out iPrice);
                         //ConditionalAccessService.Instance.DummyChargeUserForMediaFile(iPrice, "USD", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP());
-                        string snewSiteGuid = new UsersServiceEx(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
-                        string response = new ConditionalAccessServiceEx(groupID, PlatformType.STB.ToString()).DummyChargeUserForMediaFileEx(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid);
+                        string snewSiteGuid = new ApiUsersService(groupID, PlatformType.STB).SignIn("adina@tvinci.com", "eliron27");
+                        string response = new ApiConditionalAccessService(groupID, PlatformType.STB).DummyChargeUserForMediaFile(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid);
                         Logger.Logger.Log("Netgem purchasestatus", string.Format("Price:{0}, FileID:{1}, PPVModule:{2}, IP:{3}", iPrice, int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP()), "TVPApi");
 
                         XTM.WriteElementString("price", vtiId.Split('-')[3]);

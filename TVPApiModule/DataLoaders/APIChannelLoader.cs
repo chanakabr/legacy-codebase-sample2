@@ -7,7 +7,7 @@ using Tvinci.Data.TVMDataLoader.Protocols.ChannelsMedia;
 
 namespace TVPApi
 {
-    class APIChannelLoader : TVPPro.SiteManager.DataLoaders.TVMChannelLoader
+    public class APIChannelLoader : TVPPro.SiteManager.DataLoaders.TVMChannelLoader
     {
 
         private string m_tvmUser = string.Empty;
@@ -53,18 +53,19 @@ namespace TVPApi
             return true;
         }
 
-        public APIChannelLoader(long channelID, string picSize) 
-			: base(string.Empty, string.Empty, channelID, picSize)
-		{
-			// Do nothing.
-		}
-
-       
-
-        public APIChannelLoader(string TVMUser, string TVMPass, long channelID, string picSize):base(TVMUser,TVMPass,channelID, picSize)
+        public APIChannelLoader(long channelID, string picSize)
+            : base(string.Empty, string.Empty, channelID, picSize)
         {
-			m_tvmUser = TVMUser;
-			m_tvmPass = TVMPass;
+            // Do nothing.
+        }
+
+
+
+        public APIChannelLoader(string TVMUser, string TVMPass, long channelID, string picSize)
+            : base(TVMUser, TVMPass, channelID, picSize)
+        {
+            m_tvmUser = TVMUser;
+            m_tvmPass = TVMPass;
 
             if (string.IsNullOrEmpty(picSize))
             {
@@ -96,7 +97,7 @@ namespace TVPApi
                 result.root.flashvars.pic_size1_quality = "HIGH";
             }
 
-            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
             result.root.request.@params.with_info = WithInfo.ToString();
             result.root.request.@params.info_struct.statistics = true;
@@ -105,13 +106,13 @@ namespace TVPApi
 
             if (WithInfo)
             {
-                string[] arrMetas = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+                string[] arrMetas = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
                 foreach (string metaName in arrMetas)
                 {
                     result.root.request.@params.info_struct.metaCollection.Add(new meta() { name = metaName });
                 }
 
-                string[] arrTags = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+                string[] arrTags = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
                 foreach (string tagName in arrTags)
                 {
                     result.root.request.@params.info_struct.tags.tag_typeCollection.Add(new tag_type() { name = tagName });

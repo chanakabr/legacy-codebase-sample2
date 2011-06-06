@@ -10,9 +10,9 @@ using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.Helper;
 using System.Text;
 using TVPPro.Configuration.Media;
-using TVPApiModule.users;
 using TVPApiModule.DataLoaders;
 using TVPApiModule.Services;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 /// <summary>
 /// Summary description for MediaHelper
@@ -186,8 +186,8 @@ namespace TVPApi
         public static List<string> GetAutoCompleteList(int groupID, PlatformType platform, int subGroupID)
         {
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular);
-            string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, platform.ToString()).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
-            string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, platform.ToString()).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
+            string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
+            string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
 
             CustomAutoCompleteLoader customAutoCompleteLoader = new APICustomAutoCompleteLoader(account.TVMUser, account.TVMPass) { MetaNames = arrMetaNames, TagNames = arrTagNames, Platform = platform, GroupID = groupID };
             List<String> lstResponse = new List<String>(customAutoCompleteLoader.Execute());
@@ -370,8 +370,7 @@ namespace TVPApi
 
                 case UserItemType.Favorite:
                     {
-                        TVPApiModule.users.UsersService userService = new TVPApiModule.users.UsersService();
-                        FavoritObject[] favoritesObj = userService.GetUserFavorites(string.Format("users_{0}", regAccount.BaseGroupID.ToString()), "11111", initObj.Locale.SiteGuid, string.Empty, string.Empty);
+                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.Locale.SiteGuid, string.Empty, string.Empty);
                         string[] favoritesList;// = TVPPro.SiteManager.Helper.FavoritesHelper.GetUserFavoriteMedias(mediaType, guid, true);
 
                         if (favoritesObj != null)
@@ -394,13 +393,13 @@ namespace TVPApi
                     }
                 case UserItemType.Rental:
                     {
-                        PermittedMediaContainer[] MediaPermitedItems = new ConditionalAccessServiceEx(groupID, initObj.Platform.ToString()).GetUserPermittedItems(guid);
+                        PermittedMediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(guid);
                         mediaInfo = (new TVMRentalMultiMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, picSize, 1) {  MediasIdCotainer = MediaPermitedItems }).Execute();
                         break;
                     }
                 case UserItemType.Package:
                     {
-                        PermittedSubscriptionContainer[] PermitedPackages = new ConditionalAccessServiceEx(groupID, initObj.Platform.ToString()).GetUserPermitedSubscriptions(guid);
+                        PermittedSubscriptionContainer[] PermitedPackages = new ApiConditionalAccessService(groupID, initObj.Platform).GetUserPermitedSubscriptions(guid);
                         if (PermitedPackages != null && PermitedPackages.Length > 0)
                         {
                             Dictionary<string, string> BaseIdsDict = new Dictionary<string, string>();

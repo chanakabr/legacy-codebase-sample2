@@ -4,28 +4,28 @@ using System.Linq;
 using System.Text;
 using TVPApi;
 using log4net;
-using TVPApiModule.ApiTvinciPlatform.ConditionalAccess;
+using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 namespace TVPApiModule.Services
 {
-    public class ConditionalAccessService
+    public class ApiConditionalAccessService
     {
         #region Variables
-        private static ILog logger = log4net.LogManager.GetLogger(typeof(ConditionalAccessService));
+        private static ILog logger = log4net.LogManager.GetLogger(typeof(ApiConditionalAccessService));
 
-        private ApiTvinciPlatform.ConditionalAccess.module m_Module;
+        private TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module m_Module;
         
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
 
         private int m_groupID;
-        private string m_platform;
+        private PlatformType m_platform;
         #endregion
 
         #region C'tor
-        public ConditionalAccessService(int groupID, string platform)
+        public ApiConditionalAccessService(int groupID, PlatformType platform)
         {
-            m_Module = new ApiTvinciPlatform.ConditionalAccess.module();
+            m_Module = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module();
             m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.URL;
             m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
             m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
@@ -52,7 +52,22 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
+        public PermittedMediaContainer[] GetUserPermittedItems(string sSiteGuid)
+        {
+            throw new NotImplementedException();
+        }
 
+        public Dictionary<int, MediaFileItemPricesContainer> GetItemsPrice(int[] MediasArray, string userGuid, bool bOnlyLowest)
+        {
+            throw new NotImplementedException();
+        }
+
+        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(string guid)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
+
+        
     }
 }

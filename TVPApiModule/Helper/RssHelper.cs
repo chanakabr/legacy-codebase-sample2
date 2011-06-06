@@ -11,9 +11,9 @@ namespace TVPApiModule.Helper
     {
         public static string GetSiteBaseURL(bool isSecure, int groupID, PlatformType platform)
         {
-            if ( ConfigManager.GetInstance().GetConfig(groupID, platform.ToString().ToLower()).TechnichalConfiguration.Data.Site.ApplicativeBaseUri.UsePermanentURL)
+            if ( ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.Site.ApplicativeBaseUri.UsePermanentURL)
             {
-                return string.Concat(((isSecure) ? ConfigManager.GetInstance().GetConfig(groupID, platform.ToString().ToLower()).TechnichalConfiguration.Data.Site.ApplicativeBaseUri.SecureBaseUri : ConfigManager.GetInstance().GetConfig(groupID, platform.ToString().ToLower()).TechnichalConfiguration.Data.Site.ApplicativeBaseUri.BaseUri).TrimEnd('/'), '/');
+                return string.Concat(((isSecure) ? ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.Site.ApplicativeBaseUri.SecureBaseUri : ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.Site.ApplicativeBaseUri.BaseUri).TrimEnd('/'), '/');
             }
             else
             {
@@ -25,10 +25,10 @@ namespace TVPApiModule.Helper
         {
             string RssPath = string.Empty;
 
-            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(int.Parse(GroupId.ToString()), platform.ToString().ToLower()).TechnichalConfiguration.Data.TVM.TVMRssURL))
+            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(int.Parse(GroupId.ToString()), platform).TechnichalConfiguration.Data.TVM.TVMRssURL))
             {
                 RssPath = string.Format("{0}?group_id={1}&type=rss&channel_id={2}&base_url={3}&pic={4}",
-                        ConfigManager.GetInstance().GetConfig(int.Parse(GroupId.ToString()), platform.ToString().ToLower()).TechnichalConfiguration.Data.TVM.TVMRssURL,
+                        ConfigManager.GetInstance().GetConfig(int.Parse(GroupId.ToString()), platform).TechnichalConfiguration.Data.TVM.TVMRssURL,
                         GroupId.ToString(),
                         ChannelId.ToString(),
                         GetSiteBaseURL(false, GroupId, platform),
@@ -45,10 +45,10 @@ namespace TVPApiModule.Helper
         {
             string RssPath = string.Empty;
 
-            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupId, platform.ToString().ToLower()).TechnichalConfiguration.Data.TVM.TVMRssURL))
+            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupId, platform).TechnichalConfiguration.Data.TVM.TVMRssURL))
             {
                 RssPath = string.Format("{0}?group_id={1}&type=rss&channel_id={2}&base_url={3}&pic={4}&quality={5}&format={6}",
-                        ConfigManager.GetInstance().GetConfig(int.Parse(GroupId.ToString()), platform.ToString().ToLower()).TechnichalConfiguration.Data.TVM.TVMRssURL,
+                        ConfigManager.GetInstance().GetConfig(int.Parse(GroupId.ToString()), platform).TechnichalConfiguration.Data.TVM.TVMRssURL,
                         GroupId.ToString(),
                         ChannelId.ToString(),
                         GetSiteBaseURL(false, GroupId, platform),
@@ -65,10 +65,10 @@ namespace TVPApiModule.Helper
         {
             string RssPath = string.Empty;
 
-            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupId, platform.ToString().ToLower()).TechnichalConfiguration.Data.TVM.TVMRssURL))
+            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupId, platform).TechnichalConfiguration.Data.TVM.TVMRssURL))
             {
                 RssPath = string.Format("{0}?group_id={1}&type=rss&media_ids={2}&base_url={3}&pic={4}&quality={5}&format={6}&roles={7}",
-                        ConfigManager.GetInstance().GetConfig(int.Parse(GroupId.ToString()), platform.ToString().ToLower()).TechnichalConfiguration.Data.TVM.TVMRssURL,
+                        ConfigManager.GetInstance().GetConfig(int.Parse(GroupId.ToString()), platform).TechnichalConfiguration.Data.TVM.TVMRssURL,
                         GroupId.ToString(),
                         MediaIDStr.ToString(),
                         GetSiteBaseURL(false, GroupId, platform),
@@ -85,11 +85,11 @@ namespace TVPApiModule.Helper
         {
             string RssPath = string.Empty;
 
-            if (!string.IsNullOrEmpty( ConfigManager.GetInstance().GetConfig(groupID, platform.ToString().ToLower()).TechnichalConfiguration.Data.TVM.TVMRssURL))
+            if (!string.IsNullOrEmpty( ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.TVMRssURL))
             {
                 TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByUser((string)tvmUser);
                 RssPath = string.Format("{0}?group_id={1}&type=rss&channel_id={2}&base_url={3}&pic={4}",
-                        ConfigManager.GetInstance().GetConfig(groupID, platform.ToString().ToLower()).TechnichalConfiguration.Data.TVM.TVMRssURL,
+                        ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.TVMRssURL,
                         account.GroupID.ToString(),
                         ChannelId.ToString(),
                         GetSiteBaseURL(false, groupID, platform),

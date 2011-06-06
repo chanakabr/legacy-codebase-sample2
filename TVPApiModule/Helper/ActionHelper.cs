@@ -4,7 +4,8 @@ using System.Linq;
 using System.Web;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.tvapi;
-using TVPApiModule.users;
+using TVPApiModule.Services;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 /// <summary>
 /// Summary description for ActionHelper
@@ -15,22 +16,24 @@ namespace TVPApi
     public class ActionHelper
     {
 
-        public static string GetSiteGuid(string userName, string password, int groupID, PlatformType platform)
-        {
-            string retVal = string.Empty;
-            TVPApiModule.users.UsersService userService = new TVPApiModule.users.UsersService();
-            int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
-            UserResponseObject respObj = userService.CheckUserPassword(string.Format("users_{0}", regGroupID), "11111", userName, password, false);
-            if (respObj != null && respObj.m_RespStatus == ResponseStatus.OK)
-            {
-                if (respObj.m_user != null)
-                {
-                    retVal = respObj.m_user.m_sSiteGUID;
-                }
-            }
-            return retVal;
- 
-        }
+        //public static string GetSiteGuid(string userName, string password, int groupID, PlatformType platform)
+        //{
+        //    string retVal = string.Empty;
+        //    UsersService userService = new TVPApiModule.users.UsersService();
+        //    int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
+        //    UserResponseObject respObj = userService.CheckUserPassword(string.Format("users_{0}", regGroupID), "11111", userName, password, false);
+        //    if (respObj != null && respObj.m_RespStatus == ResponseStatus.OK)
+        //    {
+        //        if (respObj.m_user != null)
+        //        {
+        //            retVal = respObj.m_user.m_sSiteGUID;
+        //        }
+        //    }
+
+        //    userService
+        //    return retVal;
+
+        //}
 
         public static bool PerformAction(ActionType action, int mediaID, int mediaType, int groupID, PlatformType platform, string sID, int extraVal)
         {
@@ -41,19 +44,16 @@ namespace TVPApi
                 case ActionType.AddFavorite:
                     {
                         long guidNum = Convert.ToInt64(sID);
-                        TVPApiModule.users.UsersService userService = new TVPApiModule.users.UsersService();
                         int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
-                        userService.AddUserFavorit(string.Format("users_{0}", regGroupID.ToString()), "11111", sID, platform.ToString(), mediaType.ToString(), mediaID.ToString(), string.Empty);
+                        new ApiUsersService(groupID, platform).AddUserFavorite(sID, platform.ToString(), mediaType.ToString(), mediaID.ToString(), string.Empty);
                         //retVal = FavoritesHelper.AddToFavorites(mediaType, mediaID.ToString(), guidNum);
                         break;
                     }
                 case ActionType.RemoveFavorite:
                     {
                         long guidNum = Convert.ToInt64(sID);
-                        TVPApiModule.users.UsersService userService = new TVPApiModule.users.UsersService();
-                        //TVPApiModule.users.UsersService userService = new TVPApiModule.users.UsersService();
                         int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
-                        FavoritObject[] favoritesObj = userService.GetUserFavorites(string.Format("users_{0}", regGroupID), "11111", sID, string.Empty, string.Empty);
+                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(sID, platform.ToString(), string.Empty);
                         if (favoritesObj != null)
                         {
                             int favoriteID = 0;
@@ -67,7 +67,7 @@ namespace TVPApi
                             }
                             if (favoriteID > 0)
                             {
-                                userService.RemoveUserFavorit(string.Format("users_{0}", regGroupID), "11111", sID, favoriteID);
+                                new ApiUsersService(groupID, platform).RemoveUserFavorite(sID, favoriteID);
                                 retVal = true;
                             }
                         }

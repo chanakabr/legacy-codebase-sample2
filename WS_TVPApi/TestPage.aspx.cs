@@ -61,7 +61,7 @@ public partial class TestPage : System.Web.UI.Page
         long count = 0;
         //service.GetRelatedMediaWithMediaCount(initObj, user, pass, 122682, 0, "full", 5, 0, ref count);
         //service.SignIn(initObj, user, pass, "test3@test.tt", "123456");
-        m_mediaService.GetMediaInfo(initObj, user, pass, 122632, 257, "full", true);
+        m_mediaService.GetMediaInfo(initObj, 122632, 257, "full", true);
         //Media media = service.GetMediaInfo(initObj, user, pass, 122620, 257, "full", true);
        // bool added = service.ActionDone(initObj, user, pass, ActionType.AddFavorite, 83905, 181);
         //bool isFavorite = service.IsMediaFavorite(initObj, user, pass, 88536);

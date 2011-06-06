@@ -22,6 +22,18 @@ namespace TVPApi
 
         }
 
+        public string Language
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Language", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
+            }
+        }
+
         public TVPApi.OrderBy OrderBy
         {
             get
@@ -70,10 +82,10 @@ namespace TVPApi
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
         {
             SearchProtocol protocol = new SearchProtocol();
-            
+
             protocol.root.request.search_data.channel.start_index = (PageIndex * PageSize).ToString();
             protocol.root.request.search_data.channel.media_count = PageSize.ToString();
-            protocol.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            protocol.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             protocol.root.flashvars.file_quality = Tvinci.Data.TVMDataLoader.Protocols.Search.file_quality.high;
 
             protocol.root.flashvars.player_un = m_tvmUser;
@@ -82,6 +94,8 @@ namespace TVPApi
             //if (string.IsNullOrEmpty(PictureSize))
             //    throw new Exception("Picture size must be given");
             protocol.root.flashvars.pic_size1 = PictureSize;
+
+            protocol.root.flashvars.lang = Language;
 
             if (IsPosterPic)
             {
@@ -99,8 +113,8 @@ namespace TVPApi
                 protocol.root.request.@params.info_struct.name.MakeSchemaCompliant();
                 protocol.root.request.@params.info_struct.description.MakeSchemaCompliant();
 
-                string[] MediaInfoStructMetaNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
-                string[] MediaInfoStructTagNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+                string[] MediaInfoStructMetaNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+                string[] MediaInfoStructTagNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
 
                 foreach (string meta in MediaInfoStructMetaNames)
                 {
@@ -116,7 +130,7 @@ namespace TVPApi
             //Handle request cut values
             protocol.root.request.search_data.cut_values.exact = ExactSearch;
             protocol.root.request.search_data.cut_with = CutType.ToString().ToLower();
-           
+
             if (MediaType.HasValue)
                 protocol.root.request.search_data.cut_values.type.value = (MediaType.Value).ToString();
 
@@ -124,8 +138,8 @@ namespace TVPApi
             {
                 protocol.root.request.search_data.cut_values.name.value = Name;
 
-                string[] MetaNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.SearchValues.Metadata.ToString().Split(new Char[] { ';' });
-                string[] TagNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform.ToString()).MediaConfiguration.Data.TVM.SearchValues.Tags.ToString().Split(new Char[] { ';' });
+                string[] MetaNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.SearchValues.Metadata.ToString().Split(new Char[] { ';' });
+                string[] TagNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.SearchValues.Tags.ToString().Split(new Char[] { ';' });
 
                 foreach (string meta in MetaNames)
                 {

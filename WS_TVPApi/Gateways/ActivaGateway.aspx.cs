@@ -164,7 +164,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
 
             if (retObj != null && !(retObj is string))
             {
-                retVal = ParseObject(retObj, groupID, nItems, nIndex, itemsCount, PlatformType.STB.ToString().ToLower());
+                retVal = ParseObject(retObj, groupID, nItems, nIndex, itemsCount, PlatformType.STB);
                 retVal = string.Format("{0}({1})", callBack, retVal);
                 Logger.Logger.Log("Activa Response ", "Request :" + Request.Url.ToString() + " Response :" + retVal, "TVPApi");
             }
