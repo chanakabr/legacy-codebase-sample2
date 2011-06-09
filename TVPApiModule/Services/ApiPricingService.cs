@@ -39,9 +39,23 @@ namespace TVPApiModule.Services
 
         #endregion
 
-        public MediaFilePPVModule[] GetPPVModuleListForMediaFile(int[] p, string sCountry, string sLanguage, string sDevice)
+        public MediaFilePPVModule[] GetPPVModuleListForMediaFiles(int[] mediaFiles, string sCountry, string sLanguage, string sDevice)
         {
-            throw new NotImplementedException();
+            MediaFilePPVModule[] response = null;
+            try
+            {
+                response = m_Module.GetPPVModuleListForMediaFiles(m_wsUserName, m_wsPassword, mediaFiles, sCountry, sLanguage, sDevice);
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (int media in mediaFiles)                
+                    sb.Append(media + ",");
+                
+                logger.ErrorFormat("Error calling webservice protocol : GetPPVModuleListForMediaFiles, Error Message: {0} Parameters: Medias: {1}", ex.Message, sb.ToString());
+            }
+
+            return response;
         }
     }
 }

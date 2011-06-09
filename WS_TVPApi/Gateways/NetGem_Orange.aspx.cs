@@ -19,6 +19,7 @@ using TVPPro.SiteManager.DataLoaders;
 using TVPPro.SiteManager.DataEntities;
 using System.Data;
 using TVPPro.SiteManager.Context;
+using TVPApiModule.Services;
 
 public partial class Gateways_NetGem_Orange : BaseGateway
 {
@@ -30,7 +31,7 @@ public partial class Gateways_NetGem_Orange : BaseGateway
     protected void Page_Load(object sender, EventArgs e)
     {
         Logger.Logger.Log("Netgem Orange Request ", Request.Url.ToString(), "TVPApi");
-        Service tvpapiService = new Service();
+        
         long itemsCount = 0;
         string retVal = string.Empty;
         string action = Request.QueryString["Action"];
@@ -43,6 +44,7 @@ public partial class Gateways_NetGem_Orange : BaseGateway
 
         broadcasterName = "novetest";
         int groupID = 35;// GetGroupIDByBroadcasterName(broadcasterName, ref wsUser, ref wsPass);
+        
         int nIndex = 0;
         if (!string.IsNullOrEmpty(index))
         {
@@ -55,147 +57,6 @@ public partial class Gateways_NetGem_Orange : BaseGateway
         }
 
         string callBack = Request.QueryString["callback"];
-        object retObj = null;
-        //Init();
-
-        #region Marked
-        // check if request in cache and write it 
-        //if (m_dataCaching.TryGetData<object>(HttpContext.Current.Request.Url.ToString().ToLower(), out retObj))
-        //{
-        //    if (retObj != null && retObj is string)
-        //    {
-        //        Response.Clear();
-        //        Response.Write(retObj.ToString());
-        //        Response.Expires = -1;
-        //        Response.End();
-        //        return;
-        //    }
-        //}
-
-        //Logger.Logger.Log("Start Call ", "Start query - " + wsUser + " " + wsPass, "TVPApi");
-        //try
-        //{
-        //    tvpapiService.GetSiteMap(GetInitObj(), wsUser, wsPass);
-        //    //SiteMapManager.GetInstance.GetMember(groupID, PlatformType.STB);
-
-        //    if (!string.IsNullOrEmpty(action))
-        //    {
-        //        switch (action.ToLower())
-        //        {
-        //            case "getfunctions": //<--
-        //                {
-        //                    //PageContext page = tvpapiService.GetPageByToken(GetInitObj(), wsUser, wsPass, 
-        //                    PageContext page = PageDataHelper.GetPageContextByToken(GetInitObj(), groupID, Pages.HomePage, false, false);
-        //                    if (page != null)
-        //                    {
-        //                        foreach (PageGallery pg in page.MainGalleries)
-        //                        {
-        //                            retObj = pg.GalleryItems;
-        //                            break;
-        //                        }
-        //                    }
-        //                    //page.MainGalleries
-        //                    break;
-        //                }
-        //            case "getpage": //<--
-        //                {
-        //                    string tokenStr = Request.QueryString["Token"];
-        //                    string level = Request.QueryString["level"];
-
-        //                    Pages token = ParseStringToToken(tokenStr);
-        //                    PageContext page = tvpapiService.GetPageByToken(GetInitObj(), wsUser, wsPass, token, false, false);
-        //                    //PageContext page = PageDataHelper.GetPageContextByToken(GetInitObj(), groupID, token, false, false);
-        //                    if (level.Equals("3"))
-        //                    {
-        //                        retObj = page;
-        //                    }
-        //                    else if (level.Equals("1"))
-        //                    {
-        //                        PageGallery pg = page.MainGalleries.FirstOrDefault();
-        //                        if (pg != null)
-        //                        {
-        //                            GalleryItem gi = pg.GalleryItems.FirstOrDefault();
-        //                            if (gi != null)
-        //                            {
-        //                                retObj = gi;
-        //                            }
-        //                        }
-        //                    }
-        //                    break;
-        //                }
-        //            case "getfunctionassets": //<--
-        //                {
-        //                    List<Media> mediaList = tvpapiService.GetChannelMediaListWithMediaCount(GetInitObj(), wsUser, wsPass, long.Parse(id), "full", int.Parse(items), int.Parse(index), ref itemsCount);
-        //                    //List<Media> mediaList = MediaHelper.GetChannelMediaList(GetInitObj(), long.Parse(id), "full", nItems, nIndex, groupID);
-        //                    retObj = mediaList;
-        //                    break;
-        //                }
-        //            case "getrelatedmedia": //<--
-        //                {
-        //                    List<Media> mediaList = tvpapiService.GetRelatedMediaWithMediaCount(GetInitObj(), wsUser, wsPass, int.Parse(id), 0, "full", int.Parse(items), int.Parse(index), ref itemsCount);
-        //                    retObj = mediaList;
-
-        //                    break;
-        //                }
-        //            case "search": //<--
-        //                {
-        //                    string val = Request.QueryString["query"];
-
-        //                    List<Media> mediaList = tvpapiService.SearchMediaWithMediaCount(GetInitObj(), wsUser, wsPass, val, 0, "full", int.Parse(items), int.Parse(index), (OrderBy)TVPApi.OrderBy.ABC, ref itemsCount);
-        //                    //List<Media> mediaList = MediaHelper.SearchMedia(GetInitObj(), 0, val, "full", int.Parse(items), 0, groupID, groupID, (int)TVPApi.OrderBy.ABC);
-        //                    retObj = mediaList;
-
-        //                    break;
-        //                }
-        //            case "typingsearch": //<--
-        //                {
-        //                    string val = Request.QueryString["query"];
-        //                    List<string> autos = MediaHelper.GetAutoCompleteList(groupID, PlatformType.STB, groupID);
-        //                    //List<Media> mediaList = MediaHelper.SearchMedia(GetInitObj(), 0, val, "full", int.Parse(items), 0, 121, 122, (int)TVPApi.OrderBy.ABC);
-        //                    //retObj = mediaList;
-        //                    retObj = ParseAutoCompleteList(autos, val);
-        //                    retVal = (string)retObj;
-        //                    retVal = string.Format("{0}({1})", callBack, retVal);
-        //                    break;
-        //                }
-        //            case "getcatchup": //<--
-        //                {
-        //                    string dateStr = Request.QueryString["day"].ToString();
-        //                    List<Media> mediaList = tvpapiService.SearchMediaByMetaWithMediaCount(GetInitObj(), wsUser, wsPass, "Date", dateStr, 0, "full", int.Parse(items), int.Parse(index), OrderBy.Added, ref itemsCount);
-        //                    retObj = mediaList;
-        //                    // List<Media> mediaList = MediaHelper.SearchMediaByMeta(GetInitObj(), 0, "Date", dateStr, "full", int.Parse(items), int.Parse(index), groupID, (int)(TVPPro.SiteManager.Context.Enums.eOrderBy.Added));
-        //                    // caMod.get
-        //                    break;
-        //                }
-        //            case "GetMediaFilse":
-        //                {
-        //                    ca.module caMod = new ca.module();
-        //                    // caMod.get
-        //                    break;
-        //                }
-        //            default:
-        //                break;
-        //        }
-        //    }
-
-
-        //    if (retObj != null && !(retObj is string))
-        //    {
-        //        retVal = ParseObject(retObj, groupID, nItems, nIndex, itemsCount);
-        //        retVal = string.Format("{0}({1})", callBack, retVal);
-        //        Logger.Logger.Log("Activa Response ", "Request :" + Request.Url.ToString() + " Response :" + retVal, "TVPApi");
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    ActivaErrorObj errObj = new ActivaErrorObj();
-
-        //    errObj.status = string.Format("Error on server : {0}", ex.Message);
-        //    retVal = string.Format("{0}({1})", callBack, CreateJson(errObj));
-        //    Logger.Logger.Log("Activa Error on request ", "Request :" + Request.Url.ToString() + " Error: " + ex.Message + " " + ex.StackTrace, "TVPApiExceptions");
-        //}
-        #endregion
-
         string sType = Request.QueryString["type"];
         string titId = Request.QueryString["titId"];
         if (!string.IsNullOrEmpty(titId))
@@ -217,7 +78,7 @@ public partial class Gateways_NetGem_Orange : BaseGateway
         switch (sType)
         {
             case "account":
-
+                /*
                 TVPPro.SiteManager.Services.UsersService.Instance.SignIn("idow@gmail.com", "eliron27");
 
                 long iSiteGuid = TVPPro.SiteManager.Services.UsersService.Instance.GetUserID();
@@ -273,7 +134,7 @@ public partial class Gateways_NetGem_Orange : BaseGateway
                 XTM.WriteEndElement(); // account
 
                 XTM.WriteEndDocument();
-
+                */
                 break;
             case "content":
                 string sMediaID = titId.Split('-')[0];
@@ -499,6 +360,7 @@ public partial class Gateways_NetGem_Orange : BaseGateway
             case "category":
                 string chid = Request.QueryString["chid"];
                 string picsize = Request.QueryString["picsize"];
+                string tvmChid = Request.QueryString["intChid"];
 
                 XTM.WriteStartElement("collection");
                 XTM.WriteStartElement("items");
@@ -506,7 +368,7 @@ public partial class Gateways_NetGem_Orange : BaseGateway
                 if (chid.Equals("myfavorites"))
                 {
                     //TVPPro.SiteManager.Services.UsersService.Instance.SignIn("chen@tvinci.com", "eliron27");
-
+                    /*
                     Service service = new Service();
                     InitializationObject initObj = GetInitObj();
                     initObj.Locale = new Locale();
@@ -518,18 +380,18 @@ public partial class Gateways_NetGem_Orange : BaseGateway
 
                     foreach (Media fav in userItems)
                     {
-                        XTM.WriteElementString("id", string.Concat(fav.MediaID, "-", fav.MediaTypeID));
-                    }
+                        XTM.WriteElementString("id", string.Concat(fav.MediaID, "-", fav.MediaTypeID + "-" + chid));
+                    }*/
                 }
                 else
                 {
                     long mediaCount = 0;
-                    dsItemInfo ChannelItemInfo = new APIChannelLoader("ocontent_item_prod", "ocontent_item_prod", long.Parse(chid), "full") { Platform = PlatformType.STB, GroupID = 35, WithInfo = true }.Execute();
+                    dsItemInfo ChannelItemInfo = new APIChannelLoader("ocontent_item_prod", "ocontent_item_prod", long.Parse(tvmChid), "full") { Platform = PlatformType.STB, GroupID = 35, WithInfo = true }.Execute();
                     //List<Media> lstMedias = tvpapiService.GetChannelMediaListWithMediaCount(GetInitObj(), wsUser, wsPass, long.Parse(chid), "full", 50, 0, ref mediaCount);
 
                     foreach (dsItemInfo.ItemRow row in ChannelItemInfo.Item.Rows)
                     {
-                        XTM.WriteElementString("id", row["ID"] + "-" + row["MediaTypeID"]);
+                        XTM.WriteElementString("id", row["ID"] + "-" + row["MediaTypeID"] + "-" + chid);
                     }
 
                     //if (lstMedias != null)
@@ -566,22 +428,22 @@ public partial class Gateways_NetGem_Orange : BaseGateway
 
                 XTM.WriteStartElement("xml-link");
                 XTM.WriteElementString("name", "Son'ka - zolotaja ruchka");
-                XTM.WriteElementString("url", "/gateways/netgem_orange.aspx?type=category&chid=325370&picsize=95X130");
+                XTM.WriteElementString("url", "/gateways/netgem_orange.aspx?type=category&intChid=325370&picsize=95X130&chid=51");
                 XTM.WriteEndElement();
 
                 XTM.WriteStartElement("xml-link");
                 XTM.WriteElementString("name", "Israilskie filmy short");
-                XTM.WriteElementString("url", "/gateways/netgem_orange.aspx?type=category&chid=324236&picsize=95X130");
+                XTM.WriteElementString("url", "/gateways/netgem_orange.aspx?type=category&intChid=324236&picsize=95X130&chid=51");
                 XTM.WriteEndElement();
 
                 XTM.WriteStartElement("xml-link");
                 XTM.WriteElementString("name", "Zvjozdy menjajut professiju");
-                XTM.WriteElementString("url", "/gateways/netgem_orange.aspx?type=category&chid=312232&picsize=95X130");
+                XTM.WriteElementString("url", "/gateways/netgem_orange.aspx?type=category&intChid=312232&picsize=95X130&chid=51");
                 XTM.WriteEndElement();
 
                 XTM.WriteStartElement("xml-link");
                 XTM.WriteElementString("name", "Teleperedachi short");
-                XTM.WriteElementString("url", "/gateways/netgem_orange.aspx?type=category&chid=307465&picsize=95X130");
+                XTM.WriteElementString("url", "/gateways/netgem_orange.aspx?type=category&intChid=307465&picsize=95X130&chid=51");
                 XTM.WriteEndElement();
 
                 XTM.WriteEndDocument();
@@ -613,63 +475,6 @@ public partial class Gateways_NetGem_Orange : BaseGateway
         Response.Clear();
         Response.Write(sw.ToString().Replace("utf-16", "utf-8"));
         Response.End();
-    }
-
-    private int GetGroupIDByBroadcasterName(string broadcasterName, ref string wsUser, ref string wsPass)
-    {
-        int retVal = 0;
-        switch (broadcasterName.ToLower())
-        {
-            case "tele5":
-                {
-                    retVal = 122;
-                    wsUser = "tvpapi_122";
-                    wsPass = "11111";
-                    break;
-                }
-            case "whitelabel":
-                {
-                    retVal = 123;
-                    wsUser = "tvpapi_123";
-                    wsPass = "11111";
-                    break;
-                }
-            case "whitelabel2":
-                {
-                    retVal = 124;
-                    wsUser = "tvpapi_124";
-                    wsPass = "11111";
-                    break;
-                }
-
-            case "novetest":
-                {
-                    retVal = 93;
-                    wsUser = "tvpapi_93";
-                    wsPass = "11111";
-                    break;
-                }
-            default:
-                {
-                    retVal = 122;
-                    wsUser = "tvpapi_122";
-                    wsPass = "11111";
-                    break;
-                }
-        }
-        return retVal;
-    }
-
-
-
-    protected override InitializationObject GetInitObj()
-    {
-        InitializationObject retVal = new InitializationObject();
-        retVal.Platform = PlatformType.STB;
-        //Locale locale = new Locale();
-        //locale.LocaleLanguage = "es";
-        //retVal.Locale = locale;
-        return retVal;
     }
 
     private string ParseAutoCompleteList(List<string> lstResponse, string preFix)
@@ -713,18 +518,6 @@ public partial class Gateways_NetGem_Orange : BaseGateway
         }
         return retVal;
     }
-
-    protected override string GetWSPass()
-    {
-        return "11111";
-    }
-
-    protected override string GetWSUser()
-    {
-        return "tvp_121";
-    }
-
-
 
     private string CreateJson(object obj)
     {

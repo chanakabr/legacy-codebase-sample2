@@ -16,7 +16,7 @@ namespace TVPApiModule.Services
         #region Variables
         private readonly ILog logger = LogManager.GetLogger(typeof(ApiUsersService));
         private TVPPro.SiteManager.TvinciPlatform.Users.UsersService m_Module;
-        
+
         private string m_wsUserName;
         private string m_wsPassword;
 
@@ -65,6 +65,7 @@ namespace TVPApiModule.Services
             try
             {
                 m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
+                IsRemoved = true;
             }
             catch (Exception ex)
             {
@@ -74,27 +75,63 @@ namespace TVPApiModule.Services
             return IsRemoved;
         }
 
-        public FavoritObject[] GetUserFavorites(string userGuid, string sApplication, string sItemType)
+        public FavoritObject[] GetUserFavorites(string sSiteGuid, string sApplication, string sItemType)
         {
-            throw new NotImplementedException();
+            FavoritObject[] response = null;
+
+            try
+            {
+                response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, sApplication, sItemType);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol GetUserFavorites, Error Message: {0} Parameters : User {1}, Application: {2}", ex.Message, sSiteGuid, sApplication);
+            }
+
+            return response;
         }
 
-        public void AddUserFavorite(string sID, string sApplication, string sMediaType, string sMediaID, string sExtra)
+        public void AddUserFavorite(string sSiteGuid, string sApplication, string sMediaType, string sMediaID, string sExtra)
         {
-            throw new NotImplementedException();
+            try
+            {
+                m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, sApplication, sMediaType, sMediaID, sExtra);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol AddUserFavorite, Error Message: {0} Parameters : User {1}, Application: {2}, Media: {3}", ex.Message, sSiteGuid, sApplication, sMediaID);
+            }
         }
 
-        public void RemoveUserFavorite(string sID, int favoriteID)
-        {
-            throw new NotImplementedException();
+        public void RemoveUserFavorite(string sSiteGuid, int favoriteID)
+        {            
+            try
+            {
+                m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, favoriteID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol RemoveUserFavorite, Error Message: {0} Parameters : User {1}, Favourite: {2}", ex.Message, sSiteGuid, favoriteID);
+            }
         }
 
         public UserResponseObject GetUserData(string sSiteGuid)
         {
-            throw new NotImplementedException();
+            UserResponseObject response = null;
+
+            try
+            {
+                response = m_Module.GetUserData(m_wsUserName, m_wsPassword, sSiteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol GetUserData, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
+            }
+
+            return response;
         }
         #endregion
 
-        
+
     }
 }

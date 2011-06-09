@@ -279,11 +279,18 @@ namespace TVPApi
                 MediasArray[0] = MediaFileID;
 
                 //Get media price from conditional access.
-                Dictionary<int, MediaFileItemPricesContainer> MediasPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(MediasArray, userGuid, true);
-                
-                if (MediasPrices != null && MediasPrices.ContainsKey(MediaFileID))
+                MediaFileItemPricesContainer[] MediasPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(MediasArray, userGuid, true);
+
+                if (MediasPrices != null)
                 {
-                    MediaFileItemPricesContainer mediaPriceCont = MediasPrices[MediaFileID];
+                    //Locating the media inside the array
+                    MediaFileItemPricesContainer mediaPriceCont = null;
+                    foreach (MediaFileItemPricesContainer mp in MediasPrices)
+                    {
+                        if (mp.m_nMediaFileID == MediaFileID)
+                            mediaPriceCont = mp;
+                    }
+                    
                     if (mediaPriceCont != null)
                     {
                         if (mediaPriceCont.m_oItemPrices != null)

@@ -9,6 +9,7 @@ using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using TVPApiModule.Services;
 
 namespace TVPApiServices
 {
@@ -24,10 +25,10 @@ namespace TVPApiServices
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(MediaService));
 
-        #region Get media 
+        #region Get media
 
         //Get specific media info
-        [WebMethod(EnableSession=true, Description="Get specific media info")]
+        [WebMethod(EnableSession = true, Description = "Get specific media info")]
         [System.Xml.Serialization.XmlInclude(typeof(DynamicData))]
         public Media GetMediaInfo(InitializationObject initObj, long MediaID, int mediaType, string picSize, bool withDynamic)
         {
@@ -63,7 +64,7 @@ namespace TVPApiServices
             List<Media> lstMedia = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("GetChannelMediaList-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform, ChannelID, picSize, pageSize, pageIndex);
 
             if (groupID > 0)
@@ -92,7 +93,7 @@ namespace TVPApiServices
             List<Media> lstMedia = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("GetChannelMediaListWithMediaCount-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}, mediaCount: {6}]", groupID, initObj.Platform, ChannelID, picSize, pageSize, pageIndex, mediaCount);
 
             if (groupID > 0)
@@ -121,7 +122,7 @@ namespace TVPApiServices
             bool bRet = false;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("IsMediaFavorite-> [{0}, {1}], Params:[mediaID: {2}]", groupID, initObj.Platform, mediaID);
 
             if (groupID > 0)
@@ -150,7 +151,7 @@ namespace TVPApiServices
             List<Comment> lstComment = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("GetMediaComments-> [{0}, {1}], Params:[mediaID: {2}, pageSize: {3}, pageIndex: {4}]", groupID, initObj.Platform, mediaID, pageSize, pageIndex);
 
             if (groupID > 0)
@@ -179,7 +180,7 @@ namespace TVPApiServices
             List<Media> lstMedia = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("GetUserItems-> [{0}, {1}], Params:[ItemType: {2}]", groupID, initObj.Platform, itemType);
 
             if (groupID > 0)
@@ -270,7 +271,7 @@ namespace TVPApiServices
             List<Media> lstMedia = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("GetPeopleWhoWatched-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex);
 
             if (groupID > 0)
@@ -308,7 +309,7 @@ namespace TVPApiServices
             List<Media> lstMedia = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("SearchMediaByTag-> [{0}, {1}], Params:[tagName: {2}, value: {3}, mediaType: {4}, picSize: {5}, pageSize: {6}, pageIndex: {7}, orderBy: {8}]", groupID, initObj.Platform, tagName, value, mediaType, picSize, pageSize, pageIndex, orderBy);
 
             if (groupID > 0)
@@ -481,7 +482,7 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             logger.InfoFormat("GetNMostSearchedTexts-> [{0}, {1}], Params:[N: {2}, pageSize: {3}, start_index: {4}]", groupID, initObj.Platform, N, pageSize, start_index);
-            
+
             if (groupID > 0)
             {
                 // TODO:
@@ -501,9 +502,9 @@ namespace TVPApiServices
             string[] retVal = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("GetAutoCompleteSearchList-> [{0}, {1}], Params:[prefixText: {2}]", groupID, initObj.Platform, prefixText);
-            
+
             if (groupID > 0)
             {
                 List<string> lstRet = new List<String>();
@@ -527,11 +528,11 @@ namespace TVPApiServices
         // Perform action on media (AddFavorite, Comment, Like, Rate, Recommend, Record, Reminder, RemoveFavorite, Share, Watch)
         [WebMethod(EnableSession = true, Description = "Perform action on media (AddFavorite, Comment, Like, Rate, Recommend, Record, Reminder, RemoveFavorite, Share, Watch)")]
         public bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal)
-        {   
+        {
             bool retVal = false;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActionDone", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("ActionDone-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, extraVal: {4}]", groupID, initObj.Platform, mediaID, mediaType, extraVal);
 
             if (groupID > 0)
@@ -569,21 +570,93 @@ namespace TVPApiServices
         {
             bool bRet = false;
 
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsItemPurchased", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("IsItemPurchased-> [{0}, {1}], Params:[fileID: {2}, user: {3}]", groupId, initObj.Platform, iFileID, sUserGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    MediaFileItemPricesContainer[] prices = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(new int[] { iFileID }, sUserGuid, true);
+
+                    if (prices == null || prices.Length == 0)
+                        return bRet;
+                    
+                    MediaFileItemPricesContainer mediaPrice = null;
+                    foreach (MediaFileItemPricesContainer mp in prices)
+                    {
+                        if (mp.m_nMediaFileID == iFileID)
+                            mediaPrice = mp;
+                    }
+
+                    bRet = mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice == 0;
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("IsItemPurchased->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("IsItemPurchased-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
             return bRet;
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased items for a user")]
-        public PermittedMediaContainer[] GetUserPermittedItems(string sID)
+        public PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj, string sSiteGuid)
         {
             PermittedMediaContainer[] permittedMediaContainer = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserPermittedItems-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, sSiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    permittedMediaContainer = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(sSiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserPermittedItems->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserPermittedItems-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
 
             return permittedMediaContainer;
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions for a user")]
-        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string guid)
+        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string sSiteGuid)
         {
             PermittedSubscriptionContainer[] permitedSubscriptions = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserPermitedSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, sSiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(sSiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserPermitedSubscriptions->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserPermitedSubscriptions-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
 
             return permitedSubscriptions;
         }
@@ -605,10 +678,30 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
-        public MediaFileItemPricesContainer[] GetItemPrices(InitializationObject initObj, string guid, double iPrice, string sCurrency, int iFileID, string sSubscriptionID, string sUserIP, string sCoupon)
+        public MediaFileItemPricesContainer[] GetItemPrices(InitializationObject initObj, string sSiteGuid, int[] fileIds, bool bOnlyLowest)
         {
             MediaFileItemPricesContainer[] itemPrices = null;
 
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetItemPrices-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, sSiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    itemPrices = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(fileIds, sSiteGuid, bOnlyLowest);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetItemPrices->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetItemPrices-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+            
             return itemPrices;
         }
         #endregion

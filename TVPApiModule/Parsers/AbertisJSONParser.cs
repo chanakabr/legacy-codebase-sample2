@@ -226,7 +226,7 @@ namespace TVPApi
                         retVal.content.Add(activaMedia);
                     }
                 }
-                MediaFilePPVModule[] modules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFile(filesArr, string.Empty, string.Empty, string.Empty);
+                MediaFilePPVModule[] modules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFiles(filesArr, string.Empty, string.Empty, string.Empty);
                 if (modules != null && modules.Length > 0)
                 {
                     foreach (MediaFilePPVModule module in modules)

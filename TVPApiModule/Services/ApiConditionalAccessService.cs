@@ -54,20 +54,51 @@ namespace TVPApiModule.Services
 
         public PermittedMediaContainer[] GetUserPermittedItems(string sSiteGuid)
         {
-            throw new NotImplementedException();
+            PermittedMediaContainer[] response = null;
+
+            try
+            {
+                response = m_Module.GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserPermittedItems, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
+            }
+
+            return response;
         }
 
-        public Dictionary<int, MediaFileItemPricesContainer> GetItemsPrice(int[] MediasArray, string userGuid, bool bOnlyLowest)
+        public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid, bool bOnlyLowest)
         {
-            throw new NotImplementedException();
+            MediaFileItemPricesContainer[] response = null;
+            
+            try
+            {
+                response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetItemsPrice, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
+            }
+
+            return response;
         }
 
-        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(string guid)
+        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(string sSiteGuid)
         {
-            throw new NotImplementedException();
+            PermittedSubscriptionContainer[] response = null;
+
+            try
+            {
+                response = m_Module.GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserPermitedSubscriptions, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
+            }
+
+            return response;
         }
         #endregion
-
-        
     }
 }

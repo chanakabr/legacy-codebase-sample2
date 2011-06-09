@@ -390,7 +390,7 @@ namespace TVPApiServices
         public UserResponseObject SignUp(InitializationObject initObj, UserBasicData userBasicData, UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
-
+            
             return response;
         }
 
@@ -412,6 +412,34 @@ namespace TVPApiServices
         public UserResponseObject SetUserData(InitializationObject initObj, UserBasicData userBasicData, UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
+            
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get user details info")]
+        public UserResponseObject GetUserData(InitializationObject initObj, string sSiteGuid)
+        {
+            UserResponseObject response = new UserResponseObject();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserData-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, sSiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(sSiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserData->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserData-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
 
             return response;
         }

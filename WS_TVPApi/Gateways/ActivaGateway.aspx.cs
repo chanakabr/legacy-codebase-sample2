@@ -28,7 +28,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
         string broadcasterName = Request.QueryString["broadcasterName"];
         string wsUser = string.Empty;
         string wsPass = string.Empty;
-        int groupID = GetGroupIDByBroadcasterName(broadcasterName, ref wsUser, ref wsPass);
+        int groupID = GetGroupIDByBroadcasterName(broadcasterName);
         
         int nIndex = 0;
         int nItems = 0;
@@ -232,63 +232,6 @@ public partial class Gateways_ActivaGateway : BaseGateway
         }
     }
 
-    private int GetGroupIDByBroadcasterName(string broadcasterName, ref string wsUser, ref string wsPass)
-    {
-        int retVal = 0;
-        switch (broadcasterName.ToLower())
-        {
-            case "tele5":
-                {
-                    retVal = 122;
-                    wsUser = "tvpapi_122";
-                    wsPass = "11111";
-                    break;
-                }
-            case "whitelabel":
-                {
-                    retVal = 123;
-                    wsUser = "tvpapi_123";
-                    wsPass = "11111";
-                    break;
-                }
-            case "whitelabel2":
-                {
-                    retVal = 124;
-                    wsUser = "tvpapi_124";
-                    wsPass = "11111";
-                    break;
-                }
-
-            case "novetest":
-                {
-                    retVal = 93;
-                    wsUser = "tvpapi_93";
-                    wsPass = "11111";
-                    break;
-                }
-            default:
-                {
-                    retVal = 122;
-                    wsUser = "tvpapi_122";
-                    wsPass = "11111";
-                    break;
-                }
-        }
-        return retVal;
-    }
-
-   
-
-    protected override InitializationObject GetInitObj()
-    {
-        InitializationObject retVal = new InitializationObject();
-        retVal.Platform = PlatformType.STB;
-        //Locale locale = new Locale();
-        //locale.LocaleLanguage = "es";
-        //retVal.Locale = locale;
-        return retVal;
-    }
-
     private string ParseAutoCompleteList(List<string> lstResponse, string preFix)
     {
         TVPApi.AbertisJSONParser.AutoCompleteList retVal = new AbertisJSONParser.AutoCompleteList();
@@ -330,19 +273,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
         }
         return retVal;
     }
-
-    protected override string GetWSPass()
-    {
-        return "11111";
-    }
-
-    protected override string GetWSUser()
-    {
-        return "tvp_121";
-    }
-
     
-
     private string CreateJson(object obj)
     {
         StringBuilder sb = new StringBuilder();
