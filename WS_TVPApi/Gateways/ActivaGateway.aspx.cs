@@ -17,17 +17,14 @@ public partial class Gateways_ActivaGateway : BaseGateway
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        Logger.Logger.Log("Activa Request ", Request.Url.ToString(), "TVPApi");
-        Service tvpapiService = new Service();
+        Logger.Logger.Log("Activa Request ", Request.Url.ToString(), "TVPApi");        
         long itemsCount = 0;
         string retVal = string.Empty;
         string action = Request.QueryString["Action"];
         string id = Request.QueryString["id"];
         string items = Request.QueryString["items"];
         string index = Request.QueryString["index"];
-        string broadcasterName = Request.QueryString["broadcasterName"];
-        string wsUser = string.Empty;
-        string wsPass = string.Empty;
+        string broadcasterName = Request.QueryString["broadcasterName"];        
         int groupID = GetGroupIDByBroadcasterName(broadcasterName);
         
         int nIndex = 0;
@@ -41,13 +38,13 @@ public partial class Gateways_ActivaGateway : BaseGateway
         string callBack = Request.QueryString["callback"];
         //Init();
 
-        Logger.Logger.Log("Start Call ", "Start query - " + wsUser + " " + wsPass, "TVPApi");
+        Logger.Logger.Log("Start Call ", "Start query - " + WsUserName + " " + WsUserName, "TVPApi");
 
         // check if request in cache and write it
         object retObj = HttpRuntime.Cache.Get(HttpContext.Current.Request.Url.ToString().ToLower());
         if (retObj != null && retObj is string)
         {
-            Logger.Logger.Log("Response from cache", "query - " + wsUser + " " + wsPass, "TVPApi");
+            Logger.Logger.Log("Response from cache", "query - " + WsUserName + " " + WsUserName, "TVPApi");
 
             Response.Clear();
             Response.Write(retObj.ToString());
@@ -57,7 +54,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
 
         try
         {
-            tvpapiService.GetSiteMap(GetInitObj(), wsUser, wsPass);
+            m_SiteService.GetSiteMap(GetInitObj());            
             //SiteMapManager.GetInstance.GetMember(groupID, PlatformType.STB);
 
             if (!string.IsNullOrEmpty(action))
@@ -85,7 +82,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
                             string level = Request.QueryString["level"];
 
                             Pages token = ParseStringToToken(tokenStr);
-                            PageContext page = tvpapiService.GetPageByToken(GetInitObj(), wsUser, wsPass, token, false, false);
+                            PageContext page = m_SiteService.GetPageByToken(GetInitObj(), token, false, false);
                             //PageContext page = PageDataHelper.GetPageContextByToken(GetInitObj(), groupID, token, false, false);
                             if (level.Equals("3"))
                             {
@@ -107,15 +104,14 @@ public partial class Gateways_ActivaGateway : BaseGateway
                         }
                     case "getfunctionassets": //<--
                         {
-                            List<Media> mediaList = tvpapiService.GetChannelMediaListWithMediaCount(GetInitObj(), wsUser, wsPass, nID, "full", nItems, nIndex, ref itemsCount);
+                            List<Media> mediaList = m_MediaService.GetChannelMediaListWithMediaCount(GetInitObj(), nID, "full", nItems, nIndex, ref itemsCount);                                
                             //List<Media> mediaList = MediaHelper.GetChannelMediaList(GetInitObj(), long.Parse(id), "full", nItems, nIndex, groupID);
                             retObj = mediaList;
                             break;
                         }
                     case "getrelatedmedia": //<--
                         {
-
-                            List<Media> mediaList = tvpapiService.GetRelatedMediaWithMediaCount(GetInitObj(), wsUser, wsPass, nID, 0, "full", nItems, nIndex, ref itemsCount);
+                            List<Media> mediaList = m_MediaService.GetRelatedMediaWithMediaCount(GetInitObj(), nID, 0, "full", nItems, nIndex, ref itemsCount);                                
                             retObj = mediaList;
                             
                             break;
@@ -124,7 +120,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
                         {
                             string val = Request.QueryString["query"];
 
-                            List<Media> mediaList = tvpapiService.SearchMediaWithMediaCount(GetInitObj(), wsUser, wsPass, val, 0, "full", nItems, nIndex, (OrderBy)TVPApi.OrderBy.Added, ref itemsCount); 
+                            List<Media> mediaList = m_MediaService.SearchMediaWithMediaCount(GetInitObj(), val, 0, "full", nItems, nIndex, (OrderBy)TVPApi.OrderBy.Added, ref itemsCount);                                
                             //List<Media> mediaList = MediaHelper.SearchMedia(GetInitObj(), 0, val, "full", int.Parse(items), 0, groupID, groupID, (int)TVPApi.OrderBy.ABC);
                             retObj = mediaList;
                             
@@ -144,7 +140,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
                     case "getcatchup": //<--
                         {
                             string dateStr = Request.QueryString["day"].ToString();
-                            List<Media> mediaList = tvpapiService.SearchMediaByMetaWithMediaCount(GetInitObj(), wsUser, wsPass, "Date", dateStr, 0, "full", nItems, nIndex, OrderBy.Added, ref itemsCount);
+                            List<Media> mediaList = m_MediaService.SearchMediaByMetaWithMediaCount(GetInitObj(), "Date", dateStr, 0, "full", nItems, nIndex, OrderBy.Added, ref itemsCount);                                
                             retObj = mediaList;
                            // List<Media> mediaList = MediaHelper.SearchMediaByMeta(GetInitObj(), 0, "Date", dateStr, "full", int.Parse(items), int.Parse(index), groupID, (int)(TVPPro.SiteManager.Context.Enums.eOrderBy.Added));
                             // caMod.get

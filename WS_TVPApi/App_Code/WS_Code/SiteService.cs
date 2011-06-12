@@ -387,10 +387,30 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-Up a new user")]
-        public UserResponseObject SignUp(InitializationObject initObj, UserBasicData userBasicData, UserDynamicData userDynamicData)
+        public UserResponseObject SignUp(InitializationObject initObj, UserBasicData userBasicData, UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
         {
             UserResponseObject response = new UserResponseObject();
-            
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignUp", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SignUp-> [{0}, {1}], Params:[userName: {2}, password: {3}]", groupID, initObj.Platform, userBasicData.m_sUserName, sPassword);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignUp(userBasicData, userDynamicData, sPassword, sAffiliateCode);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SignUp->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SignUp-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
             return response;
         }
 
@@ -405,13 +425,53 @@ namespace TVPApiServices
         {
             bool bRet = false;
 
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsUserSignedIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            
+            logger.InfoFormat("IsUserSignedIn-> [{0}, {1}], Params:[userName: {2}, password: {3}]", groupID, initObj.Platform, userName);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(userName);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("IsUserSignedIn->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("IsUserSignedIn-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
             return bRet;
         }
 
         [WebMethod(EnableSession = true, Description = "Edit user details info")]
-        public UserResponseObject SetUserData(InitializationObject initObj, UserBasicData userBasicData, UserDynamicData userDynamicData)
+        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, UserBasicData userBasicData, UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SignIn-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, sSiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, userBasicData, userDynamicData);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SetUserData->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SetUserData-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
             
             return response;
         }

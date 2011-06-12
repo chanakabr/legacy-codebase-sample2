@@ -52,10 +52,43 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : CheckUserPassword, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, sUserName, sPassword);
+                logger.ErrorFormat("Error calling webservice protocol : SignIn, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, sUserName, sPassword);
             }
 
             return sGuid;
+        }
+
+        public UserResponseObject SignUp(UserBasicData userBasicData, UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
+        {
+            UserResponseObject response = null;
+            try
+            {
+                response = m_Module.AddNewUser(m_wsUserName, m_wsPassword, userBasicData, userDynamicData, sPassword, sAffiliateCode);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SignUp, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, userBasicData.m_sUserName, sPassword);
+            }
+
+            return response;
+        }
+
+        public bool IsUserLoggedIn(string sUsername)
+        {
+            bool bRet = false;
+            try
+            {
+                /* TODO: complete */
+                UserResponseObject response = m_Module.GetUserByUsername(m_wsUserName, m_wsPassword, sUsername);
+                if (response.m_RespStatus == ResponseStatus.UserAllreadyLoggedIn)
+                    bRet = true;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : IsUserLoggedIn, Error Message: {0}, Parameters :  Username: {1}", ex.Message, sUsername);
+            }
+
+            return bRet;
         }
 
         public bool RemoveUserFavorite(int iFavoriteID)
@@ -65,7 +98,7 @@ namespace TVPApiModule.Services
             try
             {
                 m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
-                IsRemoved = true;
+                IsRemoved = true;                
             }
             catch (Exception ex)
             {
@@ -104,7 +137,7 @@ namespace TVPApiModule.Services
         }
 
         public void RemoveUserFavorite(string sSiteGuid, int favoriteID)
-        {            
+        {
             try
             {
                 m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, favoriteID);
@@ -130,8 +163,23 @@ namespace TVPApiModule.Services
 
             return response;
         }
-        #endregion
 
+        public UserResponseObject SetUserData(string sSiteGuid, UserBasicData userBasicData, UserDynamicData userDynamicData)
+        {
+            UserResponseObject response = null;
+
+            try
+            {
+                response = m_Module.SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData, userDynamicData);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol SetUserData, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
+            }
+
+            return response;
+        }
+        #endregion
 
     }
 }
