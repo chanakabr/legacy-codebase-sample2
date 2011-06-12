@@ -568,6 +568,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Check if item is purchased")]
         public bool IsItemPurchased(InitializationObject initObj, int iFileID, string sUserGuid)
         {
+            
             bool bRet = false;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsItemPurchased", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
