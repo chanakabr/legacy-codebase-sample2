@@ -13,7 +13,6 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Manager;
-using Logger;
 using log4net;
 
 namespace TVPApi

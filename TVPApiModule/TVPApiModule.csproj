@@ -171,10 +171,6 @@
       <Project>{B76F07E3-91C2-44A7-B80B-EB60BFB07825}</Project>
       <Name>Tvinci.Helpers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TVM\Libs\Core\Logger\Logger.csproj">
-      <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
-      <Name>Logger %28Web Services\Logger%29</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Branch\Libs\TVPPro.Configuration\TVPPro.Configuration.csproj">
       <Project>{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}</Project>
       <Name>TVPPro.Configuration</Name>

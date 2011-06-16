@@ -6,12 +6,13 @@ using Tvinci.Data.DataLoader.PredefinedAdapters;
 using Tvinci.Helpers;
 using TVPPro.SiteManager.DataEntities;
 using Tvinci.Data.DataLoader;
-using Logger;
+using log4net;
 
 namespace TVPApi
 {
     public class APIPageDataLoader : TVPPro.SiteManager.DataLoaders.PageDataLoader
     {
+        private readonly ILog logger = LogManager.GetLogger(typeof(APIPageDataLoader));
 
         public int GroupID
         {
@@ -53,7 +54,8 @@ namespace TVPApi
         {
             ConnectionManager connMng = new ConnectionManager(GroupID, Platform, IsShared);
             dsPageData result = new dsPageData();
-            Logger.Logger.Log("Page Data Loader", "Start Retrieve Data - " + GroupID.ToString() + "_" + Platform.ToString(), "TVPApi"); 
+            logger.InfoFormat("CreateSourceResult-> Start Retrieve Data - {0}_{1}", GroupID, Platform);
+
             // Fill pages table
             new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
             {
@@ -276,8 +278,7 @@ namespace TVPApi
 
             }, result.TVMAccounts).Execute();
 
-            
-            Logger.Logger.Log("Page Data Loader", "Finish retrieve data " + GroupID.ToString() + "_" + Platform.ToString(), "TVPApi");
+            logger.InfoFormat("CreateSourceResult-> Finish retrieve data - {0}_{1}", GroupID, Platform);
             return result;
         }
 

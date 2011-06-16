@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
-using Logger;
 using Tvinci.Data.DataLoader;
 using System.Threading;
 using log4net;
