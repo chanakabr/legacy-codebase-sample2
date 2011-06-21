@@ -33,7 +33,7 @@ namespace TVPApiServices
         public SiteMap GetSiteMap(InitializationObject initObj)
         {
             SiteMap retSiteMap = null;
-
+            
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSiteMap", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetSiteMap-> [{0}, {1}]", groupID, initObj.Platform);
