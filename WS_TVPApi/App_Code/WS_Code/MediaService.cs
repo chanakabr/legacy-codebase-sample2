@@ -372,7 +372,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    return MediaHelper.SearchMediaByMeta(initObj, mediaType, metaName, value, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+                    return MediaHelper.SearchMediaByMeta(initObj, mediaType, metaName, value, picSize, pageSize, pageIndex, groupID, (int)orderBy, ref mediaCount);
                 }
                 catch (Exception ex)
                 {

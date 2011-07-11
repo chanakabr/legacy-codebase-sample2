@@ -140,7 +140,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
                     case "getcatchup": //<--
                         {
                             string dateStr = Request.QueryString["day"].ToString();
-                            List<Media> mediaList = m_MediaService.SearchMediaByMetaWithMediaCount(GetInitObj(), "Date", dateStr, 0, "full", nItems, nIndex, OrderBy.Added, ref itemsCount);                                
+                            List<Media> mediaList = m_MediaService.SearchMediaByMetaWithMediaCount(GetInitObj(), "Date", dateStr, 0, "full", nItems, nIndex, OrderBy.Added, ref itemsCount);
                             retObj = mediaList;
                            // List<Media> mediaList = MediaHelper.SearchMediaByMeta(GetInitObj(), 0, "Date", dateStr, "full", int.Parse(items), int.Parse(index), groupID, (int)(TVPPro.SiteManager.Context.Enums.eOrderBy.Added));
                             // caMod.get

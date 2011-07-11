@@ -77,7 +77,7 @@ namespace TVPApi
             SearchRelated protocol = new SearchRelated();
             protocol.root.request.media.id = MediaID.ToString();
 
-            protocol.root.request.channel.start_index = "0";
+            protocol.root.request.channel.start_index = PageIndex.ToString();
             protocol.root.request.channel.number_of_items = PageSize.ToString();
             protocol.root.flashvars.pic_size1 = PicSize;
             protocol.root.request.@params.with_info = "true";

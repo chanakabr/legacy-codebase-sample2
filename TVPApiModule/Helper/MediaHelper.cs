@@ -320,7 +320,6 @@ namespace TVPApi
                     break;
             }
 
-
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
                 int startIndex = (pageIndex) * pageSize;
