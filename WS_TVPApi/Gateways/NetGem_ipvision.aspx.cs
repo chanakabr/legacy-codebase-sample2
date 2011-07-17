@@ -219,7 +219,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                     if (!String.IsNullOrEmpty(media.URL))
                         XTM.WriteElementString("URL", string.Concat(media.URL, "?bla=", counter++));
                     else
-                        XTM.WriteElementString("URL", string.Concat("http://mystika.tvinci.cdngc.net/Ipvision/trailer.wmv", "?bla=", counter++));
+                        XTM.WriteElementString("URL", string.Concat("http://ibc.cdngc.net/Ipvision/trailer.wmv", "?bla=", counter++));
 
                     //if (media.URL.StartsWith("http://"))                   
                     //    XTM.WriteElementString("URL", media.URL);
@@ -289,7 +289,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
                     XTM.WriteStartElement("trailerContentFileList");
                     XTM.WriteStartElement("element");
-                    XTM.WriteElementString("URL", "http://mystika.tvinci.cdngc.net/Ipvision/trailer.wmv");
+                    XTM.WriteElementString("URL", "http://ibc.cdngc.net/Ipvision/trailer.wmv");
                     XTM.WriteElementString("encodingType", "");
 
                     XTM.WriteEndElement();
