@@ -184,7 +184,7 @@ namespace TVPApi
                     }
                     if (!string.IsNullOrEmpty(media.PicURL))
                     {
-                        activaMedia.assetSmallThumbnail = GetSizedImage(media.PicURL, "120X90"); //old "138X90"
+                        activaMedia.assetSmallThumbnail = GetSizedImage(media.PicURL, "160X90"); //old "138X90"
                         activaMedia.assetMedThumbnail = GetSizedImage(media.PicURL, "144X108"); //old "143X105"
                         activaMedia.assetBigThumbnail = GetSizedImage(media.PicURL, "400X225"); //old 824X460
                     }

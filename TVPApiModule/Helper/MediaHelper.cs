@@ -56,8 +56,8 @@ namespace TVPApi
 
         public static bool IsFavoriteMedia(string sID, int itemID, string platform)
         {
-            long guidNum = Convert.ToInt64(sID);
-            return FavoritesHelper.ItemExistOnFavorite(itemID.ToString(), guidNum);
+            //long guidNum = Convert.ToInt64(sID);
+            return FavoritesHelper.ItemExistOnFavorite(itemID.ToString(), sID);
         }
 
         //Call search protocol
