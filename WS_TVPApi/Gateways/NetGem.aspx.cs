@@ -79,7 +79,7 @@ public partial class Gateways_NetGem : BaseGateway
         {
             case "account":
 
-                string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27");
+                string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
 
                 XTM.WriteStartElement("account");
                 XTM.WriteStartElement("information");

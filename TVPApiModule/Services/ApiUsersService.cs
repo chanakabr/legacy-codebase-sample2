@@ -22,6 +22,13 @@ namespace TVPApiModule.Services
 
         private int m_groupID;
         private PlatformType m_platform;
+
+        [Serializable]
+        public struct LogInResponseData
+        {
+            public string SiteGuid;
+            public int DomainID;
+        }
         #endregion
 
         #region C'tor
@@ -38,16 +45,18 @@ namespace TVPApiModule.Services
         #endregion C'tor
 
         #region Public methods
-        public string SignIn(string sUserName, string sPassword)
+        public LogInResponseData SignIn(string sUserName, string sPassword)
         {
-            string sGuid = string.Empty;
+            LogInResponseData loginData = new LogInResponseData();
+
             try
             {
                 UserResponseObject response = m_Module.CheckUserPassword(m_wsUserName, m_wsPassword, sUserName, sPassword, true);
 
                 if (response != null && response.m_user != null)
                 {
-                    sGuid = response.m_user.m_sSiteGUID;
+                    loginData.SiteGuid = response.m_user.m_sSiteGUID;
+                    loginData.DomainID = response.m_user.m_domianID;
                 }
             }
             catch (Exception ex)
@@ -55,7 +64,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : SignIn, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, sUserName, sPassword);
             }
 
-            return sGuid;
+            return loginData;
         }
 
         public UserResponseObject SignUp(UserBasicData userBasicData, UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
@@ -91,7 +100,7 @@ namespace TVPApiModule.Services
             return bRet;
         }
 
-        public bool RemoveUserFavorite(int iFavoriteID)
+        public bool RemoveUserFavorite(int[] iFavoriteID)
         {
             bool IsRemoved = false;
 
@@ -108,35 +117,35 @@ namespace TVPApiModule.Services
             return IsRemoved;
         }
 
-        public FavoritObject[] GetUserFavorites(string sSiteGuid, string sApplication, string sItemType)
+        public FavoritObject[] GetUserFavorites(string sSiteGuid, string sItemType, int iDomainID, string sUDID)
         {
             FavoritObject[] response = null;
 
             try
             {
-                response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, sApplication, sItemType);
+                response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sItemType);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol GetUserFavorites, Error Message: {0} Parameters : User {1}, Application: {2}", ex.Message, sSiteGuid, sApplication);
+                logger.ErrorFormat("Error recive user data Protocol GetUserFavorites, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
             }
 
             return response;
         }
 
-        public void AddUserFavorite(string sSiteGuid, string sApplication, string sMediaType, string sMediaID, string sExtra)
+        public void AddUserFavorite(string sSiteGuid, int iDomainID, string sUDID, string sMediaType, string sMediaID, string sExtra)
         {
             try
             {
-                m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, sApplication, sMediaType, sMediaID, sExtra);
+                m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol AddUserFavorite, Error Message: {0} Parameters : User {1}, Application: {2}, Media: {3}", ex.Message, sSiteGuid, sApplication, sMediaID);
+                logger.ErrorFormat("Error recive user data Protocol AddUserFavorite, Error Message: {0} Parameters : User {1}, Media: {2}", ex.Message, sSiteGuid, sMediaID);
             }
         }
 
-        public void RemoveUserFavorite(string sSiteGuid, int favoriteID)
+        public void RemoveUserFavorite(string sSiteGuid, int[] favoriteID)
         {
             try
             {

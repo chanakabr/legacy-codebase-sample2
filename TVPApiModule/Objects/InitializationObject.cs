@@ -15,26 +15,32 @@ namespace TVPApi
         //User locale object
         public Locale Locale { get; set; }
         //User Platform
-        private PlatformType m_Platform = PlatformType.Unknown;
 
-        public PlatformType Platform
-        {
-            get
-            {
-                return m_Platform;
-            }
-            set
-            {
-                m_Platform = value;
-            }
-        }
+        public PlatformType Platform { get; set; }
+
+        public string SiteGuid { set; get; }
+        public int DomainID { set; get; }
+        public string UDID { set; get; }
+
+        public string ApiUser { get; set; }
+        public string ApiPass { get; set; }
 
         public InitializationObject()
         {
 
         }
+    }
 
-        public string ApiUser { get; set; }
-        public string ApiPass { get; set; }
+    public class Locale
+    {
+        public string LocaleLanguage { get; set; }
+        public string LocaleCountry { get; set; }
+        public string LocaleDevice { get; set; }
+        public TVPApi.LocaleUserState LocaleUserState { get; set; }
+
+        public Locale()
+        {
+
+        }
     }
 }

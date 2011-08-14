@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using TVPApi;
+using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 
 namespace TVPApiServices
 {
@@ -72,6 +73,13 @@ namespace TVPApiServices
         [OperationContract]
         List<Media> GetMediasByRating(InitializationObject initObj, int rating);
 
+        [OperationContract]
+        string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation);
+
+        [OperationContract]
+        string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation);
+
+        TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);
         // TODO: Add your service operations here
     }
 }

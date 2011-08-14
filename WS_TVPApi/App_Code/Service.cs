@@ -345,7 +345,7 @@ public class Service : System.Web.Services.WebService
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
-        return m_siteService.SignIn(initObj, userName, password);
+        return m_siteService.SignIn(initObj, userName, password).SiteGuid;
     }
 
     #endregion

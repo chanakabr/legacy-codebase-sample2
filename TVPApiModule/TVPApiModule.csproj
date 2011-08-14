@@ -83,7 +83,9 @@
     <Compile Include="DataLoaders\APIAutoCompleteLoader.cs" />
     <Compile Include="DataLoaders\APIChannelLoader.cs" />
     <Compile Include="DataLoaders\APICustomAutoCompleteLoader.cs" />
+    <Compile Include="DataLoaders\APIMediaHit.cs" />
     <Compile Include="DataLoaders\APIMediaLoader.cs" />
+    <Compile Include="DataLoaders\APIMediaMark.cs" />
     <Compile Include="DataLoaders\APIMenuLoader.cs" />
     <Compile Include="DataLoaders\APIMultiMediaLoader.cs" />
     <Compile Include="DataLoaders\APIPageDataLoader.cs" />
@@ -138,7 +140,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Services\ApiConditionalAccessService.cs" />
+    <Compile Include="Services\ApiDomainsService.cs" />
     <Compile Include="Services\ApiPricingService.cs" />
+    <Compile Include="Services\ApiApiService.cs" />
     <Compile Include="Services\ApiUsersService.cs" />
     <Compile Include="Web References\tvapi\Reference.cs">
       <AutoGen>True</AutoGen>

@@ -53,11 +53,6 @@
     void Session_Start(object sender, EventArgs e) 
     {
         // Code that runs when a new session is started
-
-        if (!SessionHelperEx.IsValueInSession("GroupID"))
-        {
-            SessionHelperEx.GroupID = 1;
-        }
     }
 
     void Session_End(object sender, EventArgs e) 

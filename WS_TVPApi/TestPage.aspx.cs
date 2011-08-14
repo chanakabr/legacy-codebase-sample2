@@ -31,7 +31,7 @@ public partial class TestPage : System.Web.UI.Page
         //initObj.Locale.LocaleDevice = DeviceTxt.Text;
         initObj.Locale.LocaleLanguage = LanguageText.Text;
         initObj.Locale.LocaleUserState = LocaleUserState.Unknown;
-        initObj.Locale.SiteGuid = SiteGuidTxt.Text;
+        initObj.SiteGuid = SiteGuidTxt.Text;
         if (!string.IsNullOrEmpty(PlatformTxt.Text))
         {
             initObj.Platform = (PlatformType)Enum.Parse(typeof(PlatformType), PlatformTxt.Text);

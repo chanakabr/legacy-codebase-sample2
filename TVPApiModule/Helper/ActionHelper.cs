@@ -6,6 +6,8 @@ using TVPPro.SiteManager.Helper;
 using TVPApiModule.tvapi;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
+using TVPApiModule.DataLoaders;
 
 /// <summary>
 /// Summary description for ActionHelper
@@ -35,7 +37,7 @@ namespace TVPApi
 
         //}
 
-        public static bool PerformAction(ActionType action, int mediaID, int mediaType, int groupID, PlatformType platform, string sID, int extraVal)
+        public static bool PerformAction(ActionType action, int mediaID, int mediaType, int groupID, PlatformType platform, string sUserID, int iDomainID, string sUDID, int extraVal)
         {
             bool retVal = false;
             
@@ -43,31 +45,31 @@ namespace TVPApi
             {
                 case ActionType.AddFavorite:
                     {
-                        long guidNum = Convert.ToInt64(sID);
+                        long guidNum = Convert.ToInt64(sUserID);
                         int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
-                        new ApiUsersService(groupID, platform).AddUserFavorite(sID, platform.ToString(), mediaType.ToString(), mediaID.ToString(), string.Empty);
+                        new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), string.Empty);
                         //retVal = FavoritesHelper.AddToFavorites(mediaType, mediaID.ToString(), guidNum);
                         break;
                     }
                 case ActionType.RemoveFavorite:
                     {
-                        long guidNum = Convert.ToInt64(sID);
+                        long guidNum = Convert.ToInt64(sUserID);
                         int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
-                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(sID, platform.ToString(), string.Empty);
+                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(sUserID, string.Empty, iDomainID, sUDID);
                         if (favoritesObj != null)
                         {
-                            int favoriteID = 0;
+                            int[] favoriteID = new int[] { };
                             for (int i = 0; i < favoritesObj.Length; i++)
                             {
                                 if (favoritesObj[i].m_sItemCode == mediaID.ToString())
                                 {
-                                    favoriteID = favoritesObj[i].m_nID;
+                                    favoriteID.SetValue(favoritesObj[i].m_nID, i);
                                     break;
                                 }
                             }
-                            if (favoriteID > 0)
+                            if (favoriteID.Length > 0)
                             {
-                                new ApiUsersService(groupID, platform).RemoveUserFavorite(sID, favoriteID);
+                                new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, favoriteID);
                                 retVal = true;
                             }
                         }
@@ -106,6 +108,18 @@ namespace TVPApi
                     break;
             }
             return retVal;
+        }
+
+        public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, int mediaType, long iMediaID, long iFileID, int iLocation)
+        {
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
+            return new APIMediaMark(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, Action = Action, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
+        }
+
+        public static string MediaHit(InitializationObject initObj, int groupID, PlatformType platform, int mediaType, long iMediaID, long iFileID, int iLocation)
+        {
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
+            return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
         }
 
         public ActionHelper()

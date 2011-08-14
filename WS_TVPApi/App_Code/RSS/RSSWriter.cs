@@ -84,7 +84,7 @@ public class RSSWriter
                 MediaService mediaService = new MediaService();
                 InitializationObject initObj = new InitializationObject();
                 initObj.Locale = new Locale();
-                initObj.Locale.SiteGuid = sID;
+                initObj.SiteGuid = sID;
                 initObj.Platform = PlatformType.STB;
                 initObj.ApiUser = "tvpapi_93";
                 initObj.ApiPass = "11111";

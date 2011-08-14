@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using TVPApi;
+using TVPPro.SiteManager.TvinciPlatform.Domains;
 
 namespace TVPApiServices
 {
@@ -39,6 +40,25 @@ namespace TVPApiServices
         PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);
 
         [OperationContract]
-        string SignIn(InitializationObject initObj, string userName, string password);
+        Domain AddUserToDomain(InitializationObject initObj, bool bMaster);
+
+        [OperationContract]
+        Domain RemoveUserFromDomain(InitializationObject initObj, int iDomainID, string sSiteGuid);
+
+        [OperationContract]
+        Domain AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
+
+        [OperationContract]
+        Domain RemoveDeviceFromDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
+
+        [OperationContract]
+        Domain ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive);
+
+        [OperationContract]
+        Domain GetDomainInfo(InitializationObject initObj);
+
+        [OperationContract]
+        Domain SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription);
+
     }
 }

@@ -62,7 +62,7 @@ namespace TVPApi
         }
 
 
-        //Init delegates 
+        //Init delegates
         public static void InitServiceConfigs(int groupID, PlatformType platform)
         {
             //ConnectionManager connMngr = new ConnectionManager(groupID, platform, false);
@@ -83,9 +83,12 @@ namespace TVPApi
             //        log4net.Config.XmlConfigurator.ConfigureAndWatch(new System.IO.FileInfo(logConfigPath));
             //    }
             //}
-            Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetTVMConfigurationMethod = TVPPro.SiteManager.Manager.TechnicalManager.GetTVMConfiguration;
+
+
+            Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetTVMConfigurationMethod = delegate() { return ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.TVMConfiguration; };
+            //TVPPro.SiteManager.Manager.TechnicalManager.GetTVMConfiguration;
             Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetRequestLanguageMethod = GetFlashVarsLangVal;
-            Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = TVPPro.SiteManager.Manager.TechnicalManager.GetTVMUrl;
+            Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = delegate(bool b) { return ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.Servers.MainServer.TVMWriteURL; }; 
             //TVPPro.SiteManager.Manager.TextLocalization.Instance.Dispose();
             //TVPPro.SiteManager.Manager.TextLocalization.Instance.TranslationCulture = HttpContext.Current.Items["GroupID"].ToString();
            // TVPPro.SiteManager.Manager.TextLocalization.Instance.Sync(null);

@@ -1,0 +1,452 @@
+﻿<%@ WebHandler Language="C#" Class="rsstv_ipvision" %>
+
+using System;
+using System.Web;
+using System.Xml;
+using System.Xml.Schema;
+using TVPApiServices;
+using TVPApi;
+using System.Collections.Generic;
+using System.Linq;
+using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using TVPPro.SiteManager.Services;
+using TVPPro.SiteManager.TvinciPlatform.Pricing;
+
+public class rsstv_ipvision : BaseGateway, IHttpHandler
+{
+    System.Xml.XmlDocument xmlDoc;
+    private const string tvNS = "http://www.rss-tv.org/rss/tv1.0";
+    protected MediaService m_MediaService = new MediaService();
+    protected SiteService m_SiteService = new SiteService();
+    private string broadcasterName = "ipvision";
+    private int groupId = 0;
+    private MediaFileItemPricesContainer[] dictPrices;
+    private MediaFilePPVModule[] ppvmodules;
+    private int menuCatPicIdx = 0;
+    private PlatformType devType;
+    private PageData pd;
+    private PageContext pc;
+    private static string[][] menus = new string[][] { 
+        new string[]{ "Home", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/home" }, 
+        new string[]{ "Channels", "/tvpapi/gateways/rsstv_ipvision{0}.ashx?action=allchannels" }, 
+        new string[]{ "Highlights", "/menu/?action=cms&cms=archive_movie&id=585" }, 
+        new string[]{ "A-Z Listing", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/azlisting" }, 
+        new string[]{ "Search", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/search" }, 
+        new string[]{ "Help", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/help" }, 
+        new string[]{ "About", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/about" }, 
+        new string[]{ "Settings", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/settings" } };
+
+    public void ProcessRequest(HttpContext context)
+    {        
+        groupId = GetGroupIDByBroadcasterName(broadcasterName);
+        devType = ParseDevType(context);
+        
+        pd = SiteMapManager.GetInstance.GetPageData(groupId, devType);
+        pc = pd.GetPageByID("en", 64);
+
+        xmlDoc = new XmlDocument();
+        if (string.IsNullOrEmpty(context.Request["action"]))
+            ActionHomePage(context);
+        else
+        {
+            switch (context.Request["action"])
+            {
+                case "allchannels":
+                    ActionAllChannels(context);
+                    break;
+                case "listchannel":
+                    ActionListChannel(context);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }    
+    
+    private PlatformType ParseDevType(HttpContext context)
+    {
+        PlatformType type;
+        switch (context.Request["dev"].ToLower())
+        {
+            case "stb":
+                type = PlatformType.STB;
+                break;
+            case "connectedtv":
+                type = PlatformType.ConnectedTV;
+                break;
+            default:
+                throw new Exception("No dev type was defined");
+        }
+
+        return type;
+    }
+
+    private void ActionHomePage(HttpContext context)
+    {
+        XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", null, null);
+        XmlElement rootNode = xmlDoc.CreateElement("rss");
+        rootNode.SetAttribute("xmlns:tv", tvNS);
+        xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
+        xmlDoc.AppendChild(rootNode);
+
+        XmlElement chNode = xmlDoc.CreateElement("channel");
+        rootNode.AppendChild(chNode);
+
+        XmlElement element = xmlDoc.CreateElement("title");
+        element.InnerText = "Welcome to FetchTV";
+        chNode.AppendChild(element);
+
+        element = xmlDoc.CreateElement("promochannel");
+        element.InnerText = "-";
+        chNode.AppendChild(element);
+
+        element = xmlDoc.CreateElement("nohd");
+        element.InnerText = "true";
+        chNode.AppendChild(element);
+        element = xmlDoc.CreateElement("bypass");
+        element.InnerText = "true";
+        chNode.AppendChild(element);
+
+        foreach (string[] menu in menus)
+        {
+            XmlElement item = xmlDoc.CreateElement("item");
+
+            element = xmlDoc.CreateElement("title");
+            element.InnerText = menu[0];
+            item.AppendChild(element);
+
+            //element = xmlDoc.CreateElement("link");
+            //XmlElement subElement = xmlDoc.CreateElement("rss");
+            //XmlCDataSection cdata = xmlDoc.CreateCDataSection(menu[1]);
+            //subElement.AppendChild(cdata);
+            //element.AppendChild(subElement);
+            //item.AppendChild(element);                        
+            element = xmlDoc.CreateElement("link");
+            element.SetAttribute("type", tvNS, "rss");
+            element.InnerText = string.Format(menu[1], "_" + devType.ToString().ToLower());
+            item.AppendChild(element);
+
+            chNode.AppendChild(item);
+        }
+
+        context.Response.Write(xmlDoc.OuterXml);
+    }
+
+    private void ActionAllChannels(HttpContext context)
+    {
+        XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", null, null);
+
+        XmlElement rootNode = xmlDoc.CreateElement("rss");
+        rootNode.SetAttribute("xmlns:tv", tvNS);
+        xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
+        xmlDoc.AppendChild(rootNode);
+
+        XmlElement chNode = xmlDoc.CreateElement("channel");
+        rootNode.AppendChild(chNode);
+
+        XmlElement element = xmlDoc.CreateElement("title");
+        element.InnerText = "Tvinci VOD";
+        chNode.AppendChild(element);
+        element = xmlDoc.CreateElement("widget");
+        element.InnerText = "Photo";
+        chNode.AppendChild(element);
+        element = xmlDoc.CreateElement("widgetwidth");
+        element.InnerText = "300";
+        chNode.AppendChild(element);
+        element = xmlDoc.CreateElement("widgetheight");
+        element.InnerText = "200";
+        chNode.AppendChild(element);
+        element = xmlDoc.CreateElement("promochannel");
+        element.InnerText = "-";
+        chNode.AppendChild(element);
+        element = xmlDoc.CreateElement("link");
+        chNode.AppendChild(element);
+        foreach (PageGallery page in pc.MainGalleries)
+        {
+            foreach (GalleryItem channel in page.GalleryItems)
+            {
+                XmlElement item = xmlDoc.CreateElement("item");
+
+                element = xmlDoc.CreateElement("title");
+                element.InnerText = channel.Title;
+                item.AppendChild(element);
+
+                //XXX: Supports on Negem, not sure if supported in CTV
+                /*element = xmlDoc.CreateElement("image");
+                XmlCDataSection cdata = xmlDoc.CreateCDataSection("http://www.fetchtv.net/ctv/getimage.php?cat=home&item=movies");
+                element.AppendChild(cdata);
+                item.AppendChild(element);*/
+                /* || */
+                /* VV */
+                // XXX: Hack to do nice pics in the menu that we don't have
+                string[] cats = { "movies", "documentaries", "drama", "kids", "sports" };
+                element = xmlDoc.CreateElement("image");
+                element.SetAttribute("type", "BoxArt");
+                XmlElement subElement = xmlDoc.CreateElement("url");
+                subElement.InnerText = "http://www.fetchtv.net/ctv/getimage.php?cat=home&item=" + cats[menuCatPicIdx++];
+                element.AppendChild(subElement);
+                item.AppendChild(element);
+
+                element = xmlDoc.CreateElement("link");
+                element.SetAttribute("type", tvNS, "rss");
+                element.InnerText = string.Format("/tvpapi/gateways/rsstv_ipvision_{0}.ashx?action=listchannel&chid={1}", devType.ToString().ToLower(), channel.TVMChannelID);
+                item.AppendChild(element);
+
+                chNode.AppendChild(item);
+            }
+        }
+
+        context.Response.Write(xmlDoc.OuterXml);
+    }
+
+    private void ActionListChannel(HttpContext context)
+    {
+        XmlElement rootNode = CreateRoot();
+
+        PageData pd = SiteMapManager.GetInstance.GetPageData(groupId, PlatformType.STB);
+        PageContext pc = pd.GetPageByID("en", 64);
+        foreach (PageGallery page in pc.MainGalleries)
+        {
+            IEnumerable<GalleryItem> gi = page.GalleryItems.Where(x => x.TVMChannelID == long.Parse(context.Request["chid"]));
+            if (gi.Count() > 0)
+            {
+                XmlElement channel = CreateChannel(rootNode, gi.First());
+                CreateItemsInChannel(channel, gi.First());
+            }
+        }
+
+        context.Response.Write(xmlDoc.OuterXml);
+    }
+
+    private XmlElement AddMetaElement(string type, string display, string value)
+    {
+        XmlElement meta = xmlDoc.CreateElement("tv", "meta", tvNS);
+
+        meta.SetAttribute("type", type);
+        meta.SetAttribute("display", display);
+        meta.InnerText = value;
+
+        return meta;
+    }
+
+    private string FormatDateToRSSTV(DateTime date)
+    {
+        return date.ToString("yyyy-MM-ddThh:mm:ss");
+    }
+
+    private void AddPricesAndExpiration(Media media, XmlElement item)
+    {
+        //XX ???
+        if (media.FileID == "0")
+            return;
+
+        IEnumerable<MediaFilePPVModule> ppvModule = ppvmodules.Where(x => x.m_nMediaFileID == int.Parse(media.FileID));
+        if (ppvModule.Count() == 0 || ppvModule.First().m_oPPVModules == null)
+            return;
+
+        string sEndTime = FormatDateToRSSTV(DateTime.Now.AddMinutes(ppvModule.First().m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle));
+
+        item.AppendChild(AddMetaElement("expiresDate", "Expires", sEndTime));
+        var mPrice = dictPrices.Where(x => x.m_nMediaFileID == int.Parse(media.FileID)).First();
+        string pricestr;
+        if (mPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice == 0)
+            pricestr = "Free";
+        else
+            pricestr = string.Format("{1} {0:0.00}", mPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice, mPrice.m_oItemPrices[0].m_oFullPrice.m_oCurrency.m_sCurrencySign);
+
+        item.AppendChild(AddMetaElement("price", "Price", pricestr));
+    }
+
+    private void AddMetasToItem(XmlElement item, Media m, GalleryItem gi)
+    {
+        // XXX: Fix - service name
+        item.AppendChild(AddMetaElement("service", "Service", "FetchTV"));
+        item.AppendChild(AddMetaElement("servicelogo", "ServiceLogo", "FetchTV"));
+        item.AppendChild(AddMetaElement("year", "Year", (from meta in m.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault()));
+        item.AppendChild(AddMetaElement("rightsowner", "Copyright", (from meta in m.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault()));
+        item.AppendChild(AddMetaElement("releasingentity", "Releasing Entity", (from meta in m.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault()));
+        item.AppendChild(AddMetaElement("pgrate", "Rating Age", string.Format("{0:0}", m.Rating)));
+        item.AppendChild(AddMetaElement("rating", "Rating", string.Format("{0:0}", m.Rating)));
+        item.AppendChild(AddMetaElement("pageTitle", "", gi.Title));
+
+        AddPricesAndExpiration(m, item);
+
+        //XXX: ??? update date
+        item.AppendChild(AddMetaElement("lastModified", "Last Modified", FormatDateToRSSTV(m.CreationDate)));
+
+        string actors = (from tag in m.Tags where tag.Key.Equals("Cast") select tag.Value).FirstOrDefault();
+        if (actors != null)
+            item.AppendChild(AddMetaElement("actors", "cast", actors.Replace('|', ',')));
+        string directors = (from tag in m.Tags where tag.Key.Equals("Director") select tag.Value).FirstOrDefault();
+        if (directors != null)
+            item.AppendChild(AddMetaElement("director", "Director", directors.Replace('|', ',')));
+
+        item.AppendChild(AddMetaElement("quality", "Quality", "Normal"));
+
+        //XXX: ????
+        item.AppendChild(AddMetaElement("policy", "Policy", "599"));
+        item.AppendChild(AddMetaElement("contentid", "ContentId", m.MediaID));
+        //XXX ????
+        item.AppendChild(AddMetaElement("length", "Length", "923958594"));
+        ///XXX FIX
+        item.AppendChild(AddMetaElement("language", "Language", "English"));
+
+        item.AppendChild(AddMetaElement("rating", "Rating", m.Rating.ToString()));
+    }
+
+    private void CreateItemsInChannel(XmlElement channel, GalleryItem gi)
+    {
+        List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), gi.TVMChannelID, "full", 50, 0);
+        string tmpSiteGuid = new TVPApiModule.Services.ApiUsersService(groupId, PlatformType.STB).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
+        dictPrices = m_MediaService.GetItemPrices(GetInitObj(), tmpSiteGuid, medias.Select(x => int.Parse(x.FileID)).ToArray(), false);
+        ppvmodules = new TVPApiModule.Services.ApiPricingService(groupId, PlatformType.STB).GetPPVModuleListForMediaFiles(medias.Select(x => int.Parse(x.FileID)).ToArray(),
+            string.Empty, string.Empty, string.Empty);
+
+        foreach (Media m in medias)
+        {
+            XmlElement item = xmlDoc.CreateElement("item");
+
+            XmlElement element = xmlDoc.CreateElement("title");
+            element.InnerText = m.MediaName.Replace('(', ' ').Replace(')', ' ');
+            item.AppendChild(element);
+
+            //XXX: Fix
+            element = xmlDoc.CreateElement("tv", "categoryIid", tvNS);
+            element.InnerText = "200,101,223";
+            item.AppendChild(element);
+
+            element = xmlDoc.CreateElement("description");
+            element.InnerText = m.Description;
+            item.AppendChild(element);
+
+            //Image
+            element = xmlDoc.CreateElement("image");
+            element.SetAttribute("type", "BoxArt");
+            XmlElement subElement = xmlDoc.CreateElement("url");
+            subElement.InnerText = m.PicURL;
+            element.AppendChild(subElement);
+            //XXX: Fix sizes
+            subElement = xmlDoc.CreateElement("width");
+            subElement.InnerText = "200";
+            element.AppendChild(subElement);
+            subElement = xmlDoc.CreateElement("height");
+            subElement.InnerText = "300";
+            element.AppendChild(subElement);
+            item.AppendChild(element);
+
+            element = xmlDoc.CreateElement("pubDate");
+            element.InnerText = FormatDateToRSSTV(DateTime.Now);
+            item.AppendChild(element);
+
+            element = xmlDoc.CreateElement("tv", "category", tvNS);
+            element.InnerText = (from rows in m.Tags where rows.Key == "Genre" select rows.Value).FirstOrDefault().Replace('|', ',');
+            item.AppendChild(element);
+
+            element = xmlDoc.CreateElement("tv", "duration", tvNS);
+            double duration = double.Parse(m.Duration);
+            if (duration < 60)
+                element.InnerText = string.Format("{0}", duration);
+            else
+                element.InnerText = string.Format("{0}h{1}", (int)(duration / 60), duration % 60);
+            item.AppendChild(element);
+
+            element = xmlDoc.CreateElement("guid");
+            element.InnerText = m.MediaID;
+            item.AppendChild(element);
+
+            // XX????
+            element = xmlDoc.CreateElement("tv", "guid", tvNS);
+            element.InnerText = "ipvision." + m.MediaID;
+            item.AppendChild(element);
+
+            //XXX???????????
+            element = xmlDoc.CreateElement("video");
+            element.SetAttribute("url", "http://ibc.cdngc.net/Ipvision/drm_out.wmv");
+            element.SetAttribute("length", "923958594");
+            element.SetAttribute("date", "2011-06-21T14:09:47");
+            element.SetAttribute("delivery", "tv", "download");
+            item.AppendChild(element);
+
+            element = xmlDoc.CreateElement("enclosure");
+            element.SetAttribute("url", /*m.URL*/ "http://ibc.cdngc.net/Ipvision/drm_out.wmv");
+            element.SetAttribute("type", "video/x-ms-wmv");
+            item.AppendChild(element);
+
+            //element = xmlDoc.CreateElement("link");
+            //element.SetAttribute("type", "tv", "rss");
+            //element.InnerText = "http://playready.directtaps.net/pr/public/media/1044/Bear_Video_OPLs0.pyv?r=clear";
+            //item.AppendChild(element);
+
+            element = xmlDoc.CreateElement("preview");
+            element.SetAttribute("url", "http://ibc.cdngc.net/Ipvision/trailer.wmv");
+            //XXXX????
+            element.SetAttribute("length", "9654234");
+            element.SetAttribute("duration", "124");
+            item.AppendChild(element);
+
+            AddMetasToItem(item, m, gi);
+
+            channel.AppendChild(item);
+        }
+    }
+
+    private XmlElement CreateRoot()
+    {
+        XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+        XmlElement rootNode = xmlDoc.CreateElement("rss");
+        rootNode.SetAttribute("xmlns:tv", tvNS);
+        xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
+        xmlDoc.AppendChild(rootNode);
+
+        XmlElement element = xmlDoc.CreateElement("systemURL");
+        element.InnerText = "http://ipvision2.rsstv.entriq.net/menu/menu.ashx?action=cms&amp;cms=archive_movie&amp;id=268&amp;nohd=true&amp;bypass=true&amp;title=Latest";
+        rootNode.AppendChild(element);
+
+        element = xmlDoc.CreateElement("tv", "results", tvNS);
+        element.SetAttribute("total", "27");
+        element.SetAttribute("nextoffset", "0");
+        rootNode.AppendChild(element);
+
+        return rootNode;
+    }
+
+    private XmlElement CreateChannel(XmlElement rootNode, GalleryItem gi)
+    {
+        XmlElement channel = xmlDoc.CreateElement("channel");
+        channel.SetAttribute("cache", tvNS, "180");
+        rootNode.AppendChild(channel);
+
+        XmlElement element = xmlDoc.CreateElement("source");
+        element.SetAttribute("url", "http://ipvision2.rsstv.entriq.net/menu/menu.ashx?action=cms&amp;cms=archive_movie&amp;id=268&amp;nohd=true&amp;bypass=true&amp;title=Latest");
+        channel.AppendChild(element);
+
+        element = xmlDoc.CreateElement("title");
+        element.InnerText = gi.Title;
+        channel.AppendChild(element);
+
+        element = xmlDoc.CreateElement("tv", "preview", tvNS);
+        element.SetAttribute("tyoe", "text/xml");
+        element.InnerText = "http://www.fetchtv.net/promos/fetchtv.php?";
+        channel.AppendChild(element);
+
+        element = xmlDoc.CreateElement("tv", "style", tvNS);
+        channel.AppendChild(element);
+
+        element = xmlDoc.CreateElement("tv", "widget", tvNS);
+        element.SetAttribute("height", "300");
+        element.SetAttribute("width", "200");
+        element.InnerText = "BoxArt";
+        channel.AppendChild(element);
+
+        return channel;
+    }
+
+    public bool IsReusable
+    {
+        get
+        {
+            return true;
+        }
+    }
+
+}

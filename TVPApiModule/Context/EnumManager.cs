@@ -148,6 +148,7 @@ namespace TVPApi
     {
         Web,
         STB,
+        iPad,
         ConnectedTV,
         Cellular,
         Unknown

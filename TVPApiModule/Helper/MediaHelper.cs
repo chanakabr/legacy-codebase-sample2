@@ -357,7 +357,7 @@ namespace TVPApi
         {
             List<Media> retVal = new List<Media>();
             dsItemInfo mediaInfo = null;
-            string guid = initObj.Locale.SiteGuid;
+            string guid = initObj.SiteGuid;
             if (initObj.Platform == PlatformType.STB)
             {
                 guid = UsersXMLParser.Instance.GetGuid(initObj.Platform.ToString(), guid);
@@ -369,7 +369,7 @@ namespace TVPApi
 
                 case UserItemType.Favorite:
                     {
-                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.Locale.SiteGuid, string.Empty, string.Empty);
+                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, initObj.UDID);
                         string[] favoritesList;// = TVPPro.SiteManager.Helper.FavoritesHelper.GetUserFavoriteMedias(mediaType, guid, true);
 
                         if (favoritesObj != null)

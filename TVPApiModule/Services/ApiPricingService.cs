@@ -37,7 +37,7 @@ namespace TVPApiModule.Services
 
         #region Public methods
 
-        #endregion
+       
 
         public MediaFilePPVModule[] GetPPVModuleListForMediaFiles(int[] mediaFiles, string sCountry, string sLanguage, string sDevice)
         {
@@ -56,6 +56,8 @@ namespace TVPApiModule.Services
             }
 
             return response;
-        }
+        } 
+        
+        #endregion
     }
 }

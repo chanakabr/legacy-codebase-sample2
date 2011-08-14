@@ -9,6 +9,7 @@ using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPPro.SiteManager.TvinciPlatform.Domains;
 
 
 namespace TVPApiServices
@@ -359,9 +360,9 @@ namespace TVPApiServices
 
         #region User
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]
-        public string SignIn(InitializationObject initObj, string userName, string password)
+        public TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password)
         {
-            string sRet = string.Empty;
+            TVPApiModule.Services.ApiUsersService.LogInResponseData sRet = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
@@ -503,13 +504,176 @@ namespace TVPApiServices
 
             return response;
         }
-
-        [WebMethod(EnableSession = true, Description = "Link device to existing using in domain")]
-        public bool RegisterDevice(InitializationObject initObj, string sDomainID, string sUserGUID, string sDeviceGUID)
+        #endregion
+        
+        #region Domains
+        [WebMethod(EnableSession = true, Description = "Add a user to domain")]
+        public Domain AddUserToDomain(InitializationObject initObj, bool bMaster)
         {
-            bool response = new bool();
+            Domain domain = null;
 
-            return response;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddUserToDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("AddUserToDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, initObj.SiteGuid, bMaster);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : AddUserToDomain, Error Message: {0} Parameters: sSiteGuid: {1}, bMaster: {2}", ex.Message, initObj.SiteGuid, bMaster);
+                }
+            }
+
+            return domain;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Remove a user from domain")]
+        public Domain RemoveUserFromDomain(InitializationObject initObj, int iDomainID, string sSiteGuid)
+        {
+            Domain domain = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveUserFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("RemoveUserFromDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, sSiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveUserFromDomain(initObj.DomainID, initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : RemoveUserFromDomain, Error Message: {0} Parameters: iDomainID: {1}, sSiteGUID: {2}", ex.Message, iDomainID, sSiteGuid);
+                }
+            }
+
+            return domain;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Add device to domain")]
+        public Domain AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID)
+        {
+            Domain domain = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddDeviceToDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("AddDeviceToDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : AddDeviceToDomain, Error Message: {0} Parameters: iDomainID: {1}, sUDID: {2}, sDeviceName: {3}, iDeviceBrandID: {4}", ex.Message, initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                }
+            }
+
+            return domain;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Remove device from domain")]
+        public Domain RemoveDeviceFromDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID)
+        {
+            Domain domain = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveDeviceFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("RemoveDeviceFromDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : RemoveDeviceFromDomain, Error Message: {0} Parameters: iDomainID: {1}, sUDID: {2}, sDeviceName: {3}, iDeviceBrandID: {4}", ex.Message, initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                }
+            }
+
+            return domain;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Activate/Deactivate a device in domain")]
+        public Domain ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive)
+        {
+            Domain domain = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ChangeDeviceDomainStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("AddDeviceToDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).ChangeDeviceDomainStatus(initObj.DomainID, initObj.UDID, bActive);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : ChangeDeviceDomainStatus, Error Message: {0} Parameters: iDomainID: {1}, bActive: {2}", ex.Message, initObj.DomainID, initObj.UDID, bActive);
+                }
+            }
+
+            return domain;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get device/user domain info")]
+        public Domain GetDomainInfo(InitializationObject initObj)
+        {
+            Domain domain = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetDomainInfo-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainInfo(initObj.DomainID);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : GetDomainInfo, Error Message: {0} Parameters: iDomainID: {1}", ex.Message, initObj.DomainID);
+                }
+            }
+
+            return domain;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Set device/user domain info")]
+        public Domain SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription)
+        {
+            Domain domain = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetDomainInfo-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : SetDomainInfo, Error Message: {0} Parameters: iDomainID: {1}, sDomainName: {2}, sDomainDescription: {3}", ex.Message, initObj.DomainID, sDomainName, sDomainDescription);
+                }
+            }
+
+            return domain;
         }
         #endregion
     }

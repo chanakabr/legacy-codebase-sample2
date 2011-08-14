@@ -10,6 +10,7 @@ using System.Web.Services;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Services;
+using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 
 namespace TVPApiServices
 {
@@ -129,7 +130,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    bRet = MediaHelper.IsFavoriteMedia(initObj.Locale.SiteGuid, mediaID, initObj.Platform.ToString());
+                    bRet = MediaHelper.IsFavoriteMedia(initObj.SiteGuid, mediaID, initObj.Platform.ToString());
                 }
                 catch (Exception ex)
                 {
@@ -539,7 +540,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = ActionHelper.PerformAction(action, mediaID, mediaType, groupID, initObj.Platform, initObj.Locale.SiteGuid, extraVal);
+                    retVal = ActionHelper.PerformAction(action, mediaID, mediaType, groupID, initObj.Platform, initObj.SiteGuid, initObj.DomainID, initObj.UDID, extraVal);
                 }
                 catch (Exception ex)
                 {
@@ -561,6 +562,95 @@ namespace TVPApiServices
             return null;
         }
 
+        [WebMethod(EnableSession = true, Description = "Mark player status")]
+        public string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation)
+        {
+            string sRet = string.Empty;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("MediaMark-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
+
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, mediaType, iMediaID, iFileID, iLocation);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("MediaMark->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("MediaMark-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return sRet;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Mark player position")]
+        public string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation)
+        {
+            string sRet = string.Empty;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("MediaHit-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
+
+                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, mediaType, iMediaID, iFileID, iLocation);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("MediaHit->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("MediaHit-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return sRet;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get last player position")]
+        public TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID)
+        {
+            TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMark = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetMediaMark-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
+
+                    mediaMark = new ApiApiService(groupID, initObj.Platform).GetMediaMark(initObj.SiteGuid, iMediaID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetMediaMark->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetMediaMark-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return mediaMark;
+        }
         #endregion
 
         #region Purchase

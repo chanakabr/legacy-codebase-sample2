@@ -99,7 +99,7 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
         Service service = new Service();
         InitializationObject initObj = GetInitObj();
         initObj.Locale = new Locale();
-        initObj.Locale.SiteGuid = guid;
+        initObj.SiteGuid = guid;
         string userName = "tvpapi_93";
         string pass = "11111";
         

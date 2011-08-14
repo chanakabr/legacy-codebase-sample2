@@ -151,8 +151,8 @@ namespace TVPApi
             if (withDynamic && initObj.Locale != null)
             {
                 logger.InfoFormat("Start Media dynamic build GroupID:", groupID);
-                
-                BuildDynamicObj(initObj.Locale.SiteGuid, initObj.Platform, groupID);
+
+                BuildDynamicObj(initObj.SiteGuid, initObj.Platform, groupID, initObj.DomainID, initObj.UDID);
             }
         }
 
@@ -197,7 +197,7 @@ namespace TVPApi
         }
 
         //Build dynamic data if needed (is favorite, price, price status, notifications..)
-        private void BuildDynamicObj(string guid, PlatformType platform, int groupID)
+        private void BuildDynamicObj(string guid, PlatformType platform, int groupID, int iDomainID, string sUDID)
         {
             this.MediaDynamicData = new DynamicData();
             
@@ -236,7 +236,7 @@ namespace TVPApi
             
             if (!string.IsNullOrEmpty(guid))
             {
-                if (IsItemFavorite(int.Parse(MediaID), guid, groupID, platform))
+                if (IsItemFavorite(int.Parse(MediaID), guid, iDomainID, sUDID, groupID, platform))
                 {
                     MediaDynamicData.IsFavorite = true;
                 }
@@ -248,10 +248,10 @@ namespace TVPApi
 
         }
 
-        private bool IsItemFavorite(int mediaID, string userGuid, int groupID, PlatformType platform)
+        private bool IsItemFavorite(int mediaID, string userGuid,int iDomainID, string sUDID, int groupID, PlatformType platform)
         {
             bool retVal = false;
-            FavoritObject[] favoriteObj = new ApiUsersService(groupID, platform).GetUserFavorites(userGuid, platform.ToString(), string.Empty);
+            FavoritObject[] favoriteObj = new ApiUsersService(groupID, platform).GetUserFavorites(userGuid, string.Empty, iDomainID, sUDID);
             if (favoriteObj != null)
             {
                 for (int i = 0; i < favoriteObj.Length; i++)
