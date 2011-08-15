@@ -12,10 +12,10 @@
 
         //if (!string.IsNullOrEmpty(TVPPro.Configuration.Technical.TechnicalConfiguration.Instance.Data.Site.LogBasePath))
         {
-            log4net.GlobalContext.Properties["DebuggingLogFilePath"] = string.Format(@"{0}\TVPApi\{1}\Debugging.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], System.Environment.MachineName);
-            log4net.GlobalContext.Properties["InformationLogFilePath"] = string.Format(@"{0}\TVPApi\{1}\Information.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], System.Environment.MachineName);
-            log4net.GlobalContext.Properties["ExceptionsLogFilePath"] = string.Format(@"{0}\TVPApi\{1}\Exceptions.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], System.Environment.MachineName);
-            log4net.GlobalContext.Properties["PerformancesLogFilePath"] = string.Format(@"{0}\TVPApi\{1}\Performances.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], System.Environment.MachineName);
+            log4net.GlobalContext.Properties["DebuggingLogFilePath"] = string.Format(@"{0}\{1}\TVPApi\{2}\Debugging.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], ConfigurationManager.AppSettings["DomainEnv"], System.Environment.MachineName);
+            log4net.GlobalContext.Properties["InformationLogFilePath"] = string.Format(@"{0}\{1}\TVPApi\{2}\Information.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], ConfigurationManager.AppSettings["DomainEnv"], System.Environment.MachineName);
+            log4net.GlobalContext.Properties["ExceptionsLogFilePath"] = string.Format(@"{0}\{1}\TVPApi\{2}\Exceptions.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], ConfigurationManager.AppSettings["DomainEnv"], System.Environment.MachineName);
+            log4net.GlobalContext.Properties["PerformancesLogFilePath"] = string.Format(@"{0}\{1}\TVPApi\{2}\Performances.log", ConfigurationManager.AppSettings["BASE_LOGS_PATH"], ConfigurationManager.AppSettings["DomainEnv"], System.Environment.MachineName);
 
             string logConfigPath = ConfigurationManager.AppSettings["Log4NetConfiguration"];
             if (!string.IsNullOrEmpty(logConfigPath))
@@ -29,7 +29,7 @@
     protected void Application_BeginRequest(Object sender, EventArgs e)
     {
         // Save site data (groupid, platform, wsuser, wspass) on session for further proccesses
-        
+        TVPApi.ConnectionHelper.InitServiceConfigs();
     }
     
     void Application_End(object sender, EventArgs e) 

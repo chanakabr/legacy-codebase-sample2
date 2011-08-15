@@ -575,7 +575,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
+                    //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
 
                     sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, mediaType, iMediaID, iFileID, iLocation);
                 }
@@ -605,7 +605,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
+                    //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
 
                     sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, mediaType, iMediaID, iFileID, iLocation);
                 }
@@ -635,7 +635,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
+                    //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
 
                     mediaMark = new ApiApiService(groupID, initObj.Platform).GetMediaMark(initObj.SiteGuid, iMediaID);
                 }

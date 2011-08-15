@@ -73,7 +73,7 @@ namespace TVPApi
 
             if (!bConfigExist)
             {
-                string parentDirectoryStr = HttpContext.Current.Server.MapPath(ConfigurationManager.AppSettings[groupID.ToString()]);
+                string parentDirectoryStr = HttpContext.Current.Server.MapPath(string.Concat(ConfigurationManager.AppSettings[groupID.ToString()], ConfigurationManager.AppSettings["DomainEnv"], "/"));
                 string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
                 string directoryStr = string.Concat(parentDirectoryStr, platform);
 

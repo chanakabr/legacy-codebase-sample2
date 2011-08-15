@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Collections;
 using log4net;
+using System.Configuration;
 
 /// <summary>
 /// Summary description for ConnectionHelper
@@ -37,9 +38,11 @@ namespace TVPApi
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_NAME", "=", sModuleName);
                 selectQuery += " or ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_NAME", "=", "00000");
-                selectQuery += ") and";
+                selectQuery += ") and (";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IP", "=", sIP);
-                selectQuery += "and";
+                selectQuery += " or ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IP", "=", "00000");
+                selectQuery += ") and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("WS_NAME", "=", sWSName);
                 selectQuery += "order by MODULE_NAME desc";
                 if (selectQuery.Execute("query", true) != null)
@@ -63,7 +66,7 @@ namespace TVPApi
 
 
         //Init delegates
-        public static void InitServiceConfigs(int groupID, PlatformType platform)
+        public static void InitServiceConfigs()//int groupID, PlatformType platform
         {
             //ConnectionManager connMngr = new ConnectionManager(groupID, platform, false);
             //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = connMngr.GetClientConnectionString;
@@ -85,10 +88,10 @@ namespace TVPApi
             //}
 
 
-            Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetTVMConfigurationMethod = delegate() { return ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.TVMConfiguration; };
+            //Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetTVMConfigurationMethod = delegate() { return ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.TVMConfiguration; };
             //TVPPro.SiteManager.Manager.TechnicalManager.GetTVMConfiguration;
             Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetRequestLanguageMethod = GetFlashVarsLangVal;
-            Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = delegate(bool b) { return ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.Servers.MainServer.TVMWriteURL; }; 
+            Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = delegate(bool b) { return ConfigurationManager.AppSettings["TVM_API_URL"]; }; 
             //TVPPro.SiteManager.Manager.TextLocalization.Instance.Dispose();
             //TVPPro.SiteManager.Manager.TextLocalization.Instance.TranslationCulture = HttpContext.Current.Items["GroupID"].ToString();
            // TVPPro.SiteManager.Manager.TextLocalization.Instance.Sync(null);
