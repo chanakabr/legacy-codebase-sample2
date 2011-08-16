@@ -299,8 +299,8 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     private void CreateItemsInChannel(XmlElement channel, GalleryItem gi)
     {
         List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), gi.TVMChannelID, "full", 50, 0);
-        var userRes = new TVPApiModule.Services.ApiUsersService(groupId, PlatformType.STB).SignIn("adina@tvinci.com", "eliron27");
-        dictPrices = m_MediaService.GetItemPrices(GetInitObj(), userRes.SiteGuid, medias.Select(x => int.Parse(x.FileID)).ToArray(), false);
+        string tmpSiteGuid = new TVPApiModule.Services.ApiUsersService(groupId, PlatformType.STB).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
+        dictPrices = m_MediaService.GetItemPrices(GetInitObj(), tmpSiteGuid, medias.Select(x => int.Parse(x.FileID)).ToArray(), false);
         ppvmodules = new TVPApiModule.Services.ApiPricingService(groupId, PlatformType.STB).GetPPVModuleListForMediaFiles(medias.Select(x => int.Parse(x.FileID)).ToArray(),
             string.Empty, string.Empty, string.Empty);
 
