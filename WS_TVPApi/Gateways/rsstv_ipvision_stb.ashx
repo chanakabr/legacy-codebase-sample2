@@ -11,7 +11,7 @@ public class rsstv_ipvision_stb : IHttpHandler {
  
     public bool IsReusable {
         get {
-            return true;
+            return false;
         }
     }
 

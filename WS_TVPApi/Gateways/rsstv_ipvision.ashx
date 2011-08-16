@@ -86,6 +86,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", null, null);
         XmlElement rootNode = xmlDoc.CreateElement("rss");
         rootNode.SetAttribute("xmlns:tv", tvNS);
+        rootNode.SetAttribute("version", "2.0");
         xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
         xmlDoc.AppendChild(rootNode);
 
@@ -138,6 +139,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
 
         XmlElement rootNode = xmlDoc.CreateElement("rss");
         rootNode.SetAttribute("xmlns:tv", tvNS);
+        rootNode.SetAttribute("version", "2.0");
         xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
         xmlDoc.AppendChild(rootNode);
 
@@ -297,8 +299,8 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     private void CreateItemsInChannel(XmlElement channel, GalleryItem gi)
     {
         List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), gi.TVMChannelID, "full", 50, 0);
-        string tmpSiteGuid = new TVPApiModule.Services.ApiUsersService(groupId, PlatformType.STB).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
-        dictPrices = m_MediaService.GetItemPrices(GetInitObj(), tmpSiteGuid, medias.Select(x => int.Parse(x.FileID)).ToArray(), false);
+        var userRes = new TVPApiModule.Services.ApiUsersService(groupId, PlatformType.STB).SignIn("adina@tvinci.com", "eliron27");
+        dictPrices = m_MediaService.GetItemPrices(GetInitObj(), userRes.SiteGuid, medias.Select(x => int.Parse(x.FileID)).ToArray(), false);
         ppvmodules = new TVPApiModule.Services.ApiPricingService(groupId, PlatformType.STB).GetPPVModuleListForMediaFiles(medias.Select(x => int.Parse(x.FileID)).ToArray(),
             string.Empty, string.Empty, string.Empty);
 
@@ -311,7 +313,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
             item.AppendChild(element);
 
             //XXX: Fix
-            element = xmlDoc.CreateElement("tv", "categoryIid", tvNS);
+            element = xmlDoc.CreateElement("tv", "categoryId", tvNS);
             element.InnerText = "200,101,223";
             item.AppendChild(element);
 
@@ -395,6 +397,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
         XmlElement rootNode = xmlDoc.CreateElement("rss");
         rootNode.SetAttribute("xmlns:tv", tvNS);
+        rootNode.SetAttribute("version", "2.0");
         xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
         xmlDoc.AppendChild(rootNode);
 
@@ -445,7 +448,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     {
         get
         {
-            return true;
+            return false;
         }
     }
 
