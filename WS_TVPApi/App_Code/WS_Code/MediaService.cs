@@ -781,7 +781,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
-        public string ChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters)
+        public string ChargeUserForMediaSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters)
         {
             string response = string.Empty;
 
@@ -804,14 +804,6 @@ namespace TVPApiServices
             {
                 logger.ErrorFormat("ChargeUserForMediaSubscription-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
-
-            return response;
-        }
-
-        [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
-        public BillingResponse ChargeUserForSubscription(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sSubscriptionID, string sUserIP, string sCoupon)
-        {
-            BillingResponse response = null;
 
             return response;
         }
