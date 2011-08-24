@@ -85,10 +85,13 @@ public abstract class BaseGateway : System.Web.UI.Page
 
     protected InitializationObject GetInitObj()
     {
+        string sUDID = Request.QueryString["mac"];
+        
         InitializationObject retVal = new InitializationObject();
         retVal.Platform = PlatformType.STB;
         retVal.ApiUser = m_WsUsername;
         retVal.ApiPass = m_WsPassword;
+        retVal.UDID = sUDID;
         //Locale locale = new Locale();
         //locale.LocaleLanguage = "es";
         //retVal.Locale = locale;

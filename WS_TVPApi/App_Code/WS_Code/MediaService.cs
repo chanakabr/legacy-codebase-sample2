@@ -17,7 +17,7 @@ namespace TVPApiServices
     /// <summary>
     /// Summary description for Service
     /// </summary>
-    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
+    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws/media")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
@@ -697,19 +697,19 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased items for a user")]
-        public PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj, string sSiteGuid)
+        public PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj)
         {
             PermittedMediaContainer[] permittedMediaContainer = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserPermittedItems-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, sSiteGuid);
+            logger.InfoFormat("GetUserPermittedItems-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
                 try
                 {
-                    permittedMediaContainer = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(sSiteGuid);
+                    permittedMediaContainer = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(initObj.SiteGuid);
                 }
                 catch (Exception ex)
                 {
@@ -725,19 +725,19 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions for a user")]
-        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string sSiteGuid)
+        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj)
         {
             PermittedSubscriptionContainer[] permitedSubscriptions = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserPermitedSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, sSiteGuid);
+            logger.InfoFormat("GetUserPermitedSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
                 try
                 {
-                    permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(sSiteGuid);
+                    permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(initObj.SiteGuid);
                 }
                 catch (Exception ex)
                 {
@@ -753,35 +753,83 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for file")]
-        public BillingResponse ChargeUserForMediaFile(InitializationObject initObj, string guid, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
+        public string ChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
         {
-            BillingResponse response = null;
+            string response = string.Empty;
 
-            return response;
-        }
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-        [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
-        public BillingResponse ChargeUserForSubscription(InitializationObject initObj, string guid, double iPrice, string sCurrency, int iFileID, string sSubscriptionID, string sUserIP, string sCoupon)
-        {
-            BillingResponse response = null;
-
-            return response;
-        }
-
-        [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
-        public MediaFileItemPricesContainer[] GetItemPrices(InitializationObject initObj, string sSiteGuid, int[] fileIds, bool bOnlyLowest)
-        {
-            MediaFileItemPricesContainer[] itemPrices = null;
-
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetItemPrices-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, sSiteGuid);
+            logger.InfoFormat("ChargeUserForMediaFile-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
                 try
                 {
-                    itemPrices = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(fileIds, sSiteGuid, bOnlyLowest);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, sUserIP, initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ChargeUserForMediaFile->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ChargeUserForMediaFile-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
+        public string ChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters)
+        {
+            string response = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForMediaSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("ChargeUserForMediaSubscription-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, initObj.SiteGuid, sExtraParameters);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ChargeUserForMediaSubscription->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ChargeUserForMediaSubscription-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
+        public BillingResponse ChargeUserForSubscription(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sSubscriptionID, string sUserIP, string sCoupon)
+        {
+            BillingResponse response = null;
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
+        public MediaFileItemPricesContainer[] GetItemPrices(InitializationObject initObj, int[] fileIds, bool bOnlyLowest)
+        {
+            MediaFileItemPricesContainer[] itemPrices = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetItemPrices-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    itemPrices = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(fileIds, initObj.SiteGuid, bOnlyLowest);
                 }
                 catch (Exception ex)
                 {
@@ -796,33 +844,33 @@ namespace TVPApiServices
             return itemPrices;
         }
 
-        //[WebMethod(EnableSession = true, Description = "Get all subscriptions contains media file")]
-        //public TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
-        //{
-        //    TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] subs = null;
+        [WebMethod(EnableSession = true, Description = "Get all subscriptions contains media file")]
+        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] subs = null;
 
-        //    int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-        //    logger.InfoFormat("GetSubscriptionsContainingMediaFile-> [{0}, {1}], Params:[mediaId: {2}, fileId: {3}]", groupId, initObj.Platform, iFileID);
+            logger.InfoFormat("GetSubscriptionsContainingMediaFile-> [{0}, {1}], Params:[mediaId: {2}, fileId: {3}]", groupId, initObj.Platform, iFileID);
 
-        //    if (groupId > 0)
-        //    {
-        //        try
-        //        {
-        //            subs = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionsContainingMediaFile(iMediaID, iFileID);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            logger.Error("GetSubscriptionsContainingMediaFile->", ex);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        logger.ErrorFormat("GetSubscriptionsContainingMediaFile-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
-        //    }
+            if (groupId > 0)
+            {
+                try
+                {
+                    subs = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionsContainingMediaFile(iMediaID, iFileID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetSubscriptionsContainingMediaFile->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetSubscriptionsContainingMediaFile-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
 
-        //    return subs;
-        //}
+            return (TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription[])subs.Clone();
+        }
         #endregion
     }
 }

@@ -43,7 +43,7 @@ namespace TVPApiServices
         Domain AddUserToDomain(InitializationObject initObj, bool bMaster);
 
         [OperationContract]
-        Domain RemoveUserFromDomain(InitializationObject initObj, int iDomainID, string sSiteGuid);
+        Domain RemoveUserFromDomain(InitializationObject initObj);
 
         [OperationContract]
         Domain AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);

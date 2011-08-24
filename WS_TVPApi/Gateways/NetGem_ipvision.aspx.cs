@@ -73,6 +73,78 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
         switch (sType)
         {
+            case "mediamark":
+                {
+                    string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+
+                    string sAction = Request.QueryString["action"];
+                    string sMediaID = Request.QueryString["mediaid"];
+                    string sFileID = Request.QueryString["fileid"];
+                    string sPosition = Request.QueryString["position"];
+                    string sUDID = Request.QueryString["mac"];
+
+                    Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action eAction = (Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action)Enum.Parse(typeof(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action), sAction);
+
+                    long iFileID;
+                    long iMediaID;
+                    int iPosition;
+                    long.TryParse(sFileID, out iFileID);
+                    long.TryParse(sMediaID, out iMediaID);
+                    int.TryParse(sPosition, out iPosition);
+
+                    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
+                    string result = new APIMediaMark(account.TVMUser, account.TVMPass) { SiteGUID = sSiteGuid, Action = eAction, DeviceUDID = sUDID, FileID = iFileID, MediaID = iMediaID, GroupID = groupID, Location = iPosition, Platform = PlatformType.STB }.Execute();
+                        
+                    XTM.WriteStartElement("response");
+                    XTM.WriteAttributeString("type", "media_mark");
+                    XTM.WriteAttributeString("action", sAction);
+                    XTM.WriteCData(result);
+                    XTM.WriteEndElement();
+                }
+                break;
+            case "hit":
+                {
+                    string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+
+                    string sMediaID = Request.QueryString["mediaid"];
+                    string sFileID = Request.QueryString["fileid"];
+                    string sPosition = Request.QueryString["position"];
+                    string sUDID = Request.QueryString["mac"];
+
+                    long iFileID;
+                    long iMediaID;
+                    int iPosition;
+                    long.TryParse(sFileID, out iFileID);
+                    long.TryParse(sMediaID, out iMediaID);
+                    int.TryParse(sPosition, out iPosition);
+
+                    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
+                    string result = new APIMediaHit(account.TVMUser, account.TVMPass) {SiteGUID = sSiteGuid, DeviceUDID = sUDID, FileID = iFileID, MediaID = iMediaID, GroupID = groupID, Location = iPosition, Platform = PlatformType.STB }.Execute();
+
+                    XTM.WriteStartElement("response");
+                    XTM.WriteAttributeString("type", "hit");
+                    XTM.WriteCData(result);
+                    XTM.WriteEndElement();
+                }
+                break;
+            case "getlastposition":
+                {
+                    string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+
+                    string sMediaID = Request.QueryString["mediaid"];
+                    string sUDID = Request.QueryString["mac"];
+
+                    int iMediaID;
+                    int.TryParse(sMediaID, out iMediaID);
+
+                    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
+                    TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(GetInitObj(), iMediaID);
+                    XTM.WriteStartElement("response");
+                    XTM.WriteAttributeString("type", "last_position");
+                    XTM.WriteCData(mediaMarkObject.nLocationSec.ToString());
+                    XTM.WriteEndElement();
+                }
+                break;
             case "account":
 
             /*

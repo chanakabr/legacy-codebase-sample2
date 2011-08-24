@@ -104,6 +104,10 @@ namespace TVPApi
                         //retVal = FavoritesHelper.AddToFavorites(mediaType, mediaID.ToString(), guidNum);
                         //break;
                     }
+                case ActionType.Like:
+                    {
+                        break;
+                    }
                 default:
                     break;
             }

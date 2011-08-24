@@ -533,13 +533,13 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Remove a user from domain")]
-        public Domain RemoveUserFromDomain(InitializationObject initObj, int iDomainID, string sSiteGuid)
+        public Domain RemoveUserFromDomain(InitializationObject initObj)
         {
             Domain domain = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveUserFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("RemoveUserFromDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, sSiteGuid);
+            logger.InfoFormat("RemoveUserFromDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
 
             if (groupID > 0)
             {

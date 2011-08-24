@@ -24,6 +24,7 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.DataLoaders;
 using TVPApiModule;
 using System.Configuration;
+using Tvinci.Helpers;
 
 public partial class Gateways_NetGem : BaseGateway
 {

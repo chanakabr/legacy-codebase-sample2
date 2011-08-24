@@ -6,6 +6,8 @@ using System.ServiceModel;
 using System.Text;
 using TVPApi;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
+using TVPPro.SiteManager.TvinciPlatform.Pricing;
+using TVPApiModule.Objects;
 
 namespace TVPApiServices
 {
@@ -79,7 +81,11 @@ namespace TVPApiServices
         [OperationContract]
         string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation);
 
+        [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
         // TODO: Add your service operations here
     }
 }
