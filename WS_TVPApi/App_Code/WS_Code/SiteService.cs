@@ -549,7 +549,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : RemoveUserFromDomain, Error Message: {0} Parameters: iDomainID: {1}, sSiteGUID: {2}", ex.Message, iDomainID, sSiteGuid);
+                    logger.ErrorFormat("Error calling webservice protocol : RemoveUserFromDomain, Error Message: {0} Parameters: iDomainID: {1}, sSiteGUID: {2}", ex.Message, initObj.DomainID, initObj.SiteGuid);
                 }
             }
 
