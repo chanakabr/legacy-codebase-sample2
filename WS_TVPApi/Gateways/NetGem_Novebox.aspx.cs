@@ -65,7 +65,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
         }
 
         string sChID = Request.QueryString["chid"];
-
+        
         PageData pd = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB);
 
         PageContext pc = pd.GetPageByID("es", 69); //

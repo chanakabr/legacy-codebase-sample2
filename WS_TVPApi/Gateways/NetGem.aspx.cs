@@ -34,9 +34,9 @@ public partial class Gateways_NetGem : BaseGateway
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        try
-        {
-            Logger.Logger.Log("Netgem Request ", Request.Url.ToString(), "TVPApi");
+        //try
+        //{
+            //Logger.Logger.Log("Netgem Request ", Request.Url.ToString(), "TVPApi");
 
             string retVal = string.Empty;
             string action = Request.QueryString["Action"];
@@ -307,11 +307,11 @@ public partial class Gateways_NetGem : BaseGateway
             Response.Clear();
             Response.Write(sw.ToString().Replace("utf-16", "utf-8"));
             Response.End();
-        }
-        catch (Exception ex)
-        {
-            Response.Write(ex.ToString());
-        }
+        //}
+        //catch (Exception ex)
+        //{
+        //    Response.Write(ex.ToString());
+        //}
     }
 
     private void RedirectGWToChannel(string chid)
