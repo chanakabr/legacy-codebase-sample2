@@ -94,4 +94,18 @@ public abstract class BaseGateway : System.Web.UI.Page
         //retVal.Locale = locale;
         return retVal;
     }
+
+    protected string GetStbUserId(int groupId)
+    {
+        string mac = Request.QueryString["identity"];
+        if (groupId == 125)
+        {
+            if (mac != "00043053C7C7")
+                return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+            else
+                return m_SiteService.SignIn(GetInitObj(), "adina_stb_c7c7@tvinci.com", "123456").SiteGuid;
+        }
+
+        return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+    }
 }

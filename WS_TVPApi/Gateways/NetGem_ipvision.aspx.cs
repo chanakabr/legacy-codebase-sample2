@@ -50,7 +50,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
             nItems = int.Parse(items);
         }
 
-        string callBack = Request.QueryString["callback"];        
+        string callBack = Request.QueryString["callback"];
         string sType = Request.QueryString["type"];
         string titId = Request.QueryString["titId"];
         if (!string.IsNullOrEmpty(titId))
@@ -59,6 +59,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
         }
 
         string sChID = Request.QueryString["chid"];
+        string snewSiteGuid = GetStbUserId(groupID);
 
         PageData pd = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB);
 
@@ -74,80 +75,80 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
         {
             case "account":
 
-                /*
+            /*
 
-                string sSiteGuid = string.Empty;//new UsersService(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
+            string sSiteGuid = string.Empty;//new UsersService(groupID, PlatformType.STB.ToString()).GetUserSiteGuid("adina@tvinci.com", "eliron27");
 
-                XTM.WriteStartElement("account");
-                XTM.WriteStartElement("information");
-                XTM.WriteStartElement("distributor");
-                XTM.WriteCData("");
-                XTM.WriteEndElement(); // distributor
-                XTM.WriteElementString("contract", sSiteGuid);
-                XTM.WriteElementString("date", "05/09/2010 08:39");
+            XTM.WriteStartElement("account");
+            XTM.WriteStartElement("information");
+            XTM.WriteStartElement("distributor");
+            XTM.WriteCData("");
+            XTM.WriteEndElement(); // distributor
+            XTM.WriteElementString("contract", sSiteGuid);
+            XTM.WriteElementString("date", "05/09/2010 08:39");
 
-                UserResponseObject userResponseObject = new ApiUsersService(groupID, platform).GetUserData(sSiteGuid);
+            UserResponseObject userResponseObject = new ApiUsersService(groupID, platform).GetUserData(sSiteGuid);
 
-                if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
+            if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
+            {
+                XTM.WriteElementString("email", userResponseObject.m_user.m_oBasicData.m_sEmail);
+            }
+            XTM.WriteElementString("pay", "CreditCard");
+            XTM.WriteElementString("logo", "");
+
+            XTM.WriteEndElement(); // information
+
+            PermittedMediaContainer[] MediaPermitedItems = m_MediaService.GetUserPermittedItems(GetInitObj(), sSiteGuid);
+
+            XTM.WriteStartElement("streams");
+            if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
+            {
+                TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
+                dsItemInfo ItemInfo = new APITVMRentalMultiMediaLoader(account.TVMUser, account.TVMPass, "full", 1) { GroupID = groupID, Platform = PlatformType.STB, MediasIdCotainer = MediaPermitedItems, SearchTokenSignature = GetMediasWithSeperator(MediaPermitedItems) }.Execute(); // Type 1 means bring all types
+
+                for (int i = 0; i < ItemInfo.Item.Rows.Count; i++)
                 {
-                    XTM.WriteElementString("email", userResponseObject.m_user.m_oBasicData.m_sEmail);
-                }
-                XTM.WriteElementString("pay", "CreditCard");
-                XTM.WriteElementString("logo", "");
+                    XTM.WriteStartElement("stream");
+                    XTM.WriteAttributeString("id", string.Concat(ItemInfo.Item[i].ID, "-", ItemInfo.Item[i].MediaTypeID));
+                    XTM.WriteStartElement("title");
+                    XTM.WriteCData(ItemInfo.Item[i].Title);
+                    XTM.WriteEndElement();//
 
-                XTM.WriteEndElement(); // information
+                    int iFileID = int.Parse(ItemInfo.Item[i].FileID);
 
-                PermittedMediaContainer[] MediaPermitedItems = m_MediaService.GetUserPermittedItems(GetInitObj(), sSiteGuid);
+                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), sSiteGuid, new int[] { iFileID }, false);
 
-                XTM.WriteStartElement("streams");
-                if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
-                {
-                    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
-                    dsItemInfo ItemInfo = new APITVMRentalMultiMediaLoader(account.TVMUser, account.TVMPass, "full", 1) { GroupID = groupID, Platform = PlatformType.STB, MediasIdCotainer = MediaPermitedItems, SearchTokenSignature = GetMediasWithSeperator(MediaPermitedItems) }.Execute(); // Type 1 means bring all types
-
-                    for (int i = 0; i < ItemInfo.Item.Rows.Count; i++)
+                    MediaFileItemPricesContainer mediaPrice = null;
+                    if (dictPrices != null)
                     {
-                        XTM.WriteStartElement("stream");
-                        XTM.WriteAttributeString("id", string.Concat(ItemInfo.Item[i].ID, "-", ItemInfo.Item[i].MediaTypeID));
-                        XTM.WriteStartElement("title");
-                        XTM.WriteCData(ItemInfo.Item[i].Title);
-                        XTM.WriteEndElement();//
-
-                        int iFileID = int.Parse(ItemInfo.Item[i].FileID);
-
-                        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), sSiteGuid, new int[] { iFileID }, false);
-
-                        MediaFileItemPricesContainer mediaPrice = null;
-                        if (dictPrices != null)
+                        foreach (MediaFileItemPricesContainer mp in dictPrices)
                         {
-                            foreach (MediaFileItemPricesContainer mp in dictPrices)
-                            {
-                                if (mp.m_nMediaFileID == iFileID)
-                                    mediaPrice = mp;
-                            }
+                            if (mp.m_nMediaFileID == iFileID)
+                                mediaPrice = mp;
                         }
-                        else if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
-                        {
-                            XTM.WriteElementString("price", dictPrices[iFileID].m_oItemPrices[0].m_oPrice.m_dPrice.ToString());
-                            XTM.WriteElementString("realprice", dictPrices[iFileID].m_oItemPrices[0].m_oFullPrice.m_dPrice.ToString());
-                        }
-                        else
-                        {
-                            XTM.WriteElementString("price", "1.99");
-                            XTM.WriteElementString("realprice", "0.99");
-                        }
-
-                        XTM.WriteElementString("date", ItemInfo.Item[i].PurchaseDate.ToString());
-                        XTM.WriteEndElement();//stream
+                    }
+                    else if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
+                    {
+                        XTM.WriteElementString("price", dictPrices[iFileID].m_oItemPrices[0].m_oPrice.m_dPrice.ToString());
+                        XTM.WriteElementString("realprice", dictPrices[iFileID].m_oItemPrices[0].m_oFullPrice.m_dPrice.ToString());
+                    }
+                    else
+                    {
+                        XTM.WriteElementString("price", "1.99");
+                        XTM.WriteElementString("realprice", "0.99");
                     }
 
+                    XTM.WriteElementString("date", ItemInfo.Item[i].PurchaseDate.ToString());
+                    XTM.WriteEndElement();//stream
                 }
-                XTM.WriteEndElement(); // streams
-                XTM.WriteEndElement(); // account
 
-                XTM.WriteEndDocument();
+            }
+            XTM.WriteEndElement(); // streams
+            XTM.WriteEndElement(); // account
 
-                break;*/
+            XTM.WriteEndDocument();
+
+            break;*/
             case "content":
 
                 string sMediaID = titId.Split('-')[0];
@@ -238,8 +239,8 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                     }
 
                     int iFileId = int.Parse(media.FileID);
-                    string tmpSiteGuid = new ApiUsersService(groupID, platform).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
-                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), tmpSiteGuid, new int[] { iFileId }, false);
+                    //string tmpSiteGuid = new ApiUsersService(groupID, platform).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
+                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), snewSiteGuid, new int[] { iFileId }, false);
 
                     MediaFileItemPricesContainer mediaPrice = null;
                     if (dictPrices != null)
@@ -250,9 +251,9 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                                 mediaPrice = mp;
                         }
                     }
-                    
+
                     if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
-                    {                        
+                    {
                         string sEndTime = string.Empty;
 
                         TVPPro.SiteManager.TvinciPlatform.Pricing.MediaFilePPVModule[] ppvmodules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFiles(new int[] { iFileId }, string.Empty, string.Empty, string.Empty);
@@ -313,24 +314,23 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                 try
                 {
                     string vtiId = Request["vtiId"];
-                    if (!string.IsNullOrEmpty(vtiId) && vtiId.Contains('-'))
-                    {
-                        string stmpFileID = vtiId.Split('-')[0];
-                        string stmpMediaType = "0";// (vtiId.Contains('-')) ? vtiId.Split('-')[1] : "181";
-                        string stmpPPVModule = vtiId.Split('-')[2];
-                        double iPrice;
-                        double.TryParse(vtiId.Split('-')[3], out iPrice);
-                        string snewSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
-                        //ConditionalAccessService.Instance.DummyChargeUserForMediaFile(iPrice, "USD", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP());
-                        string response = new ApiConditionalAccessService(groupID, platform).DummyChargeUserForMediaFile(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid);
-                        Logger.Logger.Log("Netgem purchasestatus", string.Format("Price:{0}, FileID:{1}, PPVModule:{2}, IP:{3}", iPrice, int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP()), "TVPApi");
+                    int stmpFileID = int.Parse(vtiId.Split('-')[0]);
+                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), snewSiteGuid, new int[] { stmpFileID }, false);
 
-                        XTM.WriteElementString("price", vtiId.Split('-')[3]);
-                    }
-                    else
+                    MediaFileItemPricesContainer mediaPrice = null;
+                    if (dictPrices != null)
                     {
-                        XTM.WriteElementString("price", "3.00");
+                        foreach (MediaFileItemPricesContainer mp in dictPrices)
+                        {
+                            if (mp.m_nMediaFileID == stmpFileID)
+                                mediaPrice = mp;
+                        }
                     }
+                    if (mediaPrice.m_oItemPrices != null)
+                        XTM.WriteElementString("price", string.Format("{0:0.00}", mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice));
+                    else
+                        XTM.WriteElementString("price", "0");
+
                 }
                 catch (Exception ex)
                 {
@@ -345,6 +345,24 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                 break;
             case "purchaseConfirmation":
 
+                string vtid = Request["vtiId"];
+                if (!string.IsNullOrEmpty(vtid) && vtid.Contains('-'))
+                {
+                    string stmpFileID = vtid.Split('-')[0];
+                    string stmpMediaType = "0";// (vtiId.Contains('-')) ? vtiId.Split('-')[1] : "181";
+                    string stmpPPVModule = vtid.Split('-')[2];
+                    double iPrice;
+                    double.TryParse(vtid.Split('-')[3], out iPrice);
+                    //ConditionalAccessService.Instance.DummyChargeUserForMediaFile(iPrice, "USD", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP());
+                    string response = new ApiConditionalAccessService(groupID, platform).DummyChargeUserForMediaFile(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid);
+                    Logger.Logger.Log("Netgem purchasestatus", string.Format("Price:{0}, FileID:{1}, PPVModule:{2}, IP:{3}", iPrice, int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP()), "TVPApi");
+
+                    //XTM.WriteElementString("price", vtiId.Split('-')[3]);
+                }
+                else
+                {
+
+                }
                 // Reading the XML postdata so we can get the hmac
                 //byte[] buff = new byte[Request.ContentLength];
                 //Request.InputStream.Read(buff, 0, Request.ContentLength);
@@ -479,7 +497,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
         Response.Clear();
         Response.Write(sw.ToString().Replace("utf-16", "utf-8"));
-        Response.End();
+        //Response.End();
     }
 
     private string ParseAutoCompleteList(List<string> lstResponse, string preFix)

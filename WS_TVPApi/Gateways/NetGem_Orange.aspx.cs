@@ -474,7 +474,7 @@ public partial class Gateways_NetGem_Orange : BaseGateway
 
         Response.Clear();
         Response.Write(sw.ToString().Replace("utf-16", "utf-8"));
-        Response.End();
+        //Response.End();
     }
 
     private string ParseAutoCompleteList(List<string> lstResponse, string preFix)

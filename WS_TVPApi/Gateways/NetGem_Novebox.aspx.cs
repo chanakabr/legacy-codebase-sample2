@@ -41,6 +41,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
         string items = Request.QueryString["items"];
         string index = Request.QueryString["index"];
         string broadcasterName = Request.QueryString["broadcasterName"];
+        PlatformType platform = PlatformType.STB;
 
         broadcasterName = "novetest";
         int groupID = GetGroupIDByBroadcasterName(broadcasterName);
@@ -65,7 +66,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
         }
 
         string sChID = Request.QueryString["chid"];
-        
+        string snewSiteGuid = GetStbUserId(groupID);
         PageData pd = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB);
 
         PageContext pc = pd.GetPageByID("es", 69); //
@@ -78,7 +79,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
 
         switch (sType)
         {
-            case "account":              
+            case "account":
                 /*
                 string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27");                
 
@@ -223,10 +224,9 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                     XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
                     XTM.WriteEndElement();
 
-                    int iFileId = int.Parse(media.FileID);                    
-                    string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
-                    MediaFileItemPricesContainer[] dictPrice = m_MediaService.GetItemPrices(GetInitObj(), sSiteGuid, new int[] { iFileId }, false);
-                    
+                    int iFileId = int.Parse(media.FileID);
+                    MediaFileItemPricesContainer[] dictPrice = m_MediaService.GetItemPrices(GetInitObj(), snewSiteGuid, new int[] { iFileId }, false);
+
                     MediaFileItemPricesContainer mediaPrice = null;
                     if (dictPrice != null)
                     {
@@ -236,9 +236,9 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                                 mediaPrice = mp;
                         }
                     }
-                    
+
                     if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
-                    {                    
+                    {
                         XTM.WriteElementString("licenceDuration", dictPrice[iFileId].m_oItemPrices[0].m_oPPVDescription[0].m_sValue);
                         XTM.WriteElementString("licenceDurationUnit", ".");
 
@@ -287,35 +287,31 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                 break;
             case "purchasestatus":
                 XTM.WriteStartElement("purchase");
-
                 try
                 {
                     string vtiId = Request["vtiId"];
-                    if (!string.IsNullOrEmpty(vtiId) && vtiId.Contains('-'))
-                    {
-                        string stmpFileID = vtiId.Split('-')[0];
-                        string stmpMediaType = "0";
-                        string stmpPPVModule = vtiId.Split('-')[2];
-                        double iPrice;
-                        double.TryParse(vtiId.Split('-')[3], out iPrice);                        
-                        string snewSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
-                        // XXX: implement in WS
-                        string response = new ApiConditionalAccessService(groupID, PlatformType.STB).DummyChargeUserForMediaFile(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid);
-                        Logger.Logger.Log("Netgem purchasestatus", string.Format("Price:{0}, FileID:{1}, PPVModule:{2}, IP:{3}", iPrice, int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP()), "TVPApi");
+                    int stmpFileID = int.Parse(vtiId.Split('-')[0]);
+                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), snewSiteGuid, new int[] { stmpFileID }, false);
 
-                        XTM.WriteElementString("price", vtiId.Split('-')[3]);
-                    }
-                    else
+                    MediaFileItemPricesContainer mediaPrice = null;
+                    if (dictPrices != null)
                     {
-                        XTM.WriteElementString("price", "3.00");
+                        foreach (MediaFileItemPricesContainer mp in dictPrices)
+                        {
+                            if (mp.m_nMediaFileID == stmpFileID)
+                                mediaPrice = mp;
+                        }
                     }
+                    if (mediaPrice.m_oItemPrices != null)
+                        XTM.WriteElementString("price", string.Format("{0:0.00}", mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice));
+                    else
+                        XTM.WriteElementString("price", "0");
+
                 }
                 catch (Exception ex)
                 {
                     Logger.Logger.Log("Netgem purchasestatus Exception ", ex.ToString(), "TVPApi");
                 }
-
-
 
                 XTM.WriteStartElement("status");
                 XTM.WriteCData("OK");
@@ -323,7 +319,24 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                 XTM.WriteEndDocument();
                 break;
             case "purchaseConfirmation":
+                string vtid = Request["vtiId"];
+                if (!string.IsNullOrEmpty(vtid) && vtid.Contains('-'))
+                {
+                    string stmpFileID = vtid.Split('-')[0];
+                    string stmpMediaType = "0";// (vtiId.Contains('-')) ? vtiId.Split('-')[1] : "181";
+                    string stmpPPVModule = vtid.Split('-')[2];
+                    double iPrice;
+                    double.TryParse(vtid.Split('-')[3], out iPrice);
+                    //ConditionalAccessService.Instance.DummyChargeUserForMediaFile(iPrice, "USD", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP());
+                    //string response = new ApiConditionalAccessService(groupID, platform).DummyChargeUserForMediaFile(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid);
+                    Logger.Logger.Log("Netgem purchasestatus", string.Format("Price:{0}, FileID:{1}, PPVModule:{2}, IP:{3}", iPrice, int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP()), "TVPApi");
 
+                    //XTM.WriteElementString("price", vtiId.Split('-')[3]);
+                }
+                else
+                {
+
+                }
                 // Reading the XML postdata so we can get the hmac
                 //byte[] buff = new byte[Request.ContentLength];
                 //Request.InputStream.Read(buff, 0, Request.ContentLength);
@@ -457,8 +470,8 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
 
         Response.Clear();
         Response.Write(sw.ToString().Replace("utf-16", "utf-8"));
-        Response.End();
-    }    
+        //Response.End();
+    }
 
     private string ParseAutoCompleteList(List<string> lstResponse, string preFix)
     {
