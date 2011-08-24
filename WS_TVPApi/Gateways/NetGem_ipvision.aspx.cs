@@ -222,157 +222,159 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
             break;*/
             case "content":
-
-                string sMediaID = titId.Split('-')[0];
-                string sMediaType = (titId.Contains('-')) ? titId.Split('-')[1] : "272";
-
-                Media media = m_MediaService.GetMediaInfo(GetInitObj(), long.Parse(sMediaID), int.Parse(sMediaType), "480X430", true);
-
-                if (media != null)
                 {
-                    XTM.WriteStartElement("content");
-                    //XTM.WriteElementString("synopsis", media.Description);
-                    XTM.WriteStartElement("synopsis");
-                    XTM.WriteCData(media.Description.Replace(@"<\p>", " "));
-                    XTM.WriteEndElement();
-                    XTM.WriteElementString("title", media.MediaName.Replace('(', ' ').Replace(')', ' '));
-                    XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
+                    string sMediaID = titId.Split('-')[0];
+                    string sMediaType = (titId.Contains('-')) ? titId.Split('-')[1] : "272";
 
-                    XTM.WriteElementString("censorshipRating", string.Format("{0:0}", media.Rating));
-                    XTM.WriteElementString("copyrightStudio", (from meta in media.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault());
-                    XTM.WriteElementString("adult", "false");
-                    XTM.WriteElementString("yearProd", (from meta in media.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault());
+                    Media media = m_MediaService.GetMediaInfo(GetInitObj(), long.Parse(sMediaID), int.Parse(sMediaType), "480X430", true);
 
-                    XTM.WriteElementString("titID", media.MediaID + "-" + media.MediaTypeID + "-" + (int)eChannels.Ipvision);
-                    XTM.WriteElementString("HD", "true"); //<---
-
-                    XTM.WriteStartElement("nationalityNames");
-                    string countires = (from tag in media.Tags where tag.Key.Equals("Country") select tag.Value).FirstOrDefault();
-                    if (countires != null)
+                    if (media != null)
                     {
-                        foreach (string country in countires.Split('-'))
-                        {
-                            XTM.WriteElementString("element", country);
-                        }
-                    }
-                    XTM.WriteEndElement();
-
-                    XTM.WriteStartElement("actors");
-                    string actors = (from tag in media.Tags where tag.Key.Equals("Cast") select tag.Value).FirstOrDefault();
-                    if (actors != null)
-                    {
-                        foreach (string actor in actors.Split('|'))
-                        {
-                            XTM.WriteStartElement("xml-link");
-                            XTM.WriteElementString("title", actor);
-                            XTM.WriteElementString("url", "");
-                            XTM.WriteEndElement();
-                        }
-                    }
-                    XTM.WriteEndElement();
-
-                    XTM.WriteStartElement("directors");
-                    string directors = (from tag in media.Tags where tag.Key.Equals("Director") select tag.Value).FirstOrDefault();
-                    if (directors != null)
-                    {
-                        foreach (string director in directors.Split('-'))
-                        {
-                            XTM.WriteStartElement("xml-link");
-                            XTM.WriteElementString("title", director);
-                            XTM.WriteElementString("url", "");
-                            XTM.WriteEndElement();
-                        }
-                    }
-                    XTM.WriteEndElement();
-
-                    #region DTRProduct
-                    XTM.WriteStartElement("DTRProduct");
-                    XTM.WriteStartElement("contentFile");
-
-                    if (!String.IsNullOrEmpty(media.URL))
-                        XTM.WriteElementString("URL", string.Concat(media.URL, "?bla=", counter++));
-                    else
-                        XTM.WriteElementString("URL", string.Concat("http://ibc.cdngc.net/Ipvision/trailer.wmv", "?bla=", counter++));
-
-                    //if (media.URL.StartsWith("http://"))                   
-                    //    XTM.WriteElementString("URL", media.URL);
-                    //else 
-                    //    //XXX:  Change
-                    //    XTM.WriteElementString("URL", media.URL); 
-
-                    XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
-                    XTM.WriteEndElement();
-
-                    //XTM.WriteElementString("title", media.MediaName);
-
-                    //if (TVPPro.SiteManager.Services.UsersService.Instance.GetUserID() == 0)
-                    {
-                        // new UsersServiceEx(groupID, PlatformType.STB.ToString().ToLower()).SignIn("idow@gmail.com", "eliron27");
-                    }
-
-                    int iFileId = int.Parse(media.FileID);
-                    //string tmpSiteGuid = new ApiUsersService(groupID, platform).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
-                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), snewSiteGuid, new int[] { iFileId }, false);
-
-                    MediaFileItemPricesContainer mediaPrice = null;
-                    if (dictPrices != null)
-                    {
-                        foreach (MediaFileItemPricesContainer mp in dictPrices)
-                        {
-                            if (mp.m_nMediaFileID == iFileId)
-                                mediaPrice = mp;
-                        }
-                    }
-
-                    if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
-                    {
-                        string sEndTime = string.Empty;
-
-                        TVPPro.SiteManager.TvinciPlatform.Pricing.MediaFilePPVModule[] ppvmodules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFiles(new int[] { iFileId }, string.Empty, string.Empty, string.Empty);
-                        if (ppvmodules != null && ppvmodules.Length > 0)
-                        {
-                            sEndTime = DateTime.Now.AddMinutes(ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle).ToString("dd/MM/yyyy HH:mm:ss");
-                        }
-
-                        XTM.WriteElementString("licenceDuration", (ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle / 60).ToString());
-                        XTM.WriteElementString("licenceDurationUnit", "H");
-
-                        XTM.WriteStartElement("price");
-                        XTM.WriteElementString("price", string.Format("{0:0.00}", mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice));
-
+                        XTM.WriteStartElement("content");
+                        //XTM.WriteElementString("synopsis", media.Description);
+                        XTM.WriteStartElement("synopsis");
+                        XTM.WriteCData(media.Description.Replace(@"<\p>", " "));
                         XTM.WriteEndElement();
-                        XTM.WriteElementString("endDate", sEndTime);
-                        XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-" + mediaPrice.m_oItemPrices[0].m_sPPVModuleCode + "-" + mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice + "-" + (int)eChannels.Ipvision);
-                    }
-                    else
-                    {
-                        XTM.WriteElementString("licenseDuration", "UL");
-                        XTM.WriteElementString("licenseDurationUnit", "h");
+                        XTM.WriteElementString("title", media.MediaName.Replace('(', ' ').Replace(')', ' '));
+                        XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
 
-                        XTM.WriteStartElement("price");
-                        XTM.WriteElementString("price", "FREE");
+                        XTM.WriteElementString("censorshipRating", string.Format("{0:0}", media.Rating));
+                        XTM.WriteElementString("copyrightStudio", (from meta in media.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault());
+                        XTM.WriteElementString("adult", "false");
+                        XTM.WriteElementString("yearProd", (from meta in media.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault());
+
+                        XTM.WriteElementString("titID", media.MediaID + "-" + media.MediaTypeID + "-" + (int)eChannels.Ipvision);
+                        XTM.WriteElementString("HD", "true"); //<---
+
+                        XTM.WriteStartElement("nationalityNames");
+                        string countires = (from tag in media.Tags where tag.Key.Equals("Country") select tag.Value).FirstOrDefault();
+                        if (countires != null)
+                        {
+                            foreach (string country in countires.Split('-'))
+                            {
+                                XTM.WriteElementString("element", country);
+                            }
+                        }
                         XTM.WriteEndElement();
 
-                        XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-0-FREE-" + (int)eChannels.Ipvision);
-                        XTM.WriteElementString("endDate", "01/01/2012 00:00:00");
+                        XTM.WriteStartElement("actors");
+                        string actors = (from tag in media.Tags where tag.Key.Equals("Cast") select tag.Value).FirstOrDefault();
+                        if (actors != null)
+                        {
+                            foreach (string actor in actors.Split('|'))
+                            {
+                                XTM.WriteStartElement("xml-link");
+                                XTM.WriteElementString("title", actor);
+                                XTM.WriteElementString("url", "");
+                                XTM.WriteEndElement();
+                            }
+                        }
+                        XTM.WriteEndElement();
+
+                        XTM.WriteStartElement("directors");
+                        string directors = (from tag in media.Tags where tag.Key.Equals("Director") select tag.Value).FirstOrDefault();
+                        if (directors != null)
+                        {
+                            foreach (string director in directors.Split('-'))
+                            {
+                                XTM.WriteStartElement("xml-link");
+                                XTM.WriteElementString("title", director);
+                                XTM.WriteElementString("url", "");
+                                XTM.WriteEndElement();
+                            }
+                        }
+                        XTM.WriteEndElement();
+
+                        #region DTRProduct
+                        XTM.WriteStartElement("DTRProduct");
+                        XTM.WriteStartElement("contentFile");
+
+                        if (!String.IsNullOrEmpty(media.URL))
+                            XTM.WriteElementString("URL", string.Concat(media.URL, "?bla=", counter++));
+                        else
+                            XTM.WriteElementString("URL", string.Concat("http://ibc.cdngc.net/Ipvision/trailer.wmv", "?bla=", counter++));
+
+                        //if (media.URL.StartsWith("http://"))                   
+                        //    XTM.WriteElementString("URL", media.URL);
+                        //else 
+                        //    //XXX:  Change
+                        //    XTM.WriteElementString("URL", media.URL); 
+
+                        XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
+                        XTM.WriteEndElement();
+
+                        //XTM.WriteElementString("title", media.MediaName);
+
+                        //if (TVPPro.SiteManager.Services.UsersService.Instance.GetUserID() == 0)
+                        {
+                            // new UsersServiceEx(groupID, PlatformType.STB.ToString().ToLower()).SignIn("idow@gmail.com", "eliron27");
+                        }
+
+                        int iFileId = int.Parse(media.FileID);
+                        //string tmpSiteGuid = new ApiUsersService(groupID, platform).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
+                        InitializationObject initObj = GetInitObj();
+                        initObj.SiteGuid = snewSiteGuid;
+                        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(initObj, new int[] { iFileId }, false);
+
+                        MediaFileItemPricesContainer mediaPrice = null;
+                        if (dictPrices != null)
+                        {
+                            foreach (MediaFileItemPricesContainer mp in dictPrices)
+                            {
+                                if (mp.m_nMediaFileID == iFileId)
+                                    mediaPrice = mp;
+                            }
+                        }
+
+                        if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
+                        {
+                            string sEndTime = string.Empty;
+
+                            TVPPro.SiteManager.TvinciPlatform.Pricing.MediaFilePPVModule[] ppvmodules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFiles(new int[] { iFileId }, string.Empty, string.Empty, string.Empty);
+                            if (ppvmodules != null && ppvmodules.Length > 0)
+                            {
+                                sEndTime = DateTime.Now.AddMinutes(ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle).ToString("dd/MM/yyyy HH:mm:ss");
+                            }
+
+                            XTM.WriteElementString("licenceDuration", (ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle / 60).ToString());
+                            XTM.WriteElementString("licenceDurationUnit", "H");
+
+                            XTM.WriteStartElement("price");
+                            XTM.WriteElementString("price", string.Format("{0:0.00}", mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice));
+
+                            XTM.WriteEndElement();
+                            XTM.WriteElementString("endDate", sEndTime);
+                            XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-" + mediaPrice.m_oItemPrices[0].m_sPPVModuleCode + "-" + mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice + "-" + (int)eChannels.Ipvision);
+                        }
+                        else
+                        {
+                            XTM.WriteElementString("licenseDuration", "UL");
+                            XTM.WriteElementString("licenseDurationUnit", "h");
+
+                            XTM.WriteStartElement("price");
+                            XTM.WriteElementString("price", "FREE");
+                            XTM.WriteEndElement();
+
+                            XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-0-FREE-" + (int)eChannels.Ipvision);
+                            XTM.WriteElementString("endDate", "01/01/2012 00:00:00");
+                        }
+                        XTM.WriteEndElement();
+
+                        #endregion
+
+                        XTM.WriteStartElement("trailerContentFileList");
+                        XTM.WriteStartElement("element");
+                        XTM.WriteElementString("URL", "http://ibc.cdngc.net/Ipvision/trailer.wmv");
+                        XTM.WriteElementString("encodingType", "");
+
+                        XTM.WriteEndElement();
+                        XTM.WriteEndElement();
+
+                        XTM.WriteElementString("mediumImageRelativePath", media.PicURL.Replace("http://", string.Empty));
+                        XTM.WriteElementString("mediumImageAbsolutePath", media.PicURL);
+                        XTM.WriteEndDocument();
                     }
-                    XTM.WriteEndElement();
-
-                    #endregion
-
-                    XTM.WriteStartElement("trailerContentFileList");
-                    XTM.WriteStartElement("element");
-                    XTM.WriteElementString("URL", "http://ibc.cdngc.net/Ipvision/trailer.wmv");
-                    XTM.WriteElementString("encodingType", "");
-
-                    XTM.WriteEndElement();
-                    XTM.WriteEndElement();
-
-                    XTM.WriteElementString("mediumImageRelativePath", media.PicURL.Replace("http://", string.Empty));
-                    XTM.WriteElementString("mediumImageAbsolutePath", media.PicURL);
-                    XTM.WriteEndDocument();
                 }
-
                 break;
             case "purchase":
                 XTM.WriteStartElement("purchase");
@@ -387,7 +389,10 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                 {
                     string vtiId = Request["vtiId"];
                     int stmpFileID = int.Parse(vtiId.Split('-')[0]);
-                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), snewSiteGuid, new int[] { stmpFileID }, false);
+
+                    InitializationObject initObj = GetInitObj();
+                    initObj.SiteGuid = snewSiteGuid;
+                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(initObj, new int[] { stmpFileID }, false);
 
                     MediaFileItemPricesContainer mediaPrice = null;
                     if (dictPrices != null)

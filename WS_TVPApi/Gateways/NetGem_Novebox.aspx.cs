@@ -225,7 +225,9 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                     XTM.WriteEndElement();
 
                     int iFileId = int.Parse(media.FileID);
-                    MediaFileItemPricesContainer[] dictPrice = m_MediaService.GetItemPrices(GetInitObj(), snewSiteGuid, new int[] { iFileId }, false);
+                    InitializationObject initObj = GetInitObj();
+                    initObj.SiteGuid = snewSiteGuid;
+                    MediaFileItemPricesContainer[] dictPrice = m_MediaService.GetItemPrices(initObj, new int[] { iFileId }, false);
 
                     MediaFileItemPricesContainer mediaPrice = null;
                     if (dictPrice != null)
@@ -291,7 +293,9 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                 {
                     string vtiId = Request["vtiId"];
                     int stmpFileID = int.Parse(vtiId.Split('-')[0]);
-                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), snewSiteGuid, new int[] { stmpFileID }, false);
+                    InitializationObject initObj = GetInitObj();
+                    initObj.SiteGuid = snewSiteGuid;
+                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(initObj, new int[] { stmpFileID }, false);
 
                     MediaFileItemPricesContainer mediaPrice = null;
                     if (dictPrices != null)

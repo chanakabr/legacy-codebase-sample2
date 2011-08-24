@@ -100,7 +100,9 @@ public partial class Gateways_NetGem : BaseGateway
 
                 XTM.WriteEndElement(); // information
 
-                PermittedMediaContainer[] MediaPermitedItems = m_MediaService.GetUserPermittedItems(GetInitObj(), sSiteGuid);
+                InitializationObject initObj1 = GetInitObj();
+                initObj1.SiteGuid = sSiteGuid;
+                PermittedMediaContainer[] MediaPermitedItems = m_MediaService.GetUserPermittedItems(initObj1);
 
                 XTM.WriteStartElement("streams");
                 if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
@@ -117,8 +119,9 @@ public partial class Gateways_NetGem : BaseGateway
                         XTM.WriteEndElement();//
 
                         int iFileID = int.Parse(ItemInfo.Item[i].FileID);
-
-                        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), sSiteGuid, new int[] { iFileID }, false);
+                        InitializationObject initObj = GetInitObj();
+                        initObj.SiteGuid = sSiteGuid;
+                        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(initObj, new int[] { iFileID }, false);
 
                         MediaFileItemPricesContainer mediaPrice = null;
                         if (dictPrices != null)
