@@ -369,7 +369,7 @@ namespace TVPApi
 
                 case UserItemType.Favorite:
                     {
-                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, initObj.UDID);
+                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);//initObj.UDID);
                         string[] favoritesList;// = TVPPro.SiteManager.Helper.FavoritesHelper.GetUserFavoriteMedias(mediaType, guid, true);
 
                         if (favoritesObj != null)
@@ -429,7 +429,7 @@ namespace TVPApi
                     break;
             }
             //LogManager.Instance.Log(groupID, "UserItems", string.Format("Found {0} medias from loader", (mediaInfo.Item != null && mediaInfo.Item.Count > 0) ? mediaInfo.Item.Count.ToString() : "0"));
-            if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
+            if (mediaInfo != null && mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
                 int startIndex = (pageIndex) * pageSize;
                 //Local server Paging

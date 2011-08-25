@@ -53,26 +53,29 @@ namespace TVPApi
                     }
                 case ActionType.RemoveFavorite:
                     {
-                        long guidNum = Convert.ToInt64(sUserID);
-                        int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
-                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(sUserID, string.Empty, iDomainID, sUDID);
-                        if (favoritesObj != null)
-                        {
-                            int[] favoriteID = new int[] { };
-                            for (int i = 0; i < favoritesObj.Length; i++)
-                            {
-                                if (favoritesObj[i].m_sItemCode == mediaID.ToString())
-                                {
-                                    favoriteID.SetValue(favoritesObj[i].m_nID, i);
-                                    break;
-                                }
-                            }
-                            if (favoriteID.Length > 0)
-                            {
-                                new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, favoriteID);
-                                retVal = true;
-                            }
-                        }
+                        new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, new int[] { mediaID });
+                        retVal = true;
+
+                        //long guidNum = Convert.ToInt64(sUserID);
+                        //int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
+                        //FavoritObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(sUserID, string.Empty, iDomainID, string.Empty);
+                        //if (favoritesObj != null)
+                        //{
+                        //    int[] favoriteID = new int[] { };
+                        //    for (int i = 0; i < favoritesObj.Length; i++)
+                        //    {
+                        //        if (favoritesObj[i].m_sItemCode == mediaID.ToString())
+                        //        {
+                        //            favoriteID.SetValue(favoritesObj[i].m_nID, i);
+                        //            break;
+                        //        }
+                        //    }
+                        //    if (favoriteID.Length > 0)
+                            //{
+                            //    new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, favoriteID);
+                            //    retVal = true;
+                            //}
+                        //}
                         //userService.RemoveUserFavorit(string.Format("users_{0}", regGroupID.ToString()), "11111", sID,
                         //if (mediaID > 0)
                         //{

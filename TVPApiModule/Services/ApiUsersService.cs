@@ -145,15 +145,15 @@ namespace TVPApiModule.Services
             }
         }
 
-        public void RemoveUserFavorite(string sSiteGuid, int[] favoriteID)
+        public void RemoveUserFavorite(string sSiteGuid, int[] mediaID)
         {
             try
             {
-                m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, favoriteID);
+                m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, mediaID);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error recive user data Protocol RemoveUserFavorite, Error Message: {0} Parameters : User {1}, Favourite: {2}", ex.Message, sSiteGuid, favoriteID);
+                logger.ErrorFormat("Error recive user data Protocol RemoveUserFavorite, Error Message: {0} Parameters : User {1}, Favourite: {2}", ex.Message, sSiteGuid, mediaID);
             }
         }
 
