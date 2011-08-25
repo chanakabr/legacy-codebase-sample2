@@ -86,6 +86,8 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
-        // TODO: Add your service operations here
+        
+        [OperationContract]
+        bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
     }
 }
