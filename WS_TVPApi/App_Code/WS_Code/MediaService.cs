@@ -17,7 +17,7 @@ namespace TVPApiServices
     /// <summary>
     /// Summary description for Service
     /// </summary>
-    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws/media")]
+    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
@@ -864,5 +864,33 @@ namespace TVPApiServices
             return (TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription[])subs.Clone();
         }
         #endregion
+
+        [WebMethod(EnableSession = true, Description = "Add user social sites action")]
+        public bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
+        {
+            bool bResponse = false;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "AddUserSocialAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("AddUserSocialAction-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    bResponse = new ApiApiService(groupId, initObj.Platform).AddUserSocialAction(iMediaID, initObj.SiteGuid, action, socialPlatform);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("AddUserSocialAction->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("AddUserSocialAction-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return bResponse;
+        }
     }
 }
