@@ -333,7 +333,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                             TVPPro.SiteManager.TvinciPlatform.Pricing.MediaFilePPVModule[] ppvmodules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFiles(new int[] { iFileId }, string.Empty, string.Empty, string.Empty);
                             if (ppvmodules != null && ppvmodules.Length > 0)
                             {
-                                sEndTime = DateTime.Now.AddMinutes(ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle).ToString("dd/MM/yyyy HH:mm:ss");
+                                sEndTime = DateTime.Now.AddMinutes(ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle).ToString("MM/dd/yyyy HH:mm:ss");
                             }
 
                             XTM.WriteElementString("licenceDuration", (ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle / 60).ToString());
