@@ -87,6 +87,12 @@ namespace TVPApi
             result.root.request.@params.with_info = "true";
             result.root.flashvars.file_quality = file_quality.high;
             result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+
+            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat))
+            {
+                result.root.flashvars.sub_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat;
+            }
+            
             //result.root.flashvars.pic_size1_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
             //result.root.flashvars.pic_size1_quality = "HIGH";
             result.root.flashvars.pic_size1 = PicSize;
