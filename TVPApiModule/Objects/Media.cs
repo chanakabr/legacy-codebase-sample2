@@ -41,6 +41,10 @@ namespace TVPApi
         private List<TagMetaPair> m_metas;
 
         public DynamicData MediaDynamicData;
+        public string SubDuration;
+        public string SubFileFormat;
+        public string SubFileID;
+        public string SubURL;
 
         public List<TagMetaPair> Tags
         {
@@ -144,6 +148,25 @@ namespace TVPApi
             {
                 CreationDate = row.AddedDate;
             }
+
+            // add sub file foramt info
+            if (!row.IsSubDurationNull())
+            {
+                SubDuration = row.SubDuration;
+            }
+            if (!row.IsSubFileFormatNull())
+            {
+                SubFileFormat = row.SubFileFormat;
+            }
+            if (!row.IsSubFileIDNull())
+            {
+                SubFileID = row.SubFileID;
+            }
+            if (!row.IsSubURLNull())
+            {
+                SubURL = row.SubURL;
+            }
+
 
             MediaWebLink = GetMediaWebLink(groupID);
 
