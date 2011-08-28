@@ -130,7 +130,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    bRet = MediaHelper.IsFavoriteMedia(initObj.SiteGuid, mediaID, initObj.Platform.ToString());
+                    bRet = MediaHelper.IsFavoriteMedia(initObj, groupID, mediaID);
                 }
                 catch (Exception ex)
                 {

@@ -54,10 +54,24 @@ namespace TVPApi
 
         }
 
-        public static bool IsFavoriteMedia(string sID, int itemID, string platform)
+        public static bool IsFavoriteMedia(InitializationObject initObj, int groupID, int mediaID)
         {
             //long guidNum = Convert.ToInt64(sID);
-            return FavoritesHelper.ItemExistOnFavorite(itemID.ToString(), sID);
+            bool retVal = false;
+            FavoritObject[] favoriteObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
+            if (favoriteObj != null)
+            {
+                for (int i = 0; i < favoriteObj.Length; i++)
+                {
+                    if (favoriteObj[i].m_sItemCode == mediaID.ToString())
+                    {
+                        retVal = true;
+                        break;
+                    }
+                }
+            }
+            return retVal;
+            //return FavoritesHelper.ItemExistOnFavorite(itemID.ToString(), sID);
         }
 
         //Call search protocol

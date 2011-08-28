@@ -152,7 +152,7 @@ namespace TVPApi
             {
                 logger.InfoFormat("Start Media dynamic build GroupID:", groupID);
 
-                BuildDynamicObj(initObj.SiteGuid, initObj.Platform, groupID, initObj.DomainID, initObj.UDID);
+                BuildDynamicObj(initObj, groupID);
             }
         }
 
@@ -197,11 +197,11 @@ namespace TVPApi
         }
 
         //Build dynamic data if needed (is favorite, price, price status, notifications..)
-        private void BuildDynamicObj(string guid, PlatformType platform, int groupID, int iDomainID, string sUDID)
+        private void BuildDynamicObj(InitializationObject initObj, int groupID)
         {
             this.MediaDynamicData = new DynamicData();
             
-            PermittedMediaContainer[] MediaItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(guid);
+            PermittedMediaContainer[] MediaItems = new ApiConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(initObj.SiteGuid);
             int mediID = int.Parse(MediaID);
             if (MediaItems != null)
             {
@@ -219,7 +219,7 @@ namespace TVPApi
                 {
                     string price;
                     PriceReason reason;
-                    GetPrice(out price, out reason, groupID, guid, platform);
+                    GetPrice(out price, out reason, groupID, initObj.SiteGuid, initObj.Platform);
                     MediaDynamicData.PriceType = reason;
                     MediaDynamicData.Price = price;
                 }
@@ -228,15 +228,15 @@ namespace TVPApi
             {
                 string price;
                 PriceReason reason;
-                GetPrice(out price, out reason, groupID, guid, platform);
+                GetPrice(out price, out reason, groupID, initObj.SiteGuid, initObj.Platform);
                 MediaDynamicData.PriceType = reason;
                 MediaDynamicData.Price = price;
 
             }
             
-            if (!string.IsNullOrEmpty(guid))
+            if (!string.IsNullOrEmpty(initObj.SiteGuid))
             {
-                if (IsItemFavorite(int.Parse(MediaID), guid, iDomainID, sUDID, groupID, platform))
+                if (MediaHelper.IsFavoriteMedia(initObj, groupID, int.Parse(MediaID)))
                 {
                     MediaDynamicData.IsFavorite = true;
                 }
@@ -248,23 +248,23 @@ namespace TVPApi
 
         }
 
-        private bool IsItemFavorite(int mediaID, string userGuid,int iDomainID, string sUDID, int groupID, PlatformType platform)
-        {
-            bool retVal = false;
-            FavoritObject[] favoriteObj = new ApiUsersService(groupID, platform).GetUserFavorites(userGuid, string.Empty, iDomainID, sUDID);
-            if (favoriteObj != null)
-            {
-                for (int i = 0; i < favoriteObj.Length; i++)
-                {
-                    if (favoriteObj[i].m_sItemCode == mediaID.ToString())
-                    {
-                        retVal = true;
-                        break;
-                    }
-                }
-            }
-            return retVal;
-        }
+        //private bool IsItemFavorite(int mediaID, string userGuid,int iDomainID, string sUDID, int groupID, PlatformType platform)
+        //{
+        //    bool retVal = false;
+        //    FavoritObject[] favoriteObj = new ApiUsersService(groupID, platform).GetUserFavorites(userGuid, string.Empty, iDomainID, sUDID);
+        //    if (favoriteObj != null)
+        //    {
+        //        for (int i = 0; i < favoriteObj.Length; i++)
+        //        {
+        //            if (favoriteObj[i].m_sItemCode == mediaID.ToString())
+        //            {
+        //                retVal = true;
+        //                break;
+        //            }
+        //        }
+        //    }
+        //    return retVal;
+        //}
 
         private void GetPrice(out string price, out PriceReason reason, int groupID, string userGuid, PlatformType platform)
         {

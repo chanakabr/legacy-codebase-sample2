@@ -123,7 +123,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sItemType);
+                response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
             }
             catch (Exception ex)
             {
@@ -133,16 +133,19 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public void AddUserFavorite(string sSiteGuid, int iDomainID, string sUDID, string sMediaType, string sMediaID, string sExtra)
+        public bool  AddUserFavorite(string sSiteGuid, int iDomainID, string sUDID, string sMediaType, string sMediaID, string sExtra)
         {
+            bool bRet = false;
             try
             {
-                m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
+                bRet = m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error recive user data Protocol AddUserFavorite, Error Message: {0} Parameters : User {1}, Media: {2}", ex.Message, sSiteGuid, sMediaID);
             }
+
+            return bRet;
         }
 
         public void RemoveUserFavorite(string sSiteGuid, int[] mediaID)
