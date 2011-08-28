@@ -27,14 +27,14 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     private PageData pd;
     private PageContext pc;
     private static string[][] menus = new string[][] { 
-        new string[]{ "Home", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/home" }, 
+        new string[]{ "Home", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/home" }, 
         new string[]{ "Channels", "/tvpapi/gateways/rsstv_ipvision{0}.ashx?action=allchannels" }, 
-        new string[]{ "Highlights", "/menu/?action=cms&cms=archive_movie&id=585" }, 
-        new string[]{ "A-Z Listing", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/azlisting" }, 
-        new string[]{ "Search", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/search" }, 
-        new string[]{ "Help", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/help" }, 
-        new string[]{ "About", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/about" }, 
-        new string[]{ "Settings", "/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/settings" } };
+        new string[]{ "Highlights", "http://ipvision2.rsstv.entriq.net/menu/?action=cms&cms=archive_movie&id=585" }, 
+        new string[]{ "A-Z Listing", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/azlisting" }, 
+        new string[]{ "Search", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/search" }, 
+        new string[]{ "Help", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/help" }, 
+        new string[]{ "About", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/about" }, 
+        new string[]{ "Settings", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/settings" } };
 
     public void ProcessRequest(HttpContext context)
     {        
@@ -124,7 +124,8 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
             //item.AppendChild(element);                        
             element = xmlDoc.CreateElement("link");
             element.SetAttribute("type", tvNS, "rss");
-            element.InnerText = string.Format(menu[1], "_" + devType.ToString().ToLower());
+            XmlCDataSection cdata = xmlDoc.CreateCDataSection(string.Format(menu[1], "_" + devType.ToString().ToLower()));
+            element.AppendChild(cdata);
             item.AppendChild(element);
 
             chNode.AppendChild(item);
@@ -185,7 +186,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
                 element = xmlDoc.CreateElement("image");
                 element.SetAttribute("type", "BoxArt");
                 XmlElement subElement = xmlDoc.CreateElement("url");
-                subElement.InnerText = "http://www.fetchtv.net/ctv/getimage.php?cat=home&item=" + cats[menuCatPicIdx++];
+                subElement.InnerText = "http://www.fetchtv.net/ctv/getimage.php?cat=home&item=";
                 element.AppendChild(subElement);
                 item.AppendChild(element);
 
