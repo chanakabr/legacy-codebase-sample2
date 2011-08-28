@@ -364,7 +364,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
                         XTM.WriteStartElement("trailerContentFileList");
                         XTM.WriteStartElement("element");
-                        XTM.WriteElementString("URL", "http://ibc.cdngc.net/Ipvision/trailer.wmv");
+                        XTM.WriteElementString("URL", media.SubURL);
                         XTM.WriteElementString("encodingType", "");
 
                         XTM.WriteEndElement();
