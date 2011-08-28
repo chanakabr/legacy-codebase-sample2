@@ -51,6 +51,21 @@ namespace TVPApiModule.Services
 
             return mediaMark;
         }
+
+        public bool AddUserSocialAction(int iMediaID, string sSiteGuid, SocialAction Action, SocialPlatform socialPlatform)
+        {
+            bool bRet = false;
+            try
+            {
+                bRet = m_Module.AddUserSocialAction(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid, Action, socialPlatform);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : AddUserSocialAction, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, iMediaID, sSiteGuid);
+            }
+
+            return bRet;
+        }
         #endregion
     }
 }

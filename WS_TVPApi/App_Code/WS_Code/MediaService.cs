@@ -294,6 +294,14 @@ namespace TVPApiServices
             return lstMedia;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get liked media info")]
+        public List<Media> GetPeopleWhoLiked(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
+        {
+            List<Media> medias = new List<Media>();
+
+            return medias;
+        }
+
         [WebMethod(EnableSession = true, Description = "")]
         public List<Media> GetMediasByRating(InitializationObject initObj, int rating)
         {
