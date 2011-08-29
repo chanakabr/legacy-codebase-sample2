@@ -7,7 +7,7 @@ public class rsstv_ipvision_connectedtv : IHttpHandler {
 
     public void ProcessRequest(HttpContext context)
     {
-        context.Server.Transfer(string.Concat(context.Request.RawUrl.Replace("_connectedtv", ""), context.Request.RawUrl.Contains("?") ? "&dev=stb" : "?dev=connectedtv"));
+        context.Server.Transfer(string.Concat(context.Request.RawUrl.Replace("_connectedtv", ""), context.Request.RawUrl.Contains("?") ? "&dev=connectedtv" : "?dev=connectedtv"));
     }
  
     public bool IsReusable {
