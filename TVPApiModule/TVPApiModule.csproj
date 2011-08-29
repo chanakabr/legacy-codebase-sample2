@@ -83,6 +83,7 @@
     <Compile Include="DataLoaders\APIAutoCompleteLoader.cs" />
     <Compile Include="DataLoaders\APIChannelLoader.cs" />
     <Compile Include="DataLoaders\APICustomAutoCompleteLoader.cs" />
+    <Compile Include="DataLoaders\ApiLastWatchedLoader.cs" />
     <Compile Include="DataLoaders\APIMediaHit.cs" />
     <Compile Include="DataLoaders\APIMediaLoader.cs" />
     <Compile Include="DataLoaders\APIMediaMark.cs" />

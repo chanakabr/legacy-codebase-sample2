@@ -115,6 +115,24 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        public BillingTransactionsResponse GetUserTransactionHistory(string sSiteGuid, int startIndex, int count)
+        {
+            BillingTransactionsResponse retVal = null;
+            string wsUser;
+            string wsPassword;
+            try
+            {
+                retVal = m_Module.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
+
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserBillingHistory, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
+            }
+            return retVal;
+        }
+
         #endregion
     }
 }

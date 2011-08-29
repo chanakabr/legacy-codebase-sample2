@@ -302,11 +302,40 @@ namespace TVPApiServices
             return medias;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get last watched medias")]
+        public List<Media> GetLastWatchedMedias(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetLastWatchedMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.GetLastWatchedMedias(initObj, picSize, pageSize, pageIndex, groupID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetLastWatchedMedias->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetLastWatchedMedias-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
+        }
+
         [WebMethod(EnableSession = true, Description = "")]
         public List<Media> GetMediasByRating(InitializationObject initObj, int rating)
         {
             return null;
         }
+
         #endregion
 
         #region Search media
@@ -871,6 +900,35 @@ namespace TVPApiServices
 
             return (TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription[])subs.Clone();
         }
+
+        [WebMethod(EnableSession = true, Description = "Get user transaction history")]
+        public BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, int start_index, int pageSize)
+        {
+            BillingTransactionsResponse transactions = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserTransactionHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserTransactionHistory-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    transactions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserTransactionHistory(initObj.SiteGuid, start_index, pageSize);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserTransactionHistory->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserTransactionHistory-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return transactions;
+        }
+        
         #endregion
 
         [WebMethod(EnableSession = true, Description = "Add user social sites action")]

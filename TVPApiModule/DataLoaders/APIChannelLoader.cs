@@ -104,6 +104,11 @@ namespace TVPApi
             result.root.request.@params.info_struct.type.MakeSchemaCompliant();
             result.root.request.@params.info_struct.description.MakeSchemaCompliant();
 
+            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat))
+            {
+                result.root.flashvars.sub_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat;
+            }
+
             if (WithInfo)
             {
                 string[] arrMetas = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
