@@ -17,6 +17,8 @@ public abstract class BaseGateway : System.Web.UI.Page
     private string m_WsUsername;
     private string m_WsPassword;
 
+    protected PlatformType devType = PlatformType.STB;
+
     protected string WsUserName { get { return m_WsUsername; } }
     protected string WsPassword { get { return m_WsPassword; } }
 
@@ -88,7 +90,7 @@ public abstract class BaseGateway : System.Web.UI.Page
         string sUDID = HttpContext.Current.Request.QueryString["mac"];
         
         InitializationObject retVal = new InitializationObject();
-        retVal.Platform = PlatformType.STB;
+        retVal.Platform = devType;
         retVal.ApiUser = m_WsUsername;
         retVal.ApiPass = m_WsPassword;
         retVal.UDID = sUDID;

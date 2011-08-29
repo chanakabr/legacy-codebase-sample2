@@ -22,8 +22,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     private int groupId = 0;
     private MediaFileItemPricesContainer[] dictPrices;
     private MediaFilePPVModule[] ppvmodules;
-    private int menuCatPicIdx = 0;
-    private PlatformType devType;
+    private int menuCatPicIdx = 0;    
     private PageData pd;
     private PageContext pc;
     private static string[][] menus = new string[][] { 
@@ -69,7 +68,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         switch (context.Request["dev"].ToLower())
         {
             case "stb":
-                type = PlatformType.STB;
+                type = PlatformType.ConnectedTV;
                 break;
             case "connectedtv":
                 type = PlatformType.ConnectedTV;
@@ -206,7 +205,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     {
         XmlElement rootNode = CreateRoot();
 
-        PageData pd = SiteMapManager.GetInstance.GetPageData(groupId, PlatformType.STB);
+        PageData pd = SiteMapManager.GetInstance.GetPageData(groupId, devType);
         PageContext pc = pd.GetPageByID("en", 64);
         foreach (PageGallery page in pc.MainGalleries)
         {
@@ -301,10 +300,10 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     {
         List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), gi.TVMChannelID, "full", 50, 0);
         InitializationObject initObj = GetInitObj();
-        initObj.SiteGuid = new TVPApiModule.Services.ApiUsersService(groupId, PlatformType.STB).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
+        initObj.SiteGuid = new TVPApiModule.Services.ApiUsersService(groupId, devType).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
         
         dictPrices = m_MediaService.GetItemPrices(initObj, medias.Select(x => int.Parse(x.FileID)).ToArray(), false);
-        ppvmodules = new TVPApiModule.Services.ApiPricingService(groupId, PlatformType.STB).GetPPVModuleListForMediaFiles(medias.Select(x => int.Parse(x.FileID)).ToArray(),
+        ppvmodules = new TVPApiModule.Services.ApiPricingService(groupId, devType).GetPPVModuleListForMediaFiles(medias.Select(x => int.Parse(x.FileID)).ToArray(),
             string.Empty, string.Empty, string.Empty);
 
         foreach (Media m in medias)
@@ -373,17 +372,12 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
             item.AppendChild(element);
 
             element = xmlDoc.CreateElement("enclosure");
-            element.SetAttribute("url", /*m.URL*/ "http://ibc.cdngc.net/Ipvision/drm_out.wmv");
+            element.SetAttribute("url", m.URL);
             element.SetAttribute("type", "video/x-ms-wmv");
             item.AppendChild(element);
 
-            //element = xmlDoc.CreateElement("link");
-            //element.SetAttribute("type", "tv", "rss");
-            //element.InnerText = "http://playready.directtaps.net/pr/public/media/1044/Bear_Video_OPLs0.pyv?r=clear";
-            //item.AppendChild(element);
-
             element = xmlDoc.CreateElement("preview");
-            element.SetAttribute("url", "http://ibc.cdngc.net/Ipvision/trailer.wmv");
+            element.SetAttribute("url", m.SubURL);
             //XXXX????
             element.SetAttribute("length", "9654234");
             element.SetAttribute("duration", "124");
