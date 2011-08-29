@@ -68,7 +68,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         switch (context.Request["dev"].ToLower())
         {
             case "stb":
-                type = PlatformType.ConnectedTV;
+                type = PlatformType.STB;
                 break;
             case "connectedtv":
                 type = PlatformType.ConnectedTV;
