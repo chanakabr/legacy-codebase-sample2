@@ -55,6 +55,21 @@ namespace TVPApi
 
         }
 
+        public static List<Media> GetMediasInfo(InitializationObject initObj, long[] MediaIDs, int mediaType, string picSize, int groupID, bool withDynamic)
+        {
+            List<Media> retVal = null;
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
+            dsItemInfo mediaInfo = (new APIMultiMediaLoader(account.TVMUser, account.TVMPass, MediaIDs.Select(i => i.ToString()).ToArray(), picSize, mediaType) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize }.Execute());
+
+            foreach (dsItemInfo.ItemRow row in mediaInfo.Item.Rows)
+            {
+                retVal.Add(new Media(row, initObj, groupID, withDynamic));
+            }
+
+            return retVal;
+
+        }
+
         public static bool IsFavoriteMedia(InitializationObject initObj, int groupID, int mediaID)
         {
             //long guidNum = Convert.ToInt64(sID);

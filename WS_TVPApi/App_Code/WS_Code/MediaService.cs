@@ -58,6 +58,35 @@ namespace TVPApiServices
             return retMedia;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get list media info")]
+        [System.Xml.Serialization.XmlInclude(typeof(DynamicData))]
+        public List<Media> GetMediasInfo(InitializationObject initObj, long[] MediaID, int mediaType, string picSize, bool withDynamic)
+        {
+            List<Media> retMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediasInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetMediaInfo-> [{0}, {1}], Params: [MediaID: {2}, MediaType: {3}, picSize: {4}, withDynamic: {5}]", groupID, initObj.Platform, MediaID, mediaType, picSize, withDynamic);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    retMedia = MediaHelper.GetMediasInfo(initObj, MediaID, mediaType, picSize, groupID, withDynamic);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetMediaInfo->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetMediaInfo-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return retMedia;
+        }
+
         //Get Channel medias
         [WebMethod(EnableSession = true, Description = "Get Channel medias")]
         public List<Media> GetChannelMediaList(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex)

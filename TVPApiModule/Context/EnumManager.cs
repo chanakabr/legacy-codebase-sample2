@@ -20,8 +20,7 @@ namespace TVPApi
         Comment,
         Record,
         Reminder,
-        Watch,
-        Like
+        Watch
     }
 
     public enum PriceReason
