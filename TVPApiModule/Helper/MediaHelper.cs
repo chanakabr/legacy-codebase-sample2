@@ -28,7 +28,8 @@ namespace TVPApi
             Channel,
             Related,
             PeopleWhoWatched,
-            LastWatched
+            LastWatched,
+            SocialMedias
         }
 
         public MediaHelper()
@@ -300,6 +301,40 @@ namespace TVPApi
         {
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
             return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.PeopleWhoWatched);
+        }
+
+        public static List<Media> GetUserSocialMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int groupID, string socialAction, string socialPlatform)
+        {
+            List<Media> retVal = new List<Media>();
+
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            dsItemInfo mediaInfo = new APIUserSocialMediasLoader(account.TVMUser, account.TVMPass, picSize) { SiteGuid = initObj.SiteGuid, Platform = initObj.Platform, SocialAction = socialAction, SocialPlatform = socialPlatform, GroupID = groupID, PageSize = pageSize, PageIndex = pageIndex }.Execute();
+
+            IEnumerable<dsItemInfo.ItemRow> pagedDT;
+            if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
+            {
+                int startIndex = (pageIndex) * pageSize;
+                //Local server Paging
+                //IEnumerable<dsItemInfo.ItemRow> pagedDT;
+                //if (!isPaged)
+                //{
+                //    pagedDT = PagingHelper.GetPagedData<dsItemInfo.ItemRow>(startIndex, pageSize, mediaInfo.Item);
+                //}
+                //else
+                {
+                    pagedDT = mediaInfo.Item;
+                }
+                //Parse to WS return objects
+                if (pagedDT != null)
+                {
+                    foreach (dsItemInfo.ItemRow row in pagedDT)
+                    {
+                        retVal.Add(new Media(row, initObj, groupID, false));
+                    }
+                }
+            }
+
+            return retVal;
         }
 
         public static List<Media> GetLastWatchedMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int groupID)

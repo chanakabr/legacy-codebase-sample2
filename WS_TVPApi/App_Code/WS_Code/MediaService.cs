@@ -11,6 +11,7 @@ using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Services;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
+using TVPPro.SiteManager.Context;
 
 namespace TVPApiServices
 {
@@ -300,7 +301,7 @@ namespace TVPApiServices
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPeopleWhoWatched", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetPeopleWhoWatched-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex);
 
@@ -324,11 +325,31 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get liked media info")]
-        public List<Media> GetPeopleWhoLiked(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetUserSocialMedias(InitializationObject initObj, string socialPlatform, string socialAction, string picSize, int pageSize, int pageIndex)
         {
-            List<Media> medias = new List<Media>();
+            List<Media> lstMedia = new List<Media>();
 
-            return medias;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserSocialMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, picSize, pageSize, pageIndex);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.GetUserSocialMedias(initObj, picSize, pageSize, pageIndex, groupID, socialAction, socialPlatform);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserSocialMedias->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserSocialMedias-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
         }
 
         [WebMethod(EnableSession = true, Description = "Get last watched medias")]

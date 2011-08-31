@@ -94,6 +94,7 @@
     <Compile Include="DataLoaders\APIRelatedMediaLoader.cs" />
     <Compile Include="DataLoaders\APISearchLoader.cs" />
     <Compile Include="DataLoaders\APITVMRentalMultiMediaLoader.cs" />
+    <Compile Include="DataLoaders\APIUserSocialMediasLoader.cs" />
     <Compile Include="DBConfiguration\TVinciDBConfiguration.cs" />
     <Compile Include="Helper\ActionHelper.cs" />
     <Compile Include="Helper\CategoryTreeHelper.cs" />

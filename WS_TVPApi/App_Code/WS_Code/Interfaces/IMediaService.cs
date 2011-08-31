@@ -8,6 +8,7 @@ using TVPApi;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPApiModule.Objects;
+using TVPPro.SiteManager.Context;
 
 namespace TVPApiServices
 {
@@ -37,7 +38,7 @@ namespace TVPApiServices
         List<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex);
 
         [OperationContract]
-        List<Media> GetPeopleWhoLiked(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex);
+        List<Media> GetUserSocialMedias(InitializationObject initObj, string socialPlatform, string action, string picSize, int pageSize, int pageIndex);
 
         [OperationContract]
         List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
