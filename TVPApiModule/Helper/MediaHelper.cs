@@ -28,8 +28,7 @@ namespace TVPApi
             Channel,
             Related,
             PeopleWhoWatched,
-            LastWatched,
-            SocialMedias
+            LastWatched
         }
 
         public MediaHelper()
@@ -308,7 +307,7 @@ namespace TVPApi
             List<Media> retVal = new List<Media>();
 
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            dsItemInfo mediaInfo = new APIUserSocialMediasLoader(account.TVMUser, account.TVMPass, picSize) { SiteGuid = initObj.SiteGuid, Platform = initObj.Platform, SocialAction = socialAction, SocialPlatform = socialPlatform, GroupID = groupID, PageSize = pageSize, PageIndex = pageIndex }.Execute();
+            dsItemInfo mediaInfo = new APIUserSocialMediasLoader(account.TVMUser, account.TVMPass, picSize) { WithInfo = true, SiteGuid = initObj.SiteGuid, Platform = initObj.Platform, SocialAction = socialAction, SocialPlatform = socialPlatform, GroupID = groupID, PageSize = pageSize, PageIndex = pageIndex }.Execute();
 
             IEnumerable<dsItemInfo.ItemRow> pagedDT;
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
