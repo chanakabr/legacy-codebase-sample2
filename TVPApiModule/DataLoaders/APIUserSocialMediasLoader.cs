@@ -73,6 +73,7 @@ namespace TVPApiModule.DataLoaders
             result.root.request.@params.info_struct.statistics = true;
             result.root.request.@params.info_struct.type.MakeSchemaCompliant();
             result.root.request.@params.info_struct.description.MakeSchemaCompliant();
+            result.root.flashvars.no_cache = "1";
 
             result.root.flashvars.player_un = m_tvmUser;
             result.root.flashvars.player_pass = m_tvmPass;

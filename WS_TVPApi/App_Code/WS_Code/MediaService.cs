@@ -978,7 +978,62 @@ namespace TVPApiServices
 
             return transactions;
         }
-        
+
+        [WebMethod(EnableSession = true, Description = "Get user expired items")]
+        public PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, int iTotalItems)
+        {
+            PermittedMediaContainer[] items = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserExpiredItems-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredItems(initObj.SiteGuid, iTotalItems);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserExpiredItems->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserExpiredItems-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return items;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get user expired subscription")]
+        public PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, int iTotalItems)
+        {
+            PermittedSubscriptionContainer[] items = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserExpiredSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredSubscriptions(initObj.SiteGuid, iTotalItems);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserExpiredSubscriptions->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserExpiredSubscriptions-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return items;
+        }
         #endregion
 
         [WebMethod(EnableSession = true, Description = "Add user social sites action")]

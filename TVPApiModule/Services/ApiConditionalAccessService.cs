@@ -119,8 +119,7 @@ namespace TVPApiModule.Services
         public BillingTransactionsResponse GetUserTransactionHistory(string sSiteGuid, int startIndex, int count)
         {
             BillingTransactionsResponse retVal = null;
-            string wsUser;
-            string wsPassword;
+
             try
             {
                 retVal = m_Module.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
@@ -133,6 +132,37 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
+        public PermittedMediaContainer[] GetUserExpiredItems(string sSiteGuid, int numOfItems)
+        {
+            PermittedMediaContainer[] retVal = null;
+            
+            try
+            {
+                retVal = m_Module.GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
+
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserExpiredItems, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
+            }
+            return retVal;
+        }
+
+        public PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(string sSiteGuid, int numOfItems)
+        {
+            PermittedSubscriptionContainer[] retVal = null;
+
+            try
+            {
+                retVal = m_Module.GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
+
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserExpiredSubscriptions, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
+            }
+            return retVal;
+        }
         #endregion
     }
 }
