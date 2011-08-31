@@ -19,7 +19,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
     static ILoaderCache m_dataCaching = LoaderCacheLite.Current;
     static int counter = 0;
     //XXX: Unify in one class
-    public enum eChannels { Novebox = 50, Orange = 51, Ipvision = 901 };
+    public enum eChannels { Novebox = 50, Novebox2 = 200, Orange = 51, Ipvision = 901, ipvision2 = 201 };
 
     protected void Page_Load(object sender, EventArgs e)
     {
