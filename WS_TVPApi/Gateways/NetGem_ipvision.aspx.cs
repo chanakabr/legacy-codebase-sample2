@@ -76,8 +76,8 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
             case "mediamark":
                 {                    
                     string sAction = Request.QueryString["action"];
-                    string sMediaID = Request.QueryString["titId"];
-                    string sFileID = Request.QueryString["vtiId"];
+                    string sMediaID = Request.QueryString["titId"].Split('-')[0];
+                    string sFileID = Request.QueryString["vtiId"].Split('-')[0];
                     string sPosition = Request.QueryString["position"];
                     string sUDID = Request.QueryString["identity"];
 
