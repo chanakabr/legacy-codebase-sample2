@@ -87,13 +87,20 @@ namespace TVPApi
 
         #region private functions
 
-        private string GetMediaWebLink(int groupID)
+        private string GetMediaWebLink(int groupID, PlatformType platform)
         {
             string retVal = string.Empty;
             string baseUrl = ConfigurationManager.AppSettings[string.Format("{0}_BaseURL", groupID.ToString())];
             if (!string.IsNullOrEmpty(baseUrl))
             {
-                retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, MediaName, MediaID);
+                if (ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FriendlyURL.SupportFeature)
+                {
+                    retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, MediaName, MediaID);
+                }
+                else
+                {
+                    retVal = string.Format("{0}/MediaPage.aspx?MediaID={1}&MediaType={2}", baseUrl, MediaName, MediaID);
+                }
             }
             return retVal;
         }
@@ -168,7 +175,7 @@ namespace TVPApi
             }
 
 
-            MediaWebLink = GetMediaWebLink(groupID);
+            MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
 
             BuildTagMetas(groupID, row, initObj.Platform);
             if (withDynamic && initObj.Locale != null)
