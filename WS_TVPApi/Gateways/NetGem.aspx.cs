@@ -102,7 +102,7 @@ public partial class Gateways_NetGem : BaseGateway
 
                 InitializationObject initObj1 = GetInitObj();
                 initObj1.SiteGuid = sSiteGuid;
-                PermittedMediaContainer[] MediaPermitedItems = m_MediaService.GetUserPermittedItems(initObj1);
+                PermittedMediaContainer[] MediaPermitedItems = m_MediaService.GetUserPermittedItems(initObj1).OrderByDescending(x => x.m_dPurchaseDate).ToArray();
 
                 XTM.WriteStartElement("streams");
                 if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
@@ -110,15 +110,15 @@ public partial class Gateways_NetGem : BaseGateway
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
                     dsItemInfo ItemInfo = new APITVMRentalMultiMediaLoader(account.TVMUser, account.TVMPass, "full", 1) { GroupID = groupID, Platform = PlatformType.STB, MediasIdCotainer = MediaPermitedItems, SearchTokenSignature = GetMediasWithSeperator(MediaPermitedItems) }.Execute(); // Type 1 means bring all types
 
-                    for (int i = 0; i < ItemInfo.Item.Rows.Count; i++)
+                    foreach (var item in ItemInfo.Item.OrderByDescending(x => x.PurchaseDate))
                     {
                         XTM.WriteStartElement("stream");
-                        XTM.WriteAttributeString("id", string.Concat(ItemInfo.Item[i].ID, "-", ItemInfo.Item[i].MediaTypeID));
+                        XTM.WriteAttributeString("id", string.Concat(item.ID, "-", item.MediaTypeID));
                         XTM.WriteStartElement("title");
-                        XTM.WriteCData(ItemInfo.Item[i].Title);
+                        XTM.WriteCData(item.Title);
                         XTM.WriteEndElement();//
 
-                        int iFileID = int.Parse(ItemInfo.Item[i].FileID);
+                        int iFileID = int.Parse(item.FileID);
                         InitializationObject initObj = GetInitObj();
                         initObj.SiteGuid = sSiteGuid;
                         TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(initObj, new int[] { iFileID }, false);
@@ -143,10 +143,10 @@ public partial class Gateways_NetGem : BaseGateway
                             XTM.WriteElementString("realprice", "0.99");
                         }
 
-                        XTM.WriteElementString("date", ItemInfo.Item[i].PurchaseDate.ToString());
+                        //XXX: Fix the hour
+                        XTM.WriteElementString("date", item.PurchaseDate.ToUniversalTime().AddHours(1).ToString());
                         XTM.WriteEndElement();//stream
                     }
-
                 }
                 XTM.WriteEndElement(); // streams
                 XTM.WriteEndElement(); // account

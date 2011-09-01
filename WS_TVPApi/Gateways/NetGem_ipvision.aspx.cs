@@ -53,7 +53,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
         string callBack = Request.QueryString["callback"];
         string sType = Request.QueryString["type"];
         string titId = Request.QueryString["titId"];
-        if (!string.IsNullOrEmpty(titId))
+        if (!string.IsNullOrEmpty(titId) && string.IsNullOrEmpty(sType))
         {
             sType = "content";
         }
