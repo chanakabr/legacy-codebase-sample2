@@ -101,11 +101,11 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                 }
                 break;
             case "hit":
-                {                    
-                    string sMediaID = Request.QueryString["mediaid"].Split('-')[0];
-                    string sFileID = Request.QueryString["fileid"].Split('-')[0];
+                {
+                    string sMediaID = Request.QueryString["titId"].Split('-')[0];
+                    string sFileID = Request.QueryString["vtiId"].Split('-')[0];
                     string sPosition = Request.QueryString["position"];
-                    string sUDID = Request.QueryString["mac"];
+                    string sUDID = Request.QueryString["identity"];
 
                     long iFileID;
                     long iMediaID;
@@ -125,8 +125,8 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                 break;
             case "getlastposition":
                 {
-                    string sMediaID = Request.QueryString["mediaid"].Split('-')[0];
-                    string sUDID = Request.QueryString["mac"];
+                    string sMediaID = Request.QueryString["titId"].Split('-')[0];
+                    string sUDID = Request.QueryString["identity"];
 
                     int iMediaID;
                     int.TryParse(sMediaID, out iMediaID);

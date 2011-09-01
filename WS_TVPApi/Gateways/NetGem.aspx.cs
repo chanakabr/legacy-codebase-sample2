@@ -298,6 +298,14 @@ public partial class Gateways_NetGem : BaseGateway
                 XTM.WriteAttributeString("type", "addCallCenterEvent");
                 XTM.WriteCData(baseURL + "/tvpapi/gateways/addCallCenterEvent.aspx");
                 XTM.WriteEndElement();
+                XTM.WriteStartElement("url");
+                XTM.WriteAttributeString("type", "setlastposition");
+                XTM.WriteCData(baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=hit");
+                XTM.WriteEndElement();
+                XTM.WriteStartElement("url");
+                XTM.WriteAttributeString("type", "getlastposition");
+                XTM.WriteCData(baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=getlastposition");
+                XTM.WriteEndElement();    
 
                 XTM.WriteEndDocument();
                 break;
