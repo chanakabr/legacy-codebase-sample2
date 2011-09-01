@@ -55,8 +55,11 @@ namespace TVPApiModule.DataLoaders
             protocol.root.request.channel.start_index = PageIndex.ToString();
             protocol.root.request.channel.number_of_items = PageSize.ToString();
             protocol.root.request.channel.id = "";
-            protocol.root.flashvars.no_cache = "0";
+            protocol.root.flashvars.no_cache = "1";
             protocol.root.flashvars.pic_size1 = PicSize;
+
+            protocol.root.flashvars.player_un = m_tvmUser;
+            protocol.root.flashvars.player_pass = m_tvmPass;
 
             protocol.root.request.@params.with_info = WithInfo.ToString();
 
@@ -88,6 +91,11 @@ namespace TVPApiModule.DataLoaders
 
             return protocol;
 
+        }
+
+        protected override Guid UniqueIdentifier
+        {
+            get { return new Guid("{D6FAB9C6-4018-4545-824B-4ACFFA275E19}"); }
         }
     }
 }

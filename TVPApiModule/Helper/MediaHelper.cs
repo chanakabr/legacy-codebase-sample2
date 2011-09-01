@@ -116,11 +116,13 @@ namespace TVPApi
         {
             List<Media> retVal = new List<Media>();
             SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
             Dictionary<string, string> dictMetas = new Dictionary<string, string>();
+            
             dictMetas.Add(metaName, value);
+            
             //Remote paging
-            dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, dictMetas =dictMetas,  WithInfo = true, PageSize = pageSize,PictureSize = picSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, IsPosterPic = false, MetaValues = value }.Execute());
+            dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas,  WithInfo = true, PageSize = pageSize,PictureSize = picSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, IsPosterPic = false, MetaValues = value }.Execute());
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
                 foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
@@ -495,8 +497,10 @@ namespace TVPApi
                                 mediaInfo = new SearchMediaLoader(fictivicAccount.TVMUser, fictivicAccount.TVMPass) { dictMetas = BaseIdsDict, MetaValues = sb.ToString(), SearchTokenSignature = sb.ToString(), PageSize = 20, PictureSize = picSize }.Execute();
                             }
                         }
+                    
                         break;
                     }
+                    
                 default:
                     break;
             }
