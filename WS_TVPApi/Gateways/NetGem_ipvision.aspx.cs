@@ -74,9 +74,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
         switch (sType)
         {
             case "mediamark":
-                {
-                    string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
-
+                {                    
                     string sAction = Request.QueryString["action"];
                     string sMediaID = Request.QueryString["mediaid"];
                     string sFileID = Request.QueryString["fileid"];
@@ -93,7 +91,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                     int.TryParse(sPosition, out iPosition);
 
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
-                    string result = new APIMediaMark(account.TVMUser, account.TVMPass) { SiteGUID = sSiteGuid, Action = eAction, DeviceUDID = sUDID, FileID = iFileID, MediaID = iMediaID, GroupID = groupID, Location = iPosition, Platform = PlatformType.STB }.Execute();
+                    string result = new APIMediaMark(account.TVMUser, account.TVMPass) { SiteGUID = GetStbUserId(groupID), Action = eAction, DeviceUDID = sUDID, FileID = iFileID, MediaID = iMediaID, GroupID = groupID, Location = iPosition, Platform = PlatformType.STB }.Execute();
                         
                     XTM.WriteStartElement("response");
                     XTM.WriteAttributeString("type", "media_mark");
@@ -103,11 +101,9 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                 }
                 break;
             case "hit":
-                {
-                    string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
-
-                    string sMediaID = Request.QueryString["mediaid"];
-                    string sFileID = Request.QueryString["fileid"];
+                {                    
+                    string sMediaID = Request.QueryString["mediaid"].Split('-')[0];
+                    string sFileID = Request.QueryString["fileid"].Split('-')[0];
                     string sPosition = Request.QueryString["position"];
                     string sUDID = Request.QueryString["mac"];
 
@@ -119,7 +115,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                     int.TryParse(sPosition, out iPosition);
 
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
-                    string result = new APIMediaHit(account.TVMUser, account.TVMPass) {SiteGUID = sSiteGuid, DeviceUDID = sUDID, FileID = iFileID, MediaID = iMediaID, GroupID = groupID, Location = iPosition, Platform = PlatformType.STB }.Execute();
+                    string result = new APIMediaHit(account.TVMUser, account.TVMPass) {SiteGUID = GetStbUserId(groupID), DeviceUDID = sUDID, FileID = iFileID, MediaID = iMediaID, GroupID = groupID, Location = iPosition, Platform = PlatformType.STB }.Execute();
 
                     XTM.WriteStartElement("response");
                     XTM.WriteAttributeString("type", "hit");
@@ -129,16 +125,17 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                 break;
             case "getlastposition":
                 {
-                    string sSiteGuid = m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
-
-                    string sMediaID = Request.QueryString["mediaid"];
+                    string sMediaID = Request.QueryString["mediaid"].Split('-')[0];
                     string sUDID = Request.QueryString["mac"];
 
                     int iMediaID;
                     int.TryParse(sMediaID, out iMediaID);
 
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
-                    TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(GetInitObj(), iMediaID);
+                    //XXX: hack - fix
+                    InitializationObject tmpInit = GetInitObj();
+                    tmpInit.SiteGuid = GetStbUserId(groupID);
+                    TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(tmpInit, iMediaID);
                     XTM.WriteStartElement("response");
                     XTM.WriteAttributeString("type", "last_position");
                     XTM.WriteCData(mediaMarkObject.nLocationSec.ToString());
