@@ -305,6 +305,10 @@ public partial class Gateways_NetGem : BaseGateway
                 XTM.WriteStartElement("url");
                 XTM.WriteAttributeString("type", "getlastposition");
                 XTM.WriteCData(baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=getlastposition");
+                XTM.WriteEndElement();   
+                XTM.WriteStartElement("url");
+                XTM.WriteAttributeString("type", "logMedia");
+                XTM.WriteCData(baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=mediamark");
                 XTM.WriteEndElement();    
 
                 XTM.WriteEndDocument();
