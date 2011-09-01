@@ -224,6 +224,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
             case "content":
                 {
                     string sMediaID = titId.Split('-')[0];
+                    string channelId = titId.Split('-')[2];
                     string sMediaType = (titId.Contains('-')) ? titId.Split('-')[1] : "272";
 
                     Media media = m_MediaService.GetMediaInfo(GetInitObj(), long.Parse(sMediaID), int.Parse(sMediaType), "480X430", true);
@@ -243,7 +244,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                         XTM.WriteElementString("adult", "false");
                         XTM.WriteElementString("yearProd", (from meta in media.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault());
 
-                        XTM.WriteElementString("titID", media.MediaID + "-" + media.MediaTypeID + "-" + (int)eChannels.Ipvision);
+                        XTM.WriteElementString("titID", media.MediaID + "-" + media.MediaTypeID + "-" + channelId);
                         XTM.WriteElementString("HD", "true"); //<---
 
                         XTM.WriteStartElement("nationalityNames");
@@ -344,7 +345,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
                             XTM.WriteEndElement();
                             XTM.WriteElementString("endDate", sEndTime);
-                            XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-" + mediaPrice.m_oItemPrices[0].m_sPPVModuleCode + "-" + mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice + "-" + (int)eChannels.Ipvision);
+                            XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-" + mediaPrice.m_oItemPrices[0].m_sPPVModuleCode + "-" + mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice + "-" + channelId);
                         }
                         else
                         {
@@ -355,7 +356,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                             XTM.WriteElementString("price", "FREE");
                             XTM.WriteEndElement();
 
-                            XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-0-FREE-" + (int)eChannels.Ipvision);
+                            XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-0-FREE-" + channelId);
                             XTM.WriteElementString("endDate", "01/01/2012 00:00:00");
                         }
                         XTM.WriteEndElement();

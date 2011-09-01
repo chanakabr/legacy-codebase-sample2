@@ -157,6 +157,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
             case "content":
 
                 string sMediaID = titId.Split('-')[0];
+                string channelId = titId.Split('-')[2];
                 string sMediaType = (titId.Contains('-')) ? titId.Split('-')[1] : "181";
 
                 Media media = m_MediaService.GetMediaInfo(GetInitObj(), long.Parse(sMediaID), int.Parse(sMediaType), "345X480", true);
@@ -173,7 +174,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                     XTM.WriteElementString("adult", "false");
                     XTM.WriteElementString("yearProd", (from meta in media.Metas where meta.Key.Equals("Production Year") select meta.Value).FirstOrDefault());
 
-                    XTM.WriteElementString("titID", media.MediaID + "-" + media.MediaTypeID + "-" + (int)eChannels.Novebox);
+                    XTM.WriteElementString("titID", media.MediaID + "-" + media.MediaTypeID + "-" + channelId);
                     XTM.WriteElementString("HD", "true"); //<---
 
                     XTM.WriteStartElement("nationalityNames");
@@ -248,7 +249,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                         XTM.WriteElementString("price", string.Format("{0:0.00}", dictPrice[iFileId].m_oItemPrices[0].m_oPrice.m_dPrice));
                         XTM.WriteEndElement();
 
-                        XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-" + dictPrice[iFileId].m_oItemPrices[0].m_sPPVModuleCode + "-" + dictPrice[iFileId].m_oItemPrices[0].m_oPrice.m_dPrice + "-" + (int)eChannels.Novebox);
+                        XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-" + dictPrice[iFileId].m_oItemPrices[0].m_sPPVModuleCode + "-" + dictPrice[iFileId].m_oItemPrices[0].m_oPrice.m_dPrice + "-" + channelId);
                     }
                     else
                     {
@@ -259,7 +260,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                         XTM.WriteElementString("price", "FREE ");
                         XTM.WriteEndElement();
 
-                        XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-69-3.00-" + (int)eChannels.Novebox);
+                        XTM.WriteElementString("vtiID", media.FileID + "-" + media.MediaTypeID + "-69-3.00-" + channelId);
                         XTM.WriteElementString("endDate", "01/01/2012 00:00:00");
                     }
                     XTM.WriteEndElement();
