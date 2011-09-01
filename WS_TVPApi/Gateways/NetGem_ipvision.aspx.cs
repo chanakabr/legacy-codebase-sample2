@@ -76,10 +76,10 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
             case "mediamark":
                 {                    
                     string sAction = Request.QueryString["action"];
-                    string sMediaID = Request.QueryString["mediaid"];
-                    string sFileID = Request.QueryString["fileid"];
+                    string sMediaID = Request.QueryString["titId"];
+                    string sFileID = Request.QueryString["vtiId"];
                     string sPosition = Request.QueryString["position"];
-                    string sUDID = Request.QueryString["mac"];
+                    string sUDID = Request.QueryString["identity"];
 
                     Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action eAction = (Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action)Enum.Parse(typeof(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action), sAction);
 
