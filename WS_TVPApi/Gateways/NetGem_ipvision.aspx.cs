@@ -17,7 +17,7 @@ using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 public partial class Gateways_NetGem_ipvision : BaseGateway
 {
     static ILoaderCache m_dataCaching = LoaderCacheLite.Current;
-    static int counter = 0;       
+    static int counter = 0;
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -72,7 +72,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
         switch (sType)
         {
             case "mediamark":
-                {                    
+                {
                     string sAction = Request.QueryString["action"];
                     string sMediaID = Request.QueryString["titId"].Split('-')[0];
                     string sFileID = Request.QueryString["vtiId"].Split('-')[0];
@@ -90,7 +90,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
 
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
                     string result = new APIMediaMark(account.TVMUser, account.TVMPass) { SiteGUID = GetStbUserId(groupID), Action = eAction, DeviceUDID = sUDID, FileID = iFileID, MediaID = iMediaID, GroupID = groupID, Location = iPosition, Platform = PlatformType.STB }.Execute();
-                        
+
                     XTM.WriteStartElement("response");
                     XTM.WriteAttributeString("type", "media_mark");
                     XTM.WriteAttributeString("action", sAction);
@@ -113,7 +113,7 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                     int.TryParse(sPosition, out iPosition);
 
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
-                    string result = new APIMediaHit(account.TVMUser, account.TVMPass) {SiteGUID = GetStbUserId(groupID), DeviceUDID = sUDID, FileID = iFileID, MediaID = iMediaID, GroupID = groupID, Location = iPosition, Platform = PlatformType.STB }.Execute();
+                    string result = new APIMediaHit(account.TVMUser, account.TVMPass) { SiteGUID = GetStbUserId(groupID), DeviceUDID = sUDID, FileID = iFileID, MediaID = iMediaID, GroupID = groupID, Location = iPosition, Platform = PlatformType.STB }.Execute();
 
                     XTM.WriteStartElement("response");
                     XTM.WriteAttributeString("type", "hit");
@@ -232,7 +232,12 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                         XTM.WriteCData(media.Description.Replace(@"<\p>", " "));
                         XTM.WriteEndElement();
                         XTM.WriteElementString("title", media.MediaName.Replace('(', ' ').Replace(')', ' '));
-                        XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
+                        string runtime = (from meta in media.Metas where meta.Key.Equals("Display run time") select meta.Value).FirstOrDefault();
+                        if (!string.IsNullOrEmpty(runtime))
+                        {
+                            string[] time = runtime.Split(new char[] { 'h', 'm' });
+                            XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", int.Parse(time[0]) * 60 + int.Parse(time[1])));
+                        }
 
                         XTM.WriteElementString("censorshipRating", string.Format("{0:0}", media.Rating));
                         XTM.WriteElementString("copyrightStudio", (from meta in media.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault());
