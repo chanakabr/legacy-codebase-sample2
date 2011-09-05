@@ -31,7 +31,7 @@ public partial class Gateways_NetGem : BaseGateway
     static ILoaderCache m_dataCaching = LoaderCacheLite.Current;
     static int counter = 0;
     //XXX: Unify in one class
-    public enum eChannels { Novebox = 50, Novebox2 = 200, Orange = 51, Ipvision = 901, ipvision2 = 201 };
+    public enum eChannels { Novebox = 50, Novebox2 = 200, Orange = 51, Ipvision = 901, ipvision2 = 201, ipvision3 = 202, ipvision4 = 203 };
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -339,6 +339,8 @@ public partial class Gateways_NetGem : BaseGateway
                 break;
             case eChannels.Ipvision:
             case eChannels.ipvision2:
+            case eChannels.ipvision3:
+            case eChannels.ipvision4:
                 Server.Transfer(string.Concat("netgem_ipvision.aspx", Request.Url.Query));
                 break;
             default:
