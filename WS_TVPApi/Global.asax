@@ -7,6 +7,8 @@
     
     void Application_Start(object sender, EventArgs e) 
     {
+        System.Net.ServicePointManager.DefaultConnectionLimit = 12;
+        
         // setting log file name for cloud
         //string EnvironmentClient = "Test";//"System.Configuration.ConfigurationManager.AppSettings["ClientIdentifier"].ToLower();
 

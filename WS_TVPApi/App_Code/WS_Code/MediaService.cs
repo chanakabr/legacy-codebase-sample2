@@ -12,6 +12,7 @@ using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Services;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPPro.SiteManager.Context;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiServices
 {
@@ -206,6 +207,37 @@ namespace TVPApiServices
 
         //Get User Items (Favorites, Rentals etc..)
         [WebMethod(EnableSession = true, Description = "Get User Items (Favorites, Rentals etc..)")]
+        public FavoritObject[] GetUserFavorites(InitializationObject initObj)
+        {
+            FavoritObject[] favoritesObj = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserFavorites", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserFavorites-> [{0}, {1}], Params:[ItemType: {2}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
+                    favoritesObj = favoritesObj.OrderByDescending(r => r.m_dUpdateDate.Date).ThenByDescending(r => r.m_dUpdateDate.TimeOfDay).ToArray();
+                    //lstMedia = new Api MediaHelper.GetUserItems(initObj, itemType, mediaType, picSize, pageSize, start_index, groupID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserItems->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserFavorites-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return favoritesObj;
+        }
+
+        //Get User Items (Favorites, Rentals etc..)
+        [WebMethod(EnableSession = true, Description = "Get User Items (Favorites, Rentals etc..)")]
         public List<Media> GetUserItems(InitializationObject initObj, UserItemType itemType, int mediaType, string picSize, int pageSize, int start_index)
         {
             List<Media> lstMedia = null;
@@ -338,6 +370,7 @@ namespace TVPApiServices
                 try
                 {
                     lstMedia = MediaHelper.GetUserSocialMedias(initObj, picSize, pageSize, pageIndex, groupID, socialAction, socialPlatform);
+                    lstMedia = lstMedia.OrderByDescending(r => r.CreationDate.Date).ThenByDescending(r => r.CreationDate.TimeOfDay).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -350,6 +383,36 @@ namespace TVPApiServices
             }
 
             return lstMedia;
+        }
+
+        [WebMethod(EnableSession = true, Description = "check if social action porfomed on media by user")]
+        public bool IsUserSocialActionPerformed(InitializationObject initObj, string sMediaID, string socialPlatform, string socialAction)
+        {
+            bool bRet = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsUserSocialActionPerformed", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("IsUserSocialActionPerformed-> [{0}, {1}], Params:[mediaID: {2}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    List<Media> lstMedia = GetUserSocialMedias(initObj, socialPlatform, socialAction, "full", 20, 0);
+
+                    bRet = (from r in lstMedia where r.MediaID.Equals(sMediaID) select true).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("IsUserSocialActionPerformed->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("IsUserSocialActionPerformed-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return bRet;
         }
 
         [WebMethod(EnableSession = true, Description = "Get last watched medias")]
@@ -797,6 +860,7 @@ namespace TVPApiServices
                 try
                 {
                     permittedMediaContainer = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(initObj.SiteGuid);
+                    permittedMediaContainer = permittedMediaContainer.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -825,6 +889,7 @@ namespace TVPApiServices
                 try
                 {
                     permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(initObj.SiteGuid);
+                    permitedSubscriptions = permitedSubscriptions.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -993,6 +1058,7 @@ namespace TVPApiServices
                 try
                 {
                     items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredItems(initObj.SiteGuid, iTotalItems);
+                    items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -1021,6 +1087,7 @@ namespace TVPApiServices
                 try
                 {
                     items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredSubscriptions(initObj.SiteGuid, iTotalItems);
+                    items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
