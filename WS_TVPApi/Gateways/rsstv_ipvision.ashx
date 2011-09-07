@@ -443,11 +443,13 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
             item.AppendChild(element);
 
             element = xmlDoc.CreateElement("tv", "duration", tvNS);
-            double duration = double.Parse(m.Duration);
-            if (duration < 60)
-                element.InnerText = string.Format("{0}", duration);
-            else
-                element.InnerText = string.Format("{0}h{1}", (int)(duration / 60), duration % 60);
+            string runtime = (from meta in m.Metas where meta.Key.Equals("Display run time") select meta.Value).FirstOrDefault();
+            if (!string.IsNullOrEmpty(runtime))
+            {
+                string[] time = runtime.Split(new char[] { 'h', 'm' });
+                element.InnerText = string.Format("{0}h{1}m", int.Parse(time[0]), int.Parse(time[1]));
+            }
+                        
             item.AppendChild(element);
 
             element = xmlDoc.CreateElement("guid");
