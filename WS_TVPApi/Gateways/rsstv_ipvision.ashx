@@ -83,8 +83,8 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         foreach (PageGallery page in pc.MainGalleries)
         {
             IEnumerable<GalleryItem> gi = page.GalleryItems.Where(x => x.TVMChannelID == long.Parse(context.Request["chid"]));
-            if (gi.Count() > 0)            
-                element.InnerText = gi.First().Title;            
+            if (gi.Count() > 0)
+                element.InnerText = gi.First().Title;
         }
 
         chNode.AppendChild(element);
@@ -199,9 +199,9 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     }
 
     private void ActionAllChannels(HttpContext context)
-    {
+    {        
         XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", null, null);
-
+        
         XmlElement rootNode = xmlDoc.CreateElement("rss");
         rootNode.SetAttribute("xmlns:tv", tvNS);
         rootNode.SetAttribute("version", "2.0");
@@ -262,18 +262,21 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
                 element = xmlDoc.CreateElement("image");
                 element.SetAttribute("type", "Photo");
                 XmlElement subElement = xmlDoc.CreateElement("url");
-                
-                //UGLY HACK@!!@#@#!@#!
-                List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), channel.TVMChannelID, "201x113", 50, 0);
-                foreach (Media m in medias)
-                {
-                    if (picloaded.Where(x => x == m.MediaID).Count() == 0)
-                    {
-                        picloaded.Add(m.MediaID);
-                        subElement.InnerText = m.PicURL;
-                        break;
-                    }
-                }                
+
+                //UGLY HACK@!!@#@#!@#!                
+                if (channel.Title.Contains("90's"))
+                    subElement.InnerText = "http://ibc.cdngc.net/Ipvision/pics/141294_169.jpg";
+                else if (channel.Title.Contains("Most"))
+                    subElement.InnerText = "http://ibc.cdngc.net/Ipvision/pics/liked.jpg";
+                else if (channel.Title.Contains("Recommended"))
+                    subElement.InnerText = "http://ibc.cdngc.net/Ipvision/pics/recommended.jpg";
+                else if (channel.Title.Contains("Bruce"))
+                    subElement.InnerText = "http://ibc.cdngc.net/Ipvision/pics/280811072447_904X526.jpg";
+                else if (channel.Title.Contains("Comedies"))
+                    subElement.InnerText = "http://ibc.cdngc.net/Ipvision/pics/141302_169.jpg";
+                else if (channel.Title.Contains("New"))
+                    subElement.InnerText = "http://ibc.cdngc.net/Ipvision/pics/new.jpg";
+                                
                 element.AppendChild(subElement);
                 item.AppendChild(element);
 
@@ -449,7 +452,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
                 string[] time = runtime.Split(new char[] { 'h', 'm' });
                 element.InnerText = string.Format("{0}h{1}m", int.Parse(time[0]), int.Parse(time[1]));
             }
-                        
+
             item.AppendChild(element);
 
             element = xmlDoc.CreateElement("guid");
