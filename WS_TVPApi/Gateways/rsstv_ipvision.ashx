@@ -22,7 +22,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     private int groupId = 0;
     private MediaFileItemPricesContainer[] dictPrices;
     private MediaFilePPVModule[] ppvmodules;
-    private int menuCatPicIdx = 0;    
+    private int menuCatPicIdx = 0;
     private PageData pd;
     private PageContext pc;
     private static string[][] menus = new string[][] { 
@@ -36,10 +36,10 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         new string[]{ "Settings", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/settings" } };
 
     public void ProcessRequest(HttpContext context)
-    {        
+    {
         groupId = GetGroupIDByBroadcasterName(broadcasterName);
         devType = ParseDevType(context);
-        
+
         pd = SiteMapManager.GetInstance.GetPageData(groupId, devType);
         pc = pd.GetPageByID("en", 64);
 
@@ -54,14 +54,79 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
                     ActionAllChannels(context);
                     break;
                 case "listchannel":
+                    BuildTopMenu(context);
+                    break;
+                case "listcontent":
                     ActionListChannel(context);
                     break;
                 default:
                     break;
             }
         }
-    }    
-    
+    }
+
+    private void BuildTopMenu(HttpContext context)
+    {
+        XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", null, null);
+        XmlElement rootNode = xmlDoc.CreateElement("rss");
+        rootNode.SetAttribute("xmlns:tv", tvNS);
+        rootNode.SetAttribute("version", "2.0");
+        xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
+        xmlDoc.AppendChild(rootNode);
+
+        XmlElement chNode = xmlDoc.CreateElement("channel");
+        rootNode.AppendChild(chNode);
+
+        XmlElement element = xmlDoc.CreateElement("title");
+        PageData pd = SiteMapManager.GetInstance.GetPageData(groupId, devType);
+        PageContext pc = pd.GetPageByID("en", 64);
+        foreach (PageGallery page in pc.MainGalleries)
+        {
+            IEnumerable<GalleryItem> gi = page.GalleryItems.Where(x => x.TVMChannelID == long.Parse(context.Request["chid"]));
+            if (gi.Count() > 0)            
+                element.InnerText = gi.First().Title;            
+        }
+
+        chNode.AppendChild(element);
+
+        element = xmlDoc.CreateElement("tv", "basehref", tvNS);
+        element.InnerText = "http://test.tvinci.com/tvpapi/gateways/rsstv_ipvision_connectedtv.ashx?action=allchannels";
+        chNode.AppendChild(element);
+
+        element = xmlDoc.CreateElement("baseURL");
+        element.InnerText = "http://ibc.cdngc.net/Ipvision/pics/";
+        chNode.AppendChild(element);
+
+        element = xmlDoc.CreateElement("tv", "style", tvNS);
+        chNode.AppendChild(element);
+
+        element = xmlDoc.CreateElement("language");
+        chNode.AppendChild(element);
+
+        XmlElement item = xmlDoc.CreateElement("item");
+
+        element = xmlDoc.CreateElement("title");
+        element.InnerText = "";
+        item.AppendChild(element);
+        chNode.AppendChild(item);
+        element = xmlDoc.CreateElement("indirecturl");
+        item.AppendChild(element);
+        chNode.AppendChild(item);
+        element = xmlDoc.CreateElement("indirect");
+        item.AppendChild(element);
+
+        chNode.AppendChild(item);
+
+        element = xmlDoc.CreateElement("link");
+        element.SetAttribute("type", tvNS, "rss");
+        XmlCDataSection cdata = xmlDoc.CreateCDataSection("/tvpapi/gateways/rsstv_ipvision_connectedtv.ashx?action=listcontent&chid=" + Context.Request["chid"]);
+        element.AppendChild(cdata);
+        item.AppendChild(element);
+
+        chNode.AppendChild(item);
+        context.Response.Write(xmlDoc.OuterXml);
+    }
+
     private PlatformType ParseDevType(HttpContext context)
     {
         PlatformType type;
@@ -149,20 +214,31 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         XmlElement element = xmlDoc.CreateElement("title");
         element.InnerText = "Tvinci VOD";
         chNode.AppendChild(element);
-        element = xmlDoc.CreateElement("widget");
-        element.InnerText = "Photo";
+        element = xmlDoc.CreateElement("tv", "widget", tvNS);
+        element.SetAttribute("height", "300");
+        element.SetAttribute("width", "200");
+        element.InnerText = "photo";
         chNode.AppendChild(element);
-        element = xmlDoc.CreateElement("widgetwidth");
-        element.InnerText = "300";
+
+        element = xmlDoc.CreateElement("baseURL");
+        element.InnerText = "http://ibc.cdngc.net/Ipvision/pics/";
         chNode.AppendChild(element);
-        element = xmlDoc.CreateElement("widgetheight");
-        element.InnerText = "200";
+
+        element = xmlDoc.CreateElement("tv", "basehref", tvNS);
+        element.InnerText = "http://test.tvinci.com/tvpapi/gateways/rsstv_ipvision_connectedtv.ashx?action=allchannels";
         chNode.AppendChild(element);
-        element = xmlDoc.CreateElement("promochannel");
-        element.InnerText = "-";
-        chNode.AppendChild(element);
-        element = xmlDoc.CreateElement("link");
-        chNode.AppendChild(element);
+
+        //element = xmlDoc.CreateElement("widgetwidth");
+        //element.InnerText = "300";
+        //chNode.AppendChild(element);
+        //element = xmlDoc.CreateElement("widgetheight");
+        //element.InnerText = "200";
+        //chNode.AppendChild(element);
+        //element = xmlDoc.CreateElement("promochannel");
+        //element.InnerText = "-";
+        //chNode.AppendChild(element);
+        //element = xmlDoc.CreateElement("link");
+        //chNode.AppendChild(element);
         foreach (PageGallery page in pc.MainGalleries)
         {
             foreach (GalleryItem channel in page.GalleryItems)
@@ -301,7 +377,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), gi.TVMChannelID, "full", 50, 0);
         InitializationObject initObj = GetInitObj();
         initObj.SiteGuid = new TVPApiModule.Services.ApiUsersService(groupId, devType).SignIn("adina@tvinci.com", "eliron27").SiteGuid;
-        
+
         dictPrices = m_MediaService.GetItemPrices(initObj, medias.Select(x => int.Parse(x.FileID)).ToArray(), false);
         ppvmodules = new TVPApiModule.Services.ApiPricingService(groupId, devType).GetPPVModuleListForMediaFiles(medias.Select(x => int.Parse(x.FileID)).ToArray(),
             string.Empty, string.Empty, string.Empty);
@@ -315,7 +391,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
             item.AppendChild(element);
 
             //XXX: Fix
-            element = xmlDoc.CreateElement("tv", "categoryId", tvNS);
+            element = xmlDoc.CreateElement("tv", "categoryid", tvNS);
             element.InnerText = "200,101,223";
             item.AppendChild(element);
 
@@ -329,6 +405,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
             XmlElement subElement = xmlDoc.CreateElement("url");
             subElement.InnerText = m.PicURL;
             element.AppendChild(subElement);
+
             //XXX: Fix sizes
             subElement = xmlDoc.CreateElement("width");
             subElement.InnerText = "200";
@@ -340,6 +417,13 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
 
             element = xmlDoc.CreateElement("pubDate");
             element.InnerText = FormatDateToRSSTV(DateTime.Now);
+            item.AppendChild(element);
+
+            element = xmlDoc.CreateElement("nohd");
+            element.InnerText = "true";
+            item.AppendChild(element);
+
+            element = xmlDoc.CreateElement("promovideo");
             item.AppendChild(element);
 
             element = xmlDoc.CreateElement("tv", "category", tvNS);
@@ -365,16 +449,16 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
 
             //XXX???????????
             element = xmlDoc.CreateElement("video");
-            element.SetAttribute("url", "http://ibc.cdngc.net/Ipvision/drm_out.wmv");
-            element.SetAttribute("length", "923958594");
+            element.SetAttribute("url", "http://192.168.16.127/666.wmv");
+            element.SetAttribute("length", "9239");
             element.SetAttribute("date", "2011-06-21T14:09:47");
             element.SetAttribute("delivery", "tv", "download");
             item.AppendChild(element);
 
-            element = xmlDoc.CreateElement("enclosure");
-            element.SetAttribute("url", m.URL);
-            element.SetAttribute("type", "video/x-ms-wmv");
-            item.AppendChild(element);
+            //element = xmlDoc.CreateElement("enclosure");
+            //element.SetAttribute("url", m.URL);
+            //element.SetAttribute("type", "video/x-ms-wmv");
+            //item.AppendChild(element);
 
             element = xmlDoc.CreateElement("preview");
             element.SetAttribute("url", m.SubURL);
@@ -399,7 +483,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         xmlDoc.AppendChild(rootNode);
 
         XmlElement element = xmlDoc.CreateElement("systemURL");
-        element.InnerText = "http://ipvision2.rsstv.entriq.net/menu/menu.ashx?action=cms&amp;cms=archive_movie&amp;id=268&amp;nohd=true&amp;bypass=true&amp;title=Latest";
+        element.InnerText = "http://test.tvinci.com/tvpapi/gateways/rsstv_ipvision_connectedtv.ashx?action=listchannel&chid=" + Context.Request["chid"];
         rootNode.AppendChild(element);
 
         element = xmlDoc.CreateElement("tv", "results", tvNS);
@@ -417,19 +501,20 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         rootNode.AppendChild(channel);
 
         XmlElement element = xmlDoc.CreateElement("source");
-        element.SetAttribute("url", "http://ipvision2.rsstv.entriq.net/menu/menu.ashx?action=cms&amp;cms=archive_movie&amp;id=268&amp;nohd=true&amp;bypass=true&amp;title=Latest");
+        element.SetAttribute("url", "http://test.tvinci.com/tvpapi/gateways/rsstv_ipvision_connectedtv.ashx?action=listchannel&chid=" + Context.Request["chid"]);
         channel.AppendChild(element);
 
         element = xmlDoc.CreateElement("title");
         element.InnerText = gi.Title;
         channel.AppendChild(element);
 
-        element = xmlDoc.CreateElement("tv", "preview", tvNS);
-        element.SetAttribute("tyoe", "text/xml");
-        element.InnerText = "http://www.fetchtv.net/promos/fetchtv.php?";
-        channel.AppendChild(element);
+        //element = xmlDoc.CreateElement("tv", "preview", tvNS);
+        //element.SetAttribute("type", "text/xml");
+        //element.InnerText = "http://www.fetchtv.net/promos/fetchtv.php?";
+        //channel.AppendChild(element);
 
         element = xmlDoc.CreateElement("tv", "style", tvNS);
+        element.InnerText = "css:http://media.fetchtv.net/content/";
         channel.AppendChild(element);
 
         element = xmlDoc.CreateElement("tv", "widget", tvNS);
