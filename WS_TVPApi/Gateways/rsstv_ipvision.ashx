@@ -215,9 +215,9 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         element.InnerText = "Tvinci VOD";
         chNode.AppendChild(element);
         element = xmlDoc.CreateElement("tv", "widget", tvNS);
-        element.SetAttribute("height", "300");
-        element.SetAttribute("width", "200");
-        element.InnerText = "photo";
+        element.SetAttribute("height", "200");
+        element.SetAttribute("width", "300");
+        element.InnerText = "Photo";
         chNode.AppendChild(element);
 
         element = xmlDoc.CreateElement("baseURL");
@@ -260,11 +260,11 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
                 // XXX: Hack to do nice pics in the menu that we don't have
                 string[] cats = { "movies", "documentaries", "drama", "kids", "sports" };
                 element = xmlDoc.CreateElement("image");
-                element.SetAttribute("type", "BoxArt");
+                element.SetAttribute("type", "Photo");
                 XmlElement subElement = xmlDoc.CreateElement("url");
                 
                 //UGLY HACK@!!@#@#!@#!
-                List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), channel.TVMChannelID, "full", 50, 0);
+                List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), channel.TVMChannelID, "201x113", 50, 0);
                 foreach (Media m in medias)
                 {
                     if (picloaded.Where(x => x == m.MediaID).Count() == 0)
@@ -463,7 +463,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
 
             //XXX???????????
             element = xmlDoc.CreateElement("video");
-            element.SetAttribute("url", m.URL);
+            element.SetAttribute("url", /*m.URL*/ "http://ibc.cdngc.net/Ipvision/Videos/Demo.wmv");
             element.SetAttribute("length", "9239");
             element.SetAttribute("date", "2011-06-21T14:09:47");
             element.SetAttribute("delivery", "tv", "download");
@@ -475,7 +475,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
             //item.AppendChild(element);
 
             element = xmlDoc.CreateElement("preview");
-            element.SetAttribute("url", m.SubURL);
+            element.SetAttribute("url", /*m.SubURL*/ "http://ibc.cdngc.net/Ipvision/Videos/Demo.wmv");
             //XXXX????
             element.SetAttribute("length", "9654234");
             element.SetAttribute("duration", "124");
