@@ -87,7 +87,7 @@ public abstract class BaseGateway : System.Web.UI.Page
 
     protected InitializationObject GetInitObj()
     {
-        string sUDID = HttpContext.Current.Request.QueryString["mac"];
+        string sUDID = HttpContext.Current.Request.QueryString["identity"];
         
         InitializationObject retVal = new InitializationObject();
         retVal.Platform = devType;
