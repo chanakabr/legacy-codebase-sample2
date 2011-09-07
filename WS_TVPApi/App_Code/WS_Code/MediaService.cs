@@ -370,7 +370,6 @@ namespace TVPApiServices
                 try
                 {
                     lstMedia = MediaHelper.GetUserSocialMedias(initObj, picSize, pageSize, pageIndex, groupID, socialAction, socialPlatform);
-                    lstMedia = lstMedia.OrderByDescending(r => r.CreationDate.Date).ThenByDescending(r => r.CreationDate.TimeOfDay).ToList();
                 }
                 catch (Exception ex)
                 {
