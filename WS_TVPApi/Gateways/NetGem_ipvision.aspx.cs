@@ -13,6 +13,7 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using System.Web;
 
 public partial class Gateways_NetGem_ipvision : BaseGateway
 {
@@ -432,7 +433,9 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                     double iPrice;
                     double.TryParse(vtid.Split('-')[3], out iPrice);
                     //ConditionalAccessService.Instance.DummyChargeUserForMediaFile(iPrice, "USD", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP());
-                    string response = new ApiConditionalAccessService(groupID, platform).DummyChargeUserForMediaFile(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid, GetInitObj().UDID);
+                    string sUDID = HttpContext.Current.Request.QueryString["identity"];
+
+                    string response = new ApiConditionalAccessService(groupID, platform).DummyChargeUserForMediaFile(iPrice, "GBP", int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP(), snewSiteGuid, sUDID);
                     Logger.Logger.Log("Netgem purchasestatus", string.Format("Price:{0}, FileID:{1}, PPVModule:{2}, IP:{3}", iPrice, int.Parse(stmpFileID), stmpPPVModule, SiteHelper.GetClientIP()), "TVPApi");
 
                     //XTM.WriteElementString("price", vtiId.Split('-')[3]);
