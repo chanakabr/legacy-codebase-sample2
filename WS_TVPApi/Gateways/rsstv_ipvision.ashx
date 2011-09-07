@@ -26,8 +26,8 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
     private PageData pd;
     private PageContext pc;
     private static string[][] menus = new string[][] { 
-        new string[]{ "Home", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/home" }, 
-        new string[]{ "Channels", "/tvpapi/gateways/rsstv_ipvision{0}.ashx?action=allchannels" }, 
+        new string[]{ "Home", "/tvpapi/gateways/rsstv_ipvision{0}.ashx?action=allchannels" }, 
+        new string[]{ "Coming soon", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/home" },         
         new string[]{ "Highlights", "http://ipvision2.rsstv.entriq.net/menu/?action=cms&cms=archive_movie&id=585" }, 
         new string[]{ "A-Z Listing", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/azlisting" }, 
         new string[]{ "Search", "http://ipvision2.rsstv.entriq.net/menu/?xsl=fetchtv/dynDP&id=tvmenu/home/search" }, 
@@ -239,6 +239,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
         //chNode.AppendChild(element);
         //element = xmlDoc.CreateElement("link");
         //chNode.AppendChild(element);
+        List<string> picloaded = new List<string>();
         foreach (PageGallery page in pc.MainGalleries)
         {
             foreach (GalleryItem channel in page.GalleryItems)
@@ -261,7 +262,18 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
                 element = xmlDoc.CreateElement("image");
                 element.SetAttribute("type", "BoxArt");
                 XmlElement subElement = xmlDoc.CreateElement("url");
-                subElement.InnerText = "http://www.fetchtv.net/ctv/getimage.php?cat=home&item=";
+                
+                //UGLY HACK@!!@#@#!@#!
+                List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), channel.TVMChannelID, "full", 50, 0);
+                foreach (Media m in medias)
+                {
+                    if (picloaded.Where(x => x == m.MediaID).Count() == 0)
+                    {
+                        picloaded.Add(m.MediaID);
+                        subElement.InnerText = m.PicURL;
+                        break;
+                    }
+                }                
                 element.AppendChild(subElement);
                 item.AppendChild(element);
 
@@ -449,7 +461,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
 
             //XXX???????????
             element = xmlDoc.CreateElement("video");
-            element.SetAttribute("url", "http://192.168.16.127/666.wmv");
+            element.SetAttribute("url", m.URL);
             element.SetAttribute("length", "9239");
             element.SetAttribute("date", "2011-06-21T14:09:47");
             element.SetAttribute("delivery", "tv", "download");
