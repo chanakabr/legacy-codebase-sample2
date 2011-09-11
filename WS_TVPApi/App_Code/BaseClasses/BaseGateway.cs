@@ -105,8 +105,10 @@ public abstract class BaseGateway : System.Web.UI.Page
         string mac = Request.QueryString["identity"];
         if (groupId == 125)
         {
-            if (mac != "00043050E79A")
-                return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+            if (mac == "00043050E72B")
+                return m_SiteService.SignIn(GetInitObj(), "ido@tvinci.com", "eliron27").SiteGuid;
+            else if (mac != "00043050E79A")
+                return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;            
             else
                 return m_SiteService.SignIn(GetInitObj(), "yonatan@tvinci.com", "eliron27").SiteGuid;
         }
