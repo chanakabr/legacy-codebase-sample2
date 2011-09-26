@@ -14,8 +14,6 @@ public partial class Gateways_JsonGateway : BaseGateway
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        string broadcasterName = Request.QueryString["broadcasterName"];
-        int groupID = GetGroupIDByBroadcasterName(broadcasterName);
         string MethodName = Request.QueryString["MethodName"];
         string Str = String.Empty;
         System.Web.Services.WebService webservice = m_MediaService;
@@ -82,29 +80,35 @@ public partial class Gateways_JsonGateway : BaseGateway
         //retVal.Locale = locale;
         //return retVal;
         InitializationObject retVal = base.GetInitObj();
-        if (Request.QueryString["Platform"] == null)
-            return retVal;
-        switch (Request.QueryString["Platform"].ToLower())
+
+        retVal.ApiUser = Request.QueryString["ApiUser"];
+        retVal.ApiPass = Request.QueryString["ApiPass"];
+
+        if (Request.QueryString["Platform"] != null)
         {
-            case "cellular":
-                retVal.Platform = PlatformType.Cellular;
-                break;
-            case "connectedtv":
-                retVal.Platform = PlatformType.ConnectedTV;
-                break;
-            case "stb":
-                retVal.Platform = PlatformType.STB;
-                break;
-            case "web":
-                retVal.Platform = PlatformType.Web;
-                break;
-            default:
-                retVal.Platform = PlatformType.Unknown;
-                break;
+            switch (Request.QueryString["Platform"].ToLower())
+            {
+                case "cellular":
+                    retVal.Platform = PlatformType.Cellular;
+                    break;
+                case "connectedtv":
+                    retVal.Platform = PlatformType.ConnectedTV;
+                    break;
+                case "stb":
+                    retVal.Platform = PlatformType.STB;
+                    break;
+                case "web":
+                    retVal.Platform = PlatformType.Web;
+                    break;
+                default:
+                    retVal.Platform = PlatformType.Unknown;
+                    break;
+            }
         }
         retVal.SiteGuid = Request.QueryString["SiteGuid"];
         if(Request.QueryString["DomainID"] != null)
             retVal.DomainID = int.Parse(Request.QueryString["DomainID"]);
+
         return retVal;
     }
 
