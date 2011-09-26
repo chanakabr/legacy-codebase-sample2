@@ -74,6 +74,13 @@ public abstract class BaseGateway : System.Web.UI.Page
                     m_WsPassword = "11111";
                     break;
                 }
+            case "turkcell":
+                {
+                    retVal = 131;
+                    m_WsUsername = "tvpapi_131";
+                    m_WsPassword = "11111";
+                    break;
+                }
             default:
                 {
                     retVal = 122;
