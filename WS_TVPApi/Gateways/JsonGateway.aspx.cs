@@ -103,7 +103,8 @@ public partial class Gateways_JsonGateway : BaseGateway
                 break;
         }
         retVal.SiteGuid = Request.QueryString["SiteGuid"];
-        retVal.DomainID = int.Parse(Request.QueryString["DomainID"]);
+        if(Request.QueryString["DomainID"] != null)
+            retVal.DomainID = int.Parse(Request.QueryString["DomainID"]);
         return retVal;
     }
 
