@@ -8,6 +8,7 @@ using System.Reflection;
 using System.IO;
 using System.Text;
 using System.Runtime.Serialization.Json;
+using TVPApi;
 
 public partial class Gateways_JsonGateway : BaseGateway
 {
@@ -17,7 +18,13 @@ public partial class Gateways_JsonGateway : BaseGateway
         int groupID = GetGroupIDByBroadcasterName(broadcasterName);
         string MethodName = Request.QueryString["MethodName"];
         string Str = String.Empty;
-        MethodInfo WSMethod = m_MediaService.GetType().GetMethod(MethodName);
+        System.Web.Services.WebService webservice = m_MediaService;
+        MethodInfo WSMethod = webservice.GetType().GetMethod(MethodName);
+        if (WSMethod == null)
+        {
+            webservice = m_SiteService;
+            WSMethod = webservice.GetType().GetMethod(MethodName);
+        }
         if (WSMethod != null)
         {
             ParameterInfo[] MethodParameters = WSMethod.GetParameters();
@@ -29,13 +36,15 @@ public partial class Gateways_JsonGateway : BaseGateway
                 //string RawParameter = Context.Request.Form[TargetParameter.Name];
                 string RawParameter = Context.Request.QueryString[TargetParameter.Name];
                 if (TargetParameter.ParameterType == typeof(TVPApi.InitializationObject))
-                    CallParameters[i] = GetInitObj();
-                else
+                    CallParameters[i] = GetInitObj2();
+                else if (TargetParameter.ParameterType != typeof(String))
                     CallParameters[i] = TypeDeSerialize(RawParameter, TargetParameter.ParameterType);
+                else
+                    CallParameters[i] = RawParameter;
 
                 Str += TargetParameter.Name + ", ";
             }
-            object JSONMethodReturnValue = WSMethod.Invoke(m_MediaService, CallParameters);
+            object JSONMethodReturnValue = WSMethod.Invoke(webservice, CallParameters);
             string SerializedReturnValue = JSONSerialize(JSONMethodReturnValue);
             Context.Response.Write(SerializedReturnValue);
 
@@ -60,6 +69,42 @@ public partial class Gateways_JsonGateway : BaseGateway
         string Product = Encoding.Default.GetString(ms.ToArray());
         ms.Close();
         return Product;
+    }
+
+    protected InitializationObject GetInitObj2()
+    {
+        //InitializationObject retVal = new InitializationObject();
+        //retVal.Platform = PlatformType.STB;
+        //retVal.ApiUser = "tvpapi_125";
+        //retVal.ApiPass = "11111";
+        //Locale locale = new Locale();
+        //locale.LocaleUserState = LocaleUserState.Unknown;
+        //retVal.Locale = locale;
+        //return retVal;
+        InitializationObject retVal = base.GetInitObj();
+        if (Request.QueryString["Platform"] == null)
+            return retVal;
+        switch (Request.QueryString["Platform"].ToLower())
+        {
+            case "cellular":
+                retVal.Platform = PlatformType.Cellular;
+                break;
+            case "connectedtv":
+                retVal.Platform = PlatformType.ConnectedTV;
+                break;
+            case "stb":
+                retVal.Platform = PlatformType.STB;
+                break;
+            case "web":
+                retVal.Platform = PlatformType.Web;
+                break;
+            default:
+                retVal.Platform = PlatformType.Unknown;
+                break;
+        }
+        retVal.SiteGuid = Request.QueryString["SiteGuid"];
+        retVal.DomainID = int.Parse(Request.QueryString["DomainID"]);
+        return retVal;
     }
 
 }
