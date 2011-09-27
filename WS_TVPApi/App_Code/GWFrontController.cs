@@ -7,6 +7,7 @@ using System.Xml;
 using TVPApiServices;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Services;
+using System.Configuration;
 
 /// <summary>
 /// Summary description for GWFrontController
@@ -42,6 +43,52 @@ public class GWFrontController
         retVal.ApiPass = "11111";
         retVal.UDID = identifier;
         return retVal;
+    }
+
+    private XmlElement createSettingsUrl(string type, string urlContent)
+    {        
+        XmlElement subsubEle = xmlDoc.CreateElement("url");
+        subsubEle.SetAttribute("type", type);
+        XmlCDataSection cdata =  xmlDoc.CreateCDataSection(urlContent);
+        subsubEle.AppendChild(cdata);
+
+        return subsubEle;
+    }
+
+    public string GetServiceURLs(params object[] prms)
+    {
+        XmlElement root = xmlDoc.CreateElement("GetServiceURLs");
+        xmlDoc.AppendChild(root);
+        
+        DateTime objUTC = DateTime.Now.ToUniversalTime();
+        long epoch = (objUTC.Ticks - 62135596800000000) / 10000;
+
+        XmlElement ele = xmlDoc.CreateElement("service");
+        ele.SetAttribute("date", epoch.ToString());
+        XmlElement subEle = xmlDoc.CreateElement("settings");
+        
+        string baseURL = ConfigurationManager.AppSettings["BaseNetGemURL"];
+        subEle.AppendChild(createSettingsUrl("base", baseURL + "/tvpapi"));
+        subEle.AppendChild(createSettingsUrl("image", string.Empty));
+        subEle.AppendChild(createSettingsUrl("photo", string.Empty));
+        subEle.AppendChild(createSettingsUrl("content", baseURL + "/tvpapi/gateways/gateway.ashx?type=content"));
+        subEle.AppendChild(createSettingsUrl("purchase", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchase"));
+        subEle.AppendChild(createSettingsUrl("purchaseStatus", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchasestatus"));
+        subEle.AppendChild(createSettingsUrl("purchaseConfirmation", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseConfirmation"));
+        subEle.AppendChild(createSettingsUrl("search-people", baseURL + "/tvpapi/gateways/searchPeoples.aspx"));
+        subEle.AppendChild(createSettingsUrl("search-titles", baseURL + "/tvpapi/gateways/gateway.ashx?type=searchtitles"));
+        subEle.AppendChild(createSettingsUrl("account", baseURL + "/tvpapi/gateways/gateway.ashx?type=account"));
+        subEle.AppendChild(createSettingsUrl("logStreamingStart", baseURL + "/tvpapi/gateways/logStreamingStart.aspx"));
+        subEle.AppendChild(createSettingsUrl("logStreamingEnd", baseURL + "/tvpapi/gateways/logdownloadend.aspx"));
+        subEle.AppendChild(createSettingsUrl("addCallCenterEvent", baseURL + "/tvpapi/gateways/addCallCenterEvent.aspx"));
+        subEle.AppendChild(createSettingsUrl("setlastposition", baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=hit"));
+        subEle.AppendChild(createSettingsUrl("getlastposition", baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=getlastposition"));
+        subEle.AppendChild(createSettingsUrl("logMedia", baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=mediamark"));
+
+        ele.AppendChild(subEle);
+        root.AppendChild(ele);
+
+        return xmlDoc.OuterXml;
     }
 
     public string GetAllChannels(params object[] prms)

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl"
->
-  <xsl:output method="xml" indent="yes"/>
+>  
+  <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="utf-8"/>
   <xsl:param name="chid"></xsl:param>
   <xsl:template match="GetAllChannels">
     <xsl:for-each select="Channel">
@@ -150,6 +150,25 @@
       </xsl:element>
       <xsl:element name="mediumImageAbsolutePath">
         <xsl:value-of select="PicURL"/>
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
+  <xsl:template match="GetServiceURLs">
+    <xsl:element name="service">
+      <xsl:attribute name="date">
+        <xsl:value-of select="service/@date"/>
+      </xsl:attribute>
+      <xsl:element name="settings">
+        <xsl:for-each select="service/settings/url">
+          <xsl:element name="url">
+            <xsl:attribute name="type">
+              <xsl:value-of select="@type"/>
+            </xsl:attribute>
+            <xsl:text disable-output-escaping="yes">&lt;![CDATA[</xsl:text>
+            <xsl:value-of select="normalize-space(text())" disable-output-escaping="yes"/>
+            <xsl:text disable-output-escaping="yes">]]&gt;</xsl:text>
+          </xsl:element>
+        </xsl:for-each>
       </xsl:element>
     </xsl:element>
   </xsl:template>

@@ -20,6 +20,9 @@ public class Gateway : IHttpHandler
         //XXX
         switch (context.Request["type"])
         {
+            case null:
+                actionFunc = fc.GetServiceURLs;
+                break;
             case "channel":
                 actionFunc = fc.GetAllChannels;
                 paramsToFunc.Add(long.Parse(context.Request["chid"]));
@@ -29,9 +32,14 @@ public class Gateway : IHttpHandler
                 paramsToFunc.Add(long.Parse(context.Request["intChid"]));
                 break;
             case "content":
+                string titId = context.Request["titId"];
+                string sMediaID = titId.Split('-')[0];
+                string channelId = titId.Split('-')[2];
+                string sMediaType = titId.Contains("-") ? titId.Split('-')[1] : "272";
+                
                 actionFunc = fc.GetMediaInfo;
-                paramsToFunc.Add(long.Parse(context.Request["mediaId"]));
-                paramsToFunc.Add(int.Parse(context.Request["mediaType"]));
+                paramsToFunc.Add(long.Parse(sMediaID));
+                paramsToFunc.Add(int.Parse(sMediaType));
                 break;
             default:
                 break;
@@ -49,16 +57,17 @@ public class Gateway : IHttpHandler
         transform.Load(new XmlTextReader(xslt, XmlNodeType.Document, null));                
         XPathDocument xpd = new XPathDocument(new StringReader(resXML));
         using (StringWriter sr = new StringWriter())
-        {
-            transform.Transform(xpd.CreateNavigator(), getXSLTArgsList(), sr);
-            context.Response.Write(sr.ToString());
+        {                        
+            //Due to problems changing the encoding of the resulted XML, we prepend it manually
+            transform.Transform(xpd.CreateNavigator(), getXSLTArgsList(), sr);            
+            context.Response.Write(sr.ToString().Insert(0, "<?xml version='1.0' encoding='UTF-8'?>"));
         }                
     }
 
     private XsltArgumentList getXSLTArgsList()
     {
         XsltArgumentList xslArg = new XsltArgumentList();
-        string externalChannel = "50";
+        string externalChannel = "201";
         xslArg.AddParam("chid", string.Empty, externalChannel);
 
         return xslArg;
