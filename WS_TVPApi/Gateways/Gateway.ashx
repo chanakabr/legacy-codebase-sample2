@@ -28,6 +28,11 @@ public class Gateway : IHttpHandler
                 actionFunc = fc.GetChannelMedias;
                 paramsToFunc.Add(long.Parse(context.Request["intChid"]));
                 break;
+            case "content":
+                actionFunc = fc.GetMediaInfo;
+                paramsToFunc.Add(long.Parse(context.Request["mediaId"]));
+                paramsToFunc.Add(int.Parse(context.Request["mediaType"]));
+                break;
             default:
                 break;
         }
@@ -36,12 +41,12 @@ public class Gateway : IHttpHandler
         if (actionFunc == null)
             return;
 
-        string resXML = actionFunc(paramsToFunc.ToArray());
-        
-        XslCompiledTransform transform = new XslCompiledTransform();        
-        string xslt = getXSLTByDeviceName("netgem");        
-        transform.Load(new XmlTextReader(xslt, XmlNodeType.Document, null));
-        
+        string resXML = actionFunc(paramsToFunc.ToArray());                
+        string xslt = getXSLTByDeviceName("netgem");
+
+        // Transforming the XML to appropriate device response
+        XslCompiledTransform transform = new XslCompiledTransform();
+        transform.Load(new XmlTextReader(xslt, XmlNodeType.Document, null));                
         XPathDocument xpd = new XPathDocument(new StringReader(resXML));
         using (StringWriter sr = new StringWriter())
         {
@@ -68,7 +73,7 @@ public class Gateway : IHttpHandler
     {
         get
         {
-            return false;
+            return true;
         }
     }
 

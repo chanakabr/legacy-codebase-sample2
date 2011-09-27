@@ -39,4 +39,118 @@
       </xsl:element>
     </xsl:element>
   </xsl:template>
+  <xsl:template match="GetMediaInfo">
+    <xsl:element name="content">
+      <xsl:element name="title">
+        <xsl:value-of select="Title"/>
+      </xsl:element>
+      <xsl:element name="synopsis">
+        <xsl:value-of select="Description"/>
+      </xsl:element>
+      <xsl:element name="durationInMinutes">
+        <xsl:value-of select="Duration"/>
+      </xsl:element>
+      <xsl:element name="censorshipRating">
+        <xsl:value-of select="Rating"/>
+      </xsl:element>
+      <xsl:element name="copyrightStudio">
+        <xsl:value-of select="Copyright"/>
+      </xsl:element>
+      <xsl:element name="adult">
+        <xsl:value-of select="Adult"/>
+      </xsl:element>
+      <xsl:element name="yearProd">
+        <xsl:value-of select="ProductionYear"/>
+      </xsl:element>
+      <xsl:element name="titID">
+        <xsl:value-of select="MediaID"/>
+        <xsl:text>-</xsl:text>
+        <xsl:value-of select="MediaTypeID"/>
+        <xsl:text>-</xsl:text>
+        <xsl:value-of select="$chid"/>
+      </xsl:element>
+      <xsl:element name="HD">
+        <xsl:value-of select="HD"/>
+      </xsl:element>
+      <xsl:element name="nationalityNames">
+        <xsl:for-each select="Country/Name">
+          <xsl:element name="element">
+            <xsl:value-of select="."/>
+          </xsl:element>
+        </xsl:for-each>
+      </xsl:element>
+      <xsl:element name="actors">
+        <xsl:for-each select="Actors/Name">
+          <xsl:element name="xml-link">
+            <xsl:element name="title">
+              <xsl:value-of select="."/>
+            </xsl:element>
+            <xsl:element name="url">
+            </xsl:element>
+          </xsl:element>
+        </xsl:for-each>
+      </xsl:element>
+      <xsl:element name="directors">
+        <xsl:for-each select="Directors/Name">
+          <xsl:element name="xml-link">
+            <xsl:element name="title">
+              <xsl:value-of select="."/>
+            </xsl:element>
+            <xsl:element name="url">
+            </xsl:element>
+          </xsl:element>
+        </xsl:for-each>
+      </xsl:element>
+      <xsl:element name="DTRProduct">
+        <xsl:element name="contentFile">
+          <xsl:element name="URL">
+            <xsl:value-of select="URL"/>
+          </xsl:element>
+          <xsl:element name="durationInMinutes">
+            <xsl:value-of select="Duration"/>
+          </xsl:element>
+        </xsl:element>
+        <xsl:element name="licenceDuration">
+          <xsl:value-of select="LicenseDuration" />
+        </xsl:element>
+        <xsl:element name="licenceDurationUnit">
+          <xsl:text>h</xsl:text>
+        </xsl:element>
+        <xsl:element name="price">
+          <xsl:element name="price">
+            <xsl:value-of select="Price"/>
+          </xsl:element>
+        </xsl:element>
+        <xsl:element name="endDate">
+          <xsl:value-of select="EndDate"/>
+        </xsl:element>
+        <xsl:element name="vtiID">
+          <xsl:value-of select="FileID"/>
+          <xsl:text>-</xsl:text>
+          <xsl:value-of select="MediaTypeID"/>
+          <xsl:text>-</xsl:text>
+          <xsl:value-of select="PPVModule"/>
+          <xsl:text>-</xsl:text>
+          <xsl:value-of select="Price"/>
+          <xsl:text>-</xsl:text>
+          <xsl:value-of select="$chid"/>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="trailerContentFileList">
+        <xsl:element name="element">
+          <xsl:element name="URL">
+            <xsl:value-of select="TrailerURL"/>
+          </xsl:element>
+          <xsl:element name="encodingType">
+          </xsl:element>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="mediumImageRelativePath">
+        <xsl:value-of select="PicURL"/>
+      </xsl:element>
+      <xsl:element name="mediumImageAbsolutePath">
+        <xsl:value-of select="PicURL"/>
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
 </xsl:stylesheet>
