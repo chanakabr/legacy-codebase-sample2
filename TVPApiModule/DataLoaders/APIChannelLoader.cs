@@ -10,8 +10,30 @@ namespace TVPApi
     public class APIChannelLoader : TVPPro.SiteManager.DataLoaders.TVMChannelLoader
     {
 
-        private string m_tvmUser = string.Empty;
-        private string m_tvmPass = string.Empty;
+        private string TvmUser
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmUser", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmUser", value);
+            }
+
+        }
+        private string TvmPass
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmPass", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmPass", value);
+            }
+
+        }
 
         public PlatformType Platform
         {
@@ -64,8 +86,8 @@ namespace TVPApi
         public APIChannelLoader(string TVMUser, string TVMPass, long channelID, string picSize)
             : base(TVMUser, TVMPass, channelID, picSize)
         {
-            m_tvmUser = TVMUser;
-            m_tvmPass = TVMPass;
+            TvmUser = TVMUser;
+            TvmPass = TVMPass;
 
             if (string.IsNullOrEmpty(picSize))
             {
@@ -86,8 +108,8 @@ namespace TVPApi
             newChannel.start_index = PageIndex;
             result.root.request.channelCollection.Add(newChannel);
 
-            result.root.flashvars.player_un = m_tvmUser;
-            result.root.flashvars.player_pass = m_tvmPass;
+            result.root.flashvars.player_un = TvmUser;
+            result.root.flashvars.player_pass = TvmPass;
 
             result.root.flashvars.pic_size1 = PicSize;
 
