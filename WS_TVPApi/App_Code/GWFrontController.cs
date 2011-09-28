@@ -46,27 +46,27 @@ public class GWFrontController
     }
 
     private XmlElement createSettingsUrl(string type, string urlContent)
-    {        
+    {
         XmlElement subsubEle = xmlDoc.CreateElement("url");
         subsubEle.SetAttribute("type", type);
-        XmlCDataSection cdata =  xmlDoc.CreateCDataSection(urlContent);
+        XmlCDataSection cdata = xmlDoc.CreateCDataSection(urlContent);
         subsubEle.AppendChild(cdata);
 
         return subsubEle;
     }
 
-    public string GetServiceURLs(params object[] prms)
+    public object GetServiceURLs(params object[] prms)
     {
         XmlElement root = xmlDoc.CreateElement("GetServiceURLs");
         xmlDoc.AppendChild(root);
-        
+
         DateTime objUTC = DateTime.Now.ToUniversalTime();
         long epoch = (objUTC.Ticks - 62135596800000000) / 10000;
 
         XmlElement ele = xmlDoc.CreateElement("service");
         ele.SetAttribute("date", epoch.ToString());
         XmlElement subEle = xmlDoc.CreateElement("settings");
-        
+
         string baseURL = ConfigurationManager.AppSettings["BaseNetGemURL"];
         subEle.AppendChild(createSettingsUrl("base", baseURL + "/tvpapi"));
         subEle.AppendChild(createSettingsUrl("image", string.Empty));
@@ -91,155 +91,108 @@ public class GWFrontController
         return xmlDoc.OuterXml;
     }
 
-    public string GetAllChannels(params object[] prms)
+    public object GetAllChannels(params object[] prms)
     {
-        XmlElement root = xmlDoc.CreateElement("GetAllChannels");
-        xmlDoc.AppendChild(root);
-
+        XmlModels.GetAllChannels gac = new XmlModels.GetAllChannels();
+        List<XmlModels.GetAllChannelsChannel> channels = new List<XmlModels.GetAllChannelsChannel>();
+        
         foreach (PageGallery pg in pc.MainGalleries)
         {
             foreach (GalleryItem gi in pg.GalleryItems)
             {
-                XmlElement channelEle = xmlDoc.CreateElement("Channel");
-                XmlElement ele = xmlDoc.CreateElement("Title");
-                ele.InnerText = gi.Title;
-                channelEle.AppendChild(ele);
+                XmlModels.GetAllChannelsChannel newCh = new XmlModels.GetAllChannelsChannel();
+                newCh.Title = gi.Title;
+                newCh.Tvmch = gi.TVMChannelID.ToString();
+                newCh.Picsize = gi.PictureSize;
 
-                ele = xmlDoc.CreateElement("Tvmch");
-                ele.InnerText = gi.TVMChannelID.ToString();
-                channelEle.AppendChild(ele);
-
-                ele = xmlDoc.CreateElement("Picsize");
-                ele.InnerText = gi.PictureSize;
-                channelEle.AppendChild(ele);
-
-                root.AppendChild(channelEle);
+                channels.Add(newCh);
             }
         }
 
-        return xmlDoc.OuterXml;
+        gac.Items = channels.ToArray();
+        return gac;
     }
 
-    public string GetChannelMedias(params object[] prms)
+    public object GetChannelMedias(params object[] prms)
     {
-        XmlElement root = xmlDoc.CreateElement("GetChannelMedias");
-        xmlDoc.AppendChild(root);
-
+        XmlModels.GetChannelMedias chMedias = new XmlModels.GetChannelMedias();
+        
         long mediaCount = 0;
         List<Media> lstMedias = m_MediaService.GetChannelMediaListWithMediaCount(GetInitObj(), (long)prms[0], "full", 50, 0, ref mediaCount);
+        List<XmlModels.GetChannelMediasMedia> allMedias = new List<XmlModels.GetChannelMediasMedia>();
 
         if (lstMedias != null)
         {
             foreach (Media item in lstMedias)
             {
-                XmlElement ele = xmlDoc.CreateElement("Media");
-                ele.SetAttribute("ID", item.MediaID);
-                ele.SetAttribute("Type", item.MediaTypeID);
-                root.AppendChild(ele);
+                XmlModels.GetChannelMediasMedia medias = new XmlModels.GetChannelMediasMedia();
+                medias.ID = item.MediaID;
+                medias.Type = item.MediaTypeID;
+                allMedias.Add(medias);
             }
         }
 
-        return xmlDoc.OuterXml;
+        chMedias.Items = allMedias.ToArray();
+        return chMedias;
     }
 
-    public string GetMediaInfo(params object[] prms)
+    public object GetMediaInfo(params object[] prms)
     {
-        XmlElement root = xmlDoc.CreateElement("GetMediaInfo");
-        xmlDoc.AppendChild(root);
+        XmlModels.GetMediaInfo mInfo = new XmlModels.GetMediaInfo();
 
         Media media = m_MediaService.GetMediaInfo(GetInitObj(), (long)prms[0], (int)prms[1], "480X430", true);
 
         //XXX Error handling
         if (media == null)
-            return root.OuterXml;        
+            return mInfo;
 
-        XmlElement ele = xmlDoc.CreateElement("Description");        
-        //XXX Removing that annoying replace!
-        ele.InnerText = media.Description.Replace(@"<\p>", " ");
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("MediaID");
-        ele.InnerText = media.MediaID;
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("Title");
-        ele.InnerText = media.MediaName.Replace('(', ' ').Replace(')', ' ');
-        root.AppendChild(ele);
-
-        string runtime = (from meta in media.Metas where meta.Key.Equals("Display run time") select meta.Value).FirstOrDefault();
-        ele = xmlDoc.CreateElement("Duration");
+        mInfo.Description = media.Description.Replace(@"<\p>", " ");        
+        mInfo.MediaID = media.MediaID;        
+        mInfo.Title = media.MediaName.Replace('(', ' ').Replace(')', ' ');
+        
+        string runtime = (from meta in media.Metas where meta.Key.Equals("Display run time") select meta.Value).FirstOrDefault();        
         if (!string.IsNullOrEmpty(runtime))
         {
-            string[] time = runtime.Split(new char[] { 'h', 'm' });
-            ele.InnerText = string.Format("{0:0}", int.Parse(time[0]) * 60 + int.Parse(time[1]));
+            string[] time = runtime.Split(new char[] { 'h', 'm' });            
+            mInfo.Duration = string.Format("{0:0}", int.Parse(time[0]) * 60 + int.Parse(time[1]));
         }
         else
-            ele.InnerText = "0";
-
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("Rating");
-        ele.InnerText = media.Rating.ToString();
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("Copyright");
-        ele.InnerText = (from meta in media.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault() ?? "None";
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("Adult");
-        ele.InnerText = "false";
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("ProductionYear");
-        ele.InnerText = (from meta in media.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault() ?? "None";
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("HD");
-        ele.InnerText = "true";
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("Country");
+            mInfo.Duration = "0";
+        
+        mInfo.Rating = media.Rating.ToString();
+        mInfo.Copyright = (from meta in media.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault() ?? "None";
+        mInfo.Adult = "false";        
+        mInfo.ProductionYear = (from meta in media.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault() ?? "None";        
+        mInfo.HD = "true";
+        
         string countries = (from tag in media.Tags where tag.Key.Equals("Country") select tag.Value).FirstOrDefault();
+        List<XmlModels.GetMediaInfoCountry> countryList = new List<XmlModels.GetMediaInfoCountry>();
         if (countries != null)
         {
             foreach (string country in countries.Split('-'))
-            {
-                XmlElement subEle = xmlDoc.CreateElement("Name");
-                subEle.InnerText = country;
-                ele.AppendChild(subEle);
-            }
+                countryList.Add(new XmlModels.GetMediaInfoCountry() { Name = country });
         }
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("Actors");
+        mInfo.Country = countryList.ToArray();
+        
         string actors = (from tag in media.Tags where tag.Key.Equals("Cast") select tag.Value).FirstOrDefault();
+        List<XmlModels.GetMediaInfoActors> actorsList = new List<XmlModels.GetMediaInfoActors>();
         if (actors != null)
         {
             foreach (string actor in actors.Split('|'))
-            {
-                XmlElement subEle = xmlDoc.CreateElement("Name");
-                subEle.InnerText = actor;
-                ele.AppendChild(subEle);
-            }
+                countryList.Add(new XmlModels.GetMediaInfoCountry() { Name = actor });
         }
-        root.AppendChild(ele);
+        mInfo.Actors = actorsList.ToArray();
 
-        ele = xmlDoc.CreateElement("Directors");
         string directors = (from tag in media.Tags where tag.Key.Equals("Director") select tag.Value).FirstOrDefault();
+        List<XmlModels.GetMediaInfoDirectors> directorsList = new List<XmlModels.GetMediaInfoDirectors>();
         if (directors != null)
         {
             foreach (string director in directors.Split('-'))
-            {
-                XmlElement subEle = xmlDoc.CreateElement("Name");
-                subEle.InnerText = director;
-                ele.AppendChild(subEle);
-            }
+                directorsList.Add(new XmlModels.GetMediaInfoDirectors() { Name = director });        
         }
-        root.AppendChild(ele);
-
-        ele = xmlDoc.CreateElement("URL");
-        ele.InnerText = media.URL;
-        root.AppendChild(ele);
+        mInfo.Directors = directorsList.ToArray();
+        
+        mInfo.URL = media.URL;
 
         // Prices
         int fileId = int.Parse(media.FileID);
@@ -264,52 +217,25 @@ public class GWFrontController
             if (ppvmodules != null && ppvmodules.Length > 0)
                 sEndTime = DateTime.Now.AddMinutes(ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle).ToString("MM/dd/yyyy HH:mm:ss");
 
-            ele = xmlDoc.CreateElement("LicenseDuration");
-            ele.InnerText = (ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle / 60).ToString();
-            root.AppendChild(ele);
+            mInfo.LicenseDuration = (ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle / 60).ToString();
+            mInfo.Price = mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice.ToString("0.00");
+            mInfo.EndDate = sEndTime;
 
-            ele = xmlDoc.CreateElement("Price");
-            ele.InnerText = mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice.ToString("#.##");
-            root.AppendChild(ele);
-
-            ele = xmlDoc.CreateElement("EndDate");
-            ele.InnerText = sEndTime;
-            root.AppendChild(ele);
-
-            //XXX Check if needed
-            ele = xmlDoc.CreateElement("FileID");
-            ele.InnerText = media.FileID;
-            root.AppendChild(ele);
-            ele = xmlDoc.CreateElement("MediaTypeID");
-            ele.InnerText = media.MediaTypeID;
-            root.AppendChild(ele);
-            ele = xmlDoc.CreateElement("PPVModule");
-            ele.InnerText = mediaPrice.m_oItemPrices[0].m_sPPVModuleCode;
-            root.AppendChild(ele);
+            //XXX Check if needed            
+            mInfo.FileID = media.FileID;
+            mInfo.MediaTypeID = media.MediaTypeID;
+            mInfo.PPVModule = mediaPrice.m_oItemPrices[0].m_sPPVModuleCode;
         }
         else
         {
-            ele = xmlDoc.CreateElement("LicenseDuration");
-            ele.InnerText = "0";
-            root.AppendChild(ele);
-
-            ele = xmlDoc.CreateElement("Price");
-            ele.InnerText = "0";
-            root.AppendChild(ele);
-
-            ele = xmlDoc.CreateElement("EndDate");
-            ele.InnerText = "12/12/2090 00:00:00";
-            root.AppendChild(ele);
+            mInfo.LicenseDuration = "0";
+            mInfo.Price = "0";
+            mInfo.EndDate = "12/12/2030 00:00:00";
         }
 
-        ele = xmlDoc.CreateElement("TrailerURL");
-        ele.InnerText = media.SubURL;
-        root.AppendChild(ele);
+        mInfo.TrailerURL = media.SubURL;
+        mInfo.PicURL = media.PicURL;
 
-        ele = xmlDoc.CreateElement("PicURL");
-        ele.InnerText = media.PicURL;
-        root.AppendChild(ele);
-
-        return root.OuterXml;
+        return mInfo;
     }
 }

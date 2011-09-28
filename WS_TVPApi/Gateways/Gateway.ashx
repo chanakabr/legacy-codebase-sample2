@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 public class Gateway : IHttpHandler
 {
-    private delegate string actionFunction(params object[] prms);
+    private delegate object actionFunction(params object[] prms);
     
     public void ProcessRequest(HttpContext context) {
         GWFrontController fc = new GWFrontController("macdummy", TVPApi.PlatformType.STB);
@@ -49,18 +49,26 @@ public class Gateway : IHttpHandler
         if (actionFunc == null)
             return;
 
-        string resXML = actionFunc(paramsToFunc.ToArray());                
+        object resObj = actionFunc(paramsToFunc.ToArray());
+        Type resType = resObj.GetType();
+        System.Xml.Serialization.XmlSerializer xSerializer = new System.Xml.Serialization.XmlSerializer(resType);
+        string serializedXML = null;
+        using (StringWriter stringWriter = new StringWriter())
+        {
+            xSerializer.Serialize(stringWriter, resObj);
+            serializedXML = stringWriter.ToString();
+        }                
         string xslt = getXSLTByDeviceName("netgem");
 
         // Transforming the XML to appropriate device response
         XslCompiledTransform transform = new XslCompiledTransform();
-        transform.Load(new XmlTextReader(xslt, XmlNodeType.Document, null));                
-        XPathDocument xpd = new XPathDocument(new StringReader(resXML));
+        transform.Load(new XmlTextReader(xslt, XmlNodeType.Document, null));
+        XPathDocument xpd = new XPathDocument(new StringReader(serializedXML));
         using (StringWriter sr = new StringWriter())
         {                        
             //Due to problems changing the encoding of the resulted XML, we prepend it manually
             transform.Transform(xpd.CreateNavigator(), getXSLTArgsList(), sr);            
-            context.Response.Write(sr.ToString().Insert(0, "<?xml version='1.0' encoding='UTF-8'?>"));
+            context.Response.Write(sr.ToString().Insert(0, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
         }                
     }
 
