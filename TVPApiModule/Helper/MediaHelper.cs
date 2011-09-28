@@ -346,8 +346,16 @@ namespace TVPApi
 
         public static List<Media> GetChannelMediaList(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID)
         {
+            List<Media> lstRet = new List<Media>();
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            return GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel);
+            lstRet = GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel);
+            if (lstRet == null || lstRet.Count == 0)
+            {
+                account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Fictivic);
+                lstRet = GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel);
+            }
+
+            return lstRet;
         }
 
         public static List<Media> GetChannelMediaList(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID, ref long mediaCount)
