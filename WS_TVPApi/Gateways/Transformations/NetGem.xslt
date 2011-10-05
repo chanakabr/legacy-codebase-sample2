@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl"
->  
+>
   <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="utf-8"/>
   <xsl:param name="chid"></xsl:param>
   <xsl:template match="GetAllChannels">
@@ -153,13 +153,13 @@
       </xsl:element>
     </xsl:element>
   </xsl:template>
-  <xsl:template match="GetServiceURLs">
+  <xsl:template match="service">
     <xsl:element name="service">
       <xsl:attribute name="date">
-        <xsl:value-of select="service/@date"/>
+        <xsl:value-of select="@date"/>
       </xsl:attribute>
       <xsl:element name="settings">
-        <xsl:for-each select="service/settings/url">
+        <xsl:for-each select="settings/url">
           <xsl:element name="url">
             <xsl:attribute name="type">
               <xsl:value-of select="@type"/>
