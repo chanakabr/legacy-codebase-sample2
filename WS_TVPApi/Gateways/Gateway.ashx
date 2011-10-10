@@ -16,6 +16,7 @@ public class Gateway : IHttpHandler
         GWFrontController fc = new GWFrontController("macdummy", TVPApi.PlatformType.STB);
         actionFunction actionFunc = null;
         List<object> paramsToFunc = new List<object>();
+        MappingsConfiguration.MappingManager mapper = new MappingsConfiguration.MappingManager("netgem");
         
         //XXX
         switch (context.Request["type"])
@@ -25,14 +26,14 @@ public class Gateway : IHttpHandler
                 break;
             case "channel":
                 actionFunc = fc.GetAllChannels;
-                paramsToFunc.Add(long.Parse(context.Request["chid"]));
+                paramsToFunc.Add(long.Parse(context.Request[mapper.GetValue("devChid")]));
                 break;
             case "category":
                 actionFunc = fc.GetChannelMedias;
-                paramsToFunc.Add(long.Parse(context.Request["intChid"]));
+                paramsToFunc.Add(long.Parse(context.Request[mapper.GetValue("chid")]));
                 break;
             case "content":
-                string titId = context.Request["titId"];
+                string titId = context.Request[mapper.GetValue("mediaInfo")];
                 string sMediaID = titId.Split('-')[0];
                 string channelId = titId.Split('-')[2];
                 string sMediaType = titId.Contains("-") ? titId.Split('-')[1] : "272";
@@ -57,7 +58,7 @@ public class Gateway : IHttpHandler
         {
             xSerializer.Serialize(stringWriter, resObj);
             serializedXML = stringWriter.ToString();
-        }                
+        }
         string xslt = getXSLTByDeviceName("netgem");
 
         // Transforming the XML to appropriate device response
@@ -67,7 +68,7 @@ public class Gateway : IHttpHandler
         using (StringWriter sr = new StringWriter())
         {                        
             //Due to problems changing the encoding of the resulted XML, we prepend it manually
-            transform.Transform(xpd.CreateNavigator(), getXSLTArgsList(), sr);            
+            transform.Transform(xpd.CreateNavigator(), getXSLTArgsList(), sr);
             context.Response.Write(sr.ToString().Insert(0, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
         }                
     }

@@ -27,7 +27,7 @@ public class GWFrontController
         this.identifier = identifier;
         this.devType = devType;
 
-        pd = SiteMapManager.GetInstance.GetPageData(125, PlatformType.STB);
+        pd = SiteMapManager.GetInstance.GetPageData(125, devType);
         pc = pd.GetPageByID("en", 64);
 
         xmlDoc = new XmlDocument();
