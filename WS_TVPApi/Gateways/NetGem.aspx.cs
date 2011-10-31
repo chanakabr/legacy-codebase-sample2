@@ -102,11 +102,12 @@ public partial class Gateways_NetGem : BaseGateway
 
                 InitializationObject initObj1 = GetInitObj();
                 initObj1.SiteGuid = sSiteGuid;
-                PermittedMediaContainer[] MediaPermitedItems = m_MediaService.GetUserPermittedItems(initObj1).OrderByDescending(x => x.m_dPurchaseDate).ToArray();
+                PermittedMediaContainer[] MediaPermitedItems = m_MediaService.GetUserPermittedItems(initObj1);
 
                 XTM.WriteStartElement("streams");
                 if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
                 {
+                    MediaPermitedItems.OrderByDescending(x => x.m_dPurchaseDate).ToArray();
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
                     dsItemInfo ItemInfo = new APITVMRentalMultiMediaLoader(account.TVMUser, account.TVMPass, "full", 1) { GroupID = groupID, Platform = PlatformType.STB, MediasIdCotainer = MediaPermitedItems, SearchTokenSignature = GetMediasWithSeperator(MediaPermitedItems) }.Execute(); // Type 1 means bring all types
 
