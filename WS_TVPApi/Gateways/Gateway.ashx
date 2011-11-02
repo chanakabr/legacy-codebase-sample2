@@ -11,6 +11,7 @@ using System.Collections.Generic;
 public class Gateway : IHttpHandler
 {
     private delegate object actionFunction(params object[] prms);
+    private long tvmChid;
     
     public void ProcessRequest(HttpContext context) {
         GWFrontController fc = new GWFrontController("macdummy", TVPApi.PlatformType.STB);
@@ -27,6 +28,11 @@ public class Gateway : IHttpHandler
             case "channel":
                 actionFunc = fc.GetAllChannels;
                 paramsToFunc.Add(long.Parse(context.Request[mapper.GetValue("devChid")]));
+                break;
+            case "channelInfo":
+                actionFunc = fc.GetChannelInfo;
+                tvmChid = long.Parse(context.Request[mapper.GetValue("chid")]);
+                paramsToFunc.Add(tvmChid);
                 break;
             case "category":
                 actionFunc = fc.GetChannelMedias;
@@ -59,7 +65,7 @@ public class Gateway : IHttpHandler
             xSerializer.Serialize(stringWriter, resObj);
             serializedXML = stringWriter.ToString();
         }
-        string xslt = getXSLTByDeviceName("netgem");
+        string xslt = getXSLTByDeviceName("accedoctv");
 
         // Transforming the XML to appropriate device response
         XslCompiledTransform transform = new XslCompiledTransform();
@@ -78,6 +84,7 @@ public class Gateway : IHttpHandler
         XsltArgumentList xslArg = new XsltArgumentList();
         string externalChannel = "201";
         xslArg.AddParam("chid", string.Empty, externalChannel);
+        xslArg.AddParam("tvmChannel", string.Empty, tvmChid);
 
         return xslArg;
     }

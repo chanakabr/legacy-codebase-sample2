@@ -112,14 +112,18 @@ public abstract class BaseGateway : System.Web.UI.Page
         string mac = Request.QueryString["identity"];
         if (groupId == 125)
         {
-            if (mac == "00043050E72B")
+            if (mac == "000430483825")
                 return m_SiteService.SignIn(GetInitObj(), "ido@tvinci.com", "eliron27").SiteGuid;
-            else if (mac != "00043050E79A")
-                return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;            
-            else
+            else if (mac == "00043049804A")
+                return m_SiteService.SignIn(GetInitObj(), "netgem", "123456").SiteGuid;
+            else if (mac == "00043048324A")
+                return m_SiteService.SignIn(GetInitObj(), "africatv@tvinci.com", "123456").SiteGuid;
+            else if (mac == "00043053C7C7")
+                return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+            else if (mac == "00043050E79A")
                 return m_SiteService.SignIn(GetInitObj(), "yonatan@tvinci.com", "eliron27").SiteGuid;
         }
-
+        
         return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
     }
 }

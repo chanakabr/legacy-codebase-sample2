@@ -120,13 +120,31 @@ public class GWFrontController
             {
                 XmlModels.GetChannelMediasMedia medias = new XmlModels.GetChannelMediasMedia();
                 medias.ID = item.MediaID;
-                medias.Type = item.MediaTypeID;
+                medias.Type = item.MediaTypeID;                
                 allMedias.Add(medias);
             }
         }
 
         chMedias.Items = allMedias.ToArray();
         return chMedias;
+    }
+
+    public object GetChannelInfo(params object[] prms)
+    {
+        XmlModels.GetChannelInfo cInfo = new XmlModels.GetChannelInfo();
+                
+        //TODO: Improve
+        foreach (PageGallery pg in pc.MainGalleries)
+        {
+            GalleryItem gallery = pg.GalleryItems.Where(x=> x.TVMChannelID == (long) prms[0]).FirstOrDefault();
+           
+            if (gallery == null)
+                continue;
+
+            cInfo.Title = gallery.Title;
+        }
+
+        return cInfo;
     }
 
     public object GetMediaInfo(params object[] prms)
