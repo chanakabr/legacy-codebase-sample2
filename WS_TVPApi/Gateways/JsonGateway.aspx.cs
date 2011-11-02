@@ -100,6 +100,9 @@ public partial class Gateways_JsonGateway : BaseGateway
                 case "web":
                     retVal.Platform = PlatformType.Web;
                     break;
+                case "ipad":
+                    retVal.Platform = PlatformType.iPad;
+                    break;
                 default:
                     retVal.Platform = PlatformType.Unknown;
                     break;
