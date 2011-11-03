@@ -168,7 +168,7 @@ public class GWFrontController
         else
             mInfo.Duration = "0";
         
-        mInfo.Rating = media.Rating.ToString();
+        mInfo.Rating = ((int)media.Rating).ToString();
         mInfo.Copyright = (from meta in media.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault() ?? "None";
         mInfo.Adult = "false";        
         mInfo.ProductionYear = (from meta in media.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault() ?? "None";        
@@ -201,7 +201,7 @@ public class GWFrontController
         }
         mInfo.Directors = directorsList.ToArray();
         
-        mInfo.URL = media.URL;
+        mInfo.URL = string.IsNullOrEmpty(media.URL) ? "http://drm.tvinci.com/movie_enc.wmv?bla=1" : media.URL;
 
         // Prices
         int fileId = int.Parse(media.FileID);

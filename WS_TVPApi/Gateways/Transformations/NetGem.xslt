@@ -2,7 +2,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl"
 >
-  <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="utf-8"/>
+  <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" cdata-section-elements="synopsis" encoding="utf-8"/>
   <xsl:param name="chid"></xsl:param>
   <xsl:template match="GetAllChannels">
     <xsl:element name="collections">
@@ -44,7 +44,7 @@
       <xsl:element name="title">
         <xsl:value-of select="Title"/>
       </xsl:element>
-      <xsl:element name="synopsis">
+      <xsl:element name="synopsis">        
         <xsl:value-of select="Description"/>
       </xsl:element>
       <xsl:element name="durationInMinutes">
