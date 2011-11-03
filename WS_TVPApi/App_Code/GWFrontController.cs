@@ -188,7 +188,7 @@ public class GWFrontController
         if (actors != null)
         {
             foreach (string actor in actors.Split('|'))
-                countryList.Add(new XmlModels.GetMediaInfoCountry() { Name = actor });
+                actorsList.Add(new XmlModels.GetMediaInfoActors() { Name = actor });
         }
         mInfo.Actors = actorsList.ToArray();
 
