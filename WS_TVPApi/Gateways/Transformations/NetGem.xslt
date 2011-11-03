@@ -5,24 +5,24 @@
   <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="utf-8"/>
   <xsl:param name="chid"></xsl:param>
   <xsl:template match="GetAllChannels">
-    <xsl:for-each select="Channel">
-      <xsl:element name="collections">
-        <xsl:attribute name="adult">false</xsl:attribute>
+    <xsl:element name="collections">
+      <xsl:attribute name="adult">false</xsl:attribute>
+      <xsl:for-each select="Channel">
         <xsl:element name="xml-link">
           <xsl:element name="name">
             <xsl:value-of select="Title"/>
           </xsl:element>
           <xsl:element name="url">
-            <xsl:text disable-output-escaping="yes"><![CDATA[/gateways/gateway.ashx?type=category&intChid=]]></xsl:text>
+            <xsl:text disable-output-escaping="no"><![CDATA[/gateways/gateway.ashx?type=category&intChid=]]></xsl:text>
             <xsl:value-of select="Tvmch"/>
-            <xsl:text disable-output-escaping="yes"><![CDATA[&picsize=]]></xsl:text>
+            <xsl:text disable-output-escaping="no"><![CDATA[&picsize=]]></xsl:text>
             <xsl:value-of select="Picsize"/>
-            <xsl:text disable-output-escaping="yes"><![CDATA[&chid=]]></xsl:text>
+            <xsl:text disable-output-escaping="no"><![CDATA[&chid=]]></xsl:text>
             <xsl:value-of select="$chid"/>
           </xsl:element>
         </xsl:element>
-      </xsl:element>
-    </xsl:for-each>
+      </xsl:for-each>
+    </xsl:element>
   </xsl:template>
   <xsl:template match="GetChannelMedias">
     <xsl:element name="collection">
@@ -32,7 +32,7 @@
             <xsl:value-of select="@ID"/>
             <xsl:text>-</xsl:text>
             <xsl:value-of select="@Type"/>
-            <xsl:text>-</xsl:text>
+            <xsl:text disable-output-escaping="no">&amp;chid=</xsl:text>
             <xsl:value-of select="$chid"/>
           </xsl:element>
         </xsl:for-each>
@@ -65,8 +65,8 @@
       <xsl:element name="titID">
         <xsl:value-of select="MediaID"/>
         <xsl:text>-</xsl:text>
-        <xsl:value-of select="MediaTypeID"/>
-        <xsl:text>-</xsl:text>
+        <xsl:value-of select="MediaTypeID"/>        
+        <xsl:text disable-output-escaping="no">&amp;chid=</xsl:text>
         <xsl:value-of select="$chid"/>
       </xsl:element>
       <xsl:element name="HD">

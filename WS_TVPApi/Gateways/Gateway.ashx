@@ -11,14 +11,27 @@ using System.Collections.Generic;
 public class Gateway : IHttpHandler
 {
     private delegate object actionFunction(params object[] prms);
+    public struct ApiAccessInfo
+    {
+        public TVPApi.InitializationObject initObj { get; set; }
+        public int GroupID { get; set; }
+    }
     private long tvmChid;
-    
-    public void ProcessRequest(HttpContext context) {
-        GWFrontController fc = new GWFrontController("macdummy", TVPApi.PlatformType.STB);
-        actionFunction actionFunc = null;
-        List<object> paramsToFunc = new List<object>();
+    private long devChid;
+
+    public void ProcessRequest(HttpContext context)
+    {
         MappingsConfiguration.MappingManager mapper = new MappingsConfiguration.MappingManager("netgem");
+        long.TryParse(context.Request[mapper.GetValue("devChid")], out devChid);
+        //if (devChid == 0)
+        //    devChid = 800;
         
+        ApiAccessInfo info = GetAccessInfoByChannel(TVPApi.PlatformType.STB, devChid);
+        
+        GWFrontController fc = new GWFrontController(info.GroupID, "macdummy", TVPApi.PlatformType.STB);
+        actionFunction actionFunc = null;
+        List<object> paramsToFunc = new List<object>();        
+
         //XXX
         switch (context.Request["type"])
         {
@@ -26,8 +39,8 @@ public class Gateway : IHttpHandler
                 actionFunc = fc.GetServiceURLs;
                 break;
             case "channel":
-                actionFunc = fc.GetAllChannels;
-                paramsToFunc.Add(long.Parse(context.Request[mapper.GetValue("devChid")]));
+                actionFunc = fc.GetAllChannels;                
+                paramsToFunc.Add(devChid);
                 break;
             case "channelInfo":
                 actionFunc = fc.GetChannelInfo;
@@ -40,14 +53,16 @@ public class Gateway : IHttpHandler
                 break;
             case "content":
                 string titId = context.Request[mapper.GetValue("mediaInfo")];
-                string sMediaID = titId.Split('-')[0];
-                string channelId = titId.Split('-')[2];
-                string sMediaType = titId.Contains("-") ? titId.Split('-')[1] : "272";
-                
+                string sMediaID = titId.Split('-')[0];                
+                string sMediaType = titId.Contains("-") ? titId.Split('-')[1] : "0";
+
                 actionFunc = fc.GetMediaInfo;
                 paramsToFunc.Add(long.Parse(sMediaID));
                 paramsToFunc.Add(int.Parse(sMediaType));
                 break;
+            case "purchasestatus":
+                break;
+
             default:
                 break;
         }
@@ -65,25 +80,25 @@ public class Gateway : IHttpHandler
             xSerializer.Serialize(stringWriter, resObj);
             serializedXML = stringWriter.ToString();
         }
-        string xslt = getXSLTByDeviceName("accedoctv");
+        string xslt = getXSLTByDeviceName("netgem");
 
         // Transforming the XML to appropriate device response
         XslCompiledTransform transform = new XslCompiledTransform();
         transform.Load(new XmlTextReader(xslt, XmlNodeType.Document, null));
         XPathDocument xpd = new XPathDocument(new StringReader(serializedXML));
         using (StringWriter sr = new StringWriter())
-        {                        
+        {
             //Due to problems changing the encoding of the resulted XML, we prepend it manually
             transform.Transform(xpd.CreateNavigator(), getXSLTArgsList(), sr);
             context.Response.Write(sr.ToString().Insert(0, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
-        }                
+            context.Response.ContentType = "text/xml";
+        }
     }
 
     private XsltArgumentList getXSLTArgsList()
     {
         XsltArgumentList xslArg = new XsltArgumentList();
-        string externalChannel = "201";
-        xslArg.AddParam("chid", string.Empty, externalChannel);
+        xslArg.AddParam("chid", string.Empty, devChid);
         xslArg.AddParam("tvmChannel", string.Empty, tvmChid);
 
         return xslArg;
@@ -92,6 +107,62 @@ public class Gateway : IHttpHandler
     private string getXSLTByDeviceName(string devName)
     {
         return File.ReadAllText(HttpContext.Current.Server.MapPath(".") + "/Transformations/" + devName + ".xslt");
+    }
+
+    //XXX: Make config
+    private ApiAccessInfo GetAccessInfoByChannel(TVPApi.PlatformType devType, long devChid)
+    {
+        switch (devType)
+        {
+            case TVPApi.PlatformType.STB:
+                string provider = string.Empty;
+                switch (devChid)
+                {
+                    case 0:
+                        provider = "none";
+                        break;
+                    case 51:
+                        provider = "orange";
+                        break;
+                    case 200:
+                        provider = "novebox";
+                        break;
+                    case 901:
+                    case 800:
+                    case 801:
+                    case 201:
+                    case 202:
+                    case 203:
+                    case 204:
+                        provider = "ipvision";
+                        break;
+                    default:
+                        break;
+                }
+                return parseAccessDataByProvider(provider, devType);
+            case TVPApi.PlatformType.ConnectedTV:
+                break;
+            default:
+                break;
+        }
+
+        throw new Exception("Dev channel was not found");
+    }
+
+    private ApiAccessInfo parseAccessDataByProvider(string provider, TVPApi.PlatformType devType)
+    {        
+        switch (provider.ToLower())
+        {            
+            case "none":
+            case "novebox":                
+                    return new ApiAccessInfo() { GroupID = 93, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_93", ApiPass = "11111", Platform = devType } };                    
+            case "ipvision":
+                    return new ApiAccessInfo() { GroupID = 125, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_125", ApiPass = "11111", Platform = devType } };
+            case "turkcell":
+                    return new ApiAccessInfo() { GroupID = 131, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_131", ApiPass = "11111", Platform = devType } };
+            default:
+                    throw new Exception("provider not found");
+        }        
     }
 
     public bool IsReusable

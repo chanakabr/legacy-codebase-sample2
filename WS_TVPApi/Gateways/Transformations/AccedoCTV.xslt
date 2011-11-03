@@ -58,7 +58,7 @@
           <indirect />
           <xsl:element name="link">
             <xsl:attribute name="tv:type">rss</xsl:attribute>
-            <xsl:text>/tvpapi/gateways/gateway.ashx?type=content&amp;intChid=</xsl:text>
+            <xsl:text>/tvpapi/gateways/gateway.ashx?type=category&amp;intChid=</xsl:text>
             <xsl:value-of select="$tvmChannel"/>
           </xsl:element>
         </item>

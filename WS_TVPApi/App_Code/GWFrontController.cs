@@ -22,7 +22,7 @@ public class GWFrontController
     private string identifier;
     private PlatformType devType;
 
-    public GWFrontController(string identifier, PlatformType devType)
+    public GWFrontController(int groupID, string identifier, PlatformType devType)
     {
         this.identifier = identifier;
         this.devType = devType;
@@ -77,9 +77,9 @@ public class GWFrontController
         serv.settings.urlCollection.Add(createSettingsUrl("logStreamingStart", baseURL + "/tvpapi/gateways/logStreamingStart.aspx"));
         serv.settings.urlCollection.Add(createSettingsUrl("logStreamingEnd", baseURL + "/tvpapi/gateways/logdownloadend.aspx"));
         serv.settings.urlCollection.Add(createSettingsUrl("addCallCenterEvent", baseURL + "/tvpapi/gateways/addCallCenterEvent.aspx"));
-        serv.settings.urlCollection.Add(createSettingsUrl("setlastposition", baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=hit"));
-        serv.settings.urlCollection.Add(createSettingsUrl("getlastposition", baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=getlastposition"));
-        serv.settings.urlCollection.Add(createSettingsUrl("logMedia", baseURL + "/tvpapi/gateways/netgem_ipvision.aspx?type=mediamark"));
+        serv.settings.urlCollection.Add(createSettingsUrl("setlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=hit"));
+        serv.settings.urlCollection.Add(createSettingsUrl("getlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=getlastposition"));
+        serv.settings.urlCollection.Add(createSettingsUrl("logMedia", baseURL + "/tvpapi/gateways/gateway.ashx?type=mediamark"));
         
         return serv;
     }
