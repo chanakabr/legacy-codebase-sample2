@@ -14,6 +14,12 @@ using System.Configuration;
 /// </summary>
 public class GWFrontController
 {
+    public struct ApiAccessInfo
+    {
+        public TVPApi.InitializationObject initObj { get; set; }
+        public int GroupID { get; set; }
+    }
+
     private PageData pd;
     private PageContext pc;
     private XmlDocument xmlDoc;
@@ -21,28 +27,20 @@ public class GWFrontController
     private SiteService m_SiteService = new SiteService();
     private string identifier;
     private PlatformType devType;
+    private ApiAccessInfo accessInfo;
 
-    public GWFrontController(int groupID, string identifier, PlatformType devType)
+    public GWFrontController(ApiAccessInfo accessInfo, string identifier, PlatformType devType)
     {
         this.identifier = identifier;
         this.devType = devType;
+        this.accessInfo = accessInfo;
 
-        pd = SiteMapManager.GetInstance.GetPageData(125, devType);
-        pc = pd.GetPageByID("en", 64);
+        pd = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, devType);        
+        pc = accessInfo.GroupID == 93 ? pd.GetPageByID("es", 69) : pd.GetPageByID("en", 64);
 
         xmlDoc = new XmlDocument();
         XmlDeclaration xmlDec = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
         xmlDoc.AppendChild(xmlDec);
-    }
-
-    protected InitializationObject GetInitObj()
-    {
-        InitializationObject retVal = new InitializationObject();
-        retVal.Platform = devType;
-        retVal.ApiUser = "tvpapi_125";
-        retVal.ApiPass = "11111";
-        retVal.UDID = identifier;
-        return retVal;
     }
 
     private XmlModels.GetServiceURLs.url createSettingsUrl(string type, string urlContent)
@@ -111,7 +109,7 @@ public class GWFrontController
         XmlModels.GetChannelMedias chMedias = new XmlModels.GetChannelMedias();
         
         long mediaCount = 0;
-        List<Media> lstMedias = m_MediaService.GetChannelMediaListWithMediaCount(GetInitObj(), (long)prms[0], "full", 50, 0, ref mediaCount);
+        List<Media> lstMedias = m_MediaService.GetChannelMediaListWithMediaCount(accessInfo.initObj, (long)prms[0], "full", 50, 0, ref mediaCount);
         List<XmlModels.GetChannelMediasMedia> allMedias = new List<XmlModels.GetChannelMediasMedia>();
 
         if (lstMedias != null)
@@ -151,7 +149,7 @@ public class GWFrontController
     {
         XmlModels.GetMediaInfo mInfo = new XmlModels.GetMediaInfo();
 
-        Media media = m_MediaService.GetMediaInfo(GetInitObj(), (long)prms[0], (int)prms[1], "480X430", true);
+        Media media = m_MediaService.GetMediaInfo(accessInfo.initObj, (long)prms[0], (int)prms[1], "480X430", true);
 
         //XXX Error handling
         if (media == null)
@@ -207,7 +205,7 @@ public class GWFrontController
 
         // Prices
         int fileId = int.Parse(media.FileID);
-        MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(GetInitObj(), new int[] { fileId }, false);
+        MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(accessInfo.initObj, new int[] { fileId }, false);
         MediaFileItemPricesContainer mediaPrice = null;
         if (dictPrices != null)
         {
@@ -222,28 +220,26 @@ public class GWFrontController
         {
             string sEndTime = string.Empty;
 
-            //XXX: Fix groupID
-            TVPPro.SiteManager.TvinciPlatform.Pricing.MediaFilePPVModule[] ppvmodules = new ApiPricingService(125, GetInitObj().Platform).GetPPVModuleListForMediaFiles(new int[] { fileId },
+            TVPPro.SiteManager.TvinciPlatform.Pricing.MediaFilePPVModule[] ppvmodules = new ApiPricingService(accessInfo.GroupID, accessInfo.initObj.Platform).GetPPVModuleListForMediaFiles(new int[] { fileId },
                 string.Empty, string.Empty, string.Empty);
             if (ppvmodules != null && ppvmodules.Length > 0)
                 sEndTime = DateTime.Now.AddMinutes(ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle).ToString("MM/dd/yyyy HH:mm:ss");
 
             mInfo.LicenseDuration = (ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle / 60).ToString();
             mInfo.Price = mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice.ToString("0.00");
-            mInfo.EndDate = sEndTime;
-
-            //XXX Check if needed            
-            mInfo.FileID = media.FileID;
-            mInfo.MediaTypeID = media.MediaTypeID;
+            mInfo.EndDate = sEndTime;                                   
             mInfo.PPVModule = mediaPrice.m_oItemPrices[0].m_sPPVModuleCode;
         }
         else
         {
             mInfo.LicenseDuration = "0";
             mInfo.Price = "0";
+            mInfo.PPVModule = "0";
             mInfo.EndDate = "12/12/2030 00:00:00";
         }
 
+        mInfo.FileID = media.FileID;
+        mInfo.MediaTypeID = media.MediaTypeID;
         mInfo.TrailerURL = media.SubURL;
         mInfo.PicURL = media.PicURL;
 

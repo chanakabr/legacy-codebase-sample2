@@ -11,24 +11,17 @@ using System.Collections.Generic;
 public class Gateway : IHttpHandler
 {
     private delegate object actionFunction(params object[] prms);
-    public struct ApiAccessInfo
-    {
-        public TVPApi.InitializationObject initObj { get; set; }
-        public int GroupID { get; set; }
-    }
+    
     private long tvmChid;
     private long devChid;
 
     public void ProcessRequest(HttpContext context)
     {
         MappingsConfiguration.MappingManager mapper = new MappingsConfiguration.MappingManager("netgem");
-        long.TryParse(context.Request[mapper.GetValue("devChid")], out devChid);
-        //if (devChid == 0)
-        //    devChid = 800;
+        long.TryParse(context.Request[mapper.GetValue("devChid")], out devChid);        
+        GWFrontController.ApiAccessInfo info = GetAccessInfoByChannel(TVPApi.PlatformType.STB, devChid);
         
-        ApiAccessInfo info = GetAccessInfoByChannel(TVPApi.PlatformType.STB, devChid);
-        
-        GWFrontController fc = new GWFrontController(info.GroupID, "macdummy", TVPApi.PlatformType.STB);
+        GWFrontController fc = new GWFrontController(info, "macdummy", TVPApi.PlatformType.STB);
         actionFunction actionFunc = null;
         List<object> paramsToFunc = new List<object>();        
 
@@ -110,7 +103,7 @@ public class Gateway : IHttpHandler
     }
 
     //XXX: Make config
-    private ApiAccessInfo GetAccessInfoByChannel(TVPApi.PlatformType devType, long devChid)
+    private GWFrontController.ApiAccessInfo GetAccessInfoByChannel(TVPApi.PlatformType devType, long devChid)
     {
         switch (devType)
         {
@@ -125,10 +118,10 @@ public class Gateway : IHttpHandler
                         provider = "orange";
                         break;
                     case 200:
+                    case 800:
                         provider = "novebox";
                         break;
-                    case 901:
-                    case 800:
+                    case 901:                    
                     case 801:
                     case 201:
                     case 202:
@@ -149,17 +142,17 @@ public class Gateway : IHttpHandler
         throw new Exception("Dev channel was not found");
     }
 
-    private ApiAccessInfo parseAccessDataByProvider(string provider, TVPApi.PlatformType devType)
+    private GWFrontController.ApiAccessInfo parseAccessDataByProvider(string provider, TVPApi.PlatformType devType)
     {        
         switch (provider.ToLower())
         {            
             case "none":
-            case "novebox":                
-                    return new ApiAccessInfo() { GroupID = 93, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_93", ApiPass = "11111", Platform = devType } };                    
+            case "novebox":
+                return new GWFrontController.ApiAccessInfo() { GroupID = 93, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_93", ApiPass = "11111", Platform = devType } };                    
             case "ipvision":
-                    return new ApiAccessInfo() { GroupID = 125, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_125", ApiPass = "11111", Platform = devType } };
+                return new GWFrontController.ApiAccessInfo() { GroupID = 125, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_125", ApiPass = "11111", Platform = devType } };
             case "turkcell":
-                    return new ApiAccessInfo() { GroupID = 131, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_131", ApiPass = "11111", Platform = devType } };
+                return new GWFrontController.ApiAccessInfo() { GroupID = 131, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_131", ApiPass = "11111", Platform = devType } };
             default:
                     throw new Exception("provider not found");
         }        
