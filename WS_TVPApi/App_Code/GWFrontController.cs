@@ -35,7 +35,7 @@ public class GWFrontController
         this.devType = devType;
         this.accessInfo = accessInfo;
 
-        pd = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, devType);        
+        pd = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, devType);
         pc = accessInfo.GroupID == 93 ? pd.GetPageByID("es", 69) : pd.GetPageByID("en", 64);
 
         xmlDoc = new XmlDocument();
@@ -44,7 +44,7 @@ public class GWFrontController
     }
 
     private XmlModels.GetServiceURLs.url createSettingsUrl(string type, string urlContent)
-    {        
+    {
         XmlModels.GetServiceURLs.url url = new XmlModels.GetServiceURLs.url();
         url.type = type;
         url.Value = urlContent;
@@ -62,13 +62,13 @@ public class GWFrontController
 
         string baseURL = ConfigurationManager.AppSettings["BaseNetGemURL"];
         serv.settings.urlCollection = new XmlModels.GetServiceURLs.urlCollection();
-        serv.settings.urlCollection.Add(createSettingsUrl("base", baseURL + "/tvpapi"));                
+        serv.settings.urlCollection.Add(createSettingsUrl("base", baseURL + "/tvpapi"));
         serv.settings.urlCollection.Add(createSettingsUrl("image", string.Empty));
         serv.settings.urlCollection.Add(createSettingsUrl("photo", string.Empty));
         serv.settings.urlCollection.Add(createSettingsUrl("content", baseURL + "/tvpapi/gateways/gateway.ashx?type=content"));
         serv.settings.urlCollection.Add(createSettingsUrl("purchase", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseauth"));
         serv.settings.urlCollection.Add(createSettingsUrl("purchaseStatus", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseprice"));
-        serv.settings.urlCollection.Add(createSettingsUrl("purchaseConfirmation", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseConfirmation"));
+        serv.settings.urlCollection.Add(createSettingsUrl("purchaseConfirmation", baseURL + "/tvpapi/gateways/gateway.ashx?type=dopurchase"));
         serv.settings.urlCollection.Add(createSettingsUrl("search-people", baseURL + "/tvpapi/gateways/searchPeoples.aspx"));
         serv.settings.urlCollection.Add(createSettingsUrl("search-titles", baseURL + "/tvpapi/gateways/gateway.ashx?type=searchtitles"));
         serv.settings.urlCollection.Add(createSettingsUrl("account", baseURL + "/tvpapi/gateways/gateway.ashx?type=account"));
@@ -78,7 +78,7 @@ public class GWFrontController
         serv.settings.urlCollection.Add(createSettingsUrl("setlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=hit"));
         serv.settings.urlCollection.Add(createSettingsUrl("getlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=getlastposition"));
         serv.settings.urlCollection.Add(createSettingsUrl("logMedia", baseURL + "/tvpapi/gateways/gateway.ashx?type=mediamark"));
-        
+
         return serv;
     }
 
@@ -86,7 +86,7 @@ public class GWFrontController
     {
         XmlModels.GetAllChannels gac = new XmlModels.GetAllChannels();
         List<XmlModels.GetAllChannelsChannel> channels = new List<XmlModels.GetAllChannelsChannel>();
-        
+
         foreach (PageGallery pg in pc.MainGalleries)
         {
             foreach (GalleryItem gi in pg.GalleryItems)
@@ -107,7 +107,7 @@ public class GWFrontController
     public object GetChannelMedias(params object[] prms)
     {
         XmlModels.GetChannelMedias chMedias = new XmlModels.GetChannelMedias();
-        
+
         long mediaCount = 0;
         List<Media> lstMedias = m_MediaService.GetChannelMediaListWithMediaCount(accessInfo.initObj, (long)prms[0], "full", 50, 0, ref mediaCount);
         List<XmlModels.GetChannelMediasMedia> allMedias = new List<XmlModels.GetChannelMediasMedia>();
@@ -118,7 +118,7 @@ public class GWFrontController
             {
                 XmlModels.GetChannelMediasMedia medias = new XmlModels.GetChannelMediasMedia();
                 medias.ID = item.MediaID;
-                medias.Type = item.MediaTypeID;                
+                medias.Type = item.MediaTypeID;
                 allMedias.Add(medias);
             }
         }
@@ -130,12 +130,12 @@ public class GWFrontController
     public object GetChannelInfo(params object[] prms)
     {
         XmlModels.GetChannelInfo cInfo = new XmlModels.GetChannelInfo();
-                
+
         //TODO: Improve
         foreach (PageGallery pg in pc.MainGalleries)
         {
-            GalleryItem gallery = pg.GalleryItems.Where(x=> x.TVMChannelID == (long) prms[0]).FirstOrDefault();
-           
+            GalleryItem gallery = pg.GalleryItems.Where(x => x.TVMChannelID == (long)prms[0]).FirstOrDefault();
+
             if (gallery == null)
                 continue;
 
@@ -156,25 +156,25 @@ public class GWFrontController
         if (media == null)
             return mInfo;
 
-        mInfo.Description = media.Description.Replace(@"<\p>", " ");        
-        mInfo.MediaID = media.MediaID;        
+        mInfo.Description = media.Description.Replace(@"<\p>", " ");
+        mInfo.MediaID = media.MediaID;
         mInfo.Title = media.MediaName.Replace('(', ' ').Replace(')', ' ');
-        
-        string runtime = (from meta in media.Metas where meta.Key.Equals("Display run time") select meta.Value).FirstOrDefault();        
+
+        string runtime = (from meta in media.Metas where meta.Key.Equals("Display run time") select meta.Value).FirstOrDefault();
         if (!string.IsNullOrEmpty(runtime))
         {
-            string[] time = runtime.Split(new char[] { 'h', 'm' });            
+            string[] time = runtime.Split(new char[] { 'h', 'm' });
             mInfo.Duration = string.Format("{0:0}", int.Parse(time[0]) * 60 + int.Parse(time[1]));
         }
         else
             mInfo.Duration = "0";
-        
+
         mInfo.Rating = ((int)media.Rating).ToString();
         mInfo.Copyright = (from meta in media.Metas where meta.Key.Equals("Production Name") select meta.Value).FirstOrDefault() ?? "None";
-        mInfo.Adult = "false";        
-        mInfo.ProductionYear = (from meta in media.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault() ?? "None";        
+        mInfo.Adult = "false";
+        mInfo.ProductionYear = (from meta in media.Metas where meta.Key.Equals("Release year") select meta.Value).FirstOrDefault() ?? "None";
         mInfo.HD = "true";
-        
+
         string countries = (from tag in media.Tags where tag.Key.Equals("Country") select tag.Value).FirstOrDefault();
         List<XmlModels.GetMediaInfoCountry> countryList = new List<XmlModels.GetMediaInfoCountry>();
         if (countries != null)
@@ -183,7 +183,7 @@ public class GWFrontController
                 countryList.Add(new XmlModels.GetMediaInfoCountry() { Name = country });
         }
         mInfo.Country = countryList.ToArray();
-        
+
         string actors = (from tag in media.Tags where tag.Key.Equals("Cast") select tag.Value).FirstOrDefault();
         List<XmlModels.GetMediaInfoActors> actorsList = new List<XmlModels.GetMediaInfoActors>();
         if (actors != null)
@@ -198,10 +198,10 @@ public class GWFrontController
         if (directors != null)
         {
             foreach (string director in directors.Split('-'))
-                directorsList.Add(new XmlModels.GetMediaInfoDirectors() { Name = director });        
+                directorsList.Add(new XmlModels.GetMediaInfoDirectors() { Name = director });
         }
         mInfo.Directors = directorsList.ToArray();
-        
+
         mInfo.URL = string.IsNullOrEmpty(media.URL) ? "http://drm.tvinci.com/movie_enc.wmv?bla=1" : media.URL;
 
         // Prices
@@ -228,7 +228,7 @@ public class GWFrontController
 
             mInfo.LicenseDuration = (ppvmodules[0].m_oPPVModules[0].m_oUsageModule.m_tsMaxUsageModuleLifeCycle / 60).ToString();
             mInfo.Price = mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice.ToString("0.00");
-            mInfo.EndDate = sEndTime;                                   
+            mInfo.EndDate = sEndTime;
             mInfo.PPVModule = mediaPrice.m_oItemPrices[0].m_sPPVModuleCode;
         }
         else
@@ -252,18 +252,18 @@ public class GWFrontController
         XmlModels.PurchaseAuthPurchase p = new XmlModels.PurchaseAuthPurchase();
         p.challenge = "b252eb9a533c8ae37a462a267e1f2fa9";
         p.state = "authentication";
-        
+
         return p;
     }
 
     public object PurchasePrice(params object[] prms)
     {
         XmlModels.PurchasePricePurchase p = new XmlModels.PurchasePricePurchase();
-        
+
         try
-        {            
-            int stmpFileID = (int) prms[0];
-                        
+        {
+            int stmpFileID = (int)prms[0];
+
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(accessInfo.initObj, new int[] { stmpFileID }, false);
 
             MediaFileItemPricesContainer mediaPrice = null;
@@ -289,6 +289,25 @@ public class GWFrontController
             //XXX: Check with documentation
             p.status = "ERR";
         }
+
+        return p;
+    }
+
+    public object DoPurchase(params object[] prms)
+    {
+        XmlModels.DoPurchasePurchase p = new XmlModels.DoPurchasePurchase();
+
+        int fileID = (int)prms[0];
+        string stmpPPVModule = ((int)prms[1]).ToString();
+        double iPrice = (double)prms[2];
+        
+        //XXX: Do error checking
+        string response = new ApiConditionalAccessService(accessInfo.GroupID, accessInfo.initObj.Platform).DummyChargeUserForMediaFile(iPrice, "GBP", fileID, 
+            stmpPPVModule, "127.0.0.1", "213330", accessInfo.initObj.UDID);
+
+        p.signedURL = "http://drm.tvinci.com/GetLicense.aspx?vid=" + fileID;
+        p.status = "OK";
+        p.vhiId = "000430483825"; //accessInfo.initObj.UDID;
 
         return p;
     }

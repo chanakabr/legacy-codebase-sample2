@@ -4,4 +4,6 @@
   <Key name="devChid" value="chid" />
   <Key name="mediaInfo" value="titId" />
   <Key name="mediaPurchaseInfo" value="vtiId" />
+  <Key name="ppvModule" value="ppv" />
+  <Key name="price" value="price" />
 </Mappings>

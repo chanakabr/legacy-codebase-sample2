@@ -48,7 +48,6 @@ public class Gateway : IHttpHandler
                 string titId = context.Request[mapper.GetValue("mediaInfo")];
                 string sMediaID = titId.Split('-')[0];                
                 string sMediaType = titId.Contains("-") ? titId.Split('-')[1] : "0";
-
                 actionFunc = fc.GetMediaInfo;
                 paramsToFunc.Add(long.Parse(sMediaID));
                 paramsToFunc.Add(int.Parse(sMediaType));
@@ -59,7 +58,16 @@ public class Gateway : IHttpHandler
             case "purchaseprice":
                 string titleId = context.Request[mapper.GetValue("mediaPurchaseInfo")];
                 actionFunc = fc.PurchasePrice;
-                paramsToFunc.Add(int.Parse(titleId.Split('-')[0]));
+                paramsToFunc.Add(int.Parse(titleId));
+                break;
+            case "dopurchase":
+                string fileID = context.Request[mapper.GetValue("mediaPurchaseInfo")];
+                string ppvModule = context.Request[mapper.GetValue("ppvModule")];
+                string price = context.Request[mapper.GetValue("price")];
+                actionFunc = fc.DoPurchase;
+                paramsToFunc.Add(int.Parse(fileID));
+                paramsToFunc.Add(int.Parse(ppvModule));
+                paramsToFunc.Add(double.Parse(price));
                 break;
             default:
                 break;

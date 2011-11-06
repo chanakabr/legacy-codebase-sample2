@@ -2,7 +2,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl"
 >
-  <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" cdata-section-elements="synopsis status" encoding="utf-8"/>
+  <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" cdata-section-elements="synopsis status signedURL" encoding="utf-8"/>
   <xsl:param name="chid"></xsl:param>
   <xsl:template match="GetAllChannels">
     <xsl:element name="collections">
@@ -53,6 +53,19 @@
     <xsl:element name="purchase">
       <xsl:element name="price">
         <xsl:value-of select="price"/>
+      </xsl:element>
+      <xsl:element name="status">
+        <xsl:value-of select="status"/>
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
+  <xsl:template match="DoPurchasePurchase">
+    <xsl:element name="purchase">
+      <xsl:element name="vhiId">
+        <xsl:value-of select="vhiId"/>
+      </xsl:element>
+      <xsl:element name="signedURL">
+        <xsl:value-of select="signedURL"/>
       </xsl:element>
       <xsl:element name="status">
         <xsl:value-of select="status"/>
@@ -146,11 +159,11 @@
         </xsl:element>
         <xsl:element name="vtiID">
           <xsl:value-of select="FileID"/>
-          <xsl:text>-</xsl:text>
+          <xsl:text disable-output-escaping="no">&amp;mediatype=</xsl:text>
           <xsl:value-of select="MediaTypeID"/>
-          <xsl:text>-</xsl:text>
+          <xsl:text disable-output-escaping="no">&amp;ppv=</xsl:text>
           <xsl:value-of select="PPVModule"/>
-          <xsl:text>-</xsl:text>
+          <xsl:text disable-output-escaping="no">&amp;price=</xsl:text>
           <xsl:value-of select="Price"/>
           <xsl:text disable-output-escaping="no">&amp;chid=</xsl:text>
           <xsl:value-of select="$chid"/>
