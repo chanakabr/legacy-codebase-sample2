@@ -2,5 +2,6 @@
 <Mappings>
   <Key name="chid" value="intChid" />
   <Key name="devChid" value="chid" />
-  <Key name="mediaInfo" value="titId" />  
+  <Key name="mediaInfo" value="titId" />
+  <Key name="mediaPurchaseInfo" value="vtiId" />
 </Mappings>

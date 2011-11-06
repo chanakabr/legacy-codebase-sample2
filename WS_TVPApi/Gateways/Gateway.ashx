@@ -53,9 +53,14 @@ public class Gateway : IHttpHandler
                 paramsToFunc.Add(long.Parse(sMediaID));
                 paramsToFunc.Add(int.Parse(sMediaType));
                 break;
-            case "purchasestatus":
+            case "purchaseauth":
+                actionFunc = fc.PurchaseAuth;
                 break;
-
+            case "purchaseprice":
+                string titleId = context.Request[mapper.GetValue("mediaPurchaseInfo")];
+                actionFunc = fc.PurchasePrice;
+                paramsToFunc.Add(int.Parse(titleId.Split('-')[0]));
+                break;
             default:
                 break;
         }

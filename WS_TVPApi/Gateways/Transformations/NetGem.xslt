@@ -2,7 +2,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl"
 >
-  <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" cdata-section-elements="synopsis" encoding="utf-8"/>
+  <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" cdata-section-elements="synopsis status" encoding="utf-8"/>
   <xsl:param name="chid"></xsl:param>
   <xsl:template match="GetAllChannels">
     <xsl:element name="collections">
@@ -39,12 +39,32 @@
       </xsl:element>
     </xsl:element>
   </xsl:template>
+  <xsl:template match="PurchaseAuthPurchase">
+    <xsl:element name="purchase">
+      <xsl:element name="state">
+        <xsl:value-of select="state"/>
+      </xsl:element>
+      <xsl:element name="challenge">
+        <xsl:value-of select="challenge"/>
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
+  <xsl:template match="PurchasePricePurchase">
+    <xsl:element name="purchase">
+      <xsl:element name="price">
+        <xsl:value-of select="price"/>
+      </xsl:element>
+      <xsl:element name="status">
+        <xsl:value-of select="status"/>
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
   <xsl:template match="GetMediaInfo">
     <xsl:element name="content">
       <xsl:element name="title">
         <xsl:value-of select="Title"/>
       </xsl:element>
-      <xsl:element name="synopsis">        
+      <xsl:element name="synopsis">
         <xsl:value-of select="Description"/>
       </xsl:element>
       <xsl:element name="durationInMinutes">
@@ -65,7 +85,7 @@
       <xsl:element name="titID">
         <xsl:value-of select="MediaID"/>
         <xsl:text>-</xsl:text>
-        <xsl:value-of select="MediaTypeID"/>        
+        <xsl:value-of select="MediaTypeID"/>
         <xsl:text disable-output-escaping="no">&amp;chid=</xsl:text>
         <xsl:value-of select="$chid"/>
       </xsl:element>
@@ -132,7 +152,7 @@
           <xsl:value-of select="PPVModule"/>
           <xsl:text>-</xsl:text>
           <xsl:value-of select="Price"/>
-          <xsl:text>-</xsl:text>
+          <xsl:text disable-output-escaping="no">&amp;chid=</xsl:text>
           <xsl:value-of select="$chid"/>
         </xsl:element>
       </xsl:element>

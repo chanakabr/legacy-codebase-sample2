@@ -66,8 +66,8 @@ public class GWFrontController
         serv.settings.urlCollection.Add(createSettingsUrl("image", string.Empty));
         serv.settings.urlCollection.Add(createSettingsUrl("photo", string.Empty));
         serv.settings.urlCollection.Add(createSettingsUrl("content", baseURL + "/tvpapi/gateways/gateway.ashx?type=content"));
-        serv.settings.urlCollection.Add(createSettingsUrl("purchase", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchase"));
-        serv.settings.urlCollection.Add(createSettingsUrl("purchaseStatus", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchasestatus"));
+        serv.settings.urlCollection.Add(createSettingsUrl("purchase", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseauth"));
+        serv.settings.urlCollection.Add(createSettingsUrl("purchaseStatus", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseprice"));
         serv.settings.urlCollection.Add(createSettingsUrl("purchaseConfirmation", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseConfirmation"));
         serv.settings.urlCollection.Add(createSettingsUrl("search-people", baseURL + "/tvpapi/gateways/searchPeoples.aspx"));
         serv.settings.urlCollection.Add(createSettingsUrl("search-titles", baseURL + "/tvpapi/gateways/gateway.ashx?type=searchtitles"));
@@ -148,8 +148,9 @@ public class GWFrontController
     public object GetMediaInfo(params object[] prms)
     {
         XmlModels.GetMediaInfo mInfo = new XmlModels.GetMediaInfo();
+        string picSize = ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
 
-        Media media = m_MediaService.GetMediaInfo(accessInfo.initObj, (long)prms[0], (int)prms[1], "480X430", true);
+        Media media = m_MediaService.GetMediaInfo(accessInfo.initObj, (long)prms[0], (int)prms[1], picSize, true);
 
         //XXX Error handling
         if (media == null)
@@ -244,5 +245,51 @@ public class GWFrontController
         mInfo.PicURL = media.PicURL;
 
         return mInfo;
+    }
+
+    public object PurchaseAuth(params object[] prms)
+    {
+        XmlModels.PurchaseAuthPurchase p = new XmlModels.PurchaseAuthPurchase();
+        p.challenge = "b252eb9a533c8ae37a462a267e1f2fa9";
+        p.state = "authentication";
+        
+        return p;
+    }
+
+    public object PurchasePrice(params object[] prms)
+    {
+        XmlModels.PurchasePricePurchase p = new XmlModels.PurchasePricePurchase();
+        
+        try
+        {            
+            int stmpFileID = (int) prms[0];
+                        
+            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(accessInfo.initObj, new int[] { stmpFileID }, false);
+
+            MediaFileItemPricesContainer mediaPrice = null;
+            if (dictPrices != null)
+            {
+                foreach (MediaFileItemPricesContainer mp in dictPrices)
+                {
+                    if (mp.m_nMediaFileID == stmpFileID)
+                        mediaPrice = mp;
+                }
+            }
+            if (mediaPrice.m_oItemPrices != null)
+                p.price = string.Format("{0:0.00}", mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice);
+            else
+                p.price = "0";
+
+            p.status = "OK";
+
+        }
+        catch (Exception ex)
+        {
+            Logger.Logger.Log("Netgem purchasestatus Exception ", ex.ToString(), "TVPApi");
+            //XXX: Check with documentation
+            p.status = "ERR";
+        }
+
+        return p;
     }
 }
