@@ -24,7 +24,7 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
         string devSchemaQS = context.Request["devtype"];
         string devType = System.Configuration.ConfigurationManager.AppSettings[devSchemaQS];
         MappingsConfiguration.MappingManager mapper = new MappingsConfiguration.MappingManager(devSchemaQS);
-
+        
         //For some actions, no device channel is being sent
         if (queryArgs.ContainsKey(mapper.GetValue("devChid")))
             long.TryParse(queryArgs[mapper.GetValue("devChid")], out devChid);
@@ -33,6 +33,7 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
 
         info = GetAccessInfoByChannel(platform, devChid);
         info.DevSchema = devSchemaQS;
+        info.initObj.UDID = queryArgs[mapper.GetValue("udid")];
 
         //Implement
         info.initObj.SiteGuid = "227822";
@@ -86,6 +87,29 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
                 paramsToFunc.Add(int.Parse(fileID));
                 paramsToFunc.Add(int.Parse(ppvModule));
                 paramsToFunc.Add(double.Parse(price));
+                break;
+            case "searchtitles":
+                actionFunc = fc.SearchTitles;
+                paramsToFunc.Add(queryArgs[mapper.GetValue("searchTerm")]);
+                break;
+            case "hit":                
+                actionFunc = fc.DoHit;
+                paramsToFunc.Add(long.Parse(queryArgs[mapper.GetValue("mediaPurchaseInfo")]));
+                //XXX: fix also titID
+                paramsToFunc.Add(long.Parse(queryArgs[mapper.GetValue("mediaInfo")].Split('-')[0]));
+                paramsToFunc.Add(int.Parse(queryArgs[mapper.GetValue("position")]));
+                break;
+            case "mediamark":
+                actionFunc = fc.DoMediaMark;
+                paramsToFunc.Add(long.Parse(queryArgs[mapper.GetValue("mediaPurchaseInfo")]));
+                //XXX: fix also titID
+                paramsToFunc.Add(long.Parse(queryArgs[mapper.GetValue("mediaInfo")].Split('-')[0]));
+                paramsToFunc.Add(int.Parse(queryArgs[mapper.GetValue("position")]));
+                paramsToFunc.Add(queryArgs[mapper.GetValue("mediaMarkAction")]);
+                break;
+            case "getlastposition":
+                actionFunc = fc.GetLastPosition;
+                paramsToFunc.Add(int.Parse(queryArgs[mapper.GetValue("mediaInfo")].Split('-')[0]));
                 break;
             default:
                 break;

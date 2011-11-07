@@ -253,4 +253,27 @@
       </xsl:element>
     </xsl:element>
   </xsl:template>
+  <xsl:template match="SearchTitles">
+    <xsl:element name="collection">
+      <xsl:element name="information">
+        <xsl:value-of select="information"/>
+      </xsl:element>
+      <xsl:element name="items">
+        <xsl:for-each select="items/id">
+          <xsl:value-of select="."/>
+        </xsl:for-each>
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
+  <xsl:template match="MediaMark">
+    <xsl:element name="response">
+      <xsl:attribute name="type">
+        <xsl:value-of select="response/@type"/>
+      </xsl:attribute>
+      <xsl:attribute name="action">
+        <xsl:value-of select="response/@action"/>
+      </xsl:attribute>
+      <xsl:value-of select="."/>
+    </xsl:element>
+  </xsl:template>
 </xsl:stylesheet>

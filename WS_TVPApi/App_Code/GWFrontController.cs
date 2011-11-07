@@ -77,7 +77,7 @@ public class GWFrontController
         serv.settings.urlCollection.Add(createSettingsUrl("purchase", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseauth&devtype=" + accessInfo.DevSchema));
         serv.settings.urlCollection.Add(createSettingsUrl("purchaseStatus", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseprice&devtype=" + accessInfo.DevSchema));
         serv.settings.urlCollection.Add(createSettingsUrl("purchaseConfirmation", baseURL + "/tvpapi/gateways/gateway.ashx?type=dopurchase&devtype=" + accessInfo.DevSchema));
-        serv.settings.urlCollection.Add(createSettingsUrl("search-people", baseURL + "/tvpapi/gateways/searchPeoples.aspx&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("search-people", baseURL + "/tvpapi/gateways/gateway.ashx?type=searchpeople.aspx&devtype=" + accessInfo.DevSchema));
         serv.settings.urlCollection.Add(createSettingsUrl("search-titles", baseURL + "/tvpapi/gateways/gateway.ashx?type=searchtitles&devtype=" + accessInfo.DevSchema));
         serv.settings.urlCollection.Add(createSettingsUrl("account", baseURL + "/tvpapi/gateways/gateway.ashx?type=accountInfo&devtype=" + accessInfo.DevSchema));
         serv.settings.urlCollection.Add(createSettingsUrl("logStreamingStart", baseURL + "/tvpapi/gateways/logStreamingStart.aspx&devtype=" + accessInfo.DevSchema));
@@ -92,6 +92,7 @@ public class GWFrontController
 
     public object GetAccountInfo(params object[] prms)
     {
+        //XXX: change this
         XmlModels.GetAccountInfo.GetAccountInfo accountObj = new XmlModels.GetAccountInfo.GetAccountInfo();
         XmlModels.GetAccountInfo.account acc = new XmlModels.GetAccountInfo.account();
         XmlModels.GetAccountInfo.information info = new XmlModels.GetAccountInfo.information();
@@ -391,5 +392,105 @@ public class GWFrontController
         p.vhiId = accessInfo.initObj.UDID;
 
         return p;
+    }
+
+    public object SearchTitles(params object[] prms)
+    {
+        XmlModels.SearchTitles.SearchTitles search = new XmlModels.SearchTitles.SearchTitles();
+
+        dsItemInfo searchItemInfo = new APISearchLoader(accessInfo.initObj.ApiUser, accessInfo.initObj.ApiPass)
+            {
+                Name = (string)prms[0],
+                MediaType = 0,
+                PageSize = 20,
+                PictureSize = "0",
+                OrderBy = TVPApi.OrderBy.ABC,
+                IsPosterPic = false,
+                WithInfo = true,
+                GroupID = accessInfo.GroupID,
+                Platform = accessInfo.initObj.Platform
+            }.Execute();
+
+        XmlModels.SearchTitles.collection coll = new XmlModels.SearchTitles.collection();
+        coll.information = (string)prms[0];
+        search.collectionCollection.Add(coll);
+
+        XmlModels.SearchTitles.items items = new XmlModels.SearchTitles.items();
+        for (int isearch = 0; isearch < searchItemInfo.Item.Rows.Count; isearch++)
+        {
+            XmlModels.SearchTitles.id newItem = new XmlModels.SearchTitles.id();
+            newItem.Value = searchItemInfo.Item[isearch].ID + "-" + searchItemInfo.Item[isearch].MediaTypeID;
+            items.Add(newItem);
+        }
+
+        return search;
+    }
+
+    public object DoHit(params object[] prms)
+    {
+        XmlModels.MediaMark.MediaMark mark = new XmlModels.MediaMark.MediaMark();
+
+        TVMAccountType account = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, accessInfo.initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+        string result = new APIMediaHit(account.TVMUser, account.TVMPass)
+        {
+            SiteGUID = accessInfo.initObj.SiteGuid,
+            DeviceUDID = accessInfo.initObj.UDID,
+            GroupID = accessInfo.GroupID,
+            Platform = accessInfo.initObj.Platform,
+            FileID = (long)prms[0],
+            MediaID = (long)prms[1],
+            Location = (int)prms[2]
+        }.Execute();
+
+        XmlModels.MediaMark.response res = new XmlModels.MediaMark.response();
+        res.type = "hit";
+        res.Value = result;
+        mark.Add(res);
+
+        return mark;
+    }
+
+    public object DoMediaMark(params object[] prms)
+    {
+        XmlModels.MediaMark.MediaMark mark = new XmlModels.MediaMark.MediaMark();
+
+        Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action eAction = (Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action)Enum.Parse(typeof(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action),
+            (string)prms[3]);
+
+        TVMAccountType account = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, PlatformType.STB).GetTVMAccountByAccountType(AccountType.Regular);
+        string result = new APIMediaMark(account.TVMUser, account.TVMPass)
+        {
+            SiteGUID = accessInfo.initObj.SiteGuid,
+            Platform = accessInfo.initObj.Platform,
+            DeviceUDID = accessInfo.initObj.UDID,
+            GroupID = accessInfo.GroupID,
+            Action = eAction,
+            FileID = (long)prms[0],
+            MediaID = (long)prms[1],
+            Location = (int)prms[2]
+        }.Execute();
+
+        XmlModels.MediaMark.response res = new XmlModels.MediaMark.response();
+        res.type = "media_mark";
+        res.Value = result;
+        res.action = (string)prms[3];
+        mark.Add(res);
+
+        return mark;
+    }
+
+    public object GetLastPosition(params object[] prms)
+    {
+        XmlModels.MediaMark.MediaMark mark = new XmlModels.MediaMark.MediaMark();
+
+        TVMAccountType account = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, accessInfo.initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);        
+        TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(accessInfo.initObj, (int) prms[0]);
+
+        XmlModels.MediaMark.response res = new XmlModels.MediaMark.response();
+        res.type = "last_position";
+        res.Value = mediaMarkObject.nLocationSec.ToString();        
+        mark.Add(res);
+
+        return mark;
     }
 }
