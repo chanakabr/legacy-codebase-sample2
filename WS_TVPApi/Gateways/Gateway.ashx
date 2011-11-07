@@ -11,19 +11,26 @@ using System.Collections.Generic;
 public class Gateway : IHttpHandler
 {
     private delegate object actionFunction(params object[] prms);
-    
+
     private long tvmChid;
     private long devChid;
 
     public void ProcessRequest(HttpContext context)
     {
+        string encodedQS = HttpUtility.UrlDecode(context.Request.QueryString.ToString());
+        Dictionary<string, string> queryArgs = parseQS(encodedQS);
+
         MappingsConfiguration.MappingManager mapper = new MappingsConfiguration.MappingManager("netgem");
-        long.TryParse(context.Request[mapper.GetValue("devChid")], out devChid);        
-        GWFrontController.ApiAccessInfo info = GetAccessInfoByChannel(TVPApi.PlatformType.STB, devChid);
+
+        //For some actions, no device channel is being sent
+        if (queryArgs.ContainsKey(mapper.GetValue("devChid")))        
+            long.TryParse(queryArgs[mapper.GetValue("devChid")], out devChid);
         
+        GWFrontController.ApiAccessInfo info = GetAccessInfoByChannel(TVPApi.PlatformType.STB, devChid);
+
         GWFrontController fc = new GWFrontController(info, "macdummy", TVPApi.PlatformType.STB);
         actionFunction actionFunc = null;
-        List<object> paramsToFunc = new List<object>();        
+        List<object> paramsToFunc = new List<object>();
 
         //XXX
         switch (context.Request["type"])
@@ -32,21 +39,21 @@ public class Gateway : IHttpHandler
                 actionFunc = fc.GetServiceURLs;
                 break;
             case "channel":
-                actionFunc = fc.GetAllChannels;                
+                actionFunc = fc.GetAllChannels;
                 paramsToFunc.Add(devChid);
                 break;
             case "channelInfo":
                 actionFunc = fc.GetChannelInfo;
-                tvmChid = long.Parse(context.Request[mapper.GetValue("chid")]);
+                tvmChid = long.Parse(queryArgs[mapper.GetValue("chid")]);
                 paramsToFunc.Add(tvmChid);
                 break;
             case "category":
                 actionFunc = fc.GetChannelMedias;
-                paramsToFunc.Add(long.Parse(context.Request[mapper.GetValue("chid")]));
+                paramsToFunc.Add(long.Parse(queryArgs[mapper.GetValue("chid")]));
                 break;
             case "content":
-                string titId = context.Request[mapper.GetValue("mediaInfo")];
-                string sMediaID = titId.Split('-')[0];                
+                string titId = queryArgs[mapper.GetValue("mediaInfo")];
+                string sMediaID = titId.Split('-')[0];
                 string sMediaType = titId.Contains("-") ? titId.Split('-')[1] : "0";
                 actionFunc = fc.GetMediaInfo;
                 paramsToFunc.Add(long.Parse(sMediaID));
@@ -56,14 +63,14 @@ public class Gateway : IHttpHandler
                 actionFunc = fc.PurchaseAuth;
                 break;
             case "purchaseprice":
-                string titleId = context.Request[mapper.GetValue("mediaPurchaseInfo")];
+                string titleId = queryArgs[mapper.GetValue("mediaPurchaseInfo")];
                 actionFunc = fc.PurchasePrice;
                 paramsToFunc.Add(int.Parse(titleId));
                 break;
             case "dopurchase":
-                string fileID = context.Request[mapper.GetValue("mediaPurchaseInfo")];
-                string ppvModule = context.Request[mapper.GetValue("ppvModule")];
-                string price = context.Request[mapper.GetValue("price")];
+                string fileID = queryArgs[mapper.GetValue("mediaPurchaseInfo")];
+                string ppvModule = queryArgs[mapper.GetValue("ppvModule")];
+                string price = queryArgs[mapper.GetValue("price")];
                 actionFunc = fc.DoPurchase;
                 paramsToFunc.Add(int.Parse(fileID));
                 paramsToFunc.Add(int.Parse(ppvModule));
@@ -101,6 +108,22 @@ public class Gateway : IHttpHandler
         }
     }
 
+    private Dictionary<string, string> parseQS(string queryString)
+    {
+        Dictionary<string, string> argsDic = new Dictionary<string, string>();
+        string[] pairs = queryString.Split('&');
+
+        foreach (string pair in pairs)
+        {
+            string[] args = pair.Split('=');
+            //This check is highly important as some devices will send a few params twice (netgem)
+            if (!argsDic.ContainsKey(args[0]))
+                argsDic.Add(args[0], args[1]);
+        }
+
+        return argsDic;
+    }
+
     private XsltArgumentList getXSLTArgsList()
     {
         XsltArgumentList xslArg = new XsltArgumentList();
@@ -134,7 +157,7 @@ public class Gateway : IHttpHandler
                     case 800:
                         provider = "novebox";
                         break;
-                    case 901:                    
+                    case 901:
                     case 801:
                     case 201:
                     case 202:
@@ -156,19 +179,19 @@ public class Gateway : IHttpHandler
     }
 
     private GWFrontController.ApiAccessInfo parseAccessDataByProvider(string provider, TVPApi.PlatformType devType)
-    {        
+    {
         switch (provider.ToLower())
-        {            
+        {
             case "none":
             case "novebox":
-                return new GWFrontController.ApiAccessInfo() { GroupID = 93, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_93", ApiPass = "11111", Platform = devType } };                    
+                return new GWFrontController.ApiAccessInfo() { GroupID = 93, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_93", ApiPass = "11111", Platform = devType } };
             case "ipvision":
                 return new GWFrontController.ApiAccessInfo() { GroupID = 125, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_125", ApiPass = "11111", Platform = devType } };
             case "turkcell":
                 return new GWFrontController.ApiAccessInfo() { GroupID = 131, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_131", ApiPass = "11111", Platform = devType } };
             default:
-                    throw new Exception("provider not found");
-        }        
+                throw new Exception("provider not found");
+        }
     }
 
     public bool IsReusable

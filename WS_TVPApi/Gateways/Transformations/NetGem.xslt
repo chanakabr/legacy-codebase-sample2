@@ -32,7 +32,7 @@
             <xsl:value-of select="@ID"/>
             <xsl:text>-</xsl:text>
             <xsl:value-of select="@Type"/>
-            <xsl:text disable-output-escaping="no">&amp;chid=</xsl:text>
+            <xsl:text disable-output-escaping="no">%26chid=</xsl:text>
             <xsl:value-of select="$chid"/>
           </xsl:element>
         </xsl:for-each>
@@ -99,7 +99,7 @@
         <xsl:value-of select="MediaID"/>
         <xsl:text>-</xsl:text>
         <xsl:value-of select="MediaTypeID"/>
-        <xsl:text disable-output-escaping="no">&amp;chid=</xsl:text>
+        <xsl:text disable-output-escaping="no">%26chid=</xsl:text>
         <xsl:value-of select="$chid"/>
       </xsl:element>
       <xsl:element name="HD">
@@ -159,13 +159,13 @@
         </xsl:element>
         <xsl:element name="vtiID">
           <xsl:value-of select="FileID"/>
-          <xsl:text disable-output-escaping="no">&amp;mediatype=</xsl:text>
+          <xsl:text disable-output-escaping="no">%26mediatype=</xsl:text>
           <xsl:value-of select="MediaTypeID"/>
-          <xsl:text disable-output-escaping="no">&amp;ppv=</xsl:text>
+          <xsl:text disable-output-escaping="no">%26ppv=</xsl:text>
           <xsl:value-of select="PPVModule"/>
-          <xsl:text disable-output-escaping="no">&amp;price=</xsl:text>
+          <xsl:text disable-output-escaping="no">%26price=</xsl:text>
           <xsl:value-of select="Price"/>
-          <xsl:text disable-output-escaping="no">&amp;chid=</xsl:text>
+          <xsl:text disable-output-escaping="no">%26chid=</xsl:text>
           <xsl:value-of select="$chid"/>
         </xsl:element>
       </xsl:element>

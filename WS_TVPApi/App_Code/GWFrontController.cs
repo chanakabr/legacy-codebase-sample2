@@ -28,6 +28,7 @@ public class GWFrontController
     private string identifier;
     private PlatformType devType;
     private ApiAccessInfo accessInfo;
+    private static int counter = 0;
 
     public GWFrontController(ApiAccessInfo accessInfo, string identifier, PlatformType devType)
     {
@@ -202,7 +203,7 @@ public class GWFrontController
         }
         mInfo.Directors = directorsList.ToArray();
 
-        mInfo.URL = string.IsNullOrEmpty(media.URL) ? "http://drm.tvinci.com/movie_enc.wmv?bla=1" : media.URL;
+        mInfo.URL = string.IsNullOrEmpty(media.URL) ? "http://drm.tvinci.com/movie_enc.wmv?rand=" + counter++ : media.URL;
 
         // Prices
         int fileId = int.Parse(media.FileID);
@@ -305,7 +306,7 @@ public class GWFrontController
         string response = new ApiConditionalAccessService(accessInfo.GroupID, accessInfo.initObj.Platform).DummyChargeUserForMediaFile(iPrice, "GBP", fileID, 
             stmpPPVModule, "127.0.0.1", "213330", accessInfo.initObj.UDID);
 
-        p.signedURL = "http://drm.tvinci.com/GetLicense.aspx?vid=" + fileID;
+        p.signedURL = "http://drm.tvinci.com/GetLicense.aspx?vid=" + "241461-272-95-3.49-801"; //fileID;
         p.status = "OK";
         p.vhiId = "000430483825"; //accessInfo.initObj.UDID;
 
