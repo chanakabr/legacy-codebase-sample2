@@ -14,7 +14,7 @@
             <xsl:value-of select="Title"/>
           </xsl:element>
           <xsl:element name="url">
-            <xsl:text disable-output-escaping="no"><![CDATA[/gateways/gateway.ashx?type=category&intChid=]]></xsl:text>
+            <xsl:text disable-output-escaping="no"><![CDATA[/gateways/gateway.ashx?type=channelMedias&intChid=]]></xsl:text>
             <xsl:value-of select="Tvmch"/>
             <xsl:text disable-output-escaping="no"><![CDATA[&picsize=]]></xsl:text>
             <xsl:value-of select="Picsize"/>
@@ -203,6 +203,51 @@
             <xsl:text disable-output-escaping="yes">&lt;![CDATA[</xsl:text>
             <xsl:value-of select="normalize-space(text())" disable-output-escaping="yes"/>
             <xsl:text disable-output-escaping="yes">]]&gt;</xsl:text>
+          </xsl:element>
+        </xsl:for-each>
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
+  <xsl:template match="GetAccountInfo/account">
+    <xsl:element name="account">
+      <xsl:element name="information">
+        <xsl:element name="distributor">
+          <xsl:value-of select="information/distributor"/>
+        </xsl:element>
+        <xsl:element name="contract">
+          <xsl:value-of select="information/contract"/>
+        </xsl:element>
+        <xsl:element name="date">
+          <xsl:value-of select="information/date"/>
+        </xsl:element>
+        <xsl:element name="pay">
+          <xsl:value-of select="information/pay"/>
+        </xsl:element>
+        <xsl:element name="email">
+          <xsl:value-of select="information/email"/>
+        </xsl:element>
+        <xsl:element name="logo">
+          <xsl:value-of select="information/logo"/>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="streams">
+        <xsl:for-each select="streams/stream">
+          <xsl:element name="stream">
+            <xsl:attribute name="id">
+              <xsl:value-of select="@id"/>
+            </xsl:attribute>
+            <xsl:element name="title">
+              <xsl:value-of select="title"/>
+            </xsl:element>
+            <xsl:element name="price">
+              <xsl:value-of select="price"/>
+            </xsl:element>
+            <xsl:element name="realprice">
+              <xsl:value-of select="realprice"/>
+            </xsl:element>
+            <xsl:element name="date">
+              <xsl:value-of select="date"/>
+            </xsl:element>
           </xsl:element>
         </xsl:for-each>
       </xsl:element>

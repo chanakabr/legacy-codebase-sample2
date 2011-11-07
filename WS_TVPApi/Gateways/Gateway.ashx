@@ -21,28 +21,33 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
         string encodedQS = HttpUtility.UrlDecode(context.Request.QueryString.ToString());
         Dictionary<string, string> queryArgs = parseQS(encodedQS);
 
-        MappingsConfiguration.MappingManager mapper = new MappingsConfiguration.MappingManager("netgem");
+        string devSchemaQS = context.Request["devtype"];
+        string devType = System.Configuration.ConfigurationManager.AppSettings[devSchemaQS];
+        MappingsConfiguration.MappingManager mapper = new MappingsConfiguration.MappingManager(devSchemaQS);
 
         //For some actions, no device channel is being sent
         if (queryArgs.ContainsKey(mapper.GetValue("devChid")))
             long.TryParse(queryArgs[mapper.GetValue("devChid")], out devChid);
 
-        //We will have a fallback to STB since netgem doesnt allow to modify the 'channel' request, so we don't really have a devtype there        
-        TVPApi.PlatformType platform = TVPApi.PlatformType.STB;
-        if (!string.IsNullOrEmpty(context.Request["devtype"]))
-            platform = (TVPApi.PlatformType)Enum.Parse(typeof(TVPApi.PlatformType), context.Request["devtype"].ToUpper());        
+        TVPApi.PlatformType platform = (TVPApi.PlatformType)Enum.Parse(typeof(TVPApi.PlatformType), devType);
 
         info = GetAccessInfoByChannel(platform, devChid);
+        info.DevSchema = devSchemaQS;
 
+        //Implement
+        info.initObj.SiteGuid = "227822";
+        
         GWFrontController fc = new GWFrontController(info, info.initObj.Platform);
         actionFunction actionFunc = null;
         List<object> paramsToFunc = new List<object>();
 
-        //XXX
         switch (context.Request["type"])
         {
             case null:
                 actionFunc = fc.GetServiceURLs;
+                break;
+            case "accountInfo":
+                actionFunc = fc.GetAccountInfo;
                 break;
             case "channel":
                 actionFunc = fc.GetAllChannels;
@@ -53,7 +58,7 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
                 tvmChid = long.Parse(queryArgs[mapper.GetValue("chid")]);
                 paramsToFunc.Add(tvmChid);
                 break;
-            case "category":
+            case "channelMedias":
                 actionFunc = fc.GetChannelMedias;
                 paramsToFunc.Add(long.Parse(queryArgs[mapper.GetValue("chid")]));
                 break;
@@ -86,7 +91,6 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
                 break;
         }
 
-        //XXX
         if (actionFunc == null)
             return;
 
@@ -99,7 +103,7 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
             xSerializer.Serialize(stringWriter, resObj);
             serializedXML = stringWriter.ToString();
         }
-        string xslt = getXSLTByDeviceName("netgem");
+        string xslt = getXSLTByDeviceName(devSchemaQS);
 
         // Transforming the XML to appropriate device response
         XslCompiledTransform transform = new XslCompiledTransform();
@@ -134,7 +138,7 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
     {
         XsltArgumentList xslArg = new XsltArgumentList();
         xslArg.AddParam("chid", string.Empty, devChid);
-        xslArg.AddParam("devtype", string.Empty, info.initObj.Platform);
+        xslArg.AddParam("devtype", string.Empty, info.DevSchema);
         xslArg.AddParam("tvmChannel", string.Empty, tvmChid);
 
         return xslArg;
@@ -189,9 +193,9 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
     {
         switch (provider.ToLower())
         {
-            case "none":
             case "novebox":
                 return new GWFrontController.ApiAccessInfo() { GroupID = 93, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_93", ApiPass = "11111", Platform = devType } };
+            case "none":
             case "ipvision":
                 return new GWFrontController.ApiAccessInfo() { GroupID = 125, initObj = new TVPApi.InitializationObject() { ApiUser = "tvpapi_125", ApiPass = "11111", Platform = devType } };
             case "turkcell":
@@ -208,5 +212,4 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
             return true;
         }
     }
-
 }

@@ -9,6 +9,9 @@ using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Services;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPApiModule.DataLoaders;
+using TVPPro.SiteManager.DataEntities;
 
 /// <summary>
 /// Summary description for GWFrontController
@@ -19,6 +22,7 @@ public class GWFrontController
     {
         public TVPApi.InitializationObject initObj { get; set; }
         public int GroupID { get; set; }
+        public string DevSchema { get; set; }
     }
 
     private PageData pd;
@@ -32,7 +36,7 @@ public class GWFrontController
     private static int counter = 0;
 
     public GWFrontController(ApiAccessInfo accessInfo, PlatformType devType)
-    {        
+    {
         this.devType = devType;
         this.accessInfo = accessInfo;
 
@@ -41,7 +45,7 @@ public class GWFrontController
         int pageID = int.Parse(ConfigurationManager.AppSettings[string.Format("{0}_STBPageID", accessInfo.GroupID.ToString())]);
         string lang = ConfigurationManager.AppSettings[string.Format("{0}_Lang", accessInfo.GroupID.ToString())];
         pc = pd.GetPageByID(lang, pageID);
-        
+
         xmlDoc = new XmlDocument();
         XmlDeclaration xmlDec = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
         xmlDoc.AppendChild(xmlDec);
@@ -69,21 +73,94 @@ public class GWFrontController
         serv.settings.urlCollection.Add(createSettingsUrl("base", baseURL + "/tvpapi"));
         serv.settings.urlCollection.Add(createSettingsUrl("image", string.Empty));
         serv.settings.urlCollection.Add(createSettingsUrl("photo", string.Empty));
-        serv.settings.urlCollection.Add(createSettingsUrl("content", baseURL + "/tvpapi/gateways/gateway.ashx?type=content&devtype=" + accessInfo.initObj.Platform));        
-        serv.settings.urlCollection.Add(createSettingsUrl("purchase", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseauth&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("purchaseStatus", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseprice&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("purchaseConfirmation", baseURL + "/tvpapi/gateways/gateway.ashx?type=dopurchase&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("search-people", baseURL + "/tvpapi/gateways/searchPeoples.aspx&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("search-titles", baseURL + "/tvpapi/gateways/gateway.ashx?type=searchtitles&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("account", baseURL + "/tvpapi/gateways/gateway.ashx?type=account&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("logStreamingStart", baseURL + "/tvpapi/gateways/logStreamingStart.aspx&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("logStreamingEnd", baseURL + "/tvpapi/gateways/logdownloadend.aspx&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("addCallCenterEvent", baseURL + "/tvpapi/gateways/addCallCenterEvent.aspx&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("setlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=hit&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("getlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=getlastposition&devtype=" + accessInfo.initObj.Platform));
-        serv.settings.urlCollection.Add(createSettingsUrl("logMedia", baseURL + "/tvpapi/gateways/gateway.ashx?type=mediamark&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("content", baseURL + "/tvpapi/gateways/gateway.ashx?type=content&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("purchase", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseauth&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("purchaseStatus", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseprice&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("purchaseConfirmation", baseURL + "/tvpapi/gateways/gateway.ashx?type=dopurchase&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("search-people", baseURL + "/tvpapi/gateways/searchPeoples.aspx&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("search-titles", baseURL + "/tvpapi/gateways/gateway.ashx?type=searchtitles&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("account", baseURL + "/tvpapi/gateways/gateway.ashx?type=accountInfo&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("logStreamingStart", baseURL + "/tvpapi/gateways/logStreamingStart.aspx&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("logStreamingEnd", baseURL + "/tvpapi/gateways/logdownloadend.aspx&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("addCallCenterEvent", baseURL + "/tvpapi/gateways/addCallCenterEvent.aspx&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("setlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=hit&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("getlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=getlastposition&devtype=" + accessInfo.DevSchema));
+        serv.settings.urlCollection.Add(createSettingsUrl("logMedia", baseURL + "/tvpapi/gateways/gateway.ashx?type=mediamark&devtype=" + accessInfo.DevSchema));
 
         return serv;
+    }
+
+    public object GetAccountInfo(params object[] prms)
+    {
+        XmlModels.GetAccountInfo.GetAccountInfo accountObj = new XmlModels.GetAccountInfo.GetAccountInfo();
+        XmlModels.GetAccountInfo.account acc = new XmlModels.GetAccountInfo.account();
+        XmlModels.GetAccountInfo.information info = new XmlModels.GetAccountInfo.information();
+        accountObj.accountCollection.Add(acc);
+
+        info.distributor = "TVinci";
+        info.contract = accessInfo.initObj.SiteGuid;
+        info.date = DateTime.UtcNow.ToShortDateString();
+        info.logo = "";
+        info.pay = "Credit Card";
+
+        UserResponseObject userResponseObject = m_SiteService.GetUserData(accessInfo.initObj, accessInfo.initObj.SiteGuid);
+        if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
+            info.email = userResponseObject.m_user.m_oBasicData.m_sEmail;
+
+        acc.informationCollection.Add(info);
+
+        PermittedMediaContainer[] MediaPermitedItems = m_MediaService.GetUserPermittedItems(accessInfo.initObj);
+        if (MediaPermitedItems != null && MediaPermitedItems.Count() > 0)
+        {
+            MediaPermitedItems.OrderByDescending(x => x.m_dPurchaseDate).ToArray();
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, accessInfo.initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            dsItemInfo ItemInfo = new APITVMRentalMultiMediaLoader(account.TVMUser, account.TVMPass, "full", 1)
+            {
+                GroupID = accessInfo.GroupID,
+                Platform = accessInfo.initObj.Platform,
+                MediasIdCotainer = MediaPermitedItems,
+                //SearchTokenSignature = GetMediasWithSeperator(MediaPermitedItems)
+            }.Execute(); // Type 1 means bring all types
+
+            XmlModels.GetAccountInfo.streams streams = new XmlModels.GetAccountInfo.streams();
+            acc.streamsCollection.Add(streams);
+            foreach (var item in ItemInfo.Item.OrderByDescending(x => x.PurchaseDate))
+            {
+                XmlModels.GetAccountInfo.stream s = new XmlModels.GetAccountInfo.stream();
+                streams.Add(s);
+
+                s.id = string.Concat(item.ID, "-", item.MediaTypeID); //XXX : fix!
+                s.title = item.Title;
+
+                int iFileID = int.Parse(item.FileID);
+
+                TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer[] dictPrices = m_MediaService.GetItemPrices(accessInfo.initObj, new int[] { iFileID }, false);
+
+                MediaFileItemPricesContainer mediaPrice = null;
+                if (dictPrices != null)
+                {
+                    foreach (MediaFileItemPricesContainer mp in dictPrices)
+                    {
+                        if (mp.m_nMediaFileID == iFileID)
+                            mediaPrice = mp;
+                    }
+                }
+
+                if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
+                {
+                    s.price = mediaPrice.m_oItemPrices[0].m_oFullPrice.m_dPrice.ToString();
+                    s.realprice = mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice.ToString();
+                }
+                else
+                {
+                    s.price = "0";
+                    s.realprice = "0";
+                }
+                s.date = item.PurchaseDate.ToShortDateString();
+            }
+        }
+
+        return accountObj;
     }
 
     public object GetAllChannels(params object[] prms)
@@ -304,10 +381,10 @@ public class GWFrontController
         int fileID = (int)prms[0];
         string stmpPPVModule = ((int)prms[1]).ToString();
         double iPrice = (double)prms[2];
-        
+
         //XXX: Do error checking
-        string response = new ApiConditionalAccessService(accessInfo.GroupID, accessInfo.initObj.Platform).DummyChargeUserForMediaFile(iPrice, "GBP", fileID, 
-            stmpPPVModule, SiteHelper.GetClientIP(), "213330", accessInfo.initObj.UDID);
+        string response = new ApiConditionalAccessService(accessInfo.GroupID, accessInfo.initObj.Platform).DummyChargeUserForMediaFile(iPrice, "GBP", fileID,
+            stmpPPVModule, SiteHelper.GetClientIP(), accessInfo.initObj.SiteGuid, accessInfo.initObj.UDID);
 
         p.signedURL = "http://drm.tvinci.com/GetLicense.aspx?vid=" + fileID;
         p.status = "OK";
