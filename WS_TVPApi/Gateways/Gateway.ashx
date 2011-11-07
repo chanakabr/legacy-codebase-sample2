@@ -8,12 +8,13 @@ using System.IO;
 using System.Xml.XPath;
 using System.Collections.Generic;
 
-public class Gateway : IHttpHandler
+public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionState, System.Web.SessionState.IReadOnlySessionState
 {
     private delegate object actionFunction(params object[] prms);
 
     private long tvmChid;
     private long devChid;
+    private GWFrontController.ApiAccessInfo info;
 
     public void ProcessRequest(HttpContext context)
     {
@@ -23,12 +24,17 @@ public class Gateway : IHttpHandler
         MappingsConfiguration.MappingManager mapper = new MappingsConfiguration.MappingManager("netgem");
 
         //For some actions, no device channel is being sent
-        if (queryArgs.ContainsKey(mapper.GetValue("devChid")))        
+        if (queryArgs.ContainsKey(mapper.GetValue("devChid")))
             long.TryParse(queryArgs[mapper.GetValue("devChid")], out devChid);
-        
-        GWFrontController.ApiAccessInfo info = GetAccessInfoByChannel(TVPApi.PlatformType.STB, devChid);
 
-        GWFrontController fc = new GWFrontController(info, "macdummy", TVPApi.PlatformType.STB);
+        //We will have a fallback to STB since netgem doesnt allow to modify the 'channel' request, so we don't really have a devtype there        
+        TVPApi.PlatformType platform = TVPApi.PlatformType.STB;
+        if (!string.IsNullOrEmpty(context.Request["devtype"]))
+            platform = (TVPApi.PlatformType)Enum.Parse(typeof(TVPApi.PlatformType), context.Request["devtype"].ToUpper());        
+
+        info = GetAccessInfoByChannel(platform, devChid);
+
+        GWFrontController fc = new GWFrontController(info, info.initObj.Platform);
         actionFunction actionFunc = null;
         List<object> paramsToFunc = new List<object>();
 
@@ -128,6 +134,7 @@ public class Gateway : IHttpHandler
     {
         XsltArgumentList xslArg = new XsltArgumentList();
         xslArg.AddParam("chid", string.Empty, devChid);
+        xslArg.AddParam("devtype", string.Empty, info.initObj.Platform);
         xslArg.AddParam("tvmChannel", string.Empty, tvmChid);
 
         return xslArg;

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Mappings>
+<Mappings>  
   <Key name="chid" value="intChid" />
   <Key name="devChid" value="chid" />
   <Key name="mediaInfo" value="titId" />

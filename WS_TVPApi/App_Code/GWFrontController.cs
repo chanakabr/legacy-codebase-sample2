@@ -8,6 +8,7 @@ using TVPApiServices;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Services;
 using System.Configuration;
+using TVPPro.SiteManager.Helper;
 
 /// <summary>
 /// Summary description for GWFrontController
@@ -30,15 +31,17 @@ public class GWFrontController
     private ApiAccessInfo accessInfo;
     private static int counter = 0;
 
-    public GWFrontController(ApiAccessInfo accessInfo, string identifier, PlatformType devType)
-    {
-        this.identifier = identifier;
+    public GWFrontController(ApiAccessInfo accessInfo, PlatformType devType)
+    {        
         this.devType = devType;
         this.accessInfo = accessInfo;
 
         pd = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, devType);
-        pc = accessInfo.GroupID == 93 ? pd.GetPageByID("es", 69) : pd.GetPageByID("en", 64);
 
+        int pageID = int.Parse(ConfigurationManager.AppSettings[string.Format("{0}_STBPageID", accessInfo.GroupID.ToString())]);
+        string lang = ConfigurationManager.AppSettings[string.Format("{0}_Lang", accessInfo.GroupID.ToString())];
+        pc = pd.GetPageByID(lang, pageID);
+        
         xmlDoc = new XmlDocument();
         XmlDeclaration xmlDec = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
         xmlDoc.AppendChild(xmlDec);
@@ -66,19 +69,19 @@ public class GWFrontController
         serv.settings.urlCollection.Add(createSettingsUrl("base", baseURL + "/tvpapi"));
         serv.settings.urlCollection.Add(createSettingsUrl("image", string.Empty));
         serv.settings.urlCollection.Add(createSettingsUrl("photo", string.Empty));
-        serv.settings.urlCollection.Add(createSettingsUrl("content", baseURL + "/tvpapi/gateways/gateway.ashx?type=content"));
-        serv.settings.urlCollection.Add(createSettingsUrl("purchase", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseauth"));
-        serv.settings.urlCollection.Add(createSettingsUrl("purchaseStatus", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseprice"));
-        serv.settings.urlCollection.Add(createSettingsUrl("purchaseConfirmation", baseURL + "/tvpapi/gateways/gateway.ashx?type=dopurchase"));
-        serv.settings.urlCollection.Add(createSettingsUrl("search-people", baseURL + "/tvpapi/gateways/searchPeoples.aspx"));
-        serv.settings.urlCollection.Add(createSettingsUrl("search-titles", baseURL + "/tvpapi/gateways/gateway.ashx?type=searchtitles"));
-        serv.settings.urlCollection.Add(createSettingsUrl("account", baseURL + "/tvpapi/gateways/gateway.ashx?type=account"));
-        serv.settings.urlCollection.Add(createSettingsUrl("logStreamingStart", baseURL + "/tvpapi/gateways/logStreamingStart.aspx"));
-        serv.settings.urlCollection.Add(createSettingsUrl("logStreamingEnd", baseURL + "/tvpapi/gateways/logdownloadend.aspx"));
-        serv.settings.urlCollection.Add(createSettingsUrl("addCallCenterEvent", baseURL + "/tvpapi/gateways/addCallCenterEvent.aspx"));
-        serv.settings.urlCollection.Add(createSettingsUrl("setlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=hit"));
-        serv.settings.urlCollection.Add(createSettingsUrl("getlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=getlastposition"));
-        serv.settings.urlCollection.Add(createSettingsUrl("logMedia", baseURL + "/tvpapi/gateways/gateway.ashx?type=mediamark"));
+        serv.settings.urlCollection.Add(createSettingsUrl("content", baseURL + "/tvpapi/gateways/gateway.ashx?type=content&devtype=" + accessInfo.initObj.Platform));        
+        serv.settings.urlCollection.Add(createSettingsUrl("purchase", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseauth&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("purchaseStatus", baseURL + "/tvpapi/gateways/gateway.ashx?type=purchaseprice&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("purchaseConfirmation", baseURL + "/tvpapi/gateways/gateway.ashx?type=dopurchase&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("search-people", baseURL + "/tvpapi/gateways/searchPeoples.aspx&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("search-titles", baseURL + "/tvpapi/gateways/gateway.ashx?type=searchtitles&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("account", baseURL + "/tvpapi/gateways/gateway.ashx?type=account&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("logStreamingStart", baseURL + "/tvpapi/gateways/logStreamingStart.aspx&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("logStreamingEnd", baseURL + "/tvpapi/gateways/logdownloadend.aspx&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("addCallCenterEvent", baseURL + "/tvpapi/gateways/addCallCenterEvent.aspx&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("setlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=hit&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("getlastposition", baseURL + "/tvpapi/gateways/gateway.ashx?type=getlastposition&devtype=" + accessInfo.initObj.Platform));
+        serv.settings.urlCollection.Add(createSettingsUrl("logMedia", baseURL + "/tvpapi/gateways/gateway.ashx?type=mediamark&devtype=" + accessInfo.initObj.Platform));
 
         return serv;
     }
@@ -304,11 +307,11 @@ public class GWFrontController
         
         //XXX: Do error checking
         string response = new ApiConditionalAccessService(accessInfo.GroupID, accessInfo.initObj.Platform).DummyChargeUserForMediaFile(iPrice, "GBP", fileID, 
-            stmpPPVModule, "127.0.0.1", "213330", accessInfo.initObj.UDID);
+            stmpPPVModule, SiteHelper.GetClientIP(), "213330", accessInfo.initObj.UDID);
 
-        p.signedURL = "http://drm.tvinci.com/GetLicense.aspx?vid=" + "241461-272-95-3.49-801"; //fileID;
+        p.signedURL = "http://drm.tvinci.com/GetLicense.aspx?vid=" + fileID;
         p.status = "OK";
-        p.vhiId = "000430483825"; //accessInfo.initObj.UDID;
+        p.vhiId = accessInfo.initObj.UDID;
 
         return p;
     }

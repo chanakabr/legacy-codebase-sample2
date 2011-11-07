@@ -4,6 +4,7 @@
 >
   <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" cdata-section-elements="synopsis status signedURL" encoding="utf-8"/>
   <xsl:param name="chid"></xsl:param>
+  <xsl:param name="devtype"></xsl:param>
   <xsl:template match="GetAllChannels">
     <xsl:element name="collections">
       <xsl:attribute name="adult">false</xsl:attribute>
@@ -19,6 +20,8 @@
             <xsl:value-of select="Picsize"/>
             <xsl:text disable-output-escaping="no"><![CDATA[&chid=]]></xsl:text>
             <xsl:value-of select="$chid"/>
+            <xsl:text disable-output-escaping="no"><![CDATA[&devtype=]]></xsl:text>
+            <xsl:value-of select="$devtype"/>
           </xsl:element>
         </xsl:element>
       </xsl:for-each>
