@@ -88,7 +88,7 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
                 paramsToFunc.Add(int.Parse(ppvModule));
                 paramsToFunc.Add(double.Parse(price));
                 break;
-            case "searchtitles":
+            case "searchtitles":            
                 actionFunc = fc.SearchTitles;
                 paramsToFunc.Add(queryArgs[mapper.GetValue("searchTerm")]);
                 break;

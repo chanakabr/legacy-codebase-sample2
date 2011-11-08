@@ -256,11 +256,15 @@
   <xsl:template match="SearchTitles">
     <xsl:element name="collection">
       <xsl:element name="information">
-        <xsl:value-of select="information"/>
+        <xsl:value-of select="collection/information"/>
       </xsl:element>
       <xsl:element name="items">
-        <xsl:for-each select="items/id">
-          <xsl:value-of select="."/>
+        <xsl:for-each select="collection/items/id">
+          <xsl:element name="id">
+            <xsl:value-of select="."/>
+            <xsl:text disable-output-escaping="no">%26chid=</xsl:text>
+            <xsl:value-of select="$chid"/>
+          </xsl:element>
         </xsl:for-each>
       </xsl:element>
     </xsl:element>

@@ -416,6 +416,7 @@ public class GWFrontController
         search.collectionCollection.Add(coll);
 
         XmlModels.SearchTitles.items items = new XmlModels.SearchTitles.items();
+        coll.itemsCollection.Add(items);
         for (int isearch = 0; isearch < searchItemInfo.Item.Rows.Count; isearch++)
         {
             XmlModels.SearchTitles.id newItem = new XmlModels.SearchTitles.id();
