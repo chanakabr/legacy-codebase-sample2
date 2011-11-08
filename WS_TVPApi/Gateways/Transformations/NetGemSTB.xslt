@@ -32,9 +32,9 @@
       <xsl:element name="items">
         <xsl:for-each select="Media">
           <xsl:element name="id">
-            <xsl:value-of select="@ID"/>
+            <xsl:value-of select="MediaID"/>
             <xsl:text>-</xsl:text>
-            <xsl:value-of select="@Type"/>
+            <xsl:value-of select="MediaTypeID"/>
             <xsl:text disable-output-escaping="no">%26chid=</xsl:text>
             <xsl:value-of select="$chid"/>
           </xsl:element>

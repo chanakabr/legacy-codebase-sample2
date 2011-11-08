@@ -191,21 +191,19 @@ public class GWFrontController
         XmlModels.GetChannelMedias chMedias = new XmlModels.GetChannelMedias();
 
         long mediaCount = 0;
-        List<Media> lstMedias = m_MediaService.GetChannelMediaListWithMediaCount(accessInfo.initObj, (long)prms[0], "full", 50, 0, ref mediaCount);
-        List<XmlModels.GetChannelMediasMedia> allMedias = new List<XmlModels.GetChannelMediasMedia>();
-
+        string picSize = ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
+        List<Media> lstMedias = m_MediaService.GetChannelMediaListWithMediaCount(accessInfo.initObj, (long)prms[0], picSize, 50, 0, ref mediaCount);        
+        
         if (lstMedias != null)
         {
-            foreach (Media item in lstMedias)
+            chMedias.Items = new XmlModels.GetMediaInfo[lstMedias.Count];
+            for (int i = 0; i < lstMedias.Count; i++)
             {
-                XmlModels.GetChannelMediasMedia medias = new XmlModels.GetChannelMediasMedia();
-                medias.ID = item.MediaID;
-                medias.Type = item.MediaTypeID;
-                allMedias.Add(medias);
+                XmlModels.GetMediaInfo info = GetMediaObj(lstMedias[i], (bool) prms[1]);
+                chMedias.Items[i] = info;
             }
         }
 
-        chMedias.Items = allMedias.ToArray();
         return chMedias;
     }
 
@@ -229,18 +227,28 @@ public class GWFrontController
 
     public object GetMediaInfo(params object[] prms)
     {
-        XmlModels.GetMediaInfo mInfo = new XmlModels.GetMediaInfo();
         string picSize = ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
 
         Media media = m_MediaService.GetMediaInfo(accessInfo.initObj, (long)prms[0], (int)prms[1], picSize, true);
 
         //XXX Error handling
         if (media == null)
-            return mInfo;
+            return new XmlModels.GetMediaInfo();
 
+        return GetMediaObj(media, true);
+    }
+
+    private XmlModels.GetMediaInfo GetMediaObj(Media media, bool doFullMedia)
+    {
+        XmlModels.GetMediaInfo mInfo = new XmlModels.GetMediaInfo();
         mInfo.Description = media.Description.Replace(@"<\p>", " ");
         mInfo.MediaID = media.MediaID;
+        mInfo.FileID = media.FileID;
+        mInfo.MediaTypeID = media.MediaTypeID;
         mInfo.Title = media.MediaName.Replace('(', ' ').Replace(')', ' ');
+
+        if (!doFullMedia)
+            return mInfo;
 
         string runtime = (from meta in media.Metas where meta.Key.Equals("Display run time") select meta.Value).FirstOrDefault();
         if (!string.IsNullOrEmpty(runtime))
@@ -320,9 +328,7 @@ public class GWFrontController
             mInfo.PPVModule = "0";
             mInfo.EndDate = "12/12/2030 00:00:00";
         }
-
-        mInfo.FileID = media.FileID;
-        mInfo.MediaTypeID = media.MediaTypeID;
+        
         mInfo.TrailerURL = media.SubURL;
         mInfo.PicURL = media.PicURL;
 
@@ -484,12 +490,12 @@ public class GWFrontController
     {
         XmlModels.MediaMark.MediaMark mark = new XmlModels.MediaMark.MediaMark();
 
-        TVMAccountType account = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, accessInfo.initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);        
-        TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(accessInfo.initObj, (int) prms[0]);
+        TVMAccountType account = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, accessInfo.initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+        TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMarkObject = m_MediaService.GetMediaMark(accessInfo.initObj, (int)prms[0]);
 
         XmlModels.MediaMark.response res = new XmlModels.MediaMark.response();
         res.type = "last_position";
-        res.Value = mediaMarkObject.nLocationSec.ToString();        
+        res.Value = mediaMarkObject.nLocationSec.ToString();
         mark.Add(res);
 
         return mark;

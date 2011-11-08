@@ -62,6 +62,8 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
             case "channelMedias":
                 actionFunc = fc.GetChannelMedias;
                 paramsToFunc.Add(long.Parse(queryArgs[mapper.GetValue("chid")]));
+                bool isFullMedia = bool.Parse(System.Configuration.ConfigurationManager.AppSettings[string.Format("{0}_FullMedia", info.DevSchema)]);
+                paramsToFunc.Add(isFullMedia);
                 break;
             case "content":
                 string titId = queryArgs[mapper.GetValue("mediaInfo")];
@@ -164,6 +166,7 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
         xslArg.AddParam("chid", string.Empty, devChid);
         xslArg.AddParam("devtype", string.Empty, info.DevSchema);
         xslArg.AddParam("tvmChannel", string.Empty, tvmChid);
+        xslArg.AddParam("udid", string.Empty, info.initObj.UDID);
 
         return xslArg;
     }
@@ -178,6 +181,7 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
     {
         switch (devType)
         {
+            case TVPApi.PlatformType.ConnectedTV:
             case TVPApi.PlatformType.STB:
                 string provider = string.Empty;
                 switch (devChid)
@@ -203,9 +207,7 @@ public class Gateway : IHttpHandler, System.Web.SessionState.IRequiresSessionSta
                     default:
                         break;
                 }
-                return parseAccessDataByProvider(provider, devType);
-            case TVPApi.PlatformType.ConnectedTV:
-                break;
+                return parseAccessDataByProvider(provider, devType);                        
             default:
                 break;
         }

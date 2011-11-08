@@ -26,11 +26,11 @@ namespace XmlModels
     public partial class GetChannelMedias
     {
 
-        private GetChannelMediasMedia[] itemsField;
+        private GetMediaInfo[] itemsField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Media", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public GetChannelMediasMedia[] Items
+        public GetMediaInfo[] Items
         {
             get
             {
@@ -40,49 +40,7 @@ namespace XmlModels
             {
                 this.itemsField = value;
             }
-        }
-    }
-
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    public partial class GetChannelMediasMedia
-    {
-
-        private string idField;
-
-        private string typeField;
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string ID
-        {
-            get
-            {
-                return this.idField;
-            }
-            set
-            {
-                this.idField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Type
-        {
-            get
-            {
-                return this.typeField;
-            }
-            set
-            {
-                this.typeField = value;
-            }
-        }
+        }        
     }
 
 }
