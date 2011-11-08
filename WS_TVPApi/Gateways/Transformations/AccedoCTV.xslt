@@ -176,7 +176,8 @@
               <xsl:value-of select="MediaID"/>
             </guid>
             <tv:guid>
-              guid.<xsl:value-of select="MediaID"/>
+              <xsl:text>guid.</xsl:text>
+              <xsl:value-of select="MediaID"/>
             </tv:guid>
             <video length="9239" date="2011-06-21T14:09:47" d4p1:delivery="download" xmlns:d4p1="tv">
               <xsl:attribute name="url">
