@@ -78,6 +78,9 @@ namespace TVPApi
                 }
                 return retVal;
             }
+            set
+            {
+            }
         }
 
         //Return gallery IDs instead of full gallery objects
@@ -97,6 +100,9 @@ namespace TVPApi
 
                 }
                 return retVal;
+            }
+            set
+            {
             }
         }
 
