@@ -566,6 +566,34 @@ namespace TVPApiServices
             return retCategory;
         }
 
+        [WebMethod(EnableSession = true, Description = "Search category info")]
+        public Category GetFullCategory(InitializationObject initObj, int categoryID)
+        {
+            Category retCategory = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetFullCategory-> [{0}, {1}], Params:[categoryID: {2}]", groupID, initObj.Platform, categoryID);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    retCategory = CategoryTreeHelper.GetFullCategoryTree(categoryID, groupID, initObj.Platform);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetFullCategory->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetFullCategory-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return retCategory;
+        }
+
         //Search media by free text
         [WebMethod(EnableSession = true, Description = "Search media by free text")]
         public List<Media> SearchMedia(InitializationObject initObj, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)

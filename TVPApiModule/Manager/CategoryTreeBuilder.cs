@@ -67,7 +67,34 @@ namespace TVPApi
             }
             return retVal;
         }
+
+        public Category BuildFullCategoryTree()
+        {
+            Category retVal = null;
+            dsCategory.CategoriesRow rootRow = (from categories in m_categoryDS.Categories
+                                                where categories.ID.Equals(m_rootID)
+                                                select categories).FirstOrDefault();
+
+            if (rootRow != null)                            
+                retVal = BuildRecursive(rootRow);
+            
+            return retVal;
+        }
+
+        private Category BuildRecursive(dsCategory.CategoriesRow row)
+        {
+            if (row == null)
+                return null;
+
+            Category currentCat = CreateCategory(row);
+
+            if (row.GetChildRows("CategoryToParent").Count() > 0)
+                currentCat.InnerCategories = new List<Category>();
+
+            foreach (dsCategory.CategoriesRow child in row.GetChildRows("CategoryToParent"))            
+                currentCat.InnerCategories.Add(BuildRecursive(child));            
+
+            return currentCat;
+        }
     }
-
-
 }

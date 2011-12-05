@@ -40,5 +40,23 @@ namespace TVPApi
         {
             return string.Format("{0}_{1}_{2}", "Category", categoryID.ToString(), groupID.ToString());
         }
+
+        public static Category GetFullCategoryTree(int categoryID, int groupID, PlatformType platformType)
+        {
+            Category retVal = null;
+            if (false && m_dataCaching.TryGetData<Category>(GetUniqueCacheKey(categoryID, groupID), out retVal))
+            {
+                return retVal;
+            }
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platformType).GetTVMAccountByAccountType(AccountType.Regular);
+            dsCategory categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID)).Execute();
+            if (categoryDS != null)
+            {
+                CategoryTreeBuilder catBuilder = new CategoryTreeBuilder(categoryID.ToString(), categoryDS);
+                retVal = catBuilder.BuildFullCategoryTree();                
+            }
+            m_dataCaching.AddData(GetUniqueCacheKey(categoryID, groupID), retVal, new string[] { }, 3600);
+            return retVal;
+        }
     }
 }
