@@ -99,7 +99,7 @@ namespace TVPApi
                 }
                 else
                 {
-                    retVal = string.Format("{0}/MediaPage.aspx?MediaID={1}&MediaType={2}", baseUrl, MediaName, MediaID);
+                    retVal = string.Format("{0}/MediaPage.aspx?MediaID={1}&MediaType={2}", baseUrl, MediaID, MediaTypeID);
                 }
             }
             return retVal;

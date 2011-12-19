@@ -16,7 +16,7 @@ namespace TVPApi
         private List<Category> m_innerCategories;
         private List<Channel> m_channels;
         public string Title { get; set; }
-        private string ID { get; set; }
+        public string ID { get; set; }
 
         public Category(dsCategory.CategoriesRow catRow)
         {

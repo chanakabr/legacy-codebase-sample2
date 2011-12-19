@@ -33,9 +33,12 @@ namespace TVPApi
             dsCategory.CategoriesRow rootRow = (from categories in m_categoryDS.Categories
                                                 where categories.ID.Equals(m_rootID)
                                                 select categories).FirstOrDefault();
+
+
             IEnumerable<dsCategory.CategoriesRow> innerCategories = (from categories in m_categoryDS.Categories
                                                                      where !(categories.ID.Equals(m_rootID))
                                                                      select categories);
+
             if (rootRow != null)
             {
                 retVal = CreateCategory(rootRow);

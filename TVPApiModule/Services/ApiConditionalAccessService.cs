@@ -163,6 +163,21 @@ namespace TVPApiModule.Services
             }
             return retVal;
         }
+
+        public SubscriptionsPricesContainer[] GetSubscriptionsPrices(string sSiteGuid, string[] sSubscriptions, bool LowerPrice)
+        {
+            SubscriptionsPricesContainer[] returnObject = null;
+
+            try
+            {
+                returnObject = m_Module.GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionsPrices, Error Message: {0}, Parameters : User: {1}", ex.Message, sSiteGuid);
+            }
+            return returnObject;
+        }
         #endregion
     }
 }

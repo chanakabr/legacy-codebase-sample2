@@ -173,7 +173,7 @@ namespace TVPApi
             }
 
             //Remote paging
-            dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass) { Name = string.IsNullOrEmpty(text) ? null : text, PictureSize = picSize, GroupID = groupID, Platform = initObj.Platform, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPApi.OrderBy)orderBy }.Execute());
+            dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass) { MediaType = mediaType, Name = string.IsNullOrEmpty(text) ? null : text, PictureSize = picSize, GroupID = groupID, Platform = initObj.Platform, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPApi.OrderBy)orderBy }.Execute());
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
                 foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
@@ -602,6 +602,24 @@ namespace TVPApi
                 DynamicData dynamicObj = new DynamicData();
 
             }
+            return retVal;
+        }
+
+        public static List<Media> GetMediasInPackage(InitializationObject initObj, long sBaseID, int iGroupID, string picSize, int pageSize, int pageIndex)
+        {
+            List<Media> retVal = new List<Media>();
+
+            TVMAccountType parentAccount = SiteMapManager.GetInstance.GetPageData(iGroupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
+            dsItemInfo mediaInfo = new APITVMSubscriptionMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, sBaseID) { Platform = initObj.Platform, GroupID = iGroupID, PageIndex = pageIndex, PageSize = pageSize, PicSize = picSize, BaseID = sBaseID }.Execute();
+
+            if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
+            {
+                foreach (dsItemInfo.ItemRow row in mediaInfo.Item.Rows)
+                {
+                    retVal.Add(new Media(row, initObj, iGroupID, false));
+                }
+            }
+
             return retVal;
         }
     }

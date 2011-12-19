@@ -442,6 +442,34 @@ namespace TVPApiServices
             return lstMedia;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get media list for package")]
+        public List<Media> GetMediasInPackage(InitializationObject initObj, long iBaseID, string picSize, int pageSize, int pageIndex)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediasInPackage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetMediasInPackage-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.GetMediasInPackage(initObj, iBaseID, groupID, picSize, pageSize, pageIndex);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetMediasInPackage->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetMediasInPackage-> 'Unknown group' Username: {0}, Password: {1}, BaseID: {2}", initObj.ApiUser, initObj.ApiPass, iBaseID);
+            }
+
+            return lstMedia;
+        }
+
         [WebMethod(EnableSession = true, Description = "")]
         public List<Media> GetMediasByRating(InitializationObject initObj, int rating)
         {
@@ -1124,6 +1152,35 @@ namespace TVPApiServices
             else
             {
                 logger.ErrorFormat("GetUserExpiredSubscriptions-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return items;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get subscription price")]
+        public SubscriptionsPricesContainer[] GetSubscriptionsPrices(InitializationObject initObj, string[] SubscriptionIDs)
+        {
+            SubscriptionsPricesContainer[] items = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetSubscriptionsPrices-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    items = new ApiConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPrices(initObj.SiteGuid, SubscriptionIDs, true);
+                    
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetSubscriptionsPrices->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetSubscriptionsPrices-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return items;
