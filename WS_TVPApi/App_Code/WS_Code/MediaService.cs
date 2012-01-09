@@ -1187,6 +1187,62 @@ namespace TVPApiServices
         }
         #endregion
 
+        [WebMethod(EnableSession = true, Description = "Get Prepaid balance")]
+        public string[] GetPrepaidBalance(InitializationObject initObj, string currencyCode)
+        {
+            string[] fResponse = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetPrepaidBalance", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetPrepaidBalance-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    fResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetPrepaidBalance(initObj.SiteGuid, currencyCode);                    
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetPrepaidBalance->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetPrepaidBalance-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return fResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Buy PPV With PP")]
+        public string ChargeMediaWithPrepaid(InitializationObject initObj, double price, int mediaFileID, string ppvModuleCode, string couponCode)
+        {
+            PrePaidResponseStatus fResponse = PrePaidResponseStatus.UnKnown;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeMediaWithPrepaid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("ChargeMediaWithPrepaid-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    fResponse = new ApiConditionalAccessService(groupId, initObj.Platform).PP_ChargeUserForMediaFile(initObj.SiteGuid, price, mediaFileID, ppvModuleCode, couponCode, initObj.UDID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ChargeMediaWithPrepaid->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ChargeMediaWithPrepaid-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return fResponse.ToString();
+        }
+
         [WebMethod(EnableSession = true, Description = "Add user social sites action")]
         public bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
         {

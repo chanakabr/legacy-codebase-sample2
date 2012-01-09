@@ -5,6 +5,8 @@ using System.Text;
 using TVPApi;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using TVPPro.Configuration.Site;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.Services
 {
@@ -41,7 +43,7 @@ namespace TVPApiModule.Services
             BillingResponse response = null;
 
             try
-            {
+            {                
                 response = m_Module.CC_DummyChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
             }
             catch (Exception ex)
@@ -178,6 +180,38 @@ namespace TVPApiModule.Services
             }
             return returnObject;
         }
-        #endregion
+
+        public string[] GetPrepaidBalance(string siteGuid, string currencyCode)
+        {
+            UserPrePaidContainer returnObject = null;
+
+            try
+            {
+                returnObject = m_Module.GetUserPrePaidStatus(m_wsUserName, m_wsPassword, siteGuid, currencyCode);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetPrepaidBalance, Error Message: {0}, Parameters : User: {1}", ex.Message, siteGuid);
+            }
+
+            return new string[] { (returnObject.m_nTotalAmount - returnObject.m_nAmountUsed).ToString(), returnObject.m_sCurrencyCode };
+        }
+
+        public PrePaidResponseStatus PP_ChargeUserForMediaFile(string siteGuid, double price, int mediaFileID, string ppvModuleCode, string couponCode, string udid)
+        {
+            PrePaidResponse returnObject = null;
+
+            try
+            {
+                returnObject = m_Module.PP_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, string.Empty, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : PP_ChargeUserForMediaFile, Error Message: {0}, Parameters : User: {1}", ex.Message, siteGuid);
+            }
+
+            return returnObject.m_oStatus;
+        }
+        #endregion        
     }
 }

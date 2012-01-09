@@ -93,5 +93,11 @@ namespace TVPApiServices
 
         [OperationContract]
         bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform);
+
+        [OperationContract]
+        string[] GetPrepaidBalance(InitializationObject initObj, string couponCode);
+
+        [OperationContract]
+        string ChargeMediaWithPrepaid(InitializationObject initObj, double price, int mediaFileID, string ppvModuleCode, string couponCode);
     }
 }
