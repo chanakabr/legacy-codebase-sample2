@@ -1216,9 +1216,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Buy PPV With PP")]
-        public string ChargeMediaWithPrepaid(InitializationObject initObj, double price, int mediaFileID, string ppvModuleCode, string couponCode)
+        public string ChargeMediaWithPrepaid(InitializationObject initObj, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode)
         {
-            PrePaidResponseStatus fResponse = PrePaidResponseStatus.UnKnown;
+            PrePaidResponseStatus oResponse = PrePaidResponseStatus.UnKnown;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeMediaWithPrepaid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1228,7 +1228,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    fResponse = new ApiConditionalAccessService(groupId, initObj.Platform).PP_ChargeUserForMediaFile(initObj.SiteGuid, price, mediaFileID, ppvModuleCode, couponCode, initObj.UDID);
+                    oResponse = new ApiConditionalAccessService(groupId, initObj.Platform).PP_ChargeUserForMediaFile(initObj.SiteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -1240,7 +1240,7 @@ namespace TVPApiServices
                 logger.ErrorFormat("ChargeMediaWithPrepaid-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
-            return fResponse.ToString();
+            return oResponse.ToString();
         }
 
         [WebMethod(EnableSession = true, Description = "Add user social sites action")]

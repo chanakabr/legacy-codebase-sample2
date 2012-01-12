@@ -98,6 +98,6 @@ namespace TVPApiServices
         string[] GetPrepaidBalance(InitializationObject initObj, string couponCode);
 
         [OperationContract]
-        string ChargeMediaWithPrepaid(InitializationObject initObj, double price, int mediaFileID, string ppvModuleCode, string couponCode);
+        string ChargeMediaWithPrepaid(InitializationObject initObj, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode);
     }
 }

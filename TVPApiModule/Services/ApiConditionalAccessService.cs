@@ -197,13 +197,13 @@ namespace TVPApiModule.Services
             return new string[] { (returnObject.m_nTotalAmount - returnObject.m_nAmountUsed).ToString(), returnObject.m_sCurrencyCode };
         }
 
-        public PrePaidResponseStatus PP_ChargeUserForMediaFile(string siteGuid, double price, int mediaFileID, string ppvModuleCode, string couponCode, string udid)
+        public PrePaidResponseStatus PP_ChargeUserForMediaFile(string siteGuid, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode, string udid)
         {
             PrePaidResponse returnObject = null;
 
             try
             {
-                returnObject = m_Module.PP_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, string.Empty, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                returnObject = m_Module.PP_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
             }
             catch (Exception ex)
             {
