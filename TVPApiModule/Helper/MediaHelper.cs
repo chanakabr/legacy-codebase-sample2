@@ -98,8 +98,11 @@ namespace TVPApi
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
             Dictionary<string, string> dictTags = new Dictionary<string, string>();
             dictTags.Add(tagName, value);
-            //Remote paging
-            dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass) { Platform = initObj.Platform, GroupID = groupID, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, PictureSize = picSize  }.Execute());
+
+            // create a signature for search loader
+            string sSigature = string.Format(@"{0}={1}|{2}|{3}", tagName, value, groupID, initObj.Platform);
+
+            dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass, dictTags) { SearchTokenSignature = sSigature, Platform = initObj.Platform, GroupID = groupID, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, PictureSize = picSize }.Execute());
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
                 foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
@@ -610,7 +613,7 @@ namespace TVPApi
             List<Media> retVal = new List<Media>();
 
             TVMAccountType parentAccount = SiteMapManager.GetInstance.GetPageData(iGroupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
-            dsItemInfo mediaInfo = new APITVMSubscriptionMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, sBaseID) { Platform = initObj.Platform, GroupID = iGroupID, PageIndex = pageIndex, PageSize = pageSize, PicSize = picSize, BaseID = sBaseID }.Execute();
+            dsItemInfo mediaInfo = new APITVMSubscriptionMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, sBaseID) { WithInfo = true, Platform = initObj.Platform, GroupID = iGroupID, PageIndex = pageIndex, PageSize = pageSize, PicSize = picSize, BaseID = sBaseID }.Execute();
 
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
