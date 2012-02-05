@@ -80,7 +80,7 @@ public partial class Gateways_JsonGateway : BaseGateway
         //retVal.Locale = locale;
         //return retVal;
         InitializationObject retVal = base.GetInitObj();
-
+        retVal.UDID = Request.QueryString["UUID"];
         retVal.ApiUser = Request.QueryString["ApiUser"];
         retVal.ApiPass = Request.QueryString["ApiPass"];
 
