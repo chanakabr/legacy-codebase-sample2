@@ -44,6 +44,9 @@ public partial class Gateways_JsonGateway : BaseGateway
             }
             object JSONMethodReturnValue = WSMethod.Invoke(webservice, CallParameters);
             string SerializedReturnValue = JSONSerialize(JSONMethodReturnValue);
+            Context.Response.HeaderEncoding=
+            Context.Response.ContentEncoding = System.Text.Encoding.UTF8;
+            Context.Response.Charset = "utf-8";
             Context.Response.Write(SerializedReturnValue);
 
         }
@@ -64,7 +67,8 @@ public partial class Gateways_JsonGateway : BaseGateway
         DataContractJsonSerializer serializer = new DataContractJsonSerializer(SerializationTarget.GetType());
         MemoryStream ms = new MemoryStream();
         serializer.WriteObject(ms, SerializationTarget);
-        string Product = Encoding.Default.GetString(ms.ToArray());
+        string Product = Encoding.UTF8.GetString(ms.ToArray());
+        //string Product = Encoding.Default.GetString(ms.ToArray());
         ms.Close();
         return Product;
     }
