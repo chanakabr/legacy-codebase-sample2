@@ -35,6 +35,8 @@ public partial class Gateways_JsonGateway : BaseGateway
                 string RawParameter = Context.Request.QueryString[TargetParameter.Name];
                 if (TargetParameter.ParameterType == typeof(TVPApi.InitializationObject))
                     CallParameters[i] = GetInitObj2();
+                else if (TargetParameter.ParameterType == typeof(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action))
+                    CallParameters[i] = parseAction(RawParameter);
                 else if (TargetParameter.ParameterType != typeof(String))
                     CallParameters[i] = TypeDeSerialize(RawParameter, TargetParameter.ParameterType);
                 else
@@ -51,6 +53,25 @@ public partial class Gateways_JsonGateway : BaseGateway
 
         }
         //Response.Write(Str);
+    }
+
+    private Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action parseAction(String param)
+    {
+        if (param == "finish")
+            return Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action.finish;
+        else if (param == "first_play")
+            return Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action.first_play;
+        else if (param == "load")
+            return Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action.load;
+        else if (param == "none")
+            return Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action.none;
+        else if (param == "pause")
+            return Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action.pause;
+        else if (param == "play")
+            return Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action.play;
+        else if (param == "stop")
+            return Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action.stop;
+        return Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action.none;
     }
 
     private object TypeDeSerialize(string DeserializationTarget, Type TargetType)
