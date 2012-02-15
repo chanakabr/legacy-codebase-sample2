@@ -100,7 +100,9 @@ public abstract class BaseGateway : System.Web.UI.Page
         retVal.Platform = devType;
         retVal.ApiUser = m_WsUsername;
         retVal.ApiPass = m_WsPassword;
-        retVal.UDID = sUDID;        
+        retVal.UDID = sUDID;   
+        if (string.IsNullOrEmpty(retVal.UDID))
+            retVal.UDID = "dummy";
         //Locale locale = new Locale();
         //locale.LocaleLanguage = "es";
         //retVal.Locale = locale;
