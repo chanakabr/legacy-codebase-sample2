@@ -28,6 +28,7 @@ namespace TVPApiModule.Services
         {
             public string SiteGuid;
             public int DomainID;
+            public ResponseStatus LoginStatus;
         }
         #endregion
 
@@ -45,18 +46,19 @@ namespace TVPApiModule.Services
         #endregion C'tor
 
         #region Public methods
-        public LogInResponseData SignIn(string sUserName, string sPassword)
+        public LogInResponseData SignIn(string sUserName, string sPassword, string sSessionID, string sDeviceID, bool bIsDoubleLogin)
         {
             LogInResponseData loginData = new LogInResponseData();
 
             try
             {
-                UserResponseObject response = m_Module.CheckUserPassword(m_wsUserName, m_wsPassword, sUserName, sPassword, true);
+                UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);                 
 
                 if (response != null && response.m_user != null)
-                {
+                {                    
                     loginData.SiteGuid = response.m_user.m_sSiteGUID;
                     loginData.DomainID = response.m_user.m_domianID;
+                    loginData.LoginStatus = response.m_RespStatus;
                 }
             }
             catch (Exception ex)
@@ -82,19 +84,30 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public bool IsUserLoggedIn(string sUsername)
+        public void SignOut(string sSiteGuid, string sSessionID, string sDeviceID, bool bPreventDoubleLogin)
+        {            
+            try
+            {
+                m_Module.SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);                
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SignOut, Error Message: {0}, Parameters :  SiteGuid: {1}", ex.Message, sSiteGuid);
+            }            
+        }
+
+        public bool IsUserLoggedIn(string sSiteGuid, string sSessionID, string sDeviceID, string sIP, bool bPreventDoubleLogin)
         {
             bool bRet = false;
             try
-            {
-                /* TODO: complete */
-                UserResponseObject response = m_Module.GetUserByUsername(m_wsUserName, m_wsPassword, sUsername);
-                if (response.m_RespStatus == ResponseStatus.UserAllreadyLoggedIn)
+            {                
+                UserState response = m_Module.GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);                 
+                if (response == UserState.Activated || (response == UserState.SingleSignIn && bPreventDoubleLogin))
                     bRet = true;
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : IsUserLoggedIn, Error Message: {0}, Parameters :  Username: {1}", ex.Message, sUsername);
+                logger.ErrorFormat("Error calling webservice protocol : IsUserLoggedIn, Error Message: {0}, Parameters :  siteGuid: {1}", ex.Message, sSiteGuid);
             }
 
             return bRet;

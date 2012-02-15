@@ -372,7 +372,9 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignIn(userName, password);
+                    //XXX: Do the UDID empty stuff
+                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                    sRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignIn(userName, password, initObj.UDID, string.Empty, isSingleLogin);
                 }
                 catch (Exception ex)
                 {
@@ -416,25 +418,47 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-Out a user")]
-        public void SignOut(InitializationObject initObj, string sSiteGuid)
-        {
-            
-        }
+        public void SignOut(InitializationObject initObj)
+        {            
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-        [WebMethod(EnableSession = true, Description = "Check if user is signed in")]
-        public bool IsUserSignedIn(InitializationObject initObj, string userName)
-        {
-            bool bRet = false;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsUserSignedIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            logger.InfoFormat("IsUserSignedIn-> [{0}, {1}], Params:[userName: {2}, password: {3}]", groupID, initObj.Platform, userName);
+            logger.InfoFormat("SignOut-> [{0}, {1}], Params:[siteGuid: {2}, password: {3}]", groupID, initObj.Platform, initObj.SiteGuid);
 
             if (groupID > 0)
             {
                 try
                 {
-                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(userName);
+                    //XXX: Do the UDID empty stuff
+                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                    new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignOut(initObj.SiteGuid, initObj.UDID, string.Empty, isSingleLogin);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SignOut->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SignOut-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+        }
+
+        [WebMethod(EnableSession = true, Description = "Check if user is signed in")]
+        public bool IsUserSignedIn(InitializationObject initObj)
+        {
+            bool bRet = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsUserSignedIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            
+            logger.InfoFormat("IsUserSignedIn-> [{0}, {1}], Params:[siteGuid: {2}, password: {3}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    //XXX: Do the UDID empty stuff
+                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(initObj.SiteGuid, initObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);
                 }
                 catch (Exception ex)
                 {
