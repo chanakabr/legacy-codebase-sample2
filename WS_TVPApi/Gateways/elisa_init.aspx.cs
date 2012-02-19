@@ -14,18 +14,17 @@ public partial class _Default : System.Web.UI.Page
 
     class InitConfig
     {
-        public string LogoURL = "http://tvinci.cdnetworks.net/tvinci_logo.jpg";
-        public string HomePageChannelID = "327149";
-        public string RootCateroryID = "1065";
+        public string LogoURL = "http://ibc.cdngc.net/CTV/CTV_logo_Motorola.png";
+        public string HomePageChannelID = "327200";
+        public string RootCateroryID = "1142";
         public string GatewayURL = "http://173.231.146.34:9003/tvpapi/gateways/jsongateway.aspx";
         public string ApiUser = "tvpapi_125";
         public string ApiPass = "11111";
-        public string Platform = "iPad";
+        public string Platform = "ConnectedTV";
         public ArrayList Users = new ArrayList();
 
         public InitConfig()
         {
-            Users.Add(new User("demo@tvinci.com", "123456"));
             Users.Add(new User("demo@tvinci.com", "123456"));
         }
 

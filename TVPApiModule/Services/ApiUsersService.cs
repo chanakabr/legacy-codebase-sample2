@@ -8,6 +8,7 @@ using TVPPro.SiteManager.Context;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.Helper;
+using System.Web;
 
 namespace TVPApiModule.Services
 {
@@ -52,6 +53,8 @@ namespace TVPApiModule.Services
 
             try
             {
+                sSessionID = string.Empty;
+                sUserName = HttpUtility.UrlDecode(sUserName);
                 UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);                 
 
                 if (response != null && response.m_user != null)
