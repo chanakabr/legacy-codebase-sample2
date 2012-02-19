@@ -123,7 +123,7 @@ public abstract class BaseGateway : System.Web.UI.Page
             else if (mac == "00043053C7C7")
                 return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
             else if (mac == "00043050E79A")
-                return m_SiteService.SignIn(GetInitObj(), "demo@tvinci.com", "123456").SiteGuid;
+                return m_SiteService.SignIn(GetInitObj(), "demo@motorola.com", "123456").SiteGuid;
         }
         
         return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
