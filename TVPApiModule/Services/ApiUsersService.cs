@@ -53,7 +53,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                sSessionID = string.Empty;
+                sDeviceID = string.Empty;
                 sUserName = HttpUtility.UrlDecode(sUserName);
                 UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);                 
 
