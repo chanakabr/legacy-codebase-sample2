@@ -514,7 +514,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(sSiteGuid);
+                    string siteGuid = (string.IsNullOrEmpty(sSiteGuid)) ? initObj.SiteGuid : sSiteGuid;
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(siteGuid);
                 }
                 catch (Exception ex)
                 {

@@ -972,7 +972,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, sUserIP, initObj.SiteGuid, initObj.UDID);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
