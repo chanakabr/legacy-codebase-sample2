@@ -104,9 +104,12 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {                
-                UserState response = m_Module.GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);                 
-                if (response == UserState.Activated || (response == UserState.SingleSignIn && bPreventDoubleLogin))
+                UserState response = m_Module.GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);
+                if (response == UserState.Activated || (response == UserState.SingleSignIn && bPreventDoubleLogin) || 
+                    (!bPreventDoubleLogin && (response == UserState.SingleSignIn || response == UserState.DoubleSignIn)))
+                {
                     bRet = true;
+                }
             }
             catch (Exception ex)
             {
