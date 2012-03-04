@@ -120,9 +120,9 @@ public abstract class BaseGateway : System.Web.UI.Page
                 return m_SiteService.SignIn(GetInitObj(), "netgem", "123456").SiteGuid;
             else if (mac == "00043048324A" || mac == "0004305A0BB2" || mac == "0004305A0BBD")
                 return m_SiteService.SignIn(GetInitObj(), "africatv@tvinci.com", "123456").SiteGuid;
-            //else if ()
-            //    return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
-            else if (mac == "00043050E79A" || mac == "00043053C7C7")
+            else if (mac == "00043053C7C7")
+                return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+            else if (mac == "00043050E79A")
                 return m_SiteService.SignIn(GetInitObj(), "demo@motorola.com", "123456").SiteGuid;
         }
         
