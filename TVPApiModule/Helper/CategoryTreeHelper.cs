@@ -50,6 +50,11 @@ namespace TVPApi
             }
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platformType).GetTVMAccountByAccountType(AccountType.Regular);
             dsCategory categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID)).Execute();
+            if (categoryDS.Categories[0].ID == "0")
+            {
+                account = SiteMapManager.GetInstance.GetPageData(groupID, platformType).GetTVMAccountByAccountType(AccountType.Parent);
+                categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID)).Execute();
+            }
             if (categoryDS != null)
             {
                 CategoryTreeBuilder catBuilder = new CategoryTreeBuilder(categoryID.ToString(), categoryDS);

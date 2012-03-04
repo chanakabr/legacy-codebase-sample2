@@ -599,7 +599,7 @@ namespace TVPApiServices
         {
             Category retCategory = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetFullCategory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetFullCategory-> [{0}, {1}], Params:[categoryID: {2}]", groupID, initObj.Platform, categoryID);
 
