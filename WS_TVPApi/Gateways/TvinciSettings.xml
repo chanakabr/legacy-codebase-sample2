@@ -3,7 +3,7 @@
   <LogoURL>http://ibc.cdngc.net//CTV/CTV_logo_Motorola.png</LogoURL>
   <HomePageChannelID>327200</HomePageChannelID>
   <RootCateroryID>1142</RootCateroryID>
-  <GatewayURL>http://173.231.146.34:9003/tvpapi/gateways/jsongateway.aspx</GatewayURL>
+  <GatewayURL>http://localhost:8080/gateways/jsongateway.aspx</GatewayURL>
   <ApiUser>tvpapi_125</ApiUser>
   <ApiPass>11111</ApiPass>
   <Platform>ConnectedTV</Platform>
