@@ -5,6 +5,7 @@ using System.Text;
 using TVPApi;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaHit;
+using TVPPro.SiteManager.Context;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -53,7 +54,7 @@ namespace TVPApiModule.DataLoaders
         }
 
         public APIMediaHit(string tvmUn, string tvmPass)
-            : base(tvmUn, tvmPass)
+            : base(tvmUn, tvmPass, default(FlashLoadersParams))
         {
             this.m_tvmPass = tvmPass;
             this.m_tvmUser = tvmUn;
