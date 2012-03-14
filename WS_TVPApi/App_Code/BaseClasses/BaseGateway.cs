@@ -115,15 +115,21 @@ public abstract class BaseGateway : System.Web.UI.Page
         if (groupId == 125)
         {
             if (mac == "000430483825")
-                return m_SiteService.SignIn(GetInitObj(), "ido@tvinci.com", "eliron27").SiteGuid;
+                return m_SiteService.SignIn(GetInitObj(), "amir1@tvinci.com", "123456").SiteGuid;
             else if (mac == "00043049804A")
                 return m_SiteService.SignIn(GetInitObj(), "netgem", "123456").SiteGuid;
-            else if (mac == "00043048324A" || mac == "0004305A0BB2" || mac == "0004305A0BBD")
+            else if ( mac == "0004305A0BB2" || mac == "0004305A0BBD")
                 return m_SiteService.SignIn(GetInitObj(), "africatv@tvinci.com", "123456").SiteGuid;
-            else if (mac == "00043053C7C7")
+            else if (mac == "00043048324A")
                 return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
             else if (mac == "00043050E79A")
                 return m_SiteService.SignIn(GetInitObj(), "demo@motorola.com", "123456").SiteGuid;
+            else if (mac == "00043053C7C7")
+                return m_SiteService.SignIn(GetInitObj(), "tvinci1@tvinci.com", "123456").SiteGuid;
+            else if (mac == "0004305A0BBC")
+                return m_SiteService.SignIn(GetInitObj(), "adina1@tvinci.com", "123456").SiteGuid;
+            else if (mac == "0004305A0BBE")
+                return m_SiteService.SignIn(GetInitObj(), "adina2@tvinci.com", "123456").SiteGuid;
             //Orange
             else if (mac == "00043055A585")
                 return m_SiteService.SignIn(GetInitObj(), "Ofer.Shmueli@orange.co.il", "Orange123").SiteGuid;
