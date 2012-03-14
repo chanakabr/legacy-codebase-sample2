@@ -208,7 +208,7 @@ public partial class Gateways_NetGem_Orange : BaseGateway
                     #region DTRProduct
                     XTM.WriteStartElement("DTRProduct");
                     XTM.WriteStartElement("contentFile");                    
-                    XTM.WriteElementString("URL", "http://drm.tvinci.com/movie_enc.wmv?bla=" + counter++);                                  
+                    XTM.WriteElementString("URL", "http://drmil.tvinci.com/movie_enc.wmv?bla=" + counter++);                                  
                     int iDuration = 100;
                     try
                     {
@@ -340,7 +340,7 @@ public partial class Gateways_NetGem_Orange : BaseGateway
                     XTM.WriteElementString("vhiId", mac);
                     XTM.WriteElementString("price", "0.99");
                     XTM.WriteStartElement("signedURL");
-                    XTM.WriteCData("http://drm.tvinci.com/GetLicense.aspx?vid=" + Request["vtiId"]);                    
+                    XTM.WriteCData("http://drmil.tvinci.com/GetLicense.aspx?vid=" + Request["vtiId"]);                    
                     XTM.WriteEndElement();
                     XTM.WriteElementString("challenge", "b252eb9a533c8ae37a462a267e1f2fa9");
                     XTM.WriteStartElement("url");

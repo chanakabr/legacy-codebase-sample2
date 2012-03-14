@@ -212,6 +212,22 @@ namespace TVPApiModule.Services
 
             return returnObject.m_oStatus;
         }
+
+        public string GetMediaLicenseLink(string siteGuid, int mediaFileID, string baseLink, string udid)
+        {
+            string returnObject = null;
+
+            try
+            {
+                returnObject = m_Module.GetLicensedLink(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetMediaLicenseLink, Error Message: {0}, Parameters : User: {1}", ex.Message, siteGuid);
+            }
+
+            return returnObject;
+        }
         #endregion        
     }
 }

@@ -212,7 +212,7 @@ public partial class Gateways_NetGem : BaseGateway
                 XTM.WriteStartElement("purchase");
                 XTM.WriteElementString("vhiId", mac);
                 XTM.WriteStartElement("signedURL");
-                XTM.WriteCData("http://drm.tvinci.com/GetLicense.aspx?vid=" + Request["vtiId"]);
+                XTM.WriteCData("http://drmil.tvinci.com/GetLicense.aspx?vid=" + Request["vtiId"]);
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("status");
                 XTM.WriteCData("OK");

@@ -218,7 +218,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                     XTM.WriteStartElement("DTRProduct");
                     XTM.WriteStartElement("contentFile");
 
-                    XTM.WriteElementString("URL", "http://drm.tvinci.com/movie_enc.wmv?bla=" + counter++);
+                    XTM.WriteElementString("URL", "http://drmil.tvinci.com/movie_enc.wmv?bla=" + counter++);
 
                     XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
                     XTM.WriteEndElement();
@@ -372,7 +372,7 @@ public partial class Gateways_NetGem_Novebox : BaseGateway
                 XTM.WriteStartElement("purchase");
                 XTM.WriteElementString("vhiId", mac);
                 XTM.WriteStartElement("signedURL");
-                XTM.WriteCData("http://drm.tvinci.com/GetLicense.aspx?vid=" + Request["vtiId"]);
+                XTM.WriteCData("http://drmil.tvinci.com/GetLicense.aspx?vid=" + Request["vtiId"]);
                 XTM.WriteEndElement();
                 XTM.WriteStartElement("status");
                 XTM.WriteCData("OK");

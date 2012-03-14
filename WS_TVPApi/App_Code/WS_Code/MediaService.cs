@@ -1243,6 +1243,34 @@ namespace TVPApiServices
             return oResponse.ToString();
         }
 
+        [WebMethod(EnableSession = true, Description = "Get Media License Link")]
+        public string GetMediaLicenseLink(InitializationObject initObj, int mediaFileID, string baseLink)
+        {
+            string oResponse = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLink", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetMediaLicenseLink-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    oResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetMediaLicenseLink->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetMediaLicenseLink-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return oResponse;
+        }
+
         [WebMethod(EnableSession = true, Description = "Add user social sites action")]
         public bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
         {
