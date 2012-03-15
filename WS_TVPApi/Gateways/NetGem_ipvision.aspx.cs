@@ -236,8 +236,15 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                         string runtime = (from meta in media.Metas where meta.Key.Equals("Display run time") select meta.Value).FirstOrDefault();
                         if (!string.IsNullOrEmpty(runtime))
                         {
-                            string[] time = runtime.Split(new char[] { 'h', 'm' });
-                            XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", int.Parse(time[0]) * 60 + int.Parse(time[1])));
+                            try
+                            {
+                                string[] time = runtime.Split(new char[] { 'h', 'm' });
+                                XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", int.Parse(time[0]) * 60 + int.Parse(time[1])));
+                            }
+                            catch (Exception ex)
+                            {
+                                XTM.WriteElementString("durationInMinutes", "0");
+                            }
                         }
 
                         XTM.WriteElementString("censorshipRating", string.Format("{0:0}", media.Rating));
