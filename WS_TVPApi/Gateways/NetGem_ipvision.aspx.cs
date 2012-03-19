@@ -312,6 +312,14 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                         XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", double.Parse(media.Duration) / 60));
                         XTM.WriteEndElement();
 
+                        // subtitle
+                        XTM.WriteStartElement("contentFile");
+
+                        XTM.WriteElementString("URL", "http://ibc.cdngc.net/PIB2011.srt");
+
+                        XTM.WriteEndElement();
+                        //
+
                         //XTM.WriteElementString("title", media.MediaName);
 
                         //if (TVPPro.SiteManager.Services.UsersService.Instance.GetUserID() == 0)
