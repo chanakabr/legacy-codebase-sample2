@@ -114,6 +114,31 @@ namespace TVPApi
             return retVal;
         }
 
+        public static List<Media> SearchMediaBySubID(InitializationObject initObj, string sSubID, string picSize, int groupID, int orderBy)
+        {
+            List<Media> retVal = new List<Media>();
+            SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Fictivic);
+            Dictionary<string, string> dictMetas = new Dictionary<string, string>();
+
+            string[] arrValues = sSubID.Split(';');
+            foreach (string sValue in arrValues)
+            {
+                dictMetas.Add("Base ID", sValue);
+            }
+            //Remote paging
+            dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass) { SearchTokenSignature = sSubID, GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = arrValues.Length, PictureSize = picSize, PageIndex = 0, OrderBy = (OrderBy)orderBy, MetaValues = sSubID, UseFinalEndDate = "true" }.Execute());
+            if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
+            {
+                foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
+                {
+                    retVal.Add(new Media(row, initObj, groupID, false));
+                }
+            }
+
+            return retVal;
+        }
+
         //Call search protocol
         public static List<Media> SearchMediaByMeta(InitializationObject initObj, int mediaType, string metaName, string value, string picSize, int pageSize, int pageIndex, int groupID, int orderBy)
         {
@@ -121,11 +146,14 @@ namespace TVPApi
             SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
             Dictionary<string, string> dictMetas = new Dictionary<string, string>();
-            
-            dictMetas.Add(metaName, value);
-            
+
+            string[] arrValues = value.Split(';');
+            foreach(string sValue in arrValues)
+            {
+                dictMetas.Add(metaName, sValue);
+            }
             //Remote paging
-            dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas,  WithInfo = true, PageSize = pageSize,PictureSize = picSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, IsPosterPic = false, MetaValues = value }.Execute());
+            dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass) { SearchTokenSignature = value, GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas,  WithInfo = true, PageSize = pageSize,PictureSize = picSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, MetaValues = value }.Execute());
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
                 foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
