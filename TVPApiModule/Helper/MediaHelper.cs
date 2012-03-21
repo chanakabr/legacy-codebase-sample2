@@ -122,10 +122,8 @@ namespace TVPApi
             Dictionary<string, string> dictMetas = new Dictionary<string, string>();
 
             string[] arrValues = sSubID.Split(';');
-            foreach (string sValue in arrValues)
-            {
-                dictMetas.Add("Base ID", sValue);
-            }
+            dictMetas.Add("Base ID", sSubID);
+
             //Remote paging
             dsItemInfo mediaInfo = (new APISearchLoader(account.TVMUser, account.TVMPass) { SearchTokenSignature = sSubID, GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = arrValues.Length, PictureSize = picSize, PageIndex = 0, OrderBy = (OrderBy)orderBy, MetaValues = sSubID, UseFinalEndDate = "true" }.Execute());
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
