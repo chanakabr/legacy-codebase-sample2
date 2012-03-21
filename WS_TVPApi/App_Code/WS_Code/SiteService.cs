@@ -684,7 +684,7 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetDomainInfo-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+            logger.InfoFormat("SetDomainInfo-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
 
             if (groupID > 0)
             {
@@ -699,6 +699,96 @@ namespace TVPApiServices
             }
 
             return domain;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get device domains")]
+        public TVPApiModule.Services.ApiDomainsService.DeviceDomain[] GetDeviceDomains(InitializationObject initObj)
+        {
+            Domain[] domains = null;
+            TVPApiModule.Services.ApiDomainsService.DeviceDomain[] devDomains = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetDeviceDomains-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
+
+                    if (domains == null || domains.Count() == 0)
+                        return devDomains;
+
+                    devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
+
+                    for (int i = 0; i < domains.Count(); i++)
+                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = domains[i].m_nDomainID, DomainName = domains[i].m_sName, SiteGuid = domains[i].m_masterGUID.ToString() };
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : GetDeviceDomains, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                }
+            }
+
+            return devDomains;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get PIN Code for a new device")]
+        public string GetPINForDevice(InitializationObject initObj, int devBrandID)
+        {
+            string pin = string.Empty;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPINForDevice", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetPINForDevice-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    pin = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetPINForDevice(initObj.UDID, devBrandID);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : GetPINForDevice, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                }
+            }
+
+            return pin;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Register a device to domain by PIN code")]
+        public TVPApiModule.Services.ApiDomainsService.DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin)
+        {
+            TVPApiModule.Services.ApiDomainsService.DeviceRegistration deviceRes = new TVPApiModule.Services.ApiDomainsService.DeviceRegistration();
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RegisterDeviceByPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("RegisterDeviceByPIN-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    TVPApiModule.Services.ApiDomainsService service = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform);
+                    Device device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
+                    
+                    if (device == null || device.m_state == DeviceState.Error)
+                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;                                            
+                    else if (device.m_state == DeviceState.Invalid)
+                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;                    
+                    else
+                    {
+                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
+                        deviceRes.UDID = device.m_deviceUDID;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : RegisterDeviceByPIN, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                }
+            }
+
+            return deviceRes;
         }
         #endregion
     }

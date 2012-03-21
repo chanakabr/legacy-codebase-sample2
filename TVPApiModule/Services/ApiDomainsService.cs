@@ -20,6 +20,24 @@ namespace TVPApiModule.Services
 
         private int m_groupID;
         private PlatformType m_platform;
+
+        [Serializable]
+        public struct DeviceDomain
+        {
+            public string SiteGuid;
+            public int DomainID;
+            public string DomainName;
+        }
+
+        [Serializable]
+        public enum eDeviceRegistrationStatus { Success = 0, Invalid = 1, Error = 2 }
+
+        [Serializable]
+        public struct DeviceRegistration
+        {
+            public string UDID;
+            public eDeviceRegistrationStatus RegStatus;
+        }
         #endregion
 
         #region C'tor
@@ -147,6 +165,53 @@ namespace TVPApiModule.Services
 
             return domain;
         }
-        #endregion
+
+        public Domain[] GetDeviceDomains(string udid)
+        {
+            Domain[] domains = null;
+
+            try
+            {
+                domains = m_Module.GetDeviceDomains(m_wsUserName, m_wsPassword, udid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetDeviceDomains, Error Message: {0} Parameters: udid: {1}", ex.Message, udid);
+            }
+
+            return domains;
+        }
+
+        public string GetPINForDevice(string udid, int devBrandID)
+        {
+            string pin = string.Empty;
+
+            try
+            {
+                pin = m_Module.GetPINForDevice(m_wsUserName, m_wsPassword, udid, devBrandID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetPINForDevice, Error Message: {0} Parameters: udid: {1}, brand: {2}", ex.Message, udid, devBrandID);
+            }
+
+            return pin;
+        }
+
+        public Device RegisterDeviceByPIN(string udid, int domainID, string pin)
+        {
+            Device device = null;
+            try
+            {
+                device = m_Module.RegisterDeviceToDomainWithPIN(m_wsUserName, m_wsPassword, pin, domainID, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : RegisterDeviceByPIN, Error Message: {0} Parameters: udid: {1}, pin: {2}", ex.Message, udid, pin);
+            }
+
+            return device;
+        }
+        #endregion          
     }
 }
