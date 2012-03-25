@@ -40,25 +40,24 @@ namespace TVPApiServices
         PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);
 
         [OperationContract]
-        Domain AddUserToDomain(InitializationObject initObj, bool bMaster);
+        DomainResponseStatus AddUserToDomain(InitializationObject initObj, bool bMaster);
 
         [OperationContract]
         Domain RemoveUserFromDomain(InitializationObject initObj);
 
         [OperationContract]
-        Domain AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
+        DomainResponseStatus AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
 
         [OperationContract]
-        Domain RemoveDeviceFromDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
+        DomainResponseStatus RemoveDeviceFromDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
 
         [OperationContract]
-        Domain ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive);
+        DomainResponseStatus ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive);
 
         [OperationContract]
         Domain GetDomainInfo(InitializationObject initObj);
 
         [OperationContract]
-        Domain SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription);
-
+        DomainResponseStatus SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription);
     }
 }

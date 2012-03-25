@@ -533,9 +533,9 @@ namespace TVPApiServices
         
         #region Domains
         [WebMethod(EnableSession = true, Description = "Add a user to domain")]
-        public Domain AddUserToDomain(InitializationObject initObj, bool bMaster)
+        public DomainResponseStatus AddUserToDomain(InitializationObject initObj, bool bMaster)
         {
-            Domain domain = null;
+            DomainResponseStatus resCode = DomainResponseStatus.UnKnown;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddUserToDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -546,7 +546,8 @@ namespace TVPApiServices
 
                 try
                 {
-                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, initObj.SiteGuid, bMaster);
+                    DomainResponseObject res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, initObj.SiteGuid, bMaster);
+                    resCode = res.m_oDomainResponseStatus;
                 }
                 catch (Exception ex)
                 {
@@ -554,7 +555,7 @@ namespace TVPApiServices
                 }
             }
 
-            return domain;
+            return resCode;
         }
 
         [WebMethod(EnableSession = true, Description = "Remove a user from domain")]
@@ -582,9 +583,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Add device to domain")]
-        public Domain AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID)
+        public DomainResponseStatus AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID)
         {
-            Domain domain = null;
+            DomainResponseStatus resCode = DomainResponseStatus.UnKnown;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddDeviceToDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -594,7 +595,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                    DomainResponseObject res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                    resCode = res.m_oDomainResponseStatus;
                 }
                 catch (Exception ex)
                 {
@@ -602,13 +604,13 @@ namespace TVPApiServices
                 }
             }
 
-            return domain;
+            return resCode;
         }
 
         [WebMethod(EnableSession = true, Description = "Remove device from domain")]
-        public Domain RemoveDeviceFromDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID)
+        public DomainResponseStatus RemoveDeviceFromDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID)
         {
-            Domain domain = null;
+            DomainResponseStatus resCode = DomainResponseStatus.UnKnown;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveDeviceFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -618,7 +620,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                    DomainResponseObject res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                    resCode = res.m_oDomainResponseStatus;
                 }
                 catch (Exception ex)
                 {
@@ -626,13 +629,13 @@ namespace TVPApiServices
                 }
             }
 
-            return domain;
+            return resCode;
         }
 
         [WebMethod(EnableSession = true, Description = "Activate/Deactivate a device in domain")]
-        public Domain ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive)
+        public DomainResponseStatus ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive)
         {
-            Domain domain = null;
+            DomainResponseStatus resCode = DomainResponseStatus.UnKnown;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ChangeDeviceDomainStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -642,7 +645,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).ChangeDeviceDomainStatus(initObj.DomainID, initObj.UDID, bActive);
+                    DomainResponseObject res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).ChangeDeviceDomainStatus(initObj.DomainID, initObj.UDID, bActive);
+                    resCode = res.m_oDomainResponseStatus;
                 }
                 catch (Exception ex)
                 {
@@ -650,7 +654,7 @@ namespace TVPApiServices
                 }
             }
 
-            return domain;
+            return resCode;
         }
 
         [WebMethod(EnableSession = true, Description = "Get device/user domain info")]
@@ -678,9 +682,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set device/user domain info")]
-        public Domain SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription)
+        public DomainResponseStatus SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription)
         {
-            Domain domain = null;
+            DomainResponseStatus resCode = DomainResponseStatus.UnKnown;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -690,7 +694,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);
+                    DomainResponseObject res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);
+                    resCode = res.m_oDomainResponseStatus;
                 }
                 catch (Exception ex)
                 {
@@ -698,7 +703,7 @@ namespace TVPApiServices
                 }
             }
 
-            return domain;
+            return resCode;
         }
 
         [WebMethod(EnableSession = true, Description = "Get device domains")]
@@ -723,7 +728,7 @@ namespace TVPApiServices
                     devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
 
                     for (int i = 0; i < domains.Count(); i++)
-                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = domains[i].m_nDomainID, DomainName = domains[i].m_sName, SiteGuid = domains[i].m_masterGUID.ToString() };
+                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = domains[i].m_nDomainID, DomainName = domains[i].m_sName, SiteGuid = domains[i].m_masterGUIDs[0].ToString() };
                 }
                 catch (Exception ex)
                 {
@@ -770,16 +775,16 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiDomainsService service = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform);
-                    Device device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
+                    DeviceResponseObject device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
                     
-                    if (device == null || device.m_state == DeviceState.Error)
-                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;                                            
-                    else if (device.m_state == DeviceState.Invalid)
+                    if (device == null || device.m_oDeviceResponseStatus == DeviceResponseStatus.Error)
+                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;
+                    else if (device.m_oDeviceResponseStatus == DeviceResponseStatus.DuplicatePin || device.m_oDeviceResponseStatus == DeviceResponseStatus.DeviceNotExists)
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;                    
                     else
                     {
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
-                        deviceRes.UDID = device.m_deviceUDID;
+                        deviceRes.UDID = device.m_oDevice.m_sDeviceUDID;
                     }
                 }
                 catch (Exception ex)

@@ -55,12 +55,12 @@ namespace TVPApiModule.Services
 
         #region Public methods
 
-        public Domain AddUserToDomain(int iDomainID, string sSiteGuid, bool bMaster)
+        public DomainResponseObject AddUserToDomain(int iDomainID, string sSiteGuid, bool bMaster)
         {
-            Domain domain = null;
+            DomainResponseObject domain = null;
             try
             {
-                domain = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, iDomainID, sSiteGuid, bMaster);
+                domain = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, iDomainID, sSiteGuid, bMaster);             
             }
             catch (Exception ex)
             {
@@ -76,7 +76,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                domain = m_Module.RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, sSiteGuid);
+                DomainResponseObject res = m_Module.RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, sSiteGuid);
+
+                if (res.m_oDomainResponseStatus == DomainResponseStatus.OK)
+                    domain = res.m_oDomain;
             }
             catch (Exception ex)
             {
@@ -86,13 +89,13 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public Domain AddDeviceToDomain(int iDomainID, string sUDID, string sDeviceName, int iDeviceBrandID)
+        public DomainResponseObject AddDeviceToDomain(int iDomainID, string sUDID, string sDeviceName, int iDeviceBrandID)
         {
-            Domain domain = null;
+            DomainResponseObject domain = null;
  
             try
             {
-                domain = m_Module.AddDeviceToDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID, sDeviceName, iDeviceBrandID);
+                domain = m_Module.AddDeviceToDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID, sDeviceName, iDeviceBrandID);                
             }
             catch (Exception ex)
             {
@@ -102,9 +105,9 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public Domain RemoveDeviceToDomain(int iDomainID, string sUDID)
+        public DomainResponseObject RemoveDeviceToDomain(int iDomainID, string sUDID)
         {
-            Domain domain = null;
+            DomainResponseObject domain = null;
 
             try
             {
@@ -118,9 +121,9 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public Domain ChangeDeviceDomainStatus(int iDomainID, string sUDID, bool bActive)
+        public DomainResponseObject ChangeDeviceDomainStatus(int iDomainID, string sUDID, bool bActive)
         {
-            Domain domain = null;
+            DomainResponseObject domain = null;
 
             try
             {
@@ -150,9 +153,9 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public Domain SetDomainInfo(int iDomainID, string sDomainName, string sDomainDescription)
+        public DomainResponseObject SetDomainInfo(int iDomainID, string sDomainName, string sDomainDescription)
         {
-            Domain domain = null;
+            DomainResponseObject domain = null;
             
             try
             {
@@ -198,9 +201,9 @@ namespace TVPApiModule.Services
             return pin;
         }
 
-        public Device RegisterDeviceByPIN(string udid, int domainID, string pin)
+        public DeviceResponseObject RegisterDeviceByPIN(string udid, int domainID, string pin)
         {
-            Device device = null;
+            DeviceResponseObject device = null;
             try
             {
                 device = m_Module.RegisterDeviceToDomainWithPIN(m_wsUserName, m_wsPassword, pin, domainID, string.Empty);
