@@ -12,7 +12,7 @@ public partial class Gateways_Test : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        HttpWebRequest HttpWReq = (HttpWebRequest)WebRequest.Create(@"http://drm.tvinci.com/getlicense.aspx");
+        HttpWebRequest HttpWReq = (HttpWebRequest)WebRequest.Create(@"http://drmil.tvinci.com/getlicense.aspx");
         HttpWReq.Method = "POST";
         HttpWReq.ContentType = "application/xml";
         HttpWReq.Headers["msprdrm_server_redirect_compat"] = "false";

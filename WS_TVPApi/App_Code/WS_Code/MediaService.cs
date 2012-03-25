@@ -1299,5 +1299,120 @@ namespace TVPApiServices
 
             return bResponse;
         }
+
+        [WebMethod(EnableSession = true, Description = "Vote for media")]
+        public string UserVote(InitializationObject initObj, int iMediaID)
+        {
+            string sResponse = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "UserVote", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("UserVote-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    //XXX: Fix this to be unified Enum
+                    sResponse = VotesHelper.UserVote(iMediaID.ToString(), (TVPPro.SiteManager.Context.Enums.ePlatform) initObj.Platform);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("UserVote->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("UserVote-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return sResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Has the user voted already")]
+        public bool IsUserVoted(InitializationObject initObj, int iMediaID)
+        {
+            bool bResponse = false;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsUserVoted", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("IsUserVoted-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    //XXX: Fix this to be unified Enum
+                    bResponse = VotesHelper.IaAlreadyVoted(iMediaID.ToString(), initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("IsUserVoted->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("IsUserVoted-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return bResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Has the user voted already")]
+        public int GetVoteRatio(InitializationObject initObj, int iMediaID)
+        {
+            int nResponse = 0;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetVoteRatio", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetVoteRatio-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    //XXX: Fix this to be unified Enum
+                    nResponse = VotesHelper.GetVotingRatio(initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetVoteRatio->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetVoteRatio-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return nResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get Media License")]
+        public string GetMediaLicenseLink(InitializationObject initObj, int mediaFileID, string baseLink)
+        {
+            string sResponse = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLink", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetMediaLicenseLink-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    sResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetMediaLicenseLink->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetMediaLicenseLink-> 'Unknown group' Username: {0}, Password: {1}, mediaFileID: {2}", initObj.ApiUser, initObj.ApiPass, mediaFileID);
+            }
+
+            return sResponse;
+        }
     }
 }
