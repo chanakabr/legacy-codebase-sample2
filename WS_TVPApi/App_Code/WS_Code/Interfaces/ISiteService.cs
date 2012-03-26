@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.Text;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
+using TVPPro.SiteManager.TvinciPlatform.Social;
 
 namespace TVPApiServices
 {
@@ -59,5 +60,11 @@ namespace TVPApiServices
 
         [OperationContract]
         DomainResponseStatus SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription);
+
+        [OperationContract]
+        string DoSocialAction(InitializationObject initObj, int mediaID, SocialAction socialAction, SocialPlatform socialPlatform, string actionParam);
+
+        [OperationContract]
+        bool IsFacebookUser(InitializationObject initObj);
     }
 }

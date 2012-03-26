@@ -10,6 +10,7 @@ using System.Web.Services;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
+using TVPPro.SiteManager.TvinciPlatform.Social;
 
 
 namespace TVPApiServices
@@ -389,8 +390,38 @@ namespace TVPApiServices
             return sRet;
         }
 
+        [WebMethod(EnableSession = true, Description = "Has user connected to FB")]
+        public bool IsFacebookUser(InitializationObject initObj)
+        {
+            bool bRes = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsFacebookUser", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("IsFacebookUser-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    UserResponseObject userObj = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(initObj.SiteGuid);
+                    bRes = !string.IsNullOrEmpty(userObj.m_user.m_oBasicData.m_sFacebookID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("IsFacebookUser->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("IsFacebookUser-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return bRes;
+        }
+
         [WebMethod(EnableSession = true, Description = "Sign-Up a new user")]
-        public UserResponseObject SignUp(InitializationObject initObj, UserBasicData userBasicData, UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
+        public UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, 
+            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -474,7 +505,8 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Edit user details info")]
-        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, UserBasicData userBasicData, UserDynamicData userDynamicData)
+        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, 
+            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -794,6 +826,37 @@ namespace TVPApiServices
             }
 
             return deviceRes;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Do Social Action")]
+        public string DoSocialAction(InitializationObject initObj, int mediaID, SocialAction socialAction, SocialPlatform socialPlatform, string actionParam)
+        {
+            string sRes = SocialActionResponseStatus.UNKNOWN.ToString();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "DoSocialAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("DoSocialAction-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupID, initObj.Platform);
+                    SocialActionResponseStatus response = service.DoSocialAction(mediaID, initObj.SiteGuid, socialAction, socialPlatform, actionParam);
+
+                    if (response == SocialActionResponseStatus.OK || response == SocialActionResponseStatus.INVALID_ACCESS_TOKEN)
+                        sRes = response.ToString();
+                    else
+                        sRes = SocialActionResponseStatus.ERROR.ToString();
+
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : DoSocialAction, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                }
+            }
+
+            return sRes;
         }
         #endregion
     }

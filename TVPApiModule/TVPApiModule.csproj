@@ -146,6 +146,7 @@
     <Compile Include="Services\ApiDomainsService.cs" />
     <Compile Include="Services\ApiPricingService.cs" />
     <Compile Include="Services\ApiApiService.cs" />
+    <Compile Include="Services\ApiSocialService.cs" />
     <Compile Include="Services\ApiUsersService.cs" />
     <Compile Include="Web References\tvapi\Reference.cs">
       <AutoGen>True</AutoGen>
