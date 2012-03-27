@@ -816,7 +816,7 @@ namespace TVPApiServices
                     else
                     {
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
-                        deviceRes.UDID = device.m_oDevice.m_sDeviceUDID;
+                        deviceRes.UDID = device.m_oDevice.m_deviceUDID;
                     }
                 }
                 catch (Exception ex)

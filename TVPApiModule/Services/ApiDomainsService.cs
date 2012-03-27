@@ -79,7 +79,7 @@ namespace TVPApiModule.Services
                 DomainResponseObject res = m_Module.RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, sSiteGuid);
 
                 if (res.m_oDomainResponseStatus == DomainResponseStatus.OK)
-                    domain = res.m_oDomain;
+                    domain = res.m_oDomain;                
             }
             catch (Exception ex)
             {
