@@ -9,7 +9,8 @@ using System.ComponentModel;
 
 public partial class Gateways_tvinci_init : System.Web.UI.Page
 {
-    protected string m_sSettingXMLPath = @"D:\ode-Trunk\Projects\TVPProAPIs\WS_TVPApi\Gateways\TvinciSettings.xml";
+    //protected string m_sSettingXMLPath = @"D:\ode-Trunk\Projects\TVPProAPIs\WS_TVPApi\Gateways\TvinciSettings.xml";
+    protected string m_sSettingXMLPath = @"\\NY1WD231\logs\TVPApi_CTV\TvinciSettings.xml";
 
     protected override void OnInit(EventArgs e)
     {

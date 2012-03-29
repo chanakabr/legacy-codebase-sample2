@@ -228,6 +228,28 @@ namespace TVPApiModule.Services
 
             return returnObject;
         }
+
+        public UserCAStatus GetUserCAStatus(string siteGuid)
+        {
+            UserCAStatus retVal = UserCAStatus.Annonymus;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            //GetWSMethodUserPass(eWSMethodName.GetUserPermittedItems, out wsUser, out wsPass);
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                try
+                {
+                    retVal = m_Module.GetUserCAStatus(wsUser, wsPass, siteGuid);
+                    logger.InfoFormat("Protocol: GetUserStatus, Parameters : SiteGuid : {0}", siteGuid);
+
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : GetUserStatus, Error Message: {0}, Parameters :  SiteGuid: {1}", ex.Message, siteGuid);
+                }
+            }
+            return retVal;
+        }
         #endregion        
     }
 }

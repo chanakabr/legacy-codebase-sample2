@@ -244,15 +244,29 @@ namespace TVPApi
             return retVal;
         }
 
-        public static List<string> GetAutoCompleteList(int groupID, PlatformType platform, int subGroupID)
+        public static List<string> GetAutoCompleteList(int groupID, PlatformType platform, int subGroupID, int?[] iMediaTypes)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular);
+            List<String> lstResponse = new List<String>();
+
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByGroupID(groupID);
             string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
             string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
 
-            CustomAutoCompleteLoader customAutoCompleteLoader = new APICustomAutoCompleteLoader(account.TVMUser, account.TVMPass) { MetaNames = arrMetaNames, TagNames = arrTagNames, Platform = platform, GroupID = groupID };
-            List<String> lstResponse = new List<String>(customAutoCompleteLoader.Execute());
+            if (iMediaTypes != null && iMediaTypes.Length > 0)
+            {
+                foreach (int mediaType in iMediaTypes)
+                {
+                    APICustomAutoCompleteLoader customAutoCompleteLoader = new APICustomAutoCompleteLoader(account.TVMUser, account.TVMPass) { MediaType = mediaType, MetaNames = arrMetaNames, TagNames = arrTagNames, Platform = platform, GroupID = groupID };
+                    lstResponse.AddRange(new List<String>(customAutoCompleteLoader.Execute()));
+                }
+            }
+            else
+            {
+                APICustomAutoCompleteLoader customAutoCompleteLoader = new APICustomAutoCompleteLoader(account.TVMUser, account.TVMPass) { MetaNames = arrMetaNames, TagNames = arrTagNames, Platform = platform, GroupID = groupID };
+                lstResponse = new List<String>(customAutoCompleteLoader.Execute());   
+            }
 
+            lstResponse.Sort();
             return lstResponse;
         }
 

@@ -13,6 +13,7 @@ namespace TVPApi
     public enum ActionType
     {
         Rate,
+        Vote,
         Recommend,
         Share,
         AddFavorite,

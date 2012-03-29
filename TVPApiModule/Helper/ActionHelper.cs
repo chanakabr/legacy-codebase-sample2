@@ -107,6 +107,12 @@ namespace TVPApi
                         //retVal = FavoritesHelper.AddToFavorites(mediaType, mediaID.ToString(), guidNum);
                         //break;
                     }
+                case ActionType.Vote:
+                    {
+                        string sRet = TVPApiModule.Helper.VotesHelper.UserVote(mediaID.ToString(), sUserID, platform, groupID);
+                        retVal = sRet.Equals("Success");
+                        break;
+                    }
                 default:
                     break;
             }

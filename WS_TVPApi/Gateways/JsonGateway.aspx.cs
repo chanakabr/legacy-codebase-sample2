@@ -37,6 +37,12 @@ public partial class Gateways_JsonGateway : BaseGateway
                     CallParameters[i] = GetInitObj2();
                 else if (TargetParameter.ParameterType == typeof(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action))
                     CallParameters[i] = parseAction(RawParameter);
+                else if(TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialAction))
+                    CallParameters[i] = parseSocialAction(RawParameter);
+                else if(TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))
+                    CallParameters[i] = parseSocialPlatform(RawParameter);
+                else if (TargetParameter.ParameterType == typeof(TVPApi.ActionType))
+                    CallParameters[i] = parseActionType(RawParameter);
                 else if (TargetParameter.ParameterType != typeof(String))
                     CallParameters[i] = TypeDeSerialize(RawParameter, TargetParameter.ParameterType);
                 else
@@ -53,6 +59,28 @@ public partial class Gateways_JsonGateway : BaseGateway
 
         }
         //Response.Write(Str);
+    }
+
+    private TVPApi.ActionType parseActionType(string param)
+    {
+        TVPApi.ActionType action = (TVPApi.ActionType)Enum.Parse(typeof(TVPApi.ActionType), param);
+        return action;
+    }
+
+    private TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform parseSocialPlatform(string param)
+    {
+        if (param.ToLower() == "facebook")
+            return TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK;
+
+        return TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.UNKNOWN;
+    }
+
+    private TVPPro.SiteManager.TvinciPlatform.Social.SocialAction parseSocialAction(string param)
+    {
+        if (param.ToLower() == "post")
+            return TVPPro.SiteManager.TvinciPlatform.Social.SocialAction.POST;
+
+        return TVPPro.SiteManager.TvinciPlatform.Social.SocialAction.UNKNOWN;
     }
 
     private Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action parseAction(String param)
@@ -106,6 +134,8 @@ public partial class Gateways_JsonGateway : BaseGateway
         //return retVal;
         InitializationObject retVal = base.GetInitObj();
         retVal.UDID = Request.QueryString["UUID"];
+        if (string.IsNullOrEmpty(retVal.UDID)) retVal.UDID = Request.QueryString["UDID"];
+
         retVal.ApiUser = Request.QueryString["ApiUser"];
         retVal.ApiPass = Request.QueryString["ApiPass"];
 

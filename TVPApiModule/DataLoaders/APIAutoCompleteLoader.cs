@@ -53,6 +53,18 @@ namespace TVPApi
             }
         }
 
+        public int? MediaType
+        {
+            get
+            {
+                return Parameters.GetParameter<int?>(eParameterType.Retrieve, "MediaType", null);
+            }
+            set
+            {
+                Parameters.SetParameter<int?>(eParameterType.Retrieve, "MediaType", value);
+            }
+        }
+
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
         {
             SearchProtocol protocol = new SearchProtocol();
@@ -62,6 +74,9 @@ namespace TVPApi
             protocol.root.flashvars.player_un = m_tvmUser;
             protocol.root.flashvars.player_pass = m_tvmPass;
             protocol.root.request.@params.with_info = "true";
+            if (MediaType.HasValue)
+                protocol.root.request.search_data.cut_values.type.value = MediaType.ToString();
+
             //protocol.root.request.@params.info_struct.name.MakeSchemaCompliant();
 
             foreach (string key in MetaNames)

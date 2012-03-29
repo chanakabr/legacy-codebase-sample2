@@ -703,7 +703,7 @@ namespace TVPApiServices
 
         // Get auto-complete media titles
         [WebMethod(EnableSession = true, Description = "Get auto-complete media titles")]
-        public string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText)
+        public string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int?[] iMediaTypes)
         {
             string[] retVal = null;
 
@@ -715,7 +715,7 @@ namespace TVPApiServices
             {
                 List<string> lstRet = new List<String>();
 
-                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, groupID);
+                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, groupID, iMediaTypes);
 
                 foreach (String sTitle in lstResponse)
                 {
@@ -1314,7 +1314,7 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Fix this to be unified Enum
-                    sResponse = VotesHelper.UserVote(iMediaID.ToString(), (TVPPro.SiteManager.Context.Enums.ePlatform) initObj.Platform);
+                    sResponse = TVPApiModule.Helper.VotesHelper.UserVote(iMediaID.ToString(), initObj.SiteGuid, initObj.Platform, groupId);
                 }
                 catch (Exception ex)
                 {
@@ -1343,7 +1343,7 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Fix this to be unified Enum
-                    bResponse = VotesHelper.IaAlreadyVoted(iMediaID.ToString(), initObj.SiteGuid);
+                    bResponse = TVPApiModule.Helper.VotesHelper.IsAlreadyVoted(iMediaID.ToString(), initObj.SiteGuid);
                 }
                 catch (Exception ex)
                 {

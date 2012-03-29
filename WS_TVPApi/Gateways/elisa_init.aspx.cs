@@ -25,6 +25,7 @@ public partial class _Default : System.Web.UI.Page
         public string SmallPicSize = "";
         public string MediumPicSize = "";
         public string LargePicSize = "";
+        public string SubscriptionID = "277";
         //public List<MethodTemplate> MethodTemplates = new List<MethodTemplate>();
         //public ArrayList Users = new ArrayList();
 

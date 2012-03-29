@@ -68,7 +68,7 @@ namespace TVPApiServices
         List<string> GetNMostSearchedTexts(InitializationObject initObj, int N, int pageSize, int start_index);
 
         [OperationContract]
-        string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText);
+        string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int?[] iMediaTypes);
 
         [OperationContract]
         bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
