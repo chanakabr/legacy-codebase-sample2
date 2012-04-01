@@ -1300,35 +1300,6 @@ namespace TVPApiServices
             return bResponse;
         }
 
-        [WebMethod(EnableSession = true, Description = "Vote for media")]
-        public string UserVote(InitializationObject initObj, int iMediaID)
-        {
-            string sResponse = string.Empty;
-
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "UserVote", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("UserVote-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
-            if (groupId > 0)
-            {
-                try
-                {
-                    //XXX: Fix this to be unified Enum
-                    sResponse = TVPApiModule.Helper.VotesHelper.UserVote(iMediaID.ToString(), initObj.SiteGuid, initObj.Platform, groupId);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error("UserVote->", ex);
-                }
-            }
-            else
-            {
-                logger.ErrorFormat("UserVote-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
-            }
-
-            return sResponse;
-        }
-
         [WebMethod(EnableSession = true, Description = "Has the user voted already")]
         public bool IsUserVoted(InitializationObject initObj, int iMediaID)
         {
