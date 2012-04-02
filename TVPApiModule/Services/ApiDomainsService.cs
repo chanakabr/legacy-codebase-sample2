@@ -127,7 +127,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                domain = m_Module.ChangeDeviceDomainStatus(m_wsUserName, m_wsPassword, iDomainID, sUDID, bActive);
+                domain = m_Module.ChangeDeviceDomainStatus(m_wsUserName, m_wsPassword, iDomainID, sUDID, bActive);                
             }
             catch (Exception ex)
             {
