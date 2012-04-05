@@ -45,6 +45,7 @@ namespace TVPApi
         public string SubFileFormat;
         public string SubFileID;
         public string SubURL;
+        public string GeoBlock;
 
         public List<TagMetaPair> Tags
         {
@@ -173,7 +174,10 @@ namespace TVPApi
             {
                 SubURL = row.SubURL;
             }
-
+            if (!row.IsGeoBlockNull())
+            {
+                GeoBlock = row.GeoBlock;
+            }
 
             MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
 

@@ -8,6 +8,9 @@ using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApi;
 using TVPApiModule.Services;
+using Tvinci.Data.DataLoader.PredefinedAdapters;
+using Tvinci.Helpers;
+using System.Data;
 
 namespace TVPApiModule.Helper
 {
@@ -29,8 +32,10 @@ namespace TVPApiModule.Helper
                 if (!string.IsNullOrEmpty(siteGuid))
                 {
                     logger.InfoFormat("Adding new vote to media, ItemID:{0}.", mediaId);
-                    if (!IsAlreadyVoted(mediaId, siteGuid))
+                    if (!IsAlreadyVoted(mediaId, siteGuid, groupID, platform))
                     {
+                        ConnectionManager connMng = new ConnectionManager(groupID, platform, false);
+                        ODBCWrapper.Connection.GetDefaultConnectionStringMethod = delegate() { return connMng.GetClientConnectionString(); };
                         InsertQuery query = new InsertQuery("tvp_elisa.dbo.UserVote");
                         query += ODBCWrapper.Parameter.NEW_PARAM("MEDIA", mediaId);
                         query += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", siteGuid);
@@ -38,7 +43,7 @@ namespace TVPApiModule.Helper
                         query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "1");
                         query += ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", DateTime.Now);
                         query += ODBCWrapper.Parameter.NEW_PARAM("PLATFORM", platform);
-
+                        
                         if (!query.Execute())
                         {
                             logger.ErrorFormat("Failed voting on media, ItemID:{0}.", mediaId);
@@ -72,42 +77,41 @@ namespace TVPApiModule.Helper
             return res;
         }
 
-        public static bool IsAlreadyVoted(string mediaId, string siteGuid)
+        public static bool IsAlreadyVoted(string mediaId, string siteGuid, int groupID, PlatformType platform)
         {
             bool res = false;
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select STATUS, VOTE_DATE from tvp_elisa.dbo.UserVote where";
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", siteGuid);
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA", "=", mediaId);
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-            selectQuery += " order by VOTE_DATE desc ";
-
-            if (selectQuery.Execute("UserVote", true) != null)
+            ConnectionManager connMng = new ConnectionManager(groupID, platform, false);
+            DataTable dt = new DataTable("UserVote");
+            new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
             {
-                Int32 nCount = selectQuery.Table("UserVote").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    string sVoteDate = selectQuery.Table("UserVote").DefaultView[0].Row["VOTE_DATE"].ToString();
-                    DateTime oVoteDate = DateTime.Parse(sVoteDate);
-                    DateTime oCurrentDate = DateTime.Now;
+                query.SetConnectionString(connMng.GetClientConnectionString());
+                query += "select STATUS, VOTE_DATE from tvp_elisa.dbo.UserVote where";
+                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
+                query += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", siteGuid);
+                query += " and ";
+                query += ODBCWrapper.Parameter.NEW_PARAM("MEDIA", "=", mediaId);
+                query += " and ";
+                query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                query += " order by VOTE_DATE desc ";
+            }, dt).Execute();
 
-                    // Check if a month 
-                    if (((oCurrentDate.Year - oVoteDate.Year) > 0) || ((oCurrentDate.Month - oVoteDate.Month) > 0))
-                    {
-                        res = false;
-                    }
-                    else
-                    {
-                        res = true;
-                    }
+
+            
+            if (dt.Rows.Count > 0)
+            {
+                string sVoteDate = dt.Rows[0]["VOTE_DATE"].ToString();
+                DateTime oVoteDate = DateTime.Parse(sVoteDate);
+                DateTime oCurrentDate = DateTime.Now;
+
+                // Check if a month 
+                if (((oCurrentDate.Year - oVoteDate.Year) > 0) || ((oCurrentDate.Month - oVoteDate.Month) > 0))
+                {
+                    res = false;
                 }
                 else
                 {
-                    res = false;
+                    res = true;
                 }
             }
             else

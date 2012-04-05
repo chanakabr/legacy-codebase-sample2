@@ -31,6 +31,14 @@ namespace TVPApi
             LastWatched
         }
 
+        public enum ePeriod
+        {
+            All = 0,
+            Day = 1,
+            Week = 7,
+            Month = 30
+        }
+
         public MediaHelper()
         {
             
@@ -385,6 +393,20 @@ namespace TVPApi
         {
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
             return GetMediaList(initObj, account.TVMUser, account.TVMPass, 0, picSize, pageSize, pageIndex, groupID, LoaderType.LastWatched);
+        }
+
+        public static List<Media> GetLastWatchedMediasByPeriod(InitializationObject initObj, string picSize, int periodBefore, int groupID, ePeriod byPeriod)
+        {
+            List<Media> lstMedias = new List<Media>();
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            List<Media> lstAllMedias = GetMediaList(initObj, account.TVMUser, account.TVMPass, 0, picSize, 100, 0, groupID, LoaderType.LastWatched);
+
+            lstMedias = (from media in lstAllMedias where 
+                               (DateTime.Now.AddDays((double)byPeriod * periodBefore* -1) - media.CreationDate).TotalDays >= 0  &&
+                               (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - media.CreationDate).TotalDays <= (periodBefore+1) * (int)byPeriod
+                         select media).ToList<Media>();
+            
+            return lstMedias;
         }
 
         public static List<Media> GetChannelMediaList(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID)

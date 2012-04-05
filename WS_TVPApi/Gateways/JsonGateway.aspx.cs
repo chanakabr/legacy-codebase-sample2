@@ -43,7 +43,10 @@ public partial class Gateways_JsonGateway : BaseGateway
                     CallParameters[i] = parseSocialPlatform(RawParameter);
                 else if (TargetParameter.ParameterType == typeof(TVPApi.ActionType))
                     CallParameters[i] = parseActionType(RawParameter);
+                else if (TargetParameter.ParameterType == typeof(MediaHelper.ePeriod))
+                    CallParameters[i] = parsePeriodType(RawParameter);
                 else if (TargetParameter.ParameterType != typeof(String))
+                
                     CallParameters[i] = TypeDeSerialize(RawParameter, TargetParameter.ParameterType);
                 else
                     CallParameters[i] = RawParameter;
@@ -59,6 +62,12 @@ public partial class Gateways_JsonGateway : BaseGateway
 
         }
         //Response.Write(Str);
+    }
+
+    private MediaHelper.ePeriod parsePeriodType(string param)
+    {
+        MediaHelper.ePeriod period = (MediaHelper.ePeriod)Enum.Parse(typeof(MediaHelper.ePeriod), param);
+        return period;
     }
 
     private TVPApi.ActionType parseActionType(string param)

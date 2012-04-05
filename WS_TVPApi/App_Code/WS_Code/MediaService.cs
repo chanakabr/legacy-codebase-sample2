@@ -419,7 +419,7 @@ namespace TVPApiServices
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastWatchedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetLastWatchedMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex);
 
@@ -437,6 +437,34 @@ namespace TVPApiServices
             else
             {
                 logger.ErrorFormat("GetLastWatchedMedias-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get last watched medias")]
+        public List<Media> GetLastWatchedMediasByPeriod(InitializationObject initObj, int mediaID, int mediaType, string picSize, int periodBefore, MediaHelper.ePeriod byPeriod)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastWatchedMediasByPeriod", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetLastWatchedMediasByPeriod-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.GetLastWatchedMediasByPeriod(initObj, picSize, periodBefore, groupID, byPeriod);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetLastWatchedMediasByPeriod->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetLastWatchedMediasByPeriod-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return lstMedia;
@@ -1314,7 +1342,7 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Fix this to be unified Enum
-                    bResponse = TVPApiModule.Helper.VotesHelper.IsAlreadyVoted(iMediaID.ToString(), initObj.SiteGuid);
+                    bResponse = TVPApiModule.Helper.VotesHelper.IsAlreadyVoted(iMediaID.ToString(), initObj.SiteGuid, groupId, initObj.Platform);
                 }
                 catch (Exception ex)
                 {

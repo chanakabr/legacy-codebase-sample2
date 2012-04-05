@@ -66,6 +66,21 @@ namespace TVPApiModule.Services
 
             return bRet;
         }
+
+        public RateMediaObject RateMedia(string siteGuid, int mediaId, int rating)
+        {
+            RateMediaObject res = null;
+            try
+            {
+                res = m_Module.RateMedia(m_wsUserName, m_wsPassword, mediaId, siteGuid, rating);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : RateMedia, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, mediaId, siteGuid);
+            }
+
+            return res;
+        }
         #endregion
     }
 }

@@ -89,18 +89,19 @@ namespace TVPApi
                     }
                 case ActionType.Rate:
                     {
-                        TVPApiModule.tvapi.tvapi service = new tvapi();
-                        //service.Url = "http://localhost/TVApi/tvapi.asmx";
-                        //tvapiService2.Url = "http://localhost/TVMApi/tvapi.asmx";
-                        TVPApiModule.tvapi.InitializationObject initObj = new TVPApiModule.tvapi.InitializationObject();
-                        initObj.m_oPlayerIMRequestObject = new PlayerIMRequestObject();
-                        int favGroupID = WSUtils.GetGroupIDByMediaType(mediaType);
-                        initObj.m_oPlayerIMRequestObject.m_sPalyerID = string.Format("tvpapi_{0}", favGroupID.ToString());
-                        initObj.m_oPlayerIMRequestObject.m_sPlayerKey = "11111";
-                        initObj.m_oUserIMRequestObject = new UserIMRequestObject();
-                        initObj.m_oUserIMRequestObject.m_sSiteGuid = "11111";
-                        string apiWsUser = string.Format("api_{0}", favGroupID.ToString());
-                        RateResponseObject obj = service.TVAPI_RateMedia(apiWsUser, "11111", DateTime.UtcNow, initObj, mediaID, extraVal);
+                        //TVPApiModule.tvapi.tvapi service = new tvapi();
+                        ////service.Url = "http://localhost/TVApi/tvapi.asmx";
+                        ////tvapiService2.Url = "http://localhost/TVMApi/tvapi.asmx";
+                        //TVPApiModule.tvapi.InitializationObject initObj = new TVPApiModule.tvapi.InitializationObject();
+                        //initObj.m_oPlayerIMRequestObject = new PlayerIMRequestObject();
+                        //int favGroupID = WSUtils.GetGroupIDByMediaType(mediaType);
+                        //initObj.m_oPlayerIMRequestObject.m_sPalyerID = string.Format("tvpapi_{0}", favGroupID.ToString());
+                        //initObj.m_oPlayerIMRequestObject.m_sPlayerKey = "11111";
+                        //initObj.m_oUserIMRequestObject = new UserIMRequestObject();
+                        //initObj.m_oUserIMRequestObject.m_sSiteGuid = "11111";
+                        //string apiWsUser = string.Format("api_{0}", favGroupID.ToString());
+                        //RateResponseObject obj = service.TVAPI_RateMedia(apiWsUser, "11111", DateTime.UtcNow, initObj, mediaID, extraVal);
+                        TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject rro = new ApiApiService(groupID, platform).RateMedia(sUserID, mediaID, extraVal);
                         retVal = true;
                         break;
                         //long guidNum = Convert.ToInt64(sID);

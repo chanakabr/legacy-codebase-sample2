@@ -102,5 +102,8 @@ namespace TVPApiServices
 
         [OperationContract]
         string ChargeMediaWithPrepaid(InitializationObject initObj, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode);
+
+        [OperationContract]
+        List<Media> GetLastWatchedMediasByPeriod(InitializationObject initObj, int mediaID, int mediaType, string picSize, int periodBefore, MediaHelper.ePeriod byPeriod);
     }
 }
