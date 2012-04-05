@@ -185,24 +185,37 @@ public partial class MethodFinder
     private class ParameterDefaultInit : ParameterInitBase
     {
         /// <summary>
-        /// method 'Activator.CreateInstance' create a new instance of the type it has been given to it in run time,
-        /// if the type doesn't has a default c'tor then the method will fail.
-        /// 'String' doesn't has a default c'tor, then its creation has been removed by that method [Activator.CreateInstance].
+        /// Searches the reuqested type
         /// </summary>
-        private static Dictionary<Type, Object> defaultCtorForKnownTypes = new Dictionary<Type, object>()
+        public bool TryFindType(string typeName, out Type t)
         {
-            {typeof(String),String.Empty}
-        };
+            t = Type.GetType(typeName);
+            if (t == null)
+            {
+                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    t = a.GetType(typeName);
+                    if (t != null)
+                        break;
+                }
+            }
+            return t != null;
+        }
 
+        /// <summary>
+        /// Create a default instance of the givien type
+        /// </summary>
+        /// <param name="MethodParam"></param>
+        /// <returns></returns>
         private object CreateObjectInstance(Type MethodParam)
         {
             object result = null;
             do
             {
-                if (MethodParam.IsByRef)
+                if (MethodParam.IsByRef)// if parameter is (ref [Type] [param name])
                 {
                     string itsName = MethodParam.FullName.Replace("&", "");
-                    MethodParam = Type.GetType(itsName);
+                    if (!TryFindType(itsName, out MethodParam)) return null;
                 }
 
                 if( MethodParam.IsPrimitive )
@@ -225,6 +238,8 @@ public partial class MethodFinder
 
                 if (MethodParam.IsArray)
                 {
+                    string underineObjectType = MethodParam.FullName.Replace("[]","");
+                    if (!TryFindType(underineObjectType, out MethodParam)) return null;
                     result = Array.CreateInstance(MethodParam,0);
                     break;
                 }

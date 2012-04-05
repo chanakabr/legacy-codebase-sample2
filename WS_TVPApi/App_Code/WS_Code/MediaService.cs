@@ -1125,7 +1125,8 @@ namespace TVPApiServices
                 logger.ErrorFormat("GetSubscriptionsContainingMediaFile-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
-            return (TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription[])subs.Clone();
+            if (subs != null) return (TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription[])subs.Clone();
+            else return null;
         }
 
         [WebMethod(EnableSession = true, Description = "Get user transaction history")]
