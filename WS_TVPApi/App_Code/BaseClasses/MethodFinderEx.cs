@@ -73,7 +73,7 @@ public partial class MethodFinder
         /// </summary>
         /// <param name="SerializationTarget"></param>
         /// <returns></returns>
-        protected string JSONSerialize(object SerializationTarget)
+        protected virtual string JSONSerialize(object SerializationTarget)
         {
             string Product = String.Empty;
             do
@@ -167,7 +167,7 @@ public partial class MethodFinder
                 String replacement = String.Empty;
                 ReplaceStratagy(ref replacement, EnumType, currValue == null ? ReplaceThis : currValue);
 
-                json = String.Format("{0}\"{1}\"{2}", partA, replacement, partBWithoutValue);
+                json = String.Format("{0}{1}{2}", partA, replacement, partBWithoutValue);
                 /*****************/
             } while (false);
 
@@ -264,6 +264,71 @@ public partial class MethodFinder
 
             return requeredObjectToThisParam;
         }
+
+        protected override string JSONSerialize(object SerializationTarget)
+        {
+            StringBuilder requeredObjectToThisParam = new StringBuilder();
+            Type myType = SerializationTarget.GetType();
+            
+            if (!myType.Namespace.StartsWith("System") && myType.IsClass && !myType.IsArray)
+            {
+                requeredObjectToThisParam.Append("{");
+                foreach (PropertyInfo propInfo in SerializationTarget.GetType().GetProperties())//check if object and properties of type objects and create them as well
+                {
+                    do
+                    {
+                        requeredObjectToThisParam.Append(String.Format("'{0}':", propInfo.Name));
+                        if ((propInfo.PropertyType.IsPrimitive || propInfo.PropertyType.IsValueType) && !propInfo.PropertyType.IsEnum)
+                        {
+                            requeredObjectToThisParam.Append(String.Format("'{0}'", propInfo.PropertyType.Name));
+                            break;
+                        }
+                        if (propInfo.PropertyType.Name == "String")
+                        {
+                            requeredObjectToThisParam.Append("'String'");
+                            break;
+                        }
+                        if (propInfo.PropertyType.IsArray)
+                        {
+                            requeredObjectToThisParam.Append(String.Format("['{0}']", propInfo.PropertyType.Name.Replace("[]", "")));
+                            break;
+                        }
+                        if (propInfo.PropertyType.IsClass)
+                        {
+                            requeredObjectToThisParam.Append(this.JSONSerialize(propInfo.GetValue(SerializationTarget, null)));
+                            break;
+                        }                        
+                    } while (false);
+                    requeredObjectToThisParam.Append(",");
+                }
+                requeredObjectToThisParam.Remove(requeredObjectToThisParam.Length - 1, 1);
+                requeredObjectToThisParam.Append("}");
+            }
+            else
+            {
+                do
+                {
+                    if ((myType.IsPrimitive || myType.IsValueType) && !myType.IsEnum)
+                    {
+                        requeredObjectToThisParam.Append(String.Format("'{0}'",myType.Name));
+                        break;
+                    }
+                    if (myType.Name == "String")
+                    {
+                        requeredObjectToThisParam.Append("'String'");
+                        break;
+                    }
+                    if (myType.IsArray)
+                    {
+                        requeredObjectToThisParam.Append(String.Format("['{0}']", myType.Name.Replace("[]","")));
+                        break;
+                    }
+                }while(false);                
+            }            
+
+            return requeredObjectToThisParam.ToString();
+        }
+
         /// <summary>
         /// convert all objects to json format
         /// </summary>
@@ -277,21 +342,21 @@ public partial class MethodFinder
             sb.Append("{");
             for (int i = 0; i < methodParameters.Length; i++ )
             {
-                sb.Append(" \"").Append(paramInfo[i].Name).Append("\": ");
-                string json = JSONSerialize(methodParameters[i]);                
+                sb.Append(" '").Append(paramInfo[i].Name).Append("': ");
+                string json = String.Format("{0}{1}{0}","\"",JSONSerialize(methodParameters[i]));                
 
                 HandleEnumInJson(ref json,paramInfo[i].ParameterType, paramInfo[i].Name, methodParameters[i],false);
 
-                int index = json.IndexOf("{");
-                if (index != -1) json.Remove(index, 1);
-                index = json.LastIndexOf("}");
-                if (index != -1) json.Remove(index, 1);
+                //int index = json.IndexOf("{");
+                //if (index != -1) json.Remove(index, 1);
+                //index = json.LastIndexOf("}");
+                //if (index != -1) json.Remove(index, 1);
                 
-                if( paramInfo[i].ParameterType.Name != "String" &&  ( paramInfo[i].ParameterType.IsClass ) )
-                    json = json.Replace("\"","\\\"");
+                //if( paramInfo[i].ParameterType.Name != "String" &&  ( paramInfo[i].ParameterType.IsClass ) )
+                //    json = json.Replace("\"","\\\"");
 
-                if (!String.IsNullOrEmpty(json.Replace("\"\"", "")))
-                    json = String.Format("{0}{1}{0}", "\"", json);
+                //if (!String.IsNullOrEmpty(json.Replace("\"\"", "")))
+                //    json = String.Format("{0}{1}{0}", "\"", json);
 
                 sb.Append(json).Append(",");
             }
@@ -303,7 +368,13 @@ public partial class MethodFinder
 
         protected override void ReplaceStratagy(ref string json, Type EnumType, object currValue)
         {
-            json = Enum.GetName(EnumType, currValue);                                    
+            StringBuilder enumNames = new StringBuilder();
+            foreach (String eName in Enum.GetNames(EnumType))
+            {
+                enumNames.Append(String.Format("'{0}'",eName)).Append(" || ");
+            }
+            enumNames.Remove(enumNames.Length - " || ".Length, " || ".Length);
+            json = enumNames.ToString();
         }
     }
 
@@ -354,7 +425,7 @@ public partial class MethodFinder
         public override string PostParametersInit(MethodFinder executer, ParameterInfo[] paramInfo, object[] methodParameters)
         {
             object result = executer.ExecuteMethod(methodParameters);
-            string convertedToJsonResult = JSONSerialize(result);
+            string convertedToJsonResult = base.JSONSerialize(result);
 
             return convertedToJsonResult;
         }
