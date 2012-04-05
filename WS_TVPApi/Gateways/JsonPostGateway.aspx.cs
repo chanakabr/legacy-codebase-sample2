@@ -11,8 +11,7 @@ public partial class Gateways_JsonPostGateway : BaseGateway
     protected void Page_Load(object sender, EventArgs e)
     {
         MethodFinder queryServices = new MethodFinder(m_MediaService, m_SiteService);
-        String queryMethod = Request.QueryString["m"];
-        queryServices.Load(queryMethod);
+        queryServices.ProcessRequest();
     }
    
 }
