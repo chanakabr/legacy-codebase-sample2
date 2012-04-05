@@ -17,86 +17,61 @@ using System.Xml.Linq;
 public partial class MethodFinder
 {  
     #region Method Info
+    /// <summary>
+    /// Operter service - The service the reuqest currently uses
+    /// </summary>
     private System.Web.Services.WebService Webservice { get; set; }
-    private System.Web.Services.WebService BackWebservice { get; set; }
+    private System.Web.Services.WebService[] BackWebservice { get; set; }
     private MethodInfo m_MetodInfo { get; set; }
     private ParameterInfo[] MethodParameters { get; set; }
-    private bool IsDefaultMode { get; set; }   
+    /// <summary>
+    /// Indicates the request type from client
+    /// </summary>
+    private bool IsPost { get; set; }   
     #endregion       
-
-    private object this[String key,System.Type targetType]
+    /// <summary>
+    /// Gets a set of web services to retrieve functions from
+    /// </summary>
+    /// <param name="fromService"></param>
+    public MethodFinder(params System.Web.Services.WebService[] fromService)
     {
-        get
-        {                                
-            return GetParam(key, targetType);       
-        }
-    }    
+        BackWebservice = fromService;
+        Webservice = null;
+        IsPost = HttpContext.Current.Request.RequestType.ToLower() == "post";        
+    }           
 
-    public void Load(String methodName)
+    public void ProcessRequest()
     {
-        LoadMethodDetails(methodName);
-    }    
-
-    private void LoadMethodDetails(String methodName)
-    {
-        m_MetodInfo = Webservice.GetType().GetMethod(methodName);
-        if (m_MetodInfo == null)
+        try
         {
-            Webservice = BackWebservice;
-            m_MetodInfo = Webservice.GetType().GetMethod(methodName);
+            if (VerifyAllParametersCheck())
+            {
+                string SerializedReturnValue = String.Empty;
+                ParameterInitBase executer = GetExecuter();//get the stratagy to use to handle reuqest
+
+                object[] CallParameters = new object[MethodParameters.Length];
+                for (int i = 0; i < MethodParameters.Length; i++)
+                {
+                    ParameterInfo TargetParameter = MethodParameters[i];
+                    CallParameters[i] = executer.InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);//get the object value of the parameter
+                }
+                SerializedReturnValue = executer.PostParametersInit(this, MethodParameters, CallParameters);//post handle request
+
+                WriteResponseBackToClient(SerializedReturnValue);
+            }            
         }
-        if (m_MetodInfo != null)
+        catch (Exception e)
         {
-            MethodParameters = m_MetodInfo.GetParameters();
-            Execute();
-        }        
+            ErrorHandler(String.Format("Exception Genrated. Reason: {0}",e.Message));
+        }
     }
 
-    private void Execute()
+    private void WriteResponseBackToClient(string responseMsg)
     {
-        object JSONMethodReturnValue = null ;
-        string SerializedReturnValue = String.Empty;
-        if (!IsDefaultMode)
-        {
-            object[] CallParameters = new object[MethodParameters.Length];
-            for (int i = 0; i < MethodParameters.Length; i++)
-            {
-                ParameterInfo TargetParameter = MethodParameters[i];
-                CallParameters[i] = this[TargetParameter.Name, TargetParameter.ParameterType];
-            }
-            JSONMethodReturnValue = m_MetodInfo.Invoke(Webservice, CallParameters);
-            if( JSONMethodReturnValue != null )
-                SerializedReturnValue = JSONSerialize(JSONMethodReturnValue);
-        }
-        else
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("{Params={");
-            for (int i = 0; i < MethodParameters.Length; i++)
-            {
-                ParameterInfo TargetParameter = MethodParameters[i];
-                sb.Append(TargetParameter.Name).Append(":");
-                BuildParameterObjectString(TargetParameter.ParameterType,ref sb);
-            }
-            sb.Append("}}");
-            SerializedReturnValue = sb.ToString();
-        }
-        
-        HttpContext.Current.Response.HeaderEncoding =
-        HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.UTF8;
+        HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.UTF8;
         HttpContext.Current.Response.Charset = "utf-8";
-        HttpContext.Current.Response.Write(SerializedReturnValue);
-    }       
-
-    private string JSONSerialize(object SerializationTarget)
-    {
-        DataContractJsonSerializer serializer = new DataContractJsonSerializer(SerializationTarget.GetType());
-        using (MemoryStream ms = new MemoryStream())
-        {
-            serializer.WriteObject(ms, SerializationTarget);
-            string Product = Encoding.UTF8.GetString(ms.ToArray());
-            return Product;
-        }        
+        HttpContext.Current.Response.Write(responseMsg);
     }
+    
     
 }

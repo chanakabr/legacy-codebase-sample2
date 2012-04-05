@@ -15,101 +15,434 @@ using System.Web.Script.Serialization;
 /// Finds the Method By Reflection
 /// </summary>
 public partial class MethodFinder
-{    
-    #region Procedures For Types
-    private delegate object FuncByType(string key,Type targetType);
-    private Dictionary<System.Type, FuncByType> FuncsByTypesDic;
-    #endregion   
-
-    private T ConvertToEnum<T>(string value)
-    {
-        if (String.IsNullOrEmpty(value))
-            return default(T);
-        return (T)Enum.Parse(typeof(T), value);
-    }
-
-    public MethodFinder(System.Web.Services.WebService fromService, System.Web.Services.WebService backService)
-    {
-        Webservice = fromService;
-        BackWebservice = backService;                
-    }      
-
-    private System.Type GetUnderLineType(System.Type type)
-    {
-        return type.BaseType.Name == "ValueType" ? typeof(ValueType) :
-            type.BaseType.Name == "Enum" ? typeof(Enum) : type;
-    }
-
-    private void BuildParameterObjectString(System.Type paramType, ref StringBuilder root)
-    {
-        if (paramType.BaseType.Name == "ValueType" || paramType == typeof(String))
-            root.Append("'").Append(paramType.Name).Append("'");
-        else if (paramType.BaseType.Name == "Enum")
+{
+    #region Parameters Initilization Strategy
+    /// <summary>
+    /// Strategy common function
+    /// Holds functions to handle string(JSON) and object's
+    /// </summary>
+    private abstract class ParameterInitBase
+    {               
+        /// <summary>
+        /// Method to be execute when load parameters object values
+        /// </summary>
+        /// <param name="MethodParam">the type of the parameter</param>
+        /// <param name="methodName">the parameter name</param>
+        /// <returns>return the object representing the value for the parameter</returns>
+        public abstract object InitilizeParameter(Type MethodParam,String methodName);
+        /// <summary>
+        /// Method to be executed when finished loading all values for all parameter.
+        /// </summary>
+        /// <param name="executer">the object that holds the services to execute</param>
+        /// <param name="paramInfo">the list of parameters to send to method</param>
+        /// <param name="methodParameters">list of parameters values</param>
+        /// <returns></returns>
+        public abstract string PostParametersInit(MethodFinder executer, ParameterInfo[] paramInfo, object[] methodParameters);
+        /// <summary>
+        /// converts a json represantation of an object (String form) to its object form.
+        /// </summary>
+        /// <param name="DeserializationTarget"></param>
+        /// <param name="TargetType"></param>
+        /// <returns></returns>
+        protected object TypeDeSerialize(string DeserializationTarget, Type TargetType)
         {
-            root.Append("'");
-            foreach (String t in Enum.GetNames(paramType))
+            object Product = null;
+            do
             {
-                root.Append(t).Append("||");
-            }
-            root.Remove(root.Length - 2, 2);
-            root.Append("'");
+                if (TargetType.Name == "String")
+                {
+                    Product = DeserializationTarget;
+                    break;
+                }
+                if (TargetType.IsByRef)
+                {
+                    string itsName = TargetType.FullName.Replace("&", "");
+                    TargetType = Type.GetType(itsName);
+                }
+
+                using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
+                {
+                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(TargetType);
+                    Product = serializer.ReadObject(ms);
+                }                
+            } while (false);
+            return Product;
         }
-        else
+        /// <summary>
+        /// Convert an object to its json represantation (string form)
+        /// </summary>
+        /// <param name="SerializationTarget"></param>
+        /// <returns></returns>
+        protected string JSONSerialize(object SerializationTarget)
         {
-            root.Append("{");
-            foreach (PropertyInfo propInfo in paramType.GetProperties())
+            string Product = String.Empty;
+            do
             {
-                root.Append(propInfo.Name).Append(":");
-                BuildParameterObjectString(propInfo.PropertyType, ref root);
+                if (SerializationTarget == null)
+                    break;
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(SerializationTarget.GetType());
+                    serializer.WriteObject(ms, SerializationTarget);
+                    Product = Encoding.UTF8.GetString(ms.ToArray());
+                }
+            } while (false);
+            return Product;
+        }
+        /// <summary>
+        /// Since enum names are been included in json string (not values of enums)
+        /// we need to change the enum name (present in json string) to its equivalent enum value by type.
+        /// </summary>
+        /// <param name="json"></param>
+        /// <param name="paramInfo"></param>
+        /// <param name="currName"></param>
+        /// <param name="methodParameters"></param>
+        /// <param name="inObject">whether the function searches in objects or simple types</param>
+        protected void HandleEnumInJson(ref string json, Type paramInfo, string currName, object methodParameters, bool inObject)
+        {
+            do
+            {
+                // if not object or Enum
+                if (paramInfo.Name == "String" || (paramInfo.IsValueType && !paramInfo.IsEnum))
+                {
+                    break;
+                }
+                //if Enum
+                if (paramInfo.IsEnum)
+                {
+                    /*Each stretegy changes the enum value differently
+                     * by design -
+                     * GET request - changes enum VALUES to enum NAMES.
+                     * POST request - changes enum NAMES to enum VALUES.
+                     **/
+                    ReplaceEnumValue(ref json, currName, paramInfo, methodParameters, inObject);
+                }
+                //if object - search for enums presence in it
+                if (!paramInfo.Namespace.StartsWith("System"))
+                {
+                    foreach (PropertyInfo propInfo in paramInfo.GetProperties())
+                    {
+                        if (new List<String>() { "Enum", "Object" }.Contains(propInfo.PropertyType.BaseType.Name))
+                        {
+                            //search recrusivly
+                            HandleEnumInJson(ref json, propInfo.PropertyType, propInfo.Name, propInfo.GetValue(methodParameters, null), true);
+                        }
+                    }
+                }
+
+            } while (false);
+        }
+        /// <summary>
+        /// Replaces the enum in string
+        /// </summary>
+        /// <param name="json"></param>
+        /// <param name="replaceThisName"></param>
+        /// <param name="EnumType"></param>
+        /// <param name="currValue"></param>
+        /// <param name="inObject"></param>
+        protected void ReplaceEnumValue(ref string json, string replaceThisName, Type EnumType, object currValue, bool inObject)
+        {
+            do
+            {
+                if (!inObject)
+                {
+                    ReplaceStratagy(ref json, EnumType, currValue);
+                    break;
+                }
+                /*****************/
+                // re-build the json string with the updated enum VALUES|NAMES.
+                int index = json.IndexOf(replaceThisName);
+                String partA = json.Substring(0, index + replaceThisName.Length + 2);
+                String partB = json.Substring(partA.Length);
+
+                int indexOfNextProp = partB.IndexOf(",");
+                int indexOfNextObject = partB.IndexOf("}");
+                if (indexOfNextProp != -1 && indexOfNextProp < indexOfNextObject) index = indexOfNextProp;
+                else index = indexOfNextObject;
+
+                String ReplaceThis = partB.Substring(0, index);
+
+                String partBWithoutValue = partB.Substring(ReplaceThis.Length);
+
+                String replacement = String.Empty;
+                ReplaceStratagy(ref replacement, EnumType, currValue == null ? ReplaceThis : currValue);
+
+                json = String.Format("{0}\"{1}\"{2}", partA, replacement, partBWithoutValue);
+                /*****************/
+            } while (false);
+
+        }
+        /// <summary>
+        /// strategy method - each child implements its version of replaceing the enum
+        /// See comments on method [HandleEnumInJson]
+        /// </summary>
+        /// <param name="json"></param>
+        /// <param name="EnumType"></param>
+        /// <param name="currValue"></param>
+        protected abstract void ReplaceStratagy(ref string json,Type EnumType, object currValue);
+    }
+
+    private class ParameterDefaultInit : ParameterInitBase
+    {
+        /// <summary>
+        /// method 'Activator.CreateInstance' create a new instance of the type it has been given to it in run time,
+        /// if the type doesn't has a default c'tor then the method will fail.
+        /// 'String' doesn't has a default c'tor, then its creation has been removed by that method [Activator.CreateInstance].
+        /// </summary>
+        private static Dictionary<Type, Object> defaultCtorForKnownTypes = new Dictionary<Type, object>()
+        {
+            {typeof(String),String.Empty}
+        };
+
+        private object CreateObjectInstance(Type MethodParam)
+        {
+            object result = null;
+            do
+            {
+                if (MethodParam.IsByRef)
+                {
+                    string itsName = MethodParam.FullName.Replace("&", "");
+                    MethodParam = Type.GetType(itsName);
+                }
+
+                if( MethodParam.IsPrimitive )
+                {
+                    result = Activator.CreateInstance(MethodParam, true);
+                    break;
+                }
+
+                if( MethodParam.IsValueType && !MethodParam.IsEnum )
+                {
+                    result = Activator.CreateInstance(MethodParam, new object[] { (object)0 });
+                    break;
+                }
+
+                if( MethodParam.Name == "String" )
+                {
+                    result = String.Empty;
+                    break;
+                }
+
+                if (MethodParam.IsArray)
+                {
+                    result = Array.CreateInstance(MethodParam,0);
+                    break;
+                }
+
+                result = Activator.CreateInstance(MethodParam, true);
+                                               
+            } while (false);
+            return result;
+        }
+
+        public override object InitilizeParameter(Type MethodParam,String methodName)
+        {
+            object requeredObjectToThisParam = CreateObjectInstance(MethodParam);
+            if ( !MethodParam.Namespace.StartsWith("System") && MethodParam.IsClass && !MethodParam.IsArray)
+            {
+                foreach (PropertyInfo propInfo in requeredObjectToThisParam.GetType().GetProperties())//check if object and properties of type objects and create them as well
+                {
+                    if (propInfo.PropertyType.Name == "String") propInfo.SetValue(requeredObjectToThisParam, String.Empty, null);
+                    else if (propInfo.PropertyType.IsClass) propInfo.SetValue(requeredObjectToThisParam, InitilizeParameter(propInfo.PropertyType, ""), null);
+                }
             }
-            root.Append("}");
+
+            return requeredObjectToThisParam;
         }
-        root.Append(",");
-    }
-
-    private object GetParam(String key, System.Type targetType)
-    {
-        string result = HttpContext.Current.Request.Params[key];
-        object ret;
-        if (targetType == typeof(TVPApi.InitializationObject))
-            ret = GetInitObject(result);
-        else if (targetType == typeof(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action))
-            ret = ConvertToEnum < Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action>(result);
-        else if (targetType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialAction))
-            ret = ConvertToEnum<TVPPro.SiteManager.TvinciPlatform.Social.SocialAction>(result);
-        else if (targetType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))
-            ret = ConvertToEnum<TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform>(result);
-        else if (targetType == typeof(TVPApi.ActionType))
-            ret = ConvertToEnum<TVPApi.ActionType>(result);
-        else if (targetType != typeof(String))
-            ret = TypeDeSerialize(result, targetType);
-        else
-            ret = result;
-        return ret; 
-    }
-
-    private InitializationObject GetInitObject(string objSeri)
-    {
-        foreach (PlatformType t in Enum.GetValues(typeof(PlatformType)))
+        /// <summary>
+        /// convert all objects to json format
+        /// </summary>
+        /// <param name="executer"></param>
+        /// <param name="paramInfo"></param>
+        /// <param name="methodParameters"></param>
+        /// <returns></returns>
+        public override string PostParametersInit(MethodFinder executer, ParameterInfo[] paramInfo ,object[] methodParameters)
         {
-            objSeri.Replace(t.ToString(), ((int)t).ToString());
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{");
+            for (int i = 0; i < methodParameters.Length; i++ )
+            {
+                sb.Append(" \"").Append(paramInfo[i].Name).Append("\": ");
+                string json = JSONSerialize(methodParameters[i]);                
+
+                HandleEnumInJson(ref json,paramInfo[i].ParameterType, paramInfo[i].Name, methodParameters[i],false);
+
+                int index = json.IndexOf("{");
+                if (index != -1) json.Remove(index, 1);
+                index = json.LastIndexOf("}");
+                if (index != -1) json.Remove(index, 1);
+                
+                if( paramInfo[i].ParameterType.Name != "String" &&  ( paramInfo[i].ParameterType.IsClass ) )
+                    json = json.Replace("\"","\\\"");
+
+                if (!String.IsNullOrEmpty(json.Replace("\"\"", "")))
+                    json = String.Format("{0}{1}{0}", "\"", json);
+
+                sb.Append(json).Append(",");
+            }
+            sb.Remove(sb.Length - 1, 1);
+            sb.Append("}");
+
+            return sb.ToString();
         }
-        foreach (TVPApi.LocaleUserState t in Enum.GetValues(typeof(TVPApi.LocaleUserState)))
+
+        protected override void ReplaceStratagy(ref string json, Type EnumType, object currValue)
         {
-            objSeri.Replace(t.ToString(), ((int)t).ToString());
+            json = Enum.GetName(EnumType, currValue);                                    
+        }
+    }
+
+    private class ParameterJsonInit : ParameterInitBase
+    {
+        /// <summary>
+        /// enumerate over the parameter of type Object to check it has properties of type enum
+        /// (recrusivly)
+        /// </summary>
+        /// <param name="json"></param>
+        /// <param name="MethodParam"></param>
+        private void InspectObjectForEnums(ref string json, Type MethodParam,string methodParamName)
+        {
+            do
+            {
+                if (MethodParam.IsEnum)
+                {
+                    ReplaceEnumValue(ref json, methodParamName, MethodParam, null, false);
+                }
+                if (MethodParam.Name != "String" && MethodParam.IsClass)
+                {
+                    foreach (PropertyInfo propInfo in MethodParam.GetProperties())
+                    {
+                        if (propInfo.PropertyType.IsEnum)
+                        {
+                            ReplaceEnumValue(ref json, propInfo.Name, propInfo.PropertyType, null, true);
+                        }
+                        else if (propInfo.PropertyType.Name != "String" && propInfo.PropertyType.IsClass)
+                        {
+                            InspectObjectForEnums(ref json, propInfo.PropertyType, propInfo.Name);
+                        }
+                    }
+                }
+            } while (false);            
         }
 
-        var s = new System.Web.Script.Serialization.JavaScriptSerializer();
-        return s.Deserialize<InitializationObject>(objSeri);
+        public override object InitilizeParameter(Type MethodParam, String methodName)
+        {
+            string paramValues = HttpContext.Current.Request.Params[methodName];
+
+            InspectObjectForEnums(ref paramValues, MethodParam, methodName);//replace enum values before deserialize
+            
+            object ret = TypeDeSerialize(paramValues, MethodParam);
+
+            return ret;
+        }
+
+        public override string PostParametersInit(MethodFinder executer, ParameterInfo[] paramInfo, object[] methodParameters)
+        {
+            object result = executer.ExecuteMethod(methodParameters);
+            string convertedToJsonResult = JSONSerialize(result);
+
+            return convertedToJsonResult;
+        }
+
+        protected override void ReplaceStratagy(ref string json, Type EnumType, object currValue)
+        {
+            foreach (Enum e in Enum.GetValues(EnumType))
+            {
+                if (currValue == null)
+                {
+                    if (e.ToString() == json)
+                    {
+                        json = Convert.ToInt32(e).ToString();
+                        break;
+                    }
+                }
+                else if (e.ToString() == currValue.ToString().Replace("\"",""))
+                {
+                    json = Convert.ToInt32(e).ToString();
+                    break;
+                }
+            }
+        }
     }
 
-    private object TypeDeSerialize(string DeserializationTarget, Type TargetType)
+    #endregion
+
+    /// <summary>
+    /// Handles all error generated
+    /// </summary>
+    /// <param name="msg"></param>
+    private void ErrorHandler(string msg)
     {
-        MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget));
-        DataContractJsonSerializer serializer = new DataContractJsonSerializer(TargetType);
-        object Product = serializer.ReadObject(ms);
-        ms.Close();
-        return Product;
+        String msgFormat = String.Format("Error: {0}",msg);
+
+        WriteResponseBackToClient(msgFormat);
     }
 
+    /// <summary>
+    /// Checks that all initial parameters have been supplied correctly by client.
+    /// 1. Method specified in request query string - 'm'
+    /// 2. the method exists in any of the supplied web-services
+    /// 
+    /// when all requierments (at this point) have met, then extract the Method and its Parameters by Reflection
+    /// </summary>
+    /// <returns></returns>
+    private bool VerifyAllParametersCheck()
+    {
+        do
+        {
+            string methodName = HttpContext.Current.Request.QueryString["m"];
+
+            if (String.IsNullOrEmpty(methodName))
+            {
+                ErrorHandler("Method Name does NOT included in Query String.. Please add to URL: [URL]?m={method_name}");
+                break;
+            }
+
+            foreach (System.Web.Services.WebService service in BackWebservice)
+            {
+                m_MetodInfo = service.GetType().GetMethod(methodName);
+                if (m_MetodInfo != null)
+                {
+                    Webservice = service;
+                    break;
+                }
+            }
+           
+            if (m_MetodInfo == null)
+            {
+                ErrorHandler(String.Format("The method you specified[ {0} ] is NOT part of this Services..", methodName));
+                break;
+            }
+            
+            MethodParameters = m_MetodInfo.GetParameters();
+            return true;
+        } while (false);
+
+        return false;
+    }
+
+    /// <summary>
+    /// Desides which strategy to use in order to fulfill the request,
+    /// decision is made by request type
+    /// if GET: the user is asking to know whats the structure the parameters (JSON) the method requiers.
+    /// if POST: the user asking to execute the requested method.
+    /// </summary>
+    /// <returns></returns>
+    private ParameterInitBase GetExecuter()
+    {
+        ParameterInitBase _strategy;
+
+        if (IsPost)
+            _strategy = new ParameterJsonInit();
+        else            
+            _strategy = new ParameterDefaultInit();
+
+        return _strategy;
+    }
+
+    public object ExecuteMethod(object[] methodParameters)
+    {
+        object JSONMethodReturnValue = m_MetodInfo.Invoke(Webservice, methodParameters);
+        return JSONMethodReturnValue;
+    }
 }
