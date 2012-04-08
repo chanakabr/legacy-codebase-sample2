@@ -343,20 +343,9 @@ public partial class MethodFinder
             for (int i = 0; i < methodParameters.Length; i++ )
             {
                 sb.Append(" '").Append(paramInfo[i].Name).Append("': ");
-                string json = String.Format("{0}{1}{0}","\"",JSONSerialize(methodParameters[i]));                
+                string json = String.Format("{0}{1}{0}", paramInfo[i].ParameterType.IsClass && paramInfo[i].ParameterType.Name != "String" ? "\"" : "", JSONSerialize(methodParameters[i]));                
 
-                HandleEnumInJson(ref json,paramInfo[i].ParameterType, paramInfo[i].Name, methodParameters[i],false);
-
-                //int index = json.IndexOf("{");
-                //if (index != -1) json.Remove(index, 1);
-                //index = json.LastIndexOf("}");
-                //if (index != -1) json.Remove(index, 1);
-                
-                //if( paramInfo[i].ParameterType.Name != "String" &&  ( paramInfo[i].ParameterType.IsClass ) )
-                //    json = json.Replace("\"","\\\"");
-
-                //if (!String.IsNullOrEmpty(json.Replace("\"\"", "")))
-                //    json = String.Format("{0}{1}{0}", "\"", json);
+                HandleEnumInJson(ref json,paramInfo[i].ParameterType, paramInfo[i].Name, methodParameters[i],false);               
 
                 sb.Append(json).Append(",");
             }
@@ -413,7 +402,7 @@ public partial class MethodFinder
 
         public override object InitilizeParameter(Type MethodParam, String methodName)
         {
-            string paramValues = HttpContext.Current.Request.Params[methodName];
+            string paramValues = HttpContext.Current.Request.Params[methodName].Replace("'","\"");
 
             InspectObjectForEnums(ref paramValues, MethodParam, methodName);//replace enum values before deserialize
             
