@@ -505,7 +505,7 @@ public partial class MethodFinder
     /// <returns></returns>
     private ParameterInitBase GetExecuter()
     {
-        ParameterInitBase _strategy;
+        ParameterInitBase _strategy = null;
 
         if (IsPost)
             _strategy = new ParameterJsonInit();
