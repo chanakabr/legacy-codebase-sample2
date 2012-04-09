@@ -6,7 +6,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVPApi;
 
-public partial class Gateways_JsonPostGateway : BaseGateway
+public partial class Gateways_JsonPostGW : BaseGateway
 {     
     protected void Page_Load(object sender, EventArgs e)
     {
