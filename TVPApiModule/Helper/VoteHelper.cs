@@ -89,8 +89,8 @@ namespace TVPApiModule.Helper
                 query += "select STATUS, VOTE_DATE from tvp_elisa.dbo.UserVote where";
                 //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
                 query += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", siteGuid);
-                query += " and ";
-                query += ODBCWrapper.Parameter.NEW_PARAM("MEDIA", "=", mediaId);
+                //query += " and ";
+                //query += ODBCWrapper.Parameter.NEW_PARAM("MEDIA", "=", mediaId);
                 query += " and ";
                 query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 query += " order by VOTE_DATE desc ";
