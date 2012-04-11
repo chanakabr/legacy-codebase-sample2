@@ -96,6 +96,7 @@ namespace TVPApi
             {
                 if (ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FriendlyURL.SupportFeature)
                 {
+                    MediaName = MediaName.Replace("/", "");
                     retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, MediaName, MediaID);
                 }
                 else
