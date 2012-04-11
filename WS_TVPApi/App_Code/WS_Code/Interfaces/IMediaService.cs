@@ -105,5 +105,8 @@ namespace TVPApiServices
 
         [OperationContract]
         List<Media> GetLastWatchedMediasByPeriod(InitializationObject initObj, int mediaID, int mediaType, string picSize, int periodBefore, MediaHelper.ePeriod byPeriod);
+
+        [OperationContract]
+        bool IsUserVoted(InitializationObject initObj, int iMediaID);
     }
 }
