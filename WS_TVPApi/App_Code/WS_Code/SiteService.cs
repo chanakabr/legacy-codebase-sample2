@@ -330,7 +330,7 @@ namespace TVPApiServices
 
         //Get content from specific gallery items
         [WebMethod(EnableSession = true, Description = "Get content from specific gallery items")]
-        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -342,7 +342,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex);
+                    lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, orderBy);
                 }
                 catch (Exception ex)
                 {

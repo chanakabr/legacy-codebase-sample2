@@ -39,6 +39,7 @@ namespace TVPApi
         public string FileID;
         private List<TagMetaPair> m_tags;
         private List<TagMetaPair> m_metas;
+        private List<File> m_files;
 
         public DynamicData MediaDynamicData;
         public string SubDuration;
@@ -46,6 +47,15 @@ namespace TVPApi
         public string SubFileID;
         public string SubURL;
         public string GeoBlock;
+        public long TotalItems;
+
+        public struct File
+        {
+            public string FileID;
+            public string URL;
+            public string Duration;
+            public string Format;
+        }
 
         public List<TagMetaPair> Tags
         {
@@ -71,6 +81,17 @@ namespace TVPApi
             }
         }
 
+        public List<File> Files
+        {
+            get
+            {
+                if (m_files == null)
+                {
+                    m_files = new List<File>();
+                }
+                return m_files;
+            }
+        }
         #endregion
 
         #region Constructors
@@ -81,9 +102,13 @@ namespace TVPApi
 
         public Media(dsItemInfo.ItemRow itemRow, InitializationObject initObj, int groupID, bool withDynamic)
         {
-            InitMediaObj(itemRow, initObj, groupID, withDynamic);
+            InitMediaObj(itemRow, initObj, groupID, withDynamic, 0);
         }
 
+        public Media(dsItemInfo.ItemRow itemRow, InitializationObject initObj, int groupID, bool withDynamic, long iMediaCount)
+        {
+            InitMediaObj(itemRow, initObj, groupID, withDynamic, iMediaCount);
+        }
         #endregion
 
         #region private functions
@@ -107,7 +132,7 @@ namespace TVPApi
             return retVal;
         }
         //Fill properies according to media row
-        private void InitMediaObj(dsItemInfo.ItemRow row, InitializationObject initObj, int groupID, bool withDynamic)
+        private void InitMediaObj(dsItemInfo.ItemRow row, InitializationObject initObj, int groupID, bool withDynamic, long iMediaCount)
         {
             MediaID = row.ID;
             if (!row.IsMediaTypeIDNull())
@@ -183,11 +208,34 @@ namespace TVPApi
             MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
 
             BuildTagMetas(groupID, row, initObj.Platform);
+
+            buildFiles(row);
+
             if (withDynamic && initObj.Locale != null)
             {
                 logger.InfoFormat("Start Media dynamic build GroupID:", groupID);
 
                 BuildDynamicObj(initObj, groupID);
+            }
+
+            TotalItems = iMediaCount;
+        }
+
+        private void buildFiles(dsItemInfo.ItemRow row)
+        {
+            System.Data.DataRow[] rowFiles = row.GetChildRows("Item_files");
+            if (rowFiles != null && rowFiles.Length > 0)
+            {
+                foreach (System.Data.DataRow rowFile in rowFiles)
+                {
+                    File file = new File();
+                    file.FileID = rowFile["FileID"].ToString();
+                    file.URL = rowFile["URL"].ToString();
+                    file.Duration = rowFile["Duration"].ToString();
+                    file.Format = rowFile["Format"].ToString();
+
+                    Files.Add(file);
+                }
             }
         }
 

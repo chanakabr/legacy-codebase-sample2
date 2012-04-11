@@ -45,6 +45,8 @@ public partial class Gateways_JsonGateway : BaseGateway
                     CallParameters[i] = parseActionType(RawParameter);
                 else if (TargetParameter.ParameterType == typeof(MediaHelper.ePeriod))
                     CallParameters[i] = parsePeriodType(RawParameter);
+                else if (TargetParameter.ParameterType == typeof(TVPApi.OrderBy))
+                    CallParameters[i] = parseOrderByType(RawParameter);
                 else if (TargetParameter.ParameterType != typeof(String))
                 
                     CallParameters[i] = TypeDeSerialize(RawParameter, TargetParameter.ParameterType);
@@ -62,6 +64,13 @@ public partial class Gateways_JsonGateway : BaseGateway
 
         }
         //Response.Write(Str);
+    }
+
+    private TVPApi.OrderBy parseOrderByType(string param)
+    {
+        if (string.IsNullOrEmpty(param)) param = TVPApi.OrderBy.None.ToString();
+        TVPApi.OrderBy orderBy = (TVPApi.OrderBy)Enum.Parse(typeof(TVPApi.OrderBy), param);
+        return orderBy;
     }
 
     private MediaHelper.ePeriod parsePeriodType(string param)

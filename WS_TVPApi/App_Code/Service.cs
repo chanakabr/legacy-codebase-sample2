@@ -106,7 +106,7 @@ public class Service : System.Web.Services.WebService
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
-        return m_siteService.GetGalleryItemContent(initObj, ItemID, GalleryID, PageID, picSize, pageSize, pageIndex);
+        return m_siteService.GetGalleryItemContent(initObj, ItemID, GalleryID, PageID, picSize, pageSize, pageIndex, OrderBy.None);
     }
 
     #endregion
@@ -178,7 +178,7 @@ public class Service : System.Web.Services.WebService
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
-        return m_mediaService.GetChannelMediaList(initObj, ChannelID, picSize, pageSize, pageIndex);
+        return m_mediaService.GetChannelMediaList(initObj, ChannelID, picSize, pageSize, pageIndex, OrderBy.None);
     }
 
     //Get Channel media

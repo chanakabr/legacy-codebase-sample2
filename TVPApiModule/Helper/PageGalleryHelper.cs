@@ -86,7 +86,7 @@ namespace TVPApi
             return retVal;
         }
 
-        public static List<Media> GetGalleryItemContent(InitializationObject initObj, long PageID, long GalleryID, long ItemID, string picSize, int groupID, int pageSize, int pageIndex)
+        public static List<Media> GetGalleryItemContent(InitializationObject initObj, long PageID, long GalleryID, long ItemID, string picSize, int groupID, int pageSize, int pageIndex, OrderBy orderBy)
         {
             List<Media> retVal = new List<Media>();
             PageGallery gallery = GetGalleryByID(initObj, GalleryID, PageID, groupID);
@@ -97,7 +97,7 @@ namespace TVPApi
                                     select items).FirstOrDefault();
                 if (item != null)
                 {
-                    retVal = MediaHelper.GetMediaList(initObj, item.TVMUser, item.TVMPass, item.TVMChannelID, picSize, pageSize, pageIndex, groupID, MediaHelper.LoaderType.Channel);
+                    retVal = MediaHelper.GetMediaList(initObj, item.TVMUser, item.TVMPass, item.TVMChannelID, picSize, pageSize, pageIndex, groupID, MediaHelper.LoaderType.Channel, orderBy);
                 }
             }
             return retVal;

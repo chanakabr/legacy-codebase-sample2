@@ -91,7 +91,7 @@ namespace TVPApiServices
 
         //Get Channel medias
         [WebMethod(EnableSession = true, Description = "Get Channel medias")]
-        public List<Media> GetChannelMediaList(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetChannelMediaList(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -103,7 +103,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetChannelMediaList(initObj, ChannelID, picSize, pageSize, pageIndex, groupID);
+                    lstMedia = MediaHelper.GetChannelMediaList(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, orderBy);
                 }
                 catch (Exception ex)
                 {
