@@ -11,6 +11,7 @@ using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Social;
+using System.Configuration;
 
 
 namespace TVPApiServices
@@ -360,6 +361,36 @@ namespace TVPApiServices
         #endregion
 
         #region User
+        [WebMethod(EnableSession = true, Description = "Get Secured SiteGuid")]
+        public string GetSecuredSiteGuid(InitializationObject initObj)
+        {
+            string sRet = string.Empty;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSecuredSiteGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetSecuredSiteGuid-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
+                    string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+                    sRet = SecurityHelper.EncryptSiteGuid(privateKey, IV, initObj.SiteGuid);                    
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetSecuredSiteGuid->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetSecuredSiteGuid-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return sRet;
+        }
+
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]
         public TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password)
         {
