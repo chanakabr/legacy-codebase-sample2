@@ -12,10 +12,7 @@ using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 namespace TVPApiModule.DataLoaders
 {
     public class APITVMRentalMultiMediaLoader : TVMRentalMultiMediaLoader
-    {
-        private string m_tvmUser;
-        private string m_tvmPass;
-
+    {        
         public int GroupID
         {
             get
@@ -39,6 +36,32 @@ namespace TVPApiModule.DataLoaders
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
         }
+
+        protected string TvmUser
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmUser", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmUser", value);
+            }
+
+        }
+        protected string TvmPass
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmPass", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmPass", value);
+            }
+
+        }
+
         #region Constractor
         public APITVMRentalMultiMediaLoader(string[] MediaList, string PictureSize, int MediaTypeId) : base (PictureSize, MediaTypeId)
         {
@@ -47,8 +70,8 @@ namespace TVPApiModule.DataLoaders
         public APITVMRentalMultiMediaLoader(string tvmUn, string tvmPass, string PictureSize, int MediaTypeId)
             : base(tvmUn, tvmPass, PictureSize, MediaTypeId)
         {
-            m_tvmUser = tvmUn;
-            m_tvmPass = tvmPass;
+            TvmUser = tvmUn;
+            TvmPass = tvmPass;
         }
 
         
@@ -71,10 +94,10 @@ namespace TVPApiModule.DataLoaders
 
                 dsItemInfo MediasFromLoader = new dsItemInfo();
 
-                if (!string.IsNullOrEmpty(m_tvmUser) && !string.IsNullOrEmpty(m_tvmPass))
+                if (!string.IsNullOrEmpty(TvmUser) && !string.IsNullOrEmpty(TvmPass))
                 {
                     //Get the media information from the current tvmAccount.
-                    MediasFromLoader = new APIMultiMediaLoader(m_tvmUser, m_tvmPass, MediaArrayID, PicSize, MediaType) { IsPosterPic = IsPosterPic, GroupID = GroupID, Platform = Platform }.Execute();
+                    MediasFromLoader = new APIMultiMediaLoader(TvmUser, TvmPass, MediaArrayID, PicSize, MediaType) { IsPosterPic = IsPosterPic, GroupID = GroupID, Platform = Platform }.Execute();
                 }
                 else
                 {

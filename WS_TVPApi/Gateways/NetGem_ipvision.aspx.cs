@@ -239,7 +239,10 @@ public partial class Gateways_NetGem_ipvision : BaseGateway
                             try
                             {
                                 string[] time = runtime.Split(new char[] { 'h', 'm' });
-                                XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", int.Parse(time[0]) * 60 + int.Parse(time[1])));
+                                if( time.Length == 4 )
+                                    XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", int.Parse(time[0]) * 60 + int.Parse(time[1])));
+                                else if (time.Length == 2)
+                                    XTM.WriteElementString("durationInMinutes", string.Format("{0:0}", int.Parse(time[0])));
                             }
                             catch (Exception ex)
                             {

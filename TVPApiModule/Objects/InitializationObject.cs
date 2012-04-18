@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Script.Serialization;
 
 /// <summary>
 /// Summary description for InitializationObject
@@ -15,7 +16,6 @@ namespace TVPApi
         //User locale object
         public Locale Locale { get; set; }
         //User Platform
-
         public PlatformType Platform { get; set; }
 
         public string SiteGuid { set; get; }

@@ -9,16 +9,37 @@ using Tvinci.Data.DataLoader;
 namespace TVPApi
 {
     public class APIPeopleWhoWatchedLoader : PeopleWhoWatchedLoader
-    {
-
-        private string m_tvmUser;
-        private string m_tvmPass;
-
+    {        
         public APIPeopleWhoWatchedLoader(string tvmUser, string tvmPass, long mediaID, string picSize)
             : base(mediaID, picSize)
         {
-            m_tvmUser = tvmUser;
-            m_tvmPass = tvmPass;
+            TvmUser = tvmUser;
+            TvmPass = tvmPass;
+        }
+
+        protected string TvmUser
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmUser", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmUser", value);
+            }
+
+        }
+        protected string TvmPass
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmPass", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmPass", value);
+            }
+
         }
 
         public int GroupID
@@ -67,8 +88,8 @@ namespace TVPApi
                 result.root.flashvars.pic_size1_quality = "HIGH";
             }
 
-            result.root.flashvars.player_un = m_tvmUser;
-            result.root.flashvars.player_pass = m_tvmPass;
+            result.root.flashvars.player_un = TvmUser;
+            result.root.flashvars.player_pass = TvmPass;
 
             result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             result.root.flashvars.file_quality = file_quality.high;

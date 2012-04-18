@@ -55,8 +55,8 @@ namespace TVPApiModule.DataLoaders
         public APIMediaMark(string tvmUn, string tvmPass)
             : base(tvmUn, tvmPass)
         {
-            this.m_tvmPass = tvmPass;
-            this.m_tvmUser = tvmUn;
+            this.TvmPass = tvmPass;
+            this.TvmUser = tvmUn;
         }
 
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
@@ -71,8 +71,8 @@ namespace TVPApiModule.DataLoaders
 
             result.root.flashvars.lang = Language;
 
-            result.root.flashvars.player_un = m_tvmUser;
-            result.root.flashvars.player_pass = m_tvmPass;
+            result.root.flashvars.player_un = TvmUser;
+            result.root.flashvars.player_pass = TvmPass;
             result.root.flashvars.file_quality = file_quality2.high;
             result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             result.root.flashvars.site_guid = SiteGUID;

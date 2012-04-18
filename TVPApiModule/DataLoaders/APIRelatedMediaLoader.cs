@@ -81,8 +81,8 @@ namespace TVPApi
             protocol.root.request.channel.number_of_items = PageSize.ToString();
             protocol.root.flashvars.pic_size1 = PicSize;
             protocol.root.request.@params.with_info = "true";
-            protocol.root.flashvars.player_un = m_tvmUser;
-            protocol.root.flashvars.player_pass = m_tvmPass;
+            protocol.root.flashvars.player_un = TvmUser;
+            protocol.root.flashvars.player_pass = TvmPass;
             protocol.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             protocol.root.flashvars.file_quality = file_quality.high;
             protocol.root.request.@params.info_struct.type.MakeSchemaCompliant();

@@ -48,6 +48,7 @@ namespace TVPApi
         public string SubURL;
         public string GeoBlock;
         public long TotalItems;
+        public int like_counter;
 
         public struct File
         {
@@ -203,6 +204,10 @@ namespace TVPApi
             if (!row.IsGeoBlockNull())
             {
                 GeoBlock = row.GeoBlock;
+            }
+            if (!String.IsNullOrEmpty(row.like_counter))
+            {
+                like_counter = Convert.ToInt32(row.like_counter);
             }
 
             MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);

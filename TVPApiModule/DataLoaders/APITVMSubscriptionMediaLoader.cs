@@ -10,10 +10,33 @@ using Tvinci.Data.TVMDataLoader.Protocols.SubscriptionMedia;
 namespace TVPApiModule.DataLoaders
 {
     public class APITVMSubscriptionMediaLoader : TVMSubscriptionMediaLoader
-    {
-        private string m_tvmUser = string.Empty;
-        private string m_tvmPass = string.Empty;
+    {        
         private long m_BaseID;
+
+        protected string TvmUser
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmUser", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmUser", value);
+            }
+
+        }
+        protected string TvmPass
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmPass", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmPass", value);
+            }
+
+        }
 
         public int GroupID
         {
@@ -49,8 +72,8 @@ namespace TVPApiModule.DataLoaders
 
         public APITVMSubscriptionMediaLoader(string TVMUser, string TVMPass, long BaseID) : base(TVMUser, TVMPass, BaseID)
         {
-            m_tvmUser = TVMUser;
-            m_tvmPass = TVMPass;
+            TvmUser = TVMUser;
+            TvmPass = TVMPass;
             m_BaseID = BaseID;
         }
 
@@ -64,8 +87,8 @@ namespace TVPApiModule.DataLoaders
             sub.start_index = (PageIndex * PageSize).ToString();
             result.root.request.subscription = sub;
 
-            result.root.flashvars.player_un = m_tvmUser;
-            result.root.flashvars.player_pass = m_tvmPass;
+            result.root.flashvars.player_un = TvmUser;
+            result.root.flashvars.player_pass = TvmPass;
 
             result.root.flashvars.pic_size1 = PicSize;
             result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;

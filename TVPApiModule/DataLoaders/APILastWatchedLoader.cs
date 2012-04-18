@@ -11,19 +11,16 @@ namespace TVPApiModule.DataLoaders
 {
     [Serializable]
     class APILastWatchedLoader : LastWatchedLoader
-    {
-        private string m_tvmUser;
-        private string m_tvmPass;
-
+    {        
         public APILastWatchedLoader() : base()
         {
         }
 
         public APILastWatchedLoader(string tvmUser, string tvmPass)
         {
-            m_tvmUser = tvmUser;
-            m_tvmPass = tvmPass;
-        }
+            TvmUser = tvmUser;
+            TvmPass = tvmPass;
+        }        
 
         public PlatformType Platform
         {
@@ -58,8 +55,8 @@ namespace TVPApiModule.DataLoaders
             protocol.root.flashvars.no_cache = "1";
             protocol.root.flashvars.pic_size1 = PicSize;
 
-            protocol.root.flashvars.player_un = m_tvmUser;
-            protocol.root.flashvars.player_pass = m_tvmPass;
+            protocol.root.flashvars.player_un = TvmUser;
+            protocol.root.flashvars.player_pass = TvmPass;
 
             protocol.root.request.@params.with_info = WithInfo.ToString();
 

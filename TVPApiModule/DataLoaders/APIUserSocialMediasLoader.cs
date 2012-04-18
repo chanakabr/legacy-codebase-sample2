@@ -11,8 +11,30 @@ namespace TVPApiModule.DataLoaders
 {
     public class APIUserSocialMediasLoader : UserSocialMediasLoader
     {
-        private string m_tvmUser = string.Empty;
-        private string m_tvmPass = string.Empty;
+        protected string TvmUser
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmUser", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmUser", value);
+            }
+
+        }
+        protected string TvmPass
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmPass", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmPass", value);
+            }
+
+        }
 
         public int GroupID
         {
@@ -56,8 +78,8 @@ namespace TVPApiModule.DataLoaders
         public APIUserSocialMediasLoader(string wsUser, string wsPass, string sPicSize)
             : base(wsUser, wsPass, sPicSize)
         {
-            m_tvmUser = wsUser;
-            m_tvmPass = wsPass;
+            TvmUser = wsUser;
+            TvmPass = wsPass;
         }
 
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
@@ -75,8 +97,8 @@ namespace TVPApiModule.DataLoaders
             result.root.request.@params.info_struct.description.MakeSchemaCompliant();
             result.root.flashvars.no_cache = "1";
 
-            result.root.flashvars.player_un = m_tvmUser;
-            result.root.flashvars.player_pass = m_tvmPass;
+            result.root.flashvars.player_un = TvmUser;
+            result.root.flashvars.player_pass = TvmPass;
 
             result.root.request.channel.number_of_items = PageSize;
             result.root.request.channel.start_index = PageIndex;

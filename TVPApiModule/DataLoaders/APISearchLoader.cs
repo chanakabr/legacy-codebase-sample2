@@ -90,8 +90,8 @@ namespace TVPApi
             protocol.root.flashvars.use_final_end_date = UseFinalEndDate;
             protocol.root.flashvars.use_start_date = GetFutureStartDate;
 
-            protocol.root.flashvars.player_un = m_tvmUser;
-            protocol.root.flashvars.player_pass = m_tvmPass;
+            protocol.root.flashvars.player_un = TvmUser;
+            protocol.root.flashvars.player_pass = TvmPass;
 
             //if (string.IsNullOrEmpty(PictureSize))
             //    throw new Exception("Picture size must be given");

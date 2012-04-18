@@ -11,18 +11,40 @@ namespace TVPApi
 {
     [Serializable]
     public class APICustomAutoCompleteLoader : CustomAutoCompleteLoader
-    {
-        private string m_tvmUser = string.Empty;
-        private string m_tvmPass = string.Empty;
-
+    {        
         public APICustomAutoCompleteLoader() : base()
         {
         }
 
         public APICustomAutoCompleteLoader(string tvmUser, string tvmPass)
         {
-            m_tvmUser = tvmUser;
-            m_tvmPass = tvmPass;
+            TvmUser = tvmUser;
+            TvmPass = tvmPass;
+        }
+
+        private string TvmUser
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmUser", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmUser", value);
+            }
+
+        }
+        private string TvmPass
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmPass", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmPass", value);
+            }
+
         }
 
         public PlatformType Platform
@@ -77,7 +99,7 @@ namespace TVPApi
 
         private List<String> CreateList()
         {
-            APIAutoCompleteLoader loaderAutoComplete = new APIAutoCompleteLoader(m_tvmUser, m_tvmPass) { MediaType = MediaType, MetaNames = MetaNames, Platform = this.Platform, GroupID = this.GroupID };
+            APIAutoCompleteLoader loaderAutoComplete = new APIAutoCompleteLoader(TvmUser, TvmPass) { MediaType = MediaType, MetaNames = MetaNames, Platform = this.Platform, GroupID = this.GroupID };
             List<String> lstResponse = new List<String>(loaderAutoComplete.Execute());
 
             TVMTagLoader tagsLoader = new TVMTagLoader(TagNames);

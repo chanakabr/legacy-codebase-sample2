@@ -60,8 +60,8 @@ namespace TVPApiModule.DataLoaders
 
                 result.root.request.@params.with_info = "true";
 
-                result.root.flashvars.player_un = m_tvmUser;
-                result.root.flashvars.player_pass = m_tvmPass;
+                result.root.flashvars.player_un = TvmUser;
+                result.root.flashvars.player_pass = TvmPass;
 
                 // views / rating
                 result.root.request.@params.info_struct.statistics = true;

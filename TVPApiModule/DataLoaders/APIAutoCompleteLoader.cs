@@ -13,11 +13,7 @@ namespace TVPApi
 {
     [Serializable]
     public class APIAutoCompleteLoader : AutoCompleteLoader
-    {
-
-        private string m_tvmUser;
-        private string m_tvmPass;
-
+    {        
         public APIAutoCompleteLoader()
             : base()
         {
@@ -25,8 +21,32 @@ namespace TVPApi
 
         public APIAutoCompleteLoader(string tvmUser, string tvmPass)
         {
-            m_tvmUser = tvmUser;
-            m_tvmPass = tvmPass;
+            TvmUser = tvmUser;
+            TvmPass = tvmPass;
+        }
+
+        private string TvmUser
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmUser", "");
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmUser", value);
+            }
+        }
+
+        private string TvmPass
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmPass", "");
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmPass", value);
+            }
         }
 
         public PlatformType Platform
@@ -71,8 +91,8 @@ namespace TVPApi
 
             protocol.root.request.search_data.channel.start_index = "0";
             protocol.root.request.search_data.channel.media_count = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems.ToString();
-            protocol.root.flashvars.player_un = m_tvmUser;
-            protocol.root.flashvars.player_pass = m_tvmPass;
+            protocol.root.flashvars.player_un = TvmUser;
+            protocol.root.flashvars.player_pass = TvmPass;
             protocol.root.request.@params.with_info = "true";
             if (MediaType.HasValue)
                 protocol.root.request.search_data.cut_values.type.value = MediaType.ToString();
