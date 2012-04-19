@@ -63,6 +63,10 @@ namespace TVPApiModule.Services
                     loginData.DomainID = response.m_user.m_domianID;
                     loginData.LoginStatus = response.m_RespStatus;
                 }
+                else if (response != null)
+                {
+                    loginData.LoginStatus = response.m_RespStatus;
+                }
             }
             catch (Exception ex)
             {
