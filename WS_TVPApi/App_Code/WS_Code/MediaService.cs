@@ -1414,5 +1414,147 @@ namespace TVPApiServices
 
             return sResponse;
         }
+
+        [WebMethod(EnableSession = true, Description = "Get user offline list")]
+        public UserOfflineObject[] GetUserOfflineList(InitializationObject initObj)
+        {
+            UserOfflineObject[] sResponse = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserOfflineList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserOfflineList-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    sResponse = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserOfflineList->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserOfflineList-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return sResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get full user offline list")]
+        public List<Media> GetUserOfflineListFull(InitializationObject initObj, string picSize, bool withDynamic)
+        {
+            List<Media> lResponse = new List<Media>();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserOfflineListFull", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserOfflineListFull-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    UserOfflineObject[] offArr = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid);
+                    long[] mediaIDs = offArr.Select(x=> long.Parse(x.m_MediaID)).ToArray();
+                    lResponse.AddRange(GetMediasInfo(initObj, mediaIDs, 0, picSize, withDynamic));
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserOfflineListFull->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserOfflineListFull-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Add user offline media")]
+        public bool AddUserOfflineMedia(InitializationObject initObj, int mediaID)
+        {
+            bool bResponse = false;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "AddUserOfflineMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("AddUserOfflineMedia-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    bResponse = new ApiUsersService(groupId, initObj.Platform).AddUserOfflineMedia(initObj.SiteGuid, mediaID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("AddUserOfflineMedia->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("AddUserOfflineMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return bResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Remove user offline media")]
+        public bool RemoveUserOfflineMedia(InitializationObject initObj, int mediaID)
+        {
+            bool bResponse = false;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "RemoveUserOfflineMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("RemoveUserOfflineMedia-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    bResponse = new ApiUsersService(groupId, initObj.Platform).RemoveUserOfflineMedia(initObj.SiteGuid, mediaID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("RemoveUserOfflineMedia->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("RemoveUserOfflineMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return bResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Clear user offline list")]
+        public bool ClearUserOfflineList(InitializationObject initObj)
+        {
+            bool bResponse = false;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ClearUserOfflineList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("ClearUserOfflineList-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    bResponse = new ApiUsersService(groupId, initObj.Platform).ClearUserOfflineList(initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ClearUserOfflineList->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ClearUserOfflineList-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return bResponse;
+        }
     }
 }

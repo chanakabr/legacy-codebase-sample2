@@ -216,5 +216,69 @@ namespace TVPApiModule.Services
         }
         #endregion
 
+        public UserOfflineObject[] GetUserOfflineList(string sSiteGuid)
+        {
+            UserOfflineObject[] response = null;
+
+            try
+            {
+                string sFileType = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).TechnichalConfiguration.Data.TVM.FlashVars.OfflineFileFormat;
+                response = m_Module.GetUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid, sFileType);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol GetUserOfflineList, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
+            }
+
+            return response;
+        }
+
+        public bool AddUserOfflineMedia(string siteGuid, int mediaID)
+        {
+            bool response = false;
+
+            try
+            {
+                response = m_Module.AddUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol AddUserOfflineMedia, Error Message: {0} Parameters : User {1}", ex.Message, siteGuid);
+            }
+
+            return response;
+        }
+
+        public bool RemoveUserOfflineMedia(string siteGuid, int mediaID)
+        {
+            bool response = false;
+
+            try
+            {
+                response = m_Module.RemoveUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol RemoveUserOfflineMedia, Error Message: {0} Parameters : User {1}", ex.Message, siteGuid);
+            }
+
+            return response;
+        }
+
+        public bool ClearUserOfflineList(string siteGuid)
+        {
+            bool response = false;
+
+            try
+            {
+                response = m_Module.ClearUserOfflineAssets(m_wsUserName, m_wsPassword, siteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol ClearUserOfflineList, Error Message: {0} Parameters : User {1}", ex.Message, siteGuid);
+            }
+
+            return response;
+        }
     }
 }

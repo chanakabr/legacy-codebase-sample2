@@ -9,6 +9,7 @@ using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.Context;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiServices
 {
@@ -108,5 +109,20 @@ namespace TVPApiServices
 
         [OperationContract]
         bool IsUserVoted(InitializationObject initObj, int iMediaID);
+
+        [OperationContract]
+        UserOfflineObject[] GetUserOfflineList(InitializationObject initObj);
+
+        [OperationContract]
+        List<Media> GetUserOfflineListFull(InitializationObject initObj, string picSize, bool withDynamic);
+
+        [OperationContract]
+        bool AddUserOfflineMedia(InitializationObject initObj, int mediaID);
+
+        [OperationContract]
+        bool RemoveUserOfflineMedia(InitializationObject initObj, int mediaID);
+
+        [OperationContract]
+        bool ClearUserOfflineList(InitializationObject initObj);
     }
 }
