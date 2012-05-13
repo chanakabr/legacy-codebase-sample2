@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Text;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 public partial class Gateways_DeviceInit : System.Web.UI.Page
 {
@@ -35,12 +36,14 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
             //string sResponseJSON = jsonSer.Serialize(deviceInit);
 
             string sResponseJSON = string.Empty;
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(deviceInit.GetType());
-            using (MemoryStream ms = new MemoryStream())
-            {
-                serializer.WriteObject(ms, deviceInit);
-                sResponseJSON = Encoding.UTF8.GetString(ms.ToArray());
-            }
+            //DataContractJsonSerializer serializer = new DataContractJsonSerializer(deviceInit.GetType());
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    serializer.WriteObject(ms, deviceInit);
+            //    sResponseJSON = Encoding.UTF8.GetString(ms.ToArray());
+            //}
+
+            sResponseJSON = JsonConvert.SerializeObject(deviceInit, new MyStringEnumConverter());
 
             // write json string
             Response.Clear();
@@ -93,19 +96,22 @@ public class DeviceInit
     public string SD { get; set; }
 }
 
-public class InitEnumConverter : JavaScriptConverter
+public class MyStringEnumConverter : Newtonsoft.Json.Converters.StringEnumConverter
 {
-    public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-        return new Object();
-    }
+        
+        if (value is TVPApi.LocaleUserState)
+        {
+            writer.WriteValue(Enum.GetName(typeof(TVPApi.LocaleUserState), (TVPApi.LocaleUserState)value));
+            return;
+        }
+        else if(value is TVPApi.PlatformType)
+        {
+            writer.WriteValue(Enum.GetName(typeof(TVPApi.PlatformType), (TVPApi.PlatformType)value));
+            return;
+        }
 
-    public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
-    {
-        Dictionary<string,object> objs = new Dictionary<string, object>();
-        objs.Add(obj.GetType().ToString(), obj.ToString());
-        return objs;
+        base.WriteJson(writer, value, serializer);
     }
-
-    public override IEnumerable<Type> SupportedTypes { get {return new Type[] {typeof (Enum)};}  }
 }
