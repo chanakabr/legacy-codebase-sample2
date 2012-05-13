@@ -37,7 +37,7 @@ public partial class MethodFinder
     {
         BackWebservice = fromService;
         Webservice = null;
-        IsPost = HttpContext.Current.Request.RequestType.ToLower() == "post";        
+        IsPost = HttpContext.Current.Items.Contains("initObj");//HttpContext.Current.Request.RequestType.ToLower() == "post";        
     }           
 
     public void ProcessRequest()

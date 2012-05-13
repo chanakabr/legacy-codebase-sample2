@@ -80,12 +80,13 @@ public partial class MethodFinder
             {
                 if (SerializationTarget == null)
                     break;
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(SerializationTarget.GetType());
-                    serializer.WriteObject(ms, SerializationTarget);
-                    Product = Encoding.UTF8.GetString(ms.ToArray());
-                }
+                //using (MemoryStream ms = new MemoryStream())
+                //{
+                //    DataContractJsonSerializer serializer = new DataContractJsonSerializer(SerializationTarget.GetType());
+                //    serializer.WriteObject(ms, SerializationTarget);
+                //    Product = Encoding.UTF8.GetString(ms.ToArray());
+                //}
+                Product = Newtonsoft.Json.JsonConvert.SerializeObject(SerializationTarget);
             } while (false);
             return Product;
         }
@@ -142,6 +143,7 @@ public partial class MethodFinder
         /// <param name="inObject"></param>
         protected void ReplaceEnumValue(ref string json, string replaceThisName, Type EnumType, object currValue, bool inObject)
         {
+            
             do
             {
                 if (!inObject)
@@ -151,26 +153,43 @@ public partial class MethodFinder
                 }
                 /*****************/
                 // re-build the json string with the updated enum VALUES|NAMES.
+                Newtonsoft.Json.Linq.JObject oJson = Newtonsoft.Json.Linq.JObject.Parse(json);
+
+                Newtonsoft.Json.Linq.JToken oCurToken = (oJson[replaceThisName] != null)? oCurToken = oJson[replaceThisName] : oCurToken = oJson["Locale"][replaceThisName];
+                
                 int index = json.IndexOf(replaceThisName);
-                String partA = json.Substring(0, index + replaceThisName.Length + 2);
-                String partB = json.Substring(partA.Length);
+                //String partA = json.Substring(0, index + replaceThisName.Length +2);
+                //String partB = json.Substring(partA.Length);
 
-                int indexOfNextProp = partB.IndexOf(",");
-                int indexOfNextObject = partB.IndexOf("}");
-                if (indexOfNextProp != -1 && indexOfNextProp < indexOfNextObject) index = indexOfNextProp;
-                else index = indexOfNextObject;
+                //int indexOfNextProp = partB.IndexOf(",");
+                //int indexOfNextObject = partB.IndexOf("}");
+                //if (indexOfNextProp != -1 && indexOfNextProp < indexOfNextObject) index = indexOfNextProp;
+                //else index = indexOfNextObject;
 
-                String ReplaceThis = partB.Substring(0, index);
+                
 
-                String partBWithoutValue = partB.Substring(ReplaceThis.Length);
-
+                //String ReplaceThis = partB.Substring(1, index);
+                //ReplaceThis = ReplaceThis.Replace("'", string.Empty);
+                //String partBWithoutValue = partB.Substring(ReplaceThis.Length);
+                
                 String replacement = String.Empty;
-                ReplaceStratagy(ref replacement, EnumType, currValue == null ? ReplaceThis : currValue);
 
-                json = String.Format("{0}{1}{2}", partA, replacement, partBWithoutValue);
+                ReplaceStratagy(ref replacement, EnumType, oCurToken.ToString());
+
+                if (oJson[replaceThisName] != null)
+                {
+                    oJson[replaceThisName] = replacement.Replace("\"", string.Empty);
+                }
+                else
+                {
+                    oJson["Locale"][replaceThisName] = replacement.Replace("\"", string.Empty);
+                }
+
+                json = oJson.ToString(Newtonsoft.Json.Formatting.None);
+
+                //json = String.Format("{0}{1}{2}", partA, replacement, partBWithoutValue);
                 /*****************/
             } while (false);
-
         }
         /// <summary>
         /// strategy method - each child implements its version of replaceing the enum
@@ -277,20 +296,20 @@ public partial class MethodFinder
                 {
                     do
                     {
-                        requeredObjectToThisParam.Append(String.Format("'{0}':", propInfo.Name));
+                        requeredObjectToThisParam.Append(String.Format(@"""{0}"":", propInfo.Name));
                         if ((propInfo.PropertyType.IsPrimitive || propInfo.PropertyType.IsValueType) && !propInfo.PropertyType.IsEnum)
                         {
-                            requeredObjectToThisParam.Append(String.Format("'{0}'", propInfo.PropertyType.Name));
+                            requeredObjectToThisParam.Append(String.Format(@"""{0}""", propInfo.PropertyType.Name));
                             break;
                         }
                         if (propInfo.PropertyType.Name == "String")
                         {
-                            requeredObjectToThisParam.Append("'String'");
+                            requeredObjectToThisParam.Append(@"""String""");
                             break;
                         }
                         if (propInfo.PropertyType.IsArray)
                         {
-                            requeredObjectToThisParam.Append(String.Format("['{0}']", propInfo.PropertyType.Name.Replace("[]", "")));
+                            requeredObjectToThisParam.Append(String.Format(@"[""{0}""]", propInfo.PropertyType.Name.Replace("[]", "")));
                             break;
                         }
                         if (propInfo.PropertyType.IsClass)
@@ -310,17 +329,17 @@ public partial class MethodFinder
                 {
                     if ((myType.IsPrimitive || myType.IsValueType) && !myType.IsEnum)
                     {
-                        requeredObjectToThisParam.Append(String.Format("'{0}'",myType.Name));
+                        requeredObjectToThisParam.Append(String.Format(@"""{0}""",myType.Name));
                         break;
                     }
                     if (myType.Name == "String")
                     {
-                        requeredObjectToThisParam.Append("'String'");
+                        requeredObjectToThisParam.Append(@"""String""");
                         break;
                     }
                     if (myType.IsArray)
                     {
-                        requeredObjectToThisParam.Append(String.Format("['{0}']", myType.Name.Replace("[]","")));
+                        requeredObjectToThisParam.Append(String.Format(@"[""{0}""]", myType.Name.Replace("[]","")));
                         break;
                     }
                 }while(false);                
@@ -342,9 +361,9 @@ public partial class MethodFinder
             sb.Append("{");
             for (int i = 0; i < methodParameters.Length; i++ )
             {
-                sb.Append(" '").Append(paramInfo[i].Name).Append("': ");
-                string json = String.Format("{0}{1}{0}", paramInfo[i].ParameterType.IsClass && paramInfo[i].ParameterType.Name != "String" ? "\"" : "", JSONSerialize(methodParameters[i]));                
-
+                sb.Append(@" """).Append(paramInfo[i].Name).Append(@""": ");
+                //string json = String.Format("{0}{1}{0}", paramInfo[i].ParameterType.IsClass && paramInfo[i].ParameterType.Name != "String" ? "" : "", JSONSerialize(methodParameters[i]));                
+                string json = Newtonsoft.Json.JsonConvert.SerializeObject(methodParameters[i]);
                 HandleEnumInJson(ref json,paramInfo[i].ParameterType, paramInfo[i].Name, methodParameters[i],false);               
 
                 sb.Append(json).Append(",");
@@ -360,10 +379,10 @@ public partial class MethodFinder
             StringBuilder enumNames = new StringBuilder();
             foreach (String eName in Enum.GetNames(EnumType))
             {
-                enumNames.Append(String.Format("'{0}'",eName)).Append(" || ");
+                enumNames.Append(String.Format(@"{0}",eName)).Append(" || ");
             }
             enumNames.Remove(enumNames.Length - " || ".Length, " || ".Length);
-            json = enumNames.ToString();
+            json = string.Concat(@"""", enumNames.ToString(), @"""");
         }
     }
 
@@ -402,13 +421,20 @@ public partial class MethodFinder
 
         public override object InitilizeParameter(Type MethodParam, String methodName)
         {
-            string paramValues = HttpContext.Current.Request.Params[methodName].Replace("'","\"");
+            if (HttpContext.Current.Items.Contains(methodName))
+            {
+                string paramValues = HttpContext.Current.Items[methodName].ToString();//.Replace("'","\"");
 
-            InspectObjectForEnums(ref paramValues, MethodParam, methodName);//replace enum values before deserialize
-            
-            object ret = TypeDeSerialize(paramValues, MethodParam);
+                InspectObjectForEnums(ref paramValues, MethodParam, methodName);//replace enum values before deserialize
 
-            return ret;
+                object ret = TypeDeSerialize(paramValues, MethodParam);
+
+                return ret;
+            }
+            else
+            {
+                throw new Exception(string.Format("Error with '{0}' parameter.", methodName));
+            }
         }
 
         public override string PostParametersInit(MethodFinder executer, ParameterInfo[] paramInfo, object[] methodParameters)
@@ -431,7 +457,7 @@ public partial class MethodFinder
                         break;
                     }
                 }
-                else if (e.ToString() == currValue.ToString().Replace("\"",""))
+                else if (e.ToString() == currValue.ToString())//.Replace("\"",""))
                 {
                     json = Convert.ToInt32(e).ToString();
                     break;
@@ -446,9 +472,9 @@ public partial class MethodFinder
     /// Handles all error generated
     /// </summary>
     /// <param name="msg"></param>
-    private void ErrorHandler(string msg)
+    protected void ErrorHandler(string msg)
     {
-        String msgFormat = String.Format("Error: {0}",msg);
+        String msgFormat = "{ \"Error\": \"" + msg + "\" }";
 
         WriteResponseBackToClient(msgFormat);
     }

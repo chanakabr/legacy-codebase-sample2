@@ -39,6 +39,10 @@ public partial class Gateways_JsonGateway : BaseGateway
                     CallParameters[i] = parseAction(RawParameter);
                 else if(TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialAction))
                     CallParameters[i] = parseSocialAction(RawParameter);
+                else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialAction))
+                    CallParameters[i] = parseApiSocialAction(RawParameter);
+                else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform))
+                    CallParameters[i] = (TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform)Enum.Parse(typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform), RawParameter);
                 else if(TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))
                     CallParameters[i] = parseSocialPlatform(RawParameter);
                 else if (TargetParameter.ParameterType == typeof(TVPApi.ActionType))
@@ -93,6 +97,11 @@ public partial class Gateways_JsonGateway : BaseGateway
         return TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.UNKNOWN;
     }
 
+    private TVPPro.SiteManager.TvinciPlatform.api.SocialAction parseApiSocialAction(string param)
+    {
+        return (TVPPro.SiteManager.TvinciPlatform.api.SocialAction)Enum.Parse(typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialAction), param);
+    }
+
     private TVPPro.SiteManager.TvinciPlatform.Social.SocialAction parseSocialAction(string param)
     {
         if (param.ToLower() == "post")
@@ -128,7 +137,7 @@ public partial class Gateways_JsonGateway : BaseGateway
         ms.Close();
         return Product;
     }
-
+    
     private string JSONSerialize(object SerializationTarget)
     {
         DataContractJsonSerializer serializer = new DataContractJsonSerializer(SerializationTarget.GetType());

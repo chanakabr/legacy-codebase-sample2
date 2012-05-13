@@ -15,17 +15,20 @@ public partial class _Default : System.Web.UI.Page
 
     class InitConfig
     {
-        public string LogoURL = "http://ibc.cdngc.net/Elisa/Images/EpicTV_CTV_LOGO.png";
-        public string HomePageChannelID = "327646";
-        public string RootCateroryID = "1161";
-        public string GatewayURL = "http://173.231.146.34:9003/tvpapi/gateways/jsongateway.aspx";
-        public string ApiUser = "tvpapi_134";
+        public string LogoURL = "";
+        public string SpotlightCatID = "1250";
+        public string HomeLeftCatID = "1251";
+        public string HomeRightCatID = "1252";
+        public string RootCatID = "1235";
+        public string GatewayURL = "http://173.231.146.34:9003/tvpapi/gateways/jsonpostgw.aspx";
+        public string ApiUser = "tvpapi_144";
         public string ApiPass = "11111";
-        public string Platform = "ConnectedTV";
+        public string Platform = "Cellular";
         public string SmallPicSize = "";
         public string MediumPicSize = "";
         public string LargePicSize = "";
-        public string SubscriptionID = "277";
+        public string HD = "";
+        public string SD = "";
         //public List<MethodTemplate> MethodTemplates = new List<MethodTemplate>();
         //public ArrayList Users = new ArrayList();
 

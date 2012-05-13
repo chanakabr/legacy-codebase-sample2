@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-
+using TVPPro.SiteManager.Context;
 /// <summary>
 /// Summary description for EnumManager
 /// </summary>
@@ -123,17 +123,26 @@ namespace TVPApi
         LoginJoin,
         PackagesLobby,
         Messages,
-        Article
+        Article,
+        Live,
+        Playlist
     }
 
     public enum LocaleUserState
     {
+        [EnumAsStringValue("Unknown")]
         Unknown = 0,
+        [EnumAsStringValue("Anonymous")]
         Anonymous = 1,
+        [EnumAsStringValue("New")]
         New = 2,
+        [EnumAsStringValue("Sub")]
         Sub = 3,
+        [EnumAsStringValue("ExSub")]
         ExSub = 4,
+        [EnumAsStringValue("PPV")]
         PPV = 5,
+        [EnumAsStringValue("ExPPV")]
         ExPPV = 6
     }
 
@@ -146,11 +155,17 @@ namespace TVPApi
 
     public enum PlatformType
     {
+        [EnumAsStringValue("Web")]
         Web,
+        [EnumAsStringValue("STB")]
         STB,
+        [EnumAsStringValue("iPad")]
         iPad,
+        [EnumAsStringValue("ConnectedTV")]
         ConnectedTV,
+        [EnumAsStringValue("Cellular")]
         Cellular,
+        [EnumAsStringValue("Unknown")]
         Unknown
     }
 
