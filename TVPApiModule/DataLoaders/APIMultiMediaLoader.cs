@@ -103,6 +103,11 @@ namespace TVPApiModule.DataLoaders
                 result.root.flashvars.file_quality = file_quality.high;
                 result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
 
+                if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat))
+                {
+                    result.root.flashvars.sub_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat;
+                }
+
             }
             return result;
         }

@@ -221,9 +221,8 @@ namespace TVPApiModule.Services
             UserOfflineObject[] response = null;
 
             try
-            {
-                string sFileType = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).TechnichalConfiguration.Data.TVM.FlashVars.OfflineFileFormat;
-                response = m_Module.GetUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid, sFileType);
+            {                
+                response = m_Module.GetAllUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid);
             }
             catch (Exception ex)
             {
