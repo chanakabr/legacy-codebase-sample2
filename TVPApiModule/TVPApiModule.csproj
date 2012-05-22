@@ -112,6 +112,7 @@
     <Compile Include="Helper\SessionHelper.cs" />
     <Compile Include="Helper\VoteHelper.cs" />
     <Compile Include="Helper\WSUtils.cs" />
+    <Compile Include="HttpHandlers\CrossOriginHandler.cs" />
     <Compile Include="Interfaces\IParser.cs" />
     <Compile Include="Manager\CategoryTreeBuilder.cs" />
     <Compile Include="Manager\ConfigManager.cs" />

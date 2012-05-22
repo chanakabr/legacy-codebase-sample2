@@ -206,8 +206,10 @@ namespace TVPApi
                 if (!row.IsCultureNull())
                 {
                     Tvinci.Localization.LanguageContext lc;
-                    TVPPro.SiteManager.Manager.TextLocalization.Instance.TryGetLanguageByCulture(row.Culture, out lc);
-                    item.Culture = lc.CultureInfo.DisplayName;
+                    if (TVPPro.SiteManager.Manager.TextLocalization.Instance.TryGetLanguageByCulture(row.Culture, out lc))
+                        item.Culture = lc.CultureInfo.DisplayName;
+                    else
+                        item.Culture = row.Culture;
                 }
                 if (!row.IsURLNull())
                 {

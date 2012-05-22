@@ -365,20 +365,18 @@ namespace TVPApi
                 {
                     logger.InfoFormat("Add menu to site map->", menuLangPair.Key);
                     
-                    if (!m_siteMapInstances.ContainsKey(keyStr))
-                    {
-                        continue;
-                    }
+                    //if (!m_siteMapInstances.ContainsKey(keyStr))
+                    //{
+                    //    continue;
+                    //}
                     foreach (KeyValuePair<long, List<MenuItem>> menuPair in menuLangPair.Value)
                     {
                         Menu menu = new Menu();
                         menu.ID = menuPair.Key;
                         menu.MenuItems = menuPair.Value;
-                        
-                            menu.Type = MenuBuilder.MenuType.Menu;
-                            AddMenu(keyStr, menu);
-                        
-                        
+                        menu.Type = MenuBuilder.MenuType.Menu;
+
+                        AddMenu(keyStr, menu, ref siteMap);
                     }
                 }
 
@@ -391,10 +389,11 @@ namespace TVPApi
                 {
                     logger.InfoFormat("Add footer menu to site map->", menuLangPair.Key);
                     
-                    if (!m_siteMapInstances.ContainsKey(menuLangPair.Key))
-                    {
-                        m_siteMapInstances.Add(menuLangPair.Key, new SiteMap());
-                    }
+                    //if (!m_siteMapInstances.ContainsKey(keyStr))//menuLangPair.Key))
+                    //{
+                    //    //m_siteMapInstances.Add(menuLangPair.Key, new SiteMap());
+                    //    continue;
+                    //}
                     foreach (KeyValuePair<long, List<MenuItem>> menuPair in menuLangPair.Value)
                     {
                         Menu menu = new Menu();
@@ -402,7 +401,7 @@ namespace TVPApi
                         menu.MenuItems = menuPair.Value;
 
                         menu.Type = MenuBuilder.MenuType.Footer;
-                        AddFooter(keyStr, menu);
+                        AddFooter(keyStr, menu, ref siteMap);
 
 
                     }
@@ -601,24 +600,24 @@ namespace TVPApi
         //    }
         //}
 
-        private void AddMenu(string keyStr, Menu menu)
+        private void AddMenu(string keyStr, Menu menu, ref SiteMap siteMap)
         {
-            if (m_siteMapInstances[keyStr].Menues == null)
+            if (siteMap.Menues == null)
             {
-                m_siteMapInstances[keyStr].Menues = new List<Menu>();
+                siteMap.Menues = new List<Menu>();
             }
 
-            m_siteMapInstances[keyStr].Menues.Add(menu);
+            siteMap.Menues.Add(menu);
         }
 
-        private void AddFooter(string keyStr, Menu menu)
+        private void AddFooter(string keyStr, Menu menu, ref SiteMap siteMap)
         {
-            if (m_siteMapInstances[keyStr].Footers == null)
+            if (siteMap.Footers == null)
             {
-                m_siteMapInstances[keyStr].Footers = new List<Menu>();
+                siteMap.Footers = new List<Menu>();
             }
 
-            m_siteMapInstances[keyStr].Footers.Add(menu);
+            siteMap.Footers.Add(menu);
         }
 
         private Profile CreateProfile(PageContext page, long ID, GalleryLocation location, string languageCode, int groupID, PlatformType platform)

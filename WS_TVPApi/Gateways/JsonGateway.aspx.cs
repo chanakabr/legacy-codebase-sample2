@@ -9,9 +9,12 @@ using System.IO;
 using System.Text;
 using System.Runtime.Serialization.Json;
 using TVPApi;
+using log4net;
 
 public partial class Gateways_JsonGateway : BaseGateway
 {
+    private readonly ILog m_logger = LogManager.GetLogger(typeof(Gateways_JsonGateway));
+
     protected void Page_Load(object sender, EventArgs e)
     {
         string MethodName = Request.QueryString["MethodName"];
@@ -131,21 +134,27 @@ public partial class Gateways_JsonGateway : BaseGateway
 
     private object TypeDeSerialize(string DeserializationTarget, Type TargetType)
     {
-        MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget));
-        DataContractJsonSerializer serializer = new DataContractJsonSerializer(TargetType);
-        object Product = serializer.ReadObject(ms);
-        ms.Close();
+        object Product = new object();
+        
+        using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
+        {
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(TargetType);
+            Product = serializer.ReadObject(ms);
+        }
+        
         return Product;
     }
     
     private string JSONSerialize(object SerializationTarget)
     {
-        DataContractJsonSerializer serializer = new DataContractJsonSerializer(SerializationTarget.GetType());
-        MemoryStream ms = new MemoryStream();
-        serializer.WriteObject(ms, SerializationTarget);
-        string Product = Encoding.UTF8.GetString(ms.ToArray());
-        //string Product = Encoding.Default.GetString(ms.ToArray());
-        ms.Close();
+        string Product = string.Empty;
+        using (MemoryStream ms = new MemoryStream())
+        {
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(SerializationTarget.GetType());
+            serializer.WriteObject(ms, SerializationTarget);
+            Product = Encoding.UTF8.GetString(ms.ToArray());
+            //string Product = Encoding.Default.GetString(ms.ToArray());
+        }
         return Product;
     }
 
