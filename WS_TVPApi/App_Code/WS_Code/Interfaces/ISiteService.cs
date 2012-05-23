@@ -66,5 +66,8 @@ namespace TVPApiServices
 
         [OperationContract]
         bool IsFacebookUser(InitializationObject initObj);
+
+        [OperationContract]
+        string GetSiteGuid(InitializationObject initObj, string userName, string password);
     }
 }

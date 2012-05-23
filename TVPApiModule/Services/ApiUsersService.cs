@@ -47,6 +47,21 @@ namespace TVPApiModule.Services
         #endregion C'tor
 
         #region Public methods
+        public UserResponseObject ValidateUser(string userName, string password, bool isDoubleLogin)
+        {
+            UserResponseObject response = null;
+            try
+            {
+                response = m_Module.CheckUserPassword(m_wsUserName, m_wsPassword, userName, password, isDoubleLogin);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ValidateUser, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, userName, password);
+            }
+
+            return response;
+        }
+
         public LogInResponseData SignIn(string sUserName, string sPassword, string sSessionID, string sDeviceID, bool bIsDoubleLogin)
         {
             LogInResponseData loginData = new LogInResponseData();
@@ -279,5 +294,7 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        
     }
 }

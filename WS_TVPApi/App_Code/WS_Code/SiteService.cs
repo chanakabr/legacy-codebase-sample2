@@ -391,6 +391,35 @@ namespace TVPApiServices
             return sRet;
         }
 
+        [WebMethod(EnableSession = true, Description = "Validate user")]
+        public string GetSiteGuid(InitializationObject initObj, string userName, string password)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Users.User sRet = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ValidateUser", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("ValidateUser-> [{0}, {1}], Params:[userName: {2}, password: {3}]", groupID, initObj.Platform, userName, password);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                    sRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ValidateUser(userName, password, isSingleLogin).m_user;
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ValidateUser->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ValidateUser-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return sRet != null ? sRet.m_sSiteGUID : string.Empty;
+        }
+
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]
         public TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password)
         {
