@@ -946,6 +946,33 @@ namespace TVPApiServices
 
             return sRes;
         }
+
+        [WebMethod(EnableSession = true, Description = "Do Post Reg Action")]
+        public string PostRegAction(InitializationObject initObj, string actionName)
+        {
+            string retVal = string.Empty;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "DoSocialAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("DoSocialAction-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string actionSubCode = ConfigurationManager.AppSettings[string.Concat(groupID, "_PostReg", actionName)];
+                    TVPApiModule.Services.ApiConditionalAccessService service = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform);
+
+                    retVal = service.DummyChargeUserForSubscription(0, string.Empty, actionSubCode, string.Empty, SiteHelper.GetClientIP(), initObj.SiteGuid, string.Empty, initObj.UDID);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : DoSocialAction, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                }
+            }
+                        
+            return retVal;
+        }
         #endregion
     }
 }

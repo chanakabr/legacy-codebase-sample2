@@ -69,5 +69,8 @@ namespace TVPApiServices
 
         [OperationContract]
         string GetSiteGuid(InitializationObject initObj, string userName, string password);
+
+        [OperationContract]
+        string PostRegAction(InitializationObject initObj, string actionName);
     }
 }
