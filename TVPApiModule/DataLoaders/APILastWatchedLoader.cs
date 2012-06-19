@@ -67,7 +67,6 @@ namespace TVPApiModule.DataLoaders
             protocol.root.request.@params.info_struct.type.MakeSchemaCompliant();
             protocol.root.request.@params.site_guid = SiteGuid;
 
-
             string[] MetaNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.GalleryMediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
             string[] TagNames = ConfigManager.GetInstance().GetConfig(GroupID, Platform).MediaConfiguration.Data.TVM.GalleryMediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
 

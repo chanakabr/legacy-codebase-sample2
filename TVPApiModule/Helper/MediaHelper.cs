@@ -426,13 +426,13 @@ namespace TVPApi
         {
             List<Media> lstMedias = new List<Media>();
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            List<Media> lstAllMedias = GetMediaList(initObj, account.TVMUser, account.TVMPass, 0, picSize, 100, 0, groupID, LoaderType.LastWatched, OrderBy.None);
+            List<Media> lstAllMedias = GetMediaList(initObj, account.TVMUser, account.TVMPass, 0, picSize, 100, 0, groupID, LoaderType.LastWatched, OrderBy.Added);
 
-            lstMedias = (from media in lstAllMedias where 
-                               (DateTime.Now.AddDays((double)byPeriod * periodBefore* -1) - media.CreationDate).TotalDays >= 0  &&
-                               (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - media.CreationDate).TotalDays <= (periodBefore+1) * (int)byPeriod
+            lstMedias = (from media in lstAllMedias where
+                               (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - media.LastWatchDate).TotalDays >= 0 &&
+                               (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - media.LastWatchDate).TotalDays <= (periodBefore + 1) * (int)byPeriod
                          select media).ToList<Media>();
-            
+
             return lstMedias;
         }
 
@@ -493,7 +493,8 @@ namespace TVPApi
                     isPaged = false;
                     break;
                 case LoaderType.LastWatched:
-                    mediaInfo = new APILastWatchedLoader(user, pass) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, SiteGuid = initObj.SiteGuid, PageSize = pageSize, PageIndex = pageIndex, PicSize = picSize }.Execute();
+                    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
+                    mediaInfo = new APILastWatchedLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, SiteGuid = initObj.SiteGuid, PageSize = pageSize, PageIndex = pageIndex, PicSize = picSize }.Execute();
                     break;
                 default:
                     mediaInfo = (new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform }.Execute());

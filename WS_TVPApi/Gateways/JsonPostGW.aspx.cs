@@ -17,6 +17,7 @@ public partial class Gateways_JsonPostGW : BaseGateway
     protected void Page_Load(object sender, EventArgs e)
     {
         Response.ContentType = "application/json; charset=utf-8";
+        Response.AppendHeader("Access-Control-Allow-Origin", "*");
 
         System.IO.Stream body = Request.InputStream;
         System.Text.Encoding encoding = Request.ContentEncoding;

@@ -32,6 +32,7 @@ namespace TVPApi
         public int ViewCounter;
         public string Description;
         public DateTime CreationDate;
+        public DateTime LastWatchDate;
         public string PicURL;
         public string URL;
         public string MediaWebLink;
@@ -209,7 +210,10 @@ namespace TVPApi
             {
                 like_counter = Convert.ToInt32(row.Likes);
             }
-
+            if (!row.IsLastWatchedDateNull())
+            {
+                LastWatchDate = row.LastWatchedDate;
+            }
             MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
 
             BuildTagMetas(groupID, row, initObj.Platform);

@@ -28,11 +28,13 @@ namespace TVPApiModule.HttpHandlers
                     SetAllowCrossSiteRequestHeaders(context);
                     //Set allowed origin
                     SetAllowCrossSiteRequestOrigin(context);
+                    
                     break;
                 //Cross-Origin actual or simple request
+                case "POST":
                 case "GET":
                     //Disable caching
-                    SetNoCacheHeaders(context);
+                    //SetNoCacheHeaders(context);
                     //Set allowed origin
                     SetAllowCrossSiteRequestOrigin(context);
                     //Generate response
@@ -46,8 +48,6 @@ namespace TVPApiModule.HttpHandlers
                     context.Response.StatusCode = 405;
                     break;
             }
-
-            context.ApplicationInstance.CompleteRequest();
         }
         #endregion
 
@@ -70,24 +70,24 @@ namespace TVPApiModule.HttpHandlers
 
         private void SetAllowCrossSiteRequestHeaders(HttpContext context)
         {
-            //We allow only GET method
-            string requestMethod = context.Request.Headers["Access-Control-Request-Method"];
-            if (!String.IsNullOrEmpty(requestMethod) && requestMethod.ToUpper() == "GET")
-                context.Response.AppendHeader("Access-Control-Allow-Methods", "GET");
+            ////We allow only GET method
+            //string requestMethod = context.Request.Headers["Access-Control-Request-Method"];
+            //if (!String.IsNullOrEmpty(requestMethod) && requestMethod.ToUpper() == "GET")
+            //    context.Response.AppendHeader("Access-Control-Allow-Methods", "GET");
 
-            //We allow any custom headers
-            string requestHeaders = context.Request.Headers["Access-Control-Request-Headers"];
-            if (!String.IsNullOrEmpty(requestHeaders))
-                context.Response.AppendHeader("Access-Control-Allow-Headers", requestHeaders);
+            ////We allow any custom headers
+            //string requestHeaders = context.Request.Headers["Access-Control-Request-Headers"];
+            //if (!String.IsNullOrEmpty(requestHeaders))
+                context.Response.AppendHeader("Access-Control-Allow-Headers", "origin, x-requested-with, content-type, accept");
         }
 
         private void SetAllowCrossSiteRequestOrigin(HttpContext context)
         {
-            string origin = context.Request.Headers["Origin"];
-            if (!String.IsNullOrEmpty(origin))
-                //You can make some sophisticated checks here
-                context.Response.AppendHeader("Access-Control-Allow-Origin", origin);
-            else
+            //string origin = context.Request.Headers["Origin"];
+            //if (!String.IsNullOrEmpty(origin))
+            //    //You can make some sophisticated checks here
+            //    context.Response.AppendHeader("Access-Control-Allow-Origin", origin);
+            //else
                 //This is necessary for Chrome/Safari actual request
                 context.Response.AppendHeader("Access-Control-Allow-Origin", "*");
         }
