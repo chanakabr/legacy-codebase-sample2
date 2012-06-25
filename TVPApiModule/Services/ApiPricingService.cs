@@ -73,6 +73,22 @@ namespace TVPApiModule.Services
 
             return subscriptions;
         }
+
+        public Subscription GetSubscriptionData(string subCode, bool getAlsoInactive)
+        {
+            Subscription sub = null;
+
+            try
+            {
+                sub = m_Module.GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionData, Error Message: {0}", ex.Message);
+            }
+
+            return sub;
+        }
         #endregion
     }
 }
