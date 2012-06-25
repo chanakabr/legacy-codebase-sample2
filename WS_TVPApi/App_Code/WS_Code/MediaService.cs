@@ -1226,6 +1226,34 @@ namespace TVPApiServices
             return itemPrices;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get product code for subscription")]
+        public string GetSubscriptionProductCode(InitializationObject initObj, int subID)
+        {
+            string res = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionProductCode", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetSubscriptionProductCode-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                   res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).m_ProductCode;                   
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetSubscriptionProductCode->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetSubscriptionProductCode-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return res;
+        }
+
         [WebMethod(EnableSession = true, Description = "Get all subscriptions contains media file")]
         public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
         {

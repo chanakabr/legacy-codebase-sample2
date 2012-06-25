@@ -136,5 +136,8 @@ namespace TVPApiServices
 
         [OperationContract]
         List<Media> SearchMediaByMultiTag(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy);
+
+        [OperationContract]
+        string GetSubscriptionProductCode(InitializationObject initObj, int subID);
     }
 }
