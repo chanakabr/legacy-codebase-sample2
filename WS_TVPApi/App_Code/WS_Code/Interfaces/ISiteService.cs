@@ -72,5 +72,8 @@ namespace TVPApiServices
 
         [OperationContract]
         string PostRegAction(InitializationObject initObj, string actionName);
+
+        [OperationContract]
+        bool SendNewPassword(InitializationObject initObj, string sUserName);
     }
 }

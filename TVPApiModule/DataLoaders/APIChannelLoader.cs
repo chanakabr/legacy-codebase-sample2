@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.ChannelsMedia;
+using TVPPro.SiteManager.DataEntities;
+using TVPPro.SiteManager.Context;
+using System.Data;
 
 namespace TVPApi
 {
@@ -104,8 +107,29 @@ namespace TVPApi
 
             channel newChannel = new channel();
             newChannel.id = int.Parse(ChannelID.ToString());
-            newChannel.number_of_items = PageSize;
-            newChannel.start_index = PageIndex;
+            newChannel.number_of_items = 500;
+            newChannel.start_index = 0;
+
+            //switch ((TVPApi.OrderBy)Enum.Parse(typeof(TVPApi.OrderBy), OrderBy.ToString()))
+            //{
+            //    case TVPApi.OrderBy.ABC:
+            //        newChannel.order_values.name.order_dir = order_dir.asc;
+            //        break;
+            //    case TVPApi.OrderBy.Added:
+            //        newChannel.order_values.date.order_dir = order_dir.desc;
+            //        break;
+            //    case TVPApi.OrderBy.Views:
+            //        newChannel.order_values.views.order_dir = order_dir.desc;
+            //        break;
+            //    case TVPApi.OrderBy.Rating:
+            //        newChannel.order_values.rate.order_dir = order_dir.desc;
+            //        break;
+            //    case TVPApi.OrderBy.None:
+            //        break;
+            //    default:
+            //        throw new Exception("Unknown order by value");
+            //}
+
             result.root.request.channelCollection.Add(newChannel);
 
             result.root.flashvars.player_un = TvmUser;
@@ -146,7 +170,54 @@ namespace TVPApi
                 }
             }
 
+            
+
             return result;
+        }
+
+        protected override dsItemInfo FormatResults(dsItemInfo originalObject)
+        {
+            dsItemInfo copyObject = originalObject.Copy() as dsItemInfo;
+
+            if (copyObject.Item.Rows.Count > 0)
+            {
+                copyObject.Item.DefaultView.RowFilter = "";
+                switch (OrderBy)
+                {
+                    case (Enums.eOrderBy.Added):
+                        copyObject.Item.DefaultView.Sort = "CreationDate desc";
+                        break;
+                    case (Enums.eOrderBy.Rating):
+                        copyObject.Item.DefaultView.Sort = "Rate desc";
+                        break;
+                    case (Enums.eOrderBy.Views):
+                        copyObject.Item.DefaultView.Sort = "ViewCounter desc";
+                        break;
+                    default:
+                        copyObject.Item.DefaultView.Sort = "Title asc";
+                        break;
+                }
+
+                DataTable dtItemSorted = copyObject.Item.DefaultView.ToTable();
+                copyObject.Item.Clear();
+                copyObject.Item.Merge(dtItemSorted, true);
+
+                int iIndex = 0;
+                DataTable dtPaged = copyObject.Item.Clone();
+                foreach (DataRow row in copyObject.Item.Rows)
+                {
+                    if (iIndex >= PageIndex * PageSize && iIndex < (PageIndex + 1) * PageSize)
+                    {
+                        dtPaged.ImportRow(row);
+                    }
+                    iIndex++;
+                }
+
+                copyObject.Item.Clear();
+                copyObject.Item.Merge(dtPaged, true);
+            }
+
+            return copyObject;
         }
 
         protected override Guid UniqueIdentifier

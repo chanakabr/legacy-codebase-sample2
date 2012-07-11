@@ -295,6 +295,27 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        
+        public bool SentNewPasswordToUser(string UserName)
+        {
+            try
+            {
+                UserResponseObject uro = m_Module.ForgotPassword(m_wsUserName, m_wsPassword, UserName);
+                if (uro.m_RespStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK)
+                {
+                    logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", UserName);
+                    return true;
+                }
+                else
+                {
+                    logger.InfoFormat("Can not send temp password protocol CheckUserPassword,Parameters : User name : {0}", UserName);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occured in SentNewPasswordToUser protocol ForgotPassword, Error Message: {0} Parameters :User : {1} ", ex.Message, UserName);
+                return false;
+            }
+        }
     }
 }

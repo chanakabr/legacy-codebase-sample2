@@ -91,6 +91,7 @@
     <Compile Include="DataLoaders\APIMultiMediaLoader.cs" />
     <Compile Include="DataLoaders\APIPageDataLoader.cs" />
     <Compile Include="DataLoaders\APIPeopleWhoWatchedLoader.cs" />
+    <Compile Include="DataLoaders\APIPersonalRecommendedLoader.cs" />
     <Compile Include="DataLoaders\APIRelatedMediaLoader.cs" />
     <Compile Include="DataLoaders\APISearchLoader.cs" />
     <Compile Include="DataLoaders\APITVMRentalMultiMediaLoader.cs" />

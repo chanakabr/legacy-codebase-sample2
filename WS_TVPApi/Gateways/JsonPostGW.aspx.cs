@@ -23,6 +23,12 @@ public partial class Gateways_JsonPostGW : BaseGateway
         System.Text.Encoding encoding = Request.ContentEncoding;
         System.IO.StreamReader reader = new System.IO.StreamReader(body, encoding);
 
+        //List<TVPApi.TagMetaPair> tagPairs = new List<TagMetaPair>();
+        //tagPairs.Add(new TagMetaPair("Genre", "Cas"));
+        //tagPairs.Add(new TagMetaPair("Genre", "Cas"));
+
+        //Object o = Newtonsoft.Json.Linq.JArray.FromObject(tagPairs);
+
         string sJsonRequest = reader.ReadToEnd();
 
         if (!string.IsNullOrEmpty(sJsonRequest))
@@ -31,7 +37,7 @@ public partial class Gateways_JsonPostGW : BaseGateway
 
             foreach (KeyValuePair<string, Newtonsoft.Json.Linq.JToken> pair in json)
             {
-                string sValue = (!pair.Key.Equals("initObj") && !pair.Key.Equals("tagPairs")) ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
+                string sValue = (!pair.Key.Equals("initObj") && !pair.Key.Equals("tagPairs") && !pair.Key.Equals("metaPairs")) ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
                 //string sValue = (pair.Value.Type.Equals(typeof(Newtonsoft.Json.Linq.JObject))) ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
                 
                 HttpContext.Current.Items.Add(pair.Key, sValue);

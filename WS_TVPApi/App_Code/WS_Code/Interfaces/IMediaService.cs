@@ -139,5 +139,11 @@ namespace TVPApiServices
 
         [OperationContract]
         string GetSubscriptionProductCode(InitializationObject initObj, int subID);
+
+        [OperationContract]
+        string CheckGeoBlockForMedia(InitializationObject initObj, int iMediaID);
+
+        [OperationContract]
+        List<Media> GetRecommendedMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex);
     }
 }

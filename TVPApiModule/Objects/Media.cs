@@ -32,7 +32,7 @@ namespace TVPApi
         public int ViewCounter;
         public string Description;
         public DateTime CreationDate;
-        public DateTime LastWatchDate;
+        public DateTime? LastWatchDate;
         public string PicURL;
         public string URL;
         public string MediaWebLink;

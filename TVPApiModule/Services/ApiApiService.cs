@@ -6,6 +6,7 @@ using log4net;
 using TVPApi;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.api;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.Services
 {
@@ -80,6 +81,20 @@ namespace TVPApiModule.Services
             }
 
             return res;
+        }
+
+        public string CheckGeoBlockMedia(int iMediaID, string UserIP)
+        {
+            string geo = string.Empty;
+            try
+            {
+                geo = m_Module.CheckGeoBlockMedia(m_wsUserName, m_wsPassword, iMediaID, UserIP);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : CheckGEOBlock, Error Message: {0}, Parameters :  Media ID: {1}, User ID: {2}", ex.Message, iMediaID, SiteHelper.GetClientIP());
+            }
+            return geo;
         }
         #endregion
     }

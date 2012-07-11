@@ -504,6 +504,34 @@ namespace TVPApiServices
             return null;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get media list for package")]
+        public List<Media> GetRecommendedMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetRecommendedMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.GetRecommendedMediasList(initObj, picSize, pageSize, pageIndex, groupID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetRecommendedMedias->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetRecommendedMedias-> 'Unknown group' Username: {0}, Password: {1}, BaseID: {2}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
+        }
+
         #endregion
 
         #region Search media
@@ -531,6 +559,34 @@ namespace TVPApiServices
             else
             {
                 logger.ErrorFormat("SearchMediaByTag-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Search medias by multi tags")]
+        public List<Media> SearchMediaByMetasTags(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchMediaByMetasTags", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SearchMediaByMetasTags-> [{0}, {1}], Params:[tagName: {2}, value: {3}, mediaType: {4}, picSize: {5}, pageSize: {6}, pageIndex: {7}, orderBy: {8}]", groupID, initObj.Platform, string.Empty, mediaType, picSize, pageSize, pageIndex, orderBy);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.SearchMediaByMetasTags(initObj, mediaType, tagPairs, metaPairs, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SearchMediaByMetasTags->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SearchMediaByMetasTags-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return lstMedia;
@@ -693,6 +749,35 @@ namespace TVPApiServices
                 try
                 {
                     lstMedia = MediaHelper.SearchMedia(initObj, mediaType, text, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SearchMedia->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SearchMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
+        }
+
+        //Search media by free text
+        [WebMethod(EnableSession = true, Description = "Search media by free text")]
+        public List<Media> SearchMediaByTypes(InitializationObject initObj, string text, int[] mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SearchMedia-> [{0}, {1}], Params:[text: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}, orderBy: {7}]", groupID, initObj.Platform, text, mediaType, picSize, pageSize, pageIndex, orderBy);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.SearchMedia(initObj, mediaType, text, picSize, pageSize, pageIndex, groupID, orderBy);
                 }
                 catch (Exception ex)
                 {
@@ -1117,7 +1202,6 @@ namespace TVPApiServices
         public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj)
         {
             PermittedSubscriptionContainer[] permitedSubscriptions = null;
-
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetUserPermitedSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
@@ -1709,6 +1793,34 @@ namespace TVPApiServices
             }
 
             return bResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Check if media is blocked by Geo")]
+        public string CheckGeoBlockForMedia(InitializationObject initObj, int iMediaID)
+        {
+            string sRet = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CheckGeoBlockForMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("CheckGeoBlockForMedia-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    sRet = new ApiApiService(groupId, initObj.Platform).CheckGeoBlockMedia(iMediaID, SiteHelper.GetClientIP());
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ClearUserOfflineList->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("CheckGeoBlockForMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return sRet;
         }
     }
 }

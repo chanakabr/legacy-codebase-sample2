@@ -166,7 +166,7 @@ namespace TVPApi
                     }
                 }
             }
-            else if (dictMetas != null && dictMetas.Count > 0) // Hanble with search metas with multi values
+            if (dictMetas != null && dictMetas.Count > 0) // Hanble with search metas with multi values
             {
                 if (!string.IsNullOrEmpty(Name))
                     protocol.root.request.search_data.cut_values.name.value = Name;

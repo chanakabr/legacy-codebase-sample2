@@ -59,7 +59,7 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
             retDeviceInit.initObj.ApiUser = "tvpapi_144";
             retDeviceInit.initObj.ApiPass = "11111";
             retDeviceInit.initObj.SiteGuid = string.Empty;
-            retDeviceInit.initObj.UDID = string.Empty;
+            retDeviceInit.initObj.UDID = sUDID;
             retDeviceInit.initObj.Platform = TVPApi.PlatformType.Cellular;
             retDeviceInit.initObj.Locale = new TVPApi.Locale();
             retDeviceInit.initObj.Locale.LocaleUserState = TVPApi.LocaleUserState.Unknown;
@@ -68,10 +68,26 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
             retDeviceInit.initObj.Locale.LocaleLanguage = string.Empty;
 
             retDeviceInit.GatewayURL = "http://173.231.146.34:9003/tvpapi/gateways/jsonpostgw.aspx";
-            retDeviceInit.SpotlightCatID = "1250";
-            retDeviceInit.HomeLeftCatID = "1251";
-            retDeviceInit.HomeRightCatID = "1252";
-            retDeviceInit.RootCatID = "1235";
+            retDeviceInit.MainMenuID = "43";
+            retDeviceInit.AllowBrowseMode = "false";
+        }
+        else if (sBundleID.ToLower().Equals("com.tvinci.development.toggle"))
+        {
+            retDeviceInit.initObj = new TVPApi.InitializationObject();
+            retDeviceInit.initObj.ApiUser = "tvpapi_147";
+            retDeviceInit.initObj.ApiPass = "11111";
+            retDeviceInit.initObj.SiteGuid = string.Empty;
+            retDeviceInit.initObj.UDID = sUDID;
+            retDeviceInit.initObj.Platform = TVPApi.PlatformType.Cellular;
+            retDeviceInit.initObj.Locale = new TVPApi.Locale();
+            retDeviceInit.initObj.Locale.LocaleUserState = TVPApi.LocaleUserState.Unknown;
+            retDeviceInit.initObj.Locale.LocaleCountry = string.Empty;
+            retDeviceInit.initObj.Locale.LocaleDevice = string.Empty;
+            retDeviceInit.initObj.Locale.LocaleLanguage = string.Empty;
+
+            retDeviceInit.GatewayURL = "http://173.231.146.34:9003/tvpapi/gateways/jsonpostgw.aspx";
+            retDeviceInit.MainMenuID = "43";
+            retDeviceInit.AllowBrowseMode = "true";
         }
 
         return retDeviceInit;
@@ -94,6 +110,8 @@ public class DeviceInit
     public string LargePicSize { get; set; }
     public string HD { get; set; }
     public string SD { get; set; }
+    public string MainMenuID { get; set; }
+    public string AllowBrowseMode { get; set; }
 }
 
 public class MyStringEnumConverter : Newtonsoft.Json.Converters.StringEnumConverter

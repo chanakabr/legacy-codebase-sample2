@@ -649,6 +649,34 @@ namespace TVPApiServices
 
             return response;
         }
+
+        [WebMethod(EnableSession = true, Description = "Forgot password")]
+        public bool SendNewPassword(InitializationObject initObj, string sUserName)
+        {
+            bool bRet = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SendNewPassword", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SendNewPassword-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SentNewPasswordToUser(sUserName);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SendNewPassword->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SendNewPassword-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return bRet;
+        }
         #endregion
         
         #region Domains
