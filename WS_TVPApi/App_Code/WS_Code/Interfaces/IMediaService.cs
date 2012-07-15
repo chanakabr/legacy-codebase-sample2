@@ -10,6 +10,7 @@ using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 namespace TVPApiServices
 {
@@ -145,5 +146,8 @@ namespace TVPApiServices
 
         [OperationContract]
         List<Media> GetRecommendedMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex);
+
+        [OperationContract]
+        BillingResponse ChargeUserWithInApp(InitializationObject initObj, double price, string currency, string receipt, string productCode);
     }
 }

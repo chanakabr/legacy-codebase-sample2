@@ -1226,6 +1226,34 @@ namespace TVPApiServices
             return permitedSubscriptions;
         }
 
+        [WebMethod(EnableSession = true, Description = "Perform validation and purchase with Inapp")]
+        public BillingResponse ChargeUserWithInApp(InitializationObject initObj, double price, string currency, string receipt, string productCode)
+        {
+            BillingResponse response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserWithInApp", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("ChargeUserWithInApp-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).InAppChargeUserForSubscription(price, currency, string.Empty, SiteHelper.GetClientIP(), initObj.SiteGuid, string.Empty, initObj.UDID, productCode, receipt);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ChargeUserWithInApp->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ChargeUserWithInApp-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for file")]
         public string ChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
         {
