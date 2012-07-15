@@ -70,6 +70,22 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
+        public bool CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
+        {
+            bool response = false;
+
+            try
+            {
+                response = m_Module.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : CancelSubscription, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
+            }
+
+            return response;
+        }
+
         public BillingResponse InAppChargeUserForSubscription(double iPrice, string sCurrency, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sProductCode, string sReceipt)
         {
             BillingResponse response = null;
