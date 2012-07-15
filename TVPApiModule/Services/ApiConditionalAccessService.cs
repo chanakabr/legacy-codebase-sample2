@@ -70,6 +70,22 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
+        public BillingResponse InAppChargeUserForSubscription(double iPrice, string sCurrency, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sProductCode, string sReceipt)
+        {
+            BillingResponse response = null;
+
+            try
+            {
+                response = m_Module.InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : InAppChargeUserForSubscription, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
+            }
+
+            return response;
+        }
+
         public PermittedMediaContainer[] GetUserPermittedItems(string sSiteGuid)
         {
             PermittedMediaContainer[] response = null;
@@ -250,6 +266,6 @@ namespace TVPApiModule.Services
             }
             return retVal;
         }
-        #endregion        
+        #endregion                    
     }
 }
