@@ -86,13 +86,13 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public BillingResponse InAppChargeUserForSubscription(double iPrice, string sCurrency, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sProductCode, string sReceipt)
+        public BillingResponse InAppChargeUserForSubscription(double iPrice, string sCurrency, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sProductCode, string sReceipt)
         {
             BillingResponse response = null;
 
             try
             {
-                response = m_Module.InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
+                response = m_Module.InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
             }
             catch (Exception ex)
             {
