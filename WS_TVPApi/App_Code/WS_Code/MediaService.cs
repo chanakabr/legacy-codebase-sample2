@@ -1239,7 +1239,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).InAppChargeUserForSubscription(price, currency, string.Empty, SiteHelper.GetClientIP(), initObj.SiteGuid, string.Empty, initObj.UDID, productCode, receipt);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).InAppChargeUserForSubscription(price, currency, SiteHelper.GetClientIP(), initObj.SiteGuid, string.Empty, initObj.UDID, productCode, receipt);
                 }
                 catch (Exception ex)
                 {
@@ -1389,6 +1389,38 @@ namespace TVPApiServices
             else
             {
                 logger.ErrorFormat("GetSubscriptionProductCode-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return res;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get subscription")]
+        public List<SubscriptionPrice> GetSubscriptionDataPrices(InitializationObject initObj, int[] subIDs)
+        {
+            List<SubscriptionPrice> res = new List<SubscriptionPrice>();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionDataPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetSubscriptionDataPrices-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    foreach (int subID in subIDs)
+                    {
+                        var priceObj = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).m_oSubscriptionPriceCode.m_oPrise;
+                        res.Add(new SubscriptionPrice { Price = priceObj.m_dPrice, Currency= priceObj.m_oCurrency.m_sCurrencySign });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetSubscriptionDataPrices->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetSubscriptionDataPrices-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return res;

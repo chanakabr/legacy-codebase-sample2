@@ -136,6 +136,7 @@
     <Compile Include="Objects\ProfileInfo.cs" />
     <Compile Include="Objects\SafeDictionary.cs" />
     <Compile Include="Objects\SiteMap.cs" />
+    <Compile Include="Objects\SubscriptionPrice.cs" />
     <Compile Include="Objects\TagMetaPair.cs" />
     <Compile Include="Parsers\AbertisJSONParser.cs" />
     <Compile Include="Parsers\UsersXMLParser.cs" />

@@ -152,5 +152,8 @@ namespace TVPApiServices
 
         [OperationContract]
         bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID);
+
+        [OperationContract]
+        List<SubscriptionPrice> GetSubscriptionDataPrices(InitializationObject initObj, int[] subIDs);
     }
 }
