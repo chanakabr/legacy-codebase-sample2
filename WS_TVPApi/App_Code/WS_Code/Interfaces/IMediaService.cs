@@ -155,5 +155,8 @@ namespace TVPApiServices
 
         [OperationContract]
         List<SubscriptionPrice> GetSubscriptionDataPrices(InitializationObject initObj, int[] subIDs);
+
+        [OperationContract]
+        List<Media> GetSubscriptionMedias(InitializationObject initObj, string[] sSubID, string picSize, OrderBy orderBy);
     }
 }

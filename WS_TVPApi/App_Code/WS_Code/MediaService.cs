@@ -1197,6 +1197,35 @@ namespace TVPApiServices
 
             return lstMedia;
         }
+
+        [WebMethod(EnableSession = true, Description = "Search medias by meta")]
+        public List<Media> GetSubscriptionMedias(InitializationObject initObj, string[] sSubID, string picSize, OrderBy orderBy)
+        {
+            List<Media> lstMedia = new List<Media>();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetSubscriptionMedia-> [{0}, {1}], Params:[picSize: {2}, orderBy: {3}]", groupID, initObj.Platform, picSize, orderBy);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    foreach (string subID in sSubID)
+                        lstMedia.AddRange(GetSubscriptionMedia(initObj, subID, picSize, orderBy));
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetSubscriptionMedias->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetSubscriptionMedias-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
+        }
         
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions for a user")]
         public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj)
