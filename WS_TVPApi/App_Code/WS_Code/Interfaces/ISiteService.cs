@@ -71,6 +71,9 @@ namespace TVPApiServices
         string GetSiteGuid(InitializationObject initObj, string userName, string password);
 
         [OperationContract]
+        string GetSiteGuidFromSecured(InitializationObject initObj, string encSiteGuid);
+
+        [OperationContract]
         string PostRegAction(InitializationObject initObj, string actionName);
 
         [OperationContract]

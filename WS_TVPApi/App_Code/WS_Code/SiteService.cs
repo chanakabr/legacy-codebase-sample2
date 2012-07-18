@@ -391,6 +391,36 @@ namespace TVPApiServices
             return sRet;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get from Secured SiteGuid")]
+        public string GetSiteGuidFromSecured(InitializationObject initObj, string encSiteGuid)
+        {
+            string sRet = string.Empty;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSiteGuidFromSecured", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetSiteGuidFromSecured-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
+                    string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+                    sRet = SecurityHelper.EncryptSiteGuid(privateKey, IV, encSiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetSiteGuidFromSecured->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetSiteGuidFromSecured-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return sRet;
+        }
+
         [WebMethod(EnableSession = true, Description = "Validate user")]
         public string GetSiteGuid(InitializationObject initObj, string userName, string password)
         {
