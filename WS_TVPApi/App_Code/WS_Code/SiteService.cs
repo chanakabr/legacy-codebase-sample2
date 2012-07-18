@@ -406,7 +406,7 @@ namespace TVPApiServices
                 {
                     string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
                     string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
-                    sRet = SecurityHelper.EncryptSiteGuid(privateKey, IV, encSiteGuid);
+                    sRet = SecurityHelper.DecryptSiteGuid(privateKey, IV, encSiteGuid);
                 }
                 catch (Exception ex)
                 {
