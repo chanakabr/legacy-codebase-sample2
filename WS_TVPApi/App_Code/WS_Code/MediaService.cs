@@ -1438,8 +1438,10 @@ namespace TVPApiServices
                 {
                     foreach (int subID in subIDs)
                     {
-                        var priceObj = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).m_oSubscriptionPriceCode.m_oPrise;
-                        res.Add(new SubscriptionPrice { Price = priceObj.m_dPrice, Currency= priceObj.m_oCurrency.m_sCurrencySign });
+                        var priceObj = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false);
+                        
+                        res.Add(new SubscriptionPrice { SubscriptionCode = priceObj.m_sObjectCode, Price = priceObj.m_oSubscriptionPriceCode.m_oPrise.m_dPrice, 
+                            Currency= priceObj.m_oSubscriptionPriceCode.m_oPrise.m_oCurrency.m_sCurrencySign });
                     }
                 }
                 catch (Exception ex)

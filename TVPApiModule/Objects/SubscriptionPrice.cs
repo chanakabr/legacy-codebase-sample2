@@ -20,5 +20,12 @@ namespace TVPApi
             get { return _currency; }
             set { _currency = value; }
         }
+
+        private string _subscriptionCode;
+        public string SubscriptionCode
+        {
+            get { return _subscriptionCode; }
+            set { _subscriptionCode = value; }
+        }
     }
 }
