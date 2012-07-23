@@ -1785,7 +1785,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sResponse = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid);
+                    if (new ApiUsersService(groupId, initObj.Platform).IsOfflineModeEnabled(initObj.SiteGuid))
+                        sResponse = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid);
                 }
                 catch (Exception ex)
                 {
@@ -1813,6 +1814,9 @@ namespace TVPApiServices
             {
                 try
                 {
+                    if (!new ApiUsersService(groupId, initObj.Platform).IsOfflineModeEnabled(initObj.SiteGuid))
+                        return lResponse;
+
                     UserOfflineObject[] offArr = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid);
                     long[] mediaIDs = offArr.Select(x=> long.Parse(x.m_MediaID)).ToArray();
                     lResponse.AddRange(GetMediasInfo(initObj, mediaIDs, 0, picSize, withDynamic));

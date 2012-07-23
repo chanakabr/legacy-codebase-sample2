@@ -317,5 +317,18 @@ namespace TVPApiModule.Services
                 return false;
             }
         }
+
+        public bool IsOfflineModeEnabled(string siteGuid)
+        {
+            var offlineMode = GetUserData(siteGuid).m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode" && x.m_sValue == "true").FirstOrDefault();
+
+            if (offlineMode == null)
+                return false;
+
+            if (offlineMode.m_sValue == "false")
+                return false;
+
+            return true;
+        }
     }
 }

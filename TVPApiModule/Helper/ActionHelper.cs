@@ -8,6 +8,7 @@ using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApiModule.DataLoaders;
+using System.Configuration;
 
 /// <summary>
 /// Summary description for ActionHelper
@@ -40,14 +41,19 @@ namespace TVPApi
         public static bool PerformAction(ActionType action, int mediaID, int mediaType, int groupID, PlatformType platform, string sUserID, int iDomainID, string sUDID, int extraVal)
         {
             bool retVal = false;
-            
+            string isOfflineSync = ConfigurationManager.AppSettings[string.Concat(groupID, "_OfflineFavoriteSync")];
+
             switch (action)
             {
                 case ActionType.AddFavorite:
                     {
                         long guidNum = Convert.ToInt64(sUserID);
                         int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
-                        retVal = new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), string.Empty);                        
+                        retVal = new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), string.Empty);
+                        
+                        if (!string.IsNullOrEmpty(isOfflineSync))
+                            new ApiUsersService(groupID, platform).AddUserOfflineMedia(sUserID, mediaID);
+
                         //retVal = FavoritesHelper.AddToFavorites(mediaType, mediaID.ToString(), guidNum);
                         break;
                     }
@@ -55,6 +61,9 @@ namespace TVPApi
                     {
                         new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, new int[] { mediaID });
                         retVal = true;
+
+                        if (!string.IsNullOrEmpty(isOfflineSync))
+                            new ApiUsersService(groupID, platform).RemoveUserOfflineMedia(sUserID, mediaID);
 
                         //long guidNum = Convert.ToInt64(sUserID);
                         //int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
