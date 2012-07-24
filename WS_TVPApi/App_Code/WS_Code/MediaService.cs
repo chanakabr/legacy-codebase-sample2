@@ -1801,6 +1801,30 @@ namespace TVPApiServices
             return sResponse;
         }
 
+        [WebMethod(EnableSession = true, Description = "Toggle the user offline mode")]
+        public void ToggleOfflineMode(InitializationObject initObj, bool isTurnOn)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ToggleOfflineMode", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("ToggleOfflineMode-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    new ApiUsersService(groupId, initObj.Platform).ToggleOfflineMode(initObj.SiteGuid, isTurnOn);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ToggleOfflineMode->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ToggleOfflineMode-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+        }
+
         [WebMethod(EnableSession = true, Description = "Get full user offline list")]
         public List<Media> GetUserOfflineListFull(InitializationObject initObj, string picSize, bool withDynamic)
         {

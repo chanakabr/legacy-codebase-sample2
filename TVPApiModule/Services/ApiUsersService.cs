@@ -330,5 +330,56 @@ namespace TVPApiModule.Services
 
             return true;
         }
+
+        private TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData cloneDynamicData(TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData curDynamicData, bool isAddNew)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData newDynamicData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData();
+            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dData;
+            newDynamicData.m_sUserData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer[curDynamicData.m_sUserData.Count() + (isAddNew ? 1 : 0)];
+            int idx = 0;
+
+            foreach (var UserData in curDynamicData.m_sUserData)
+            {
+                dData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer();
+                dData.m_sDataType = UserData.m_sDataType;
+                dData.m_sValue = UserData.m_sValue;
+                newDynamicData.m_sUserData[idx] = dData;
+                idx++;
+            }
+
+            return newDynamicData;
+        }
+
+        public void ToggleOfflineMode(string siteGUID, bool isTurnOn)
+        {
+            if (isTurnOn)
+            {
+                var userData = GetUserData(siteGUID);
+                var curDynamicData = userData.m_user.m_oDynamicData;
+                var isOfflineMode = curDynamicData.m_sUserData.Where(x => x != null && x.m_sDataType == "IsOfflineMode").Count() > 0;
+                var newDynamicData = cloneDynamicData(curDynamicData, !isOfflineMode);
+
+                if (!isOfflineMode)
+                {
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer();
+                    dData.m_sDataType = "IsOfflineMode";
+                    dData.m_sValue = "true";
+                    newDynamicData.m_sUserData[newDynamicData.m_sUserData.Count() - 1] = dData;
+                }
+                else
+                    newDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode").First().m_sValue = "true";
+
+                SetUserData(siteGUID, userData.m_user.m_oBasicData, newDynamicData);
+            }
+            else
+            {
+                var userData = GetUserData(siteGUID);
+                var curDynamicData = userData.m_user.m_oDynamicData;
+                var newDynamicData = cloneDynamicData(curDynamicData, false);
+
+                newDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode").First().m_sValue = "false";
+                SetUserData(siteGUID, userData.m_user.m_oBasicData, newDynamicData);
+            }
+        }
     }
 }
