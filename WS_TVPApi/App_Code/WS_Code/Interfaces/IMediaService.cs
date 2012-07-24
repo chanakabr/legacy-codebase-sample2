@@ -158,5 +158,8 @@ namespace TVPApiServices
 
         [OperationContract]
         List<Media> GetSubscriptionMedias(InitializationObject initObj, string[] sSubID, string picSize, OrderBy orderBy);
+
+        [OperationContract]
+        void ToggleOfflineMode(InitializationObject initObj, bool isTurnOn);
     }
 }
