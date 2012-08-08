@@ -53,5 +53,24 @@ namespace TVPApiModule.Services
 
             return eRes;
         }
+
+        public TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] GetUserSocialActions(string siteGuid,
+            TVPPro.SiteManager.TvinciPlatform.Social.SocialAction socialAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, bool onlyFriends,
+            int startIndex, int numOfItems)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] res = null;
+
+            try
+            {
+                res = m_Module.GetUserSocialActions(m_wsUserName, m_wsPassword, int.Parse(siteGuid), (int)socialAction, (int)socialPlatform, onlyFriends, startIndex, numOfItems);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occured in DoSocialAction, Error : {0} Parameters : siteGuid {1}, action: {2}, platform: {3}", ex.Message, siteGuid,
+                    socialAction, socialPlatform);
+            }
+
+            return res;
+        }
     }
 }

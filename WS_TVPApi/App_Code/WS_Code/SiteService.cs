@@ -1005,6 +1005,32 @@ namespace TVPApiServices
             return sRes;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get user social actions")]
+        public UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, SocialAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
+        {
+            UserSocialActionObject[] res = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserSocialActions-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupID, initObj.Platform);
+                    res = service.GetUserSocialActions(initObj.SiteGuid, socialAction, socialPlatform, isOnlyFriends, startIndex, numOfItems);
+
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : GetUserSocialActions, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                }
+            }
+
+            return res;
+        }
+
         [WebMethod(EnableSession = true, Description = "Do Post Reg Action")]
         public string PostRegAction(InitializationObject initObj, string actionName)
         {
