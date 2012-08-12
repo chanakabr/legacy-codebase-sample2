@@ -214,6 +214,22 @@ namespace TVPApiModule.Services
             return response;
         }
 
+        public UserResponseObject[] GetUsersData(string[] sSiteGuids)
+        {
+            UserResponseObject[] response = null;
+
+            try
+            {
+                response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol GetUsersData, Error Message: {0}", ex.Message);
+            }
+
+            return response;
+        }
+
         public UserResponseObject SetUserData(string sSiteGuid, UserBasicData userBasicData, UserDynamicData userDynamicData)
         {
             UserResponseObject response = null;

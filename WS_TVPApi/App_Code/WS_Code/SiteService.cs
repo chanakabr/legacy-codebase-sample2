@@ -652,6 +652,34 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get users details info")]
+        public UserResponseObject[] GetUsersData(InitializationObject initObj, string[] sSiteGuid)
+        {
+            UserResponseObject[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUsersData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUsersData-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, sSiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUsersData(sSiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserData->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserData-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
         [WebMethod(EnableSession = true, Description = "Get user CA status")]
         public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus GetUserCAStatus(InitializationObject initObj)
         {
