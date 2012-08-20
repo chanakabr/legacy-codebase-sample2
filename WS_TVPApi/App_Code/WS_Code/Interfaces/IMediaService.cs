@@ -161,5 +161,8 @@ namespace TVPApiServices
 
         [OperationContract]
         void ToggleOfflineMode(InitializationObject initObj, bool isTurnOn);
+
+        [OperationContract]
+        List<Media> SearchMediaByMetasTagsExact(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy);
     }
 }
