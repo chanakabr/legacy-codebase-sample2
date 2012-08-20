@@ -592,6 +592,34 @@ namespace TVPApiServices
             return lstMedia;
         }
 
+        [WebMethod(EnableSession = true, Description = "Search medias by multi tags")]
+        public List<Media> SearchMediaByMetasTagsExact(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchMediaByMetasTagsExact", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SearchMediaByMetasTagsExact-> [{0}, {1}], Params:[tagName: {2}, value: {3}, mediaType: {4}, picSize: {5}, pageSize: {6}, pageIndex: {7}, orderBy: {8}]", groupID, initObj.Platform, string.Empty, mediaType, picSize, pageSize, pageIndex, orderBy);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.SearchMediaByMetasTagsExact(initObj, mediaType, tagPairs, metaPairs, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SearchMediaByMetasTagsExact->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SearchMediaByMetasTagsExact-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
+        }
+
         //Search medias by tag
         [WebMethod(EnableSession = true, Description = "Search medias by tag")]
         public List<Media> SearchMediaByTag(InitializationObject initObj, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
@@ -1786,7 +1814,7 @@ namespace TVPApiServices
                 try
                 {
                     if (new ApiUsersService(groupId, initObj.Platform).IsOfflineModeEnabled(initObj.SiteGuid))
-                        sResponse = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid);
+                        sResponse = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid).OrderBy(x=> x.m_CreateDate).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -1841,7 +1869,7 @@ namespace TVPApiServices
                     if (!new ApiUsersService(groupId, initObj.Platform).IsOfflineModeEnabled(initObj.SiteGuid))
                         return lResponse;
 
-                    UserOfflineObject[] offArr = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid);
+                    UserOfflineObject[] offArr = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid).OrderBy(x => x.m_CreateDate).ToArray();
                     long[] mediaIDs = offArr.Select(x=> long.Parse(x.m_MediaID)).ToArray();
                     lResponse.AddRange(GetMediasInfo(initObj, mediaIDs, 0, picSize, withDynamic));
                 }
