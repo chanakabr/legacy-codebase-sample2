@@ -637,7 +637,7 @@ namespace TVPApi
 
                 GalleryItem galleryItem = CreateGalleryItem(galleryRow);
                 AddLocalesToGallery(pgallery, galleryRow.GetGalleryLocalesRows());
-                AddButtonLinksToGallery(pgallery);
+                //AddButtonLinksToGallery(pgallery);
                 if (pgallery.MainCulture != null)
                 {
                     //Check if gallery language already exists in dictionary
