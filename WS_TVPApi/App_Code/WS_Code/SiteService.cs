@@ -826,7 +826,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    DomainResponseObject res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                    DomainResponseObject res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(initObj.DomainID, initObj.UDID);
+                    //DomainResponseObject res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
                     resDomain = res.m_oDomain;
                 }
                 catch (Exception ex)
