@@ -47,6 +47,42 @@ namespace TVPApiModule.DataLoaders
             }
         }
 
+        public int AvgBitRate
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "AvgBitRate", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "AvgBitRate", value);
+            }
+        }
+
+        public int CurrentBitRate
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "CurrentBitRate", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "CurrentBitRate", value);
+            }
+        }
+
+        public int TotalBitRateNum
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "TotalBitRateNum", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "TotalBitRateNum", value);
+            }
+        }
+
         public APIMediaMark()
             : this(string.Empty, string.Empty)
         {
@@ -68,6 +104,9 @@ namespace TVPApiModule.DataLoaders
             result.root.request.mark.media.orig_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             result.root.request.mark.media.file_quality = file_quality.high;
             result.root.request.mark.device_udid = DeviceUDID;
+            result.root.request.mark.media.avg_bit_rate_num = AvgBitRate.ToString();
+            result.root.request.mark.media.current_bit_rate_num = CurrentBitRate.ToString();
+            result.root.request.mark.media.total_bit_rate_num = TotalBitRateNum.ToString();
 
             result.root.flashvars.lang = Language;
 
