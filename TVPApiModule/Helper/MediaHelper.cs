@@ -48,7 +48,7 @@ namespace TVPApi
         //Get media info
         public static Media GetMediaInfo(InitializationObject initObj, long MediaID, int mediaType, string picSize, int groupID, bool withDynamic)
         {
-            Media retVal = null;
+            Media retVal = null;            
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
             dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, MediaID.ToString()) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize }.Execute());
             if (mediaInfo.Item != null && mediaInfo.Item.Count == 1)
@@ -57,6 +57,24 @@ namespace TVPApi
                 if (row != null)
                 {
                     retVal = new Media(row, initObj, groupID, withDynamic, mediaInfo.Item.Count);
+                }
+            }
+
+            return retVal;
+
+        }
+
+        public static Media GetMediaInfo(InitializationObject initObj, long MediaID, string picSize, int groupID)
+        {
+            Media retVal = null;
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);            
+            dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, MediaID.ToString()) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize }.Execute());
+            if (mediaInfo.Item != null && mediaInfo.Item.Count == 1)
+            {
+                dsItemInfo.ItemRow row = mediaInfo.Item.Rows[0] as dsItemInfo.ItemRow;
+                if (row != null)
+                {
+                    retVal = new Media(row, initObj, groupID, false, mediaInfo.Item.Count);
                 }
             }
 
