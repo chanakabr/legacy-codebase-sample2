@@ -51,6 +51,17 @@ namespace TVPApi
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
         }
+        public string DeviceUDID
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Filter, "DeviceUDID", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Filter, "DeviceUDID", value);
+            }
+        }
 
         protected override bool TryGetItemsCountInSource(object retrievedData, out long count)
         {
@@ -87,7 +98,8 @@ namespace TVPApi
             protocol.root.flashvars.file_quality = file_quality.high;
             protocol.root.request.@params.info_struct.type.MakeSchemaCompliant();
             protocol.root.request.@params.info_struct.description.MakeSchemaCompliant();
-            
+            protocol.root.flashvars.device_udid = DeviceUDID;
+
             if (IsPosterPic)
             {
                 protocol.root.flashvars.pic_size1_format = "POSTER";

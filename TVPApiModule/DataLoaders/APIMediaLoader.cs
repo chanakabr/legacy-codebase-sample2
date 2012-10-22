@@ -96,7 +96,7 @@ namespace TVPApi
             //result.root.flashvars.pic_size1_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
             //result.root.flashvars.pic_size1_quality = "HIGH";
             result.root.flashvars.pic_size1 = PicSize;
-
+            result.root.flashvars.device_udid = DeviceUDID;
             //Set the response info_struct
             result.root.request.@params.info_struct.statistics = true;
             result.root.request.@params.info_struct.name.MakeSchemaCompliant();

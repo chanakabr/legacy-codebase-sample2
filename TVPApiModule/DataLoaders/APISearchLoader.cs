@@ -104,6 +104,7 @@ namespace TVPApi
                 protocol.root.flashvars.pic_size1_format = "POSTER";
                 protocol.root.flashvars.pic_size1_quality = "HIGH";
             }
+            protocol.root.flashvars.device_udid = DeviceUDID;
 
             //Handle response info stuct
             protocol.root.request.@params.with_info = WithInfo.ToString();
