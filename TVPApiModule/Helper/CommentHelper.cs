@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPPro.SiteManager.DataLoaders;
+using Tvinci.Data.TVMDataLoader.Protocols.CommentsSave;
 
 /// <summary>
 /// Summary description for CommentHelper
@@ -43,6 +44,13 @@ namespace TVPApi
             return comment;
         }
 
+
+        public static bool SaveMediaComments(string TVMUser, string TVMPass, int mediaId, string writer, string header, string subHeader, string content, bool autoActive)
+        {
+            bool retVal = false;
+            retVal = (new TVMCommentsSave(TVMUser, TVMPass, mediaId.ToString(), writer, header, subHeader, content, autoActive)).Execute();
+            return retVal;
+        }
 
     }
 }
