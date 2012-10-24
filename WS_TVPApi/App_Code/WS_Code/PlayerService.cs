@@ -72,7 +72,7 @@ namespace TVPApiServices
 
                     retMedia.Media = MediaHelper.GetMediaInfo(initObj, MediaID, picSize, groupID);
 
-                    retMedia.Rules = ApiService.Instance.GetGroupMediaRules((int)MediaID);
+                    retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID);
 
                     for (int i = 0; i < retMedia.Media.Files.Count; i++)
                     {
@@ -259,5 +259,34 @@ namespace TVPApiServices
             }
         }
 
+        [WebMethod(EnableSession = true, Description = "Check Parental PIN")]
+        [System.Web.Script.Services.ScriptMethod()]
+        [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
+        public bool CheckParentalPIN(InitializationObject initObj, string parentalPIN)
+        {
+            bool retVal = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("CheckParentalPIN-> [{0}, {1}], Params: [ParentalPIN: {2}]", groupID, initObj.Platform, parentalPIN);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    retVal = new ApiConditionalAccessService(groupID, initObj.Platform).CheckParentalPIN(initObj.SiteGuid, parentalPIN);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("CheckParentalPIN->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("CheckParentalPIN-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return retVal;
+        }     
     }
 }
