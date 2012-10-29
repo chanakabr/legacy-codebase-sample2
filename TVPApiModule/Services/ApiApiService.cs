@@ -96,6 +96,21 @@ namespace TVPApiModule.Services
             }
             return geo;
         }
+
+        public GroupRule[] GetGroupMediaRules(int MediaId)
+        {
+            GroupRule[] res = null;
+            try
+            {
+                res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetGroupMediaRules, Error Message: {0}, Parameters :  Epg Id: {1}, User ID: {2}", ex.Message, MediaId, UsersService.Instance.GetUserID());
+            }
+            return res;
+        }
+
         #endregion
     }
 }
