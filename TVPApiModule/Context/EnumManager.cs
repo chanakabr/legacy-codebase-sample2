@@ -125,7 +125,8 @@ namespace TVPApi
         Messages,
         Article,
         Live,
-        Playlist
+        Playlist,
+        EPG
     }
 
     public enum LocaleUserState
@@ -184,5 +185,6 @@ namespace TVPApi
         Favorite = 3,
         All = 4
     }
+
 
 }

@@ -41,6 +41,7 @@ namespace TVPApi
         private List<TagMetaPair> m_tags;
         private List<TagMetaPair> m_metas;
         private List<File> m_files;
+        private List<ExtIDPair> m_externalIDs;
 
         public DynamicData MediaDynamicData;
         public string SubDuration;
@@ -50,6 +51,14 @@ namespace TVPApi
         public string GeoBlock;
         public long TotalItems;
         public int? like_counter;
+
+        
+
+        public struct ExtIDPair
+        {
+            public string Key;
+            public string Value;
+        }
 
         public struct File
         {
@@ -94,6 +103,18 @@ namespace TVPApi
                 return m_files;
             }
         }
+
+        public List<ExtIDPair> ExternalIDs
+        {
+            get
+            {
+                if (m_externalIDs == null)
+                {
+                    m_externalIDs = new List<ExtIDPair>();
+                }
+                return m_externalIDs;
+            }
+        }
         #endregion
 
         #region Constructors
@@ -123,8 +144,8 @@ namespace TVPApi
             {
                 if (ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FriendlyURL.SupportFeature)
                 {
-                    MediaName = MediaName.Replace("/", "");
-                    retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, MediaName, MediaID);
+                    string sMediaName = HttpUtility.UrlEncode(MediaName.Replace("/", ""));
+                    retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, sMediaName, MediaID);
                 }
                 else
                 {
@@ -220,6 +241,8 @@ namespace TVPApi
 
             buildFiles(row);
 
+            builtExternalIDs(row);
+
             if (withDynamic && initObj.Locale != null)
             {
                 logger.InfoFormat("Start Media dynamic build GroupID:", groupID);
@@ -228,6 +251,21 @@ namespace TVPApi
             }
 
             TotalItems = iMediaCount;
+        }
+
+        private void builtExternalIDs(dsItemInfo.ItemRow row)
+        {
+            System.Data.DataRow[] rowExtIDs = row.GetChildRows("Item_ExtIDs");
+            if (rowExtIDs != null && rowExtIDs.Length > 0)
+            {
+                foreach (System.Data.DataRow rowExt in rowExtIDs)
+                {
+                    foreach(System.Data.DataColumn dc in rowExt.Table.Columns){
+                        if (!dc.ColumnName.Equals("ID"))
+                            ExternalIDs.Add(new ExtIDPair() { Key = dc.ColumnName, Value = rowExt[dc.ColumnName].ToString() });
+                    }
+                }
+            }
         }
 
         private void buildFiles(dsItemInfo.ItemRow row)

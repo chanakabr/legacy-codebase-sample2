@@ -18,14 +18,14 @@ public partial class Gateways_ximon_init : System.Web.UI.Page
             ""LocaleDevice"": """",
             ""LocaleUserState"": ""Unknown""
         },
-        ""Platform"": ""iPad"",
+        ""Platform"": ""ConnectedTV"",
         ""SiteGuid"": ""0"",
         ""DomainID"": 0,
         ""UDID"": """",
         ""ApiUser"": ""tvpapi_109"",
         ""ApiPass"": ""11111""
     },
-    ""GatewayURL"": ""http://173.231.146.34:9003/tvpapi/gateways/jsonpostgw.aspx"",
+    ""GatewayURL"": ""https://tvpapi.tvinci.com/gateways/jsonpostgw.aspx"",
     ""home"": {
         ""newest"": ""1250"",
         ""genres"": [

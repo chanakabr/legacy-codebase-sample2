@@ -13,13 +13,25 @@ namespace TVPApi
         public APISearchLoader(string TVMUser, string TVMPass)
             : base(TVMUser, TVMPass)
         {
-
+            
         }
 
         public APISearchLoader(string TVMUser, string TVMPass, Dictionary<string, string> tags)
             : base(TVMUser, TVMPass, tags)
         {
+            
+        }
 
+        public string Country
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Country", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Country", value);
+            }
         }
 
         public string Language
@@ -70,6 +82,18 @@ namespace TVPApi
             }
         }
 
+        public bool IgnoreFilter
+        {
+            get
+            {
+                return Parameters.GetParameter<bool>(eParameterType.Retrieve, "IgnoreFilter", false);
+            }
+            set
+            {
+                Parameters.SetParameter<bool>(eParameterType.Retrieve, "IgnoreFilter", value);
+            }
+        }
+
         public override bool ShouldExtractItemsCountInSource
         {
             get
@@ -92,6 +116,13 @@ namespace TVPApi
 
             protocol.root.flashvars.player_un = TvmUser;
             protocol.root.flashvars.player_pass = TvmPass;
+
+            protocol.root.flashvars.no_file_url = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.EncryptMediaFileURL;
+
+            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat))
+            {
+                protocol.root.flashvars.sub_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat;
+            }
 
             //if (string.IsNullOrEmpty(PictureSize))
             //    throw new Exception("Picture size must be given");
@@ -154,35 +185,50 @@ namespace TVPApi
                     protocol.root.request.search_data.cut_values.tags.Add(new cut_valuestagstag_type { name = tagName, value = Name });
                 }
             }
-            else if (m_dictTags != null && m_dictTags.Count > 0)
+            else
             {
-                if (!string.IsNullOrEmpty(Name))
-                    protocol.root.request.search_data.cut_values.name.value = Name;
-
-                foreach (string key in m_dictTags.Keys)
+                if (m_dictTags != null && m_dictTags.Count > 0)
                 {
-                    if (!string.IsNullOrEmpty(m_dictTags[key]))
-                    {
-                        protocol.root.request.search_data.cut_values.tags.Add(new cut_valuestagstag_type { name = key, value = m_dictTags[key] });
-                    }
-                }
-            }
-            if (dictMetas != null && dictMetas.Count > 0) // Hanble with search metas with multi values
-            {
-                if (!string.IsNullOrEmpty(Name))
-                    protocol.root.request.search_data.cut_values.name.value = Name;
+                    if (!string.IsNullOrEmpty(Name))
+                        protocol.root.request.search_data.cut_values.name.value = Name;
 
-                foreach (string key in dictMetas.Keys)
-                {
-                    if (!string.IsNullOrEmpty(dictMetas[key]))
+                    foreach (string key in m_dictTags.Keys)
                     {
-                        string[] CutMetaValues = dictMetas[key].Split(new Char[] { ';' });
-                        foreach (string MetaItem in CutMetaValues)
+                        if (!string.IsNullOrEmpty(m_dictTags[key]))
                         {
-                            protocol.root.request.search_data.cut_values.metaCollection.Add(new cut_valuesmeta { name = key, value = MetaItem });
+                            protocol.root.request.search_data.cut_values.tags.Add(new cut_valuestagstag_type { name = key, value = m_dictTags[key] });
                         }
                     }
                 }
+                if (dictMetas != null && dictMetas.Count > 0) // Hanble with search metas with multi values
+                {
+                    if (!string.IsNullOrEmpty(Name))
+                        protocol.root.request.search_data.cut_values.name.value = Name;
+
+                    foreach (string key in dictMetas.Keys)
+                    {
+                        if (!string.IsNullOrEmpty(dictMetas[key]))
+                        {
+                            string[] CutMetaValues = dictMetas[key].Split(new Char[] { ';' });
+                            foreach (string MetaItem in CutMetaValues)
+                            {
+                                protocol.root.request.search_data.cut_values.metaCollection.Add(new cut_valuesmeta { name = key, value = MetaItem });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Add tags to filter by ip/country and Device using site configuration
+            if (ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.LocaleSearchFilter.SupportFeature && !IgnoreFilter)
+            {
+                // By Country
+                string sCountryTagName = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.LocaleSearchFilter.CountryByTagName;
+                protocol.root.request.search_data.cut_values.tags.Add(new cut_valuestagstag_type { name = sCountryTagName, value = Country, cut_with = eCutType.And.ToString() });
+
+                // By Platform
+                string sPlatformTagName = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.LocaleSearchFilter.DeviceByTagName;
+                protocol.root.request.search_data.cut_values.tags.Add(new cut_valuestagstag_type { name = sPlatformTagName, value = Platform.ToString(), cut_with = eCutType.And.ToString() });
             }
 
             switch (OrderBy)
@@ -191,15 +237,16 @@ namespace TVPApi
                     protocol.root.request.search_data.order_values.name.order_dir = OrderDirection.ToString().ToLower();
                     break;
                 case TVPApi.OrderBy.Added:
-                    protocol.root.request.search_data.order_values.date.order_dir = eOrderDirection.Desc.ToString().ToLower();
+                    protocol.root.request.search_data.order_values.date.order_dir = eOrderDirection.Desc.ToString();//OrderDirection.ToString().ToLower();
                     break;
                 case TVPApi.OrderBy.Views:
-                    protocol.root.request.search_data.order_values.views.order_dir = OrderDirection.ToString().ToLower();
+                    protocol.root.request.search_data.order_values.views.order_dir = eOrderDirection.Desc.ToString();//OrderDirection.ToString().ToLower();
                     break;
                 case TVPApi.OrderBy.Rating:
-                    protocol.root.request.search_data.order_values.rate.order_dir = OrderDirection.ToString().ToLower();
+                    protocol.root.request.search_data.order_values.rate.order_dir = eOrderDirection.Desc.ToString();//OrderDirection.ToString().ToLower();
                     break;
                 case TVPApi.OrderBy.None:
+                    protocol.root.request.search_data.order_values.name.order_dir = OrderDirection.ToString().ToLower();
                     break;
                 default:
                     throw new Exception("Unknown order by value");

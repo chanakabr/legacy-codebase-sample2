@@ -30,6 +30,7 @@ namespace TVPApiModule.Services
             public string SiteGuid;
             public int DomainID;
             public ResponseStatus LoginStatus;
+            public User UserData;
         }
         #endregion
 
@@ -65,18 +66,19 @@ namespace TVPApiModule.Services
         public LogInResponseData SignIn(string sUserName, string sPassword, string sSessionID, string sDeviceID, bool bIsDoubleLogin)
         {
             LogInResponseData loginData = new LogInResponseData();
-
+            
             try
             {
                 sDeviceID = string.Empty;
                 sUserName = HttpUtility.UrlDecode(sUserName);
                 UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);                 
-
+                
                 if (response != null && response.m_user != null)
                 {                    
                     loginData.SiteGuid = response.m_user.m_sSiteGUID;
                     loginData.DomainID = response.m_user.m_domianID;
                     loginData.LoginStatus = response.m_RespStatus;
+                    loginData.UserData = response.m_user;
                 }
                 else if (response != null)
                 {
@@ -214,7 +216,7 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public UserResponseObject[] GetUsersData(string[] sSiteGuids)
+        public UserResponseObject[] GetUsersData(string sSiteGuids)
         {
             UserResponseObject[] response = null;
 
@@ -334,6 +336,23 @@ namespace TVPApiModule.Services
             }
         }
 
+        public string IpToCountry(string sIP)
+        {
+            string sRet = string.Empty;
+
+            try
+            {
+                Country response = m_Module.GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
+                sRet = response.m_sCountryName;
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol IpToCountry, Error Message: {0} Parameters : UserIP {1}", ex.Message, sIP);
+            }
+
+            return sRet;
+        }
+
         public bool IsOfflineModeEnabled(string siteGuid)
         {
             var offlineMode = GetUserData(siteGuid).m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode" && x.m_sValue == "true").FirstOrDefault();
@@ -396,6 +415,21 @@ namespace TVPApiModule.Services
                 newDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode").First().m_sValue = "false";
                 SetUserData(siteGUID, userData.m_user.m_oBasicData, newDynamicData);
             }
+        }
+
+        public bool SetUserDynamicData(string sSiteGuid, string sKey, string sValue)
+        {
+            bool bRet = false;
+            try
+            {
+                bRet = m_Module.SetUserDynamicData(m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol SetUserDynamicData, Error Message: {0} Parameters :ws User name : {1} , ws Password: {2}, SiteGUID: {3}, Key: {4}, Value: {5}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
+            }
+
+            return bRet;
         }
     }
 }

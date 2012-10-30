@@ -97,6 +97,34 @@ namespace TVPApiModule.Services
             return geo;
         }
 
+        public EPGChannelObject[] GetEPGChannel(string sPicSize)
+        {
+            EPGChannelObject[] objEPGRes = null;
+            try
+            {
+                 objEPGRes = m_Module.GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetEPGChannel, Error Message: {0}, IP: {1}", ex.Message, SiteHelper.GetClientIP());
+            }
+            return objEPGRes;
+        }
+
+        public EPGChannelProgrammeObject[] GetEPGChannel(string sChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        {
+            EPGChannelProgrammeObject[] objEPGProgramRes = null;
+            try
+            {
+                objEPGProgramRes = m_Module.GetEPGChannelProgramme(m_wsUserName, m_wsPassword, sChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, sChannelID, SiteHelper.GetClientIP());
+            }
+            return objEPGProgramRes;
+        }
+
         public GroupRule[] GetGroupMediaRules(int MediaId)
         {
             GroupRule[] res = null;

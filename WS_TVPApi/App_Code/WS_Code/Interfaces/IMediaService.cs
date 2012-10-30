@@ -163,6 +163,21 @@ namespace TVPApiServices
         void ToggleOfflineMode(InitializationObject initObj, bool isTurnOn);
 
         [OperationContract]
+        List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj);
+
+        [OperationContract]
         List<Media> SearchMediaByMetasTagsExact(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy);
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] GetEPGChannels(InitializationObject initObj, string sPicSize, OrderBy orderBy);
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] GetEPGChannelsPrograms(InitializationObject initObj, string sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet);
+
+        [OperationContract]
+        void SendMessage(string sSiteGuid, string sRecieverUDID, int iMediaID, int iMediaTypeID, int iLocation, string sAction, string sUsername, string sPassword);
+
+        [OperationContract]
+        MBMessage GetMessage(string sUDID);
     }
 }

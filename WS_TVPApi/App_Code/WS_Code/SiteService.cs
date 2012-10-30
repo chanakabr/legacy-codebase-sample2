@@ -454,7 +454,7 @@ namespace TVPApiServices
         public TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password)
         {
             TVPApiModule.Services.ApiUsersService.LogInResponseData sRet = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
-
+            
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
             logger.InfoFormat("SignIn-> [{0}, {1}], Params:[userName: {2}, password: {3}]", groupID, initObj.Platform, userName, password);
@@ -653,7 +653,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get users details info")]
-        public UserResponseObject[] GetUsersData(InitializationObject initObj, string[] sSiteGuid)
+        public UserResponseObject[] GetUsersData(InitializationObject initObj, string sSiteGuid)
         {
             UserResponseObject[] response = null;
 
@@ -731,6 +731,34 @@ namespace TVPApiServices
             else
             {
                 logger.ErrorFormat("SendNewPassword-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return bRet;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Set specific dynamic user key data")]
+        public bool SetUserDynamicData(InitializationObject initObj, string sKey, string sValue)
+        {
+            bool bRet = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserDynamicData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SetUserDynamicData-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserDynamicData(initObj.SiteGuid, sKey, sValue);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SetUserDynamicData->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SetUserDynamicData-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return bRet;

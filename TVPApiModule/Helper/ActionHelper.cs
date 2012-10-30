@@ -178,7 +178,7 @@ namespace TVPApi
         public static string MediaHit(InitializationObject initObj, int groupID, PlatformType platform, int mediaType, long iMediaID, long iFileID, int iLocation)
         {
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
+            return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, FileID = iFileID, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
         }
 
         public static string MediaHit(InitializationObject initObj, int groupID, PlatformType platform, long iMediaID, long iFileID, int iLocation)

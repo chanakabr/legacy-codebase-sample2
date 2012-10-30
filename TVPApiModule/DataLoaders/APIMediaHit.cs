@@ -6,6 +6,7 @@ using TVPApi;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaHit;
 using TVPPro.SiteManager.Context;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -62,20 +63,48 @@ namespace TVPApiModule.DataLoaders
 
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
         {
+            //MediaHit result = new MediaHit();
+            //result.root.request.watching.location_sec = Location.ToString();
+            //result.root.request.watching.media.id = MediaID.ToString();
+            //result.root.request.watching.media.orig_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            //result.root.request.watching.media.file_quality = file_quality.high;
+            //result.root.request.watching.device_udid = DeviceUDID;
+
+            //result.root.flashvars.lang = Language;
+
+            //result.root.flashvars.player_un = TvmUser;
+            //result.root.flashvars.player_pass = TvmPass;
+            //result.root.flashvars.file_quality = file_quality2.high;
+            //result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            //result.root.flashvars.site_guid = SiteGUID;
+
             MediaHit result = new MediaHit();
+
+            result.root.request.type = "hit";
+            result.root.request.action = Action;
             result.root.request.watching.location_sec = Location.ToString();
+
             result.root.request.watching.media.id = MediaID.ToString();
-            result.root.request.watching.media.orig_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
-            result.root.request.watching.media.file_quality = file_quality.high;
+            result.root.request.watching.media.duration = Duration;
+            result.root.request.watching.media.file_id = FileID.ToString();
+            result.root.request.watching.media.billing = Billing;
             result.root.request.watching.device_udid = DeviceUDID;
+            result.root.request.watching.media.cdn_id = CDNID;
+            result.root.request.watching.media.file_quality = file_quality.high;
+            result.root.request.watching.media.orig_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat; ;
+            result.root.request.watching.media.avg_bit_rate_num = AvgBitRate.ToString();
+            result.root.request.watching.media.current_bit_rate_num = CurrentBitRate.ToString();
+            result.root.request.watching.media.total_bit_rate_num = TotalBitRateNum.ToString();
 
+            result.root.flashvars.user_ip = SiteHelper.GetClientIP();
+            result.root.flashvars.player_un = this.TvmUser;
+            result.root.flashvars.player_pass = this.TvmPass;
             result.root.flashvars.lang = Language;
-
-            result.root.flashvars.player_un = TvmUser;
-            result.root.flashvars.player_pass = TvmPass;
-            result.root.flashvars.file_quality = file_quality2.high;
-            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.no_cache = "0";
+            result.root.flashvars.zip = "1";
             result.root.flashvars.site_guid = SiteGUID;
+
+            result.root.request.MakeSchemaCompliant(); 
 
             return result;
         }

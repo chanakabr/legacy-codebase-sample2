@@ -23,16 +23,22 @@ public abstract class BaseGateway : System.Web.UI.Page
     /// </summary>
     private static Dictionary<String, KnownUsersAndPasswords> s_KnownMacAddress = new Dictionary<string, KnownUsersAndPasswords>()
     {
+        { "0004305A0C0C",new KnownUsersAndPasswords(){UserName = "shayo.ofer@gmail.com", Password = "123456"}},
+        { "00043053C7FD",new KnownUsersAndPasswords(){UserName = "ido@tvinci.com", Password = "123456"}},
+        { "00043055A598",new KnownUsersAndPasswords(){UserName = "alamdan@gmail.com", Password = "123456"}},        
+        { "00043048324A",new KnownUsersAndPasswords(){UserName = "eilat.amir@gmail.com", Password = "123456"}},
+        { "00043055A593",new KnownUsersAndPasswords(){UserName = "adinagrynberg@yahoo.com", Password = "123456"}},
+
         { "000430483825",new KnownUsersAndPasswords(){UserName = "amir1@tvinci.com", Password = "123456"}},
         { "00043049804A",new KnownUsersAndPasswords(){UserName = "netgem", Password = "123456"}},
         { "0004305A0BB2",new KnownUsersAndPasswords(){UserName = "africatv@tvinci.com", Password = "123456"}},
         { "0004305A0BBD",new KnownUsersAndPasswords(){UserName = "africatv@tvinci.com", Password = "123456"}},
-        { "00043048324A",new KnownUsersAndPasswords(){UserName = "adina@tvinci.com", Password = "eliron27"}},        
+        //{ "00043048324A",new KnownUsersAndPasswords(){UserName = "adina@tvinci.com", Password = "eliron27"}},        
         { "00043050E79A",new KnownUsersAndPasswords(){UserName = "demo@motorola.com", Password = "123456"}},        
         { "00043053C7C7",new KnownUsersAndPasswords(){UserName = "tvinci1@tvinci.com", Password = "123456"}},        
         { "0004305A0BBC",new KnownUsersAndPasswords(){UserName = "adina1@tvinci.com", Password = "123456"}},        
         { "0004305A0BBE",new KnownUsersAndPasswords(){UserName = "adina2@tvinci.com", Password = "123456"}},        
-        { "00043055A598",new KnownUsersAndPasswords(){UserName = "yonatan1@tvinci.com", Password = "123456"}},        
+        //{ "00043055A598",new KnownUsersAndPasswords(){UserName = "yonatan1@tvinci.com", Password = "123456"}},        
         { "00043055A585",new KnownUsersAndPasswords(){UserName = "Ofer.Shmueli@orange.co.il", Password = "Orange123"}},        
         { "00043055A583",new KnownUsersAndPasswords(){UserName = "menahem.tirosh1@orange.co.il", Password = "Orange123"}},        
         { "00043055A548",new KnownUsersAndPasswords(){UserName = "menahem.tirosh1@orange.co.il", Password = "Orange123"}}, 

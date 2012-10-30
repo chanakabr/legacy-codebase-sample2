@@ -24,7 +24,7 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
                 sBundleID = Request.QueryString["bid"].ToString();
             }
             catch (Exception ex) { }
-            
+
             // change to check if method is post or get
             if (string.IsNullOrEmpty(sUDID) && string.IsNullOrEmpty(sBundleID))
             {
@@ -90,9 +90,25 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
             retDeviceInit.initObj.Locale.LocaleDevice = string.Empty;
             retDeviceInit.initObj.Locale.LocaleLanguage = string.Empty;
 
+            retDeviceInit.FacebookURL = "http://173.231.146.5/social/facebook_api.aspx?action=getdata&groupId=144&platform=1&domain=1";
+
             retDeviceInit.GatewayURL = "http://173.231.146.34:9003/tvpapi/gateways/jsonpostgw.aspx";
             retDeviceInit.MainMenuID = "43";
             retDeviceInit.AllowBrowseMode = "true";
+
+            retDeviceInit.FilesFormat = new DeviceInit.oFilesFormat() { Main = "iPhone Main", Trailer = "iPhone Trailer" };
+
+            retDeviceInit.MediaTypes = new List<KeyValuePair<string, string>>();
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("324", "Actor"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("325", "Director"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("326", "Series"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("327", "Package"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("328", "Film"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("329", "Episode"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("330", "Sports"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("331", "Concert"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("332", "Karaoke"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("333", "Catch up"));
         }
         else if (sBundleID.ToLower().Equals("com.tvinci.development.toggle"))
         {
@@ -110,11 +126,58 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
 
             retDeviceInit.FacebookURL = "http://173.231.146.5/social/facebook_api.aspx?action=getdata&groupId=147&platform=1&domain=1";
 
-            retDeviceInit.GatewayURL = "http://173.231.146.34:9003/tvpapi/gateways/jsonpostgw.aspx";
+            retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";
             retDeviceInit.MainMenuID = "45";
             retDeviceInit.AllowBrowseMode = "false";
 
             retDeviceInit.FilesFormat = new DeviceInit.oFilesFormat() { Main = "iOS Clear", Trailer = "Trailer" };
+
+            retDeviceInit.MediaTypes = new List<KeyValuePair<string, string>>();
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("339", "Movie"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("335", "Series"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("336", "Person"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("337", "Package"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("338", "Preapid"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("340", "Episode"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("341", "Linear"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("342", "Sports"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("343", "Music"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("345", "Karaoke"));
+        }
+        else if (sBundleID.ToLower().Equals("com.tvinci.development.ipad.toggle"))
+        {
+            retDeviceInit.initObj = new TVPApi.InitializationObject();
+            retDeviceInit.initObj.ApiUser = "tvpapi_147";
+            retDeviceInit.initObj.ApiPass = "11111";
+            retDeviceInit.initObj.SiteGuid = string.Empty;
+            retDeviceInit.initObj.UDID = sUDID;
+            retDeviceInit.initObj.Platform = TVPApi.PlatformType.iPad;
+            retDeviceInit.initObj.Locale = new TVPApi.Locale();
+            retDeviceInit.initObj.Locale.LocaleUserState = TVPApi.LocaleUserState.Unknown;
+            retDeviceInit.initObj.Locale.LocaleCountry = string.Empty;
+            retDeviceInit.initObj.Locale.LocaleDevice = string.Empty;
+            retDeviceInit.initObj.Locale.LocaleLanguage = string.Empty;
+
+            retDeviceInit.FacebookURL = "http://173.231.146.5/social/facebook_api.aspx?action=getdata&groupId=147&platform=1&domain=1";
+
+            retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";
+            retDeviceInit.MainMenuID = "46";
+            retDeviceInit.AllowBrowseMode = "false";
+            retDeviceInit.VODCategoryID = "1313";
+
+            retDeviceInit.FilesFormat = new DeviceInit.oFilesFormat() { Main = "iOS Clear", Trailer = "Trailer" };
+
+            retDeviceInit.MediaTypes = new List<KeyValuePair<string, string>>();
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("339", "Movie"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("335", "Series"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("336", "Person"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("337", "Package"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("338", "Preapid"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("340", "Episode"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("341", "Linear"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("342", "Sports"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("343", "Music"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("345", "Karaoke"));
         }
         else if (sBundleID.ToLower().Equals("com.tvinci2.activities") || sBundleID.ToLower().Equals("com.tvinci.development.ipadtvincidemo"))
         {
@@ -132,7 +195,7 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
 
             retDeviceInit.FacebookURL = "http://173.231.146.5/social/facebook_api.aspx?action=getdata&groupId=125&platform=3&domain=1";
 
-            retDeviceInit.GatewayURL = "http://173.231.146.34:9003/tvpapi/gateways/jsonpostgw.aspx";
+            retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";
             retDeviceInit.MainMenuID = "26";
             retDeviceInit.AllowBrowseMode = "true";
 
@@ -141,14 +204,25 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
             else
                 retDeviceInit.FilesFormat = new DeviceInit.oFilesFormat() { Main = "IPad Main", Trailer = "Trailer" };
 
-            retDeviceInit.MediaTypes = new List<KeyValuePair<int, string>>();
-            retDeviceInit.MediaTypes.Add(new KeyValuePair<int, string>(272, "Movie")); 
-            retDeviceInit.MediaTypes.Add(new KeyValuePair<int, string>(273, "Episode"));
-            retDeviceInit.MediaTypes.Add(new KeyValuePair<int, string>(289, "Live"));
-            retDeviceInit.MediaTypes.Add(new KeyValuePair<int, string>(277, "Series"));
-            retDeviceInit.MediaTypes.Add(new KeyValuePair<int, string>(278, "Person"));
-            retDeviceInit.MediaTypes.Add(new KeyValuePair<int, string>(279, "Package"));
-            retDeviceInit.MediaTypes.Add(new KeyValuePair<int, string>(215, "Article"));
+            retDeviceInit.MediaTypes = new List<KeyValuePair<string, string>>();
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("272", "Movie"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("273", "Episode"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("289", "Live"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("277", "Series"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("278", "Person"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("279", "Package"));
+            retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("215", "Article"));
+
+            if (sBundleID.ToLower().Equals("com.tvinci2.activities"))
+            {
+                retDeviceInit.Devices = new List<KeyValuePair<string, string>>();
+                retDeviceInit.Devices.Add(new KeyValuePair<string, string>("Demo1", "192.168.1.11"));
+                retDeviceInit.Devices.Add(new KeyValuePair<string, string>("Demo2", "192.168.1.12"));
+                retDeviceInit.Devices.Add(new KeyValuePair<string, string>("Demo3", "192.168.1.13"));
+                retDeviceInit.Devices.Add(new KeyValuePair<string, string>("Meeting Room1", "192.168.1.14"));
+                retDeviceInit.Devices.Add(new KeyValuePair<string, string>("Meeting Room2", "192.168.1.15"));
+                retDeviceInit.Devices.Add(new KeyValuePair<string, string>("TV", "AA:BB:CC:DD:EE:FF"));
+            }
         }
 
         return retDeviceInit;
@@ -170,8 +244,10 @@ public class DeviceInit
     public string SD { get; set; }
     public string MainMenuID { get; set; }
     public string AllowBrowseMode { get; set; }
+    public string VODCategoryID { get; set; }
     public oFilesFormat FilesFormat { get; set; }
-    public List<KeyValuePair<int, string>> MediaTypes { get; set; }
+    public List<KeyValuePair<string, string>> MediaTypes { get; set; }
+    public List<KeyValuePair<string, string>> Devices { get; set; }
 
     public struct oFilesFormat
     {
@@ -184,13 +260,13 @@ public class MyStringEnumConverter : Newtonsoft.Json.Converters.StringEnumConver
 {
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-        
+
         if (value is TVPApi.LocaleUserState)
         {
             writer.WriteValue(Enum.GetName(typeof(TVPApi.LocaleUserState), (TVPApi.LocaleUserState)value));
             return;
         }
-        else if(value is TVPApi.PlatformType)
+        else if (value is TVPApi.PlatformType)
         {
             writer.WriteValue(Enum.GetName(typeof(TVPApi.PlatformType), (TVPApi.PlatformType)value));
             return;

@@ -132,6 +132,7 @@
     <Compile Include="Objects\MenuItem.cs" />
     <Compile Include="Objects\PageData.cs" />
     <Compile Include="Objects\PageInfo.cs" />
+    <Compile Include="Objects\PermittedPackages.cs" />
     <Compile Include="Objects\Profile.cs" />
     <Compile Include="Objects\ProfileInfo.cs" />
     <Compile Include="Objects\SafeDictionary.cs" />

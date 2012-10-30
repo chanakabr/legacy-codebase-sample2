@@ -143,6 +143,8 @@ namespace TVPApi
                 result.root.flashvars.pic_size1_quality = "HIGH";
             }
 
+            result.root.flashvars.no_file_url = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.EncryptMediaFileURL;
+
             result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
             result.root.flashvars.device_udid = DeviceUDID;

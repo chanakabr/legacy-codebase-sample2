@@ -9,8 +9,8 @@ using System.ComponentModel;
 
 public partial class Gateways_tvinci_init : System.Web.UI.Page
 {
-    //protected string m_sSettingXMLPath = @"D:\ode-Trunk\Projects\TVPProAPIs\WS_TVPApi\Gateways\TvinciSettings.xml";
-    protected string m_sSettingXMLPath = @"\\NY1WD231\logs\TVPApi_CTV\TvinciSettings.xml";
+    //protected string m_sSettingXMLPath = @"D:\ode\Projects\TVPProAPIs\WS_TVPApi\Gateways\TvinciSettings.xml";
+    protected string m_sSettingXMLPath = @"~/TvinciSettings.xml";
 
     protected override void OnInit(EventArgs e)
     {
@@ -18,6 +18,8 @@ public partial class Gateways_tvinci_init : System.Web.UI.Page
         btnAdd.Command += new CommandEventHandler(btnAdd_Command);
         btnSave.Command += new CommandEventHandler(btnSave_Command);
         btnPreview.Command += new CommandEventHandler(btnPreview_Command);
+
+        m_sSettingXMLPath = Server.MapPath(m_sSettingXMLPath);
 
         base.OnInit(e);
     }

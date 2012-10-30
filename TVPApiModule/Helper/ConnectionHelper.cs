@@ -87,7 +87,6 @@ namespace TVPApi
             //    }
             //}
 
-
             //Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetTVMConfigurationMethod = delegate() { return ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.TVMConfiguration; };
             //TVPPro.SiteManager.Manager.TechnicalManager.GetTVMConfiguration;
             Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetRequestLanguageMethod = GetFlashVarsLangVal;
