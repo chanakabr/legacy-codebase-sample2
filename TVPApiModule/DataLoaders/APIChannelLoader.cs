@@ -107,8 +107,8 @@ namespace TVPApi
 
             channel newChannel = new channel();
             newChannel.id = int.Parse(ChannelID.ToString());
-            newChannel.number_of_items = 500;
-            newChannel.start_index = 0;
+            newChannel.number_of_items = PageSize;
+            newChannel.start_index = PageSize * PageIndex;
 
             //switch ((TVPApi.OrderBy)Enum.Parse(typeof(TVPApi.OrderBy), OrderBy.ToString()))
             //{
@@ -205,19 +205,20 @@ namespace TVPApi
                 copyObject.Item.Clear();
                 copyObject.Item.Merge(dtItemSorted, true);
 
-                int iIndex = 0;
-                DataTable dtPaged = copyObject.Item.Clone();
-                foreach (DataRow row in copyObject.Item.Rows)
-                {
-                    if (iIndex >= PageIndex * PageSize && iIndex < (PageIndex + 1) * PageSize)
-                    {
-                        dtPaged.ImportRow(row);
-                    }
-                    iIndex++;
-                }
+                //int iIndex = 0;
+                //DataTable dtPaged = copyObject.Item.Clone();
+                //foreach (DataRow row in copyObject.Item.Rows)
+                //{
+                //    if (iIndex >= PageIndex * PageSize && iIndex < (PageIndex + 1) * PageSize)
+                //    {
+                //        dtPaged.ImportRow(row);
+                //    }
+                //    iIndex++;
+                //}
 
-                copyObject.Item.Clear();
-                copyObject.Item.Merge(dtPaged, true);
+                //copyObject.Item.Clear();
+                //copyObject.Item.Merge(dtPaged, true);
+
             }
 
             return copyObject;
