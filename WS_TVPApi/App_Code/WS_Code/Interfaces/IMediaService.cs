@@ -179,5 +179,8 @@ namespace TVPApiServices
 
         [OperationContract]
         MBMessage GetMessage(string sUDID);
+
+        [OperationContract]
+        bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive);
     }
 }

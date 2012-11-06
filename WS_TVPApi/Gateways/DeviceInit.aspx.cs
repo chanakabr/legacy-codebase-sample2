@@ -110,7 +110,7 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
             retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("332", "Karaoke"));
             retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("333", "Catch up"));
         }
-        else if (sBundleID.ToLower().Equals("com.tvinci.development.toggle"))
+        else if (sBundleID.ToLower().Equals("com.tvinci.development.toggle") || (sBundleID.ToLower().Equals("com.mediacorp.toggle")))
         {
             retDeviceInit.initObj = new TVPApi.InitializationObject();
             retDeviceInit.initObj.ApiUser = "tvpapi_147";
@@ -126,7 +126,10 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
 
             retDeviceInit.FacebookURL = "http://173.231.146.5/social/facebook_api.aspx?action=getdata&groupId=147&platform=1&domain=1";
 
-            retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";
+            //if (sBundleID.ToLower().Equals("com.mediacorp.toggle"))
+                retDeviceInit.GatewayURL = "https://tvpapi.tvinci.com/v1_0/gateways/jsonpostgw.aspx";
+            //else
+              //  retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";            
             retDeviceInit.MainMenuID = "45";
             retDeviceInit.AllowBrowseMode = "false";
 
@@ -144,7 +147,7 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
             retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("343", "Music"));
             retDeviceInit.MediaTypes.Add(new KeyValuePair<string, string>("345", "Karaoke"));
         }
-        else if (sBundleID.ToLower().Equals("com.tvinci.development.ipad.toggle"))
+        else if (sBundleID.ToLower().Equals("com.tvinci.development.ipad.toggle") || sBundleID.ToLower().Equals("com.mediacorp.toggle.ipad"))
         {
             retDeviceInit.initObj = new TVPApi.InitializationObject();
             retDeviceInit.initObj.ApiUser = "tvpapi_147";
@@ -160,7 +163,11 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
 
             retDeviceInit.FacebookURL = "http://173.231.146.5/social/facebook_api.aspx?action=getdata&groupId=147&platform=1&domain=1";
 
-            retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";
+            //if (sBundleID.ToLower().Equals("com.mediacorp.toggle.ipad"))
+                retDeviceInit.GatewayURL = "https://tvpapi.tvinci.com/v1_0/gateways/jsonpostgw.aspx";
+            //else
+              //  retDeviceInit.GatewayURL = "http://tvpapi.stg.tvincidns.com/gateways/jsonpostgw.aspx";
+
             retDeviceInit.MainMenuID = "46";
             retDeviceInit.AllowBrowseMode = "false";
             retDeviceInit.VODCategoryID = "1313";

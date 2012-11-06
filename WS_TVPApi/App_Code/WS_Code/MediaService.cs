@@ -901,6 +901,34 @@ namespace TVPApiServices
 
         #region Actions
 
+        [WebMethod(EnableSession = true, Description = "Add comment")]
+        public bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive)
+        {
+            bool retVal = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddComment", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("ActionDone-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}]", groupID, initObj.Platform, mediaID, mediaType);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
+                    retVal = CommentHelper.SaveMediaComments(account.TVMUser, account.TVMPass, mediaID, writer, header, subheader, content, autoActive);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ActionDone->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ActionDone-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+            return retVal;
+        }
+
         // Perform action on media (AddFavorite, Comment, Like, Rate, Recommend, Record, Reminder, RemoveFavorite, Share, Watch)
         [WebMethod(EnableSession = true, Description = "Perform action on media (AddFavorite, Comment, Like, Rate, Recommend, Record, Reminder, RemoveFavorite, Share, Watch)")]
         public bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal)
