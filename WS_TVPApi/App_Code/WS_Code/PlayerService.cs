@@ -121,7 +121,7 @@ namespace TVPApiServices
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
 
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, fileParam.mediaType, fileParam.mediaID, fileParam.fileID, iLocation);
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, fileParam, iLocation);
                 }
                 catch (Exception ex)
                 {
