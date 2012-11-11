@@ -159,7 +159,7 @@ namespace TVPApi
 
         public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, FileHolder fileParams, int iLocation)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(fileParams.mediaType);
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
             return new APIMediaMark(account.TVMUser, account.TVMPass)
             {
                 GroupID = groupID,
