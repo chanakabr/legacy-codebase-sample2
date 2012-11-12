@@ -72,7 +72,7 @@ namespace TVPApiServices
 
                     retMedia.Media = MediaHelper.GetMediaInfo(initObj, MediaID, picSize, groupID);
 
-                    retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID);
+                    retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid));
 
                     for (int i = 0; i < retMedia.Media.Files.Count; i++)
                     {

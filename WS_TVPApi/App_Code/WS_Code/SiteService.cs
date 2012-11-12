@@ -391,6 +391,90 @@ namespace TVPApiServices
             return sRet;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get Group Operators")]
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] GetGroupOperators(InitializationObject initObj)
+        {
+            TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupOperators", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetGroupOperators-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupOperators();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetGroupOperators->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetGroupOperators-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "SSO Signin")]
+        public UserResponseObject SSOSignIn(InitializationObject initObj, string userName, string password, int providerID)
+        {
+            UserResponseObject response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SSOSignIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SSOSignIn-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SSOSignIn(userName, password, providerID, string.Empty, SiteHelper.GetClientIP(), initObj.UDID, false);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SSOSignIn->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SSOSignIn-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Check SSO Login")]
+        public UserResponseObject SSOCheckLogin(InitializationObject initObj, string userName, int providerID)
+        {
+            UserResponseObject response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SSOCheckLogin", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SSOCheckLogin-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SSOCheckLogin(userName, providerID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SSOCheckLogin->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SSOCheckLogin-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
         [WebMethod(EnableSession = true, Description = "Get from Secured SiteGuid")]
         public string GetSiteGuidFromSecured(InitializationObject initObj, string encSiteGuid)
         {

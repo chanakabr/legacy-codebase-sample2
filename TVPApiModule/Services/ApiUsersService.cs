@@ -200,6 +200,54 @@ namespace TVPApiModule.Services
             }
         }
 
+        public UserResponseObject SSOSignIn(string sUserName, string sPassword, int nProviderID, string sSessionID, string sIP, string sDeviceID, bool bIsPreventDoubleLogins)
+        {
+            UserResponseObject response = null;
+
+            try
+            {
+                response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol SSOSignIn, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
+            }
+
+            return response;
+        }        
+
+        public UserResponseObject SSOCheckLogin(string sUserName, int nProviderID)
+        {
+            UserResponseObject response = null;
+
+            try
+            {
+                response = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol SSOCheckLogin, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
+            }
+
+            return response;
+        }
+
+        public UserResponseObject GetSSOProviders(string sUserName, int nProviderID)
+        {
+            UserResponseObject response = null;
+
+            try
+            {
+                response = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol SSOCheckLogin, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
+            }
+
+            return response;
+        }
+
         public UserResponseObject GetUserData(string sSiteGuid)
         {
             UserResponseObject response = null;
@@ -222,7 +270,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids);
+                response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(','));
             }
             catch (Exception ex)
             {

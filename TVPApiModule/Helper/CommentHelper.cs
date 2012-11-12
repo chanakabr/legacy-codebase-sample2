@@ -19,10 +19,10 @@ namespace TVPApi
             
         }
 
-        public static List<Comment> GetMediaComments(long mediaID, int pageSize, int pageIndex)
-        {
+        public static List<Comment> GetMediaComments(string TVMUser, string TVMPass, long mediaID, int pageSize, int pageIndex)
+        {            
             List<Comment> retVal = null;
-            MediaComments mediaComments = (new TVMCommentsLoader(mediaID.ToString())).Execute();
+            MediaComments mediaComments = (new TVMCommentsLoader(TVMUser, TVMPass, mediaID.ToString())).Execute();
             if (mediaComments != null && mediaComments.commentsList.Count > 0)
             {
                 int startIndex = (pageIndex) * pageSize;

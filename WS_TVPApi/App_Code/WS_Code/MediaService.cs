@@ -191,7 +191,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstComment = CommentHelper.GetMediaComments(mediaID, pageSize, pageIndex);
+                    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
+                    lstComment = CommentHelper.GetMediaComments(account.TVMUser, account.TVMPass, mediaID, pageSize, pageIndex);
                 }
                 catch (Exception ex)
                 {

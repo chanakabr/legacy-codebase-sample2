@@ -38,6 +38,21 @@ namespace TVPApiModule.Services
         #endregion C'tor
 
         #region Public methods
+        public GroupOperator[] GetGroupOperators()
+        {
+            GroupOperator[] response = null;
+            try
+            {
+                response = m_Module.GetGroupOperators(m_wsUserName, m_wsPassword);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetGroupOperators, Error Message: {0}", ex.Message);
+            }
+
+            return response;
+        }
+
         public MediaMarkObject GetMediaMark(string sSiteGuid, int iMediaID)
         {
             MediaMarkObject mediaMark = null;
@@ -125,12 +140,12 @@ namespace TVPApiModule.Services
             return objEPGProgramRes;
         }
 
-        public GroupRule[] GetGroupMediaRules(int MediaId)
+        public GroupRule[] GetGroupMediaRules(int MediaId, int siteGuid)
         {
             GroupRule[] res = null;
             try
             {
-                res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId);
+                res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid);
             }
             catch (Exception ex)
             {
