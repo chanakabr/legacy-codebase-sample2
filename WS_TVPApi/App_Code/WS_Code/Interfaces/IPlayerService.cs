@@ -36,5 +36,7 @@ namespace TVPApiServices
         [OperationContract]
         void Log(InitializationObject initObj, TVPApiServices.PlayerService.ErrorMessageWrapper message);
 
+        [OperationContract]
+        bool CheckParentalPIN(InitializationObject initObj, int ruleID, string parentalPIN);
     }
 }

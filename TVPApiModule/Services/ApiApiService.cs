@@ -154,6 +154,62 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public GroupRule[] GetGroupRules()
+        {
+            GroupRule[] res = null;
+            try
+            {
+                res = m_Module.GetGroupRules(m_wsUserName, m_wsPassword);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetGroupRules, Error Message: {0}, Parameters", ex.Message);
+            }
+            return res;
+        }
+
+        public GroupRule[] GetUserGroupRules(string siteGuid)
+        {
+            GroupRule[] res = null;
+            try
+            {
+                res = m_Module.GetUserGroupRules(m_wsUserName, m_wsPassword, siteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserGroupRules, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
+            }
+            return res;
+        }
+
+        public bool SetUserGroupRule(string siteGuid, int ruleID, string PIN, int isActive)
+        {
+            bool res = false;
+            try
+            {
+                res = m_Module.SetUserGroupRule(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN, isActive);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SetUserGroupRule, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
+            }
+            return res;
+        }
+
+        public bool CheckParentalPIN(string siteGuid, int ruleID, string PIN)
+        {
+            bool res = false;
+            try
+            {
+                res = m_Module.CheckParentalPIN(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : CheckParentalPIN, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
+            }
+            return res;
+        }           
+
         #endregion
     }
 }

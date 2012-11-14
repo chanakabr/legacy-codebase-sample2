@@ -262,7 +262,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Check Parental PIN")]
         [System.Web.Script.Services.ScriptMethod()]
         [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
-        public bool CheckParentalPIN(InitializationObject initObj, string parentalPIN)
+        public bool CheckParentalPIN(InitializationObject initObj, int ruleID, string parentalPIN)
         {
             bool retVal = false;
 
@@ -274,7 +274,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = new ApiConditionalAccessService(groupID, initObj.Platform).CheckParentalPIN(initObj.SiteGuid, parentalPIN);
+                    retVal = new ApiApiService(groupID, initObj.Platform).CheckParentalPIN(initObj.SiteGuid, ruleID, parentalPIN);
                 }
                 catch (Exception ex)
                 {

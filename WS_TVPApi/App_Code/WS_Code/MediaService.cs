@@ -2138,6 +2138,34 @@ namespace TVPApiServices
             return sRet;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get Group Media Rules")]
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupMediaRules(InitializationObject initObj, int mediaID)
+        {
+            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupMediaRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetGroupMediaRules-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupMediaRules(mediaID, int.Parse(initObj.SiteGuid));
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetGroupMediaRules->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetGroupMediaRules-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
         #region MessageBox
         [WebMethod(EnableSession = true, Description = "SendMessage")]
         public void SendMessage(string sSiteGuid, string sRecieverUDID, int iMediaID, int iMediaTypeID, int iLocation, string sAction, string sUsername, string sPassword)

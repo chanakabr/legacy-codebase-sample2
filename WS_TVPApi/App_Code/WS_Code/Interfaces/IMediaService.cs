@@ -182,5 +182,8 @@ namespace TVPApiServices
 
         [OperationContract]
         bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive);
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupMediaRules(InitializationObject initObj, int mediaID);
     }
 }

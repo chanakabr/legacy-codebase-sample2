@@ -81,5 +81,17 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject SSOSignIn(InitializationObject initObj, string userName, string password, int providerID);
+
+        [OperationContract]
+        bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive);
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj);
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj);
+
+        [OperationContract]
+        bool CheckParentalPIN(InitializationObject initObj, int ruleID, string PIN);
     }
 }

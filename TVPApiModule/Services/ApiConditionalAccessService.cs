@@ -283,25 +283,6 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public bool CheckParentalPIN(string siteGuid, string parentalPIN)
-        {
-            bool retVal = false;
-
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-
-            try
-            {
-                retVal = m_Module.CheckParentalPIN(wsUser, wsPass, siteGuid, parentalPIN);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : CheckParentalPIN, Error Message: {0}, Parameters :  SiteGuid: {1}, ParentalPIN: {2}", ex.Message, siteGuid, parentalPIN);
-            }
-
-            return retVal;
-        }
-
         #endregion                    
     }
 }

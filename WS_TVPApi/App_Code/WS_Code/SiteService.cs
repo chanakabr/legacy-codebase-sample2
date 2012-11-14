@@ -361,6 +361,118 @@ namespace TVPApiServices
         #endregion
 
         #region User
+        [WebMethod(EnableSession = true, Description = "Get Group Rules")]
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj)
+        {
+            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetGroupRules-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupRules();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetGroupRules->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetGroupRules-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get User Group Rules")]
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj)
+        {
+            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserGroupRules-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserGroupRules(initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserGroupRules->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserGroupRules-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Set User Group Rule")]
+        public bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive)
+        {
+            bool response = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserGroupRule", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SetUserGroupRule-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetUserGroupRule(initObj.SiteGuid, ruleID, PIN, isActive);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SetUserGroupRule->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SetUserGroupRule-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Check Parental PIN")]
+        public bool CheckParentalPIN(InitializationObject initObj, int ruleID, string PIN)
+        {
+            bool response = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "CheckParentalPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("CheckParentalPIN-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).CheckParentalPIN(initObj.SiteGuid, ruleID, PIN);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("CheckParentalPIN->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("CheckParentalPIN-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }        
+
         [WebMethod(EnableSession = true, Description = "Get Secured SiteGuid")]
         public string GetSecuredSiteGuid(InitializationObject initObj)
         {
