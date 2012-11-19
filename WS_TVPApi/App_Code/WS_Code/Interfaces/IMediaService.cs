@@ -185,5 +185,8 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupMediaRules(InitializationObject initObj, int mediaID);
+
+        [OperationContract]
+        string SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail, string msg);
     }
 }

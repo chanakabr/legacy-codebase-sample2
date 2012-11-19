@@ -9,6 +9,8 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApiModule.DataLoaders;
 using System.Configuration;
+using TVPPro.SiteManager.DataLoaders;
+using Tvinci.Data.TVMDataLoader.Protocols.SendToFriend;
 
 /// <summary>
 /// Summary description for ActionHelper
@@ -64,7 +66,7 @@ namespace TVPApi
                         long guidNum = Convert.ToInt64(sUserID);
                         int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
                         retVal = new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), string.Empty);
-                        
+
                         if (!string.IsNullOrEmpty(isOfflineSync))
                             new ApiUsersService(groupID, platform).AddUserOfflineMedia(sUserID, mediaID);
 
@@ -94,10 +96,10 @@ namespace TVPApi
                         //        }
                         //    }
                         //    if (favoriteID.Length > 0)
-                            //{
-                            //    new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, favoriteID);
-                            //    retVal = true;
-                            //}
+                        //{
+                        //    new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, favoriteID);
+                        //    retVal = true;
+                        //}
                         //}
                         //userService.RemoveUserFavorit(string.Format("users_{0}", regGroupID.ToString()), "11111", sID,
                         //if (mediaID > 0)
@@ -146,14 +148,15 @@ namespace TVPApi
         public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, int mediaType, long iMediaID, long iFileID, int iLocation)
         {
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            return new APIMediaMark(account.TVMUser, account.TVMPass) { 
-                GroupID = groupID, 
-                Platform = platform, 
-                Action = Action, 
-                MediaID = iMediaID, 
-                Location = iLocation, 
-                DeviceUDID = initObj.UDID, 
-                SiteGUID = initObj.SiteGuid 
+            return new APIMediaMark(account.TVMUser, account.TVMPass)
+            {
+                GroupID = groupID,
+                Platform = platform,
+                Action = Action,
+                MediaID = iMediaID,
+                Location = iLocation,
+                DeviceUDID = initObj.UDID,
+                SiteGUID = initObj.SiteGuid
             }.Execute();
         }
 
@@ -185,6 +188,19 @@ namespace TVPApi
         {
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
             return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
+        }
+
+        public static string SendToFriend(InitializationObject initObj, int groupID, int mediaID, string senderName, string senderEmail, string toEmail, string msg)
+        {
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
+            return new APISendToFriendLoader(account.TVMUser, account.TVMPass, mediaID.ToString())
+            {
+                MediaID = mediaID.ToString(),
+                SenderName = senderName,
+                FriendEmail = toEmail,
+                EmailFrom = senderEmail,
+                AddedMessage = msg
+            }.Execute().response.type;
         }
 
         public ActionHelper()

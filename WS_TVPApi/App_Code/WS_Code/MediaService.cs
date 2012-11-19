@@ -901,6 +901,32 @@ namespace TVPApiServices
         #endregion
 
         #region Actions
+        [WebMethod(EnableSession = true, Description = "Send to a friend")]
+        public string SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail, string msg)
+        {
+            string retVal = null;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SendToFriend", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SendToFriend-> [{0}, {1}], Params:[mediaID: {2}]", groupID, initObj.Platform, mediaID);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    retVal = ActionHelper.SendToFriend(initObj, groupID, mediaID, senderName, senderEmail, toEmail, msg);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SendToFriend->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("SendToFriend-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return retVal;
+        }
 
         [WebMethod(EnableSession = true, Description = "Add comment")]
         public bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive)
