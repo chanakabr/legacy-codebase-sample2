@@ -140,6 +140,20 @@ namespace TVPApiModule.Services
             return objEPGProgramRes;
         }
 
+        public EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        {
+            EPGMultiChannelProgrammeObject[] objEPGProgramRes = null;
+            try
+            {
+                objEPGProgramRes = m_Module.GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetEPGMultiChannelProgram, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, string.Join(",", sEPGChannelID), SiteHelper.GetClientIP());
+            }
+            return objEPGProgramRes;
+        }
+
         public GroupRule[] GetGroupMediaRules(int MediaId, int siteGuid)
         {
             GroupRule[] res = null;
