@@ -270,7 +270,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(','));
+                response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(';'));
             }
             catch (Exception ex)
             {
