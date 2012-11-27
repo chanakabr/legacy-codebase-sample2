@@ -37,7 +37,20 @@ namespace TVPApiModule.Services
 
         #region Public methods
 
-       
+        public PPVModule GetPPVModuleData(int ppvCode, string sCountry, string sLanguage, string sDevice)
+        {
+            PPVModule response = null;
+            try
+            {
+                response = m_Module.GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetPPVModuleData, Error Message: {0} Parameters: ppv: {1}", ex.Message, ppvCode);
+            }
+
+            return response;
+        }
 
         public MediaFilePPVModule[] GetPPVModuleListForMediaFiles(int[] mediaFiles, string sCountry, string sLanguage, string sDevice)
         {

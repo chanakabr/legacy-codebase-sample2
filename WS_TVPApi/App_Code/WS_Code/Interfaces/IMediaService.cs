@@ -14,7 +14,6 @@ using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 namespace TVPApiServices
 {
-    // NOTE: If you change the interface name "IService1" here, you must also update the reference to "IService1" in Web.config.
     [ServiceContract]
     public interface IMediaService
     {
@@ -190,6 +189,18 @@ namespace TVPApiServices
         TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupMediaRules(InitializationObject initObj, int mediaID);
 
         [OperationContract]
-        string SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail, string msg);        
+        string SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail, string msg);
+
+        [OperationContract]
+        string ChargeUserForMediaSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID);
+
+        [OperationContract]
+        string DummyChargeUserForSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID);
+
+        [OperationContract]
+        string ChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);
+
+        [OperationContract]
+        string DummyChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);        
     }
 }

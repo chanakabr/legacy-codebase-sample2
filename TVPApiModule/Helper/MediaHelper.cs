@@ -861,12 +861,12 @@ namespace TVPApi
             return retVal;
         }
 
-        public static List<Media> GetMediasInPackage(InitializationObject initObj, long sBaseID, int iGroupID, string picSize, int pageSize, int pageIndex)
+        public static List<Media> GetMediasInPackage(InitializationObject initObj, long sBaseID, int mediaType, int iGroupID, string picSize, int pageSize, int pageIndex)
         {
             List<Media> retVal = new List<Media>();
 
-            TVMAccountType parentAccount = SiteMapManager.GetInstance.GetPageData(iGroupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
-            dsItemInfo mediaInfo = new APITVMSubscriptionMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, sBaseID) { WithInfo = true, Platform = initObj.Platform, GroupID = iGroupID, PageIndex = pageIndex, PageSize = pageSize, PicSize = picSize, BaseID = sBaseID }.Execute();
+            TVMAccountType parentAccount = SiteMapManager.GetInstance.GetPageData(iGroupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
+            dsItemInfo mediaInfo = new APITVMSubscriptionMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, sBaseID) { MediaType = mediaType, WithInfo = true, Platform = initObj.Platform, GroupID = iGroupID, PageIndex = pageIndex, PageSize = pageSize, PicSize = picSize, BaseID = sBaseID }.Execute();
 
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {

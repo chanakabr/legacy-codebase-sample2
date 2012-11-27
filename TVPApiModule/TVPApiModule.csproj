@@ -154,6 +154,7 @@
     <Compile Include="Services\ApiApiService.cs" />
     <Compile Include="Services\ApiSocialService.cs" />
     <Compile Include="Services\ApiUsersService.cs" />
+    <Compile Include="Services\ApiBillingService.cs" />
     <Compile Include="Web References\tvapi\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

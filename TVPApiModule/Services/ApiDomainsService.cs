@@ -215,6 +215,38 @@ namespace TVPApiModule.Services
 
             return device;
         }
+
+        public DomainResponseObject ResetDomain(int domainID)
+        {
+            DomainResponseObject response = null;
+            try
+            {
+                response = m_Module.ResetDomain(m_wsUserName, m_wsPassword, domainID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : RegisterDeviceByPIN, Error Message: {0} Parameters: domainID: {1}", ex.Message, domainID);
+            }
+
+            return response;
+        }
+
+        public bool SetDeviceInfo(string udid, string deviceName)
+        {
+            bool response = false;
+            try
+            {
+                response = m_Module.SetDeviceInfo(m_wsUserName, m_wsPassword, udid, deviceName);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SetDeviceInfo, Error Message: {0} Parameters: udid: {1}", ex.Message, udid);
+            }
+
+            return response;
+        }
+
         #endregion          
+   
     }
 }

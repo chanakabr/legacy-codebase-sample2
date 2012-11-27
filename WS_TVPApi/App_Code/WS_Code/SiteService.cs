@@ -1112,6 +1112,7 @@ namespace TVPApiServices
             return domain;
         }
 
+        //XXX: Move it to domain Service
         [WebMethod(EnableSession = true, Description = "Set device/user domain info")]
         public Domain SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription)
         {
