@@ -17,5 +17,7 @@ namespace TVPApiServices
     {
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.Pricing.PPVModule GetPPVModuleData(InitializationObject initObj, int ppvCode);
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
     }
 }

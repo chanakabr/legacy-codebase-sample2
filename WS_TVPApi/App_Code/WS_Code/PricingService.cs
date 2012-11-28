@@ -56,6 +56,34 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get all subscriptions contains media file")]
+        public TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] subs = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsContainingMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetSubscriptionsContainingMedia-> [{0}, {1}], Params:[mediaId: {2}, fileId: {3}]", groupId, initObj.Platform, iFileID);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    subs = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionsContainingMediaFile(iMediaID, iFileID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetSubscriptionsContainingMedia->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetSubscriptionsContainingMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return subs;
+        }
+
         #endregion
     }
 }
