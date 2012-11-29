@@ -38,28 +38,7 @@ namespace TVPApiServices
         List<TVPApi.PageGallery> GetPageGalleries(InitializationObject initObj, long PageID, int pageSize, int start_index);
 
         [OperationContract]
-        PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);
-
-        [OperationContract]
-        Domain AddUserToDomain(InitializationObject initObj, bool bMaster);
-
-        [OperationContract]
-        Domain RemoveUserFromDomain(InitializationObject initObj);
-
-        [OperationContract]
-        Domain AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
-
-        [OperationContract]
-        Domain RemoveDeviceFromDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
-
-        [OperationContract]
-        Domain ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive);
-
-        [OperationContract]
-        Domain GetDomainInfo(InitializationObject initObj);
-
-        [OperationContract]
-        Domain SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription);
+        PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);        
 
         [OperationContract]
         string DoSocialAction(InitializationObject initObj, int mediaID, SocialAction socialAction, SocialPlatform socialPlatform, string actionParam);

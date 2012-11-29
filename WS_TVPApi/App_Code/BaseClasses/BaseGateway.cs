@@ -185,7 +185,7 @@ public abstract class BaseGateway : System.Web.UI.Page
                     if (HttpContext.Current.Cache[mac] != null)
                         break;
 
-                    TVPApiModule.Services.ApiDomainsService.DeviceDomain[] retSiteGuid = m_SiteService.GetDeviceDomains(new InitializationObject()
+                    TVPApiModule.Services.ApiDomainsService.DeviceDomain[] retSiteGuid = m_DomainService.GetDeviceDomains(new InitializationObject()
                     {
                         UDID = mac,
                         Platform = PlatformType.STB,
