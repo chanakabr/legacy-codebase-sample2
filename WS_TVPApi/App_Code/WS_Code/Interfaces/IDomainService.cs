@@ -39,5 +39,8 @@ namespace TVPApiServices
 
         [OperationContract]
         DomainResponseObject SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription);
+
+        [OperationContract]
+        DomainResponseObject AddDomain(InitializationObject initObj, string domainName, string domainDesc, int masterGuid);
     }
 }

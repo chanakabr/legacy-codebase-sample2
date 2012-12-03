@@ -72,5 +72,8 @@ namespace TVPApiServices
 
         [OperationContract]
         bool CheckParentalPIN(InitializationObject initObj, int ruleID, string PIN);
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
     }
 }

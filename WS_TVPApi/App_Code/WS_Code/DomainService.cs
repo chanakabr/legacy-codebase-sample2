@@ -344,7 +344,30 @@ namespace TVPApiServices
             }
 
             return deviceRes;
-        }           
+        }
+
+        [WebMethod(EnableSession = true, Description = "Add domain to master site user")]
+        public DomainResponseObject AddDomain(InitializationObject initObj, string domainName, string domainDesc, int masterGuid)
+        {
+            DomainResponseObject domainRes = null;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("AddDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDomain(domainName, domainDesc, masterGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : AddDomain, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                }
+            }
+
+            return domainRes;
+        }
 
         #endregion
     }

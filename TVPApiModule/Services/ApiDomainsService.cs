@@ -246,6 +246,21 @@ namespace TVPApiModule.Services
             return response;
         }
 
+        public DomainResponseObject AddDomain(string domainName, string domainDesc, int masterGuid)
+        {
+            DomainResponseObject response = null;
+            try
+            {
+                response = m_Module.AddDomain(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : AddDomain, Error Message: {0} Parameters: masterGuid: {1}", ex.Message, masterGuid);
+            }
+
+            return response;
+        }
+
         #endregion          
    
     }

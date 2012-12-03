@@ -9,7 +9,6 @@ using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 
@@ -582,6 +581,34 @@ namespace TVPApiServices
             else
             {
                 logger.ErrorFormat("SSOCheckLogin-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get user data by co-guid")]
+        public UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID)
+        {
+            UserResponseObject response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserDataByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetUserDataByCoGuid-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserDataByCoGuid(coGuid, operatorID);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserDataByCoGuid->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetUserDataByCoGuid-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return response;

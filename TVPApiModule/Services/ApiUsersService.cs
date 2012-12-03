@@ -479,5 +479,21 @@ namespace TVPApiModule.Services
 
             return bRet;
         }
+
+        public UserResponseObject GetUserDataByCoGuid(string coGuid, int operatorID)
+        {
+            UserResponseObject response = null;
+
+            try
+            {
+                response = m_Module.GetUserDataByCoGuid(m_wsUserName, m_wsPassword, coGuid, operatorID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error recive user data Protocol GetUserData, Error Message: {0} Parameters : coGuid {1}", ex.Message, coGuid);
+            }
+
+            return response;
+        }
     }
 }
