@@ -69,10 +69,43 @@ namespace TVPApiServices
             {
                 try
                 {
-
                     retMedia.Media = MediaHelper.GetMediaInfo(initObj, MediaID, picSize, groupID);
 
-                    retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid));
+                    TVPPro.SiteManager.TvinciPlatform.api.GroupRule geoRule = null;
+
+                    TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] groupRules = null;
+
+                    string geoUpdate = new ApiApiService(groupID, initObj.Platform).CheckGeoBlockMedia((int)MediaID, SiteHelper.GetClientIP());
+
+                    if (!string.IsNullOrEmpty(geoUpdate) && geoUpdate.ToUpper() != "OK")
+                    {
+                        geoRule = new TVPPro.SiteManager.TvinciPlatform.api.GroupRule();
+
+                        geoRule.Name = geoUpdate;
+                    }
+
+                    groupRules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid));
+
+                    List<TVPPro.SiteManager.TvinciPlatform.api.GroupRule> groupRulesTemp = groupRules.ToList();
+
+                    if (geoRule == null)
+                    {
+                        if (groupRulesTemp.Count > 0)
+                        {
+                            geoRule = groupRulesTemp.SingleOrDefault(x => x.Name.ToLower().Contains("geo"));
+
+                            if (geoRule != null)
+                            {
+                                groupRulesTemp.Remove(geoRule);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        groupRulesTemp.Add(geoRule);
+                    }
+
+                    retMedia.Rules = groupRulesTemp.ToArray();
 
                     for (int i = 0; i < retMedia.Media.Files.Count; i++)
                     {
@@ -107,7 +140,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
         [System.Xml.Serialization.XmlInclude(typeof(TVPApi.ActionHelper.FileHolder))]
-        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, TVPApi.ActionHelper.FileHolder fileParam, int iLocation)
+        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, TVPApi.ActionHelper.FileHolder fileParam, int iLocation) 
         {
             string sRet = string.Empty;
 
