@@ -433,6 +433,8 @@ public partial class MethodFinder
             }
             else
             {
+                if (MethodParam.Equals(typeof(int))) return 0;
+
                 throw new Exception(string.Format("Error with '{0}' parameter.", methodName));
             }
         }

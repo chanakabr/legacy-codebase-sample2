@@ -180,6 +180,8 @@ namespace TVPApi
 
         protected override dsItemInfo FormatResults(dsItemInfo originalObject)
         {
+            if (OrderBy == Enums.eOrderBy.None) return originalObject;
+
             dsItemInfo copyObject = originalObject.Copy() as dsItemInfo;
 
             if (copyObject.Item.Rows.Count > 0)
