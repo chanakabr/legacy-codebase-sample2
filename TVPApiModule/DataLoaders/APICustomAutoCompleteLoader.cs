@@ -71,6 +71,14 @@ namespace TVPApi
             }
         }
 
+        protected override void PreExecute()
+        {
+            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL))
+                (base.GetProvider() as Tvinci.Data.TVMDataLoader.TVMProvider).TVMAltURL = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL;
+
+            base.PreExecute();
+        }
+
         protected override List<String> CreateSourceResult()
         {
             List<String> lstResult = CreateList();

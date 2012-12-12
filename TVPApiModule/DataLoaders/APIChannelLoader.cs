@@ -84,7 +84,13 @@ namespace TVPApi
             // Do nothing.
         }
 
+        protected override void PreExecute()
+        {
+            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL))
+                (base.GetProvider() as Tvinci.Data.TVMDataLoader.TVMProvider).TVMAltURL = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL;
 
+            base.PreExecute();
+        }
 
         public APIChannelLoader(string TVMUser, string TVMPass, long channelID, string picSize)
             : base(TVMUser, TVMPass, channelID, picSize)
