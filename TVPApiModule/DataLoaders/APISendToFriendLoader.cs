@@ -5,13 +5,38 @@ using System.Text;
 using Tvinci.Data.TVMDataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.SendToFriend;
 using Tvinci.Data.DataLoader;
+using TVPApi;
 
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
     public class APISendToFriendLoader : SendToFriendLoader
-    {       
+    {
+        public int GroupID
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "GroupID", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "GroupID", value);
+            }
+        }
+
+        public PlatformType Platform
+        {
+            get
+            {
+                return Parameters.GetParameter<PlatformType>(eParameterType.Retrieve, "Platform", PlatformType.Unknown);
+            }
+            set
+            {
+                Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
+            }
+        }
+
         #region C'tors
         public APISendToFriendLoader(string mediaID)
             : this(string.Empty, string.Empty, mediaID)

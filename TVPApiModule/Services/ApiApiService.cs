@@ -159,7 +159,7 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid);
+                res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP());
             }
             catch (Exception ex)
             {
