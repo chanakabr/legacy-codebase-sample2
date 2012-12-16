@@ -358,7 +358,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDomain(domainName, domainDesc, masterGuid);
+                    domainRes = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDomain(domainName, domainDesc, masterGuid);
                 }
                 catch (Exception ex)
                 {
