@@ -52,8 +52,15 @@ namespace TVPApi
             dsCategory categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID)).Execute();
             if (categoryDS.Categories[0].ID == "0")
             {
-                account = SiteMapManager.GetInstance.GetPageData(groupID, platformType).GetTVMAccountByAccountType(AccountType.Parent);
+                //XXX: Fix this ugliness
+                account = SiteMapManager.GetInstance.GetPageData(groupID, platformType).GetTVMAccountByAccountType(AccountType.Fictivic);
                 categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID)).Execute();
+
+                if (categoryDS.Categories[0].ID == "0")
+                {
+                    account = SiteMapManager.GetInstance.GetPageData(groupID, platformType).GetTVMAccountByAccountType(AccountType.Parent);
+                    categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID)).Execute();
+                }
             }
             if (categoryDS != null)
             {
