@@ -60,14 +60,10 @@ namespace TVPApi
             Category retVal = null;
             retVal = new Category(catRow);
             dsCategory.ChannelsRow[] channels = catRow.GetChannelsRows();
-            foreach (dsCategory.ChannelsRow channel in channels)
-            {
-                if (retVal.Channels == null)
-                {
-                    retVal.Channels = new List<Channel>();
-                }
+            retVal.Channels = new List<Channel>();
+            foreach (dsCategory.ChannelsRow channel in channels)                            
                 retVal.Channels.Add(new Channel(channel));
-            }
+            
             return retVal;
         }
 
@@ -78,9 +74,9 @@ namespace TVPApi
                                                 where categories.ID.Equals(m_rootID)
                                                 select categories).FirstOrDefault();
 
-            if (rootRow != null)                            
+            if (rootRow != null)
                 retVal = BuildRecursive(rootRow);
-            
+
             return retVal;
         }
 
@@ -91,11 +87,10 @@ namespace TVPApi
 
             Category currentCat = CreateCategory(row);
 
-            if (row.GetChildRows("CategoryToParent").Count() > 0)
-                currentCat.InnerCategories = new List<Category>();
+            currentCat.InnerCategories = new List<Category>();
 
-            foreach (dsCategory.CategoriesRow child in row.GetChildRows("CategoryToParent"))            
-                currentCat.InnerCategories.Add(BuildRecursive(child));            
+            foreach (dsCategory.CategoriesRow child in row.GetChildRows("CategoryToParent"))
+                currentCat.InnerCategories.Add(BuildRecursive(child));
 
             return currentCat;
         }
