@@ -126,7 +126,8 @@ namespace TVPApi
         Article,
         Live,
         Playlist,
-        EPG
+        EPG,
+        PrePaid
     }
 
     public enum LocaleUserState
