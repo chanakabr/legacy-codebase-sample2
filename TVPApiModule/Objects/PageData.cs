@@ -395,7 +395,13 @@ namespace TVPApi
             pg.PageMetadataID = page.SitePageMetadataID;
 
             if (!page.IsPageTokenNull())
-                pg.PageToken = (Pages)Enum.Parse(typeof(Pages), page.PageToken, true);
+            {
+                //Check if page exists
+				if (Enum.IsDefined(typeof(Pages), page.PageToken))
+					pg.PageToken = (Pages) Enum.Parse(typeof(Pages), page.PageToken, true);
+				else
+                    pg.PageToken = Pages.UnKnown;
+            }
             else
                 pg.PageToken = Pages.UnKnown;
 
