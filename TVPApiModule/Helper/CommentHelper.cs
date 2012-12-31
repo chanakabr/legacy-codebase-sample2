@@ -32,9 +32,8 @@ namespace TVPApi
                 {
                     retVal.Add(parseCommentContextToComment(context));
                 }
-
-
             }
+
             return retVal;
         }
 
@@ -44,13 +43,11 @@ namespace TVPApi
             return comment;
         }
 
-
-        public static bool SaveMediaComments(string TVMUser, string TVMPass, int mediaId, string writer, string header, string subHeader, string content, bool autoActive)
+        public static bool SaveMediaComments(string TVMUser, string TVMPass, string siteGuid, string udid, int mediaId, string writer, string header, string subHeader, string content, bool autoActive)
         {
             bool retVal = false;
-            retVal = (new TVMCommentsSave(TVMUser, TVMPass, mediaId.ToString(), writer, header, subHeader, content, autoActive)).Execute();
+            retVal = (new TVMCommentsSave(TVMUser, TVMPass, mediaId.ToString(), writer, header, subHeader, content, autoActive) { DeviceUDID = udid, SiteGuid = siteGuid }).Execute();
             return retVal;
         }
-
     }
 }
