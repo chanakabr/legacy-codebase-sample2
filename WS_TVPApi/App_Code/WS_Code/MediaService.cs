@@ -942,7 +942,7 @@ namespace TVPApiServices
                 try
                 {
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-                    retVal = CommentHelper.SaveMediaComments(account.TVMUser, account.TVMPass, mediaID, writer, header, subheader, content, autoActive);
+                    retVal = CommentHelper.SaveMediaComments(account.TVMUser, account.TVMPass, initObj.SiteGuid, initObj.UDID, mediaID, writer, header, subheader, content, autoActive);
                 }
                 catch (Exception ex)
                 {
