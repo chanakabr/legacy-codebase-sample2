@@ -17,17 +17,23 @@ namespace TVPApi
         private List<Channel> m_channels;
         public string Title { get; set; }
         public string ID { get; set; }
+        public string PicURL { get; set; }
 
         public Category(dsCategory.CategoriesRow catRow)
         {
             Title = catRow.Title;
             ID = catRow.ID;
+            if (!catRow.IsPicURLNull())
+            {
+                PicURL = catRow.PicURL;
+            }
         }
 
         public Category()
         {
             Title = string.Empty;
             ID = string.Empty;
+            PicURL = string.Empty;
         }
 
 

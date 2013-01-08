@@ -737,7 +737,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Search category info")]
-        public Category GetFullCategory(InitializationObject initObj, int categoryID)
+        public Category GetFullCategory(InitializationObject initObj, int categoryID, string picSize)
         {
             Category retCategory = null;
 
@@ -749,7 +749,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retCategory = CategoryTreeHelper.GetFullCategoryTree(categoryID, groupID, initObj.Platform);
+                    retCategory = CategoryTreeHelper.GetFullCategoryTree(categoryID, picSize, groupID, initObj.Platform);
                 }
                 catch (Exception ex)
                 {

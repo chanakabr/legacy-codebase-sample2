@@ -41,7 +41,7 @@ namespace TVPApi
             return string.Format("{0}_{1}_{2}", "Category", categoryID.ToString(), groupID.ToString());
         }
 
-        public static Category GetFullCategoryTree(int categoryID, int groupID, PlatformType platformType)
+        public static Category GetFullCategoryTree(int categoryID, string picSize, int groupID, PlatformType platformType)
         {
             Category retVal = null;
             if (false && m_dataCaching.TryGetData<Category>(GetUniqueCacheKey(categoryID, groupID), out retVal))
@@ -49,17 +49,17 @@ namespace TVPApi
                 return retVal;
             }
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platformType).GetTVMAccountByAccountType(AccountType.Regular);
-            dsCategory categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID)).Execute();
+            dsCategory categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID) { PicSize = picSize }).Execute();
             if (categoryDS.Categories[0].ID == "0")
             {
                 //XXX: Fix this ugliness
                 account = SiteMapManager.GetInstance.GetPageData(groupID, platformType).GetTVMAccountByAccountType(AccountType.Fictivic);
-                categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID)).Execute();
+                categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID) { PicSize = picSize }).Execute();
 
                 if (categoryDS.Categories[0].ID == "0")
                 {
                     account = SiteMapManager.GetInstance.GetPageData(groupID, platformType).GetTVMAccountByAccountType(AccountType.Parent);
-                    categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID)).Execute();
+                    categoryDS = (new FullCategoryTreeLoader(account.TVMUser, account.TVMUser, categoryID) { PicSize = picSize }).Execute();
                 }
             }
             if (categoryDS != null)
