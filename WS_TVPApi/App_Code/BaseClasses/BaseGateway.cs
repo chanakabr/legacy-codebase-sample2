@@ -205,6 +205,8 @@ public abstract class BaseGateway : System.Web.UI.Page
                             string usr = s_KnownMacAddress[mac].UserName;
                             string pass = s_KnownMacAddress[mac].Password;
                             SiteGuid = m_SiteService.SignIn(GetInitObj(), usr, pass).SiteGuid;
+                            if (SiteGuid == null)
+                                SiteGuid = "0";
                             HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
                                 System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
                         }
