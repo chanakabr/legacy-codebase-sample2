@@ -486,7 +486,7 @@ public partial class MethodFinder
     /// 1. Method specified in request query string - 'm'
     /// 2. the method exists in any of the supplied web-services
     /// 
-    /// when all requierments (at this point) have met, then extract the Method and its Parameters by Reflection
+    /// when all requirements (at this point) have met, then extract the Method and its Parameters by Reflection
     /// </summary>
     /// <returns></returns>
     private bool VerifyAllParametersCheck()
