@@ -47,7 +47,7 @@ public partial class MethodFinder
             if (VerifyAllParametersCheck())
             {
                 string SerializedReturnValue = String.Empty;
-                ParameterInitBase executer = GetExecuter();//get the stratagy to use to handle reuqest
+                ParameterInitBase executer = GetExecuter();//get the strategy to use to handle request
 
                 object[] CallParameters = new object[MethodParameters.Length];
                 for (int i = 0; i < MethodParameters.Length; i++)
