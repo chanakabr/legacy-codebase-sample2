@@ -31,7 +31,7 @@ namespace TVPApiServices
         {
             
         }
-        
+
         public class ErrorMessageWrapper
         {
             public string MediaId { get; set; }
@@ -71,42 +71,6 @@ namespace TVPApiServices
                 {
                     retMedia.Media = MediaHelper.GetMediaInfo(initObj, MediaID, picSize, groupID);
 
-                    TVPPro.SiteManager.TvinciPlatform.api.GroupRule geoRule = null;
-
-                    TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] groupRules = null;
-
-                    string geoUpdate = new ApiApiService(groupID, initObj.Platform).CheckGeoBlockMedia((int)MediaID, SiteHelper.GetClientIP());
-
-                    if (!string.IsNullOrEmpty(geoUpdate) && geoUpdate.ToUpper() != "OK")
-                    {
-                        geoRule = new TVPPro.SiteManager.TvinciPlatform.api.GroupRule();
-
-                        geoRule.Name = geoUpdate;
-                    }
-
-                    groupRules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid));
-
-                    List<TVPPro.SiteManager.TvinciPlatform.api.GroupRule> groupRulesTemp = groupRules.ToList();
-
-                    if (geoRule == null)
-                    {
-                        if (groupRulesTemp.Count > 0)
-                        {
-                            geoRule = groupRulesTemp.SingleOrDefault(x => x.Name.ToLower().Contains("geo"));
-
-                            if (geoRule != null)
-                            {
-                                groupRulesTemp.Remove(geoRule);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        groupRulesTemp.Add(geoRule);
-                    }
-
-                    retMedia.Rules = groupRulesTemp.ToArray();
-
                     for (int i = 0; i < retMedia.Media.Files.Count; i++)
                     {
                         if (retMedia.Media.Files[i].Format == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat)
@@ -124,6 +88,8 @@ namespace TVPApiServices
                             retMedia.Media.Files.Insert(i, file);
                         }
                     }
+
+                    retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid));
                 }
                 catch (Exception ex)
                 {
@@ -152,8 +118,6 @@ namespace TVPApiServices
             {
                 try
                 {
-                    //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
-
                     sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, fileParam, iLocation);
                 }
                 catch (Exception ex)
@@ -248,7 +212,7 @@ namespace TVPApiServices
         [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
         public void Log(InitializationObject initObj, ErrorMessageWrapper message)
         {
-            logger.Debug(String.Format("Silverlight Player Log: {0}", message.Message));           
+            logger.Debug(String.Format("Silverlight Player Log: {0}", message.Message));
         }
 
         [WebMethod(EnableSession = true, Description = "Get Media License")]
