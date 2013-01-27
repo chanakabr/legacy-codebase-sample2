@@ -102,6 +102,54 @@ namespace TVPApiModule.Services
 
             return sub;
         }
+        
+        public CouponData GetCouponStatus(string sCouponCode)
+        {
+            CouponData couponData = null;
+
+            try
+            {
+                couponData  = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetCouponStatus, Error Message: {0}", ex.Message);
+            }
+
+            return couponData ;
+        }
+
+        public CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID)
+        {
+            CouponsStatus couponStatus = CouponsStatus.NotExists;
+            
+            try
+            {
+                couponStatus = m_Module.SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID); 
+            } 
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SetCouponUsed, Error Message: {0}", ex.Message);
+            }
+
+            return couponStatus;
+        }
+
+        public Campaign[] GetCampaignsByType(CampaignTrigger trigger, bool isAlsoInactive, string udid)
+        {
+            Campaign[] campaigns = null;
+            try
+            {
+                campaigns = m_Module.GetCampaignsByType(m_wsUserName, m_wsPassword, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetCampaignsByType, Error Message: {0}", ex.Message);
+            }
+
+            return campaigns;
+        }
+
         #endregion
     }
 }

@@ -16,7 +16,7 @@ namespace TVPApiModule.Services
         private static ILog logger = log4net.LogManager.GetLogger(typeof(ApiConditionalAccessService));
 
         private TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module m_Module;
-        
+
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
 
@@ -43,7 +43,7 @@ namespace TVPApiModule.Services
             BillingResponse response = null;
 
             try
-            {                
+            {
                 response = m_Module.CC_DummyChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
             }
             catch (Exception ex)
@@ -153,7 +153,7 @@ namespace TVPApiModule.Services
         public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid, bool bOnlyLowest)
         {
             MediaFileItemPricesContainer[] response = null;
-            
+
             try
             {
                 response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty);
@@ -201,7 +201,7 @@ namespace TVPApiModule.Services
         public PermittedMediaContainer[] GetUserExpiredItems(string sSiteGuid, int numOfItems)
         {
             PermittedMediaContainer[] retVal = null;
-            
+
             try
             {
                 retVal = m_Module.GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
@@ -315,6 +315,35 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        #endregion                      
+        public CampaignActionInfo ActivateCampaignWithInfo(string siteGuid, long campID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
+                                                           CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
+        {
+            CampaignActionInfo campaignActionInfo = null;
+
+            try
+            {
+                CampaignActionInfo campaignActionInfoParam = new CampaignActionInfo()
+                {
+                    m_siteGuid = int.Parse(siteGuid),
+                    m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new SocialInviteInfo() { m_hashCode = hashCode } : null,
+                    m_mediaID = mediaID,
+                    m_mediaLink = mediaLink,
+                    m_senderEmail = senderEmail,
+                    m_senderName = senderName,
+                    m_status = status,
+                    m_voucherReceipents = voucherReceipents
+                };
+                campaignActionInfo = m_Module.ActivateCampaignWithInfo(m_wsUserName, m_wsPassword, (int)campID, campaignActionInfoParam);
+                logger.InfoFormat("Protocol: ActivateCampaignWithInfo, Parameters : campID : {0}", campID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ActivateCampaignWithInfo, Error Message: {0}, Parameters :  CampID: {1}", ex.Message, campID);
+            }
+
+            return campaignActionInfo;
+        }
+
+        #endregion
     }
 }
