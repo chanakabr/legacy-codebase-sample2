@@ -141,45 +141,7 @@ public partial class MethodFinder
 
             } while (false);
         }
-        /// <summary>
-        ///array
-        /// </summary>
-        /// <param name="json"></param>
-        /// <param name="paramInfo"></param>
-        /// <param name="currName"></param>
-        /// <param name="methodParameters"></param>
-        /// <param name="inObject">whether the function searches in objects or simple types</param>
-        protected void HandleArrayInJson(ref string json, Type paramInfo, string currName, object methodParameters, bool inObject)
-        {
-            do
-            {
 
-                // if not object or Enum
-                if (paramInfo.Name == "String" || (paramInfo.IsValueType && !paramInfo.IsEnum))
-                {
-                    break;
-                }
-
-                //if Enum
-                if (paramInfo.IsArray)
-                {
-                    //if object - search for enums presence in it
-                    if (!paramInfo.Namespace.StartsWith("System"))
-                    {
-                        foreach (PropertyInfo propInfo in paramInfo.GetProperties())
-                        {
-                            if (new List<String>() { "Enum", "Object" }.Contains(propInfo.PropertyType.BaseType.Name))
-                            {
-                                //search recrusivly
-                                HandleArrayInJson(ref json, propInfo.PropertyType, propInfo.Name, propInfo.GetValue(methodParameters, null), true);
-                            }
-                        }
-                    }
-                }
-
-
-            } while (false);
-        }
         /// <summary>
         /// Replaces the enum in string
         /// </summary>
