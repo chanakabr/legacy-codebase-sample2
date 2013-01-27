@@ -270,8 +270,13 @@ public partial class MethodFinder
                     string underineObjectType = MethodParam.FullName.Replace("[]","");
                     if (!TryFindType(underineObjectType, out MethodParam)) return null;
                     result = Array.CreateInstance(MethodParam, 1);
-                    object firstElement = Activator.CreateInstance(innerType);
-                    ((Array)(result)).SetValue(firstElement, 0);                                 
+                    object firstElement = null;
+                    ConstructorInfo constructor = innerType.GetConstructors().OrderBy(c => c.GetParameters().Length).FirstOrDefault();
+                    if (constructor != null)
+                    {
+                        firstElement = constructor.Invoke(new object[constructor.GetParameters().Length]);
+                    }                       
+                    ((Array)(result)).SetValue(firstElement, 0);
                     break;
                 }
 
