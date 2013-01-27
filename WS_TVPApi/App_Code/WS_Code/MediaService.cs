@@ -1682,8 +1682,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get user expired items")]
         public PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, int iTotalItems)
         {
-            PermittedMediaContainer[] items = null;
-
+            PermittedMediaContainer[] items = null; 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetUserExpiredItems-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
@@ -1693,7 +1692,10 @@ namespace TVPApiServices
                 try
                 {
                     items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredItems(initObj.SiteGuid, iTotalItems);
-                    items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    if (items != null)
+                    {
+                        items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1703,6 +1705,11 @@ namespace TVPApiServices
             else
             {
                 logger.ErrorFormat("GetUserExpiredItems-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            if (items == null)
+            {
+                items = new PermittedMediaContainer[0];
             }
 
             return items;
