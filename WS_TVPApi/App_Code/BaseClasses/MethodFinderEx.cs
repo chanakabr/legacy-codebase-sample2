@@ -60,11 +60,19 @@ public partial class MethodFinder
                     TargetType = Type.GetType(itsName);
                 }
 
-                using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
+                if (TargetType.IsArray) //Array
                 {
-                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(TargetType);
-                    Product = serializer.ReadObject(ms);
-                }                
+                    JavaScriptSerializer ser = new JavaScriptSerializer();
+                    Product = ser.GetType().GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
+                }
+                else
+                {
+                    using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
+                    {
+                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(TargetType);
+                        Product = serializer.ReadObject(ms);
+                    }
+                }
             } while (false);
             return Product;
         }
@@ -123,13 +131,52 @@ public partial class MethodFinder
                 {
                     foreach (PropertyInfo propInfo in paramInfo.GetProperties())
                     {
-                        if (new List<String>() { "Enum", "Object" }.Contains(propInfo.PropertyType.BaseType.Name))
+                        if (propInfo.PropertyType.BaseType != null && new List<String>() { "Enum", "Object" }.Contains(propInfo.PropertyType.BaseType.Name))
                         {
                             //search recrusivly
                             HandleEnumInJson(ref json, propInfo.PropertyType, propInfo.Name, propInfo.GetValue(methodParameters, null), true);
                         }
                     }
                 }
+
+            } while (false);
+        }
+        /// <summary>
+        ///array
+        /// </summary>
+        /// <param name="json"></param>
+        /// <param name="paramInfo"></param>
+        /// <param name="currName"></param>
+        /// <param name="methodParameters"></param>
+        /// <param name="inObject">whether the function searches in objects or simple types</param>
+        protected void HandleArrayInJson(ref string json, Type paramInfo, string currName, object methodParameters, bool inObject)
+        {
+            do
+            {
+
+                // if not object or Enum
+                if (paramInfo.Name == "String" || (paramInfo.IsValueType && !paramInfo.IsEnum))
+                {
+                    break;
+                }
+
+                //if Enum
+                if (paramInfo.IsArray)
+                {
+                    //if object - search for enums presence in it
+                    if (!paramInfo.Namespace.StartsWith("System"))
+                    {
+                        foreach (PropertyInfo propInfo in paramInfo.GetProperties())
+                        {
+                            if (new List<String>() { "Enum", "Object" }.Contains(propInfo.PropertyType.BaseType.Name))
+                            {
+                                //search recrusivly
+                                HandleArrayInJson(ref json, propInfo.PropertyType, propInfo.Name, propInfo.GetValue(methodParameters, null), true);
+                            }
+                        }
+                    }
+                }
+
 
             } while (false);
         }
@@ -257,9 +304,12 @@ public partial class MethodFinder
 
                 if (MethodParam.IsArray)
                 {
+                    Type innerType = MethodParam.GetElementType();
                     string underineObjectType = MethodParam.FullName.Replace("[]","");
                     if (!TryFindType(underineObjectType, out MethodParam)) return null;
-                    result = Array.CreateInstance(MethodParam,0);
+                    result = Array.CreateInstance(MethodParam, 1);
+                    object firstElement = Activator.CreateInstance(innerType);
+                    ((Array)(result)).SetValue(firstElement, 0);                                 
                     break;
                 }
 
@@ -362,10 +412,9 @@ public partial class MethodFinder
             for (int i = 0; i < methodParameters.Length; i++ )
             {
                 sb.Append(@" """).Append(paramInfo[i].Name).Append(@""": ");
-                //string json = String.Format("{0}{1}{0}", paramInfo[i].ParameterType.IsClass && paramInfo[i].ParameterType.Name != "String" ? "" : "", JSONSerialize(methodParameters[i]));                
+                //string json = String.Format("{0}{1}{0}", paramInfo[i].ParameterType.IsClass && paramInfo[i].ParameterType.Name != "String" ? "" : "", JSONSerialize(methodParameters[i]));                                
                 string json = Newtonsoft.Json.JsonConvert.SerializeObject(methodParameters[i]);
-                HandleEnumInJson(ref json,paramInfo[i].ParameterType, paramInfo[i].Name, methodParameters[i],false);               
-
+                HandleEnumInJson(ref json, paramInfo[i].ParameterType, paramInfo[i].Name, methodParameters[i], false);
                 sb.Append(json).Append(",");
             }
             sb.Remove(sb.Length - 1, 1);

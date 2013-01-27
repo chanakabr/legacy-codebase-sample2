@@ -55,6 +55,7 @@ public abstract class BaseGateway : System.Web.UI.Page
     protected PricingService m_PricingService = new PricingService();
     protected DomainService m_DomainService = new DomainService();
     protected BillingService m_BillingService = new BillingService();
+    protected ConditionalAccessService m_ConditionalAccessService = new ConditionalAccessService();
 
     private string m_WsUsername;
     private string m_WsPassword;
