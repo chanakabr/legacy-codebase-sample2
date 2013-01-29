@@ -37,22 +37,22 @@ public partial class Gateways_JsonPostGW : BaseGateway
 
             foreach (KeyValuePair<string, Newtonsoft.Json.Linq.JToken> pair in json)
             {
-                 string sValue = string.Empty;
+                string sValue = string.Empty;
 
-                 if (pair.Value.GetType() == typeof(Newtonsoft.Json.Linq.JArray))
-                 {
-                     sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
-                 }
-                 else
-                 {
-                     sValue = (!pair.Key.Equals("initObj") && !pair.Key.Equals("tagPairs") && !pair.Key.Equals("metaPairs") && !pair.Key.Equals("userBasicData") && !pair.Key.Equals("userDynamicData")) ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
-                 }
-                
+                if (pair.Value.GetType() == typeof(Newtonsoft.Json.Linq.JArray))
+                {
+                    sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
+                }
+                else
+                {
+                    sValue = (!pair.Key.Equals("initObj") && !pair.Key.Equals("tagPairs") && !pair.Key.Equals("metaPairs") && !pair.Key.Equals("userBasicData") && !pair.Key.Equals("userDynamicData")) ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
+                }
+
                 HttpContext.Current.Items.Add(pair.Key, sValue);
             }
         }
 
-        MethodFinder queryServices = new MethodFinder(m_MediaService, m_SiteService, m_PricingService, m_DomainService, m_BillingService,m_ConditionalAccessService);
+        MethodFinder queryServices = new MethodFinder(m_MediaService, m_SiteService, m_PricingService, m_DomainService, m_BillingService, m_ConditionalAccessService, m_SocialService);
 
         queryServices.ProcessRequest();
     }
