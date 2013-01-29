@@ -15,7 +15,7 @@ using System.Xml.Linq;
 /// Finds the Method By Reflection
 /// </summary>
 public partial class MethodFinder
-{  
+{
     #region Method Info
     /// <summary>
     /// Operter service - The service the reuqest currently uses
@@ -27,8 +27,8 @@ public partial class MethodFinder
     /// <summary>
     /// Indicates the request type from client
     /// </summary>
-    private bool IsPost { get; set; }   
-    #endregion       
+    private bool IsPost { get; set; }
+    #endregion
     /// <summary>
     /// Gets a set of web services to retrieve functions from
     /// </summary>
@@ -37,8 +37,8 @@ public partial class MethodFinder
     {
         BackWebservice = fromService;
         Webservice = null;
-        IsPost = HttpContext.Current.Items.Contains("initObj") || HttpContext.Current.Items.Contains("sRecieverUDID") || HttpContext.Current.Items.Contains("sUDID");        
-    }           
+        IsPost = HttpContext.Current.Items.Contains("initObj") || HttpContext.Current.Items.Contains("sRecieverUDID") || HttpContext.Current.Items.Contains("sUDID");
+    }
 
     public void ProcessRequest()
     {
@@ -58,11 +58,11 @@ public partial class MethodFinder
                 SerializedReturnValue = executer.PostParametersInit(this, MethodParameters, CallParameters);//post handle request
 
                 WriteResponseBackToClient(SerializedReturnValue);
-            }            
+            }
         }
         catch (Exception e)
         {
-            ErrorHandler(String.Format("Exception Genrated. Reason: {0}",e.Message));
+            ErrorHandler(String.Format("Exception Genrated. Reason: {0}", e.Message));
         }
     }
 
@@ -72,6 +72,6 @@ public partial class MethodFinder
         HttpContext.Current.Response.Charset = "utf-8";
         HttpContext.Current.Response.Write(responseMsg);
     }
-    
-    
+
+
 }
