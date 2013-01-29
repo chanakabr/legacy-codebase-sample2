@@ -98,5 +98,30 @@ namespace TVPApiServices
 
             return null;
         }
+
+        [WebMethod(EnableSession = true, Description = "Get all user's friends")]
+        public string[] GetUserFriends(InitializationObject initObj)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFriends", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            logger.InfoFormat("GetUserFriends-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    int siteGuid = 0;
+                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                        return new TVPPro.SiteManager.Services.SocialService().GetUserFriends(siteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserFriends->", ex);
+                }
+            }
+            else
+                logger.ErrorFormat("GetUserFriends-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+
+            return null;
+        }
     }
 }

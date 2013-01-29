@@ -20,5 +20,8 @@ namespace TVPApiServices
 
         [OperationContract]
         User[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize);
+
+        [OperationContract]
+        string[] GetUserFriends(InitializationObject initObj);
     }
 }
