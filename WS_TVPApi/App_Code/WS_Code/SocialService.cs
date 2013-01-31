@@ -36,7 +36,10 @@ namespace TVPApiServices
                 {
                     int siteGuid = 0;
                     if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-                        return new TVPPro.SiteManager.Services.SocialService().GetAllFriendsWatched(siteGuid, maxResult);
+                    {
+                        TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                        return service.GetAllFriendsWatched(siteGuid, maxResult);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -59,9 +62,13 @@ namespace TVPApiServices
             {
                 try
                 {
+
                     int siteGuid = 0;
                     if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-                        return new TVPPro.SiteManager.Services.SocialService().GetFriendsWatchedByMedia(siteGuid, mediaId);
+                    {
+                        TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                        return service.GetFriendsWatchedByMedia(siteGuid, mediaId);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -75,7 +82,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all friends that liked a media")]
-        public User[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize)
+        public string[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersLikedMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             logger.InfoFormat("GetUsersLikedMedia-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
@@ -86,7 +93,10 @@ namespace TVPApiServices
                 {
                     int siteGuid = 0;
                     if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-                        return TVPPro.SiteManager.Services.UsersService.Instance.GetUsersLikedMedia(siteGuid, mediaID, (int)initObj.Platform, onlyFriends, startIndex, pageSize);
+                    {
+                        TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                        return service.GetUsersLikedMedia(siteGuid, mediaID, (int)initObj.Platform, onlyFriends, startIndex, pageSize);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -111,7 +121,10 @@ namespace TVPApiServices
                 {
                     int siteGuid = 0;
                     if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-                        return new TVPPro.SiteManager.Services.SocialService().GetUserFriends(siteGuid);
+                    {
+                        TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                        return service.GetUserFriends(siteGuid);
+                    }
                 }
                 catch (Exception ex)
                 {

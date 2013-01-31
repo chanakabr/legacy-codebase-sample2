@@ -19,7 +19,7 @@ namespace TVPApiServices
         FriendWatchedObject[] GetFriendsWatchedByMedia(InitializationObject initObj, int mediaId);
 
         [OperationContract]
-        User[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize);
+        string[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize);
 
         [OperationContract]
         string[] GetUserFriends(InitializationObject initObj);
