@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using log4net;
 using TVPApi;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiModule.Services
 {
@@ -36,14 +37,14 @@ namespace TVPApiModule.Services
         }
         #endregion
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus DoSocialAction(int mediaID, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.SocialAction socialAction, 
+        public TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus DoSocialAction(int mediaID, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.SocialAction socialAction,
             TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, string actionParam)
         {
             TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus eRes = TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus.UNKNOWN;
 
             try
             {
-                eRes = m_Module.AddUserSocialAction(m_wsUserName, m_wsPassword, mediaID, siteGuid, socialAction, socialPlatform, actionParam);                
+                eRes = m_Module.AddUserSocialAction(m_wsUserName, m_wsPassword, mediaID, siteGuid, socialAction, socialPlatform, actionParam);
             }
             catch (Exception ex)
             {
@@ -66,8 +67,72 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error occured in DoSocialAction, Error : {0} Parameters : siteGuid {1}, action: {2}, platform: {3}", ex.Message, siteGuid,
+                logger.ErrorFormat("Error occurred in DoSocialAction, Error : {0} Parameters : siteGuid {1}, action: {2}, platform: {3}", ex.Message, siteGuid,
                     socialAction, socialPlatform);
+            }
+
+            return res;
+        }
+
+        public TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] GetAllFriendsWatched(int sGuid, int maxResult)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] res = null;
+
+            try
+            {
+                res = m_Module.GetAllFriendsWatched(m_wsUserName, m_wsPassword, sGuid, maxResult);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetAllFriendsWatched, Error : {0} Parameters : siteGuid {1}", ex.Message, sGuid);
+            }
+
+            return res;
+        }
+
+        public TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] GetFriendsWatchedByMedia(int sGuid, int mediaId)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] res = null;
+
+            try
+            {
+                res = m_Module.GetFriendsWatchedByMedia(m_wsUserName, m_wsPassword, sGuid, mediaId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetFriendsWatchedByMedia, Error : {0} Parameters : mediaId {1}", ex.Message, mediaId);
+            }
+
+            return res;
+        }
+
+        public string[] GetUsersLikedMedia(int iSiteGuid, int iMediaID, int iPlatform, bool bOnlyFriends, int iStartIndex, int iPageSize)
+        {
+            string[] res = null;
+
+            try
+            {
+                res = m_Module.GetUsersLikedMedia(m_wsUserName, m_wsPassword, iSiteGuid, iMediaID, iPlatform, bOnlyFriends, iStartIndex, iPageSize);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetUsersLikedMedia, Error : {0} Parameters : mediaId {1}", ex.Message, iMediaID);
+            }
+
+            return res;
+        }
+
+        public string[] GetUserFriends(int sGuid)
+        {
+            string[] res = null;
+
+            try
+            {
+                res = m_Module.GetUserFriends(m_wsUserName, m_wsPassword, sGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetUserFriends, Error : {0} Parameters", ex.Message);
             }
 
             return res;
