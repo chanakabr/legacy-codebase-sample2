@@ -199,7 +199,9 @@ namespace TVPApi
                 SenderName = senderName,
                 FriendEmail = toEmail,
                 EmailFrom = senderEmail,
-                AddedMessage = msg
+                AddedMessage = msg, 
+                GroupID = groupID, 
+                Platform = initObj.Platform
             }.Execute().response.type;
         }
 
