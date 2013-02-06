@@ -1729,7 +1729,8 @@ namespace TVPApiServices
                 try
                 {
                     items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredSubscriptions(initObj.SiteGuid, iTotalItems);
-                    items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    if (items != null)
+                        items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -1739,6 +1740,11 @@ namespace TVPApiServices
             else
             {
                 logger.ErrorFormat("GetUserExpiredSubscriptions-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            if (items == null)
+            {
+                items = new PermittedSubscriptionContainer[0];
             }
 
             return items;

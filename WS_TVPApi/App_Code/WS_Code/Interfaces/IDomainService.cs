@@ -29,7 +29,7 @@ namespace TVPApiServices
         Domain RemoveUserFromDomain(InitializationObject initObj);
 
         [OperationContract]
-        DomainResponseObject RemoveDeviceFromDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
+        DomainResponseObject RemoveDeviceFromDomain(InitializationObject initObj, int domainID, string sDeviceName, int iDeviceBrandID);
 
         [OperationContract]
         DomainResponseObject ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive);
