@@ -127,7 +127,7 @@ namespace TVPApi
                         //string apiWsUser = string.Format("api_{0}", favGroupID.ToString());
                         //RateResponseObject obj = service.TVAPI_RateMedia(apiWsUser, "11111", DateTime.UtcNow, initObj, mediaID, extraVal);
                         TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject rro = new ApiApiService(groupID, platform).RateMedia(sUserID, mediaID, extraVal);
-                        retVal = true;
+                        retVal = rro.oStatus != null && rro.oStatus.m_nStatusCode == 0;
                         break;
                         //long guidNum = Convert.ToInt64(sID);
                         //retVal = FavoritesHelper.AddToFavorites(mediaType, mediaID.ToString(), guidNum);
