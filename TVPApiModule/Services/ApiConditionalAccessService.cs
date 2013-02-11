@@ -344,6 +344,179 @@ namespace TVPApiModule.Services
             return campaignActionInfo;
         }
 
+        public int AD_GetCustomDataID(string siteGuid,
+                                      double price,
+                                      string currencyCode3,
+                                      int assetId,
+                                      string ppvModuleCode,
+                                      string campaignCode,
+                                      string couponCode,
+                                      string paymentMethod,
+                                      string userIp,
+                                      string countryCd2,
+                                      string languageCode3,
+                                      string deviceName,
+                                      int assetType)
+        {
+            int res = 0;
+
+            try
+            {
+                res = m_Module.AD_GetCustomDataID(m_wsUserName,
+                                                  m_wsPassword,
+                                                  siteGuid,
+                                                  price,
+                                                  currencyCode3,
+                                                  assetId,
+                                                  ppvModuleCode,
+                                                  campaignCode,
+                                                  couponCode,
+                                                  paymentMethod,
+                                                  userIp,
+                                                  countryCd2,
+                                                  languageCode3,
+                                                  deviceName,
+                                                  assetType);
+
+                logger.InfoFormat("Protocol: AD_GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}",
+                                  siteGuid,
+                                  price,
+                                  currencyCode3,
+                                  assetId,
+                                  ppvModuleCode,
+                                  campaignCode,
+                                  couponCode,
+                                  paymentMethod,
+                                  userIp,
+                                  countryCd2,
+                                  languageCode3,
+                                  deviceName,
+                                  assetType);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : AD_GetCustomDataID, Error Message: {0}, Parameters : siteGuid - {1}, price - {2}, currencyCode3 - {3}, assetId - {4}, ppvModuleCode - {5}, campaignCode - {6}, couponCode - {7}, paymentMethod - {8}, userIp - {9}, countryCd2 - {10}, languageCode3 - {11}, deviceName - {12}, assetType - {13}",
+                                    ex.Message,
+                                    siteGuid,
+                                    price,
+                                    currencyCode3,
+                                    assetId,
+                                    ppvModuleCode,
+                                    campaignCode,
+                                    couponCode,
+                                    paymentMethod,
+                                    userIp,
+                                    countryCd2,
+                                    languageCode3,
+                                    deviceName,
+                                    assetType);
+            }
+            return res;
+        }
+
+        public bool ActivateCampaign(string siteGuid, int campaignID, CampaignActionInfo actionInfo)
+        {
+            bool retVal = false;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                try
+                {
+                    logger.InfoFormat("ActivateCampaign, Parameters : SiteGuid : {0} campaignID : {1} actionInfo : {2}", siteGuid, campaignID, actionInfo.ToString());
+                    retVal = m_Module.ActivateCampaign(wsUser, wsPass, campaignID, actionInfo);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling web service protocol : ActivateCampaign, Error Message: {0}, Parameters : SiteGuid: {1} campaignID : {2} actionInfo : {3}", ex.Message, siteGuid, campaignID, actionInfo.ToString());
+                }
+            }
+            return retVal;
+        }
+
+        public MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(string siteGuid, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        {
+            MediaFileItemPricesContainer[] retVal = null;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                try
+                {
+                    logger.InfoFormat("GetItemsPricesWithCoupons, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
+                    retVal = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling web service protocol : GetItemsPricesWithCoupons, Error Message: {0}, Parameters : SiteGuid: {1} sCouponCode : {2}", ex.Message, siteGuid, sCouponCode);
+                }
+            }
+            return retVal;
+        }
+
+        public SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(string siteGuid, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        {
+            SubscriptionsPricesContainer[] retVal = null;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                try
+                {
+                    logger.InfoFormat("GetSubscriptionsPricesWithCoupon, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
+                    retVal = m_Module.GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling web service protocol : GetSubscriptionsPricesWithCoupon, Error Message: {0}, Parameters : SiteGuid: {1} sCouponCode : {2}", ex.Message, siteGuid, sCouponCode);
+                }
+            }
+            return retVal;
+        }
+
+        public bool IsPermittedItem(string siteGuid, int mediaId)
+        {
+            bool retVal = false;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                try
+                {
+                    logger.InfoFormat("IsPermittedItem, Parameters : SiteGuid : {0} mediaId : {1}", siteGuid, mediaId);
+                    retVal = m_Module.IsPermittedItem(wsUser, wsPass, siteGuid, mediaId);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling web service protocol : IsPermittedItem, Error Message: {0}, Parameters : SiteGuid: {1} mediaId : {2}", ex.Message, siteGuid, mediaId);
+                }
+            }
+            return retVal;
+        }
+
+        public bool IsPermittedSubscription(string siteGuid, int subId)
+        {
+            bool retVal = false;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                try
+                {
+                    logger.InfoFormat("IsPermittedSubscription, Parameters : SiteGuid : {0} subId : {1}", siteGuid, subId);
+
+                    string reason = string.Empty;
+
+                    retVal = m_Module.IsPermittedSubscription(wsUser, wsPass, siteGuid, subId, ref reason);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling web service protocol : IsPermittedSubscription, Error Message: {0}, Parameters : SiteGuid: {1} subId : {2}", ex.Message, siteGuid, subId);
+                }
+            }
+            return retVal;
+        }
+
         #endregion
     }
 }

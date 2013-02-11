@@ -15,8 +15,8 @@ public abstract class BaseGateway : System.Web.UI.Page
 {
     private class KnownUsersAndPasswords
     {
-        public String UserName {get;set;}
-        public String Password {get;set;}
+        public String UserName { get; set; }
+        public String Password { get; set; }
     }
     /// <summary>
     /// For backwards compatibility
@@ -57,6 +57,7 @@ public abstract class BaseGateway : System.Web.UI.Page
     protected BillingService m_BillingService = new BillingService();
     protected ConditionalAccessService m_ConditionalAccessService = new ConditionalAccessService();
     protected SocialService m_SocialService = new SocialService();
+    protected UsersService m_UsersService = new UsersService();
 
     private string m_WsUsername;
     private string m_WsPassword;
@@ -67,7 +68,7 @@ public abstract class BaseGateway : System.Web.UI.Page
     protected string WsPassword { get { return m_WsPassword; } }
 
     protected static Object mainRequestLocker = new object();
-    protected static Dictionary<String,Object> locks = new Dictionary<string,object>();
+    protected static Dictionary<String, Object> locks = new Dictionary<string, object>();
 
     protected string ParseObject(object obj, int groupID, int items, int index, long mediaCount, PlatformType platform)
     {
@@ -142,12 +143,12 @@ public abstract class BaseGateway : System.Web.UI.Page
     protected InitializationObject GetInitObj()
     {
         string sUDID = HttpContext.Current.Request.QueryString["identity"];
-        
+
         InitializationObject retVal = new InitializationObject();
         retVal.Platform = devType;
         retVal.ApiUser = m_WsUsername;
         retVal.ApiPass = m_WsPassword;
-        retVal.UDID = sUDID;   
+        retVal.UDID = sUDID;
         if (string.IsNullOrEmpty(retVal.UDID))
             retVal.UDID = "dummy";
         //Locale locale = new Locale();
@@ -158,7 +159,7 @@ public abstract class BaseGateway : System.Web.UI.Page
 
     protected string GetStbUserId(int groupId)
     {
-        string mac = Request.QueryString["identity"];                   
+        string mac = Request.QueryString["identity"];
         if (String.IsNullOrEmpty(mac)) return String.Empty;
         string SiteGuid = String.Empty;
         if (groupId == 125)
@@ -215,14 +216,14 @@ public abstract class BaseGateway : System.Web.UI.Page
                     }
                 }
 
-            } while (false);                
-                
+            } while (false);
+
             SiteGuid = HttpContext.Current.Cache[mac] != null ? HttpContext.Current.Cache[mac].ToString() : String.Empty;
 
             return SiteGuid;
         }
 
-        return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;      
+        return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
     }
 
     [MethodImpl(MethodImplOptions.Synchronized)]

@@ -53,6 +53,21 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        public string GetClientMerchantSig(string sParamaters)
+        {
+            string response = null;
+            try
+            {
+                response = m_Module.GetClientMerchantSig(m_wsUserName, m_wsPassword, sParamaters);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetClientMerchantSig, Error Message: {0}, params: sParamaters: {1}", ex.Message, sParamaters);
+            }
+
+            return response;
+        }
         #endregion
     }
 }

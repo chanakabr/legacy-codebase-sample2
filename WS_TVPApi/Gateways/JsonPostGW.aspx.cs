@@ -52,7 +52,7 @@ public partial class Gateways_JsonPostGW : BaseGateway
             }
         }
 
-        MethodFinder queryServices = new MethodFinder(m_MediaService, m_SiteService, m_PricingService, m_DomainService, m_BillingService, m_ConditionalAccessService, m_SocialService);
+        MethodFinder queryServices = new MethodFinder(m_MediaService, m_SiteService, m_PricingService, m_DomainService, m_BillingService, m_ConditionalAccessService, m_SocialService, m_UsersService);
 
         queryServices.ProcessRequest();
     }

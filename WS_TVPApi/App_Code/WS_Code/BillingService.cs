@@ -58,6 +58,32 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "")]
+        public string GetClientMerchantSig(InitializationObject initObj, string sParamaters)
+        {
+            string response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetClientMerchantSig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetClientMerchantSig-> [{0}, {1}] sParamaters: {2}", groupID, initObj.Platform, sParamaters);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetClientMerchantSig(sParamaters);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetClientMerchantSig->", ex);
+                }
+            }
+            else
+                logger.ErrorFormat("GetClientMerchantSig-> 'Unknown group' Username: {0}, Password: {1}, siteGuid: {2}, sParamaters: {3}", initObj.ApiUser, initObj.ApiPass, initObj.SiteGuid, sParamaters);
+
+            return response;
+        }
+
         #endregion
     }
 }

@@ -98,9 +98,11 @@
     <Compile Include="DataLoaders\APITVMSubscriptionMediaLoader.cs" />
     <Compile Include="DataLoaders\APIUserSocialMediasLoader.cs" />
     <Compile Include="DataLoaders\APISendToFriendLoader.cs" />
+    <Compile Include="DataLoaders\APIChannelsListLoader.cs" />
     <Compile Include="DBConfiguration\TVinciDBConfiguration.cs" />
     <Compile Include="Helper\ActionHelper.cs" />
     <Compile Include="Helper\CategoryTreeHelper.cs" />
+    <Compile Include="Helper\ChannelHelper.cs" />
     <Compile Include="Helper\CommentHelper.cs" />
     <Compile Include="Helper\ConnectionHelper.cs" />
     <Compile Include="Helper\MediaHelper.cs" />

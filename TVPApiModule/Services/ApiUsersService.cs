@@ -66,15 +66,15 @@ namespace TVPApiModule.Services
         public LogInResponseData SignIn(string sUserName, string sPassword, string sSessionID, string sDeviceID, bool bIsDoubleLogin)
         {
             LogInResponseData loginData = new LogInResponseData();
-            
+
             try
             {
                 sDeviceID = string.Empty;
                 sUserName = HttpUtility.UrlDecode(sUserName);
-                UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);                 
-                
+                UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);
+
                 if (response != null && response.m_user != null)
-                {                    
+                {
                     loginData.SiteGuid = response.m_user.m_sSiteGUID;
                     loginData.DomainID = response.m_user.m_domianID;
                     loginData.LoginStatus = response.m_RespStatus;
@@ -109,24 +109,24 @@ namespace TVPApiModule.Services
         }
 
         public void SignOut(string sSiteGuid, string sSessionID, string sDeviceID, bool bPreventDoubleLogin)
-        {            
+        {
             try
             {
-                UserResponseObject uro = m_Module.SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);                
+                UserResponseObject uro = m_Module.SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : SignOut, Error Message: {0}, Parameters :  SiteGuid: {1}", ex.Message, sSiteGuid);
-            }            
+            }
         }
 
         public bool IsUserLoggedIn(string sSiteGuid, string sSessionID, string sDeviceID, string sIP, bool bPreventDoubleLogin)
         {
             bool bRet = false;
             try
-            {                
+            {
                 UserState response = m_Module.GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);
-                if (response == UserState.Activated || (response == UserState.SingleSignIn && bPreventDoubleLogin) || 
+                if (response == UserState.Activated || (response == UserState.SingleSignIn && bPreventDoubleLogin) ||
                     (!bPreventDoubleLogin && (response == UserState.SingleSignIn || response == UserState.DoubleSignIn)))
                 {
                     bRet = true;
@@ -147,7 +147,7 @@ namespace TVPApiModule.Services
             try
             {
                 m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
-                IsRemoved = true;                
+                IsRemoved = true;
             }
             catch (Exception ex)
             {
@@ -173,7 +173,7 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public bool  AddUserFavorite(string sSiteGuid, int iDomainID, string sUDID, string sMediaType, string sMediaID, string sExtra)
+        public bool AddUserFavorite(string sSiteGuid, int iDomainID, string sUDID, string sMediaType, string sMediaID, string sExtra)
         {
             bool bRet = false;
             try
@@ -214,7 +214,7 @@ namespace TVPApiModule.Services
             }
 
             return response;
-        }        
+        }
 
         public UserResponseObject SSOCheckLogin(string sUserName, int nProviderID)
         {
@@ -302,7 +302,7 @@ namespace TVPApiModule.Services
             UserOfflineObject[] response = null;
 
             try
-            {                
+            {
                 response = m_Module.GetAllUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid);
             }
             catch (Exception ex)
@@ -494,6 +494,63 @@ namespace TVPApiModule.Services
             }
 
             return response;
+        }
+
+        public UserResponseObject ChangeUserPassword(string sUN, string sOldPass, string sPass)
+        {
+            UserResponseObject bRet = null;
+            try
+            {
+                bRet = m_Module.ChangeUserPassword(m_wsUserName, m_wsPassword, sUN, sOldPass, sPass);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol ChangeUserPassword, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+            }
+
+            return bRet;
+        }
+
+        public UserResponseObject GetUserByFacebookID(string facebookId)
+        {
+            UserResponseObject bRet = null;
+            try
+            {
+                bRet = m_Module.GetUserByFacebookID(m_wsUserName, m_wsPassword, facebookId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol GetUserByFacebookID, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+            }
+
+            return bRet;
+        }
+
+        public UserResponseObject GetUserByUsername(string userName)
+        {
+            UserResponseObject bRet = null;
+            try
+            {
+                bRet = m_Module.GetUserByUsername(m_wsUserName, m_wsPassword, userName);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol GetUserByUsername, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+            }
+
+            return bRet;
+        }
+
+        public void Logout(string sSiteGuid)
+        {
+            try
+            {
+                m_Module.Logout(m_wsUserName, m_wsPassword, sSiteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol Logout, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, SiteGUID: {3}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid);
+            }
         }
     }
 }

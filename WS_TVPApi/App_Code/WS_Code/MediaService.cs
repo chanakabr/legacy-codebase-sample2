@@ -14,6 +14,7 @@ using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.Objects;
+using TVPApiModule.Helper;
 
 namespace TVPApiServices
 {
@@ -386,14 +387,14 @@ namespace TVPApiServices
             return lstMedia;
         }
 
-        [WebMethod(EnableSession = true, Description = "check if social action porfomed on media by user")]
+        [WebMethod(EnableSession = true, Description = "check if social action performed on media by user")]
         public bool IsUserSocialActionPerformed(InitializationObject initObj, string sMediaID, string socialPlatform, string socialAction)
         {
             bool bRet = false;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsUserSocialActionPerformed", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("IsUserSocialActionPerformed-> [{0}, {1}], Params:[mediaID: {2}]", groupID, initObj.Platform);
+            logger.InfoFormat("IsUserSocialActionPerformed-> [{0}, {1}], Params:[mediaID: {2}]", groupID, initObj.Platform, sMediaID);
 
             if (groupID > 0)
             {
@@ -680,8 +681,8 @@ namespace TVPApiServices
             return lstMedia;
         }
 
-        //Saerch media by meta with total items number
-        [WebMethod(EnableSession = true, Description = "Saerch media by meta with total items number")]
+        //Search media by meta with total items number
+        [WebMethod(EnableSession = true, Description = "Search media by meta with total items number")]
         public List<Media> SearchMediaByMetaWithMediaCount(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -983,7 +984,7 @@ namespace TVPApiServices
             }
             return retVal;
         }
-        
+
         [WebMethod(EnableSession = true, Description = "Rate a Media")]
         public TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject RateMedia(InitializationObject initObj, int mediaID, int mediaType, int extraVal)
         {
@@ -997,7 +998,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                     retVal = new ApiApiService(groupID, initObj.Platform).RateMedia(initObj.SiteGuid, mediaID, extraVal);
+                    retVal = new ApiApiService(groupID, initObj.Platform).RateMedia(initObj.SiteGuid, mediaID, extraVal);
                 }
                 catch (Exception ex)
                 {
@@ -1163,7 +1164,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Check if item is purchased")]
         public bool IsItemPurchased(InitializationObject initObj, int iFileID, string sUserGuid)
         {
-            
+
             bool bRet = false;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsItemPurchased", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -1199,7 +1200,7 @@ namespace TVPApiServices
                                 break;
                             case TVPApi.PriceReason.Free:
                             case TVPApi.PriceReason.SubscriptionPurchased:
-                            case TVPApi.PriceReason.PPVPurchased:                                
+                            case TVPApi.PriceReason.PPVPurchased:
                             default:
                                 bRet = true;
                                 break;
@@ -1227,7 +1228,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get list of purchased items for a user")]
         public PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj)
         {
-            PermittedMediaContainer[] permittedMediaContainer = {};
+            PermittedMediaContainer[] permittedMediaContainer = { };
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1310,7 +1311,7 @@ namespace TVPApiServices
 
             return lstMedia;
         }
-        
+
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions for a user")]
         public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj)
         {
@@ -1354,7 +1355,8 @@ namespace TVPApiServices
                     PermittedSubscriptionContainer[] permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(initObj.SiteGuid);
                     permitedSubscriptions = permitedSubscriptions.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
 
-                    foreach(PermittedSubscriptionContainer psc in permitedSubscriptions){
+                    foreach (PermittedSubscriptionContainer psc in permitedSubscriptions)
+                    {
                         PermittedPackages pp = new PermittedPackages();
                         pp.PermittedSubscriptions = psc;
 
@@ -1585,7 +1587,7 @@ namespace TVPApiServices
             {
                 logger.ErrorFormat("GetItemPrices-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
-            
+
             return itemPrices;
         }
 
@@ -1602,7 +1604,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                   res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).m_ProductCode;                   
+                    res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).m_ProductCode;
                 }
                 catch (Exception ex)
                 {
@@ -1633,9 +1635,13 @@ namespace TVPApiServices
                     foreach (int subID in subIDs)
                     {
                         var priceObj = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false);
-                        
-                        res.Add(new SubscriptionPrice { SubscriptionCode = priceObj.m_sObjectCode, Price = priceObj.m_oSubscriptionPriceCode.m_oPrise.m_dPrice, 
-                            Currency= priceObj.m_oSubscriptionPriceCode.m_oPrise.m_oCurrency.m_sCurrencySign });
+
+                        res.Add(new SubscriptionPrice
+                        {
+                            SubscriptionCode = priceObj.m_sObjectCode,
+                            Price = priceObj.m_oSubscriptionPriceCode.m_oPrise.m_dPrice,
+                            Currency = priceObj.m_oSubscriptionPriceCode.m_oPrise.m_oCurrency.m_sCurrencySign
+                        });
                     }
                 }
                 catch (Exception ex)
@@ -1649,7 +1655,7 @@ namespace TVPApiServices
             }
 
             return res;
-        }        
+        }
 
         [WebMethod(EnableSession = true, Description = "Get user transaction history")]
         public BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, int start_index, int pageSize)
@@ -1682,7 +1688,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get user expired items")]
         public PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, int iTotalItems)
         {
-            PermittedMediaContainer[] items = null; 
+            PermittedMediaContainer[] items = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetUserExpiredItems-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
@@ -1764,7 +1770,7 @@ namespace TVPApiServices
                 try
                 {
                     items = new ApiConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPrices(initObj.SiteGuid, SubscriptionIDs, true);
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -1793,7 +1799,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    fResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetPrepaidBalance(initObj.SiteGuid, currencyCode);                    
+                    fResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetPrepaidBalance(initObj.SiteGuid, currencyCode);
                 }
                 catch (Exception ex)
                 {
@@ -1907,7 +1913,7 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Fix this to be unified Enum
-                    nResponse = VotesHelper.GetVotingRatio(initObj.SiteGuid);
+                    nResponse = TVPPro.SiteManager.Helper.VotesHelper.GetVotingRatio(initObj.SiteGuid);
                 }
                 catch (Exception ex)
                 {
@@ -1964,7 +1970,7 @@ namespace TVPApiServices
                 try
                 {
                     if (new ApiUsersService(groupId, initObj.Platform).IsOfflineModeEnabled(initObj.SiteGuid))
-                        sResponse = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid).OrderBy(x=> x.m_CreateDate).ToArray();
+                        sResponse = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid).OrderBy(x => x.m_CreateDate).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -2020,7 +2026,7 @@ namespace TVPApiServices
                         return lResponse;
 
                     UserOfflineObject[] offArr = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid).OrderBy(x => x.m_CreateDate).ToArray();
-                    long[] mediaIDs = offArr.Select(x=> long.Parse(x.m_MediaID)).ToArray();
+                    long[] mediaIDs = offArr.Select(x => long.Parse(x.m_MediaID)).ToArray();
                     lResponse.AddRange(GetMediasInfo(initObj, mediaIDs, 0, picSize, withDynamic));
                 }
                 catch (Exception ex)
@@ -2180,7 +2186,7 @@ namespace TVPApiServices
         public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] GetEPGChannelsPrograms(InitializationObject initObj, string sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
             TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] sRet = null;
-            
+
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGChannelsPrograms", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetEPGChannels-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
@@ -2260,11 +2266,39 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get All Channels")]
+        public List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize)
+        {
+            List<Channel> sRet = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetChannelsList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetChannelsList-> [{0}, {1}], Params:[user: {2},sPicSize:{3}]", groupId, initObj.Platform, initObj.SiteGuid, sPicSize);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    sRet = ChannelHelper.GetChannelsList(initObj, sPicSize, groupId);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetChannelsList->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetChannelsList-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+            return sRet;
+        }
+
         #region MessageBox
         [WebMethod(EnableSession = true, Description = "SendMessage")]
         public void SendMessage(string sSiteGuid, string sRecieverUDID, int iMediaID, int iMediaTypeID, int iLocation, string sAction, string sUsername, string sPassword)
         {
-            MBMessage msg = new MBMessage(){
+            MBMessage msg = new MBMessage()
+            {
                 MediaID = iMediaID,
                 MediaTypeID = iMediaTypeID,
                 Location = iLocation,

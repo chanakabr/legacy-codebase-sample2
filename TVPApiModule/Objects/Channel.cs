@@ -40,6 +40,25 @@ namespace TVPApi
             }
         }
 
+        public Channel(dsItemInfo.ChannelRow channelRow)
+        {
+            Title = string.Empty;
+            ChannelID = 0;
+            MediaCount = 0;
+
+            if (!channelRow.IsTitleNull())
+            {
+                Title = channelRow.Title;
+            }
+
+            long channelID;
+
+            if (long.TryParse(channelRow.ChannelId, out channelID))
+            {
+                ChannelID = channelID;
+            }
+        }
+
         public Channel()
         {
             ChannelID = 0;

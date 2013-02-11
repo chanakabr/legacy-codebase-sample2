@@ -198,6 +198,9 @@ namespace TVPApiServices
         string ChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);
 
         [OperationContract]
-        string DummyChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);        
+        string DummyChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);
+
+        [OperationContract]
+        List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize);
     }
 }

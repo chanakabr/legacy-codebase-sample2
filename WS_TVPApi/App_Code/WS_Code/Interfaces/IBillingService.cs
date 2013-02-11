@@ -17,5 +17,8 @@ namespace TVPApiServices
     {
         [OperationContract]
         AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, int billingMethod);
+
+        [OperationContract]
+        string GetClientMerchantSig(InitializationObject initObj, string sParamaters);
     }
 }
