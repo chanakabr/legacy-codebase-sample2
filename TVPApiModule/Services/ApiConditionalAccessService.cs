@@ -414,6 +414,80 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public int GetCustomDataID(string siteGuid,
+                                   double price,
+                                   string currencyCode3,
+                                   int assetId,
+                                   string ppvModuleCode,
+                                   string campaignCode,
+                                   string couponCode,
+                                   string paymentMethod,
+                                   string userIp,
+                                   string countryCd2,
+                                   string languageCode3,
+                                   string deviceName,
+                                   int assetType,
+                                   string overrideEndDate)
+        {
+            int res = 0;
+
+            try
+            {
+                res = m_Module.GetCustomDataID(m_wsUserName,
+                                                  m_wsPassword,
+                                                  siteGuid,
+                                                  price,
+                                                  currencyCode3,
+                                                  assetId,
+                                                  ppvModuleCode,
+                                                  campaignCode,
+                                                  couponCode,
+                                                  paymentMethod,
+                                                  userIp,
+                                                  countryCd2,
+                                                  languageCode3,
+                                                  deviceName,
+                                                  assetType,
+                                                  overrideEndDate);
+
+                logger.InfoFormat("Protocol: GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}, overrideEndDate - {13}",
+                                  siteGuid,
+                                  price,
+                                  currencyCode3,
+                                  assetId,
+                                  ppvModuleCode,
+                                  campaignCode,
+                                  couponCode,
+                                  paymentMethod,
+                                  userIp,
+                                  countryCd2,
+                                  languageCode3,
+                                  deviceName,
+                                  assetType,
+                                  overrideEndDate);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetCustomDataID, Error Message: {0}, Parameters : siteGuid - {1}, price - {2}, currencyCode3 - {3}, assetId - {4}, ppvModuleCode - {5}, campaignCode - {6}, couponCode - {7}, paymentMethod - {8}, userIp - {9}, countryCd2 - {10}, languageCode3 - {11}, deviceName - {12}, assetType - {13}, overrideEndDate - {14}",
+                                    ex.Message,
+                                    siteGuid,
+                                    price,
+                                    currencyCode3,
+                                    assetId,
+                                    ppvModuleCode,
+                                    campaignCode,
+                                    couponCode,
+                                    paymentMethod,
+                                    userIp,
+                                    countryCd2,
+                                    languageCode3,
+                                    deviceName,
+                                    assetType,
+                                    overrideEndDate);
+            }
+            return res;
+        }
+
         public bool ActivateCampaign(string siteGuid, int campaignID, CampaignActionInfo actionInfo)
         {
             bool retVal = false;
