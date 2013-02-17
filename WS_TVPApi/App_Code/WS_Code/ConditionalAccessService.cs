@@ -121,8 +121,6 @@ namespace TVPApiServices
             return res;
         }
 
-
-
         [WebMethod(EnableSession = true, Description = "Activate Campaign")]
         public bool ActivateCampaign(InitializationObject initObj, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
                                                            CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
