@@ -84,6 +84,45 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get customer data")]
+        public int GetCustomDataID(InitializationObject initObj, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string userIp, string countryCd2, string languageCode3, string deviceName, int assetType, string overrideEndDate)
+        {
+            int res = 0;
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCustomDataID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            logger.InfoFormat("Protocol: GetCustomDataID, Parameters : Parameters : price - {0}, currencyCode3 - {1}, assetId - {2}, ppvModuleCode - {3}, campaignCode - {4}, couponCode - {5}, paymentMethod - {6}, userIp - {7}, countryCd2 - {8}, languageCode3 - {9}, deviceName - {10}, assetType - {11}, overrideEndDate - {12}",
+                                  price,
+                                  currencyCode3,
+                                  assetId,
+                                  ppvModuleCode,
+                                  campaignCode,
+                                  couponCode,
+                                  paymentMethod,
+                                  userIp,
+                                  countryCd2,
+                                  languageCode3,
+                                  deviceName,
+                                  assetType,
+                                  overrideEndDate);
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetCustomDataID(initObj.SiteGuid, price, currencyCode3, assetId, ppvModuleCode, campaignCode, couponCode, paymentMethod, userIp, countryCd2, languageCode3, deviceName, assetType, overrideEndDate);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetCustomDataID->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetCustomDataID-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+            return res;
+        }
+
+
+
         [WebMethod(EnableSession = true, Description = "Activate Campaign")]
         public bool ActivateCampaign(InitializationObject initObj, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
                                                            CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
