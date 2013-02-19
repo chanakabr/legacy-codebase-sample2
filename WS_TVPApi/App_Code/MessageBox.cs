@@ -91,7 +91,7 @@ public class MBMessage
     public string Username { get; set; }
     public string Password { get; set; }
 
-    //You should define an Empty Consturctor to allow PokeIn to de-serialize
+    //You should define an Empty Constructor to allow PokeIn to de-serialize
     public MBMessage()
     {
     }
