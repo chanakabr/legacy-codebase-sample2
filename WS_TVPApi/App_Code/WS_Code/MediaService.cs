@@ -70,7 +70,7 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediasInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetMediaInfo-> [{0}, {1}], Params: [MediaID: {2}, MediaType: {3}, picSize: {4}, withDynamic: {5}]", groupID, initObj.Platform, MediaID, mediaType, picSize, withDynamic);
+            logger.InfoFormat("GetMediasInfo-> [{0}, {1}], Params: [MediaID: {2}, MediaType: {3}, picSize: {4}, withDynamic: {5}]", groupID, initObj.Platform, MediaID, mediaType, picSize, withDynamic);
 
             if (groupID > 0)
             {
@@ -80,12 +80,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetMediaInfo->", ex);
+                    logger.Error("GetMediasInfo->", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetMediaInfo-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                logger.ErrorFormat("GetMediasInfo-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return retMedia;
