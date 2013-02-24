@@ -295,6 +295,39 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        public UserResponseObject ActivateAccount(string sUserName, string sToken)
+        {
+            UserResponseObject response = null;
+
+            try
+            {
+                response = m_Module.ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ActivateAccount, Error Message: {0}, Parameters :  sUserName: {1}", ex.Message, sUserName);
+            }
+
+            return response;
+        }
+
+        public bool ResendActivationMail(string sUserName, string sNewPassword)
+        {
+            bool response = false;
+
+            try
+            {
+                response = m_Module.ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ResendActivationMail, Error Message: {0}, Parameters :  sUserName: {1}", ex.Message, sUserName);
+            }
+
+            return response;
+        }
+
         #endregion
 
         public UserOfflineObject[] GetUserOfflineList(string sSiteGuid)
