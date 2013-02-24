@@ -1192,25 +1192,16 @@ namespace TVPApiServices
                     {
                         TVPApi.PriceReason priceReason = (TVPApi.PriceReason)mediaPrice.m_oItemPrices[0].m_PriceReason;
 
-                        switch (priceReason)
-                        {
-                            case TVPApi.PriceReason.ForPurchaseSubscriptionOnly:
-                            case TVPApi.PriceReason.ForPurchase:
-                                bRet = false;
-                                break;
-                            case TVPApi.PriceReason.Free:
-                            case TVPApi.PriceReason.SubscriptionPurchased:
-                            case TVPApi.PriceReason.PPVPurchased:
-                            default:
-                                bRet = true;
-                                break;
-                        }
+                        bRet = mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice == 0 &&
+                               (priceReason == TVPApi.PriceReason.PPVPurchased ||
+                                priceReason == TVPApi.PriceReason.SubscriptionPurchased ||
+                                priceReason == TVPApi.PriceReason.PrePaidPurchased ||
+                                priceReason == TVPApi.PriceReason.Free);
                     }
                     else
                     {
                         bRet = true;
                     }
-
                 }
                 catch (Exception ex)
                 {
