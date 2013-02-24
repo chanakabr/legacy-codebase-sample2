@@ -23,5 +23,11 @@ namespace TVPApiServices
 
         [OperationContract]
         void Logout(InitializationObject initObj, string sSiteGuid);
+
+        [OperationContract]
+        UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken);
+
+        [OperationContract]
+        bool ResendActivationMail(InitializationObject initObj, string sUserName, string sNewPassword);
     }
 }
