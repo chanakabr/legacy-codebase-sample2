@@ -136,6 +136,62 @@ namespace TVPApiServices
             }
         }
 
+        [WebMethod(EnableSession = true, Description = "Activate user account")]
+        public UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken)
+        {
+            UserResponseObject response = new UserResponseObject();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActivateAccount", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("ActivateAccount-> [{0}, {1}], Params:[sUserName: {2}]", groupID, initObj.Platform, sUserName);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ActivateAccount(sUserName, sToken);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ActivateAccount->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ActivateAccount-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Resend activation mail")]
+        public bool ResendActivationMail(InitializationObject initObj, string sUserName, string sNewPassword)
+        {
+            bool response = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ResendActivationMail", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("ResendActivationMail-> [{0}, {1}], Params:[sUserName: {2}]", groupID, initObj.Platform, sUserName);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ResendActivationMail(sUserName, sNewPassword);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("ResendActivationMail->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ResendActivationMail-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
         #endregion
     }
 }
