@@ -38,12 +38,12 @@ namespace TVPApiModule.Services
         #endregion C'tor
 
         #region Public methods
-        public GroupOperator[] GetGroupOperators()
+        public GroupOperator[] GetGroupOperators(string scope)
         {
             GroupOperator[] response = null;
             try
             {
-                response = m_Module.GetGroupOperators(m_wsUserName, m_wsPassword);
+                response = m_Module.GetGroupOperators(m_wsUserName, m_wsPassword, scope);
             }
             catch (Exception ex)
             {
