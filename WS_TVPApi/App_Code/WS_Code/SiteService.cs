@@ -503,7 +503,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Group Operators")]
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] GetGroupOperators(InitializationObject initObj)
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] GetGroupOperators(InitializationObject initObj, string scope)
         {
             TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] response = null;
 
@@ -515,7 +515,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupOperators();
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupOperators(scope);
                 }
                 catch (Exception ex)
                 {
