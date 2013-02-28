@@ -156,7 +156,8 @@ namespace TVPApi
                 MediaID = iMediaID,
                 Location = iLocation,
                 DeviceUDID = initObj.UDID,
-                SiteGUID = initObj.SiteGuid
+                SiteGUID = initObj.SiteGuid, 
+                FileID = iFileID
             }.Execute();
         }
 
