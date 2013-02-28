@@ -32,7 +32,8 @@ namespace TVPApi
         SubscriptionPurchased,
         ForPurchase,
         UnKnown,
-        SubscriptionPurchasedWrongCurrency
+        SubscriptionPurchasedWrongCurrency,
+        PrePaidPurchased
     }
 
     public enum OrderBy
@@ -155,7 +156,7 @@ namespace TVPApi
         Link = 2
     }
 
-    public enum PlatformType
+    public enum     PlatformType
     {
         [EnumAsStringValue("Web")]
         Web,
