@@ -272,6 +272,34 @@ namespace TVPApiServices
 
         #region Media related
 
+        [WebMethod(EnableSession = true, Description = "Get related media info")]
+        public List<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRelatedMediasByTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetRelatedMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.GetRelatedMediaList(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetRelatedMediasByTypes->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetRelatedMediasByTypes-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
+        }
+
         //Get related media info
         [WebMethod(EnableSession = true, Description = "Get related media info")]
         public List<Media> GetRelatedMedias(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
@@ -286,7 +314,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetRelatedMediaList(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, groupID);
+                    lstMedia = MediaHelper.GetRelatedMediaList(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, groupID, null);
                 }
                 catch (Exception ex)
                 {
@@ -520,7 +548,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetRecommendedMediasList(initObj, picSize, pageSize, pageIndex, groupID);
+                    lstMedia = MediaHelper.GetRecommendedMediasList(initObj, picSize, pageSize, pageIndex, groupID, null);
                 }
                 catch (Exception ex)
                 {
@@ -530,6 +558,33 @@ namespace TVPApiServices
             else
             {
                 logger.ErrorFormat("GetRecommendedMedias-> 'Unknown group' Username: {0}, Password: {1}, BaseID: {2}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return lstMedia;
+        }
+
+        public List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendedMediasByTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetRecommendedMediasByTypes-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.GetRecommendedMediasList(initObj, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetRecommendedMediasByTypes->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetRecommendedMediasByTypes-> 'Unknown group' Username: {0}, Password: {1}, BaseID: {2}", initObj.ApiUser, initObj.ApiPass);
             }
 
             return lstMedia;

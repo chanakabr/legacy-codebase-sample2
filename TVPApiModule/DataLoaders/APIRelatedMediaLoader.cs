@@ -6,18 +6,20 @@ using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.SearchRelated;
 using Tvinci.Data.TVMDataLoader.Protocols;
 
-namespace TVPApi 
+namespace TVPApi
 {
     public class APIRelatedMediaLoader : TVPPro.SiteManager.DataLoaders.RelatedMoviesLoader
     {
 
-        public APIRelatedMediaLoader(long mediaID) : this(mediaID, string.Empty, string.Empty)
+        public APIRelatedMediaLoader(long mediaID)
+            : this(mediaID, string.Empty, string.Empty)
         {
         }
 
-        public APIRelatedMediaLoader(long mediaID, string userName, string pass) : base(mediaID, userName, pass)
+        public APIRelatedMediaLoader(long mediaID, string userName, string pass)
+            : base(mediaID, userName, pass)
         {
-            
+
         }
 
         public override bool ShouldExtractItemsCountInSource
@@ -63,6 +65,18 @@ namespace TVPApi
             }
         }
 
+        public int[] MediaTypes
+        {
+            get
+            {
+                return Parameters.GetParameter<int[]>(eParameterType.Retrieve, "MediaTypes", null);
+            }
+            set
+            {
+                Parameters.SetParameter<int[]>(eParameterType.Retrieve, "MediaTypes", value);
+            }
+        }
+
         protected override void PreExecute()
         {
             if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL))
@@ -98,6 +112,10 @@ namespace TVPApi
 
             protocol.root.request.channel.start_index = PageIndex.ToString();
             protocol.root.request.channel.number_of_items = PageSize.ToString();
+
+            if (MediaTypes != null)
+                protocol.root.request.media.media_types = string.Join(";", MediaTypes.Select(x => x.ToString()).ToArray());
+
             protocol.root.flashvars.pic_size1 = PicSize;
             protocol.root.request.@params.with_info = "true";
             protocol.root.flashvars.player_un = TvmUser;

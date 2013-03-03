@@ -60,6 +60,18 @@ namespace TVPApiModule.DataLoaders
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
         }
+
+        public int[] MediaTypes
+        {
+            get
+            {
+                return Parameters.GetParameter<int[]>(eParameterType.Retrieve, "MediaTypes", null);
+            }
+            set
+            {
+                Parameters.SetParameter<int[]>(eParameterType.Retrieve, "MediaTypes", value);
+            }
+        }
         #endregion
 
         public APIPersonalRecommendedLoader(string tvmUser, string tvmPass)
@@ -95,6 +107,9 @@ namespace TVPApiModule.DataLoaders
             protocol.root.request.@params.info_struct.description.MakeSchemaCompliant();
             protocol.root.request.@params.info_struct.type.MakeSchemaCompliant();
             protocol.root.request.@params.site_guid = SiteGuid;
+
+            if (MediaTypes != null)
+                protocol.root.request.@params.media_types = string.Join(";", MediaTypes.Select(x => x.ToString()).ToArray());
 
             protocol.root.flashvars.player_un = TvmUser;
             protocol.root.flashvars.player_pass = TvmPass;
