@@ -5,9 +5,11 @@ using System.Text;
 using Tvinci.Configuration;
 using System.Configuration;
 using TVPPro.Configuration.Technical;
+using Tvinci.Configuration.ConfigSvc;
 using Tvinci.Data.TVMDataLoader.Protocols;
 using System.Threading;
 using log4net;
+
 
 namespace TVPApi.Configuration.Technical
 {
@@ -33,7 +35,14 @@ namespace TVPApi.Configuration.Technical
             base.SyncFromFile(syncFile, true);
             m_syncFile = syncFile;
         }
-     
+
+
+        public ApiTechnichalConfiguration(int nGroupID, string sPlatform, string sEnvironment)
+            : base(eSource.Service)
+        {
+            SyncFromService(nGroupID, sPlatform, sEnvironment, eConfigType.Technical, CreateTechnicalConfig);
+        }
+
 
 		public TechnicalData Config
 		{
@@ -161,5 +170,45 @@ namespace TVPApi.Configuration.Technical
 				m_locker.ExitWriteLock();
 			}
 		}
+
+        private TechnicalData CreateTechnicalConfig(IEnumerable<ConfigKeyVal> source)
+        {
+            TechnicalData retVal = new TechnicalData();
+
+            retVal.DBConfiguration.User = DbConfigManager.GetValFromConfig(source, "DBConfiguration_User");
+            retVal.DBConfiguration.Pass = DbConfigManager.GetValFromConfig(source, "DBConfiguration_Pass");
+            retVal.DBConfiguration.IP = DbConfigManager.GetValFromConfig(source, "DBConfiguration_IP");
+            retVal.DBConfiguration.DatabaseInstance = DbConfigManager.GetValFromConfig(source, "DBConfiguration_DatabaseInstance");
+            retVal.TVM.Servers.MainServer.URL = DbConfigManager.GetValFromConfig(source, "TVM_Servers_MainServer_URL");
+            retVal.TVM.Servers.MainServer.TVMReadURL = DbConfigManager.GetValFromConfig(source, "TVM_Servers_MainServer_TVMReadURL");
+            retVal.TVM.Servers.MainServer.TVMWriteURL = DbConfigManager.GetValFromConfig(source, "TVM_Servers_MainServer_TVMWriteURL");
+
+            retVal.TVM.Configuration.ForceUpdatedData =
+                bool.Parse(DbConfigManager.GetValFromConfig(source, "TVM_Configuration_ForceUpdateData"));
+
+            retVal.TVM.Configuration.EnableTimer = bool.Parse(DbConfigManager.GetValFromConfig(source, "TVM_Configuration_EnableTimer"));
+            retVal.TVM.Configuration.User = DbConfigManager.GetValFromConfig(source, "TVM_Configuration_User");
+            retVal.TVM.Configuration.Password = DbConfigManager.GetValFromConfig(source, "TVM_Configuration_Password");
+            retVal.TVM.Configuration.EmbedUser = DbConfigManager.GetValFromConfig(source, "TVM_Configuration_EmbedUser");
+            retVal.TVM.Configuration.EmberPassword = DbConfigManager.GetValFromConfig(source, "TVM_Configuration_EmberPassword");
+            retVal.TVM.CachingServer.AllowedIPs = DbConfigManager.GetValFromConfig(source, "TVM_CachingServer_AllowedIPs");
+            retVal.TVM.FlashVars.FileFormat = DbConfigManager.GetValFromConfig(source, "TVM_FlashVars_FileFormat");
+            retVal.TVM.FlashVars.SubFileFormat = DbConfigManager.GetValFromConfig(source, "TVM_FlashVars_FileFormat");
+            retVal.TVM.TVMRssURL = DbConfigManager.GetValFromConfig(source, "TVM_TVMRssURL");
+            retVal.Translation.UseTranslatedMediaType =
+                bool.Parse(DbConfigManager.GetValFromConfig(source,"Translation_UseTranslatedMediaType"));
+            retVal.Translation.Culture = DbConfigManager.GetValFromConfig(source, "Translations_Culture");
+            DbConfigManager.GetMultipleValsFromConfig(source, "Translations_CharacterReplace")
+                .Select(
+                    cr =>
+                    retVal.Translation.CharacterReplace.Add(new Character()
+                    {
+                        OldChar = cr.Split(';')[0],
+                        NewChar = cr.Split(';')[1]
+                    })
+                        );
+
+            return retVal;
+        }
 	}
 }

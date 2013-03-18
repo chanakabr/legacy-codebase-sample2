@@ -5,11 +5,14 @@ using System.Web;
 using System.Configuration;
 using System.IO;
 using System.Threading;
+using TVPApi.Configuration.PlatformServices;
 using TVPApi.Configuration.Technical;
 using TVPApi.Configuration.Site;
 using TVPApi.Configuration.Media;
-using TVPApi.Configuration.PlatformServices;
+
+using TVPPro.Configuration.PlatformServices;
 using log4net;
+
 
 /// <summary>
 /// Summary description for ConfigurationManager
@@ -24,7 +27,7 @@ namespace TVPApi
 
         private static ConfigManager m_instance = null;
 
-        private Dictionary<string, ConfigType> m_configs = new Dictionary<string,ConfigType>();
+        private Dictionary<string, ConfigType> m_configs = new Dictionary<string, ConfigType>();
         private static ReaderWriterLockSlim m_ConfigManagerLocker = new ReaderWriterLockSlim();
 
         public struct ConfigType
@@ -73,31 +76,13 @@ namespace TVPApi
 
             if (!bConfigExist)
             {
-                string parentDirectoryStr = HttpContext.Current.Server.MapPath(string.Concat(ConfigurationManager.AppSettings[groupID.ToString()], ConfigurationManager.AppSettings["DomainEnv"], "/"));
-                string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
-                string directoryStr = string.Concat(parentDirectoryStr, platform);
 
-                if (!string.IsNullOrEmpty(directoryStr))
-                {
-                    string[] fileNames = Directory.GetFiles(directoryStr);
-                    foreach (string file in fileNames)
-                    {
-                        if (file.Contains("Technical"))
-                        {
-                            configType.TechnichalConfiguration = new TVPApi.Configuration.Technical.ApiTechnichalConfiguration(file);
-                        }
-                        else if (file.Contains("Platform"))
-                        {
-                            configType.PlatformServicesConfiguration = new TVPApi.Configuration.PlatformServices.ApiPlatformServicesConfiguration(file);
-                        }
-                        else if (file.Contains("Site"))
-                        {
-                            configType.SiteConfiguration = new TVPApi.Configuration.Site.ApiSiteConfiguration(file);
-                        }
-                    }
-                }
+                configType = ConfigurationManager.AppSettings["ConfigSrc_" + groupID] == "DB"
+                                 ?  ServiceGetConfig(groupID, platform)
+                                 : FileGetConfig(groupID, platform);
 
-                configType.MediaConfiguration = new TVPApi.Configuration.Media.ApiMediaConfiguration(mediaConfigFile);
+
+
 
 
                 if (m_ConfigManagerLocker.TryEnterWriteLock(1000))
@@ -122,7 +107,52 @@ namespace TVPApi
 
             return configType;
 
+
+        }
+
+        private ConfigType ServiceGetConfig(int nGroupID, PlatformType sPlatform)
+        {
+            ConfigType configType = new ConfigType();
+            string sEnvironment = ConfigurationManager.AppSettings["DomainEnv"];
             
+            configType.PlatformServicesConfiguration = new ApiPlatformServicesConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
+            configType.TechnichalConfiguration = new ApiTechnichalConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
+            configType.MediaConfiguration = new ApiMediaConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
+            configType.SiteConfiguration = new ApiSiteConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
+
+            return configType;
+        }
+
+        private ConfigType FileGetConfig(int groupID, PlatformType platform)
+        {
+            ConfigType configType = new ConfigType();
+            string parentDirectoryStr = HttpContext.Current.Server.MapPath(string.Concat(ConfigurationManager.AppSettings[groupID.ToString()], ConfigurationManager.AppSettings["DomainEnv"], "/"));
+            string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
+            string directoryStr = string.Concat(parentDirectoryStr, platform);
+
+            if (!string.IsNullOrEmpty(directoryStr))
+            {
+                string[] fileNames = Directory.GetFiles(directoryStr);
+                foreach (string file in fileNames)
+                {
+                    if (file.Contains("Technical"))
+                    {
+                        configType.TechnichalConfiguration = new TVPApi.Configuration.Technical.ApiTechnichalConfiguration(file);
+                    }
+                    else if (file.Contains("Platform"))
+                    {
+                        configType.PlatformServicesConfiguration = new TVPApi.Configuration.PlatformServices.ApiPlatformServicesConfiguration(file);
+                    }
+                    else if (file.Contains("Site"))
+                    {
+                        configType.SiteConfiguration = new TVPApi.Configuration.Site.ApiSiteConfiguration(file);
+                    }
+                }
+            }
+
+            configType.MediaConfiguration = new TVPApi.Configuration.Media.ApiMediaConfiguration(mediaConfigFile);
+
+            return configType;
         }
 
     }

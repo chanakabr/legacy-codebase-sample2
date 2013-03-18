@@ -261,6 +261,20 @@ namespace TVPApiModule.Services
             return response;
         }
 
+        public string GetDomainCoGuid(int nDomainID)
+        {
+            string resp = string.Empty;
+            try
+            {
+                resp = m_Module.GetDomainCoGuid(m_wsUserName, m_wsPassword, nDomainID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : AddDomain, Error Message: {0} Parameters: masterGuid: {1}", ex.Message, nDomainID);
+            }
+            return resp;
+        }
+
         #endregion          
    
     }

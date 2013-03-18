@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ODBCWrapper;
+using TVPApiModule.Interfaces;
+using TVPApiModule.Objects;
 
 namespace TVPApi
 {
@@ -27,6 +29,18 @@ namespace TVPApi
                 }
             }
             return retVal;
+        }
+
+        public static IImplementation GetImplementation(int nGroupID, InitializationObject initObj)
+        {
+            switch (nGroupID)
+            {
+                case 153:
+                    return new ImplementationYes(nGroupID, initObj);
+                
+                default:
+                    return new ImplementationBase(nGroupID, initObj);
+            }
         }
     }
 }

@@ -118,16 +118,19 @@
     <Compile Include="Helper\WSUtils.cs" />
     <Compile Include="HttpHandlers\CrossOriginHandler.cs" />
     <Compile Include="Interfaces\IParser.cs" />
+    <Compile Include="Interfaces\IImplementation.cs" />
     <Compile Include="Manager\CategoryTreeBuilder.cs" />
     <Compile Include="Manager\ConfigManager.cs" />
     <Compile Include="Manager\ConnectionManager.cs" />
     <Compile Include="Manager\MenuBuilder.cs" />
     <Compile Include="Manager\SiteMapManager.cs" />
     <Compile Include="Configuration\ApiTechnicalConfiguration.cs" />
+    <Compile Include="Objects\ImplementationBase.cs" />
     <Compile Include="Objects\Category.cs" />
     <Compile Include="Objects\Channel.cs" />
     <Compile Include="Objects\Comment.cs" />
     <Compile Include="Objects\DynamicData.cs" />
+    <Compile Include="Objects\FBConnectObjects.cs" />
     <Compile Include="Objects\InitializationObject.cs" />
     <Compile Include="Objects\Locale.cs" />
     <Compile Include="Objects\Media.cs" />
@@ -142,6 +145,7 @@
     <Compile Include="Objects\SiteMap.cs" />
     <Compile Include="Objects\SubscriptionPrice.cs" />
     <Compile Include="Objects\TagMetaPair.cs" />
+    <Compile Include="Objects\ImplementationYes.cs" />
     <Compile Include="Parsers\AbertisJSONParser.cs" />
     <Compile Include="Parsers\UsersXMLParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -162,10 +166,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
+    <Compile Include="Web References\YesService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libs\Core\ODBCWrapper\ODBCWrapper.csproj">
-      <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
+      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libs\Data\DataLoader\Tvinci.Data.DataLoader.csproj">
@@ -204,6 +213,17 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="http://84.47.142.104:6300/dataflow/yesService%3fwsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\YesService\</RelPath>
+      <UpdateFromURL>http://84.47.142.104:6300/dataflow/yesService%3fwsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>TVPApiModule_YesService_YES_InterfaceService</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://platform-us.tvinci.com/tvapi.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\tvapi\</RelPath>
@@ -222,6 +242,59 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Web References\YesService\AddDeviceResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\AddUserResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\BillTvodResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\CreateTveAccountResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\DeleteDeviceResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\DeleteTveAccountResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\DeleteUserResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\EntitleProductResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\GetAllProductsOfAccountResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\GetAllUsersAndDevicesOfAccountResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\GetTvodPriceResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\LoadVODOffersResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\PurchaseSvodResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\YesService\SynchronizeProductsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\UpdateDeviceResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\UpdateUserResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\YesService\YES.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\tvapi\CategoryObject.datasource">
