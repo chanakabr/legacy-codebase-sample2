@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using TVPApi;
+using TVPApiModule.Interfaces;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
@@ -676,7 +677,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]
         public TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password)
         {
-            TVPApiModule.Services.ApiUsersService.LogInResponseData sRet = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
+            TVPApiModule.Services.ApiUsersService.LogInResponseData responseData = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
             
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
@@ -687,8 +688,8 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Do the UDID empty stuff
-                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                    sRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignIn(userName, password, initObj.UDID, string.Empty, isSingleLogin);
+                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
+                    responseData = impl.SignIn(userName, password);
                 }
                 catch (Exception ex)
                 {
@@ -700,7 +701,7 @@ namespace TVPApiServices
                 logger.ErrorFormat("SignIn-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
 
-            return sRet;
+            return responseData;
         }
 
         [WebMethod(EnableSession = true, Description = "Has user connected to FB")]

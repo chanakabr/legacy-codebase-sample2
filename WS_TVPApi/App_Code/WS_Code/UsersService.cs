@@ -192,6 +192,36 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "SignIn with encrypted password")]
+        public TVPApiModule.Services.ApiUsersService.LogInResponseData SignInSecure(InitializationObject initObj, string sUsername, string sEncryptedPassword)
+        {
+            ApiUsersService.LogInResponseData response = new ApiUsersService.LogInResponseData();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignInSecure", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("SignInSecure-> [{0}, {1}], Params:[sUserName: {2}]", groupID, initObj.Platform, sUsername);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    SiteService siteSvc = new SiteService();
+                    string sClearPassword = siteSvc.GetSiteGuidFromSecured(initObj,sEncryptedPassword);
+                    response = siteSvc.SignIn(initObj, sUsername, sClearPassword);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("SignInSecure->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("ResendActivationMail-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
         #endregion
     }
 }

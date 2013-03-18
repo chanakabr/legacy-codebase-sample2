@@ -13,6 +13,7 @@ using TVPApi;
 using TVPApiModule.Services;
 using System.ServiceModel;
 using TVPPro.Configuration.Technical;
+using TVPApiModule.Interfaces;
 
 namespace TVPApiServices
 {
@@ -146,6 +147,7 @@ namespace TVPApiServices
             {
                 try
                 {
+                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
                     sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, iMediaID, iFileID, iLocation);
                 }

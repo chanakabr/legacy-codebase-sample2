@@ -7,6 +7,7 @@ using System.Text;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 using log4net;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
@@ -367,6 +368,35 @@ namespace TVPApiServices
             }
 
             return domainRes;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get domain CoGuid")]
+        public string GetDomainCoGuid(InitializationObject initObj, string domainName, string domainDesc, int masterGuid)
+        {
+            string res = string.Empty;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetDomainCoGuid-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    ApiUsersService usersService = new ApiUsersService(groupID, initObj.Platform);
+                    UserResponseObject userResponseObject = usersService.GetUserData(initObj.SiteGuid);
+                    if (userResponseObject.m_RespStatus == ResponseStatus.OK)
+                    {
+                      res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainCoGuid(userResponseObject.m_user.m_domianID);  
+                    }
+                    
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling webservice protocol : GetDomainCoGuid, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                }
+            }
+
+            return res;
         }
 
         #endregion
