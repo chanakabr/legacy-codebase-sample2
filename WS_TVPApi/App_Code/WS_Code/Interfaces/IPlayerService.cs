@@ -34,6 +34,9 @@ namespace TVPApiServices
         string MediaLastPosition(InitializationObject initObj, int MediaId);
 
         [OperationContract]
+        void MediaError(InitializationObject initObj, TVPApi.ActionHelper.FileHolder fileParam, string errorCode, string errorMessage, int location);
+
+        [OperationContract]
         void Log(InitializationObject initObj, TVPApiServices.PlayerService.ErrorMessageWrapper message);
 
         [OperationContract]

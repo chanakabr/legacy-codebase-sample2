@@ -72,19 +72,21 @@ namespace TVPApiServices
                 {
                     retMedia.Media = MediaHelper.GetMediaInfo(initObj, MediaID, picSize, groupID);
 
+                    string[] subFileFormats = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat.Split(';');
+
                     for (int i = 0; i < retMedia.Media.Files.Count; i++)
                     {
-                        if (retMedia.Media.Files[i].Format == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat)
-                        {
-                            Media.File file = retMedia.Media.Files[i];
-                            file.Format = "1";
-                            retMedia.Media.Files.RemoveAt(i);
-                            retMedia.Media.Files.Insert(i, file);
-                        }
-                        if (retMedia.Media.Files[i].Format == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat)
+                        if (retMedia.Media.Files[i].Format == subFileFormats[0])
                         {
                             Media.File file = retMedia.Media.Files[i];
                             file.Format = "0";
+                            retMedia.Media.Files.RemoveAt(i);
+                            retMedia.Media.Files.Insert(i, file);
+                        }
+                        else if (retMedia.Media.Files[i].Format == subFileFormats[1])
+                        {
+                            Media.File file = retMedia.Media.Files[i];
+                            file.Format = "2";
                             retMedia.Media.Files.RemoveAt(i);
                             retMedia.Media.Files.Insert(i, file);
                         }
@@ -205,16 +207,29 @@ namespace TVPApiServices
             return sLastPosition;
         }
 
-        /// <summary>
-        /// Log
-        /// </summary>    
-        [WebMethod(EnableSession = true, Description = "Log Errors and Trace")]
-        [System.Web.Script.Services.ScriptMethod()]
-        [System.Xml.Serialization.XmlInclude(typeof(ErrorMessageWrapper))]
-        [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
-        public void Log(InitializationObject initObj, ErrorMessageWrapper message)
+        [WebMethod(EnableSession = true, Description = "log player errors")]
+        [System.Xml.Serialization.XmlInclude(typeof(TVPApi.ActionHelper.FileHolder))]
+        public void MediaError(InitializationObject initObj, TVPApi.ActionHelper.FileHolder fileParam, string errorCode, string errorMessage, int location)
         {
-            logger.Debug(String.Format("Silverlight Player Log: {0}", message.Message));
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("MediaMark-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    ActionHelper.MediaError(initObj, groupID, initObj.Platform, fileParam, location, errorCode, errorMessage);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("MediaError->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("MediaError-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
         }
 
         [WebMethod(EnableSession = true, Description = "Get Media License")]
@@ -256,6 +271,18 @@ namespace TVPApiServices
                 String value = splitKeyValue[1];
                 flashVar.Add(key, value);
             }
+        }
+
+        /// <summary>
+        /// Log
+        /// </summary>    
+        [WebMethod(EnableSession = true, Description = "Log Errors and Trace")]
+        [System.Web.Script.Services.ScriptMethod()]
+        [System.Xml.Serialization.XmlInclude(typeof(ErrorMessageWrapper))]
+        [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
+        public void Log(InitializationObject initObj, ErrorMessageWrapper message)
+        {
+            logger.Debug(String.Format("Silverlight Player Log: {0}", message.Message));
         }
 
         [WebMethod(EnableSession = true, Description = "Check Parental PIN")]
