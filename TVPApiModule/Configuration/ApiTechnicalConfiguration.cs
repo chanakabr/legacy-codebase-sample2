@@ -193,7 +193,7 @@ namespace TVPApi.Configuration.Technical
             retVal.TVM.Configuration.EmberPassword = DbConfigManager.GetValFromConfig(source, "TVM_Configuration_EmberPassword");
             retVal.TVM.CachingServer.AllowedIPs = DbConfigManager.GetValFromConfig(source, "TVM_CachingServer_AllowedIPs");
             retVal.TVM.FlashVars.FileFormat = DbConfigManager.GetValFromConfig(source, "TVM_FlashVars_FileFormat");
-            retVal.TVM.FlashVars.SubFileFormat = DbConfigManager.GetValFromConfig(source, "TVM_FlashVars_FileFormat");
+            retVal.TVM.FlashVars.SubFileFormat = DbConfigManager.GetValFromConfig(source, "TVM_FlashVars_SubFileFormat");
             retVal.TVM.TVMRssURL = DbConfigManager.GetValFromConfig(source, "TVM_TVMRssURL");
             retVal.Translation.UseTranslatedMediaType =
                 bool.Parse(DbConfigManager.GetValFromConfig(source,"Translation_UseTranslatedMediaType"));
