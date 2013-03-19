@@ -82,8 +82,12 @@ namespace TVPApi.Configuration.Site
                            DbConfigManager.GetValFromConfig(source, "Features_SingleLogin_IntervalTime"), true);
 
             retVal.Features.FutureAssets.UseStartDate = DbConfigManager.GetValFromConfig(source, "Features_SingleLogin_IntervalTime");
-
-
+            retVal.Features.Comments.EnforceLogin = bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_Comments_EnforceLogin"));
+            retVal.Features.Locale.Application = DbConfigManager.GetValFromConfig(source, "Features_Locale_Application");
+            retVal.Features.Locale.SupportFeature = bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_Locale_SupportFeature"));
+            retVal.Features.FacebookConnect.SupportFeature = bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_FacebookConnect_SupportFeature"));
+            retVal.Features.FacebookConnect.Secret_Key = DbConfigManager.GetValFromConfig(source, "Features_FacebookConnect_Secret_Key");
+            retVal.Features.FacebookConnect.API_Key = DbConfigManager.GetValFromConfig(source, "Features_FacebookConnect_API_Key");
             return retVal;
         }
 	}
