@@ -57,24 +57,19 @@ namespace TVPApi.Configuration.Site
                (FeatureMode)
                Enum.Parse(typeof(FeatureMode), DbConfigManager.GetValFromConfig(source, "Features_Comments_FeatureMode"), true);
 
-            retVal.Features.Comments.AutoActive = bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_Comments_AutoActive"));
+            retVal.Features.Comments.AutoActive = DbConfigManager.GetBoolFromConfig(source, "Features_Comments_AutoActive");
 
-            retVal.Features.Pricing.SupportFeature =
-                bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_Comments_AutoActive"));
+            retVal.Features.Pricing.SupportFeature = DbConfigManager.GetBoolFromConfig(source, "Features_Pricing_SupportFeature");
 
-            retVal.Features.FriendlyURL.SupportFeature =
-                bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_FriendlyURL_SupportFeature"));
+            retVal.Features.FriendlyURL.SupportFeature = DbConfigManager.GetBoolFromConfig(source, "Features_FriendlyURL_SupportFeature");
 
-            retVal.Features.FriendlyURL.SupportSearch =
-                bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_FriendlyURL_SupportSearch"));
+            retVal.Features.FriendlyURL.SupportSearch = DbConfigManager.GetBoolFromConfig(source, "Features_FriendlyURL_SupportSearch");
 
-            retVal.Features.SingleLogin.SupportFeature =
-                bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_SingleLogin_SupportFeature"));
+            retVal.Features.SingleLogin.SupportFeature = DbConfigManager.GetBoolFromConfig(source, "Features_SingleLogin_SupportFeature");
 
             retVal.Features.SingleLogin.IntervalTime = DbConfigManager.GetValFromConfig(source, "Features_SingleLogin_IntervalTime");
 
-            retVal.Features.EmbedFlashResponseData.SupportFeature =
-                bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_EmbedFlashResponseData_SupportFeature"));
+            retVal.Features.EmbedFlashResponseData.SupportFeature = DbConfigManager.GetBoolFromConfig(source, "Features_EmbedFlashResponseData_SupportFeature");
 
             retVal.Features.Player.Type =
                 (TVPPro.Configuration.Site.Type)
@@ -82,10 +77,10 @@ namespace TVPApi.Configuration.Site
                            DbConfigManager.GetValFromConfig(source, "Features_SingleLogin_IntervalTime"), true);
 
             retVal.Features.FutureAssets.UseStartDate = DbConfigManager.GetValFromConfig(source, "Features_SingleLogin_IntervalTime");
-            retVal.Features.Comments.EnforceLogin = bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_Comments_EnforceLogin"));
+            retVal.Features.Comments.EnforceLogin = DbConfigManager.GetBoolFromConfig(source, "Features_Comments_EnforceLogin");
             retVal.Features.Locale.Application = DbConfigManager.GetValFromConfig(source, "Features_Locale_Application");
-            retVal.Features.Locale.SupportFeature = bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_Locale_SupportFeature"));
-            retVal.Features.FacebookConnect.SupportFeature = bool.Parse(DbConfigManager.GetValFromConfig(source, "Features_FacebookConnect_SupportFeature"));
+            retVal.Features.Locale.SupportFeature = DbConfigManager.GetBoolFromConfig(source, "Features_Locale_SupportFeature");
+            retVal.Features.FacebookConnect.SupportFeature = DbConfigManager.GetBoolFromConfig(source, "Features_FacebookConnect_SupportFeature");
             retVal.Features.FacebookConnect.Secret_Key = DbConfigManager.GetValFromConfig(source, "Features_FacebookConnect_Secret_Key");
             retVal.Features.FacebookConnect.API_Key = DbConfigManager.GetValFromConfig(source, "Features_FacebookConnect_API_Key");
             return retVal;
