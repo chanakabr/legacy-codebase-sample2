@@ -207,30 +207,30 @@ namespace TVPApiServices
             return sLastPosition;
         }
 
-        //[WebMethod(EnableSession = true, Description = "log player errors")]
-        //[System.Xml.Serialization.XmlInclude(typeof(TVPApi.ActionHelper.FileHolder))]
-        //public void MediaError(InitializationObject initObj, TVPApi.ActionHelper.FileHolder fileParam, string errorCode, string errorMessage, int location)
-        //{
-        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        [WebMethod(EnableSession = true, Description = "log player errors")]
+        [System.Xml.Serialization.XmlInclude(typeof(TVPApi.ActionHelper.FileHolder))]
+        public void MediaError(InitializationObject initObj, TVPApi.ActionHelper.FileHolder fileParam, string errorCode, string errorMessage, int location)
+        {
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-        //    logger.InfoFormat("MediaMark-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform);
+            logger.InfoFormat("MediaMark-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform);
 
-        //    if (groupID > 0)
-        //    {
-        //        try
-        //        {
-        //            ActionHelper.MediaError(initObj, groupID, initObj.Platform, fileParam, location, errorCode, errorMessage);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            logger.Error("MediaError->", ex);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        logger.ErrorFormat("MediaError-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
-        //    }
-        //}
+            if (groupID > 0)
+            {
+                try
+                {
+                    ActionHelper.MediaError(initObj, groupID, initObj.Platform, fileParam, location, errorCode, errorMessage);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("MediaError->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("MediaError-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+        }
 
         [WebMethod(EnableSession = true, Description = "Get Media License")]
         public string GetMediaLicenseLink(InitializationObject initObj, int mediaFileID, string baseLink)
