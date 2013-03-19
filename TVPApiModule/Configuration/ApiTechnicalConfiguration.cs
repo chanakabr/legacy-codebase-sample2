@@ -183,10 +183,9 @@ namespace TVPApi.Configuration.Technical
             retVal.TVM.Servers.MainServer.TVMReadURL = DbConfigManager.GetValFromConfig(source, "TVM_Servers_MainServer_TVMReadURL");
             retVal.TVM.Servers.MainServer.TVMWriteURL = DbConfigManager.GetValFromConfig(source, "TVM_Servers_MainServer_TVMWriteURL");
 
-            retVal.TVM.Configuration.ForceUpdatedData =
-                bool.Parse(DbConfigManager.GetValFromConfig(source, "TVM_Configuration_ForceUpdateData"));
+            retVal.TVM.Configuration.ForceUpdatedData = DbConfigManager.GetBoolFromConfig(source, "TVM_Configuration_ForceUpdateData");
 
-            retVal.TVM.Configuration.EnableTimer = bool.Parse(DbConfigManager.GetValFromConfig(source, "TVM_Configuration_EnableTimer"));
+            retVal.TVM.Configuration.EnableTimer = DbConfigManager.GetBoolFromConfig(source, "TVM_Configuration_EnableTimer");
             retVal.TVM.Configuration.User = DbConfigManager.GetValFromConfig(source, "TVM_Configuration_User");
             retVal.TVM.Configuration.Password = DbConfigManager.GetValFromConfig(source, "TVM_Configuration_Password");
             retVal.TVM.Configuration.EmbedUser = DbConfigManager.GetValFromConfig(source, "TVM_Configuration_EmbedUser");
@@ -195,8 +194,7 @@ namespace TVPApi.Configuration.Technical
             retVal.TVM.FlashVars.FileFormat = DbConfigManager.GetValFromConfig(source, "TVM_FlashVars_FileFormat");
             retVal.TVM.FlashVars.SubFileFormat = DbConfigManager.GetValFromConfig(source, "TVM_FlashVars_SubFileFormat");
             retVal.TVM.TVMRssURL = DbConfigManager.GetValFromConfig(source, "TVM_TVMRssURL");
-            retVal.Translation.UseTranslatedMediaType =
-                bool.Parse(DbConfigManager.GetValFromConfig(source,"Translation_UseTranslatedMediaType"));
+            retVal.Translation.UseTranslatedMediaType = DbConfigManager.GetBoolFromConfig(source,"Translation_UseTranslatedMediaType");
             retVal.Translation.Culture = DbConfigManager.GetValFromConfig(source, "Translations_Culture");
             DbConfigManager.GetMultipleValsFromConfig(source, "Translations_CharacterReplace")
                 .Select(
