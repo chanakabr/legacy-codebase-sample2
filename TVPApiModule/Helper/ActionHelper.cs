@@ -191,45 +191,45 @@ namespace TVPApi
             return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
         }
 
-        //public static void MediaError(InitializationObject initObj, int groupID, PlatformType platform, int mediaType, long iMediaID, long iFileID, int iLocation, string sErrorCode, string sErrorMessage)
-        //{
-        //    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-        //    new APIMediaMark(account.TVMUser, account.TVMPass)
-        //    {
-        //        GroupID = groupID,
-        //        Platform = platform,
-        //        Action = action.error,
-        //        ErrorCode = sErrorCode,
-        //        ErrorMessage = sErrorMessage,
-        //        Location = iLocation,
-        //        MediaID = iMediaID,
-        //        FileID = iFileID,
-        //        DeviceUDID = initObj.UDID,
-        //        SiteGUID = initObj.SiteGuid
-        //    }.Execute();
-        //}
+        public static void MediaError(InitializationObject initObj, int groupID, PlatformType platform, int mediaType, long iMediaID, long iFileID, int iLocation, string sErrorCode, string sErrorMessage)
+        {
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
+            new APIMediaMark(account.TVMUser, account.TVMPass)
+            {
+                GroupID = groupID,
+                Platform = platform,
+                Action = action.error,
+                //ErrorCode = sErrorCode,
+                //ErrorMessage = sErrorMessage,
+                Location = iLocation,
+                MediaID = iMediaID,
+                FileID = iFileID,
+                DeviceUDID = initObj.UDID,
+                SiteGUID = initObj.SiteGuid
+            }.Execute();
+        }
 
-        //public static void MediaError(InitializationObject initObj, int groupID, PlatformType platform, FileHolder fileParams, int iLocation, string sErrorCode, string sErrorMessage)
-        //{
-        //    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            
-        //    new APIMediaMark(account.TVMUser, account.TVMPass)
-        //    {
-        //        GroupID = groupID,
-        //        Platform = platform,
-        //        Action = action.error,
-        //        ErrorCode = sErrorCode,
-        //        ErrorMessage = sErrorMessage,
-        //        Location = iLocation,
-        //        MediaID = fileParams.mediaID,
-        //        FileID = fileParams.fileID,
-        //        DeviceUDID = initObj.UDID,
-        //        SiteGUID = initObj.SiteGuid,
-        //        AvgBitRate = fileParams.avg_bit_rate_num,
-        //        CurrentBitRate = fileParams.current_bit_rate_num,
-        //        TotalBitRateNum = fileParams.total_bit_rate_num
-        //    }.Execute();
-        //}
+        public static void MediaError(InitializationObject initObj, int groupID, PlatformType platform, FileHolder fileParams, int iLocation, string sErrorCode, string sErrorMessage)
+        {
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+
+            new APIMediaMark(account.TVMUser, account.TVMPass)
+            {
+                GroupID = groupID,
+                Platform = platform,
+                Action = action.error,
+                ErrorCode = sErrorCode,
+                ErrorMessage = sErrorMessage,
+                Location = iLocation,
+                MediaID = fileParams.mediaID,
+                FileID = fileParams.fileID,
+                DeviceUDID = initObj.UDID,
+                SiteGUID = initObj.SiteGuid,
+                AvgBitRate = fileParams.avg_bit_rate_num,
+                CurrentBitRate = fileParams.current_bit_rate_num,
+                TotalBitRateNum = fileParams.total_bit_rate_num
+            }.Execute();
+        }
 
         public static string SendToFriend(InitializationObject initObj, int groupID, int mediaID, string senderName, string senderEmail, string toEmail, string msg)
         {
