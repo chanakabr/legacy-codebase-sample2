@@ -156,7 +156,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty);
+                response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
             }
             catch (Exception ex)
             {
@@ -236,7 +236,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                returnObject = m_Module.GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty);
+                returnObject = m_Module.GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
             }
             catch (Exception ex)
             {
@@ -244,6 +244,21 @@ namespace TVPApiModule.Services
             }
             return returnObject;
         }
+
+        //public SubscriptionsPricesContainer[] GetSubscriptionsPricesByIP(string sSiteGuid, string[] sSubscriptions, bool LowerPrice)
+        //{
+        //    SubscriptionsPricesContainer[] returnObject = null;
+
+        //    try
+        //    {
+        //        returnObject = m_Module.GetSubscriptionsPricesByIP(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionsPricesByIP, Error Message: {0}, Parameters : User: {1}", ex.Message, sSiteGuid);
+        //    }
+        //    return returnObject;
+        //}
 
         public string[] GetPrepaidBalance(string siteGuid, string currencyCode)
         {
@@ -518,7 +533,7 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("GetItemsPricesWithCoupons, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
-                    retVal = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName);
+                    retVal = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
                 }
                 catch (Exception ex)
                 {
@@ -538,7 +553,7 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("GetSubscriptionsPricesWithCoupon, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
-                    retVal = m_Module.GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                    retVal = m_Module.GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
                 }
                 catch (Exception ex)
                 {
