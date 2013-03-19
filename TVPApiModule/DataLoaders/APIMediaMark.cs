@@ -126,6 +126,8 @@ namespace TVPApiModule.DataLoaders
             result.root.request.mark.action = Action;
             result.root.request.mark.location_sec = Location.ToString();
             result.root.request.mark.device_udid = DeviceUDID;
+            //XXX: result.root.request.mark.error_code = ErrorCode;
+            //XXX: result.root.request.mark.error_message = ErrorMessage;
             result.root.request.mark.media.id = MediaID.ToString();
             result.root.request.mark.media.duration = MediaDuration;
             result.root.request.mark.media.file_id = FileID.ToString();
