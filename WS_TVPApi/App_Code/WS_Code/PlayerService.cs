@@ -72,24 +72,26 @@ namespace TVPApiServices
                 {
                     retMedia.Media = MediaHelper.GetMediaInfo(initObj, MediaID, picSize, groupID);
 
-                    string[] subFileFormats = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat.Split(';');
+                    Media.File trailerFile = retMedia.Media.Files.Where(x => x.Format == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat).SingleOrDefault();
 
-                    for (int i = 0; i < retMedia.Media.Files.Count; i++)
+                    if (!trailerFile.Equals(default(Media.File)))
                     {
-                        if (retMedia.Media.Files[i].Format == subFileFormats[0])
-                        {
-                            Media.File file = retMedia.Media.Files[i];
-                            file.Format = "0";
-                            retMedia.Media.Files.RemoveAt(i);
-                            retMedia.Media.Files.Insert(i, file);
-                        }
-                        else if (retMedia.Media.Files[i].Format == subFileFormats[1])
-                        {
-                            Media.File file = retMedia.Media.Files[i];
-                            file.Format = "2";
-                            retMedia.Media.Files.RemoveAt(i);
-                            retMedia.Media.Files.Insert(i, file);
-                        }
+                        retMedia.Media.Files.Remove(trailerFile);
+
+                        trailerFile.Format = "Trailer";
+
+                        retMedia.Media.Files.Insert(0, trailerFile);
+                    }
+
+                    Media.File trickPlayFile = retMedia.Media.Files.Where(x => x.Format == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrickPlayFileFormat).SingleOrDefault();
+
+                    if (!trickPlayFile.Equals(default(Media.File)))
+                    {
+                        retMedia.Media.Files.Remove(trickPlayFile);
+
+                        trickPlayFile.Format = "TrickPlay";
+
+                        retMedia.Media.Files.Insert(0, trickPlayFile);
                     }
 
                     retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid));
