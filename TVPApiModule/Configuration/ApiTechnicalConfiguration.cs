@@ -206,6 +206,10 @@ namespace TVPApi.Configuration.Technical
                     })
                         );
 
+            retVal.Player.MainFileFormat = DbConfigManager.GetValFromConfig(source, "Player_MainFileFormat");
+            retVal.Player.TrailerFileFormat = DbConfigManager.GetValFromConfig(source, "Player_TrailerFileFormat");
+            retVal.Player.TrickPlayFileFormat = DbConfigManager.GetValFromConfig(source, "Player_TrickPlayFileFormat");
+
             return retVal;
         }
 	}
