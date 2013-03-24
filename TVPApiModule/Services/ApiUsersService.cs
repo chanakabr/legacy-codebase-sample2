@@ -585,5 +585,35 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error receive user data Protocol Logout, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, SiteGUID: {3}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid);
             }
         }
+
+        public Country[] GetCountriesList()
+        {
+            Country[] bRet = null;
+            try
+            {
+                bRet = m_Module.GetCountryList(m_wsUserName, m_wsPassword);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol GetCountryList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+            }
+
+            return bRet;
+        }
+
+        public UserResponseObject CheckTemporaryToken(string sToken)
+        {
+            UserResponseObject bRet = null;
+            try
+            {
+                bRet = m_Module.CheckTemporaryToken(m_wsUserName, m_wsPassword, sToken);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol CheckTemporaryToken, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+            }
+
+            return bRet;
+        }
     }
 }
