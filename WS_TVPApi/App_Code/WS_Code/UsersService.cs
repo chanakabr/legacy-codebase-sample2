@@ -222,6 +222,73 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "GetCountriesList")]
+        public Country[] GetCountriesList(InitializationObject initObj)
+        {
+            Country[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetCountriesList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetCountriesList-> [{0}, {1}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetCountriesList();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetCountriesList->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetCountriesList-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Check temporary token")]
+        public string CheckTemporaryToken(InitializationObject initObj, string sToken)
+        {
+            string response = string.Empty;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "CheckTemporaryToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("CheckTemporaryToken-> [{0}, {1}], Params:[sToken: {2}]", groupID, initObj.Platform, sToken);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    UserResponseObject userResponseObject = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).CheckTemporaryToken(sToken);
+
+                    if (userResponseObject != null && userResponseObject.m_RespStatus == ResponseStatus.OK)
+                    {
+                        logger.InfoFormat("Temporary token is valid Protocol CheckTemporaryToken, Parameters : Token {0}: ", sToken);
+
+                        response = userResponseObject.m_user.m_oBasicData.m_sUserName;
+                    }
+                    else
+                    {
+                        logger.InfoFormat("Temporary token is invalid Protocol CheckTemporaryToken,Parameters : Token : {0}", sToken);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("CheckTemporaryToken->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("CheckTemporaryToken-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
         #endregion
     }
 }

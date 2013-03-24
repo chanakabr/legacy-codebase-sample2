@@ -29,5 +29,11 @@ namespace TVPApiServices
 
         [OperationContract]
         bool ResendActivationMail(InitializationObject initObj, string sUserName, string sNewPassword);
+
+        [OperationContract]
+        Country[] GetCountriesList(InitializationObject initObj);
+
+        [OperationContract]
+        string CheckTemporaryToken(InitializationObject initObj, string sToken);
     }
 }
