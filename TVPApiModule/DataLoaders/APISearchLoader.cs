@@ -4,11 +4,19 @@ using System.Linq;
 using System.Text;
 using Tvinci.Data.TVMDataLoader.Protocols.Search;
 using Tvinci.Data.DataLoader;
+using TVPApiModule.CatalogLoaders;
+using TVPPro.SiteManager.DataEntities;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.Manager;
+using TVPApiModule.Helper;
 
 namespace TVPApi
 {
     public class APISearchLoader : TVPPro.SiteManager.DataLoaders.SearchMediaLoader
     {
+        private bool m_bShouldUseCache;
+        private APISearchMediaLoader m_oCatalogSearchLoader;
 
         public APISearchLoader(string TVMUser, string TVMPass)
             : base(TVMUser, TVMPass)
@@ -98,6 +106,58 @@ namespace TVPApi
         {
             get
             {
+                return true;
+            }
+        }
+
+        public override object BCExecute(eExecuteBehaivor behaivor)
+        {
+            return Execute();
+        }
+
+        public override dsItemInfo Execute()
+        {
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            {
+                m_oCatalogSearchLoader = new APISearchMediaLoader(SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize, Name)
+                {
+                    And = CutType == eCutType.And ? true : false,
+                    Exact = ExactSearch,
+                    Metas = CatalogHelper.GetCatalogMetasTags(dictMetas),
+                    Tags = CatalogHelper.GetCatalogMetasTags(m_dictTags),
+                    MediaTypes = MediaType.HasValue ? new List<int>() { MediaType.Value } : null,
+                    Description = Name,
+                    Name = Name,
+                    OnlyActiveMedia = true,
+                    Platform = Platform.ToString(),
+                    UseFinalDate = bool.Parse(UseFinalEndDate),
+                    UseStartDate = bool.Parse(GetFutureStartDate),
+                    DeviceId = DeviceUDID,
+                    Language = string.IsNullOrEmpty(Language) ? 0 : int.Parse(Language)
+                };
+                if (OrderBy != TVPApi.OrderBy.None)
+                {
+                    m_oCatalogSearchLoader.OrderBy = APICatalogHelper.GetCatalogOrderBy(OrderBy);
+                    m_oCatalogSearchLoader.OrderDir = CatalogHelper.GetCatalogOrderDirection(OrderDirection);
+                    m_oCatalogSearchLoader.OrderMetaMame = OrderByMeta;
+                }
+                return m_oCatalogSearchLoader.Execute() as dsItemInfo;
+            }
+            else
+            {
+                return base.Execute();
+            }
+        }
+
+        public override bool TryGetItemsCount(out long count)
+        {
+            if (m_bShouldUseCache)
+            {
+                return m_oCatalogSearchLoader.TryGetItemsCount(out count);
+            }
+            else
+            {
+                count = base.GetItemsInSource();
                 return true;
             }
         }

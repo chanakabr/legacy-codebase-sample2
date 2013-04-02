@@ -76,6 +76,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIChannelsListsLoader.cs" />
+    <Compile Include="CatalogLoaders\APIMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIPeopleWhoLikedLoader.cs" />
+    <Compile Include="CatalogLoaders\APIPeopleWhoWatchedLoader.cs" />
+    <Compile Include="CatalogLoaders\APIPersonalLastWatchedLoader.cs" />
+    <Compile Include="CatalogLoaders\APIPersonalRecommendedLoader.cs" />
+    <Compile Include="CatalogLoaders\APIRelatedMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APISearchMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APISubscriptionMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIUserSocialMediaLoader.cs" />
     <Compile Include="Configuration\ApiPlatformServicesConfiguration.cs" />
     <Compile Include="Configuration\ApiSiteConfiguration.cs" />
     <Compile Include="Configuration\ApiMediaConfiguration.cs" />
@@ -101,6 +112,7 @@
     <Compile Include="DataLoaders\APIChannelsListLoader.cs" />
     <Compile Include="DBConfiguration\TVinciDBConfiguration.cs" />
     <Compile Include="Helper\ActionHelper.cs" />
+    <Compile Include="Helper\APICatalogHelper.cs" />
     <Compile Include="Helper\CategoryTreeHelper.cs" />
     <Compile Include="Helper\ChannelHelper.cs" />
     <Compile Include="Helper\CommentHelper.cs" />
@@ -204,6 +216,10 @@
     <ProjectReference Include="..\..\Branch\Libs\TVPPro.SiteManager\TVPPro.SiteManager.csproj">
       <Project>{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F}</Project>
       <Name>TVPPro.SiteManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Branch\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj">
+      <Project>{209EE212-3A89-4966-951E-0173DCC76BB0}</Project>
+      <Name>Tvinci.Data.Loaders</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

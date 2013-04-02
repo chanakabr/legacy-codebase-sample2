@@ -6,6 +6,9 @@ using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.TVMDataLoader.Protocols.SingleMedia;
 using TVPApi;
 using Tvinci.Data.DataLoader;
+using TVPPro.SiteManager.DataEntities;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -46,6 +49,34 @@ namespace TVPApiModule.DataLoaders
 
         
         #endregion Constractor
+
+        public override object BCExecute(eExecuteBehaivor behaivor)
+        {
+            return Execute();
+        }
+
+        public override dsItemInfo Execute()
+        {
+            bool bShouldUseCache;
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            {
+                List<int> mediaIDs = new List<int>();
+                foreach (var id in MediaArrayID)
+                {
+                    mediaIDs.Add(int.Parse(id));
+                }
+
+                return new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDs, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PicSize)
+                {
+                    OnlyActiveMedia = true,
+                    Platform = Platform.ToString(),
+                }.Execute() as dsItemInfo;
+            }
+            else
+            {
+                return base.Execute();
+            }
+        }
 
         protected override void PreExecute()
         {

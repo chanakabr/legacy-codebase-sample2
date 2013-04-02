@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.SingleMedia;
+using TVPPro.SiteManager.DataEntities;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApi
 {
@@ -56,6 +59,32 @@ namespace TVPApi
             : base(tvmUn, tvmPass, mediaID)
         {
 
+        }
+
+        public override object BCExecute(eExecuteBehaivor behaivor)
+        {
+            return Execute();
+        }
+
+        public override dsItemInfo Execute()
+        {
+            bool bShouldUseCache;
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            {
+                return new TVPApiModule.CatalogLoaders.APIMediaLoader(int.Parse(MediaID), SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PicSize)
+                {
+                    DeviceId = DeviceUDID,
+                    OnlyActiveMedia = true,
+                    Platform = Platform.ToString(),
+                    UseFinalDate = bool.Parse(UseFinalEndDate),
+                    UseStartDate = bool.Parse(GetFutureStartDate),
+                    Language = string.IsNullOrEmpty(Language) ? 0 : int.Parse(Language)
+                }.Execute() as dsItemInfo;
+            }
+            else
+            {
+                return base.Execute();
+            }
         }
 
         protected override void PreExecute()

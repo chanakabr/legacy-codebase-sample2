@@ -5,11 +5,17 @@ using System.Text;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.SearchRelated;
 using Tvinci.Data.TVMDataLoader.Protocols;
+using TVPPro.SiteManager.DataEntities;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApi
 {
     public class APIRelatedMediaLoader : TVPPro.SiteManager.DataLoaders.RelatedMoviesLoader
     {
+
+        private TVPApiModule.CatalogLoaders.APIRelatedMediaLoader m_oCatalogRelatedLoader;
+        private bool m_bShouldUseCache;
 
         public APIRelatedMediaLoader(long mediaID)
             : this(mediaID, string.Empty, string.Empty)
@@ -76,7 +82,49 @@ namespace TVPApi
                 Parameters.SetParameter<int[]>(eParameterType.Retrieve, "MediaTypes", value);
             }
         }
+        public override object BCExecute(eExecuteBehaivor behaivor)
+        {
+            return Execute();
+        }
 
+        public override dsItemInfo Execute()
+        {
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            {
+                m_oCatalogRelatedLoader = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(
+                    (int)MediaID, 
+                    MediaTypes != null ? MediaTypes.ToList() : new List<int>(), 
+                    SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, 
+                    GroupID, 
+                    SiteHelper.GetClientIP(), 
+                    PageSize, 
+                    PageIndex, 
+                    PicSize)
+                {
+                    DeviceId = DeviceUDID,
+                    OnlyActiveMedia = true,
+                    Platform = Platform.ToString(),
+                };
+                return m_oCatalogRelatedLoader.Execute() as dsItemInfo;
+            }
+            else
+            {
+                return base.Execute();
+            }
+        }
+
+        public override bool TryGetItemsCount(out long count)
+        {
+            if (m_bShouldUseCache)
+            {
+                return m_oCatalogRelatedLoader.TryGetItemsCount(out count);
+            }
+            else
+            {
+                count = base.GetItemsInSource();
+                return true;
+            }
+        }
         protected override void PreExecute()
         {
             if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL))

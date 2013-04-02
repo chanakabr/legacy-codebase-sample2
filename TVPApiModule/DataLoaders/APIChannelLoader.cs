@@ -7,11 +7,16 @@ using Tvinci.Data.TVMDataLoader.Protocols.ChannelsMedia;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Context;
 using System.Data;
+using System.Configuration;
+using TVPApiModule.CatalogLoaders;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApi
 {
     public class APIChannelLoader : TVPPro.SiteManager.DataLoaders.TVMChannelLoader
     {
+        private bool m_bShouldUseCache;
+        private APIChannelMediaLoader m_oCatalogChannelLoader;
 
         private string TvmUser
         {
@@ -82,6 +87,44 @@ namespace TVPApi
             : base(string.Empty, string.Empty, channelID, picSize)
         {
             // Do nothing.
+        }
+
+        public override object BCExecute(eExecuteBehaivor behaivor)
+        {
+            return Execute();
+        }
+
+        public override dsItemInfo Execute()
+        {
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            {
+                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
+                {
+                    DeviceId = DeviceUDID,
+                    Platform = Platform.ToString(),
+                    OnlyActiveMedia = true,
+                    UseStartDate = bool.Parse(GetFutureStartDate),
+                };
+
+                return m_oCatalogChannelLoader.Execute() as dsItemInfo;
+            }
+            else
+            {
+                return base.Execute();
+            }
+        }
+
+        public override bool TryGetItemsCount(out long count)
+        {
+            if (m_bShouldUseCache)
+            {
+                return m_oCatalogChannelLoader.TryGetItemsCount(out count);
+            }
+            else
+            {
+                count = base.GetItemsInSource();
+                return true;
+            }
         }
 
         protected override void PreExecute()

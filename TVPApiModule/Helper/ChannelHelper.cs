@@ -27,7 +27,7 @@ namespace TVPApiModule.Helper
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(accountType);
 
             // get data
-            dsItemInfo _dsItemInfo = new APIChannelsListLoader(account.TVMUser, account.TVMPass, picSize).Execute();
+            dsItemInfo _dsItemInfo = new APIChannelsListLoader(groupID, account.TVMUser, account.TVMPass, picSize){Platform = platform}.Execute();
 
             if (_dsItemInfo.Channel != null && _dsItemInfo.Channel.Count > 0)
             {

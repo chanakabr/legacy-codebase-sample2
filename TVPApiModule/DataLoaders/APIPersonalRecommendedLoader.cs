@@ -6,11 +6,17 @@ using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.TVMDataLoader.Protocols.PersonalRecommended;
 using TVPApi;
 using Tvinci.Data.DataLoader;
+using TVPPro.SiteManager.DataEntities;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.DataLoaders
 {
     class APIPersonalRecommendedLoader : PersonalRecommendedLoader
     {
+        private bool m_bShouldUseCache;
+        private TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader m_oPersonalRecommendedLoader;
+
         #region Parameters
         protected string TvmUser
         {
@@ -79,6 +85,42 @@ namespace TVPApiModule.DataLoaders
         {
             TvmUser = tvmUser;
             TvmPass = tvmPass;
+        }
+
+        public override object BCExecute(eExecuteBehaivor behaivor)
+        {
+            return Execute();
+        }
+
+        public override dsItemInfo Execute()
+        {
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            {
+                m_oPersonalRecommendedLoader = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(SiteGuid, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
+                {
+                    Platform = Platform.ToString(),
+                    OnlyActiveMedia = true,
+                };
+
+                return m_oPersonalRecommendedLoader.Execute() as dsItemInfo;
+            }
+            else
+            {
+                return base.Execute();
+            }
+        }
+
+        public override bool TryGetItemsCount(out long count)
+        {
+            if (m_bShouldUseCache)
+            {
+                return m_oPersonalRecommendedLoader.TryGetItemsCount(out count);
+            }
+            else
+            {
+                count = base.GetItemsInSource();
+                return true;
+            }
         }
 
         protected override void PreExecute()

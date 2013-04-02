@@ -5,11 +5,17 @@ using System.Text;
 using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.TVMDataLoader.Protocols.PeopleWhoWatched;
 using Tvinci.Data.DataLoader;
+using TVPPro.SiteManager.DataEntities;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
 
 namespace TVPApi
 {
     public class APIPeopleWhoWatchedLoader : PeopleWhoWatchedLoader
-    {        
+    {
+        private bool m_bShouldUseCache;
+        private TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader m_oPeopleWhoWatchedLoader;
+ 
         public APIPeopleWhoWatchedLoader(string tvmUser, string tvmPass, long mediaID, string picSize)
             : base(mediaID, picSize)
         {
@@ -63,6 +69,42 @@ namespace TVPApi
             set
             {
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
+            }
+        }
+
+        public override object BCExecute(eExecuteBehaivor behaivor)
+        {
+            return Execute();
+        }
+
+        public override dsItemInfo Execute()
+        {
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            {
+                m_oPeopleWhoWatchedLoader = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader((int)MediaID, 0, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize)
+                {
+                    Platform = Platform.ToString(),
+                    OnlyActiveMedia = true,
+                };
+
+                return m_oPeopleWhoWatchedLoader.Execute() as dsItemInfo;
+            }
+            else
+            {
+                return base.Execute();
+            }
+        }
+
+        public override bool TryGetItemsCount(out long count)
+        {
+            if (m_bShouldUseCache)
+            {
+                return m_oPeopleWhoWatchedLoader.TryGetItemsCount(out count);
+            }
+            else
+            {
+                count = base.GetItemsInSource();
+                return true;
             }
         }
 
