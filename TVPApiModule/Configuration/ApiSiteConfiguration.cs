@@ -76,7 +76,7 @@ namespace TVPApi.Configuration.Site
                 Enum.Parse(typeof(TVPPro.Configuration.Site.Type),
                            DbConfigManager.GetValFromConfig(source, "Features_SingleLogin_IntervalTime"), true);
 
-            retVal.Features.FutureAssets.UseStartDate = DbConfigManager.GetValFromConfig(source, "Features_SingleLogin_IntervalTime");
+            retVal.Features.FutureAssets.UseStartDate = DbConfigManager.GetValFromConfig(source, "Features_FutureAssests_UseStartDate");
             retVal.Features.Comments.EnforceLogin = DbConfigManager.GetBoolFromConfig(source, "Features_Comments_EnforceLogin");
             retVal.Features.Locale.Application = DbConfigManager.GetValFromConfig(source, "Features_Locale_Application");
             retVal.Features.Locale.SupportFeature = DbConfigManager.GetBoolFromConfig(source, "Features_Locale_SupportFeature");
