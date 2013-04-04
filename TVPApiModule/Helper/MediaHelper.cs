@@ -42,13 +42,13 @@ namespace TVPApi
 
         public MediaHelper()
         {
-            
+
         }
 
         //Get media info
         public static Media GetMediaInfo(InitializationObject initObj, long MediaID, int mediaType, string picSize, int groupID, bool withDynamic)
         {
-            Media retVal = null;            
+            Media retVal = null;
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
             dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, MediaID.ToString()) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage }.Execute());
             if (mediaInfo.Item != null && mediaInfo.Item.Count == 1)
@@ -134,7 +134,7 @@ namespace TVPApi
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
-            
+
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
                 foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
@@ -270,7 +270,7 @@ namespace TVPApi
             Dictionary<string, string> dictMetas = new Dictionary<string, string>();
 
             string[] arrValues = value.Split(';');
-            foreach(string sValue in arrValues)
+            foreach (string sValue in arrValues)
             {
                 dictMetas.Add(metaName, sValue);
             }
@@ -299,7 +299,7 @@ namespace TVPApi
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
             Dictionary<string, string> dictMetas = new Dictionary<string, string>();
             dictMetas.Add(metaName, value);
-            
+
             //Remote paging
             APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = pageSize, PictureSize = picSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, IsPosterPic = false, MetaValues = value, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
             dsItemInfo mediaInfo = searchLoader.Execute();
@@ -325,7 +325,7 @@ namespace TVPApi
 
             account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByGroupID(groupID);
             //account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            
+
 
             //Remote paging
             APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { MediaType = mediaType, Name = string.IsNullOrEmpty(text) ? null : text, PictureSize = picSize, GroupID = groupID, Platform = initObj.Platform, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPApi.OrderBy)orderBy, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
@@ -378,7 +378,7 @@ namespace TVPApi
                     break;
             }
 
-            for (int i = 0; i < tmpVal.Count;i++ )
+            for (int i = 0; i < tmpVal.Count; i++)
             {
                 if (i >= pageIndex * pageSize && i < (pageIndex + 1) * pageSize)
                 {
@@ -442,7 +442,7 @@ namespace TVPApi
             else
             {
                 APICustomAutoCompleteLoader customAutoCompleteLoader = new APICustomAutoCompleteLoader(account.TVMUser, account.TVMPass) { MetaNames = arrMetaNames, TagNames = arrTagNames, Platform = platform, GroupID = groupID };
-                lstResponse = new List<String>(customAutoCompleteLoader.Execute());   
+                lstResponse = new List<String>(customAutoCompleteLoader.Execute());
             }
 
             lstResponse.Sort();
@@ -469,7 +469,7 @@ namespace TVPApi
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
-            
+
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
                 foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
@@ -489,7 +489,7 @@ namespace TVPApi
 
         public static List<Media> GetRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null)
         {
-            TVMAccountType account;;
+            TVMAccountType account; ;
             if (mediaType != 0)
             {
                 account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
@@ -504,7 +504,7 @@ namespace TVPApi
         public static List<Media> GetRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, ref long mediaCount)
         {
             TVMAccountType account;
-            
+
             if (mediaType != 0)
             {
                 account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
@@ -524,7 +524,7 @@ namespace TVPApi
             return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.Related, OrderBy.None);
         }
 
-        public static List<Media> GetRelatedMediaList(InitializationObject initObj, string tvmPass, string tvmUser, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID,ref long mediaCount)
+        public static List<Media> GetRelatedMediaList(InitializationObject initObj, string tvmPass, string tvmUser, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, ref long mediaCount)
         {
             //TVMAccountType account = PageData.GetInstance.GetMember(groupID, initObj.Platform).GetTVMAccountByGroupID(subGroupID);
             return GetMediaList(initObj, tvmUser, tvmPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.Related, ref mediaCount, OrderBy.None);
@@ -582,9 +582,10 @@ namespace TVPApi
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
             List<Media> lstAllMedias = GetMediaList(initObj, account.TVMUser, account.TVMPass, 0, picSize, 100, 0, groupID, LoaderType.LastWatched, OrderBy.Added);
 
-            lstMedias = (from media in lstAllMedias where
-                               (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays >= 0 &&
-                               (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays <= (periodBefore + 1) * (int)byPeriod
+            lstMedias = (from media in lstAllMedias
+                         where
+                             (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays >= 0 &&
+                             (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays <= (periodBefore + 1) * (int)byPeriod
                          select media).ToList<Media>();
 
             return lstMedias;
@@ -631,7 +632,7 @@ namespace TVPApi
             switch (loaderType)
             {
                 case LoaderType.Channel:
-                    APIChannelLoader channelLoader = new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy), orderBy.ToString()), DeviceUDID = initObj.UDID };
+                    APIChannelLoader channelLoader = new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy), orderBy.ToString()), DeviceUDID = initObj.UDID, GetFutureStartDate = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate };
                     mediaInfo = channelLoader.Execute();
                     channelLoader.TryGetItemsCount(out mediaCount);
                     isPaged = true;
@@ -731,13 +732,13 @@ namespace TVPApi
                             mediaInfo = (new APIMultiMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, favoritesList, picSize, tempMediaType) { GroupID = groupID, Platform = initObj.Platform, PageSize = 20 }).Execute();
                         }
                         //LogManager.Instance.Log(groupID, "Favorites", string.Format("Found {0} favorites", favoritesList != null ? favoritesList.Length.ToString() : "0")); 
-                        
+
                         break;
                     }
                 case UserItemType.Rental:
                     {
                         PermittedMediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(guid);
-                        mediaInfo = (new TVMRentalMultiMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, picSize, 1) {  MediasIdCotainer = MediaPermitedItems }).Execute();
+                        mediaInfo = (new TVMRentalMultiMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, picSize, 1) { MediasIdCotainer = MediaPermitedItems }).Execute();
                         break;
                     }
                 case UserItemType.Package:
@@ -767,10 +768,10 @@ namespace TVPApi
                                 mediaInfo = new SearchMediaLoader(fictivicAccount.TVMUser, fictivicAccount.TVMPass) { dictMetas = BaseIdsDict, MetaValues = sb.ToString(), SearchTokenSignature = sb.ToString(), PageSize = 20, PictureSize = picSize, DeviceUDID = initObj.UDID }.Execute();
                             }
                         }
-                    
+
                         break;
                     }
-                    
+
                 default:
                     break;
             }
