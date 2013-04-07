@@ -10,6 +10,7 @@ using System.Data;
 using System.Configuration;
 using TVPApiModule.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApi
 {
@@ -53,7 +54,18 @@ namespace TVPApi
             {
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
+        }
 
+        public string Language
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Language", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
+            }
         }
 
         public override bool ShouldExtractItemsCountInSource
@@ -100,6 +112,7 @@ namespace TVPApi
             {
                 m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language),
                     DeviceId = DeviceUDID,
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,

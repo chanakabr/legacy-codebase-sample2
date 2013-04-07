@@ -10,6 +10,7 @@ using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Manager;
 using TVPApiModule.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApi
 {
@@ -133,7 +134,7 @@ namespace TVPApi
                     UseFinalDate = bool.Parse(UseFinalEndDate),
                     UseStartDate = bool.Parse(GetFutureStartDate),
                     DeviceId = DeviceUDID,
-                    Language = string.IsNullOrEmpty(Language) ? 0 : int.Parse(Language)
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
                 };
                 if (OrderBy != TVPApi.OrderBy.None)
                 {

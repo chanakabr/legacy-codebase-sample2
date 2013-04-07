@@ -26,11 +26,24 @@ namespace TVPApiModule.CatalogLoaders
             GroupIDParent = groupIDParent;          
         }
 
+        public APISearchMediaLoader(int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language, bool exact, bool and, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
+            string description, List<int> mediaIDs, List<int> mediaTypes, List<KeyValue> metas, List<KeyValue> tags)
+            : this(groupID, groupIDParent, userIP, pageSize, pageIndex, picSize, exact, and, orderBy, orderDir, orderValue, name, description, mediaIDs, mediaTypes, metas, tags)
+        {
+            Language = language;
+        }
+
         public APISearchMediaLoader(int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, string searchText)
             : base(groupID, userIP, pageSize, pageIndex, picSize, searchText)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
+        }
+
+        public APISearchMediaLoader(int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language, string searchText)
+            : this(groupID, groupIDParent, userIP, pageSize, pageIndex, picSize, searchText)
+        {
+            Language = language;
         }
         #endregion
 

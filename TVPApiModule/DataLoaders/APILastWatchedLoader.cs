@@ -10,6 +10,7 @@ using TVPApiModule.CatalogLoaders;
 using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -53,6 +54,18 @@ namespace TVPApiModule.DataLoaders
             }
         }
 
+        public string Language
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Language", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
+            }
+        }
+
         public override object BCExecute(eExecuteBehaivor behaivor)
         {
             return Execute();
@@ -64,6 +77,7 @@ namespace TVPApiModule.DataLoaders
             {
                 m_oPersonalLastWatchedLoader = new TVPApiModule.CatalogLoaders.APIPersonalLastWatchedLoader(SiteGuid, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language),                    
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
                 };

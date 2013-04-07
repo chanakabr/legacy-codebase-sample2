@@ -8,6 +8,7 @@ using Tvinci.Data.DataLoader;
 using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApi
 {
@@ -72,6 +73,18 @@ namespace TVPApi
             }
         }
 
+        public string Language
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Language", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
+            }
+        }
+
         public override object BCExecute(eExecuteBehaivor behaivor)
         {
             return Execute();
@@ -85,6 +98,7 @@ namespace TVPApi
                 {
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
                 };
 
                 return m_oPeopleWhoWatchedLoader.Execute() as dsItemInfo;

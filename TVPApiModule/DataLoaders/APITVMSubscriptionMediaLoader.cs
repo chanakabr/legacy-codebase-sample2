@@ -6,12 +6,18 @@ using TVPPro.SiteManager.DataLoaders;
 using TVPApi;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.SubscriptionMedia;
+using System.Configuration;
+using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.DataEntities;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.DataLoaders
 {
     public class APITVMSubscriptionMediaLoader : TVMSubscriptionMediaLoader
     {        
         private long m_BaseID;
+        private TVPApiModule.CatalogLoaders.APISubscriptionMediaLoader m_oSubscriptionMediaLoader;
+        private bool m_bShouldUseCache;
 
         protected string TvmUser
         {
@@ -61,7 +67,18 @@ namespace TVPApiModule.DataLoaders
             {
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
+        }
 
+        public string Language
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Language", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
+            }
         }
 
         public APITVMSubscriptionMediaLoader(long BaseID)
@@ -75,6 +92,49 @@ namespace TVPApiModule.DataLoaders
             TvmUser = TVMUser;
             TvmPass = TVMPass;
             m_BaseID = BaseID;
+        }
+
+        public override object BCExecute(eExecuteBehaivor behaivor)
+        {
+            return Execute();
+        }
+
+        public override dsItemInfo Execute()
+        {
+            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            {
+                m_oSubscriptionMediaLoader = new TVPApiModule.CatalogLoaders.APISubscriptionMediaLoader(
+                    (int)BaseID,
+                    SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, 
+                    GroupID, 
+                    SiteHelper.GetClientIP(), 
+                    PageSize, 
+                    PageIndex, 
+                    PicSize)
+                {
+                    OnlyActiveMedia = true,
+                    Platform = Platform.ToString(),
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
+                };
+                return m_oSubscriptionMediaLoader.Execute() as dsItemInfo;
+            }
+            else
+            {
+                return base.Execute();
+            }
+        }
+
+        public override bool TryGetItemsCount(out long count)
+        {
+            if (m_bShouldUseCache)
+            {
+                return m_oSubscriptionMediaLoader.TryGetItemsCount(out count);
+            }
+            else
+            {
+                count = base.GetItemsInSource();
+                return true;
+            }
         }
 
         protected override void PreExecute()

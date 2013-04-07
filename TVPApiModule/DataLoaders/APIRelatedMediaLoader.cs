@@ -8,6 +8,7 @@ using Tvinci.Data.TVMDataLoader.Protocols;
 using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApi
 {
@@ -82,6 +83,19 @@ namespace TVPApi
                 Parameters.SetParameter<int[]>(eParameterType.Retrieve, "MediaTypes", value);
             }
         }
+
+        public string Language
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Language", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
+            }
+        }
+
         public override object BCExecute(eExecuteBehaivor behaivor)
         {
             return Execute();
@@ -104,6 +118,7 @@ namespace TVPApi
                     DeviceId = DeviceUDID,
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
                 };
                 return m_oCatalogRelatedLoader.Execute() as dsItemInfo;
             }

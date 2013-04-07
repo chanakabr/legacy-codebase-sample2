@@ -7,6 +7,7 @@ using Tvinci.Data.TVMDataLoader.Protocols.SingleMedia;
 using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApi
 {
@@ -78,7 +79,7 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     UseFinalDate = bool.Parse(UseFinalEndDate),
                     UseStartDate = bool.Parse(GetFutureStartDate),
-                    Language = string.IsNullOrEmpty(Language) ? 0 : int.Parse(Language)
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
                 }.Execute() as dsItemInfo;
             }
             else

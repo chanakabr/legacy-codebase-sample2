@@ -19,7 +19,12 @@ namespace TVPApiModule.CatalogLoaders
         public APIChannelsListsLoader(int categoryID, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize)
             : base(categoryID, groupID, userIP, pageSize, pageIndex, picSize)
         {
-            GroupIDParent = GroupIDParent;
+            GroupIDParent = groupIDParent;
+        }
+        public APIChannelsListsLoader(int categoryID, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language)
+            : this (categoryID, groupID, groupIDParent, userIP, pageSize, pageIndex, picSize)
+        {
+            Language = language;
         }
         #endregion
 

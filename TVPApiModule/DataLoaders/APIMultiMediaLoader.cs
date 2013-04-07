@@ -9,6 +9,7 @@ using Tvinci.Data.DataLoader;
 using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -38,6 +39,19 @@ namespace TVPApiModule.DataLoaders
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
         }
+
+        public string Language
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Language", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
+            }
+        }
+
         #region Constractor
         public APIMultiMediaLoader(string[] MediaList, string PictureSize, int MediaTypeId) : base (MediaList, PictureSize, MediaTypeId)
         {
@@ -70,6 +84,7 @@ namespace TVPApiModule.DataLoaders
                 {
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)                    
                 }.Execute() as dsItemInfo;
             }
             else

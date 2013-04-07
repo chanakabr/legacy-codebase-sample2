@@ -24,6 +24,11 @@ namespace TVPApiModule.CatalogLoaders
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
         }
+        public APIChannelMediaLoader(int channelID, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language)
+            : this(channelID, groupID, groupIDParent, userIP, pageSize, pageIndex, picSize)
+        {
+            Language = language;
+        }
         #endregion
 
         public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)

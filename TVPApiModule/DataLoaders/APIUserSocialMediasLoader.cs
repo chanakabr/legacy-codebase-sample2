@@ -9,6 +9,7 @@ using Tvinci.Data.TVMDataLoader.Protocols.UserSocialMedias;
 using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -65,7 +66,18 @@ namespace TVPApiModule.DataLoaders
             {
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
+        }
 
+        public string Language
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Language", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
+            }
         }
 
         public override bool ShouldExtractItemsCountInSource
@@ -101,6 +113,7 @@ namespace TVPApiModule.DataLoaders
                 {
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
                 };
 
                 return m_oUserSocialMediaLoader.Execute() as dsItemInfo;

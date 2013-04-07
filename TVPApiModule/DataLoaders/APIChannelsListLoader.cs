@@ -10,6 +10,7 @@ using System.Data;
 using TVPApiModule.CatalogLoaders;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApi
 {
@@ -29,7 +30,18 @@ namespace TVPApi
             {
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
+        }
 
+        public string Language
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "Language", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
+            }
         }
 
         public APIChannelsListLoader(int groupID, string tvmUN, string tvmPass, string picSize)
@@ -57,9 +69,8 @@ namespace TVPApi
             {
                 m_oCatalogChannelsListsLoader = new APIChannelsListsLoader(0, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
-                    
+                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
                 };
-
                 return m_oCatalogChannelsListsLoader.Execute() as dsItemInfo;
             }
             else
