@@ -8,25 +8,33 @@ using TVPPro.Configuration.Technical;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.CatalogLoaders
 {
     public class APIPersonalRecommendedLoader : PersonalRecommendedLoader
     {
+        private string m_sCulture;
+
+        public string Culture
+        {
+            get { return m_sCulture; }
+            set
+            {
+                m_sCulture = value;
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+            }
+        }
+
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        public APIPersonalRecommendedLoader(string siteGuid, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize)
+        public APIPersonalRecommendedLoader(string siteGuid, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize)
             : base(siteGuid, groupID, userIP, pageSize, pageIndex, picSize)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
-        }
-
-        public APIPersonalRecommendedLoader(string siteGuid, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language)
-            : this(siteGuid, groupID, groupIDParent, userIP, pageSize, pageIndex, picSize)
-        {
-            Language = language;
+            Platform = platform;
         }
         #endregion
 

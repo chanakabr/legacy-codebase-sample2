@@ -80,11 +80,11 @@ namespace TVPApiModule.DataLoaders
                     mediaIDs.Add(int.Parse(id));
                 }
 
-                return new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDs, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PicSize)
+                return new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDs, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PicSize)
                 {
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
-                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)                    
+                    Culture = Language,                    
                 }.Execute() as dsItemInfo;
             }
             else

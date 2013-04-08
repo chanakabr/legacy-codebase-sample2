@@ -8,25 +8,33 @@ using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.CatalogLoaders
 {
     public class APISubscriptionMediaLoader : SubscriptionMediaLoader
     {
+        private string m_sCulture;
+
+        public string Culture
+        {
+            get { return m_sCulture; }
+            set
+            {
+                m_sCulture = value;
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+            }
+        }
+
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        public APISubscriptionMediaLoader(int subscriptionID, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize)
+        public APISubscriptionMediaLoader(int subscriptionID, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize)
             : base(subscriptionID, groupID, userIP, pageSize, pageIndex, picSize)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
-        }
-
-        public APISubscriptionMediaLoader(int subscriptionID, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language)
-            : this(subscriptionID, groupID, groupIDParent, userIP, pageSize, pageIndex, picSize)
-        {
-            Language = language;
+            Platform = platform;
         }
         #endregion
 

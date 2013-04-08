@@ -109,7 +109,8 @@ namespace TVPApi
                     (int)MediaID, 
                     MediaTypes != null ? MediaTypes.ToList() : new List<int>(), 
                     SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, 
-                    GroupID, 
+                    GroupID,
+                    Platform.ToString(),
                     SiteHelper.GetClientIP(), 
                     PageSize, 
                     PageIndex, 
@@ -118,7 +119,7 @@ namespace TVPApi
                     DeviceId = DeviceUDID,
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
-                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
+                    Culture = Language,
                 };
                 return m_oCatalogRelatedLoader.Execute() as dsItemInfo;
             }

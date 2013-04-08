@@ -10,41 +10,44 @@ using TVPApiModule.Helper;
 using TVPApi;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.Configuration.Technical;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.CatalogLoaders
 {
     public class APISearchMediaLoader : SearchMediaLoader
     {
+        private string m_sCulture;
+
+        public string Culture
+        {
+            get { return m_sCulture; }
+            set
+            {
+                m_sCulture = value;
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+            }
+        }
+
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        public APISearchMediaLoader(int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, bool exact, bool and, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
+        public APISearchMediaLoader(int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize, bool exact, bool and, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
             string description, List<int> mediaIDs, List<int> mediaTypes, List<KeyValue> metas, List<KeyValue> tags) 
             : base(groupID, userIP, pageSize, pageIndex, picSize, exact, and, orderBy, orderDir, orderValue, name, description, mediaIDs, mediaTypes, metas, tags)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
-            GroupIDParent = groupIDParent;          
+            GroupIDParent = groupIDParent;
+            Platform = platform;
         }
 
-        public APISearchMediaLoader(int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language, bool exact, bool and, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
-            string description, List<int> mediaIDs, List<int> mediaTypes, List<KeyValue> metas, List<KeyValue> tags)
-            : this(groupID, groupIDParent, userIP, pageSize, pageIndex, picSize, exact, and, orderBy, orderDir, orderValue, name, description, mediaIDs, mediaTypes, metas, tags)
-        {
-            Language = language;
-        }
-
-        public APISearchMediaLoader(int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, string searchText)
+        public APISearchMediaLoader(int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize, string searchText)
             : base(groupID, userIP, pageSize, pageIndex, picSize, searchText)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
+            Platform = platform;
         }
 
-        public APISearchMediaLoader(int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language, string searchText)
-            : this(groupID, groupIDParent, userIP, pageSize, pageIndex, picSize, searchText)
-        {
-            Language = language;
-        }
         #endregion
 
         public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)

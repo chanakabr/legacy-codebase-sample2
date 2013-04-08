@@ -8,25 +8,33 @@ using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.Helper;
 using TVPApi;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.CatalogLoaders
 {
     public class APIPeopleWhoLikedLoader : PeopleWhoLikedLoader
     {
+        private string m_sCulture;
+
+        public string Culture
+        {
+            get { return m_sCulture; }
+            set
+            {
+                m_sCulture = value;
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+            }
+        }
+
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        public APIPeopleWhoLikedLoader(int mediaID, int mediaFileID, int countryID, int socialAction, int socialPlatform, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize)
+        public APIPeopleWhoLikedLoader(int mediaID, int mediaFileID, int countryID, int socialAction, int socialPlatform, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize)
             : base(mediaID, mediaFileID, countryID, socialAction, socialPlatform, groupID, userIP, pageSize, pageIndex, picSize)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
-        }
-
-        public APIPeopleWhoLikedLoader(int mediaID, int mediaFileID, int countryID, int socialAction, int socialPlatform, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language)
-            : this(mediaID, mediaFileID, countryID, socialAction, socialPlatform, groupID, groupIDParent, userIP, pageSize, pageIndex, picSize)
-        {
-            Language = language;
+            Platform = platform;
         }
         #endregion
 

@@ -8,25 +8,33 @@ using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.CatalogLoaders
 {
     public class APIUserSocialMediaLoader : UserSocialMediaLoader
     {
+        private string m_sCulture;
+
+        public string Culture
+        {
+            get { return m_sCulture; }
+            set
+            {
+                m_sCulture = value;
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+            }
+        }
+
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        public APIUserSocialMediaLoader(string siteGuid, int socialAction, int socialPlatform, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize)
+        public APIUserSocialMediaLoader(string siteGuid, int socialAction, int socialPlatform, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize)
             : base(siteGuid, socialAction, socialPlatform, groupID, userIP, pageSize, pageIndex, picSize)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
-        }
-
-        public APIUserSocialMediaLoader(string siteGuid, int socialAction, int socialPlatform, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language)
-            : this(siteGuid, socialAction, socialPlatform, groupID, groupIDParent, userIP, pageSize, pageIndex, picSize)
-        {
-            Language = language;
+            Platform = platform;
         }
         #endregion
 

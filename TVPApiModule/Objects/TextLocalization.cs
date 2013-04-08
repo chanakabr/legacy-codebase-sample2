@@ -35,7 +35,7 @@ namespace TVPApiModule.Objects
 			TranslationCulture = string.Empty;
             m_GroupID = groupID;
             m_Platform = platform;
-            m_LanguageDefinitions = FetchLanguages(null);
+            Sync(null);
 		}
 
 		[Obsolete("use [] instead")]
@@ -150,7 +150,6 @@ namespace TVPApiModule.Objects
 						catch (Exception ex)
 						{
 							logger.Error("Error occured while extracting language information ", ex);
-							//logger.Fatal(string.Format("Failed to handle language id '{0}' name '{1}'", oRow["ID"], oRow["Name"]), ex);
 						}
 					}
 				}

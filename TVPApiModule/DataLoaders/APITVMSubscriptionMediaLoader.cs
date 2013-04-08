@@ -106,7 +106,8 @@ namespace TVPApiModule.DataLoaders
                 m_oSubscriptionMediaLoader = new TVPApiModule.CatalogLoaders.APISubscriptionMediaLoader(
                     (int)BaseID,
                     SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, 
-                    GroupID, 
+                    GroupID,
+                    Platform.ToString(),
                     SiteHelper.GetClientIP(), 
                     PageSize, 
                     PageIndex, 
@@ -114,7 +115,7 @@ namespace TVPApiModule.DataLoaders
                 {
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
-                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
+                    Culture = Language,
                 };
                 return m_oSubscriptionMediaLoader.Execute() as dsItemInfo;
             }

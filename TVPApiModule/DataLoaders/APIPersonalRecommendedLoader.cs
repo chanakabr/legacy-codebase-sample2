@@ -109,11 +109,11 @@ namespace TVPApiModule.DataLoaders
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oPersonalRecommendedLoader = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(SiteGuid, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
+                m_oPersonalRecommendedLoader = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(SiteGuid, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
-                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
+                    Culture = Language,
                 };
 
                 return m_oPersonalRecommendedLoader.Execute() as dsItemInfo;

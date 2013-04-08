@@ -94,11 +94,11 @@ namespace TVPApi
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oPeopleWhoWatchedLoader = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader((int)MediaID, 0, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize)
+                m_oPeopleWhoWatchedLoader = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader((int)MediaID, 0, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize)
                 {
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
-                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language)
+                    Culture = Language,
                 };
 
                 return m_oPeopleWhoWatchedLoader.Execute() as dsItemInfo;

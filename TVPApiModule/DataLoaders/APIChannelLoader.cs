@@ -110,9 +110,9 @@ namespace TVPApi
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
+                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
-                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language),
+                    Culture = Language,
                     DeviceId = DeviceUDID,
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
@@ -171,7 +171,7 @@ namespace TVPApi
             newChannel.id = int.Parse(ChannelID.ToString());
             newChannel.number_of_items = PageSize;
             newChannel.start_index = PageSize * PageIndex;
-            
+
             //switch ((TVPApi.OrderBy)Enum.Parse(typeof(TVPApi.OrderBy), OrderBy.ToString()))
             //{
             //    case TVPApi.OrderBy.ABC:
@@ -208,7 +208,6 @@ namespace TVPApi
             result.root.flashvars.no_file_url = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.EncryptMediaFileURL;
 
             result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
-            result.root.flashvars.use_start_date = GetFutureStartDate;
             result.root.flashvars.file_quality = file_quality.high;
             result.root.flashvars.device_udid = DeviceUDID;
             result.root.request.@params.with_info = WithInfo.ToString();

@@ -126,6 +126,7 @@
     <Compile Include="Helper\ProfileHelper.cs" />
     <Compile Include="Helper\RssHelper.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
+    <Compile Include="Helper\TranslationHelper.cs" />
     <Compile Include="Helper\VoteHelper.cs" />
     <Compile Include="Helper\WSUtils.cs" />
     <Compile Include="HttpHandlers\CrossOriginHandler.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="Objects\TagMetaPair.cs" />
     <Compile Include="Objects\ImplementationYes.cs" />
     <Compile Include="Objects\TextLocalization.cs" />
+    <Compile Include="Objects\Translation.cs" />
     <Compile Include="Parsers\AbertisJSONParser.cs" />
     <Compile Include="Parsers\UsersXMLParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

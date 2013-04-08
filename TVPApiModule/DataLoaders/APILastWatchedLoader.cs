@@ -75,9 +75,9 @@ namespace TVPApiModule.DataLoaders
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oPersonalLastWatchedLoader = new TVPApiModule.CatalogLoaders.APIPersonalLastWatchedLoader(SiteGuid, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
+                m_oPersonalLastWatchedLoader = new TVPApiModule.CatalogLoaders.APIPersonalLastWatchedLoader(SiteGuid, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
-                    Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, Platform).GetLanguageDBID(Language),                    
+                    Culture = Language,                    
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
                 };

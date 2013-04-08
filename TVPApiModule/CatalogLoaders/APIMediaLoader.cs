@@ -9,38 +9,40 @@ using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.DataEntities;
 using TVPApi;
 using TVPPro.Configuration.Technical;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.CatalogLoaders
 {
     public class APIMediaLoader : MediaLoader
     {
+        private string m_sCulture;
+
+        public string Culture
+        {
+            get { return m_sCulture; }
+            set
+            {
+                m_sCulture = value;
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+            }
+        }
+
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        public APIMediaLoader(int mediaID, int groupID, int groupIDParent, string userIP, string picSize) :
-            this(new List<int>() { mediaID }, groupID, groupIDParent, userIP, picSize)
+        public APIMediaLoader(int mediaID, int groupID, int groupIDParent, string platform, string userIP, string picSize) :
+            this(new List<int>() { mediaID }, groupID, groupIDParent, platform, userIP, picSize)
         {
         }
 
-        public APIMediaLoader(List<int> mediaIDs, int groupID, int groupIDParent, string userIP, string picSize) :
+        public APIMediaLoader(List<int> mediaIDs, int groupID, int groupIDParent, string platform, string userIP, string picSize) :
             base(mediaIDs, groupID, userIP, picSize)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
-
+            Platform = platform;
         }
 
-        public APIMediaLoader(int mediaID, int groupID, int groupIDParent, string userIP, string picSize, int language) :
-            this(new List<int>() { mediaID }, groupID, groupIDParent, userIP, picSize)
-        {
-            Language = language;
-        }
-
-        public APIMediaLoader(List<int> mediaIDs, int groupID, int groupIDParent, string userIP, string picSize, int language) :
-            this(mediaIDs, groupID, groupIDParent, userIP, picSize)
-        {
-            Language = language;
-        }
         #endregion
 
         public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)

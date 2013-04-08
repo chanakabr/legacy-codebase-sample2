@@ -9,25 +9,33 @@ using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.DataEntities;
 using TVPApi;
 using TVPPro.Configuration.Technical;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.CatalogLoaders
 {
     public class APIRelatedMediaLoader : RelatedMediaLoader
     {
+        private string m_sCulture;
+
+        public string Culture
+        {
+            get { return m_sCulture; }
+            set
+            {
+                m_sCulture = value;
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+            }
+        }
+
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        public APIRelatedMediaLoader(int mediaID, List<int> mediaTypes, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize)
+        public APIRelatedMediaLoader(int mediaID, List<int> mediaTypes, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize)
             : base(mediaID, mediaTypes, groupID, userIP, pageSize, pageIndex, picSize)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
-        }
-
-        public APIRelatedMediaLoader(int mediaID, List<int> mediaTypes, int groupID, int groupIDParent, string userIP, int pageSize, int pageIndex, string picSize, int language)
-            : this(mediaID, mediaTypes, groupID, groupIDParent, userIP, pageSize, pageIndex, picSize)
-        {
-            Language = language;
+            Platform = platform;
         }
         #endregion
 

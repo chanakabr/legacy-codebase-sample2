@@ -12,6 +12,8 @@ using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
+using TVPApiModule.Objects;
+using TVPApiModule.Helper;
 
 
 namespace TVPApiServices
@@ -1074,6 +1076,38 @@ namespace TVPApiServices
                         
             return retVal;
         }
+        #endregion
+
+        #region Translation
+
+        [WebMethod(EnableSession = true, Description = "Get translations for all active languages")]
+        public Dictionary<string, List<Translation>> GetTranslations(InitializationObject initObj)
+        {
+            Dictionary<string, List<Translation>> retTranslations = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBottomProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetTranslations-> [{0}, {1}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    retTranslations = TranslationHelper.GetTranslations(groupID, initObj.Platform);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetTranslations->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetTranslations-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return retTranslations;
+        }
+
         #endregion
     }
 }

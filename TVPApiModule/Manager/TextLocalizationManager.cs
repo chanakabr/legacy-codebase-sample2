@@ -19,11 +19,8 @@ namespace TVPApiModule.Manager
         private static ReaderWriterLockSlim m_Lock = new ReaderWriterLockSlim();
         private Dictionary<string, TextLocalization> m_dTextLocalization = new Dictionary<string, TextLocalization>();
         
-
-
         private static TextLocalizationManager m_Instance = null;
         
-
         public static TextLocalizationManager Instance
         {
             get
@@ -45,7 +42,7 @@ namespace TVPApiModule.Manager
 
             TextLocalization retTextLocalization = null;
 
-            // read PageData from shared dictionary
+            // read TextLocalization from shared dictionary
             if (m_Lock.TryEnterReadLock(1000))
             {
                 try
@@ -54,7 +51,7 @@ namespace TVPApiModule.Manager
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetPageData->", ex);
+                    logger.Error("GetTextLocalization->", ex);
                 }
                 finally
                 {
@@ -68,7 +65,7 @@ namespace TVPApiModule.Manager
                 retTextLocalization = new TextLocalization(groupID, platform);
             }
 
-            // add PageData to shared dictionary if not exsist
+            // add TextLocalization to shared dictionary if not exsist
             if (m_Lock.TryEnterWriteLock(1000))
             {
                 try
@@ -80,7 +77,7 @@ namespace TVPApiModule.Manager
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetPageData->", ex);
+                    logger.Error("TextLocalization->", ex);
                 }
                 finally
                 {
