@@ -10,7 +10,7 @@ using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.Services
 {
-    public class ApiApiService 
+    public class ApiApiService
     {
         #region Variables
         private static ILog logger = LogManager.GetLogger(typeof(ApiService));
@@ -31,7 +31,7 @@ namespace TVPApiModule.Services
             m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ApiService.URL;
             m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ApiService.DefaultUser;
             m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ApiService.DefaultPassword;
-            
+
             m_groupID = groupID;
             m_platform = platform;
         }
@@ -117,7 +117,7 @@ namespace TVPApiModule.Services
             EPGChannelObject[] objEPGRes = null;
             try
             {
-                 objEPGRes = m_Module.GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
+                objEPGRes = m_Module.GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
             }
             catch (Exception ex)
             {
@@ -126,7 +126,7 @@ namespace TVPApiModule.Services
             return objEPGRes;
         }
 
-        public EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(string sChannelID, string sPicSize,DateTime fromDate, DateTime toDate,int utcOffset)
+        public EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(string sChannelID, string sPicSize, DateTime fromDate, DateTime toDate, int utcOffset)
         {
             EPGChannelProgrammeObject[] objEPGRes = null;
             try
@@ -236,7 +236,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : CheckParentalPIN, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
             }
             return res;
-        }           
+        }
 
         #endregion
     }
