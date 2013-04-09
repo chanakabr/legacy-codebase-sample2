@@ -6,15 +6,18 @@ using TVPApiModule.Objects;
 using TVPApiModule.Manager;
 using Tvinci.Localization;
 using System.Data;
+using System.Web.UI;
 
 namespace TVPApiModule.Helper
 {
     public class TranslationHelper
     {
-        public static Dictionary<string, List<Translation>> GetTranslations(int groupID, TVPApi.PlatformType platform)
+        public static Pair[] GetTranslations(int groupID, TVPApi.PlatformType platform)
         {
-            Dictionary<string, List<Translation>> retTranslations = new Dictionary<string, List<Translation>>();
+            
             List<LanguageContext> languages = TextLocalizationManager.Instance.GetTextLocalization(groupID, platform).GetLanguages();
+            Pair[] retTranslations = new Pair[languages.Count];
+            int i = 0;
 
             foreach (LanguageContext lang in languages)
             {
@@ -31,7 +34,8 @@ namespace TVPApiModule.Helper
                     };
                     TranslationsList.Add(translation);
                 }
-                retTranslations.Add(lang.Culture, TranslationsList);
+                retTranslations[i] = new Pair(lang.Culture, TranslationsList);
+                i++;
             }
 
             return retTranslations;

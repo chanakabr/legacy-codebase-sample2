@@ -14,6 +14,7 @@ using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 using TVPApiModule.Objects;
 using TVPApiModule.Helper;
+using System.Web.UI;
 
 
 namespace TVPApiServices
@@ -1081,9 +1082,9 @@ namespace TVPApiServices
         #region Translation
 
         [WebMethod(EnableSession = true, Description = "Get translations for all active languages")]
-        public Dictionary<string, List<Translation>> GetTranslations(InitializationObject initObj)
+        public Pair[] GetTranslations(InitializationObject initObj)
         {
-            Dictionary<string, List<Translation>> retTranslations = null;
+            Pair[] retTranslations = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBottomProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
