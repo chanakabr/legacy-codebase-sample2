@@ -2228,6 +2228,32 @@ namespace TVPApiServices
             return sRet;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get EPG Channel Program by Dates")]
+        public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(InitializationObject initObj, string channelID, string picSize, DateTime fromDate, DateTime toDate, int utcOffset)
+        {
+            TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] sRet = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGChannelProgrammeByDates", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetEPGChannelProgrammeByDates-> [{0}, {1}], Params:[user: {2},channelID:{3}]", groupId, initObj.Platform, initObj.SiteGuid, channelID);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    sRet = new ApiApiService(groupId, initObj.Platform).GetEPGChannelProgrammeByDates(channelID, picSize, fromDate, toDate, utcOffset);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetEPGChannelProgrammeByDates->", ex);
+                }
+            }
+            else
+                logger.ErrorFormat("GetEPGChannelProgrammeByDates-> 'Unknown group' Username: {0}, Password: {1}, channelID:{2}", initObj.ApiUser, initObj.ApiPass, channelID);
+
+            return sRet;
+        }
+
         [WebMethod(EnableSession = true, Description = "Get EPG Channels")]
         public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] GetEPGChannelsPrograms(InitializationObject initObj, string sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
