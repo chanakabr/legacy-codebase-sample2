@@ -126,6 +126,20 @@ namespace TVPApiModule.Services
             return objEPGRes;
         }
 
+        public EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(string sChannelID, string sPicSize,DateTime fromDate, DateTime toDate,int utcOffset)
+        {
+            EPGChannelProgrammeObject[] objEPGRes = null;
+            try
+            {
+                objEPGRes = m_Module.GetEPGChannelProgrammeByDates(m_wsUserName, m_wsPassword, sChannelID, sPicSize, fromDate, toDate, utcOffset);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgrammeByDates, Error Message: {0}, IP: {1}", ex.Message, SiteHelper.GetClientIP());
+            }
+            return objEPGRes;
+        }
+
         public EPGChannelProgrammeObject[] GetEPGChannel(string sChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
             EPGChannelProgrammeObject[] objEPGProgramRes = null;
