@@ -55,6 +55,34 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "Renew user password")]
+        public UserResponseObject RenewUserPassword(InitializationObject initObj, string sUN, string sPass)
+        {
+            UserResponseObject response = new UserResponseObject();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RenewUserPassword", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("RenewUserPassword-> [{0}, {1}], Params:[siteGuid: {2} sUN: {3}]", groupID, initObj.Platform, initObj.SiteGuid, sUN);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).RenewUserPassword(sUN, sPass);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("RenewUserPassword->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("RenewUserPassword-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
         [WebMethod(EnableSession = true, Description = "Get user facebook ID")]
         public UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId)
         {
