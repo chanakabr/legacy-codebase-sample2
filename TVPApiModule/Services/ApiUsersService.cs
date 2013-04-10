@@ -423,8 +423,8 @@ namespace TVPApiModule.Services
 
             try
             {
-                //Country response = m_Module.GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
-                //sRet = response.m_sCountryName;
+                Country response = m_Module.GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
+                sRet = response.m_sCountryName;
             }
             catch (Exception ex)
             {
