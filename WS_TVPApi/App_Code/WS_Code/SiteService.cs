@@ -35,11 +35,11 @@ namespace TVPApiServices
         #region SiteMap
 
         //Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map
-        [WebMethod(EnableSession=true, Description="Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map")]
+        [WebMethod(EnableSession = true, Description = "Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map")]
         public SiteMap GetSiteMap(InitializationObject initObj)
         {
             SiteMap retSiteMap = null;
-            
+
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSiteMap", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetSiteMap-> [{0}, {1}]", groupID, initObj.Platform);
@@ -74,7 +74,7 @@ namespace TVPApiServices
             PageContext retPageContext = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("GetPage-> [{0}, {1}], Params:[ID: {2}, withMenu: {3}, withFooter: {4}]", groupID, initObj.Platform, ID, withMenu, withFooter);
 
             if (groupID > 0)
@@ -191,7 +191,7 @@ namespace TVPApiServices
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSideProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("GetSideProfile-> [{0}, {1}], Params:[ID: {2}]", groupID, initObj.Platform, ID);
-            
+
             if (groupID > 0)
             {
                 try
@@ -218,7 +218,7 @@ namespace TVPApiServices
             Profile retProfile = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBottomProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("GetBottomProfile-> [{0}, {1}], Params:[ID: {2}]", groupID, initObj.Platform, ID);
 
             if (groupID > 0)
@@ -279,7 +279,7 @@ namespace TVPApiServices
             PageGallery retPageGallery = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("GetGallery-> [{0}, {1}], Params:[galleryID: {2}, PageID: {3}]", groupID, initObj.Platform, PageID, galleryID, PageID);
 
             if (groupID > 0)
@@ -474,7 +474,7 @@ namespace TVPApiServices
             }
 
             return response;
-        }        
+        }
 
         [WebMethod(EnableSession = true, Description = "Get Secured SiteGuid")]
         public string GetSecuredSiteGuid(InitializationObject initObj)
@@ -491,7 +491,7 @@ namespace TVPApiServices
                 {
                     string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
                     string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
-                    sRet = SecurityHelper.EncryptSiteGuid(privateKey, IV, initObj.SiteGuid);                    
+                    sRet = SecurityHelper.EncryptSiteGuid(privateKey, IV, initObj.SiteGuid);
                 }
                 catch (Exception ex)
                 {
@@ -681,9 +681,9 @@ namespace TVPApiServices
         public TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password)
         {
             TVPApiModule.Services.ApiUsersService.LogInResponseData responseData = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
-            
+
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("SignIn-> [{0}, {1}], Params:[userName: {2}, password: {3}]", groupID, initObj.Platform, userName, password);
 
             if (groupID > 0)
@@ -737,7 +737,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-Up a new user")]
-        public UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, 
+        public UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData,
             TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
         {
             UserResponseObject response = new UserResponseObject();
@@ -767,7 +767,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Sign-Out a user")]
         public void SignOut(InitializationObject initObj)
-        {            
+        {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             logger.InfoFormat("SignOut-> [{0}, {1}], Params:[siteGuid: {2}, password: {3}]", groupID, initObj.Platform, initObj.SiteGuid);
@@ -797,7 +797,7 @@ namespace TVPApiServices
             bool bRet = false;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsUserSignedIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
+
             logger.InfoFormat("IsUserSignedIn-> [{0}, {1}], Params:[siteGuid: {2}, password: {3}]", groupID, initObj.Platform, initObj.SiteGuid);
 
             if (groupID > 0)
@@ -822,7 +822,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Edit user details info")]
-        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, 
+        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData,
             TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
@@ -846,7 +846,7 @@ namespace TVPApiServices
             {
                 logger.ErrorFormat("SetUserData-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
             }
-            
+
             return response;
         }
 
@@ -991,9 +991,9 @@ namespace TVPApiServices
             return bRet;
         }
         #endregion
-        
+
         #region XXXX
-        
+
         [WebMethod(EnableSession = true, Description = "Do Social Action")]
         public string DoSocialAction(InitializationObject initObj, int mediaID, SocialAction socialAction, SocialPlatform socialPlatform, string actionParam)
         {
@@ -1074,7 +1074,7 @@ namespace TVPApiServices
                     logger.ErrorFormat("Error calling webservice protocol : DoSocialAction, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
                 }
             }
-                        
+
             return retVal;
         }
         #endregion
@@ -1108,6 +1108,35 @@ namespace TVPApiServices
 
             return retTranslations;
         }
+
+        [WebMethod(EnableSession = true, Description = "Get IP To Country")]
+        public string GetIPToCountry(InitializationObject initObj, string IP)
+        {
+            string res = string.Empty;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetIPToCountry", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetIPToCountry-> [{0}, {1}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    res = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(IP);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetIPToCountry->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetIPToCountry-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return res;
+        }
+
 
         #endregion
     }
