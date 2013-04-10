@@ -615,5 +615,20 @@ namespace TVPApiModule.Services
 
             return bRet;
         }
+
+        public UserResponseObject RenewUserPassword(string sUN, string sPass)
+        {
+            UserResponseObject bRet = null;
+            try
+            {
+                bRet = m_Module.RenewUserPassword(m_wsUserName, m_wsPassword, sUN, sPass);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol RenewUserPassword, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+            }
+
+            return bRet;
+        }
     }
 }
