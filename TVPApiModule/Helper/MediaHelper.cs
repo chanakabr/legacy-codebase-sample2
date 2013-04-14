@@ -55,13 +55,10 @@ namespace TVPApi
             {
                 dsItemInfo.ItemRow row = mediaInfo.Item.Rows[0] as dsItemInfo.ItemRow;
                 if (row != null)
-                {
                     retVal = new Media(row, initObj, groupID, withDynamic, mediaInfo.Item.Count);
-                }
             }
 
             return retVal;
-
         }
 
         public static Media GetMediaInfo(InitializationObject initObj, long MediaID, string picSize, int groupID)
@@ -73,13 +70,10 @@ namespace TVPApi
             {
                 dsItemInfo.ItemRow row = mediaInfo.Item.Rows[0] as dsItemInfo.ItemRow;
                 if (row != null)
-                {
                     retVal = new Media(row, initObj, groupID, false, mediaInfo.Item.Count);
-                }
             }
 
             return retVal;
-
         }
 
         public static List<Media> GetMediasInfo(InitializationObject initObj, long[] MediaIDs, int mediaType, string picSize, int groupID, bool withDynamic)
@@ -89,12 +83,9 @@ namespace TVPApi
             dsItemInfo mediaInfo = (new APIMultiMediaLoader(account.TVMUser, account.TVMPass, MediaIDs.Select(i => i.ToString()).ToArray(), picSize, mediaType) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, Language = initObj.Locale.LocaleLanguage }.Execute());
 
             foreach (dsItemInfo.ItemRow row in mediaInfo.Item.Rows)
-            {
                 retVal.Add(new Media(row, initObj, groupID, withDynamic, mediaInfo.Item.Count));
-            }
 
             return retVal;
-
         }
 
         public static bool IsFavoriteMedia(InitializationObject initObj, int groupID, int mediaID)
@@ -789,7 +780,6 @@ namespace TVPApi
             }
             return retVal;
         }
-
 
         //Parse a data row elenment to media 
         private static Media parseItemRowToMedia(dsItemInfo.ItemRow row, string picSize, bool withDynamic, string siteGuid)
