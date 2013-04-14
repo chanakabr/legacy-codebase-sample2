@@ -253,5 +253,27 @@ namespace TVPApiServices
             }
             return res;
         }
+
+        [WebMethod(EnableSession = true, Description = "Gets Google signature")]
+        public string GetGoogleSignature(InitializationObject initObj, int customerId)
+        {
+            string res = string.Empty;
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetGoogleSignature", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            logger.InfoFormat("GetGoogleSignature, Parameters : SiteGuid : {0} customerId : {1}", initObj.SiteGuid, customerId);
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetGoogleSignature(initObj.SiteGuid, customerId);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetGoogleSignature->", ex);
+                }
+            }
+            else
+                logger.ErrorFormat("GetGoogleSignature-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            return res;
+        }
     }
 }
