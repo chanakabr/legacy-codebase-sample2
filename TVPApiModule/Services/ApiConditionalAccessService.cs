@@ -583,6 +583,26 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
+        public string GetGoogleSignature(string siteGuid, int customerId)
+        {
+            string retVal = string.Empty;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                try
+                {
+                    logger.InfoFormat("GetGoogleSignature, Parameters : SiteGuid : {0} customerId : {1}", siteGuid, customerId);
+                    retVal = m_Module.GetGoogleSignature(wsUser, wsPass, customerId);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling web service protocol : GetGoogleSignature, Error Message: {0}, Parameters : SiteGuid: {1} customerId : {2}", ex.Message, siteGuid, customerId);
+                }
+            }
+            return retVal;
+        }
+
         public bool IsPermittedSubscription(string siteGuid, int subId)
         {
             bool retVal = false;
