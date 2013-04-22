@@ -616,6 +616,21 @@ namespace TVPApiModule.Services
             return bRet;
         }
 
+
+        public UserType[] GetGroupUserTypes(string sWSUserName, string sWSPassword)
+        {
+            UserType[] bRet = null;
+            try
+            {
+                bRet = m_Module.GetGroupUserTypes(m_wsUserName, m_wsPassword);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol GetGroupUserTypes, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+            }
+
+            return bRet;
+        }
         public UserResponseObject RenewUserPassword(string sUN, string sPass)
         {
             UserResponseObject bRet = null;
@@ -630,5 +645,6 @@ namespace TVPApiModule.Services
 
             return bRet;
         }
+
     }
 }
