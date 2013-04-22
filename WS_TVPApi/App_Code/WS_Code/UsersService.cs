@@ -317,6 +317,34 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "GetGroupUserTypes")]
+        public UserType[] GetGroupUserTypes(InitializationObject initObj, string sUN, string sPass)
+        {
+            UserType[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupUserTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            logger.InfoFormat("GetGroupUserTypes-> [{0}, {1}]", groupID, initObj.Platform);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetGroupUserTypes(sUN, sPass);  
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetGroupUserTypes->", ex);
+                }
+            }
+            else
+            {
+                logger.ErrorFormat("GetGroupUserTypes-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+            }
+
+            return response;
+        }
+
         #endregion
     }
 }
