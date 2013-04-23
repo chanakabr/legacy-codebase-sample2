@@ -58,6 +58,7 @@ public abstract class BaseGateway : System.Web.UI.Page
     protected ConditionalAccessService m_ConditionalAccessService = new ConditionalAccessService();
     protected SocialService m_SocialService = new SocialService();
     protected UsersService m_UsersService = new UsersService();
+    protected NotificationService m_NotificationService = new NotificationService();
 
     private string m_WsUsername;
     private string m_WsPassword;
