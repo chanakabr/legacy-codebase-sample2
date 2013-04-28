@@ -15,6 +15,7 @@ using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.Objects;
 using TVPApiModule.Helper;
+using System.Web;
 
 namespace TVPApiServices
 {
@@ -41,22 +42,21 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetMediaInfo-> [{0}, {1}], Params: [MediaID: {2}, MediaType: {3}, picSize: {4}, withDynamic: {5}]", groupID, initObj.Platform, MediaID, mediaType, picSize, withDynamic);
-
             if (groupID > 0)
             {
                 try
                 {
+
                     retMedia = MediaHelper.GetMediaInfo(initObj, MediaID, mediaType, picSize, groupID, withDynamic);
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetMediaInfo->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetMediaInfo-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return retMedia;
@@ -70,8 +70,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediasInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetMediasInfo-> [{0}, {1}], Params: [MediaID: {2}, MediaType: {3}, picSize: {4}, withDynamic: {5}]", groupID, initObj.Platform, MediaID, mediaType, picSize, withDynamic);
-
             if (groupID > 0)
             {
                 try
@@ -80,12 +78,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetMediasInfo->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetMediasInfo-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return retMedia;
@@ -99,8 +97,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetChannelMediaList-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform, ChannelID, picSize, pageSize, pageIndex);
-
             if (groupID > 0)
             {
                 try
@@ -109,12 +105,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetChannelMediaList->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetChannelMediaList-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -128,8 +124,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetChannelMediaListWithMediaCount-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}, mediaCount: {6}]", groupID, initObj.Platform, ChannelID, picSize, pageSize, pageIndex, mediaCount);
-
             if (groupID > 0)
             {
                 try
@@ -138,12 +132,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(string.Format("GetChannelMediaListWithMediaCount-> ChannelID: {0}", ChannelID), ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetChannelMediaListWithMediaCount-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -157,8 +151,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("IsMediaFavorite-> [{0}, {1}], Params:[mediaID: {2}]", groupID, initObj.Platform, mediaID);
-
             if (groupID > 0)
             {
                 try
@@ -167,12 +159,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("IsMediaFavorite->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("IsMediaFavorite-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return bRet;
@@ -186,8 +178,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetMediaComments-> [{0}, {1}], Params:[mediaID: {2}, pageSize: {3}, pageIndex: {4}]", groupID, initObj.Platform, mediaID, pageSize, pageIndex);
-
             if (groupID > 0)
             {
                 try
@@ -197,12 +187,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetMediaComments->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("IsMediaFavorite-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstComment;
@@ -216,8 +206,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserFavorites", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserFavorites-> [{0}, {1}], Params:[ItemType: {2}]", groupID, initObj.Platform);
-
             if (groupID > 0)
             {
                 try
@@ -228,12 +216,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserItems->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserFavorites-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return favoritesObj;
@@ -247,8 +235,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserItems-> [{0}, {1}], Params:[ItemType: {2}]", groupID, initObj.Platform, itemType);
-
             if (groupID > 0)
             {
                 try
@@ -257,12 +243,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserItems->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserItems-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -279,8 +265,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRelatedMediasByTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetRelatedMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex);
-
             if (groupID > 0)
             {
                 try
@@ -289,12 +273,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetRelatedMediasByTypes->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetRelatedMediasByTypes-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -308,8 +292,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRelatedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetRelatedMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex);
-
             if (groupID > 0)
             {
                 try
@@ -318,12 +300,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetRelatedMedias->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetRelatedMedias-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -337,8 +319,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetRelatedMediaWithMediaCount-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}, mediaCount: {7}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex, mediaCount);
-
             if (groupID > 0)
             {
                 try
@@ -347,12 +327,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetRelatedMediaWithMediaCount->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetRelatedMediaWithMediaCount-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -366,8 +346,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPeopleWhoWatched", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetPeopleWhoWatched-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex);
-
             if (groupID > 0)
             {
                 try
@@ -376,12 +354,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetPeopleWhoWatched->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetPeopleWhoWatched-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -394,8 +372,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserSocialMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, picSize, pageSize, pageIndex);
-
             if (groupID > 0)
             {
                 try
@@ -404,12 +380,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserSocialMedias->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserSocialMedias-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -422,8 +398,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsUserSocialActionPerformed", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("IsUserSocialActionPerformed-> [{0}, {1}], Params:[mediaID: {2}]", groupID, initObj.Platform, sMediaID);
-
             if (groupID > 0)
             {
                 try
@@ -434,12 +408,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("IsUserSocialActionPerformed->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("IsUserSocialActionPerformed-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return bRet;
@@ -452,8 +426,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastWatchedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetLastWatchedMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize, pageSize, pageIndex);
-
             if (groupID > 0)
             {
                 try
@@ -462,12 +434,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetLastWatchedMedias->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetLastWatchedMedias-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -480,8 +452,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastWatchedMediasByPeriod", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetLastWatchedMediasByPeriod-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform, mediaID, mediaType, picSize);
-
             if (groupID > 0)
             {
                 try
@@ -490,12 +460,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetLastWatchedMediasByPeriod->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetLastWatchedMediasByPeriod-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -508,8 +478,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediasInPackage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetMediasInPackage-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform);
-
             if (groupID > 0)
             {
                 try
@@ -518,12 +486,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetMediasInPackage->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetMediasInPackage-> 'Unknown group' Username: {0}, Password: {1}, BaseID: {2}", initObj.ApiUser, initObj.ApiPass, iBaseID);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -542,8 +510,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetRecommendedMedias-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform);
-
             if (groupID > 0)
             {
                 try
@@ -552,12 +518,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetRecommendedMedias->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetRecommendedMedias-> 'Unknown group' Username: {0}, Password: {1}, BaseID: {2}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -569,8 +535,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendedMediasByTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetRecommendedMediasByTypes-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}]", groupID, initObj.Platform);
-
             if (groupID > 0)
             {
                 try
@@ -579,12 +543,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetRecommendedMediasByTypes->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetRecommendedMediasByTypes-> 'Unknown group' Username: {0}, Password: {1}, BaseID: {2}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -601,8 +565,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SearchMediaByTag-> [{0}, {1}], Params:[tagName: {2}, value: {3}, mediaType: {4}, picSize: {5}, pageSize: {6}, pageIndex: {7}, orderBy: {8}]", groupID, initObj.Platform, string.Empty, mediaType, picSize, pageSize, pageIndex, orderBy);
-
             if (groupID > 0)
             {
                 try
@@ -611,12 +573,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SearchMediaByTag->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SearchMediaByTag-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -629,8 +591,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchMediaByMetasTags", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SearchMediaByMetasTags-> [{0}, {1}], Params:[mediaType: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}, orderBy: {6}]", groupID, initObj.Platform, mediaType, picSize, pageSize, pageIndex, orderBy);
-
             if (groupID > 0)
             {
                 try
@@ -639,12 +599,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SearchMediaByMetasTags->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SearchMediaByMetasTags-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -657,8 +617,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchMediaByMetasTagsExact", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SearchMediaByMetasTagsExact-> [{0}, {1}], Params:[tagName: {2}, value: {3}, mediaType: {4}, picSize: {5}, pageSize: {6}, pageIndex: {7}, orderBy: {8}]", groupID, initObj.Platform, string.Empty, mediaType, picSize, pageSize, pageIndex, orderBy);
-
             if (groupID > 0)
             {
                 try
@@ -667,12 +625,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SearchMediaByMetasTagsExact->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SearchMediaByMetasTagsExact-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -686,8 +644,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SearchMediaByTag-> [{0}, {1}], Params:[tagName: {2}, value: {3}, mediaType: {4}, picSize: {5}, pageSize: {6}, pageIndex: {7}, orderBy: {8}]", groupID, initObj.Platform, tagName, value, mediaType, picSize, pageSize, pageIndex, orderBy);
-
             if (groupID > 0)
             {
                 try
@@ -696,12 +652,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SearchMediaByTag->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SearchMediaByTag-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -715,8 +671,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SearchMediaByMeta-> [{0}, {1}], Params:[tagName: {2}, value: {3}, mediaType: {4}, picSize: {5}, pageSize: {6}, pageIndex: {7}, orderBy: {8}]", groupID, initObj.Platform, metaName, value, mediaType, picSize, pageSize, pageIndex, orderBy);
-
             if (groupID > 0)
             {
                 try
@@ -725,12 +679,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SearchMediaByMeta->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SearchMediaByMeta-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -742,8 +696,6 @@ namespace TVPApiServices
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SearchMediaByMetaWithMediaCount-> [{0}, {1}], Params:[tagName: {2}, value: {3}, mediaType: {4}, picSize: {5}, pageSize: {6}, pageIndex: {7}, orderBy: {8}, mediaCount: {9}]", groupID, initObj.Platform, metaName, value, mediaType, picSize, pageSize, pageIndex, orderBy, mediaCount);
-
             if (groupID > 0)
             {
                 try
@@ -752,12 +704,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SearchMediaByMetaWithMediaCount->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SearchMediaByMetaWithMediaCount-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return null;
@@ -771,8 +723,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetCategory-> [{0}, {1}], Params:[categoryID: {2}]", groupID, initObj.Platform, categoryID);
-
             if (groupID > 0)
             {
                 try
@@ -781,12 +731,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetCategory->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetCategory-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return retCategory;
@@ -799,8 +749,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetFullCategory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetFullCategory-> [{0}, {1}], Params:[categoryID: {2}]", groupID, initObj.Platform, categoryID);
-
             if (groupID > 0)
             {
                 try
@@ -809,12 +757,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetFullCategory->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetFullCategory-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return retCategory;
@@ -828,8 +776,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SearchMedia-> [{0}, {1}], Params:[text: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}, orderBy: {7}]", groupID, initObj.Platform, text, mediaType, picSize, pageSize, pageIndex, orderBy);
-
             if (groupID > 0)
             {
                 try
@@ -838,12 +784,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SearchMedia->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SearchMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -857,8 +803,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SearchMedia-> [{0}, {1}], Params:[text: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}, orderBy: {7}]", groupID, initObj.Platform, text, mediaType, picSize, pageSize, pageIndex, orderBy);
-
             if (groupID > 0)
             {
                 try
@@ -867,12 +811,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SearchMedia->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SearchMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -886,8 +830,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SearchMediaWithMediaCount-> [{0}, {1}], Params:[text: {2}, mediaType: {3}, picSize: {4}, pageSize: {5}, pageIndex: {6}, orderBy: {7}, mediaCount: {8}]", groupID, initObj.Platform, text, mediaType, picSize, pageSize, pageIndex, orderBy, mediaCount);
-
             if (groupID > 0)
             {
                 try
@@ -896,12 +838,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SearchMediaWithMediaCount->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SearchMediaWithMediaCount-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -912,9 +854,7 @@ namespace TVPApiServices
         public List<string> GetNMostSearchedTexts(InitializationObject initObj, int N, int pageSize, int start_index)
         {
             List<string> retVal = null;
-
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            logger.InfoFormat("GetNMostSearchedTexts-> [{0}, {1}], Params:[N: {2}, pageSize: {3}, start_index: {4}]", groupID, initObj.Platform, N, pageSize, start_index);
 
             if (groupID > 0)
             {
@@ -922,7 +862,7 @@ namespace TVPApiServices
             }
             else
             {
-                logger.ErrorFormat("GetNMostSearchedTexts-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return retVal;
@@ -935,8 +875,6 @@ namespace TVPApiServices
             string[] retVal = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetAutoCompleteSearchList-> [{0}, {1}], Params:[prefixText: {2}]", groupID, initObj.Platform, prefixText);
 
             if (groupID > 0)
             {
@@ -963,8 +901,6 @@ namespace TVPApiServices
             string retVal = null;
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SendToFriend", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SendToFriend-> [{0}, {1}], Params:[mediaID: {2}]", groupID, initObj.Platform, mediaID);
-
             if (groupID > 0)
             {
                 try
@@ -973,12 +909,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SendToFriend->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SendToFriend-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return retVal;
@@ -991,8 +927,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddComment", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ActionDone-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}]", groupID, initObj.Platform, mediaID, mediaType);
-
             if (groupID > 0)
             {
                 try
@@ -1002,12 +936,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ActionDone->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("ActionDone-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
             return retVal;
         }
@@ -1020,8 +954,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActionDone", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ActionDone-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, extraVal: {4}]", groupID, initObj.Platform, mediaID, mediaType, extraVal);
-
             if (groupID > 0)
             {
                 try
@@ -1030,12 +962,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ActionDone->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("ActionDone-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
             return retVal;
         }
@@ -1047,8 +979,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RateMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("RateMedia-> [{0}, {1}], Params:[mediaID: {2}, mediaType: {3}, extraVal: {4}]", groupID, initObj.Platform, mediaID, mediaType, extraVal);
-
             if (groupID > 0)
             {
                 try
@@ -1057,12 +987,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("RateMedia->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("RateMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
             return retVal;
         }
@@ -1082,8 +1012,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("MediaMark-> [{0}, {1}], Params:[iMediaID: {2}, iFileID: {3}, iLocation: {4}]", groupID, initObj.Platform, iMediaID, iFileID, iLocation);
-
             if (groupID > 0)
             {
                 try
@@ -1094,12 +1022,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("MediaMark->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("MediaMark-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return sRet;
@@ -1112,8 +1040,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("MediaHit-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform);
-
             if (groupID > 0)
             {
                 try
@@ -1124,12 +1050,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("MediaHit->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("MediaHit-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return sRet;
@@ -1142,8 +1068,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetMediaMark-> [{0}, {1}], Params:[ChannelID: {2}, picSize: {3}, pageSize: {4}, pageIndex: {5}]", groupID, initObj.Platform);
-
             if (groupID > 0)
             {
                 try
@@ -1154,12 +1078,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetMediaMark->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetMediaMark-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return mediaMark;
@@ -1174,8 +1098,6 @@ namespace TVPApiServices
             TVPApi.PriceReason priceReason = TVPApi.PriceReason.UnKnown;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPriceReason", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetItemPriceReason-> [{0}, {1}], Params:[fileID: {2}, user: {3}]", groupId, initObj.Platform, iFileID, initObj.SiteGuid);
 
             if (groupId > 0)
             {
@@ -1205,12 +1127,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetItemPriceReason->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetItemPriceReason-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return priceReason;
@@ -1223,8 +1145,6 @@ namespace TVPApiServices
             bool bRet = false;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsItemPurchased", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("IsItemPurchased-> [{0}, {1}], Params:[fileID: {2}, user: {3}]", groupId, initObj.Platform, iFileID, sUserGuid);
 
             if (groupId > 0)
             {
@@ -1260,12 +1180,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("IsItemPurchased->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("IsItemPurchased-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return bRet;
@@ -1278,8 +1198,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserPermittedItems-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1289,12 +1207,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserPermittedItems->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserPermittedItems-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return permittedMediaContainer;
@@ -1308,8 +1226,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetSubscriptionMedia-> [{0}, {1}], Params:[picSize: {2}, orderBy: {3}]", groupID, initObj.Platform, picSize, orderBy);
-
             if (groupID > 0)
             {
                 try
@@ -1318,12 +1234,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetSubscriptionMedia->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetSubscriptionMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -1336,8 +1252,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetSubscriptionMedia-> [{0}, {1}], Params:[picSize: {2}, orderBy: {3}]", groupID, initObj.Platform, picSize, orderBy);
-
             if (groupID > 0)
             {
                 try
@@ -1347,12 +1261,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetSubscriptionMedias->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetSubscriptionMedias-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lstMedia;
@@ -1364,8 +1278,6 @@ namespace TVPApiServices
             PermittedSubscriptionContainer[] permitedSubscriptions = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserPermitedSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1375,12 +1287,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserPermitedSubscriptions->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserPermitedSubscriptions-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return permitedSubscriptions;
@@ -1391,8 +1303,6 @@ namespace TVPApiServices
         {
             List<PermittedPackages> permittedPackages = new List<PermittedPackages>();
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetUserPermitedSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
@@ -1420,12 +1330,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserPermitedSubscriptions->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserPermitedSubscriptions-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return permittedPackages;
@@ -1438,8 +1348,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserWithInApp", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ChargeUserWithInApp-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1448,12 +1356,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ChargeUserWithInApp->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("ChargeUserWithInApp-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -1466,8 +1374,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "DummyChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("DummyChargeUserForMediaFile-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1476,12 +1382,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("DummyChargeUserForMediaFile->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("DummyChargeUserForMediaFile-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -1494,8 +1400,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ChargeUserForMediaFile-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1504,12 +1408,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ChargeUserForMediaFile->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("ChargeUserForMediaFile-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -1522,8 +1426,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "CancelSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("CancelSubscription-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1532,12 +1434,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("CancelSubscription->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("CancelSubscription-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -1550,8 +1452,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForMediaSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ChargeUserForMediaSubscription-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1560,12 +1460,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ChargeUserForMediaSubscription->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("ChargeUserForMediaSubscription-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -1578,8 +1478,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "DummyChargeUserForSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("DummyChargeUserForSubscription-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1588,12 +1486,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("DummyChargeUserForSubscription->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("DummyChargeUserForSubscription-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -1605,8 +1503,6 @@ namespace TVPApiServices
             MediaFileItemPricesContainer[] itemPrices = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetItemPrices-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
@@ -1626,12 +1522,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetItemPrices->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetItemPrices-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return itemPrices;
@@ -1644,8 +1540,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionProductCode", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetSubscriptionProductCode-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1654,12 +1548,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetSubscriptionProductCode->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetSubscriptionProductCode-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return res;
@@ -1671,8 +1565,6 @@ namespace TVPApiServices
             List<SubscriptionPrice> res = new List<SubscriptionPrice>();
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionDataPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetSubscriptionDataPrices-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
@@ -1692,12 +1584,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetSubscriptionDataPrices->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetSubscriptionDataPrices-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return res;
@@ -1710,8 +1602,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserTransactionHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserTransactionHistory-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1720,12 +1610,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserTransactionHistory->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserTransactionHistory-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return transactions;
@@ -1736,8 +1626,6 @@ namespace TVPApiServices
         {
             PermittedMediaContainer[] items = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetUserExpiredItems-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
@@ -1751,12 +1639,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserExpiredItems->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserExpiredItems-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             if (items == null)
@@ -1774,8 +1662,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserExpiredSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1786,12 +1672,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserExpiredSubscriptions->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserExpiredSubscriptions-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             if (items == null)
@@ -1809,8 +1695,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetSubscriptionsPrices-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1820,12 +1704,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetSubscriptionsPrices->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetSubscriptionsPrices-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return items;
@@ -1839,8 +1723,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetPrepaidBalance", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetPrepaidBalance-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1849,12 +1731,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetPrepaidBalance->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetPrepaidBalance-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return fResponse;
@@ -1867,8 +1749,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeMediaWithPrepaid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ChargeMediaWithPrepaid-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1877,12 +1757,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ChargeMediaWithPrepaid->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("ChargeMediaWithPrepaid-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return oResponse.ToString();
@@ -1895,8 +1775,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "AddUserSocialAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("AddUserSocialAction-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1905,12 +1783,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("AddUserSocialAction->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("AddUserSocialAction-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return bResponse;
@@ -1923,8 +1801,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsUserVoted", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("IsUserVoted-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1934,12 +1810,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("IsUserVoted->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("IsUserVoted-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return bResponse;
@@ -1952,8 +1828,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetVoteRatio", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetVoteRatio-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1963,12 +1837,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetVoteRatio->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetVoteRatio-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return nResponse;
@@ -1981,8 +1855,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLink", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetMediaLicenseLink-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -1991,12 +1863,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetMediaLicenseLink->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetMediaLicenseLink-> 'Unknown group' Username: {0}, Password: {1}, mediaFileID: {2}", initObj.ApiUser, initObj.ApiPass, mediaFileID);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return sResponse;
@@ -2009,8 +1881,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserOfflineList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetUserOfflineList-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -2020,12 +1890,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserOfflineList->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserOfflineList-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return sResponse;
@@ -2036,8 +1906,6 @@ namespace TVPApiServices
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ToggleOfflineMode", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ToggleOfflineMode-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -2046,12 +1914,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ToggleOfflineMode->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("ToggleOfflineMode-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
         }
 
@@ -2061,8 +1929,6 @@ namespace TVPApiServices
             List<Media> lResponse = new List<Media>();
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserOfflineListFull", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetUserOfflineListFull-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
@@ -2077,12 +1943,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetUserOfflineListFull->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetUserOfflineListFull-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return lResponse;
@@ -2095,8 +1961,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "AddUserOfflineMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("AddUserOfflineMedia-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -2105,12 +1969,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("AddUserOfflineMedia->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("AddUserOfflineMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return bResponse;
@@ -2123,8 +1987,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "RemoveUserOfflineMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("RemoveUserOfflineMedia-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -2133,12 +1995,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("RemoveUserOfflineMedia->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("RemoveUserOfflineMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return bResponse;
@@ -2151,8 +2013,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ClearUserOfflineList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ClearUserOfflineList-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -2161,12 +2021,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ClearUserOfflineList->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("ClearUserOfflineList-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return bResponse;
@@ -2179,8 +2039,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "CheckGeoBlockForMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("CheckGeoBlockForMedia-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -2189,12 +2047,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ClearUserOfflineList->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("CheckGeoBlockForMedia-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return sRet;
@@ -2207,8 +2065,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGChannels", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetEPGChannels-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -2217,12 +2073,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetEPGChannels->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetEPGChannels-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return sRet;
@@ -2235,8 +2091,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGChannelProgrammeByDates", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetEPGChannelProgrammeByDates-> [{0}, {1}], Params:[user: {2},channelID:{3}]", groupId, initObj.Platform, initObj.SiteGuid, channelID);
-
             if (groupId > 0)
             {
                 try
@@ -2245,11 +2099,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetEPGChannelProgrammeByDates->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
-                logger.ErrorFormat("GetEPGChannelProgrammeByDates-> 'Unknown group' Username: {0}, Password: {1}, channelID:{2}", initObj.ApiUser, initObj.ApiPass, channelID);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+
 
             return sRet;
         }
@@ -2261,8 +2116,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGChannelsPrograms", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetEPGChannels-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -2271,12 +2124,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetEPGChannelsPrograms->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetEPGChannelsPrograms-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return sRet;
@@ -2289,8 +2142,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGMultiChannelProgram", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetEPGMultiChannelProgram-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
-
             if (groupId > 0)
             {
                 try
@@ -2299,12 +2150,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetEPGMultiChannelProgram->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetEPGChannelsPrograms-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return sRet;
@@ -2317,8 +2168,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupMediaRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetGroupMediaRules-> [{0}, {1}], Params:[userName: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
                 try
@@ -2327,12 +2176,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetGroupMediaRules->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetGroupMediaRules-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -2345,8 +2194,6 @@ namespace TVPApiServices
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetChannelsList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetChannelsList-> [{0}, {1}], Params:[user: {2},sPicSize:{3}]", groupId, initObj.Platform, initObj.SiteGuid, sPicSize);
-
             if (groupId > 0)
             {
                 try
@@ -2355,12 +2202,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetChannelsList->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("GetChannelsList-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
             return sRet;
         }

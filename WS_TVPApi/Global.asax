@@ -1,6 +1,8 @@
 ﻿<%@ Application Language="C#" %>
 <%@ Import Namespace="TVPApiModule.Helper" %>
 <%@ Import Namespace="log4net" %>
+<%@ Import Namespace="System.Diagnostics" %>
+
 
 <script runat="server">
     public static ILog logger = log4net.LogManager.GetLogger("GlobalASCX");
@@ -34,6 +36,7 @@
     {
         // Save site data (groupid, platform, wsuser, wspass) on session for further proccesses
         TVPApi.ConnectionHelper.InitServiceConfigs();
+        HttpContext.Current.Items.Add("RequestStartTime", DateTime.UtcNow);
     }
     
     void Application_End(object sender, EventArgs e) 
@@ -44,6 +47,8 @@
         
     void Application_Error(object sender, EventArgs e) 
     {
+        Response.Clear();
+        
         // Code that runs when an unhandled error occurs
         Exception ex = new Exception("Unknown Exception");
         if (Server.GetLastError() != null && Server.GetLastError().GetBaseException() != null) ex = Server.GetLastError().GetBaseException();
@@ -59,6 +64,7 @@
         // Code that runs when a new session is started
     }
 
+    
     void Session_End(object sender, EventArgs e) 
     {
         // Code that runs when a session ends. 
@@ -66,6 +72,65 @@
         // is set to InProc in the Web.config file. If session mode is set to StateServer 
         // or SQLServer, the event is not raised.
 
+    }
+
+    void Application_EndRequest(Object Sender, EventArgs e)
+    {
+        // Get response time in milliseconds
+        int timeTaken = (DateTime.UtcNow - (DateTime)HttpContext.Current.Items["RequestStartTime"]).Milliseconds;        
+        
+        // Get the request Url
+        string sURL = Request.Url.AbsoluteUri;        
+        
+        // Get the request message body 
+        System.IO.StreamReader reader = new System.IO.StreamReader(Request.InputStream);
+        reader.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
+        string requestBody = reader.ReadToEnd();
+        
+        // Get the client ip
+        string clienIP = TVPPro.SiteManager.Helper.SiteHelper.GetClientIP();
+
+        // Check if exception or error occurred
+        object error = HttpContext.Current.Items["Error"];
+        string sError = null;
+        if (error != null)
+        {
+            //Response.ClearContent();
+            // Exception was thrown - write log
+            if (error is Exception)
+            {
+                sError = "Unknown error";
+            }
+            // Error occurred - write log
+            else
+            {
+                sError = error as string;
+            }
+            // Return an error message to client
+            if (Response.ContentType.Contains("xml"))
+            {
+                string xml = string.Format("<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema'><soap:Body><Error error={0}/></soap:Body></soap:Envelope>", error); ;
+                Response.Clear();
+                Response.Write(xml);
+            }
+            else
+            {
+                string json = new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(new { Error = sError });
+                Response.Write(json);
+            }
+        }
+        
+        // Write log
+        if (!string.IsNullOrEmpty(sError))
+        {
+            logger.DebugFormat("Application_EndRequest: URL = {0}, ClientIP = {1}, RequestBody = {2}, TimeTaken = {3} (Milliseconds), Error = {4} ", sURL, clienIP, requestBody, timeTaken, sError);
+        }
+        else
+        {
+            logger.DebugFormat("Application_EndRequest: URL = {0}, ClientIP = {1}, RequestBody = {2}, TimeTaken = {3} (Milliseconds)", sURL, clienIP, requestBody, timeTaken);            
+        }
+        // Append to IIS log the full Url
+        Response.AppendToLog(string.Format("|{0}", sURL)); 
     }
        
 </script>

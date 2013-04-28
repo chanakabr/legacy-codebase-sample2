@@ -13,6 +13,7 @@ using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Billing;
+using System.Web;
 
 namespace TVPApiServices
 {
@@ -37,8 +38,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastBillingUserInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetLastBillingUserInfo-> [{0}, {1}]", groupID, initObj.Platform);
-
             if (groupID > 0)
             {
                 try
@@ -47,12 +46,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetLastBillingUserInfo->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);                    
                 }
             }
             else
             {
-                logger.ErrorFormat("GetLastBillingUserInfo-> 'Unknown group' Username: {0}, Password: {1}, siteGuid: {2}", initObj.ApiUser, initObj.ApiPass, initObj.SiteGuid);
+                HttpContext.Current.Items.Add("Error", "Unknown group");                    
             }
 
             return response;
@@ -65,8 +64,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetClientMerchantSig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetClientMerchantSig-> [{0}, {1}] sParamaters: {2}", groupID, initObj.Platform, sParamaters);
-
             if (groupID > 0)
             {
                 try
@@ -75,11 +72,13 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("GetClientMerchantSig->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
-                logger.ErrorFormat("GetClientMerchantSig-> 'Unknown group' Username: {0}, Password: {1}, siteGuid: {2}, sParamaters: {3}", initObj.ApiUser, initObj.ApiPass, initObj.SiteGuid, sParamaters);
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
 
             return response;
         }

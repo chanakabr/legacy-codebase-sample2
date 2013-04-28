@@ -13,6 +13,7 @@ using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
+using System.Web;
 
 namespace TVPApiServices
 {
@@ -37,8 +38,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ResetDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ResetDomain-> [{0}, {1}]", groupID, initObj.Platform);
-
             if (groupID > 0)
             {
                 try
@@ -47,12 +46,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("ResetDomain->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("ResetDomain-> 'Unknown group' Username: {0}, Password: {1}, domainID: {2}", initObj.ApiUser, initObj.ApiPass, initObj.DomainID);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -65,8 +64,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDeviceInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SetDeviceInfo-> [{0}, {1}]", groupID, initObj.Platform);
-
             if (groupID > 0)
             {
                 try
@@ -75,12 +72,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("SetDeviceInfo->", ex);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                logger.ErrorFormat("SetDeviceInfo-> 'Unknown group' Username: {0}, Password: {1}, udid: {2}", initObj.ApiUser, initObj.ApiPass, initObj.UDID);
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -94,8 +91,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddDeviceToDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("AddDeviceToDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
                 try
@@ -104,7 +99,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : AddDeviceToDomain, Error Message: {0} Parameters: iDomainID: {1}, sUDID: {2}, sDeviceName: {3}, iDeviceBrandID: {4}", ex.Message, initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -118,8 +113,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddUserToDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("AddUserToDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
 
@@ -129,7 +122,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : AddUserToDomain, Error Message: {0} Parameters: sSiteGuid: {1}, bMaster: {2}", ex.Message, initObj.SiteGuid, bMaster);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -143,8 +136,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveUserFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("RemoveUserFromDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
                 try
@@ -153,7 +144,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : RemoveUserFromDomain, Error Message: {0} Parameters: iDomainID: {1}, sSiteGUID: {2}", ex.Message, initObj.DomainID, initObj.SiteGuid);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -167,8 +158,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveDeviceFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("RemoveDeviceFromDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
                 try
@@ -177,7 +166,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : RemoveDeviceFromDomain, Error Message: {0} Parameters: iDomainID: {1}, sUDID: {2}, sDeviceName: {3}, iDeviceBrandID: {4}", ex.Message, initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -191,8 +180,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ChangeDeviceDomainStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("ChangeDeviceDomainStatus-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
                 try
@@ -201,7 +188,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : ChangeDeviceDomainStatus, Error Message: {0} Parameters: iDomainID: {1}, bActive: {2}", ex.Message, initObj.DomainID, initObj.UDID, bActive);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -215,8 +202,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetDomainInfo-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
                 try
@@ -225,7 +210,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : GetDomainInfo, Error Message: {0} Parameters: iDomainID: {1}", ex.Message, initObj.DomainID);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -240,8 +225,6 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("SetDomainInfo-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
                 try
@@ -250,7 +233,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : SetDomainInfo, Error Message: {0} Parameters: iDomainID: {1}, sDomainName: {2}, sDomainDescription: {3}", ex.Message, initObj.DomainID, sDomainName, sDomainDescription);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -264,8 +247,6 @@ namespace TVPApiServices
             TVPApiModule.Services.ApiDomainsService.DeviceDomain[] devDomains = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetDeviceDomains-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
 
             if (groupID > 0)
             {
@@ -283,7 +264,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : GetDeviceDomains, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -296,8 +277,6 @@ namespace TVPApiServices
             string pin = string.Empty;
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPINForDevice", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("GetPINForDevice-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
                 try
@@ -306,7 +285,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : GetPINForDevice, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -318,8 +297,6 @@ namespace TVPApiServices
         {
             TVPApiModule.Services.ApiDomainsService.DeviceRegistration deviceRes = new TVPApiModule.Services.ApiDomainsService.DeviceRegistration();
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RegisterDeviceByPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("RegisterDeviceByPIN-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
 
             if (groupID > 0)
             {
@@ -340,7 +317,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : RegisterDeviceByPIN, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -353,8 +330,6 @@ namespace TVPApiServices
             DomainResponseObject domainRes = null;
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            logger.InfoFormat("AddDomain-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
-
             if (groupID > 0)
             {
                 try
@@ -363,7 +338,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : AddDomain, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
@@ -375,8 +350,6 @@ namespace TVPApiServices
         {
             string res = string.Empty;
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            logger.InfoFormat("GetDomainCoGuid-> [{0}, {1}], Params:[siteGuid: {2}]", groupID, initObj.Platform, initObj.SiteGuid);
 
             if (groupID > 0)
             {
@@ -392,7 +365,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : GetDomainCoGuid, Error Message: {0} Parameters: udid: {1}", ex.Message, initObj.UDID);
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
 
