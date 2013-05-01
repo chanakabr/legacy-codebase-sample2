@@ -18,7 +18,7 @@ public partial class MethodFinder
 {
     #region Method Info
     /// <summary>
-    /// Operter service - The service the reuqest currently uses
+    /// Operator service - The service the request currently uses
     /// </summary>
     private System.Web.Services.WebService Webservice { get; set; }
     private System.Web.Services.WebService[] BackWebservice { get; set; }
@@ -47,31 +47,35 @@ public partial class MethodFinder
             if (VerifyAllParametersCheck())
             {
                 string SerializedReturnValue = String.Empty;
-                ParameterInitBase executer = GetExecuter();//get the strategy to use to handle request
+
+                // get the strategy to use to handle request
+                ParameterInitBase executer = GetExecuter();
 
                 object[] CallParameters = new object[MethodParameters.Length];
                 for (int i = 0; i < MethodParameters.Length; i++)
                 {
                     ParameterInfo TargetParameter = MethodParameters[i];
-                    CallParameters[i] = executer.InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);//get the object value of the parameter
+
+                    // get the object value of the parameter
+                    CallParameters[i] = executer.InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);
                 }
-                SerializedReturnValue = executer.PostParametersInit(this, MethodParameters, CallParameters);//post handle request
+
+                // post handle request
+                SerializedReturnValue = executer.PostParametersInit(this, MethodParameters, CallParameters);
 
                 WriteResponseBackToClient(SerializedReturnValue);
             }
         }
         catch (Exception e)
         {
-            ErrorHandler(String.Format("Exception Genrated. Reason: {0}", e.Message));
+            ErrorHandler(String.Format("Exception Generated. Reason: {0}", e.Message));
         }
     }
 
     private void WriteResponseBackToClient(string responseMsg)
     {
-        HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.UTF8;
+        HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = Encoding.UTF8;
         HttpContext.Current.Response.Charset = "utf-8";
         HttpContext.Current.Response.Write(responseMsg);
     }
-
-
 }

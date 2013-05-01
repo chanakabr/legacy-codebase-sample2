@@ -22,14 +22,14 @@ public partial class MethodFinder
     /// Holds functions to handle string(JSON) and object's
     /// </summary>
     private abstract class ParameterInitBase
-    {               
+    {
         /// <summary>
         /// Method to be execute when load parameters object values
         /// </summary>
         /// <param name="MethodParam">the type of the parameter</param>
         /// <param name="methodName">the parameter name</param>
         /// <returns>return the object representing the value for the parameter</returns>
-        public abstract object InitilizeParameter(Type MethodParam,String methodName);
+        public abstract object InitilizeParameter(Type MethodParam, String methodName);
         /// <summary>
         /// Method to be executed when finished loading all values for all parameter.
         /// </summary>
@@ -49,11 +49,20 @@ public partial class MethodFinder
             object Product = null;
             do
             {
+                // for string
                 if (TargetType.Name == "String")
                 {
                     Product = DeserializationTarget;
                     break;
                 }
+
+                // for Date
+                if (TargetType.FullName == "System.DateTime")
+                {
+                    Product = Convert.ToDateTime(DeserializationTarget);
+                    break;
+                }
+
                 if (TargetType.IsByRef)
                 {
                     string itsName = TargetType.FullName.Replace("&", "");
@@ -152,7 +161,7 @@ public partial class MethodFinder
         /// <param name="inObject"></param>
         protected void ReplaceEnumValue(ref string json, string replaceThisName, Type EnumType, object currValue, bool inObject)
         {
-            
+
             do
             {
                 if (!inObject)
@@ -164,8 +173,8 @@ public partial class MethodFinder
                 // re-build the json string with the updated enum VALUES|NAMES.
                 Newtonsoft.Json.Linq.JObject oJson = Newtonsoft.Json.Linq.JObject.Parse(json);
 
-                Newtonsoft.Json.Linq.JToken oCurToken = (oJson[replaceThisName] != null)? oCurToken = oJson[replaceThisName] : oCurToken = oJson["Locale"][replaceThisName];
-                
+                Newtonsoft.Json.Linq.JToken oCurToken = (oJson[replaceThisName] != null) ? oCurToken = oJson[replaceThisName] : oCurToken = oJson["Locale"][replaceThisName];
+
                 int index = json.IndexOf(replaceThisName);
                 //String partA = json.Substring(0, index + replaceThisName.Length +2);
                 //String partB = json.Substring(partA.Length);
@@ -175,12 +184,12 @@ public partial class MethodFinder
                 //if (indexOfNextProp != -1 && indexOfNextProp < indexOfNextObject) index = indexOfNextProp;
                 //else index = indexOfNextObject;
 
-                
+
 
                 //String ReplaceThis = partB.Substring(1, index);
                 //ReplaceThis = ReplaceThis.Replace("'", string.Empty);
                 //String partBWithoutValue = partB.Substring(ReplaceThis.Length);
-                
+
                 String replacement = String.Empty;
 
                 ReplaceStratagy(ref replacement, EnumType, oCurToken.ToString());
@@ -207,7 +216,7 @@ public partial class MethodFinder
         /// <param name="json"></param>
         /// <param name="EnumType"></param>
         /// <param name="currValue"></param>
-        protected abstract void ReplaceStratagy(ref string json,Type EnumType, object currValue);
+        protected abstract void ReplaceStratagy(ref string json, Type EnumType, object currValue);
     }
 
     private class ParameterDefaultInit : ParameterInitBase
@@ -246,19 +255,19 @@ public partial class MethodFinder
                     if (!TryFindType(itsName, out MethodParam)) return null;
                 }
 
-                if( MethodParam.IsPrimitive )
+                if (MethodParam.IsPrimitive)
                 {
                     result = Activator.CreateInstance(MethodParam, true);
                     break;
                 }
-               
-                if( MethodParam.IsValueType && !MethodParam.IsEnum )
+
+                if (MethodParam.IsValueType && !MethodParam.IsEnum)
                 {
                     result = Activator.CreateInstance(MethodParam, new object[] { (object)0 });
                     break;
                 }
 
-                if( MethodParam.Name == "String" )
+                if (MethodParam.Name == "String")
                 {
                     result = String.Empty;
                     break;
@@ -267,7 +276,7 @@ public partial class MethodFinder
                 if (MethodParam.IsArray)
                 {
                     Type innerType = MethodParam.GetElementType();
-                    string underineObjectType = MethodParam.FullName.Replace("[]","");
+                    string underineObjectType = MethodParam.FullName.Replace("[]", "");
                     if (!TryFindType(underineObjectType, out MethodParam)) return null;
                     result = Array.CreateInstance(MethodParam, 1);
                     object firstElement = null;
@@ -275,21 +284,21 @@ public partial class MethodFinder
                     if (constructor != null)
                     {
                         firstElement = constructor.Invoke(new object[constructor.GetParameters().Length]);
-                    }                       
+                    }
                     ((Array)(result)).SetValue(firstElement, 0);
                     break;
                 }
 
                 result = Activator.CreateInstance(MethodParam, true);
-                                               
+
             } while (false);
             return result;
         }
 
-        public override object InitilizeParameter(Type MethodParam,String methodName)
+        public override object InitilizeParameter(Type MethodParam, String methodName)
         {
             object requeredObjectToThisParam = CreateObjectInstance(MethodParam);
-            if ( !MethodParam.Namespace.StartsWith("System") && MethodParam.IsClass && !MethodParam.IsArray)
+            if (!MethodParam.Namespace.StartsWith("System") && MethodParam.IsClass && !MethodParam.IsArray)
             {
                 foreach (PropertyInfo propInfo in requeredObjectToThisParam.GetType().GetProperties())//check if object and properties of type objects and create them as well
                 {
@@ -305,7 +314,7 @@ public partial class MethodFinder
         {
             StringBuilder requeredObjectToThisParam = new StringBuilder();
             Type myType = SerializationTarget.GetType();
-            
+
             if (!myType.Namespace.StartsWith("System") && myType.IsClass && !myType.IsArray)
             {
                 requeredObjectToThisParam.Append("{");
@@ -333,7 +342,7 @@ public partial class MethodFinder
                         {
                             requeredObjectToThisParam.Append(this.JSONSerialize(propInfo.GetValue(SerializationTarget, null)));
                             break;
-                        }                        
+                        }
                     } while (false);
                     requeredObjectToThisParam.Append(",");
                 }
@@ -346,7 +355,7 @@ public partial class MethodFinder
                 {
                     if ((myType.IsPrimitive || myType.IsValueType) && !myType.IsEnum)
                     {
-                        requeredObjectToThisParam.Append(String.Format(@"""{0}""",myType.Name));
+                        requeredObjectToThisParam.Append(String.Format(@"""{0}""", myType.Name));
                         break;
                     }
                     if (myType.Name == "String")
@@ -356,11 +365,11 @@ public partial class MethodFinder
                     }
                     if (myType.IsArray)
                     {
-                        requeredObjectToThisParam.Append(String.Format(@"[""{0}""]", myType.Name.Replace("[]","")));
+                        requeredObjectToThisParam.Append(String.Format(@"[""{0}""]", myType.Name.Replace("[]", "")));
                         break;
                     }
-                }while(false);                
-            }            
+                } while (false);
+            }
 
             return requeredObjectToThisParam.ToString();
         }
@@ -372,11 +381,11 @@ public partial class MethodFinder
         /// <param name="paramInfo"></param>
         /// <param name="methodParameters"></param>
         /// <returns></returns>
-        public override string PostParametersInit(MethodFinder executer, ParameterInfo[] paramInfo ,object[] methodParameters)
+        public override string PostParametersInit(MethodFinder executer, ParameterInfo[] paramInfo, object[] methodParameters)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("{");
-            for (int i = 0; i < methodParameters.Length; i++ )
+            for (int i = 0; i < methodParameters.Length; i++)
             {
                 sb.Append(@" """).Append(paramInfo[i].Name).Append(@""": ");
                 //string json = String.Format("{0}{1}{0}", paramInfo[i].ParameterType.IsClass && paramInfo[i].ParameterType.Name != "String" ? "" : "", JSONSerialize(methodParameters[i]));                                
@@ -395,7 +404,7 @@ public partial class MethodFinder
             StringBuilder enumNames = new StringBuilder();
             foreach (String eName in Enum.GetNames(EnumType))
             {
-                enumNames.Append(String.Format(@"{0}",eName)).Append(" || ");
+                enumNames.Append(String.Format(@"{0}", eName)).Append(" || ");
             }
             enumNames.Remove(enumNames.Length - " || ".Length, " || ".Length);
             json = string.Concat(@"""", enumNames.ToString(), @"""");
@@ -410,7 +419,7 @@ public partial class MethodFinder
         /// </summary>
         /// <param name="json"></param>
         /// <param name="MethodParam"></param>
-        private void InspectObjectForEnums(ref string json, Type MethodParam,string methodParamName)
+        private void InspectObjectForEnums(ref string json, Type MethodParam, string methodParamName)
         {
             do
             {
@@ -432,7 +441,7 @@ public partial class MethodFinder
                         }
                     }
                 }
-            } while (false);            
+            } while (false);
         }
 
         public override object InitilizeParameter(Type MethodParam, String methodName)
@@ -526,13 +535,13 @@ public partial class MethodFinder
                     break;
                 }
             }
-           
+
             if (m_MetodInfo == null)
             {
                 ErrorHandler(String.Format("The method you specified[ {0} ] is NOT part of this Services..", methodName));
                 break;
             }
-            
+
             MethodParameters = m_MetodInfo.GetParameters();
             return true;
         } while (false);
@@ -553,7 +562,7 @@ public partial class MethodFinder
 
         if (IsPost)
             _strategy = new ParameterJsonInit();
-        else            
+        else
             _strategy = new ParameterDefaultInit();
 
         return _strategy;
