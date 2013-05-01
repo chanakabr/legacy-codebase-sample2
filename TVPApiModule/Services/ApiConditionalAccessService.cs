@@ -626,6 +626,26 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
+        public BillingResponse InApp_ChargeUserForMediaFile(string siteGuid, double dPrice, string sCurrencyCode3, int nMediaFileID, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters, string sCountryCd2, string sLanguageCode3, string sDeviceName, string ReceiptData)
+        {
+            BillingResponse retVal = null;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                try
+                {
+                    logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} nMediaFileID : {1}", siteGuid, nMediaFileID);
+                    retVal = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, dPrice, sCurrencyCode3, nMediaFileID, sPPVModuleCode, sCouponCode, sUserIP, sExtraParameters, sCountryCd2, sLanguageCode3, sDeviceName, ReceiptData);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling web service protocol : InApp_ChargeUserForMediaFile, Error Message: {0}, Parameters : SiteGuid: {1} nMediaFileID : {2}", ex.Message, siteGuid, nMediaFileID);
+                }
+            }
+            return retVal;
+        }
+
         #endregion
     }
 }
