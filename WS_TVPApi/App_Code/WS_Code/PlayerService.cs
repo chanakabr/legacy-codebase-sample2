@@ -30,7 +30,7 @@ namespace TVPApiServices
 
         public PlayerService()
         {
-            
+
         }
 
         public class ErrorMessageWrapper
@@ -60,8 +60,8 @@ namespace TVPApiServices
         [System.Xml.Serialization.XmlInclude(typeof(Media.File))]
         public MediaWrapper GetMediaInfo(InitializationObject initObj, long MediaID, string picSize)
         {
-            MediaWrapper retMedia = new MediaWrapper();            
-           
+            MediaWrapper retMedia = new MediaWrapper();
+
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
@@ -93,6 +93,7 @@ namespace TVPApiServices
                     }
 
                     retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid));
+                    //retMedia.Rules = new TVPPro.SiteManager.TvinciPlatform.api.GroupRule[]{};
                 }
                 catch (Exception ex)
                 {
@@ -102,14 +103,14 @@ namespace TVPApiServices
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-            }           
+            }
 
-            return retMedia;                                  
-        }     
+            return retMedia;
+        }
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
         [System.Xml.Serialization.XmlInclude(typeof(TVPApi.ActionHelper.FileHolder))]
-        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, TVPApi.ActionHelper.FileHolder fileParam, int iLocation) 
+        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, TVPApi.ActionHelper.FileHolder fileParam, int iLocation)
         {
             string sRet = string.Empty;
 
@@ -301,6 +302,6 @@ namespace TVPApiServices
             }
 
             return retVal;
-        }     
+        }
     }
 }
