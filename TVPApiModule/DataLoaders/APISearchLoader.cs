@@ -180,7 +180,7 @@ namespace TVPApi
             protocol.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             protocol.root.flashvars.file_quality = Tvinci.Data.TVMDataLoader.Protocols.Search.file_quality.high;
             protocol.root.flashvars.use_final_end_date = UseFinalEndDate;
-            protocol.root.flashvars.use_start_date = GetFutureStartDate;
+            protocol.root.flashvars.use_start_date = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate;
 
             protocol.root.flashvars.player_un = TvmUser;
             protocol.root.flashvars.player_pass = TvmPass;
