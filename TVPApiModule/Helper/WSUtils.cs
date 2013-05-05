@@ -36,7 +36,7 @@ namespace TVPApi
             switch (nGroupID)
             {
                 case 153:
-                    return new ImplementationYes(nGroupID, initObj);
+                   // return new ImplementationYes(nGroupID, initObj);
                 
                 default:
                     return new ImplementationBase(nGroupID, initObj);
