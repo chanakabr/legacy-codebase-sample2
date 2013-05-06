@@ -24,6 +24,9 @@ namespace TVPApiServices
         List<Media> GetChannelMediaList(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy);
 
         [OperationContract]
+        List<Media> GetChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy, List<TVPApi.TagMetaPair> metas, List<TVPApi.TagMetaPair> tags);
+
+        [OperationContract]
         List<Media> GetChannelMediaListWithMediaCount(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, ref long mediaCount);
 
         [OperationContract]
@@ -54,7 +57,7 @@ namespace TVPApiServices
         List<Media> SearchMediaByMetaWithMediaCount(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount);
 
         [OperationContract]
-        Category GetCategory(InitializationObject initObj,int categoryID);
+        Category GetCategory(InitializationObject initObj, int categoryID);
 
         [OperationContract]
         List<Media> SearchMedia(InitializationObject initObj, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy);
@@ -78,7 +81,7 @@ namespace TVPApiServices
         TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject RateMedia(InitializationObject initObj, int mediaID, int mediaType, int extraVal);
 
         [OperationContract]
-        List<Media> GetMediasByMostAction(InitializationObject initObj,TVPApi.ActionType action, int mediaType);
+        List<Media> GetMediasByMostAction(InitializationObject initObj, TVPApi.ActionType action, int mediaType);
 
         [OperationContract]
         List<Media> GetMediasByRating(InitializationObject initObj, int rating);
@@ -90,7 +93,7 @@ namespace TVPApiServices
         string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);        
+        TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);
 
         [OperationContract]
         bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform);
