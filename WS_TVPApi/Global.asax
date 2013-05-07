@@ -93,6 +93,7 @@
         // Check if exception or error occurred
         object error = HttpContext.Current.Items["Error"];
         string sError = null;
+
         if (error != null)
         {
             //Response.ClearContent();
@@ -109,12 +110,13 @@
             // Return an error message to client
             if (Response.ContentType.Contains("xml"))
             {
-                string xml = string.Format("<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema'><soap:Body><Error error={0}/></soap:Body></soap:Envelope>", error); ;
+                string xml = string.Format("<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema'><soap:Body><Error error='{0}'/></soap:Body></soap:Envelope>", sError); ;
                 Response.Clear();
                 Response.Write(xml);
             }
             else
             {
+                HttpContext.Current.Response.Clear();
                 string json = new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(new { Error = sError });
                 Response.Write(json);
             }
@@ -123,7 +125,7 @@
         // Write log
         if (!string.IsNullOrEmpty(sError))
         {
-            logger.ErrorFormat("Application_EndRequest: URL = {0}, ClientIP = {1}, RequestBody = {2}, TimeTaken = {3} (Milliseconds), Error = {4} ", sURL, clienIP, requestBody, timeTaken, ((Exception) error).Message);
+            logger.ErrorFormat("Application_EndRequest: URL = {0}, ClientIP = {1}, RequestBody = {2}, TimeTaken = {3} (Milliseconds), Error = {4} ", sURL, clienIP, requestBody, timeTaken, sError);
         }
         else
         {
