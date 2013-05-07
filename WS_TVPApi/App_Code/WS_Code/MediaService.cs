@@ -1336,6 +1336,10 @@ namespace TVPApiServices
                 try
                 {
                     PermittedSubscriptionContainer[] permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(initObj.SiteGuid);
+                    
+                    if (permitedSubscriptions == null || permitedSubscriptions.Count() == 0)
+                        return permittedPackages;
+
                     permitedSubscriptions = permitedSubscriptions.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
 
                     foreach (PermittedSubscriptionContainer psc in permitedSubscriptions)

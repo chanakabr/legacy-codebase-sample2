@@ -632,7 +632,7 @@ namespace TVPApiServices
             return sRet != null ? sRet.m_sSiteGUID : string.Empty;
         }
 
-        [WebMethod(EnableSession = true, Description = "Sign-In a user")]
+        [WebMethod(EnableSession = true, Description = "Sign-In a user")]        
         public TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password)
         {
             TVPApiModule.Services.ApiUsersService.LogInResponseData responseData = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
