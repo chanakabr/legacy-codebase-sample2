@@ -33,6 +33,7 @@ namespace TVPApi
         public string Description;
         public DateTime CreationDate;
         public DateTime? LastWatchDate;
+        public DateTime StartDate;
         public string PicURL;
         public string URL;
         public string MediaWebLink;
@@ -52,7 +53,7 @@ namespace TVPApi
         public long TotalItems;
         public int? like_counter;
 
-        
+
 
         public struct ExtIDPair
         {
@@ -206,6 +207,11 @@ namespace TVPApi
                 CreationDate = row.AddedDate;
             }
 
+            if (!row.IsStartDateNull())
+            {
+                StartDate = row.StartDate;
+            }
+
             // add sub file foramt info
             if (!row.IsSubDurationNull())
             {
@@ -226,7 +232,7 @@ namespace TVPApi
             if (!row.IsGeoBlockNull())
             {
                 GeoBlock = row.GeoBlock;
-            }            
+            }
             if (!String.IsNullOrEmpty(row.Likes))
             {
                 like_counter = Convert.ToInt32(row.Likes);
@@ -260,7 +266,8 @@ namespace TVPApi
             {
                 foreach (System.Data.DataRow rowExt in rowExtIDs)
                 {
-                    foreach(System.Data.DataColumn dc in rowExt.Table.Columns){
+                    foreach (System.Data.DataColumn dc in rowExt.Table.Columns)
+                    {
                         if (!dc.ColumnName.Equals("ID"))
                             ExternalIDs.Add(new ExtIDPair() { Key = dc.ColumnName, Value = rowExt[dc.ColumnName].ToString() });
                     }
@@ -330,7 +337,7 @@ namespace TVPApi
         private void BuildDynamicObj(InitializationObject initObj, int groupID)
         {
             this.MediaDynamicData = new DynamicData();
-            
+
             PermittedMediaContainer[] MediaItems = new ApiConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(initObj.SiteGuid);
             int mediID = int.Parse(MediaID);
             if (MediaItems != null)
@@ -363,7 +370,7 @@ namespace TVPApi
                 MediaDynamicData.Price = price;
 
             }
-            
+
             if (!string.IsNullOrEmpty(initObj.SiteGuid))
             {
                 if (MediaHelper.IsFavoriteMedia(initObj, groupID, int.Parse(MediaID)))
@@ -420,7 +427,7 @@ namespace TVPApi
                         if (mp.m_nMediaFileID == MediaFileID)
                             mediaPriceCont = mp;
                     }
-                    
+
                     if (mediaPriceCont != null)
                     {
                         if (mediaPriceCont.m_oItemPrices != null)
