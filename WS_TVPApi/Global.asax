@@ -101,6 +101,7 @@
             if (error is Exception)
             {
                 sError = "Unknown error";
+                
             }
             // Error occurred - write log
             else
@@ -125,7 +126,7 @@
         // Write log
         if (!string.IsNullOrEmpty(sError))
         {
-            logger.ErrorFormat("Application_EndRequest: URL = {0}, ClientIP = {1}, RequestBody = {2}, TimeTaken = {3} (Milliseconds), Error = {4} ", sURL, clienIP, requestBody, timeTaken, sError);
+            logger.ErrorFormat("Application_EndRequest: URL = {0}, ClientIP = {1}, RequestBody = {2}, TimeTaken = {3} (Milliseconds), Error = {4} ", sURL, clienIP, requestBody, timeTaken, error is Exception ? (error as Exception).Message : sError);
         }
         else
         {
