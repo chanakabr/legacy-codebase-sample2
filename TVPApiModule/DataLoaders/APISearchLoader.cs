@@ -132,7 +132,7 @@ namespace TVPApi
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
                     UseFinalDate = bool.Parse(UseFinalEndDate),
-                    UseStartDate = bool.Parse(GetFutureStartDate),
+                    //UseStartDate = bool.Parse(GetFutureStartDate),
                     DeviceId = DeviceUDID,
                     Culture = Language,
                 };
