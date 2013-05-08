@@ -245,7 +245,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get customer data")]
-        public BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double dPrice, string sCurrencyCode3, int nMediaFileID, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters, string sCountryCd2, string sLanguageCode3, string sDeviceName, string ReceiptData)
+        public BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double dPrice, string sCurrencyCode3, int nMediaFileID, string sPPVModuleCode, string sCouponCode, string ReceiptData)
         {
             BillingResponse res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "InApp_ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -253,7 +253,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).InApp_ChargeUserForMediaFile(initObj.SiteGuid, dPrice, sCurrencyCode3, nMediaFileID, sPPVModuleCode, sCouponCode, sUserIP, sExtraParameters, sCountryCd2, sLanguageCode3, sDeviceName, ReceiptData);
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).InApp_ChargeUserForMediaFile(initObj.SiteGuid, dPrice, sCurrencyCode3, nMediaFileID, sPPVModuleCode, sCouponCode, initObj.UDID, ReceiptData);
                 }
                 catch (Exception ex)
                 {
