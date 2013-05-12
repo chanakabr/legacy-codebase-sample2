@@ -202,9 +202,9 @@ namespace TVPApi
             {
                 ViewCounter = row.ViewCounter;
             }
-            if (!row.IsAddedDateNull())
+            if (!row.IsCreationDateNull())
             {
-                CreationDate = row.AddedDate;
+                CreationDate = row.CreationDate;
             }
 
             if (!row.IsStartDateNull())
