@@ -38,6 +38,6 @@ namespace TVPApiServices
         bool IsPermittedSubscription(InitializationObject initObj, int subId);
 
         [OperationContract]
-        BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double dPrice, string sCurrencyCode3, int nMediaFileID, string sPPVModuleCode, string sCouponCode, string ReceiptData);
+        BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double price, string currencyCode3, int productCode, string ppvModuleCode, string receiptData);
     }
 }
