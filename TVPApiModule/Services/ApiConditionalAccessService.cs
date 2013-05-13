@@ -626,7 +626,7 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public BillingResponse InApp_ChargeUserForMediaFile(string siteGuid, double dPrice, string sCurrencyCode3, int nMediaFileID, string sPPVModuleCode, string sCouponCode, string sDeviceName, string ReceiptData)
+        public BillingResponse InApp_ChargeUserForMediaFile(string siteGuid, double price, string currencyCode3, int productCode, string ppvModuleCode, string sDeviceName, string ReceiptData)
         {
             BillingResponse retVal = null;
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
@@ -635,12 +635,12 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} nMediaFileID : {1}", siteGuid, nMediaFileID);
-                    retVal = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, dPrice, sCurrencyCode3, nMediaFileID, sPPVModuleCode, sCouponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
+                    logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
+                    retVal = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currencyCode3, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
                 }
                 catch (Exception ex)
                 {
-                    logger.ErrorFormat("Error calling web service protocol : InApp_ChargeUserForMediaFile, Error Message: {0}, Parameters : SiteGuid: {1} nMediaFileID : {2}", ex.Message, siteGuid, nMediaFileID);
+                    logger.ErrorFormat("Error calling web service protocol : InApp_ChargeUserForMediaFile, Error Message: {0}, Parameters : SiteGuid: {1} productCode : {2}", ex.Message, siteGuid, productCode);
                 }
             }
             return retVal;
