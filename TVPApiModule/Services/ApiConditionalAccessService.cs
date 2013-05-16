@@ -626,7 +626,7 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public BillingResponse InApp_ChargeUserForMediaFile(string siteGuid, double price, string currencyCode3, int productCode, string ppvModuleCode, string sDeviceName, string ReceiptData)
+        public BillingResponse InApp_ChargeUserForMediaFile(string siteGuid, double price, string currency, int productCode, string ppvModuleCode, string sDeviceName, string ReceiptData)
         {
             BillingResponse retVal = null;
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
@@ -636,7 +636,7 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                    retVal = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currencyCode3, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
+                    retVal = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
                 }
                 catch (Exception ex)
                 {
