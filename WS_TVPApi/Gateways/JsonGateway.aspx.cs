@@ -166,9 +166,13 @@ public partial class Gateways_JsonGateway : BaseGateway
         //retVal.ApiPass = "11111";
         //Locale locale = new Locale();
         //locale.LocaleUserState = LocaleUserState.Unknown;
-        //retVal.Locale = locale;
         //return retVal;
+
         InitializationObject retVal = base.GetInitObj();
+        Locale locale = new Locale();
+        locale.LocaleUserState = LocaleUserState.Unknown;
+        retVal.Locale = locale;
+
         retVal.UDID = Request.QueryString["UUID"];
         if (string.IsNullOrEmpty(retVal.UDID)) retVal.UDID = Request.QueryString["UDID"];
 
