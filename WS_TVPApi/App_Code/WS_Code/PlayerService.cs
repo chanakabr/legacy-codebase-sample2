@@ -93,6 +93,8 @@ namespace TVPApiServices
                     }
 
                     retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid));
+
+                    // for debug
                     //retMedia.Rules = new TVPPro.SiteManager.TvinciPlatform.api.GroupRule[]{};
                 }
                 catch (Exception ex)
