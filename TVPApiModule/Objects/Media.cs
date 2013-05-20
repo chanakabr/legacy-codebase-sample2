@@ -225,11 +225,15 @@ namespace TVPApi
             {
                 CreationDate = row.CreationDate;
             }
+            else
+                CreationDate = new DateTime(1970, 1, 1);
 
             if (!row.IsStartDateNull())
             {
                 StartDate = row.StartDate;
             }
+            else
+                StartDate = new DateTime(1970, 1, 1);
 
             // add sub file foramt info
             if (!row.IsSubDurationNull())
