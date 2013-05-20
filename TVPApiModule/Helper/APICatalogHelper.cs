@@ -16,10 +16,10 @@ namespace TVPApiModule.Helper
             switch (type)
             {
                 case "meta":
-                    mediaInfoStructNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.GalleryMediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+                    mediaInfoStructNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.SearchValues.Metadata.ToString().Split(new Char[] { ';' });
                     break;
                 case "tag":
-                    mediaInfoStructNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.GalleryMediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+                    mediaInfoStructNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.SearchValues.Tags.ToString().Split(new Char[] { ';' });
                     break;
                 default:
                     mediaInfoStructNames = new string[0];

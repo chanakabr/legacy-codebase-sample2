@@ -60,7 +60,7 @@ namespace TVPApiModule.CatalogLoaders
 
         protected override void BuildSpecificRequest()
         {
-            m_oRequest = new MediaSearchRequest() 
+            m_oRequest = new MediaSearchRequest()
             {
                 m_bExact = Exact,
                 m_bAnd = And,
@@ -74,16 +74,13 @@ namespace TVPApiModule.CatalogLoaders
                 m_sDescription = Description,
                 m_nMediaTypes = MediaTypes
             };
-            if (Metas == null || Metas.Count() == 0)
+            if ((Metas == null || Metas.Count() == 0) && (Tags == null || Tags.Count == 0))
             {
                 Metas = APICatalogHelper.GetMetasTagsFromConfiguration("meta", Name, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
                 foreach (var meta in Metas)
                 {
                     meta.m_sValue = Name;
                 }
-            }
-            if (Tags == null || Tags.Count == 0)
-            {
                 Tags = APICatalogHelper.GetMetasTagsFromConfiguration("tag", Name, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
                 foreach (var tag in Tags)
                 {
