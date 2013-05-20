@@ -42,6 +42,7 @@ namespace TVPApi
         private List<TagMetaPair> m_tags;
         private List<TagMetaPair> m_metas;
         private List<File> m_files;
+        private List<Picture> m_pictures;
         private List<ExtIDPair> m_externalIDs;
 
         public DynamicData MediaDynamicData;
@@ -67,6 +68,12 @@ namespace TVPApi
             public string URL;
             public string Duration;
             public string Format;
+        }
+
+        public struct Picture
+        {
+            public string PicSize;
+            public string URL;
         }
 
         public List<TagMetaPair> Tags
@@ -102,6 +109,18 @@ namespace TVPApi
                     m_files = new List<File>();
                 }
                 return m_files;
+            }
+        }
+
+        public List<Picture> Pictures
+        {
+            get
+            {
+                if (m_pictures == null)
+                {
+                    m_pictures = new List<Picture>();
+                }
+                return m_pictures;
             }
         }
 
@@ -249,6 +268,8 @@ namespace TVPApi
 
             builtExternalIDs(row);
 
+            buildPictures(row);
+
             if (withDynamic && initObj.Locale != null)
             {
                 logger.InfoFormat("Start Media dynamic build GroupID:", groupID);
@@ -289,6 +310,21 @@ namespace TVPApi
                     file.Format = rowFile["Format"].ToString();
 
                     Files.Add(file);
+                }
+            }
+        }
+
+        private void buildPictures(dsItemInfo.ItemRow row)
+        {
+            System.Data.DataRow[] rowPictures = row.GetChildRows("Pictures_Item");
+            if (rowPictures != null && rowPictures.Length > 0)
+            {
+                foreach (System.Data.DataRow rowPicture in rowPictures)
+                {
+                    Picture pic = new Picture();
+                    pic.PicSize = rowPicture["PicSize"].ToString();
+                    pic.URL = rowPicture["URL"].ToString();
+                    Pictures.Add(pic);
                 }
             }
         }
