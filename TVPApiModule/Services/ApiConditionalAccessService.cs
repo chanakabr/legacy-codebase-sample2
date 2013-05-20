@@ -626,7 +626,7 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public BillingResponse InApp_ChargeUserForMediaFile(string siteGuid, double price, string currency, int productCode, string ppvModuleCode, string sDeviceName, string ReceiptData)
+        public BillingResponse InApp_ChargeUserForMediaFile(string siteGuid, double price, string currency, string productCode, string ppvModuleCode, string sDeviceName, string ReceiptData)
         {
             BillingResponse retVal = null;
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
