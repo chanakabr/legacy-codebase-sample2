@@ -116,7 +116,7 @@ namespace TVPApiModule.DataLoaders
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
                     Culture = Language,
-                    MediaTypes = MediaType.HasValue ? new List<int>() { MediaType.Value } : null                    
+                    MediaTypes = MediaType.HasValue ? new List<int>() { MediaType.Value } : null
                 };
                 return m_oSubscriptionMediaLoader.Execute() as dsItemInfo;
             }

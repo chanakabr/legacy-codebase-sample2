@@ -42,7 +42,7 @@ namespace TVPApiModule.Helper
                     retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
                     break;
                 case TVPApi.OrderBy.Added:
-                    retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
+                    retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE;
                     break;
                 case TVPApi.OrderBy.Views:
                     retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VIEWS;

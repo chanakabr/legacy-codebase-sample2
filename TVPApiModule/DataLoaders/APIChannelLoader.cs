@@ -116,7 +116,7 @@ namespace TVPApi
                     DeviceId = DeviceUDID,
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
-                    UseStartDate = bool.Parse(GetFutureStartDate),
+                    UseStartDate = bool.Parse(GetFutureStartDate),                   
                 };
 
                 return m_oCatalogChannelLoader.Execute() as dsItemInfo;
@@ -171,7 +171,7 @@ namespace TVPApi
             newChannel.id = int.Parse(ChannelID.ToString());
             newChannel.number_of_items = PageSize;
             newChannel.start_index = PageSize * PageIndex;
-
+            
             //switch ((TVPApi.OrderBy)Enum.Parse(typeof(TVPApi.OrderBy), OrderBy.ToString()))
             //{
             //    case TVPApi.OrderBy.ABC:

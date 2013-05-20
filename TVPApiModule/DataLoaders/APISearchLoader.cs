@@ -22,13 +22,13 @@ namespace TVPApi
         public APISearchLoader(string TVMUser, string TVMPass)
             : base(TVMUser, TVMPass)
         {
-            
+
         }
 
         public APISearchLoader(string TVMUser, string TVMPass, Dictionary<string, string> tags)
             : base(TVMUser, TVMPass, tags)
         {
-            
+
         }
 
         public string Country
@@ -139,7 +139,11 @@ namespace TVPApi
                 if (OrderBy != TVPApi.OrderBy.None)
                 {
                     m_oCatalogSearchLoader.OrderBy = APICatalogHelper.GetCatalogOrderBy(OrderBy);
-                    m_oCatalogSearchLoader.OrderDir = CatalogHelper.GetCatalogOrderDirection(OrderDirection);
+                    // XXX: For specific date sorting, make this by Descending
+                    if (m_oCatalogSearchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE || m_oCatalogSearchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE)
+                        m_oCatalogSearchLoader.OrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
+                    else
+                        m_oCatalogSearchLoader.OrderDir = CatalogHelper.GetCatalogOrderDirection(OrderDirection);
                     m_oCatalogSearchLoader.OrderMetaMame = OrderByMeta;
                 }
                 return m_oCatalogSearchLoader.Execute() as dsItemInfo;
