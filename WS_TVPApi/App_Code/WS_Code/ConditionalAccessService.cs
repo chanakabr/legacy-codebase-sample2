@@ -245,7 +245,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get customer data")]
-        public BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double price, string currency, int productCode, string ppvModuleCode, string receipt)
+        public BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode, string receipt)
         {
             BillingResponse res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "InApp_ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());

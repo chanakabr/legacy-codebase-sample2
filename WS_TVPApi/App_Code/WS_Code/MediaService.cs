@@ -1336,7 +1336,7 @@ namespace TVPApiServices
                 try
                 {
                     PermittedSubscriptionContainer[] permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(initObj.SiteGuid);
-                    
+
                     if (permitedSubscriptions == null || permitedSubscriptions.Count() == 0)
                         return permittedPackages;
 
@@ -1546,7 +1546,8 @@ namespace TVPApiServices
                     foreach (int fileID in fileIds)
                     {
                         MediaFileItemPricesContainer[] tmpRes = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(new int[] { fileID }, initObj.SiteGuid, bOnlyLowest);
-                        al.AddRange(tmpRes);
+                        if (tmpRes != null)
+                            al.AddRange(tmpRes);
                     }
 
                     itemPrices = (MediaFileItemPricesContainer[])al.ToArray(typeof(MediaFileItemPricesContainer));
