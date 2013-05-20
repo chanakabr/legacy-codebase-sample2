@@ -26,6 +26,11 @@ public partial class Gateways_JsonGateway : BaseGateway
             webservice = m_SiteService;
             WSMethod = webservice.GetType().GetMethod(MethodName);
         }
+        if (WSMethod == null)
+        {
+            webservice = m_DomainService;
+            WSMethod = webservice.GetType().GetMethod(MethodName);
+        }
         if (WSMethod != null)
         {
             ParameterInfo[] MethodParameters = WSMethod.GetParameters();
@@ -150,6 +155,20 @@ public partial class Gateways_JsonGateway : BaseGateway
         string Product = string.Empty;
         using (MemoryStream ms = new MemoryStream())
         {
+            var properties = from p in SerializationTarget.GetType().GetProperties()
+                             where p.PropertyType == typeof(DateTime) &&
+                                   p.CanRead &&
+                                   p.CanWrite
+                             select p;
+
+            foreach (var property in properties)
+            {
+                var value = (DateTime)property.GetValue(SerializationTarget, null);
+                if (value == null || value.Kind == DateTimeKind.Unspecified)
+                {
+                    property.SetValue(SerializationTarget, new DateTime(1970, 1, 1), null);
+                }
+            }
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(SerializationTarget.GetType());
             serializer.WriteObject(ms, SerializationTarget);
             Product = Encoding.UTF8.GetString(ms.ToArray());

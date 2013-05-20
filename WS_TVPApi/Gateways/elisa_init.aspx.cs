@@ -18,7 +18,7 @@ public partial class _Default : System.Web.UI.Page
         public string LogoURL = "http://ibc.cdngc.net/Elisa/Images/EpicTV_CTV_LOGO.png";
         public string HomePageChannelID = "327646";
         public string RootCateroryID = "1161";
-        public string GatewayURL = "http://173.231.146.34:9003/tvpapi/gateways/jsongateway.aspx";
+        public string GatewayURL = "http://tvpapi.tvinci.com/v1_7/gateways/jsongateway.aspx";
         public string ApiUser = "tvpapi_134";
         public string ApiPass = "11111";
         public string Platform = "ConnectedTV";
