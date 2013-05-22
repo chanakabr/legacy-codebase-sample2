@@ -22,7 +22,7 @@ namespace TVPApiServices
     /// <summary>
     /// Summary description for Service
     /// </summary>
-    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
+    [WebService(Namespace = "http://tvpapi.tvinci.com/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
@@ -118,7 +118,7 @@ namespace TVPApiServices
 
         //Get Channel medias
         [WebMethod(EnableSession = true, Description = "Get Channel medias with multiple filters")]
-        public List<Media> GetChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy, List<TVPApi.TagMetaPair> metas, List<TVPApi.TagMetaPair> tags)
+        public List<Media> GetChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy, string metaName, eOrderDirection orderDir, List<TVPApi.TagMetaPair> metas, List<TVPApi.TagMetaPair> tags)
         {
             List<Media> lstMedia = null;
 
@@ -1488,6 +1488,7 @@ namespace TVPApiServices
                 try
                 {
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, initObj.SiteGuid, sExtraParameters, sUDID);
+
                 }
                 catch (Exception ex)
                 {
