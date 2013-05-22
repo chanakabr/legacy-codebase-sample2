@@ -24,7 +24,7 @@ namespace TVPApiServices
         List<Media> GetChannelMediaList(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy);
 
         [OperationContract]
-        List<Media> GetChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy, List<TVPApi.TagMetaPair> metas, List<TVPApi.TagMetaPair> tags);
+        List<Media> GetChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy, string metaName, eOrderDirection orderDir, List<TVPApi.TagMetaPair> metas, List<TVPApi.TagMetaPair> tags);
 
         [OperationContract]
         List<Media> GetChannelMediaListWithMediaCount(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, ref long mediaCount);
