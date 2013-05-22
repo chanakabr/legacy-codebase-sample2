@@ -188,5 +188,9 @@ namespace TVPApi
         All = 4
     }
 
-
+    public enum eOrderDirection
+    {
+        Asc,
+        Desc
+    }
 }
