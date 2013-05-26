@@ -22,7 +22,7 @@ namespace TVPApiServices
     /// <summary>
     /// Summary description for Service
     /// </summary>
-    [WebService(Namespace = "http://tvpapi.tvinci.com/")]
+    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
