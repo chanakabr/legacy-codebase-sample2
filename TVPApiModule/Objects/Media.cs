@@ -335,30 +335,28 @@ namespace TVPApi
 
         private void BuildTagMetas(int groupID, dsItemInfo.ItemRow row, PlatformType platform)
         {
-            string[] TagNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
             System.Data.DataRow[] tagsRow = row.GetChildRows("Item_Tags");
             if (tagsRow != null && tagsRow.Length > 0)
             {
                 //Create tag meta pair objects list for all tags
-                foreach (string tagName in TagNames)
+                foreach (System.Data.DataColumn tag in tagsRow[0].Table.Columns)
                 {
-                    if (tagsRow[0].Table.Columns.Contains(tagName) && !string.IsNullOrEmpty(tagsRow[0][tagName].ToString()))
+                    if (tag.ColumnName != "ID")
                     {
-                        TagMetaPair pair = new TagMetaPair(tagName, tagsRow[0][tagName].ToString());
+                        TagMetaPair pair = new TagMetaPair(tag.ColumnName, tagsRow[0][tag.ColumnName].ToString());
                         Tags.Add(pair);
                     }
                 }
             }
-            string[] MetaNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.MediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
             System.Data.DataRow[] metasRow = row.GetChildRows("Item_Metas");
             if (metasRow != null && metasRow.Length > 0)
             {
                 //Create tag meta pair objects list for all metas
-                foreach (string metaName in MetaNames)
+                foreach (System.Data.DataColumn meta in metasRow[0].Table.Columns)
                 {
-                    if (metasRow[0].Table.Columns.Contains(metaName) && !string.IsNullOrEmpty(metasRow[0][metaName].ToString()))
+                    if (meta.ColumnName != "ID")
                     {
-                        TagMetaPair pair = new TagMetaPair(metaName, metasRow[0][metaName].ToString());
+                        TagMetaPair pair = new TagMetaPair(meta.ColumnName, metasRow[0][meta.ColumnName].ToString());
                         Metas.Add(pair);
                     }
                 }
