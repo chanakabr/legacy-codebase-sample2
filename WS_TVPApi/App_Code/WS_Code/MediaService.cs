@@ -823,6 +823,33 @@ namespace TVPApiServices
         }
 
         //Search media by free text
+        [WebMethod(EnableSession = true, Description = "Search EPG by free text")]
+        public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        {
+            TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] programs = { };
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchEPG", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    //lstMedia = MediaHelper.SearchMedia(initObj, text, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return programs;
+        }
+
+        //Search media by free text
         [WebMethod(EnableSession = true, Description = "Search media by free text")]
         public List<Media> SearchMediaByTypes(InitializationObject initObj, string text, int[] mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
         {
