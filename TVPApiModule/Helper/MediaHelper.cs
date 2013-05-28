@@ -76,6 +76,22 @@ namespace TVPApi
             return retVal;
         }
 
+        public static bool RegisterFollowUp(InitializationObject initObj, int groupID, List<TVPApi.TagMetaPair> metas)
+        {
+            bool retVal = false;
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+
+            return retVal;
+        }
+
+        public static bool UnregisterFollowUp(InitializationObject initObj, int groupID, List<TVPApi.TagMetaPair> metas)
+        {
+            bool retVal = false;
+            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+
+            return retVal;
+        }
+
         public static List<Media> GetMediasInfo(InitializationObject initObj, long[] MediaIDs, int mediaType, string picSize, int groupID, bool withDynamic)
         {
             List<Media> retVal = new List<Media>();
@@ -322,7 +338,8 @@ namespace TVPApi
             {
                 MediaType = mediaType,
                 Name = string.IsNullOrEmpty(text) ? null : text,
-                PictureSize = picSize, GroupID = groupID,
+                PictureSize = picSize,
+                GroupID = groupID,
                 Platform = initObj.Platform,
                 WithInfo = true,
                 PageSize = pageSize,
@@ -330,7 +347,7 @@ namespace TVPApi
                 OrderBy = (TVPApi.OrderBy)orderBy,
                 DeviceUDID = initObj.UDID,
                 Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()),
-                Language = initObj.Locale.LocaleLanguage 
+                Language = initObj.Locale.LocaleLanguage
             };
 
             dsItemInfo mediaInfo = searchLoader.Execute();
