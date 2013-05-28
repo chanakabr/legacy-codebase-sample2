@@ -45,6 +45,12 @@ namespace TVPApiServices
         List<Media> GetUserSocialMedias(InitializationObject initObj, string socialPlatform, string action, string picSize, int pageSize, int pageIndex);
 
         [OperationContract]
+        bool RegisterFollowUp(InitializationObject initObj, List<TVPApi.TagMetaPair> metas);
+
+        [OperationContract]
+        bool UnregisterFollowUp(InitializationObject initObj, List<TVPApi.TagMetaPair> metas);
+
+        [OperationContract]
         List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
 
         [OperationContract]
