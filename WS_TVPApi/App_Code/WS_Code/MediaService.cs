@@ -1468,9 +1468,7 @@ namespace TVPApiServices
                 }
             }
             else
-            {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
 
             return response;
         }
