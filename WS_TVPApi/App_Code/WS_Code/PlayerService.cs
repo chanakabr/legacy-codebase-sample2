@@ -70,7 +70,7 @@ namespace TVPApiServices
                 {
                     retMedia.Media = MediaHelper.GetMediaInfo(initObj, MediaID, picSize, groupID);
 
-                    Media.File trailerFile = retMedia.Media.Files.Where(x => x.Format == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat).SingleOrDefault();
+                    Media.File trailerFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat.ToLower()).SingleOrDefault();
 
                     if (!trailerFile.Equals(default(Media.File)))
                     {
@@ -81,7 +81,7 @@ namespace TVPApiServices
                         retMedia.Media.Files.Insert(0, trailerFile);
                     }
 
-                    Media.File trickPlayFile = retMedia.Media.Files.Where(x => x.Format == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrickPlayFileFormat).SingleOrDefault();
+                    Media.File trickPlayFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrickPlayFileFormat.ToLower()).SingleOrDefault();
 
                     if (!trickPlayFile.Equals(default(Media.File)))
                     {
