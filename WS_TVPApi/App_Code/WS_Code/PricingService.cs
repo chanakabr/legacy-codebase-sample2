@@ -161,6 +161,35 @@ namespace TVPApiServices
             return campaigns;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get subscription data")]
+        public List<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs)
+        {
+            List<Subscription> res = new List<Subscription>();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    foreach (int subID in subIDs)
+                    {
+                        res.Add(new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+        }
+
         #endregion
     }
 }

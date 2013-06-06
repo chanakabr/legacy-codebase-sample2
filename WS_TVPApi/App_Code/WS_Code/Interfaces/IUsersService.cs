@@ -35,5 +35,8 @@ namespace TVPApiServices
 
         [OperationContract]
         string CheckTemporaryToken(InitializationObject initObj, string sToken);
+
+        [OperationContract]
+        string RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID);
     }
 }

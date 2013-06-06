@@ -29,5 +29,8 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.Pricing.Campaign[] GetCampaignsByType(InitializationObject initObj, CampaignTrigger trigger, bool isAlsoInactive);
+
+        [OperationContract]
+        List<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs);
     }
 }
