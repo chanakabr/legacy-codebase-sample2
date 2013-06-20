@@ -39,5 +39,8 @@ namespace TVPApiServices
 
         [OperationContract]
         BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode, string receipt);
+
+        [OperationContract]
+        BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode);
     }
 }
