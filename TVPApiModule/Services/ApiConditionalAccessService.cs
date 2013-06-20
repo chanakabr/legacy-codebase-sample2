@@ -646,6 +646,26 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
+        public BillingResponse CC_ChargeUserForPrePaid(string siteGuid, double price, string currency, string productCode, string ppvModuleCode, string sDeviceName)
+        {
+            BillingResponse retVal = null;
+            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                try
+                {
+                    logger.InfoFormat("CC_ChargeUserForPrePaid, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
+                    retVal = m_Module.CC_ChargeUserForPrePaid(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorFormat("Error calling web service protocol : CC_ChargeUserForPrePaid, Error Message: {0}, Parameters : SiteGuid: {1} productCode : {2}", ex.Message, siteGuid, productCode);
+                }
+            }
+            return retVal;
+        }
+
         #endregion
     }
 }
