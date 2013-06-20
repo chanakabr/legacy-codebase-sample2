@@ -2042,8 +2042,9 @@ namespace TVPApiServices
             {
                 try
                 {
-                    if (!new ApiUsersService(groupId, initObj.Platform).IsOfflineModeEnabled(initObj.SiteGuid))
-                        return lResponse;
+                    // TODO: UNCOMMENT THIS LINE
+                    //if (!new ApiUsersService(groupId, initObj.Platform).IsOfflineModeEnabled(initObj.SiteGuid))
+                    //    return lResponse;
 
                     UserOfflineObject[] offArr = new ApiUsersService(groupId, initObj.Platform).GetUserOfflineList(initObj.SiteGuid).OrderBy(x => x.m_CreateDate).ToArray();
                     long[] mediaIDs = offArr.Select(x => long.Parse(x.m_MediaID)).ToArray();
