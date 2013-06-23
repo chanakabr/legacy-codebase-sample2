@@ -14,13 +14,19 @@ namespace TVPApiServices
     [ServiceContract]
     public interface INotificationService
     {
-        [OperationContract]
-        bool AddNotificationRequest(InitializationObject initObj, NotificationTriggerType triggerType);
+        //[OperationContract]
+        //bool AddNotificationRequest(InitializationObject initObj, NotificationTriggerType triggerType);
 
         [OperationContract]
         NotificationMessage[] GetDeviceNotifications(InitializationObject initObj, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount);
 
         [OperationContract]
         bool SetNotificationMessageViewStatus(InitializationObject initObj, Nullable<long> notificationRequestID, Nullable<long> notificationMessageID, NotificationMessageViewStatus viewStatus);
+
+        [OperationContract]
+        bool FollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags);
+
+        [OperationContract]
+        bool UnsubscribeFollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags);
     }
 }
