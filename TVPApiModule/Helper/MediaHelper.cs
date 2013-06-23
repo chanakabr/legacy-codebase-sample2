@@ -76,22 +76,6 @@ namespace TVPApi
             return retVal;
         }
 
-        public static bool RegisterFollowUp(InitializationObject initObj, int groupID, List<TVPApi.TagMetaPair> metas)
-        {
-            bool retVal = false;
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-
-            return retVal;
-        }
-
-        public static bool UnregisterFollowUp(InitializationObject initObj, int groupID, List<TVPApi.TagMetaPair> metas)
-        {
-            bool retVal = false;
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-
-            return retVal;
-        }
-
         public static List<Media> GetMediasInfo(InitializationObject initObj, long[] MediaIDs, int mediaType, string picSize, int groupID, bool withDynamic)
         {
             List<Media> retVal = new List<Media>();
