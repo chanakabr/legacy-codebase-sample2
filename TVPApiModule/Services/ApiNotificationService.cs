@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using log4net;
+using System.Linq;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
 
@@ -63,16 +65,48 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool AddNotificationRequest(int sGuid, NotificationTriggerType triggerType)
+        //public bool AddNotificationRequest(int sGuid, NotificationTriggerType triggerType, int mediaId)
+        //{
+        //    bool res = false;
+        //    try
+        //    {
+        //        res = m_Client.AddNotificationRequest(m_wsUserName, m_wsPassword, (long)sGuid, triggerType, mediaId);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        logger.ErrorFormat("Error occurred in AddNotificationRequest, Error : {0} Parameters : siteGuid {1}, sDeviceUDID: {2}", e.Message, sGuid);
+        //    }
+
+        //    return res;
+        //}
+
+        public bool FollowUpByTag(int sGuid, List<TVPApi.TagMetaPairArray> tags)
         {
             bool res = false;
             try
             {
-                res = m_Client.AddNotificationRequest(m_wsUserName, m_wsPassword, (long)sGuid, triggerType);
+                Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values);
+                res = m_Client.FollowUpByTag(m_wsUserName, m_wsPassword, (long)sGuid, dictTags);
             }
             catch (Exception e)
             {
-                logger.ErrorFormat("Error occurred in AddNotificationRequest, Error : {0} Parameters : siteGuid {1}, sDeviceUDID: {2}", e.Message, sGuid);
+                logger.ErrorFormat("Error occurred in FollowUpByTag, Error : {0} Parameters : siteGuid {1}, sDeviceUDID: {2}", e.Message, sGuid);
+            }
+
+            return res;
+        }
+
+        public bool UnsubscribeFollowUpByTag(int sGuid, List<TVPApi.TagMetaPairArray> tags)
+        {
+            bool res = false;
+            try
+            {
+                Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values);
+                res = m_Client.UnsubscribeFollowUpByTag(m_wsUserName, m_wsPassword, (long)sGuid, dictTags);
+            }
+            catch (Exception e)
+            {
+                logger.ErrorFormat("Error occurred in UnsubscribeFollowUpByTag, Error : {0} Parameters : siteGuid {1}, sDeviceUDID: {2}", e.Message, sGuid);
             }
 
             return res;
