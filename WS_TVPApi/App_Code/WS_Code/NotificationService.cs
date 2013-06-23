@@ -25,35 +25,39 @@ namespace TVPApiServices
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(NotificationService));
 
-        [WebMethod(EnableSession = true, Description = "Adds notification request")]
-        public bool AddNotificationRequest(InitializationObject initObj, NotificationTriggerType triggerType)
-        {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "AddNotificationRequest", initObj.ApiUser, initObj.ApiPass,
-                                                      SiteHelper.GetClientIP());
-            logger.InfoFormat("AddNotificationRequest-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform,
-                              initObj.SiteGuid);
+        //[WebMethod(EnableSession = true, Description = "Adds notification request")]
+        //public bool AddNotificationRequest(InitializationObject initObj, NotificationTriggerType triggerType, int mediaId)
+        //{
+        //    int groupId = ConnectionHelper.GetGroupID("tvpapi", "AddNotificationRequest", initObj.ApiUser, initObj.ApiPass,
+        //                                              SiteHelper.GetClientIP());
 
-            if (groupId > 0)
-            {
-                try
-                {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-                    {
-                        ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
-                        return service.AddNotificationRequest(siteGuid, triggerType);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.Error("AddNotificationRequest->", ex);
-                }
-            }
-            else
-                logger.ErrorFormat("AddNotificationRequest-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+        //    logger.InfoFormat("AddNotificationRequest-> [{0}, {1}], Params:[user: {2}, mediaId: {3}]",
+        //        groupId,
+        //        initObj.Platform,
+        //        initObj.SiteGuid,
+        //        mediaId);
 
-            return false;
-        }
+        //    if (groupId > 0)
+        //    {
+        //        try
+        //        {
+        //            int siteGuid = 0;
+        //            if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+        //            {
+        //                ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+        //                return service.AddNotificationRequest(siteGuid, triggerType, mediaId);
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            logger.Error("AddNotificationRequest->", ex);
+        //        }
+        //    }
+        //    else
+        //        logger.ErrorFormat("AddNotificationRequest-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+
+        //    return false;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Gets device notifications")]
         public NotificationMessage[] GetDeviceNotifications(InitializationObject initObj, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
@@ -110,6 +114,63 @@ namespace TVPApiServices
             }
             else
                 logger.ErrorFormat("SetNotificationMessageViewStatus-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+
+            return false;
+        }
+
+
+        [WebMethod(EnableSession = true, Description = "Followup by tag")]
+        public bool FollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FollowUpByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            logger.InfoFormat("FollowUpByTag-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    int siteGuid = 0;
+                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                    {
+                        ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+                        return service.FollowUpByTag(siteGuid, tags);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("FollowUpByTag->", ex);
+                }
+            }
+            else
+                logger.ErrorFormat("FollowUpByTag-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+
+            return false;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Unsubscribe Followup by tag")]
+        public bool UnsubscribeFollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnsubscribeFollowUpByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            logger.InfoFormat("UnsubscribeFollowUpByTag-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    int siteGuid = 0;
+                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                    {
+                        ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+                        return service.UnsubscribeFollowUpByTag(siteGuid, tags);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("UnsubscribeFollowUpByTag->", ex);
+                }
+            }
+            else
+                logger.ErrorFormat("UnsubscribeFollowUpByTag-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
 
             return false;
         }

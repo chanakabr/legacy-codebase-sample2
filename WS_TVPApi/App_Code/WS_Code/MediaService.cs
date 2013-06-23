@@ -197,56 +197,6 @@ namespace TVPApiServices
             return bRet;
         }
 
-        // register to follow-up media series
-        [WebMethod(EnableSession = true, Description = "register to follow-up media series")]
-        public bool RegisterFollowUp(InitializationObject initObj, List<TVPApi.TagMetaPair> metas)
-        {
-            bool bRet = false;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RegisterFollowUp", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                try
-                {
-                    bRet = MediaHelper.RegisterFollowUp(initObj, groupID, metas);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-
-            return bRet;
-        }
-
-        // unregister to follow-up media series
-        [WebMethod(EnableSession = true, Description = "register to follow-up media series")]
-        public bool UnregisterFollowUp(InitializationObject initObj, List<TVPApi.TagMetaPair> metas)
-        {
-            bool bRet = false;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "UnregisterFollowUp", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                try
-                {
-                    bRet = MediaHelper.UnregisterFollowUp(initObj, groupID, metas);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-
-            return bRet;
-        }
-
         //Get users comments for media
         [WebMethod(EnableSession = true, Description = "Get users comments for media")]
         public List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex)
