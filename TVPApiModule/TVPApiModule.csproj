@@ -139,6 +139,7 @@
     <Compile Include="Manager\SiteMapManager.cs" />
     <Compile Include="Configuration\ApiTechnicalConfiguration.cs" />
     <Compile Include="Manager\TextLocalizationManager.cs" />
+    <Compile Include="Objects\TagMetaPairArray.cs" />
     <Compile Include="Objects\ImplementationBase.cs" />
     <Compile Include="Objects\Category.cs" />
     <Compile Include="Objects\Channel.cs" />
