@@ -657,6 +657,8 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error receive user data Protocol RenewUserPIN, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, ruleID: {4}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
+
+                bRet = ResponseStatus.ErrorOnSendingMail;
             }
 
             return bRet;
