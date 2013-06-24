@@ -197,6 +197,32 @@ namespace TVPApiServices
             return bRet;
         }
 
+        [WebMethod(EnableSession = true, Description = "Check if media array has been added to favorites")]
+        public List<TVPApi.TagMetaPair> AreMediasFavorite(InitializationObject initObj, string[] mediaIds)
+        {
+            List<TVPApi.TagMetaPair> result = new List<TagMetaPair>();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AreMediasFavorite", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    result = MediaHelper.AreMediasFavorite(initObj, groupID, mediaIds);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return result;
+        }
+
         //Get users comments for media
         [WebMethod(EnableSession = true, Description = "Get users comments for media")]
         public List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex)
