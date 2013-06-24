@@ -14,9 +14,6 @@ namespace TVPApiServices
     [ServiceContract]
     public interface INotificationService
     {
-        //[OperationContract]
-        //bool AddNotificationRequest(InitializationObject initObj, NotificationTriggerType triggerType);
-
         [OperationContract]
         NotificationMessage[] GetDeviceNotifications(InitializationObject initObj, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount);
 
@@ -24,9 +21,12 @@ namespace TVPApiServices
         bool SetNotificationMessageViewStatus(InitializationObject initObj, Nullable<long> notificationRequestID, Nullable<long> notificationMessageID, NotificationMessageViewStatus viewStatus);
 
         [OperationContract]
-        bool FollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags);
+        bool SubscribeByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags);
 
         [OperationContract]
         bool UnsubscribeFollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags);
+
+        [OperationContract]
+        List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj);
     }
 }

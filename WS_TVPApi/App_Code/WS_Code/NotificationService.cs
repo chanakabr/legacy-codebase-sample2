@@ -25,40 +25,6 @@ namespace TVPApiServices
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(NotificationService));
 
-        //[WebMethod(EnableSession = true, Description = "Adds notification request")]
-        //public bool AddNotificationRequest(InitializationObject initObj, NotificationTriggerType triggerType, int mediaId)
-        //{
-        //    int groupId = ConnectionHelper.GetGroupID("tvpapi", "AddNotificationRequest", initObj.ApiUser, initObj.ApiPass,
-        //                                              SiteHelper.GetClientIP());
-
-        //    logger.InfoFormat("AddNotificationRequest-> [{0}, {1}], Params:[user: {2}, mediaId: {3}]",
-        //        groupId,
-        //        initObj.Platform,
-        //        initObj.SiteGuid,
-        //        mediaId);
-
-        //    if (groupId > 0)
-        //    {
-        //        try
-        //        {
-        //            int siteGuid = 0;
-        //            if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-        //            {
-        //                ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
-        //                return service.AddNotificationRequest(siteGuid, triggerType, mediaId);
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            logger.Error("AddNotificationRequest->", ex);
-        //        }
-        //    }
-        //    else
-        //        logger.ErrorFormat("AddNotificationRequest-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
-
-        //    return false;
-        //}
-
         [WebMethod(EnableSession = true, Description = "Gets device notifications")]
         public NotificationMessage[] GetDeviceNotifications(InitializationObject initObj, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
         {
@@ -69,12 +35,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-                    {
-                        ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
-                        return service.GetDeviceNotifications(siteGuid, initObj.UDID, notificationType, viewStatus, messageCount);
-                    }
+                    ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+                    return service.GetDeviceNotifications(initObj.SiteGuid, initObj.UDID, notificationType, viewStatus, messageCount);
                 }
                 catch (Exception ex)
                 {
@@ -92,20 +54,14 @@ namespace TVPApiServices
         public bool SetNotificationMessageViewStatus(InitializationObject initObj, Nullable<long> notificationRequestID, Nullable<long> notificationMessageID, NotificationMessageViewStatus viewStatus)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetNotificationMessageViewStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            logger.InfoFormat("SetNotificationMessageViewStatus-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform,
-                              initObj.SiteGuid);
+            logger.InfoFormat("SetNotificationMessageViewStatus-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-                    {
-                        ApiNotificationService service =
-                            new ApiNotificationService(groupId, initObj.Platform);
-                        return service.SetNotificationMessageViewStatus(siteGuid, notificationRequestID, notificationMessageID, viewStatus);
-                    }
+                    ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+                    return service.SetNotificationMessageViewStatus(initObj.SiteGuid, notificationRequestID, notificationMessageID, viewStatus);
                 }
                 catch (Exception ex)
                 {
@@ -120,29 +76,25 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Followup by tag")]
-        public bool FollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags)
+        public bool SubscribeByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FollowUpByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            logger.InfoFormat("FollowUpByTag-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SubscribeByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            logger.InfoFormat("SubscribeByTag-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
 
             if (groupId > 0)
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-                    {
-                        ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
-                        return service.FollowUpByTag(siteGuid, tags);
-                    }
+                    ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+                    return service.SubscribeByTag(initObj.SiteGuid, tags);
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("FollowUpByTag->", ex);
+                    logger.Error("SubscribeByTag->", ex);
                 }
             }
             else
-                logger.ErrorFormat("FollowUpByTag-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+                logger.ErrorFormat("SubscribeByTag-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
 
             return false;
         }
@@ -157,12 +109,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
-                    {
-                        ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
-                        return service.UnsubscribeFollowUpByTag(siteGuid, tags);
-                    }
+                    ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+                    return service.UnsubscribeFollowUpByTag(initObj.SiteGuid, tags);
                 }
                 catch (Exception ex)
                 {
@@ -173,6 +121,30 @@ namespace TVPApiServices
                 logger.ErrorFormat("UnsubscribeFollowUpByTag-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
 
             return false;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets the user status subscription")]
+        public List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserStatusSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            logger.InfoFormat("GetUserStatusSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+                    return service.GetUserStatusSubscriptions(initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("GetUserStatusSubscriptions->", ex);
+                }
+            }
+            else
+                logger.ErrorFormat("GetUserStatusSubscriptions-> 'Unknown group' Username: {0}, Password: {1}", initObj.ApiUser, initObj.ApiPass);
+
+            return null;
         }
     }
 }
