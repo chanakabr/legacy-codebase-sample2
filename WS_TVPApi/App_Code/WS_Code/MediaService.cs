@@ -198,7 +198,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Check if media array has been added to favorites")]
-        public List<TVPApi.TagMetaPair> AreMediasFavorite(InitializationObject initObj, string[] mediaIds)
+        public List<TVPApi.TagMetaPair> AreMediasFavorite(InitializationObject initObj, List<long> mediaIds)
         {
             List<TVPApi.TagMetaPair> result = new List<TagMetaPair>();
 
