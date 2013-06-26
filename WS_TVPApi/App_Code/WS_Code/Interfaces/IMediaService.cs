@@ -33,7 +33,7 @@ namespace TVPApiServices
         bool IsMediaFavorite(InitializationObject initObj, int mediaID);
 
         [OperationContract]
-        List<TVPApi.TagMetaPair> AreMediasFavorite(InitializationObject initObj, string[] mediaIds);
+        List<TVPApi.TagMetaPair> AreMediasFavorite(InitializationObject initObj, List<long> mediaIds);
 
         [OperationContract]
         List<Media> GetRelatedMedias(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex);
