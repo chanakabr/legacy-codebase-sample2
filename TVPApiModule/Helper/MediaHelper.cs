@@ -108,23 +108,15 @@ namespace TVPApi
             //return FavoritesHelper.ItemExistOnFavorite(itemID.ToString(), sID);
         }
 
-        public static List<TVPApi.TagMetaPair> AreMediasFavorite(InitializationObject initObj, int groupID, string[] mediaIDs)
+        public static List<KeyValuePair<long,bool>> AreMediasFavorite(InitializationObject initObj, int groupID, List<long> mediaIDs)
         {
-            List<TVPApi.TagMetaPair> retVal = new List<TagMetaPair>();
+            List<KeyValuePair<long, bool>> retVal = new List<KeyValuePair<long, bool>>();
 
             // get all user favorites
             FavoritObject[] favoriteObjects = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
             if (favoriteObjects != null)
-            {
-                foreach (var mediaId in mediaIDs)
-                {
-                    var favoriteObj = favoriteObjects.Where(x => x.m_sItemCode == mediaId).FirstOrDefault();
-                    if (favoriteObj != null)
-                        retVal.Add(new TagMetaPair() { Key = mediaId, Value = Boolean.TrueString });
-                    else
-                        retVal.Add(new TagMetaPair() { Key = mediaId, Value = Boolean.FalseString });
-                }
-            }
+                retVal = mediaIDs.Select(y => new KeyValuePair<long, bool>(y, favoriteObjects.Where(x=> x.m_sItemCode == y.ToString()).Count() > 0)).ToList();
+
             return retVal;
         }
 
