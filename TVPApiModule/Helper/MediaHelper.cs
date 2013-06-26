@@ -114,6 +114,7 @@ namespace TVPApi
 
             // get all user favorites
             FavoritObject[] favoriteObjects = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
+
             if (favoriteObjects != null)
                 retVal = mediaIDs.Select(y => new KeyValuePair<long, bool>(y, favoriteObjects.Where(x => x.m_sItemCode == y.ToString()).Count() > 0)).ToList();
 
