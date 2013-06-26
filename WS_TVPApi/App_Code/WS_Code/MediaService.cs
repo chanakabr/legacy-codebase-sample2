@@ -198,9 +198,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Check if media array has been added to favorites")]
-        public List<TVPApi.TagMetaPair> AreMediasFavorite(InitializationObject initObj, List<long> mediaIds)
+        public List<KeyValuePair<long, bool>> AreMediasFavorite(InitializationObject initObj, List<long> mediaIds)
         {
-            List<TVPApi.TagMetaPair> result = new List<TagMetaPair>();
+            List<KeyValuePair<long, bool>> result = new List<KeyValuePair<long, bool>>();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "AreMediasFavorite", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
