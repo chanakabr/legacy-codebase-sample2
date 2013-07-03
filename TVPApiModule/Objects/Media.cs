@@ -73,8 +73,8 @@ namespace TVPApi
             public AdvertisingProvider PostProvider;
             public AdvertisingProvider BreakProvider;
             public AdvertisingProvider OverlayProvider;
-            public IEnumerable<double> BreakPoints;
-            public IEnumerable<double> OverlayPoints;
+            public string[] BreakPoints;
+            public string[] OverlayPoints;
         }
 
         public struct Picture
@@ -349,7 +349,7 @@ namespace TVPApi
                         file.BreakProvider = new AdvertisingProvider(breakProviderID, rowFile["BreakProviderName"].ToString());
 
                         if (rowFile["BreakPoints"] != null)
-                             file.BreakPoints = rowFile["BreakPoints"].ToString().Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x));
+                            file.BreakPoints = rowFile["BreakPoints"].ToString().Split(';');
                     }
 
                     int overlayPoviderID = Convert.ToInt32(rowFile["OverlayProviderID"].ToString());
@@ -359,7 +359,7 @@ namespace TVPApi
                         file.OverlayProvider = new AdvertisingProvider(overlayPoviderID, rowFile["OverlayProviderName"].ToString());
 
                         if (rowFile["OverlayPoints"] != null)
-                             file.OverlayPoints = rowFile["OverlayPoints"].ToString().Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x));
+                            file.OverlayPoints = rowFile["OverlayPoints"].ToString().Split(';');
                     }
 
                     Files.Add(file);
