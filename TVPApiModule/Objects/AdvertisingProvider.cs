@@ -16,7 +16,9 @@ namespace TVPApi
 
         private string m_Name;
 
-        public AdvertisingProvider();
+        public AdvertisingProvider()
+        {
+        }
          
         public AdvertisingProvider(int id, string name)
         {
