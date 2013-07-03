@@ -42,7 +42,10 @@ namespace TVPApi
         private List<TagMetaPair> m_tags;
         private List<TagMetaPair> m_metas;
         private List<File> m_files;
+        private List<TagMetaPair> m_adParams;
+
         private List<Picture> m_pictures;
+
         private List<ExtIDPair> m_externalIDs;
 
         public DynamicData MediaDynamicData;
@@ -53,8 +56,6 @@ namespace TVPApi
         public string GeoBlock;
         public long TotalItems;
         public int? like_counter;
-
-
 
         public struct ExtIDPair
         {
@@ -68,6 +69,12 @@ namespace TVPApi
             public string URL;
             public string Duration;
             public string Format;
+            public AdvertisingProvider PreProvider;
+            public AdvertisingProvider PostProvider;
+            public AdvertisingProvider BreakProvider;
+            public AdvertisingProvider OverlayProvider;
+            public IEnumerable<double> BreakPoints;
+            public IEnumerable<double> OverlayPoints;
         }
 
         public struct Picture
@@ -97,6 +104,18 @@ namespace TVPApi
                     m_metas = new List<TagMetaPair>();
                 }
                 return m_metas;
+            }
+        }
+
+        public List<TagMetaPair> AdvertisingParameters
+        {
+            get
+            {
+                if (m_adParams == null)
+                {
+                    m_adParams = new List<TagMetaPair>();
+                }
+                return m_adParams;
             }
         }
 
@@ -313,6 +332,36 @@ namespace TVPApi
                     file.Duration = rowFile["Duration"].ToString();
                     file.Format = rowFile["Format"].ToString();
 
+                    int preProviderID = Convert.ToInt32(rowFile["PreProviderID"].ToString());
+
+                    if (preProviderID != 0)
+                        file.PreProvider = new AdvertisingProvider(preProviderID, rowFile["PostProviderName"].ToString());
+
+                    int postProviderID = Convert.ToInt32(rowFile["PostProviderID"].ToString());
+                    
+                    if (postProviderID != 0)
+                        file.PostProvider = new AdvertisingProvider(postProviderID, rowFile["PostProviderName"].ToString());
+
+                    int breakProviderID = Convert.ToInt32(rowFile["BreakProviderID"].ToString());
+                    
+                    if (breakProviderID != 0)
+                    {
+                        file.BreakProvider = new AdvertisingProvider(breakProviderID, rowFile["BreakProviderName"].ToString());
+
+                        if (rowFile["BreakPoints"] != null)
+                             file.BreakPoints = rowFile["BreakPoints"].ToString().Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x));
+                    }
+
+                    int overlayPoviderID = Convert.ToInt32(rowFile["OverlayProviderID"].ToString());
+
+                    if (overlayPoviderID != 0)
+                    {
+                        file.OverlayProvider = new AdvertisingProvider(overlayPoviderID, rowFile["OverlayProviderName"].ToString());
+
+                        if (rowFile["OverlayPoints"] != null)
+                             file.OverlayPoints = rowFile["OverlayPoints"].ToString().Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x));
+                    }
+
                     Files.Add(file);
                 }
             }
@@ -338,6 +387,8 @@ namespace TVPApi
             System.Data.DataRow[] tagsRow = row.GetChildRows("Item_Tags");
             if (tagsRow != null && tagsRow.Length > 0)
             {
+                string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
+
                 //Create tag meta pair objects list for all tags
                 foreach (System.Data.DataColumn tag in tagsRow[0].Table.Columns)
                 {
@@ -345,12 +396,17 @@ namespace TVPApi
                     {
                         TagMetaPair pair = new TagMetaPair(tag.ColumnName, tagsRow[0][tag.ColumnName].ToString());
                         Tags.Add(pair);
+
+                        if (adTags.Contains(pair.Key))
+                            AdvertisingParameters.Add(pair);
                     }
                 }
             }
             System.Data.DataRow[] metasRow = row.GetChildRows("Item_Metas");
             if (metasRow != null && metasRow.Length > 0)
             {
+                string[] adMetas = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Metas.Split(';');
+
                 //Create tag meta pair objects list for all metas
                 foreach (System.Data.DataColumn meta in metasRow[0].Table.Columns)
                 {
@@ -358,6 +414,9 @@ namespace TVPApi
                     {
                         TagMetaPair pair = new TagMetaPair(meta.ColumnName, metasRow[0][meta.ColumnName].ToString());
                         Metas.Add(pair);
+
+                        if (adMetas.Contains(pair.Key))
+                            AdvertisingParameters.Add(pair);
                     }
                 }
             }
