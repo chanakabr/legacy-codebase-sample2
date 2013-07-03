@@ -238,6 +238,33 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public string[] GetAutoCompleteList(int[] mediaTypes, string[] metas, string[] tags, string prefix, string lang, int pageIdx, int pageSize)
+        {
+            string[] res = null;
+            try
+            {
+                res = m_Module.GetAutoCompleteList(m_wsUserName, m_wsPassword, new RequestObj()
+                {
+                    m_InfoStruct = new InfoStructObj()
+                    {
+                        m_MediaTypes = mediaTypes,
+                        m_Metas = metas,
+                        m_Tags = tags,
+                        m_sPrefix = prefix
+                    },
+                    m_eRuleType = eCutType.Or,
+                    m_sLanguage = lang,
+                    m_iPageIndex = pageIdx,
+                    m_iPageSize = pageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetAutoCompleteList, Error Message: {0}, Parameters : prefix {1}", ex.Message, prefix);
+            }
+            return res;
+        }
+
         #endregion
     }
 }

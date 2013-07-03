@@ -81,6 +81,9 @@ namespace TVPApiServices
         string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int?[] iMediaTypes);
 
         [OperationContract]
+        string[] GetAutoCompleteSearch(InitializationObject initObj, string prefixText, int?[] iMediaTypes, int pageSize, int pageIdx);
+
+        [OperationContract]
         bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
 
         [OperationContract]

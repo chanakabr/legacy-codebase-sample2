@@ -311,7 +311,8 @@ public class Service : System.Web.Services.WebService
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
-        return m_mediaService.GetAutoCompleteSearchList(initObj, prefixText, null);
+        //return m_mediaService.GetAutoCompleteSearchList(initObj, prefixText, null);
+        return null;
     }
 
     #endregion

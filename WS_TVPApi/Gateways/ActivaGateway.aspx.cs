@@ -129,7 +129,7 @@ public partial class Gateways_ActivaGateway : BaseGateway
                     case "typingsearch": //<--
                         {
                             string val = Request.QueryString["query"];
-                            List<string> autos = MediaHelper.GetAutoCompleteList(groupID, PlatformType.STB, groupID, null);
+                            List<string> autos = null;// MediaHelper.GetAutoCompleteList(groupID, PlatformType.STB, groupID, null);
                             //List<Media> mediaList = MediaHelper.SearchMedia(GetInitObj(), 0, val, "full", int.Parse(items), 0, 121, 122, (int)TVPApi.OrderBy.ABC);
                             //retObj = mediaList;
                             retObj = ParseAutoCompleteList(autos, val);

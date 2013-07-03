@@ -948,6 +948,30 @@ namespace TVPApiServices
             return retVal;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get auto-complete media titles")]
+        public string[] GetAutoCompleteSearch(InitializationObject initObj, string prefixText, int?[] iMediaTypes, int pageSize, int pageIdx)
+        {
+            string[] retVal = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetAutoCompleteSearch", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                List<string> lstRet = new List<String>();
+
+                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
+                    prefixText, initObj.Locale.LocaleLanguage, pageIdx, pageSize);
+
+                foreach (String sTitle in lstResponse)
+                {
+                    if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
+                }
+                retVal = lstRet.ToArray();
+            }
+
+            return retVal;
+        }
+
         // Get auto-complete media titles
         [WebMethod(EnableSession = true, Description = "Get auto-complete media titles")]
         public string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int?[] iMediaTypes)
@@ -960,7 +984,9 @@ namespace TVPApiServices
             {
                 List<string> lstRet = new List<String>();
 
-                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, groupID, iMediaTypes);
+                int maxItems = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems;
+                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
+                    prefixText, initObj.Locale.LocaleLanguage, 0, maxItems);
 
                 foreach (String sTitle in lstResponse)
                 {
