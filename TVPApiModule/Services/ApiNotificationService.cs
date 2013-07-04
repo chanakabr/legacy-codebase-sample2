@@ -4,6 +4,7 @@ using log4net;
 using System.Linq;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
+using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
@@ -35,12 +36,41 @@ namespace TVPApiModule.Services
             m_platform = platform;
         }
 
-        public NotificationMessage[] GetDeviceNotifications(string sGuid, string sDeviceUDID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
+        public List<Notification> GetDeviceNotifications(string sGuid, string sDeviceUDID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
         {
-            NotificationMessage[] res = null;
+            List<Notification> res = new List<Notification>();
             try
             {
-                res = m_Client.GetDeviceNotifications(m_wsUserName, m_wsPassword, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
+                var notificationMessages = m_Client.GetDeviceNotifications(m_wsUserName, m_wsPassword, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
+                foreach (var message in notificationMessages)
+                {
+                    res.Add(new Notification()
+                    {
+                        Actions = message.Actions != null ? message.Actions : null,
+                        AppName = message.AppName,
+                        DeviceID = message.DeviceID,
+                        ID = message.ID,
+                        MessageText = message.MessageText,
+                        nGroupID = message.nGroupID,
+                        NotificationID = message.NotificationID,
+                        NotificationMessageID = message.NotificationMessageID,
+                        Status = message.Status,
+                        Title = message.Title,
+                        Type = message.Type,
+                        UdID = message.UdID,
+                        UserID = message.UserID,
+                        TagNotificationParams = message.TagNotificationParams != null ? new ExtraParameters()
+                        {
+                            mediaID = message.TagNotificationParams.mediaIDk__BackingField,
+                            mediaPicURL = message.TagNotificationParams.mediaPicURLk__BackingField,
+                            TagDict = message.TagNotificationParams.TagDictk__BackingField != null ? message.TagNotificationParams.TagDictk__BackingField.Select(x => new TagMetaIntPairArray() { Key = x.Key, Values = x.Value }).ToList() : null,
+                            templateEmail = message.TagNotificationParams.templateEmailk__BackingField
+                        } : null,
+                        PublishDate = message.PublishDate,
+                        ViewStatus = message.ViewStatus,
+                        NotificationRequestID = message.NotificationRequestID
+                    });
+                }
             }
             catch (Exception e)
             {
