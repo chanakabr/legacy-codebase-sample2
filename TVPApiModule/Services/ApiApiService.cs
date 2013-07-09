@@ -168,12 +168,12 @@ namespace TVPApiModule.Services
             return objEPGProgramRes;
         }
 
-        public GroupRule[] GetGroupMediaRules(int MediaId, int siteGuid)
+        public GroupRule[] GetGroupMediaRules(int MediaId, int siteGuid, string udid)
         {
             GroupRule[] res = null;
             try
             {
-                res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP());
+                res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
             }
             catch (Exception ex)
             {
