@@ -82,7 +82,7 @@ namespace TVPApiServices
             return subs;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get Copun status according to coupon code")]
+        [WebMethod(EnableSession = true, Description = "Get Coupon status according to coupon code")]
         public TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode)
         {        
             TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData couponData = null;
