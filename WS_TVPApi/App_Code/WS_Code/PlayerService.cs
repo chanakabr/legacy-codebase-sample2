@@ -92,7 +92,7 @@ namespace TVPApiServices
                         retMedia.Media.Files.Insert(0, trickPlayFile);
                     }
 
-                    retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid));
+                    retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid), initObj.UDID);
 
                     // for debug
                     //retMedia.Rules = new TVPPro.SiteManager.TvinciPlatform.api.GroupRule[]{};

@@ -2282,7 +2282,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupMediaRules(mediaID, int.Parse(initObj.SiteGuid));
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupMediaRules(mediaID, int.Parse(initObj.SiteGuid), initObj.UDID);
                 }
                 catch (Exception ex)
                 {
