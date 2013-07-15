@@ -53,6 +53,22 @@ namespace TVPApiModule.Services
             return response;
         }
 
+        public GroupOperator[] GetOperators(int[] operatorIds)
+        {
+            GroupOperator[] operators = null;
+            try
+            {
+                operators = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetOperators, Error Message: {0}, Parameters : operators: {1}", ex.Message,
+                    string.Join(",", operatorIds.Select(x => x.ToString()).ToArray()));
+            }
+
+            return operators;
+        }
+
         public MediaMarkObject GetMediaMark(string sSiteGuid, int iMediaID)
         {
             MediaMarkObject mediaMark = null;
