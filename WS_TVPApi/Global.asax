@@ -37,6 +37,32 @@
         // Save site data (groupid, platform, wsuser, wspass) on session for further proccesses
         TVPApi.ConnectionHelper.InitServiceConfigs();
         HttpContext.Current.Items.Add("RequestStartTime", DateTime.UtcNow);
+
+        if (!Request.ContentType.Contains("xml"))
+        {
+            HttpApplication app = HttpContext.Current.ApplicationInstance;
+            System.IO.Stream prevUncompressedStream = app.Response.Filter;
+            string acceptEncoding = app.Request.Headers["Accept-Encoding"];
+            if (acceptEncoding == null || acceptEncoding.Length == 0)
+                return;
+
+            acceptEncoding = acceptEncoding.ToLower();
+
+            if (acceptEncoding.Contains("gzip"))
+            {
+                // gzip
+                app.Response.Filter = new System.IO.Compression.GZipStream(prevUncompressedStream,
+                    System.IO.Compression.CompressionMode.Compress);
+                app.Response.AppendHeader("Content-Encoding", "gzip");
+            }
+            else if (acceptEncoding.Contains("deflate") || acceptEncoding == "*")
+            {
+                // deflate
+                app.Response.Filter = new System.IO.Compression.DeflateStream(prevUncompressedStream,
+                    System.IO.Compression.CompressionMode.Compress);
+                app.Response.AppendHeader("Content-Encoding", "deflate");
+            }
+        }
     }
     
     void Application_End(object sender, EventArgs e) 
@@ -75,7 +101,7 @@
     }
 
     void Application_EndRequest(Object Sender, EventArgs e)
-    {
+    {        
         // Get response time in milliseconds
         int timeTaken = (DateTime.UtcNow - (DateTime)HttpContext.Current.Items["RequestStartTime"]).Milliseconds;        
         
@@ -133,7 +159,10 @@
             logger.DebugFormat("Application_EndRequest: URL = {0}, ClientIP = {1}, RequestBody = {2}, TimeTaken = {3} (Milliseconds)", sURL, clienIP, requestBody, timeTaken);            
         }
         // Append to IIS log the full Url
-        Response.AppendToLog(string.Format("|{0}", sURL)); 
+        Response.AppendToLog(string.Format("|{0}", sURL));
+        
+                
+
     }
        
 </script>
