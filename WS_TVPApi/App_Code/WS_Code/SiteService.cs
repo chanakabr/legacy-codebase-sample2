@@ -315,7 +315,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get content from specific gallery items")]
         public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
         {
-            List<Media> lstMedia = null;
+            List<Media> lstMedia = null;            
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -323,6 +323,10 @@ namespace TVPApiServices
             {
                 try
                 {
+                    //XXX: Patch for ximon
+                    if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)                    
+                        pageIndex = pageIndex / pageSize;                    
+
                     lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, orderBy);
                 }
                 catch (Exception ex)
@@ -485,6 +489,32 @@ namespace TVPApiServices
                 try
                 {
                     response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupOperators(scope);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get Operators")]
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] GetOperators(InitializationObject initObj, int[] operators)
+        {
+            TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupOperators", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetOperators(operators);
                 }
                 catch (Exception ex)
                 {
