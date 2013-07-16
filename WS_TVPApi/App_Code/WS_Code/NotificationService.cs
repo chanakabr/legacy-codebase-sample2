@@ -36,7 +36,7 @@ namespace TVPApiServices
                 try
                 {
                     ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
-                    return service.GetDeviceNotifications(initObj.SiteGuid, initObj.UDID, notificationType, viewStatus, messageCount);
+                    return service.GetDeviceNotifications(initObj.SiteGuid, initObj.UDID, notificationType == NotificationMessageType.All ? NotificationMessageType.Pull : notificationType, viewStatus, messageCount);
                 }
                 catch (Exception ex)
                 {
