@@ -17,6 +17,9 @@ using System.Web;
 
 namespace TVPApiServices
 {
+    /// <summary>
+    /// Summary description for Service
+    /// </summary>
     [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
@@ -25,6 +28,8 @@ namespace TVPApiServices
     public class DomainService : System.Web.Services.WebService, IDomainService
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(DomainService));
+
+        #region public methods
 
         [WebMethod(EnableSession = true, Description = "Reset Domain")]
         public DomainResponseObject ResetDomain(InitializationObject initObj)
@@ -78,6 +83,7 @@ namespace TVPApiServices
             return response;
         }
 
+
         [WebMethod(EnableSession = true, Description = "Add device to domain")]
         public DomainResponseObject AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID)
         {
@@ -99,9 +105,9 @@ namespace TVPApiServices
 
             return resDomain;
         }
-        
+
         [WebMethod(EnableSession = true, Description = "Add a user to domain")]
-        public DomainResponseObject AddUserToDomain(InitializationObject initObj, int masterUserGuid)
+        public DomainResponseObject AddUserToDomain(InitializationObject initObj, bool bMaster)
         {
             DomainResponseObject resDomain = null;
 
@@ -112,7 +118,7 @@ namespace TVPApiServices
 
                 try
                 {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, Convert.ToInt32(initObj.SiteGuid), masterUserGuid);                 
+                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, initObj.SiteGuid, bMaster);
                 }
                 catch (Exception ex)
                 {
@@ -156,7 +162,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, initObj.UDID);                    
+                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -178,7 +184,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).ChangeDeviceDomainStatus(initObj.DomainID, initObj.UDID, bActive);                    
+                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).ChangeDeviceDomainStatus(initObj.DomainID, initObj.UDID, bActive);
                 }
                 catch (Exception ex)
                 {
@@ -211,6 +217,7 @@ namespace TVPApiServices
             return domain;
         }
 
+        //XXX: Move it to domain Service
         [WebMethod(EnableSession = true, Description = "Set device/user domain info")]
         public DomainResponseObject SetDomainInfo(InitializationObject initObj, string sDomainName, string sDomainDescription)
         {
@@ -222,7 +229,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);                    
+                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);
                 }
                 catch (Exception ex)
                 {
@@ -364,5 +371,7 @@ namespace TVPApiServices
 
             return res;
         }
+
+        #endregion
     }
 }
