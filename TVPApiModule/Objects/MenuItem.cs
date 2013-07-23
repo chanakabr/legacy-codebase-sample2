@@ -20,6 +20,7 @@ namespace TVPApi
         public long PageID { get; set; }
         public string Culture { get; set; }
         public List<MenuItem> Children { get; set; }
+        public int RuleID { get; set; }
 
         public MenuItem()
         {
