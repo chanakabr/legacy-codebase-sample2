@@ -16,6 +16,7 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.Objects;
 using TVPApiModule.Helper;
 using System.Web;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace TVPApiServices
 {
@@ -91,7 +92,7 @@ namespace TVPApiServices
 
         //Get Channel medias
         [WebMethod(EnableSession = true, Description = "Get Channel medias")]
-        public List<Media> GetChannelMediaList(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> GetChannelMediaList(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -118,7 +119,7 @@ namespace TVPApiServices
 
         //Get Channel medias
         [WebMethod(EnableSession = true, Description = "Get Channel medias with multiple filters")]
-        public List<Media> GetChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderBy orderBy, string metaName, eOrderDirection orderDir, List<TVPApi.TagMetaPair> metas, List<TVPApi.TagMetaPair> tags)
+        public List<Media> GetChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<TagMetaPair> tags, TVPApiModule.Objects.Enums.eCutWith cutWith)
         {
             List<Media> lstMedia = null;
 
@@ -128,7 +129,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, orderBy, metas, tags);
+                    lstMedia = MediaHelper.GetChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, orderBy, tags, cutWith);
                 }
                 catch (Exception ex)
                 {
@@ -612,7 +613,7 @@ namespace TVPApiServices
         #region Search media
 
         [WebMethod(EnableSession = true, Description = "Search medias by multi tags")]
-        public List<Media> SearchMediaByMultiTag(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> SearchMediaByMultiTag(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -638,7 +639,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Search medias by multi tags")]
-        public List<Media> SearchMediaByMetasTags(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> SearchMediaByMetasTags(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -664,7 +665,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Search medias by multi tags")]
-        public List<Media> SearchMediaByMetasTagsExact(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> SearchMediaByMetasTagsExact(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -691,7 +692,7 @@ namespace TVPApiServices
 
         //Search medias by tag
         [WebMethod(EnableSession = true, Description = "Search medias by tag")]
-        public List<Media> SearchMediaByTag(InitializationObject initObj, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> SearchMediaByTag(InitializationObject initObj, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -718,7 +719,7 @@ namespace TVPApiServices
 
         //Search medias by meta
         [WebMethod(EnableSession = true, Description = "Search medias by meta")]
-        public List<Media> SearchMediaByMeta(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> SearchMediaByMeta(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -745,7 +746,7 @@ namespace TVPApiServices
 
         //Search media by meta with total items number
         [WebMethod(EnableSession = true, Description = "Search media by meta with total items number")]
-        public List<Media> SearchMediaByMetaWithMediaCount(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount)
+        public List<Media> SearchMediaByMetaWithMediaCount(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, ref long mediaCount)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchMediaByMetaWithMediaCount", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -823,7 +824,7 @@ namespace TVPApiServices
 
         //Search media by free text
         [WebMethod(EnableSession = true, Description = "Search media by free text")]
-        public List<Media> SearchMedia(InitializationObject initObj, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> SearchMedia(InitializationObject initObj, string text, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -850,7 +851,7 @@ namespace TVPApiServices
 
         //Search media by free text
         [WebMethod(EnableSession = true, Description = "Search EPG by free text")]
-        public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] programs = { };
 
@@ -860,7 +861,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    //lstMedia = MediaHelper.SearchMedia(initObj, text, picSize, pageSize, pageIndex, groupID, (int)orderBy);
+                    //lstMedia = MediaHelper.SearchMedia(initObj, text, picSize, pageSize, pageIndex, groupID, (int)TVPApi.OrderBy);
                 }
                 catch (Exception ex)
                 {
@@ -877,7 +878,7 @@ namespace TVPApiServices
 
         //Search media by free text
         [WebMethod(EnableSession = true, Description = "Search media by free text")]
-        public List<Media> SearchMediaByTypes(InitializationObject initObj, string text, int[] mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> SearchMediaByTypes(InitializationObject initObj, string text, int[] mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -904,7 +905,7 @@ namespace TVPApiServices
 
         //Search media by free text with response total media count
         [WebMethod(EnableSession = true, Description = "Search media by free text with response total media count")]
-        public List<Media> SearchMediaWithMediaCount(InitializationObject initObj, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount)
+        public List<Media> SearchMediaWithMediaCount(InitializationObject initObj, string text, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, ref long mediaCount)
         {
             List<Media> lstMedia = null;
 
@@ -1326,7 +1327,7 @@ namespace TVPApiServices
 
         //Search medias by meta
         [WebMethod(EnableSession = true, Description = "Search medias by meta")]
-        public List<Media> GetSubscriptionMedia(InitializationObject initObj, string sSubID, string picSize, OrderBy orderBy)
+        public List<Media> GetSubscriptionMedia(InitializationObject initObj, string sSubID, string picSize, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -1352,7 +1353,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Search medias by meta")]
-        public List<Media> GetSubscriptionMedias(InitializationObject initObj, string[] sSubID, string picSize, OrderBy orderBy)
+        public List<Media> GetSubscriptionMedias(InitializationObject initObj, string[] sSubID, string picSize, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = new List<Media>();
 
@@ -1429,7 +1430,7 @@ namespace TVPApiServices
                         Dictionary<string, string> dict = new Dictionary<string, string>();
                         dict.Add("Base ID", psc.m_sSubscriptionCode);
                         TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupId, initObj.Platform).GetTVMAccountByAccountType(AccountType.Fictivic);
-                        APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { IgnoreFilter = true, SearchTokenSignature = string.Concat("Base ID=", psc.m_sSubscriptionCode), GroupID = groupId, Platform = initObj.Platform, dictMetas = dict, WithInfo = false, PageSize = 1, PictureSize = "full", PageIndex = 0, OrderBy = OrderBy.ABC, MetaValues = psc.m_sSubscriptionCode, Country = new TVPApiModule.Services.ApiUsersService(groupId, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), UseFinalEndDate = "true" };
+                        APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { IgnoreFilter = true, SearchTokenSignature = string.Concat("Base ID=", psc.m_sSubscriptionCode), GroupID = groupId, Platform = initObj.Platform, dictMetas = dict, WithInfo = false, PageSize = 1, PictureSize = "full", PageIndex = 0, OrderBy = TVPApi.OrderBy.ABC, MetaValues = psc.m_sSubscriptionCode, Country = new TVPApiModule.Services.ApiUsersService(groupId, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), UseFinalEndDate = "true" };
 
                         TVPPro.SiteManager.DataEntities.dsItemInfo ds = searchLoader.Execute();
                         if (ds.Item.Rows.Count > 0)
@@ -2169,7 +2170,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get EPG Channels")]
-        public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] GetEPGChannels(InitializationObject initObj, string sPicSize, OrderBy orderBy)
+        public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
         {
             TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] sRet = null;
 
