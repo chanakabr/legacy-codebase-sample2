@@ -11,6 +11,7 @@ using System.Configuration;
 using TVPApiModule.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace TVPApi
 {
@@ -55,6 +56,9 @@ namespace TVPApi
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
         }
+
+        public List<KeyValue> Tags { get; set; }
+        public CutWith CutWith { get; set; }
 
         public string Language
         {
@@ -110,13 +114,13 @@ namespace TVPApi
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
+                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize, Tags, CutWith)
                 {
                     Culture = Language,
                     DeviceId = DeviceUDID,
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
-                    UseStartDate = bool.Parse(GetFutureStartDate),                   
+                    UseStartDate = bool.Parse(GetFutureStartDate)
                 };
 
                 return m_oCatalogChannelLoader.Execute() as dsItemInfo;
@@ -171,7 +175,7 @@ namespace TVPApi
             newChannel.id = int.Parse(ChannelID.ToString());
             newChannel.number_of_items = PageSize;
             newChannel.start_index = PageSize * PageIndex;
-            
+
             //switch ((TVPApi.OrderBy)Enum.Parse(typeof(TVPApi.OrderBy), OrderBy.ToString()))
             //{
             //    case TVPApi.OrderBy.ABC:
@@ -235,7 +239,7 @@ namespace TVPApi
                 }
             }
 
-            
+
 
             return result;
         }
