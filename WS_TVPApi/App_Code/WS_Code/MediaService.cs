@@ -119,7 +119,7 @@ namespace TVPApiServices
 
         //Get Channel medias
         [WebMethod(EnableSession = true, Description = "Get Channel medias with multiple filters")]
-        public List<Media> GetChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<TagMetaPair> tags, TVPApiModule.Objects.Enums.eCutWith cutWith)
+        public List<Media> GetChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
         {
             List<Media> lstMedia = null;
 
