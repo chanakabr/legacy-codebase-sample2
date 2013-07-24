@@ -57,7 +57,7 @@ namespace TVPApi
             }
         }
 
-        public List<KeyValue> Tags { get; set; }
+        public List<KeyValue> TagsMetas { get; set; }
         public CutWith CutWith { get; set; }
 
         public string Language
@@ -114,7 +114,7 @@ namespace TVPApi
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize, Tags, CutWith)
+                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize, TagsMetas, CutWith)
                 {
                     Culture = Language,
                     DeviceId = DeviceUDID,
