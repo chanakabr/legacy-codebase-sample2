@@ -40,7 +40,6 @@ namespace TVPApiModule.Services
         }
         #endregion
 
-        #region C'tor
         public ApiDomainsService(int groupID, PlatformType platform)
         {
             m_Module = new TVPPro.SiteManager.TvinciPlatform.Domains.module();
@@ -51,39 +50,35 @@ namespace TVPApiModule.Services
             m_groupID = groupID;
             m_platform = platform;
         }
-        #endregion C'tor
 
-        #region Public methods
-
-        public DomainResponseObject AddUserToDomain(int iDomainID, string sSiteGuid, bool bMaster)
+        public DomainResponseObject AddUserToDomain(int domainID, int masterSiteGuid, int AddedUserGuid)
         {
             DomainResponseObject domain = null;
             try
             {
-                domain = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, iDomainID, sSiteGuid, bMaster);             
+                domain = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, masterSiteGuid);
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : AddUserToDomain, Error Message: {0} Parameters: sSiteGuid: {1}, bMaster: {2}", ex.Message, sSiteGuid, bMaster);
+                logger.ErrorFormat("Error calling webservice protocol : AddUserToDomain, Error Message: {0} Parameters: AddedUserGuid: {1}, masterSiteGuid: {2}", ex.Message, AddedUserGuid, masterSiteGuid);
             }
 
             return domain;
         }
 
-        public Domain RemoveUserFromDomain(int iDomainID, string sSiteGuid)
+        public DomainResponseObject RemoveUserFromDomain(int iDomainID, string userGuidToRemove)
         {
-            Domain domain = null;
+            DomainResponseObject domain = null;
 
             try
             {
-                DomainResponseObject res = m_Module.RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, sSiteGuid);
-
-                if (res.m_oDomainResponseStatus == DomainResponseStatus.OK)
-                    domain = res.m_oDomain;                
+                domain = m_Module.RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, userGuidToRemove);
+                //if (res.m_oDomainResponseStatus == DomainResponseStatus.OK)
+                //    domain = res.m_oDomain;
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : RemoveUserFromDomain, Error Message: {0} Parameters: iDomainID: {1}, sSiteGUID: {2}", ex.Message, iDomainID, sSiteGuid);
+                logger.ErrorFormat("Error calling webservice protocol : RemoveUserFromDomain, Error Message: {0} Parameters: iDomainID: {1}, userGuidToRemove: {2}", ex.Message, iDomainID, userGuidToRemove);
             }
 
             return domain;
@@ -92,10 +87,10 @@ namespace TVPApiModule.Services
         public DomainResponseObject AddDeviceToDomain(int iDomainID, string sUDID, string sDeviceName, int iDeviceBrandID)
         {
             DomainResponseObject domain = null;
- 
+
             try
             {
-                domain = m_Module.AddDeviceToDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID, sDeviceName, iDeviceBrandID);                
+                domain = m_Module.AddDeviceToDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID, sDeviceName, iDeviceBrandID);
             }
             catch (Exception ex)
             {
@@ -127,7 +122,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                domain = m_Module.ChangeDeviceDomainStatus(m_wsUserName, m_wsPassword, iDomainID, sUDID, bActive);                
+                domain = m_Module.ChangeDeviceDomainStatus(m_wsUserName, m_wsPassword, iDomainID, sUDID, bActive);
             }
             catch (Exception ex)
             {
@@ -156,7 +151,7 @@ namespace TVPApiModule.Services
         public DomainResponseObject SetDomainInfo(int iDomainID, string sDomainName, string sDomainDescription)
         {
             DomainResponseObject domain = null;
-            
+
             try
             {
                 domain = m_Module.SetDomainInfo(m_wsUserName, m_wsPassword, iDomainID, sDomainName, sDomainDescription);
@@ -266,7 +261,7 @@ namespace TVPApiModule.Services
             string resp = string.Empty;
             try
             {
-                resp = m_Module.GetDomainCoGuid(m_wsUserName, m_wsPassword, nDomainID);
+                //resp = m_Module.GetDomainCoGuid(m_wsUserName, m_wsPassword, nDomainID);
             }
             catch (Exception ex)
             {
@@ -274,8 +269,5 @@ namespace TVPApiModule.Services
             }
             return resp;
         }
-
-        #endregion          
-   
     }
 }
