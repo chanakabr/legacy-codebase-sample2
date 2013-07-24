@@ -13,6 +13,7 @@ using TVPPro.Configuration.Media;
 using TVPApiModule.DataLoaders;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 /// <summary>
 /// Summary description for MediaHelper
@@ -613,22 +614,17 @@ namespace TVPApi
             return lstRet;
         }
 
-        public static List<Media> GetChannelMultiFilter(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, List<TVPApi.TagMetaPair> metas, List<TVPApi.TagMetaPair> tags)
+        public static List<Media> GetChannelMultiFilter(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, List<TagMetaPair> tags, TVPApiModule.Objects.Enums.eCutWith cutWith)
         {
+            // convert TagMetaPair to KeyValue 
+            List<KeyValue> newTags = tags.Select(x => new KeyValue { m_sKey = x.Key, m_sValue = x.Value }).ToList();
+
+            // convert enum to TVM enum
+            CutWith newCutWith = (CutWith)cutWith + 1;
+
             List<Media> lstRet = new List<Media>();
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            lstRet = GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel, orderBy);
-            if (lstRet == null || lstRet.Count == 0)
-            {
-                account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Fictivic);
-                lstRet = GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel, orderBy);
-
-                if (lstRet == null || lstRet.Count == 0)
-                {
-                    account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
-                    lstRet = GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel, orderBy);
-                }
-            }
+            lstRet = GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel, orderBy, null, newTags, newCutWith);
 
             return lstRet;
         }
@@ -646,7 +642,7 @@ namespace TVPApi
         }
 
         //Get all channel medias
-        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, ref long mediaCount, OrderBy orderBy, int[] reqMediaTypes = null)
+        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, ref long mediaCount, OrderBy orderBy, int[] reqMediaTypes = null, List<KeyValue> tags = null, CutWith cutWith = CutWith.AND)
         {
             List<Media> retVal = new List<Media>();
             dsItemInfo mediaInfo;
@@ -654,7 +650,22 @@ namespace TVPApi
             switch (loaderType)
             {
                 case LoaderType.Channel:
-                    APIChannelLoader channelLoader = new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy), orderBy.ToString()), DeviceUDID = initObj.UDID, GetFutureStartDate = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate, Language = initObj.Locale.LocaleLanguage };
+                    APIChannelLoader channelLoader = new APIChannelLoader(user, pass, ID, picSize)
+                    {
+                        WithInfo = true,
+                        GroupID = groupID,
+                        Platform = initObj.Platform,
+                        PageSize = pageSize,
+                        PageIndex = pageIndex,
+                        OrderBy = (TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy),
+                        orderBy.ToString()),
+                        DeviceUDID = initObj.UDID,
+                        GetFutureStartDate = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate,
+                        Language = initObj.Locale.LocaleLanguage,
+                        Tags = tags,
+                        CutWith = cutWith
+                    };
+
                     mediaInfo = channelLoader.Execute();
                     channelLoader.TryGetItemsCount(out mediaCount);
                     isPaged = true;
@@ -713,10 +724,10 @@ namespace TVPApi
             return GetMediaList(initObj, user, pass, ID, picSize, pageSize, pageIndex, groupID, loaderType, ref mediaCount, orderBy);
         }
 
-        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, OrderBy orderBy, int[] reqMediaTypes = null)
+        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, OrderBy orderBy, int[] reqMediaTypes = null, List<KeyValue> tags = null, CutWith cutWith = CutWith.AND)
         {
             long mediaCount = 0;
-            return GetMediaList(initObj, user, pass, ID, picSize, pageSize, pageIndex, groupID, loaderType, ref mediaCount, orderBy, reqMediaTypes);
+            return GetMediaList(initObj, user, pass, ID, picSize, pageSize, pageIndex, groupID, loaderType, ref mediaCount, orderBy, reqMediaTypes, tags, cutWith);
         }
 
         //Get User Items (favorites, Purchases, Packages)
