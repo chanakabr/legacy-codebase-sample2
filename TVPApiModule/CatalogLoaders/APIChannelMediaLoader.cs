@@ -32,8 +32,8 @@ namespace TVPApiModule.CatalogLoaders
         
 
         #region Constructors
-        public APIChannelMediaLoader(int channelID, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize,List<KeyValue> tags = null, CutWith cutWith = Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.AND)
-            : base(channelID, groupID, userIP, pageSize, pageIndex, picSize,tags, cutWith)
+        public APIChannelMediaLoader(int channelID, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize,List<KeyValue> tagsMetas = null, CutWith cutWith = Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.AND)
+            : base(channelID, groupID, userIP, pageSize, pageIndex, picSize, tagsMetas, cutWith)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
