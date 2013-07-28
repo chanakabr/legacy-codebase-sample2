@@ -344,7 +344,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetUserActions(initObj.SiteGuid, userAction, mediaId, startIndex, numOfRecords, socialPlatform);
+                    return service.GetUserActions(initObj.SiteGuid, userActions, mediaId, startIndex, numOfRecords, socialPlatform);
                 }
                 catch (Exception ex)
                 {
@@ -364,7 +364,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetFriendsActions(initObj.SiteGuid, userAction, mediaId, startIndex, numOfRecords, socialPlatform);
+                    return service.GetFriendsActions(initObj.SiteGuid, userActions, mediaId, startIndex, numOfRecords, socialPlatform);
                 }
                 catch (Exception ex)
                 {
@@ -384,7 +384,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.DoUserAction(initObj.SiteGuid, mediaId, userAction, extraParams, socialPlatform);
+                    return service.DoUserAction(initObj.SiteGuid, mediaId, userActions, extraParams, socialPlatform);
                 }
                 catch (Exception ex)
                 {
