@@ -958,7 +958,7 @@ namespace TVPApiServices
         #region XXXX
 
         [WebMethod(EnableSession = true, Description = "Do Social Action")]
-        public string DoSocialAction(InitializationObject initObj, int mediaID, SocialAction socialAction, SocialPlatform socialPlatform, string actionParam)
+        public string DoSocialAction(InitializationObject initObj, int mediaID, eSocialAction socialAction, SocialPlatform socialPlatform, string actionParam)
         {
             string sRes = SocialActionResponseStatus.UNKNOWN.ToString();
 
@@ -987,7 +987,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user social actions")]
-        public UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, SocialAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
+        public UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, eSocialAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
         {
             UserSocialActionObject[] res = null;
 

@@ -41,7 +41,7 @@ namespace TVPApiServices
         PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);        
 
         [OperationContract]
-        string DoSocialAction(InitializationObject initObj, int mediaID, SocialAction socialAction, SocialPlatform socialPlatform, string actionParam);
+        string DoSocialAction(InitializationObject initObj, int mediaID, eSocialAction socialAction, SocialPlatform socialPlatform, string actionParam);
 
         [OperationContract]
         bool IsFacebookUser(InitializationObject initObj);
