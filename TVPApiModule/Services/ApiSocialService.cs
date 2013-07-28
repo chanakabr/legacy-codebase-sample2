@@ -13,7 +13,7 @@ namespace TVPApiModule.Services
     {
         #region Fields
 
-        private readonly ILog logger = LogManager.GetLogger(typeof (ApiSocialService));
+        private readonly ILog logger = LogManager.GetLogger(typeof(ApiSocialService));
         private static object instanceLock = new object();
 
         private int m_groupID;
@@ -52,16 +52,8 @@ namespace TVPApiModule.Services
 
         public TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus DoSocialAction(int mediaID,
                                                                                                   string siteGuid,
-                                                                                                  TVPPro.SiteManager.
-                                                                                                      TvinciPlatform.
-                                                                                                      Social.
-                                                                                                      SocialAction
-                                                                                                      socialAction,
-                                                                                                  TVPPro.SiteManager.
-                                                                                                      TvinciPlatform.
-                                                                                                      Social.
-                                                                                                      SocialPlatform
-                                                                                                      socialPlatform,
+                                                                                                  TVPPro.SiteManager.TvinciPlatform.Social.eSocialAction socialAction,
+                                                                                                  TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                   string actionParam)
         {
             TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus eRes =
@@ -84,18 +76,8 @@ namespace TVPApiModule.Services
         }
 
         public TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] GetUserSocialActions(string siteGuid,
-                                                                                                      TVPPro.SiteManager
-                                                                                                          .
-                                                                                                          TvinciPlatform
-                                                                                                          .Social.
-                                                                                                          SocialAction
-                                                                                                          socialAction,
-                                                                                                      TVPPro.SiteManager
-                                                                                                          .
-                                                                                                          TvinciPlatform
-                                                                                                          .Social.
-                                                                                                          SocialPlatform
-                                                                                                          socialPlatform,
+                                                                                                      TVPPro.SiteManager.TvinciPlatform.Social.eSocialAction socialAction,
+                                                                                                      TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                       bool onlyFriends,
                                                                                                       int startIndex,
                                                                                                       int numOfItems)
@@ -104,8 +86,8 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetUserSocialActions(m_wsUserName, m_wsPassword, int.Parse(siteGuid), (int) socialAction,
-                                                    (int) socialPlatform, onlyFriends, startIndex, numOfItems);
+                res = m_Module.GetUserSocialActions(m_wsUserName, m_wsPassword, int.Parse(siteGuid), (int)socialAction,
+                                                    (int)socialPlatform, onlyFriends, startIndex, numOfItems);
             }
             catch (Exception ex)
             {
@@ -221,8 +203,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-
-        public FacebookResponseObject FBUserRegister(string stoken, string sSTG, List<ExtraKeyValue> oExtra,string sIP)
+        public FacebookResponseObject FBUserRegister(string stoken, string sSTG, List<ExtraKeyValue> oExtra, string sIP)
         {
             FacebookResponseObject res = null;
 
@@ -244,11 +225,143 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBUserMerage(m_wsUserName, m_wsPassword, stoken, sFBID,sUsername,sPassword);
+                res = m_Module.FBUserMerage(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error occurred in FBUserMerge, Error : {0} Parameters", ex.Message);
+            }
+
+            return res;
+        }
+
+        public eSocialPrivacy GetUserSocialPrivacy(int sGuid)
+        {
+            eSocialPrivacy res = eSocialPrivacy.UNKNOWN;
+
+            try
+            {
+                res = m_Module.GetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetUserSocialPrivacy, Error : {0} Parameters", ex.Message);
+            }
+
+            return res;
+        }
+
+        public eSocialPrivacy[] GetUserAllowedSocialPrivacyList(int sGuid)
+        {
+            eSocialPrivacy[] res = null;
+
+            try
+            {
+                res = m_Module.GetUserAllowedSocialPrivacyList(m_wsUserName, m_wsPassword, sGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetUserAllowedSocialPrivacyList, Error : {0} Parameters", ex.Message);
+            }
+
+            return res;
+        }
+
+        public bool SetUserSocialPrivacy(int sGuid, eSocialPrivacy socialPrivacy)
+        {
+            bool res = false;
+
+            try
+            {
+                res = m_Module.SetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPrivacy);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in SetUserSocialPrivacy, Error : {0} Parameters", ex.Message);
+            }
+
+            return res;
+        }
+
+        public UserSocialActionObject[] GetUserActions(string siteGuid, eUserAction userAction, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        {
+            UserSocialActionObject[] res = null;
+
+            try
+            {
+                // create request object
+                UserSocialActionQueryRequest request = new UserSocialActionQueryRequest()
+                {
+                    m_eSocialPlatform = socialPlatform,
+                    m_eUserActions = userAction,
+                    m_nGroupID = m_groupID,
+                    m_nMediaID = mediaId,
+                    m_nNumOfRecords = numOfRecords,
+                    m_nStartIndex = startIndex,
+                    m_sSiteGuid = siteGuid
+                };
+
+                res = m_Module.GetUserActions(m_wsUserName, m_wsPassword, request);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetUserActions, Error : {0} Parameters", ex.Message);
+            }
+
+            return res;
+        }
+
+        public UserSocialActionObject[] GetFriendsActions(string siteGuid, eUserAction userAction, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        {
+            UserSocialActionObject[] res = null;
+
+            try
+            {
+                // create request object
+                GetFriendsActionsRequest request = new GetFriendsActionsRequest()
+                {
+                    m_eSocialPlatform = socialPlatform,
+                    m_eUserActions = userAction,
+                    m_nGroupID = m_groupID,
+                    m_nMediaID = mediaId,
+                    m_nNumOfRecords = numOfRecords,
+                    m_nStartIndex = startIndex,
+                    m_sSiteGuid = siteGuid
+                };
+
+                res = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, request);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetFriendsActions, Error : {0} Parameters", ex.Message);
+            }
+
+            return res;
+        }
+
+
+        public SocialActionResponseStatus DoUserAction(string siteGuid, int mediaId, eUserAction userAction, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform)
+        {
+            SocialActionResponseStatus res = SocialActionResponseStatus.UNKNOWN;
+
+            try
+            {
+                // create request object
+                BaseDoUserActionRequest request = new BaseDoUserActionRequest()
+                {
+                    m_eAction = userAction,
+                    m_eSocialPlatform = socialPlatform,
+                    m_nGroupID = m_groupID,
+                    m_nMediaID = mediaId,
+                    m_oKeyValue = extraParams,
+                    m_sSiteGuid = siteGuid
+                };
+
+                res = m_Module.DoUserAction(m_wsUserName, m_wsPassword, request);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in DoUserAction, Error : {0} Parameters", ex.Message);
             }
 
             return res;
