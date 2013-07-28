@@ -1309,8 +1309,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    permittedMediaContainer = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(initObj.SiteGuid);
-                    permittedMediaContainer = permittedMediaContainer.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(initObj.SiteGuid);
+
+                    if (permitted != null)
+                        permittedMediaContainer = permitted.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -1382,15 +1384,17 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions for a user")]
         public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj)
         {
-            PermittedSubscriptionContainer[] permitedSubscriptions = null;
+            PermittedSubscriptionContainer[] permitedSubscriptions = new PermittedSubscriptionContainer[] { };
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
                 try
                 {
-                    permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(initObj.SiteGuid);
-                    permitedSubscriptions = permitedSubscriptions.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(initObj.SiteGuid);
+
+                    if (permitted != null)
+                        permitedSubscriptions = permitted.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
