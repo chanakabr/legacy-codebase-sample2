@@ -70,7 +70,7 @@ namespace TVPApi
                         if (!string.IsNullOrEmpty(isOfflineSync))
                             new ApiUsersService(groupID, platform).AddUserOfflineMedia(sUserID, mediaID);
 
-                        //retVal = FavoritesHelper.AddToFavorites(mediaType, mediaID.ToString(), guidNum);
+                        retVal = new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), extraVal.ToString());
                         break;
                     }
                 case ActionType.RemoveFavorite:
@@ -80,7 +80,7 @@ namespace TVPApi
 
                         if (!string.IsNullOrEmpty(isOfflineSync))
                             new ApiUsersService(groupID, platform).RemoveUserOfflineMedia(sUserID, mediaID);
-
+                        
                         //long guidNum = Convert.ToInt64(sUserID);
                         //int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
                         //FavoritObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(sUserID, string.Empty, iDomainID, string.Empty);
