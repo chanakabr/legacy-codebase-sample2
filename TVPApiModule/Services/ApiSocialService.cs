@@ -283,7 +283,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserSocialActionObject[] GetUserActions(string siteGuid, List<eUserAction> userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public UserSocialActionObject[] GetUserActions(string siteGuid, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             UserSocialActionObject[] res = null;
 
@@ -292,7 +292,7 @@ namespace TVPApiModule.Services
                 // create eUserAction OR list
                 eUserAction userAction = eUserAction.UNKNOWN;
                 foreach (var action in userActions)
-                    userAction |= action;
+                    userAction |= (eUserAction)Enum.Parse(typeof(eUserAction), action);
 
                 // create request object
                 UserSocialActionQueryRequest request = new UserSocialActionQueryRequest()
@@ -316,7 +316,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserSocialActionObject[] GetFriendsActions(string siteGuid, List<eUserAction> userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public UserSocialActionObject[] GetFriendsActions(string siteGuid, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             UserSocialActionObject[] res = null;
 
@@ -325,7 +325,7 @@ namespace TVPApiModule.Services
                 // create eUserAction OR list
                 eUserAction userAction = eUserAction.UNKNOWN;
                 foreach (var action in userActions)
-                    userAction |= action;
+                    userAction |= (eUserAction)Enum.Parse(typeof(eUserAction), action);
 
                 // create request object
                 GetFriendsActionsRequest request = new GetFriendsActionsRequest()
@@ -349,7 +349,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public SocialActionResponseStatus DoUserAction(string siteGuid, int mediaId, List<eUserAction> userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform)
+        public SocialActionResponseStatus DoUserAction(string siteGuid, int mediaId, string[] userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform)
         {
             SocialActionResponseStatus res = SocialActionResponseStatus.UNKNOWN;
 
@@ -358,7 +358,7 @@ namespace TVPApiModule.Services
                 // create eUserAction OR list
                 eUserAction userAction = eUserAction.UNKNOWN;
                 foreach (var action in userActions)
-                    userAction |= action;
+                    userAction |= (eUserAction)Enum.Parse(typeof(eUserAction), action);
 
                 // create request object
                 BaseDoUserActionRequest request = new BaseDoUserActionRequest()
