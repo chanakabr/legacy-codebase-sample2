@@ -336,7 +336,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user actions")]
-        public UserSocialActionObject[] GetUserActions(InitializationObject initObj, eUserAction userAction, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public UserSocialActionObject[] GetUserActions(InitializationObject initObj, List<eUserAction> userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -356,7 +356,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets friends actions")]
-        public UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, eUserAction userAction, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, List<eUserAction> userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -376,7 +376,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Does a user requested action")]
-        public SocialActionResponseStatus DoUserAction(InitializationObject initObj, int mediaId, eUserAction userAction, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform)
+        public SocialActionResponseStatus DoUserAction(InitializationObject initObj, int mediaId, List<eUserAction> userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "DoUserAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
