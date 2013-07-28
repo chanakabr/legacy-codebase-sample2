@@ -47,12 +47,12 @@ namespace TVPApiServices
         bool SetUserSocialPrivacy(InitializationObject initObj, eSocialPrivacy socialPrivacy);
 
         [OperationContract]
-        UserSocialActionObject[] GetUserActions(InitializationObject initObj, List<eUserAction> userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
+        UserSocialActionObject[] GetUserActions(InitializationObject initObj, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, List<eUserAction> userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
+        UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        SocialActionResponseStatus DoUserAction(InitializationObject initObj, int mediaId, List<eUserAction> userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform);
+        SocialActionResponseStatus DoUserAction(InitializationObject initObj, int mediaId, string[] userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform);
     }
 }
