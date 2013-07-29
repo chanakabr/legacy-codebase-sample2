@@ -38,7 +38,7 @@ namespace TVPApiServices
         FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword);
 
         [OperationContract]
-        eSocialPrivacy GetUserSocialPrivacy(InitializationObject initObj);
+        string GetUserSocialPrivacy(InitializationObject initObj);
 
         [OperationContract]
         eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj);
@@ -53,6 +53,6 @@ namespace TVPApiServices
         UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        SocialActionResponseStatus DoUserAction(InitializationObject initObj, int mediaId, string[] userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform);
+        string DoUserAction(InitializationObject initObj, int mediaId, string[] userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform);
     }
 }

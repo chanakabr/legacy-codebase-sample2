@@ -264,7 +264,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user social privacy")]
-        public eSocialPrivacy GetUserSocialPrivacy(InitializationObject initObj)
+        public string GetUserSocialPrivacy(InitializationObject initObj)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -275,7 +275,7 @@ namespace TVPApiServices
                     if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
                     {
                         TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.GetUserSocialPrivacy(siteGuid);
+                        return service.GetUserSocialPrivacy(siteGuid).ToString();
                     }
                 }
                 catch (Exception ex)
@@ -284,7 +284,7 @@ namespace TVPApiServices
                 }
             }
             HttpContext.Current.Items.Add("Error", "Unknown group");
-            return eSocialPrivacy.UNKNOWN;
+            return eSocialPrivacy.UNKNOWN.ToString();
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user allowed social privacy list")]
@@ -376,7 +376,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Does a user requested action")]
-        public SocialActionResponseStatus DoUserAction(InitializationObject initObj, int mediaId, string[] userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform)
+        public string DoUserAction(InitializationObject initObj, int mediaId, string[] userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "DoUserAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -384,7 +384,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.DoUserAction(initObj.SiteGuid, mediaId, userActions, extraParams, socialPlatform);
+                    return service.DoUserAction(initObj.SiteGuid, mediaId, userActions, extraParams, socialPlatform).ToString();
                 }
                 catch (Exception ex)
                 {
@@ -392,7 +392,7 @@ namespace TVPApiServices
                 }
             }
             HttpContext.Current.Items.Add("Error", "Unknown group");
-            return SocialActionResponseStatus.ERROR;
+            return SocialActionResponseStatus.ERROR.ToString();
         }
     }
 }
