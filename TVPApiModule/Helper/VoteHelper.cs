@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TVPApiModule.Objects;
 using log4net;
 using ODBCWrapper;
 using TVPPro.SiteManager.Services;
@@ -43,7 +44,7 @@ namespace TVPApiModule.Helper
                         query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "1");
                         query += ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", DateTime.Now);
                         query += ODBCWrapper.Parameter.NEW_PARAM("PLATFORM", platform);
-                        
+
                         if (!query.Execute())
                         {
                             logger.ErrorFormat("Failed voting on media, ItemID:{0}.", mediaId);
@@ -97,7 +98,7 @@ namespace TVPApiModule.Helper
             }, dt).Execute();
 
 
-            
+
             if (dt.Rows.Count > 0)
             {
                 string sVoteDate = dt.Rows[0]["VOTE_DATE"].ToString();
@@ -138,6 +139,42 @@ namespace TVPApiModule.Helper
             {
                 return 0;
             }
+        }
+
+        public static List<TVPApiModule.Objects.UserVote> GetAllVotesByDates(long unixTimeStart, long unixTimeEnd)
+        {
+            List<TVPApiModule.Objects.UserVote> retVal = new List<UserVote>();
+
+            ConnectionManager connMng = new ConnectionManager(134, PlatformType.Web, false);
+
+            DataTable dt;
+            ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery(connMng.GetClientConnectionString());
+            query += "select * from UserVote where";
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
+            query += ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", ">=", WSUtils.FromUnixTime(unixTimeStart));
+            query += " and ";
+            query += ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", "<=", WSUtils.FromUnixTime(unixTimeEnd));
+            query += " and ";
+            query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            query += " order by VOTE_DATE desc ";
+            dt = query.Execute("query", true);
+            query.Finish();
+
+            if (dt != null)
+            {
+                retVal.AddRange(
+                    from DataRow row in dt.Rows
+                    select new UserVote()
+                                    {
+                                        MediaID = row["MEDIA"].ToString(),
+                                        Platform = row["PLATFORM"].ToString(),
+                                        Score = int.Parse(row["SCORE"].ToString()),
+                                        SiteGUID = row["SITE_GUID"].ToString(),
+                                        Time = (DateTime)row["VOTE_DATE"]
+                                    });
+            }
+
+            return retVal;
         }
     }
 }
