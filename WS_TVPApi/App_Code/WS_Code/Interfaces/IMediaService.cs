@@ -175,7 +175,7 @@ namespace TVPApiServices
         void ToggleOfflineMode(InitializationObject initObj, bool isTurnOn);
 
         [OperationContract]
-        List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj);
+        List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj, string picSize);
 
         [OperationContract]
         List<Media> SearchMediaByMetasTagsExact(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);

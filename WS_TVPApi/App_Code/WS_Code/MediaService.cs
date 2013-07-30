@@ -1411,7 +1411,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions and packages info for a user")]
-        public List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj)
+        public List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj, string picSize)
         {
             List<PermittedPackages> permittedPackages = new List<PermittedPackages>();
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -1435,7 +1435,8 @@ namespace TVPApiServices
                         Dictionary<string, string> dict = new Dictionary<string, string>();
                         dict.Add("Base ID", psc.m_sSubscriptionCode);
                         TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupId, initObj.Platform).GetTVMAccountByAccountType(AccountType.Fictivic);
-                        APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { IgnoreFilter = true, SearchTokenSignature = string.Concat("Base ID=", psc.m_sSubscriptionCode), GroupID = groupId, Platform = initObj.Platform, dictMetas = dict, WithInfo = false, PageSize = 1, PictureSize = "full", PageIndex = 0, OrderBy = TVPApi.OrderBy.ABC, MetaValues = psc.m_sSubscriptionCode, Country = new TVPApiModule.Services.ApiUsersService(groupId, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), UseFinalEndDate = "true" };
+                        APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { IgnoreFilter = true, SearchTokenSignature = string.Concat("Base ID=", psc.m_sSubscriptionCode), GroupID = groupId, Platform = initObj.Platform, dictMetas = dict, WithInfo = false, PageSize = 1, 
+                            PictureSize = picSize, PageIndex = 0, OrderBy = TVPApi.OrderBy.ABC, MetaValues = psc.m_sSubscriptionCode, Country = new TVPApiModule.Services.ApiUsersService(groupId, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), UseFinalEndDate = "true" };
 
                         TVPPro.SiteManager.DataEntities.dsItemInfo ds = searchLoader.Execute();
                         if (ds.Item.Rows.Count > 0)
