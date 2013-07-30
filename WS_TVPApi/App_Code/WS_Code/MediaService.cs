@@ -2333,7 +2333,7 @@ namespace TVPApiServices
         {
             List<UserVote> sRet = null;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserVotes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersVotes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId == 134)
             {
