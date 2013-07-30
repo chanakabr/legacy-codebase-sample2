@@ -2328,8 +2328,8 @@ namespace TVPApiServices
             return sRet;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get user votes (applies only to EpicTV)")]
-        public List<UserVote> GetUserVotes(InitializationObject initObj, long unixStartDate, long unixEndDate)
+        [WebMethod(EnableSession = true, Description = "Get users votes")]
+        public List<UserVote> GetUsersVotes(InitializationObject initObj, long unixStartDate, long unixEndDate)
         {
             List<UserVote> sRet = null;
 
