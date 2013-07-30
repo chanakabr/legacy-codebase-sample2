@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
+using ODBCWrapper;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
@@ -2314,6 +2315,31 @@ namespace TVPApiServices
                 try
                 {
                     sRet = ChannelHelper.GetChannelsList(initObj, sPicSize, groupId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+            return sRet;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get user votes (applies only to EpicTV)")]
+        public List<UserVote> GetUserVotes(InitializationObject initObj, long unixStartDate, long unixEndDate)
+        {
+            List<UserVote> sRet = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserVotes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId == 134)
+            {
+                try
+                {
+                   sRet = TVPApiModule.Helper.VotesHelper.GetAllVotesByDates(unixStartDate, unixEndDate);
                 }
                 catch (Exception ex)
                 {
