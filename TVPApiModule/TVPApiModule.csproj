@@ -168,6 +168,7 @@
     <Compile Include="Objects\ImplementationYes.cs" />
     <Compile Include="Objects\TextLocalization.cs" />
     <Compile Include="Objects\Translation.cs" />
+    <Compile Include="Objects\UserVote.cs" />
     <Compile Include="Parsers\AbertisJSONParser.cs" />
     <Compile Include="Parsers\UsersXMLParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
