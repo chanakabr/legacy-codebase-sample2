@@ -7,6 +7,7 @@ using System.Web;
 using System.Collections;
 using log4net;
 using System.Configuration;
+using System.Reflection;
 
 /// <summary>
 /// Summary description for ConnectionHelper
@@ -17,7 +18,7 @@ namespace TVPApi
 {
     public class ConnectionHelper
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(ConnectionHelper));
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private static ReaderWriterLockSlim _locker = new ReaderWriterLockSlim();
         private static Dictionary<string, Dictionary<string, int>> _groupsModulesIPs = new Dictionary<string, Dictionary<string, int>>();
 
@@ -48,8 +49,9 @@ namespace TVPApi
                     else return GetValueFromDict(sWSName, sModuleName, sUN, sPass, sIP);
                 }
 
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    log.Error(ex);
                     return 0;
                 }
 
