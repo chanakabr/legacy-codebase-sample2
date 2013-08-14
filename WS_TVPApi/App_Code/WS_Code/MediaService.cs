@@ -1950,7 +1950,8 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Fix this to be unified Enum
-                    nResponse = TVPPro.SiteManager.Helper.VotesHelper.GetVotingRatio(initObj.SiteGuid);
+                   // nResponse = TVPPro.SiteManager.Helper.VotesHelper.GetVotingRatio(initObj.SiteGuid);
+                    nResponse = TVPApiModule.Helper.VotesHelper.GetVotingRatio(initObj.SiteGuid, groupId, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
