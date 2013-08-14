@@ -145,11 +145,11 @@ namespace TVPApiModule.Helper
         {
             List<TVPApiModule.Objects.UserVote> retVal = new List<UserVote>();
 
-           // ConnectionManager connMng = new ConnectionManager(134, PlatformType.Web, false);
+            ConnectionManager connMng = new ConnectionManager(134, PlatformType.Web, false);
 
             DataTable dt;
-            ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery();
-            query += "select * from tvp_elisa.dbo.UserVote UserVote where";
+            ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery(connMng.GetClientConnectionString());
+            query += "select * from tvp_elisa.dbo.UserVote where";
             //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
             query += ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", ">=", WSUtils.FromUnixTime(unixTimeStart));
             query += " and ";
