@@ -2355,6 +2355,35 @@ namespace TVPApiServices
             return sRet;
         }
 
+
+        [WebMethod(EnableSession = true, Description = "Has the user voted already")]
+        public int GetMediaVotes(InitializationObject initObj, int iMediaID)
+        {
+            int nResponse = 0;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetVoteRatio", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    //XXX: Fix this to be unified Enum
+                    // nResponse = TVPPro.SiteManager.Helper.VotesHelper.GetVotingRatio(initObj.SiteGuid);
+                    nResponse = TVPApiModule.Helper.VotesHelper.GetVotesByMediaID(iMediaID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return nResponse;
+        }
+
         #region MessageBox
         [WebMethod(EnableSession = true, Description = "SendMessage")]
         public void SendMessage(string sSiteGuid, string sRecieverUDID, int iMediaID, int iMediaTypeID, int iLocation, string sAction, string sUsername, string sPassword)
