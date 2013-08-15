@@ -176,5 +176,29 @@ namespace TVPApiModule.Helper
 
             return retVal;
         }
+
+        public static int GetVotesByMediaID(long mediaId)
+        {
+            int retVal = 0;
+
+            ConnectionManager connMng = new ConnectionManager(134, PlatformType.Web, false);
+
+            DataTable dt;
+            ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery(connMng.GetClientConnectionString());
+            query += "select sum(score) from tvp_elisa.dbo.UserVote where";
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
+            query += ODBCWrapper.Parameter.NEW_PARAM("Media", "=", mediaId.ToString());
+            query += " and ";
+            query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            dt = query.Execute("query", true);
+            query.Finish();
+
+            if (dt != null)
+            {
+                int.TryParse(dt.Rows[0][0].ToString(), out retVal);
+            }
+
+            return retVal;
+        }
     }
 }
