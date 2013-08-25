@@ -141,11 +141,11 @@ namespace TVPApiModule.Helper
             }
         }
 
-        public static List<TVPApiModule.Objects.UserVote> GetAllVotesByDates(long unixTimeStart, long unixTimeEnd)
+        public static List<TVPApiModule.Objects.UserVote> GetAllVotesByDates(long unixTimeStart, long unixTimeEnd, int groupID, PlatformType platform)
         {
             List<TVPApiModule.Objects.UserVote> retVal = new List<UserVote>();
 
-            ConnectionManager connMng = new ConnectionManager(134, PlatformType.Web, false);
+            ConnectionManager connMng = new ConnectionManager(groupID, platform, false);
 
             DataTable dt;
             ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery(connMng.GetClientConnectionString());
@@ -177,11 +177,11 @@ namespace TVPApiModule.Helper
             return retVal;
         }
 
-        public static int GetVotesByMediaID(long mediaId)
+        public static int GetVotesByMediaID(long mediaId, int groupID, PlatformType platform)
         {
             int retVal = 0;
 
-            ConnectionManager connMng = new ConnectionManager(134, PlatformType.Web, false);
+            ConnectionManager connMng = new ConnectionManager(groupID, platform, false);
 
             DataTable dt;
             ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery(connMng.GetClientConnectionString());
