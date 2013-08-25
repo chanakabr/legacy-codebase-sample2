@@ -2341,7 +2341,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                   sRet = TVPApiModule.Helper.VotesHelper.GetAllVotesByDates(unixStartDate, unixEndDate);
+                   sRet = TVPApiModule.Helper.VotesHelper.GetAllVotesByDates(unixStartDate, unixEndDate, groupId, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
@@ -2369,7 +2369,7 @@ namespace TVPApiServices
                 {
                     //XXX: Fix this to be unified Enum
                     // nResponse = TVPPro.SiteManager.Helper.VotesHelper.GetVotingRatio(initObj.SiteGuid);
-                    nResponse = TVPApiModule.Helper.VotesHelper.GetVotesByMediaID(iMediaID);
+                    nResponse = TVPApiModule.Helper.VotesHelper.GetVotesByMediaID(iMediaID, groupId, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
