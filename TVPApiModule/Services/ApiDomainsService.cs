@@ -56,7 +56,7 @@ namespace TVPApiModule.Services
             DomainResponseObject domain = null;
             try
             {
-                domain = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, masterSiteGuid);
+                domain = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, masterSiteGuid, false);
             }
             catch (Exception ex)
             {
