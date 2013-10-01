@@ -139,6 +139,14 @@
     <Compile Include="Manager\SiteMapManager.cs" />
     <Compile Include="Configuration\ApiTechnicalConfiguration.cs" />
     <Compile Include="Manager\TextLocalizationManager.cs" />
+    <Compile Include="Objects\CRM\Country.cs" />
+    <Compile Include="Objects\CRM\enums.cs" />
+    <Compile Include="Objects\CRM\State.cs" />
+    <Compile Include="Objects\CRM\User.cs" />
+    <Compile Include="Objects\CRM\UserBasicData.cs" />
+    <Compile Include="Objects\CRM\UserDynamicData.cs" />
+    <Compile Include="Objects\CRM\UserDynamicDataContainer.cs" />
+    <Compile Include="Objects\CRM\UserType.cs" />
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\TagMetaIntPairArray.cs" />
     <Compile Include="Objects\ExtraParameters.cs" />

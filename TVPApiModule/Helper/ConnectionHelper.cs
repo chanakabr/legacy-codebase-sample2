@@ -117,8 +117,6 @@ namespace TVPApi
             return retVal;
         }
 
-
-
         //Init delegates
         public static void InitServiceConfigs()//int groupID, PlatformType platform
         {
@@ -157,7 +155,6 @@ namespace TVPApi
             return string.Empty;
         }
 
-
         //Get the TVINCI DB connection string
         public static string GetTvinciConnectionString()
         {
@@ -167,7 +164,6 @@ namespace TVPApi
                     ";Pwd=", TVinciDBConfiguration.GetConfig().Pass,
                     ";");
         }
-
 
         //Get client specific connection string 
         public static string GetClientConnectionString()
@@ -199,6 +195,40 @@ namespace TVPApi
             {
                 return string.Empty;
             }
+        }
+
+        public static bool GetApiCredentials(string sCRMUser, string sCRMPass, out string sApiUser, out string sApiPass)
+        {
+            bool isAuth = false;
+
+            sApiUser = string.Empty;
+            sApiPass = string.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+
+            selectQuery += "select API_USERNAME, API_PASSWORD from crm_users where is_active=1 and status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_USERNAME", "=", sCRMUser);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_PASSWORD", "=", sCRMPass);
+
+            System.Data.DataTable dt = selectQuery.Execute("query", true);
+            if (dt != null)
+            {
+                Int32 nCount = dt.DefaultView.Count;
+
+                if (nCount > 0)
+                {
+                    isAuth = true;
+
+                    sApiUser = dt.Rows[0]["API_USERNAME"].ToString();
+                    sApiPass = dt.Rows[0]["API_PASSWORD"].ToString();
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return isAuth;
         }
     }
 }
