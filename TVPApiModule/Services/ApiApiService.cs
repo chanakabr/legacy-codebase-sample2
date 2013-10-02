@@ -281,6 +281,49 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public bool SetRuleState(string siteGuid, int domainID, int ruleID, int isActive)
+        {
+            bool res = false;
+            try
+            {
+                res = m_Module.SetRuleState(m_wsUserName, m_wsPassword, domainID, siteGuid, ruleID, isActive);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SetRuleState, Error Message: {0}, Parameters : siteGuid = {1}, domainID = {2}, ruleID = {3}, isActive = {4}", 
+                    ex.Message, siteGuid, domainID, ruleID, isActive);
+            }
+            return res;
+        }
+
+        public GroupRule[] GetDomainGroupRules(int domainID)
+        {
+            GroupRule[] res = null;
+            try
+            {
+                res = m_Module.GetDomainGroupRules(m_wsUserName, m_wsPassword, domainID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainGroupRules, Error Message: {0}, Parameters : domainID: {1}", ex.Message, domainID);
+            }
+            return res;
+        }
+
+        public bool SetDomainGroupRule(int domainID, int ruleID, string PIN, int isActive)
+        {
+            bool res = false;
+            try
+            {
+                res = m_Module.SetDomainGroupRule(m_wsUserName, m_wsPassword, domainID, ruleID, PIN, isActive);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SetDomainGroupRule, Error Message: {0}, Parameters : domainID: {1}, ruleID: {2}, PIN: {3} isActive: {4}",
+                    ex.Message, domainID, ruleID, PIN, isActive);
+            }
+            return res;
+        }
         #endregion
     }
 }
