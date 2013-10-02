@@ -12,7 +12,7 @@ namespace TVPApiModule.Objects.CRM
         MethodNotFound = 1001,
         MethodNotIncludedInQueryString = 1002,
         CredentialsNotAuthorized = 1003,
-        SecureConnectionAllowed = 1004,
+        OnlySecureConnectionAllowed = 1004,
         UnknownGroup = 1005,
         SerializationError = 1006
     }
