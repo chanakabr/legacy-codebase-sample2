@@ -26,6 +26,7 @@ public class CRMGateway : IHttpHandler {
 
         if (context.Request.IsSecureConnection)
         {
+            
             string sApiUser;
             string sApiPass;
 
@@ -95,7 +96,7 @@ public class CRMGateway : IHttpHandler {
         }
         else
         {
-            ((CRMResponse)response).status_code = TVPApiModule.Objects.CRM.CRMResponseStatus.SecureConnectionAllowed;
+            ((CRMResponse)response).status_code = TVPApiModule.Objects.CRM.CRMResponseStatus.OnlySecureConnectionAllowed;
         }
 
         string sResponse = JsonConvert.SerializeObject(response);
