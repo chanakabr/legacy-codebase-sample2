@@ -75,5 +75,15 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
+
+        [OperationContract]
+        bool SetRuleState(InitializationObject initObj, int ruleID, string PIN, int isActive);
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetDomainGroupRules(InitializationObject initObj);
+
+        [OperationContract]
+        bool SetDomainGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive);
+ 
     }
 }
