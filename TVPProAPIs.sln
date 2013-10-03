@@ -32,7 +32,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WS_TVPApi", "WS_TVPApi\", "
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "36727"
+		VWDPort = "21818"
 		VWDDynamicPort = "true"
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection

@@ -38,5 +38,11 @@ namespace TVPApiServices
 
         [OperationContract]
         string RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID);
+
+        [OperationContract]
+        UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token);
+
+        [OperationContract]
+        bool SendPasswordMail(InitializationObject initObj, string userName);
     }
 }

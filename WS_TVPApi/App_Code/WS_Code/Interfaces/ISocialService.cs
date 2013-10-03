@@ -47,12 +47,24 @@ namespace TVPApiServices
         bool SetUserSocialPrivacy(InitializationObject initObj, eSocialPrivacy socialPrivacy);
 
         [OperationContract]
-        UserSocialActionObject[] GetUserActions(InitializationObject initObj, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
+        UserSocialActionObject[] GetUserActions(InitializationObject initObj,  eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
         UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        string DoUserAction(InitializationObject initObj, int mediaId, string[] userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform);
+        string DoUserAction(InitializationObject initObj, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID);
+
+        [OperationContract]
+        string GetUserFBActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform);
+
+        [OperationContract]
+        string GetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform);
+
+        [OperationContract]
+        bool SetUserFBActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
+
+        [OperationContract]
+        bool SetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
     }
 }

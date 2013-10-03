@@ -631,6 +631,7 @@ namespace TVPApiModule.Services
 
             return bRet;
         }
+
         public UserResponseObject RenewUserPassword(string sUN, string sPass)
         {
             UserResponseObject bRet = null;
@@ -662,6 +663,40 @@ namespace TVPApiModule.Services
             }
 
             return bRet;
+        }
+
+        public UserResponseObject ActivateAccountByDomainMaster(string masterUserName, string userName, string token)
+        {
+            UserResponseObject res = null;
+
+            try
+            {
+                res = m_Module.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol ActivateAccountByDomainMaster, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, masterUserName: {3}, userName: {4}, token: {5}", 
+                    ex.Message, m_wsUserName, m_wsPassword, masterUserName, userName, token);
+            }
+
+            return res;
+        }
+
+        public bool SendPasswordMail(string userName)
+        {
+            bool res = false;
+
+            try
+            {
+                res = m_Module.SendPasswordMail(m_wsUserName, m_wsPassword, userName);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol SendPasswordMail, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, userName: {3}",
+                    ex.Message, m_wsUserName, m_wsPassword, userName);
+            }
+
+            return res;
         }
     }
 }

@@ -958,7 +958,7 @@ namespace TVPApiServices
         #region XXXX
 
         [WebMethod(EnableSession = true, Description = "Do Social Action")]
-        public string DoSocialAction(InitializationObject initObj, int mediaID, eSocialAction socialAction, SocialPlatform socialPlatform, string actionParam)
+        public string DoSocialAction(InitializationObject initObj, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam)
         {
             string sRes = SocialActionResponseStatus.UNKNOWN.ToString();
 
@@ -969,7 +969,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupID, initObj.Platform);
-                    SocialActionResponseStatus response = service.DoSocialAction(mediaID, initObj.SiteGuid, socialAction, socialPlatform, actionParam);
+                    SocialActionResponseStatus response = service.DoSocialAction(mediaID, initObj.SiteGuid, initObj.UDID, socialAction, socialPlatform, actionParam);
 
                     if (response == SocialActionResponseStatus.OK || response == SocialActionResponseStatus.INVALID_ACCESS_TOKEN)
                         sRes = response.ToString();
@@ -987,7 +987,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user social actions")]
-        public UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, eSocialAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
+        public UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
         {
             UserSocialActionObject[] res = null;
 
@@ -1036,7 +1036,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set User Rule State")]
-        public bool SetRuleState(InitializationObject initObj, int ruleID, string PIN, int isActive)
+        public bool SetRuleState(InitializationObject initObj, int ruleID, int isActive)
         {
             bool response = false;
 
@@ -1087,7 +1087,7 @@ namespace TVPApiServices
             return response;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get Domain Group Rules")]
+        [WebMethod(EnableSession = true, Description = "Set Domain Group Rule")]
         public bool SetDomainGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive)
         {
             bool response = false;

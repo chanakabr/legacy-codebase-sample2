@@ -307,16 +307,16 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetGroupUserTypes(sUN, sPass);  
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetGroupUserTypes(sUN, sPass);
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);                    
+                    HttpContext.Current.Items.Add("Error", ex);
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");                
+                HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
             return response;
@@ -348,6 +348,57 @@ namespace TVPApiServices
             return response.ToString();
         }
 
+        [WebMethod(EnableSession = true, Description = "Activate Account By Domain Master")]
+        public UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token)
+        {
+            UserResponseObject response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActivateAccountByDomainMaster", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ActivateAccountByDomainMaster(masterUserName, userName, token);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Send Password Mail")]
+        public bool SendPasswordMail(InitializationObject initObj, string userName)
+        {
+            bool response = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SendPasswordMail", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SendPasswordMail(userName);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
         #endregion
     }
 }

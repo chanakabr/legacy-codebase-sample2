@@ -124,6 +124,7 @@
     <Compile Include="Helper\PagingHelper.cs" />
     <Compile Include="Helper\ParserHelper.cs" />
     <Compile Include="Helper\ProfileHelper.cs" />
+    <Compile Include="Helper\ResponseTimeHelper.cs" />
     <Compile Include="Helper\RssHelper.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
     <Compile Include="Helper\TranslationHelper.cs" />

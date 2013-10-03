@@ -88,22 +88,19 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all friends that liked a media")]
-        public string[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex,
-                                           int pageSize)
+        public string[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersLikedMedia", initObj.ApiUser, initObj.ApiPass,
-                                                      SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersLikedMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                    if (!string.IsNullOrEmpty(initObj.SiteGuid))
                     {
                         TVPApiModule.Services.ApiSocialService service =
                             new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.GetUsersLikedMedia(siteGuid, mediaID, (int)initObj.Platform, onlyFriends,
+                        return service.GetUsersLikedMedia(initObj.SiteGuid, mediaID, SocialPlatform.FACEBOOK, onlyFriends,
                                                           startIndex, pageSize);
                     }
                 }
@@ -248,7 +245,7 @@ namespace TVPApiServices
                 {
 
                     ApiSocialService service = new ApiSocialService(groupId, initObj.Platform);
-                    var oExtra = new List<ExtraKeyValue>() { new ExtraKeyValue() { key = "news", value = bGetNewsletter ? "1" : "0" }, new ExtraKeyValue() { key = "domain", value = bCreateNewDomain ? "1" : "0" } };
+                    var oExtra = new List<KeyValuePair>() { new KeyValuePair(){ key = "news", value = bGetNewsletter ? "1" : "0"}, new KeyValuePair() {key = "domain", value = bCreateNewDomain ? "1" : "0"} };
                     return service.FBUserRegister(sToken, sSTG, oExtra, Context.Request.UserHostAddress);
 
                 }
@@ -336,7 +333,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user actions")]
-        public UserSocialActionObject[] GetUserActions(InitializationObject initObj, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public UserSocialActionObject[] GetUserActions(InitializationObject initObj, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -344,7 +341,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetUserActions(initObj.SiteGuid, userActions, mediaId, startIndex, numOfRecords, socialPlatform);
+                    return service.GetUserActions(initObj.SiteGuid, userAction, assetType, assetID, startIndex, numOfRecords, socialPlatform);
                 }
                 catch (Exception ex)
                 {
@@ -376,7 +373,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Does a user requested action")]
-        public string DoUserAction(InitializationObject initObj, int mediaId, string[] userActions, ExtraKeyValue[] extraParams, SocialPlatform socialPlatform)
+        public string DoUserAction(InitializationObject initObj, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "DoUserAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -384,7 +381,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.DoUserAction(initObj.SiteGuid, mediaId, userActions, extraParams, socialPlatform).ToString();
+                    return service.DoUserAction(initObj.SiteGuid, initObj.UDID, userAction, extraParams, socialPlatform, assetType, assetID).ToString();
                 }
                 catch (Exception ex)
                 {
@@ -393,6 +390,86 @@ namespace TVPApiServices
             }
             HttpContext.Current.Items.Add("Error", "Unknown group");
             return SocialActionResponseStatus.ERROR.ToString();
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets User Facebook Action Privacy")]
+        public string GetUserFBActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFBActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                    return service.GetUserFBActionPrivacy(initObj.SiteGuid, userAction, socialPlatform).ToString();
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            HttpContext.Current.Items.Add("Error", "Unknown group");
+            return eSocialActionPrivacy.UNKNOWN.ToString();
+        }
+
+        [WebMethod(EnableSession = true, Description = "Gets User Internal Action Privacy")]
+        public string GetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                    return service.GetUserInternalActionPrivacy(initObj.SiteGuid, userAction, socialPlatform).ToString();
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            HttpContext.Current.Items.Add("Error", "Unknown group");
+            return eSocialActionPrivacy.UNKNOWN.ToString();
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sets User Facebook Action Privacy")]
+        public bool SetUserFBActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserFBActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                    return service.SetUserFBActionPrivacy(initObj.SiteGuid, userAction, socialPlatform, actionPrivacy);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            HttpContext.Current.Items.Add("Error", "Unknown group");
+            return false;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
+        public bool SetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                    return service.SetUserInternalActionPrivacy(initObj.SiteGuid, userAction, socialPlatform, actionPrivacy);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            HttpContext.Current.Items.Add("Error", "Unknown group");
+            return false;
         }
     }
 }

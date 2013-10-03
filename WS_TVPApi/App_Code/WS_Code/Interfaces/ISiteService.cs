@@ -41,7 +41,7 @@ namespace TVPApiServices
         PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);        
 
         [OperationContract]
-        string DoSocialAction(InitializationObject initObj, int mediaID, eSocialAction socialAction, SocialPlatform socialPlatform, string actionParam);
+        string DoSocialAction(InitializationObject initObj, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam);
 
         [OperationContract]
         bool IsFacebookUser(InitializationObject initObj);
@@ -77,7 +77,7 @@ namespace TVPApiServices
         TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
 
         [OperationContract]
-        bool SetRuleState(InitializationObject initObj, int ruleID, string PIN, int isActive);
+        bool SetRuleState(InitializationObject initObj, int ruleID, int isActive);
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetDomainGroupRules(InitializationObject initObj);
