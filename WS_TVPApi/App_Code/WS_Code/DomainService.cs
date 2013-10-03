@@ -338,6 +338,27 @@ namespace TVPApiServices
             return domainRes;
         }
 
+        [WebMethod(EnableSession = true, Description = "Add domain with Co-GUID to master site user")]
+        public DomainResponseObject AddDomainWithCoGuid(InitializationObject initObj, string domainName, string domainDesc, int masterGuid, string coGuid)
+        {
+            DomainResponseObject domainRes = null;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddDomainWithCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    domainRes = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDomainWithCoGuid(domainName, domainDesc, masterGuid, coGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+
+            return domainRes;
+        }
+
         [WebMethod(EnableSession = true, Description = "Get domain CoGuid")]
         public string GetDomainCoGuid(InitializationObject initObj, string domainName, string domainDesc, int masterGuid)
         {
@@ -363,6 +384,75 @@ namespace TVPApiServices
             }
 
             return res;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get domain object by CoGuid")]
+        public DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid)
+        {
+            DomainResponseObject res = null;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainByCoGuid(coGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+
+            return res;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get domain ID by CoGuid")]
+        public int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid)
+        {
+            int res = 0;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainIDByCoGuid(coGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+
+            return res;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Submit user to a domain request")]
+        public DomainResponseObject SubmitAddUserToDomainRequest(InitializationObject initObj, string masterUsername)
+        {
+            DomainResponseObject resDomain = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SubmitAddUserToDomainRequest", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+
+                try
+                {
+                    int siteGuid = 0;
+                    if (int.TryParse(initObj.SiteGuid, out siteGuid))
+                        resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SubmitAddUserToDomainRequest(siteGuid, masterUsername);
+                    else
+                        throw new Exception("Site guid is not a valid number");
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+
+            return resDomain;
         }
     }
 }

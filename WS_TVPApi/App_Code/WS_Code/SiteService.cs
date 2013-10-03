@@ -1168,6 +1168,61 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get EPG program rules")]
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetEPGProgramRules(InitializationObject initObj, int MediaId, int programId, string IP)
+        {
+            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetEPGProgramRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    int siteGuid = 0;
+                    if (int.TryParse(initObj.SiteGuid, out siteGuid))
+                        response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetEPGProgramRules(MediaId, programId, siteGuid, IP, initObj.UDID);
+                    else
+                        throw new Exception("Site guid is not a valid number");
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get user started watching medias")]
+        public string[] GetUserStartedWatchingMedias(InitializationObject initObj, int numOfItems)
+        {
+            string[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserStartedWatchingMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserStartedWatchingMedias(initObj.SiteGuid, numOfItems);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
 
         #endregion
     }

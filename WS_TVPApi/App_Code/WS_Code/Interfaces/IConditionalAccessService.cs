@@ -42,5 +42,8 @@ namespace TVPApiServices
 
         [OperationContract]
         BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode);
+
+        [OperationContract]
+        string GetEPGLicensedLink(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType);
     }
 }

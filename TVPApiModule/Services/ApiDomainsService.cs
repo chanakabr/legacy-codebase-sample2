@@ -256,6 +256,21 @@ namespace TVPApiModule.Services
             return response;
         }
 
+        public DomainResponseObject AddDomainWithCoGuid(string domainName, string domainDesc, int masterGuid, string CoGuid)
+        {
+            DomainResponseObject response = null;
+            try
+            {
+                response = m_Module.AddDomainWithCoGuid(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid, CoGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : AddDomainWithCoGuid, Error Message: {0} Parameters: masterGuid: {1}", ex.Message, masterGuid);
+            }
+            return response;
+        }
+
+
         public string GetDomainCoGuid(int nDomainID)
         {
             string resp = string.Empty;
@@ -265,9 +280,52 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : AddDomain, Error Message: {0} Parameters: masterGuid: {1}", ex.Message, nDomainID);
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainCoGuid, Error Message: {0} Parameters: masterGuid: {1}", ex.Message, nDomainID);
             }
             return resp;
         }
+
+        public DomainResponseObject GetDomainByCoGuid(string coGuid)
+        {
+            DomainResponseObject response = null;
+            try
+            {
+                response = m_Module.GetDomainByCoGuid(m_wsUserName, m_wsPassword, coGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainByCoGuid, Error Message: {0} Parameters: coGuid: {1}", ex.Message, coGuid);
+            }
+            return response;
+        }
+
+        public int GetDomainIDByCoGuid(string coGuid)
+        {
+            int domainID = 0;
+            try
+            {
+                domainID = m_Module.GetDomainIDByCoGuid(m_wsUserName, m_wsPassword, coGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainIDByCoGuid, Error Message: {0} Parameters: coGuid: {1}", ex.Message, coGuid);
+            }
+            return domainID;
+        }
+
+        public DomainResponseObject SubmitAddUserToDomainRequest(int userID, string masterUsername)
+        {
+            DomainResponseObject res = null;
+            try
+            {
+                res = m_Module.SubmitAddUserToDomainRequest(m_wsUserName, m_wsPassword, userID, masterUsername);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SubmitAddUserToDomainRequest, Error Message: {0} Parameters: UserID: {1}", ex.Message, userID);
+            }
+            return res;
+        }
+        
     }
 }

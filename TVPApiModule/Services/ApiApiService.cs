@@ -324,6 +324,34 @@ namespace TVPApiModule.Services
             }
             return res;
         }
+
+        public GroupRule[] GetEPGProgramRules(int MediaId, int programId, int siteGuid, string IP, string udid)
+        {
+            GroupRule[] res = null;
+            try
+            {
+                res = m_Module.GetEPGProgramRules(m_wsUserName, m_wsPassword, MediaId, programId, siteGuid, IP, udid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramRules, Error Message: {0}, Parameters :  MediaId: {1}, siteGuid: {2}, clientIP: {3}, ProgramID: {4}", ex.Message, MediaId, siteGuid, IP, programId);
+            }
+            return res;
+        }
+
+        public string[] GetUserStartedWatchingMedias(string siteGuid, int numOfItems)
+        {
+            string[] res = null;
+            try
+            {
+                res = m_Module.GetUserStartedWatchingMedias(m_wsUserName, m_wsPassword, siteGuid, numOfItems);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserStartedWatchingMedias, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}", ex.Message, siteGuid, SiteHelper.GetClientIP());
+            }
+            return res;
+        }
         #endregion
     }
 }

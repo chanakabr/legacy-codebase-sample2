@@ -42,5 +42,17 @@ namespace TVPApiServices
 
         [OperationContract]
         DomainResponseObject AddDomain(InitializationObject initObj, string domainName, string domainDesc, int masterGuid);
+
+        [OperationContract]
+        DomainResponseObject AddDomainWithCoGuid(InitializationObject initObj, string domainName, string domainDesc, int masterGuid, string coGuid);
+
+        [OperationContract]
+        DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid);
+
+        [OperationContract]
+        int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid);
+
+        [OperationContract]
+        DomainResponseObject SubmitAddUserToDomainRequest(InitializationObject initObj, string masterUsername);
     }
 }

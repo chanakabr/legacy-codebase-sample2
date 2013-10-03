@@ -84,6 +84,11 @@ namespace TVPApiServices
 
         [OperationContract]
         bool SetDomainGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive);
- 
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetEPGProgramRules(InitializationObject initObj, int MediaId, int programId, string IP);
+
+        [OperationContract]
+        string[] GetUserStartedWatchingMedias(InitializationObject initObj, int numOfItems);
     }
 }
