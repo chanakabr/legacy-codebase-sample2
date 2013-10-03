@@ -1435,8 +1435,22 @@ namespace TVPApiServices
                         Dictionary<string, string> dict = new Dictionary<string, string>();
                         dict.Add("Base ID", psc.m_sSubscriptionCode);
                         TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupId, initObj.Platform).GetTVMAccountByAccountType(AccountType.Fictivic);
-                        APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { IgnoreFilter = true, SearchTokenSignature = string.Concat("Base ID=", psc.m_sSubscriptionCode), GroupID = groupId, Platform = initObj.Platform, dictMetas = dict, WithInfo = false, PageSize = 1, 
-                            PictureSize = picSize, PageIndex = 0, OrderBy = TVPApi.OrderBy.ABC, MetaValues = psc.m_sSubscriptionCode, Country = new TVPApiModule.Services.ApiUsersService(groupId, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), UseFinalEndDate = "true" };
+                        APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass)
+                        {
+                            IgnoreFilter = true,
+                            SearchTokenSignature = string.Concat("Base ID=", psc.m_sSubscriptionCode),
+                            GroupID = groupId,
+                            Platform = initObj.Platform,
+                            dictMetas = dict,
+                            WithInfo = false,
+                            PageSize = 1,
+                            PictureSize = picSize,
+                            PageIndex = 0,
+                            OrderBy = TVPApi.OrderBy.ABC,
+                            MetaValues = psc.m_sSubscriptionCode,
+                            Country = new TVPApiModule.Services.ApiUsersService(groupId, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()),
+                            UseFinalEndDate = "true"
+                        };
 
                         TVPPro.SiteManager.DataEntities.dsItemInfo ds = searchLoader.Execute();
                         if (ds.Item.Rows.Count > 0)
@@ -1950,7 +1964,7 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Fix this to be unified Enum
-                   // nResponse = TVPPro.SiteManager.Helper.VotesHelper.GetVotingRatio(initObj.SiteGuid);
+                    // nResponse = TVPPro.SiteManager.Helper.VotesHelper.GetVotingRatio(initObj.SiteGuid);
                     nResponse = TVPApiModule.Helper.VotesHelper.GetVotingRatio(initObj.SiteGuid, groupId, initObj.Platform);
                 }
                 catch (Exception ex)
@@ -2290,7 +2304,11 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupMediaRules(mediaID, int.Parse(initObj.SiteGuid), initObj.UDID);
+                    // get Site GUID (put 0 by default)
+                    int siteGuid = 0;
+                    int.TryParse(initObj.SiteGuid, out siteGuid);
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupMediaRules(mediaID, siteGuid, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -2341,7 +2359,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                   sRet = TVPApiModule.Helper.VotesHelper.GetAllVotesByDates(unixStartDate, unixEndDate, groupId, initObj.Platform);
+                    sRet = TVPApiModule.Helper.VotesHelper.GetAllVotesByDates(unixStartDate, unixEndDate, groupId, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
