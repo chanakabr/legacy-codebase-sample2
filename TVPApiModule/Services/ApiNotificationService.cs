@@ -42,34 +42,37 @@ namespace TVPApiModule.Services
             try
             {
                 var notificationMessages = m_Client.GetDeviceNotifications(m_wsUserName, m_wsPassword, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
-                foreach (var message in notificationMessages)
+                if (notificationMessages != null)
                 {
-                    res.Add(new Notification()
+                    foreach (var message in notificationMessages)
                     {
-                        Actions = message.Actions != null ? message.Actions : null,
-                        AppName = message.AppName,
-                        DeviceID = message.DeviceID,
-                        ID = message.ID,
-                        MessageText = message.MessageText,
-                        nGroupID = message.nGroupID,
-                        NotificationID = message.NotificationID,
-                        NotificationMessageID = message.NotificationMessageID,
-                        Status = message.Status,
-                        Title = message.Title,
-                        Type = message.Type,
-                        UdID = message.UdID,
-                        UserID = message.UserID,
-                        TagNotificationParams = message.TagNotificationParams != null ? new ExtraParameters()
+                        res.Add(new Notification()
                         {
-                            mediaID = message.TagNotificationParams.mediaIDk__BackingField,
-                            mediaPicURL = message.TagNotificationParams.mediaPicURLk__BackingField,
-                            TagDict = message.TagNotificationParams.TagDictk__BackingField != null ? message.TagNotificationParams.TagDictk__BackingField.Select(x => new TagMetaIntPairArray() { Key = x.Key, Values = x.Value }).ToList() : null,
-                            templateEmail = message.TagNotificationParams.templateEmailk__BackingField
-                        } : null,
-                        PublishDate = message.PublishDate,
-                        ViewStatus = message.ViewStatus,
-                        NotificationRequestID = message.NotificationRequestID
-                    });
+                            Actions = message.Actions != null ? message.Actions : null,
+                            AppName = message.AppName,
+                            DeviceID = message.DeviceID,
+                            ID = message.ID,
+                            MessageText = message.MessageText,
+                            nGroupID = message.nGroupID,
+                            NotificationID = message.NotificationID,
+                            NotificationMessageID = message.NotificationMessageID,
+                            Status = message.Status,
+                            Title = message.Title,
+                            Type = message.Type,
+                            UdID = message.UdID,
+                            UserID = message.UserID,
+                            TagNotificationParams = message.TagNotificationParams != null ? new ExtraParameters()
+                            {
+                                mediaID = message.TagNotificationParams.mediaIDk__BackingField,
+                                mediaPicURL = message.TagNotificationParams.mediaPicURLk__BackingField,
+                                TagDict = message.TagNotificationParams.TagDictk__BackingField != null ? message.TagNotificationParams.TagDictk__BackingField.Select(x => new TagMetaIntPairArray() { Key = x.Key, Values = x.Value }).ToList() : null,
+                                templateEmail = message.TagNotificationParams.templateEmailk__BackingField
+                            } : null,
+                            PublishDate = message.PublishDate,
+                            ViewStatus = message.ViewStatus,
+                            NotificationRequestID = message.NotificationRequestID
+                        });
+                    }
                 }
             }
             catch (Exception e)
