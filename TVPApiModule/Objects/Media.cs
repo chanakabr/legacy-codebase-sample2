@@ -183,7 +183,12 @@ namespace TVPApi
             {
                 if (ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FriendlyURL.SupportFeature)
                 {
-                    string sMediaName = HttpUtility.UrlEncode(MediaName.Replace("/", ""));
+                    string sMediaName = MediaName.Replace("/", "");
+
+                    sMediaName = sMediaName.Replace(" ", "-");
+
+                    sMediaName = HttpUtility.UrlEncode(sMediaName);
+
                     retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, sMediaName, MediaID);
                 }
                 else
