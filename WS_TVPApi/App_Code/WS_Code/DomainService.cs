@@ -454,5 +454,28 @@ namespace TVPApiServices
 
             return resDomain;
         }
+
+        [WebMethod(EnableSession = true, Description = "Remove Domain")]
+        public DomainResponseObject RemoveDomain(InitializationObject initObj, int domainID)
+        {
+            DomainResponseObject resDomain = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+
+                try
+                {
+                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDomain(domainID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+
+            return resDomain;
+        }
     }
 }

@@ -54,5 +54,8 @@ namespace TVPApiServices
 
         [OperationContract]
         DomainResponseObject SubmitAddUserToDomainRequest(InitializationObject initObj, string masterUsername);
+
+        [OperationContract]
+        DomainResponseObject RemoveDomain(InitializationObject initObj, int domainID);
     }
 }

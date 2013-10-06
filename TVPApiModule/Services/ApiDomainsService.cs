@@ -326,6 +326,23 @@ namespace TVPApiModule.Services
             }
             return res;
         }
-        
+
+        public DomainResponseObject RemoveDomain(int domainID)
+        {
+            DomainResponseObject response = null;
+
+            try
+            {
+                response = m_Module.RemoveDomain(m_wsUserName, m_wsPassword, domainID);
+            }
+            catch (Exception e)
+            {
+                logger.ErrorFormat("Error occured in SetDeviceInfo, Error : {0} Parameters : Domain ID: {1}", e.Message, domainID);
+            }
+
+            return response;
+        }
+
+
     }
 }
