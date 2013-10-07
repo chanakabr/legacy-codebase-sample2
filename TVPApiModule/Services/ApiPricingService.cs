@@ -150,6 +150,22 @@ namespace TVPApiModule.Services
             return campaigns;
         }
 
+        public int[] GetSubscriptionIDsContainingMediaFile(int iMediaID, int iMediaFileID)
+        {
+            int[] subscriptions = null;
+
+            try
+            {
+                subscriptions = m_Module.GetSubscriptionIDsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionIDsContainingMediaFile, Error Message: {0}, Parameters :  iMediaID: {1}, iMediaFileID : {2}", ex.Message, iMediaID, iMediaFileID);
+            }
+
+            return subscriptions;
+        }
+
         #endregion
     }
 }
