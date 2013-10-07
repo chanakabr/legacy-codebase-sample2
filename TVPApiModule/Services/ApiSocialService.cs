@@ -362,7 +362,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserSocialActionObject[] GetFriendsActions(string siteGuid, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public UserSocialActionObject[] GetFriendsActions(string siteGuid, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             UserSocialActionObject[] res = null;
 
@@ -378,7 +378,8 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_nMediaID = mediaId,
+                    m_nMediaID = assetID,
+                    m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
                     m_sSiteGuid = siteGuid,

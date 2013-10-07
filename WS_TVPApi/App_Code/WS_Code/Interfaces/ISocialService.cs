@@ -50,7 +50,7 @@ namespace TVPApiServices
         UserSocialActionObject[] GetUserActions(InitializationObject initObj,  eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
+        UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, eAssetType assetType ,int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
         string DoUserAction(InitializationObject initObj, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID);

@@ -353,7 +353,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets friends actions")]
-        public UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, int mediaId, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -361,7 +361,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetFriendsActions(initObj.SiteGuid, userActions, mediaId, startIndex, numOfRecords, socialPlatform);
+                    return service.GetFriendsActions(initObj.SiteGuid, userActions, assetType, assetID, startIndex, numOfRecords, socialPlatform);
                 }
                 catch (Exception ex)
                 {
