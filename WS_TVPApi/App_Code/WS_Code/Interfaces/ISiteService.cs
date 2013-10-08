@@ -90,5 +90,8 @@ namespace TVPApiServices
 
         [OperationContract]
         string[] GetUserStartedWatchingMedias(InitializationObject initObj, int numOfItems);
+
+        [OperationContract]
+        bool CleanUserHistory(InitializationObject initObj, int[] mediaIDs);
     }
 }

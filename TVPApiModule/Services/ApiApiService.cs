@@ -352,6 +352,20 @@ namespace TVPApiModule.Services
             }
             return res;
         }
+
+        public bool CleanUserHistory(string siteGuid, int[] mediaIDs)
+        {
+            bool res = false;
+            try
+            {
+                res = m_Module.CleanUserHistory(m_wsUserName, m_wsPassword, siteGuid, mediaIDs);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : CleanUserHistory, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}", ex.Message, siteGuid, SiteHelper.GetClientIP());
+            }
+            return res;
+        }
         #endregion
     }
 }

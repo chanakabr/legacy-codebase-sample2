@@ -953,6 +953,32 @@ namespace TVPApiServices
 
             return bRet;
         }
+
+        [WebMethod(EnableSession = true, Description = "Clean User History")]
+        public bool CleanUserHistory(InitializationObject initObj, int[] mediaIDs)
+        {
+            bool bRet = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "CleanUserHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    bRet = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).CleanUserHistory(initObj.SiteGuid, mediaIDs);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return bRet;
+        }
         #endregion
 
         #region XXXX
