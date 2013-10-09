@@ -49,7 +49,6 @@ namespace TVPApi
             return m_instance;
         }
 
-        //Init technichal and platform config (sync from file)
         public ConfigType GetConfig(int groupID, PlatformType platform)
         {
             string sKey = string.Concat(groupID.ToString(), platform);
@@ -76,13 +75,13 @@ namespace TVPApi
 
             if (!bConfigExist)
             {
-
-                configType = ConfigurationManager.AppSettings["ConfigSrc_" + groupID] == "DB"
-                                 ?  ServiceGetConfig(groupID, platform)
+                if (ConfigurationManager.AppSettings["ConfigSrc_" + groupID] != null)
+                {
+                    configType = ConfigurationManager.AppSettings["ConfigSrc_" + groupID].ToLower() == "edge"
+                                 ? ServiceGetConfig(groupID, platform)
                                  : FileGetConfig(groupID, platform);
-
-
-
+                }
+                else {configType =  FileGetConfig(groupID, platform);}
 
 
                 if (m_ConfigManagerLocker.TryEnterWriteLock(1000))
