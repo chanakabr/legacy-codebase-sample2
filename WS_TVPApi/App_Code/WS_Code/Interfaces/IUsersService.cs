@@ -44,5 +44,20 @@ namespace TVPApiServices
 
         [OperationContract]
         bool SendPasswordMail(InitializationObject initObj, string userName);
+
+        [OperationContract]
+        bool AddItemToList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+
+        [OperationContract]
+        bool RemoveItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+
+        [OperationContract]
+        bool UpdateItemInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+
+        [OperationContract]
+        UserItemList[] GetItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+
+        [OperationContract]
+        TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
     }
 }

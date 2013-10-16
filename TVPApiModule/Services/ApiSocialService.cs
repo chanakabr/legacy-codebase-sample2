@@ -61,13 +61,13 @@ namespace TVPApiModule.Services
 
             try
             {
-                KeyValuePair[] extraPatams;
+                TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraPatams;
                 if (string.IsNullOrEmpty(actionParam))
-                    extraPatams = new KeyValuePair[0];
+                    extraPatams = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[0];
                 else
                 {
-                    extraPatams = new KeyValuePair[1];
-                    extraPatams[0] = new KeyValuePair() { key = "link", value = actionParam};
+                    extraPatams = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[1];
+                    extraPatams[0] = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "link", value = actionParam};
                 }
 
                 BaseDoUserActionRequest actionRequest = new BaseDoUserActionRequest()
@@ -188,7 +188,7 @@ namespace TVPApiModule.Services
                     m_eAssetType = eAssetType.MEDIA,
                     m_eSocialPlatform = ePlatform,
                     m_eUserActions = eUserAction.LIKE,
-                    m_nMediaID = iMediaID,
+                    m_nAssetID = iMediaID,
                     m_nNumOfRecords = iPageSize,
                     m_nStartIndex = iStartIndex,
                     m_sSiteGuid = iSiteGuid
@@ -254,7 +254,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public FacebookResponseObject FBUserRegister(string stoken, string sSTG, List<KeyValuePair> oExtra, string sIP)
+        public FacebookResponseObject FBUserRegister(string stoken, string sSTG, List<TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair> oExtra, string sIP)
         {
             FacebookResponseObject res = null;
 
@@ -286,13 +286,13 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public eSocialPrivacy GetUserSocialPrivacy(int sGuid)
+        public eSocialPrivacy GetUserSocialPrivacy(int sGuid, SocialPlatform socialPlatform, eUserAction userAction)
         {
             eSocialPrivacy res = eSocialPrivacy.UNKNOWN;
 
             try
             {
-                res = m_Module.GetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid);
+                res = m_Module.GetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction);
             }
             catch (Exception ex)
             {
@@ -318,13 +318,13 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool SetUserSocialPrivacy(int sGuid, eSocialPrivacy socialPrivacy)
+        public bool SetUserSocialPrivacy(int sGuid, SocialPlatform socialPlatform, eUserAction userAction, eSocialPrivacy socialPrivacy)
         {
             bool res = false;
 
             try
             {
-                res = m_Module.SetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPrivacy);
+                res = m_Module.SetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction, socialPrivacy);
             }
             catch (Exception ex)
             {
@@ -345,7 +345,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_nMediaID = assetID,
+                    m_nAssetID = assetID,
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
@@ -378,7 +378,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_nMediaID = assetID,
+                    m_nAssetID = assetID,
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
@@ -395,7 +395,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public SocialActionResponseStatus DoUserAction(string siteGuid, string udid, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
+        public SocialActionResponseStatus DoUserAction(string siteGuid, string udid, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
         {
             SocialActionResponseStatus res = SocialActionResponseStatus.UNKNOWN;
 
@@ -424,7 +424,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public eSocialActionPrivacy GetUserFBActionPrivacy(string siteGuid, eUserAction userAction, SocialPlatform socialPlatform)
+        public eSocialActionPrivacy GetUserExternalActionShare(string siteGuid, eUserAction userAction, SocialPlatform socialPlatform)
         {
             eSocialActionPrivacy res = eSocialActionPrivacy.UNKNOWN;
 
@@ -432,7 +432,7 @@ namespace TVPApiModule.Services
             {
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = m_Module.GetUserFBActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
+                    res = m_Module.GetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
                 else 
                     throw new Exception("siteGuid not in the right format");
             }
@@ -464,7 +464,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool SetUserFBActionPrivacy(string siteGuid, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
+        public bool SetUserExternalActionShare(string siteGuid, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
         {
             bool res = false;
 
@@ -472,7 +472,7 @@ namespace TVPApiModule.Services
             {
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = m_Module.SetUserFBActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
+                    res = m_Module.SetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
                 else 
                     throw new Exception("siteGuid not in the right format");
             }

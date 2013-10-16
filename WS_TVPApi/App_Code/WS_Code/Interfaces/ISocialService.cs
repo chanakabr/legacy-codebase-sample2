@@ -38,13 +38,13 @@ namespace TVPApiServices
         FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword);
 
         [OperationContract]
-        string GetUserSocialPrivacy(InitializationObject initObj);
+        string GetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction);
 
         [OperationContract]
         eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj);
 
         [OperationContract]
-        bool SetUserSocialPrivacy(InitializationObject initObj, eSocialPrivacy socialPrivacy);
+        bool SetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction, eSocialPrivacy socialPrivacy);
 
         [OperationContract]
         UserSocialActionObject[] GetUserActions(InitializationObject initObj,  eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
@@ -53,16 +53,16 @@ namespace TVPApiServices
         UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, eAssetType assetType ,int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        string DoUserAction(InitializationObject initObj, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID);
+        string DoUserAction(InitializationObject initObj, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID);
 
         [OperationContract]
-        string GetUserFBActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform);
+        string GetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform);
 
         [OperationContract]
         string GetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform);
 
         [OperationContract]
-        bool SetUserFBActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
+        bool SetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
 
         [OperationContract]
         bool SetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);

@@ -261,7 +261,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user social privacy")]
-        public string GetUserSocialPrivacy(InitializationObject initObj)
+        public string GetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -272,7 +272,7 @@ namespace TVPApiServices
                     if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
                     {
                         TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.GetUserSocialPrivacy(siteGuid).ToString();
+                        return service.GetUserSocialPrivacy(siteGuid, socialPlatform, userAction).ToString();
                     }
                 }
                 catch (Exception ex)
@@ -309,7 +309,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets user social privacy")]
-        public bool SetUserSocialPrivacy(InitializationObject initObj, eSocialPrivacy socialPrivacy)
+        public bool SetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction, eSocialPrivacy socialPrivacy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserSocialPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -320,7 +320,7 @@ namespace TVPApiServices
                     if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
                     {
                         TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.SetUserSocialPrivacy(siteGuid, socialPrivacy);
+                        return service.SetUserSocialPrivacy(siteGuid, socialPlatform ,userAction, socialPrivacy);
                     }
                 }
                 catch (Exception ex)
@@ -393,7 +393,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets User Facebook Action Privacy")]
-        public string GetUserFBActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform)
+        public string GetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFBActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -401,7 +401,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetUserFBActionPrivacy(initObj.SiteGuid, userAction, socialPlatform).ToString();
+                    return service.GetUserExternalActionShare(initObj.SiteGuid, userAction, socialPlatform).ToString();
                 }
                 catch (Exception ex)
                 {
@@ -433,7 +433,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets User Facebook Action Privacy")]
-        public bool SetUserFBActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
+        public bool SetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserFBActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -441,7 +441,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.SetUserFBActionPrivacy(initObj.SiteGuid, userAction, socialPlatform, actionPrivacy);
+                    return service.SetUserExternalActionShare(initObj.SiteGuid, userAction, socialPlatform, actionPrivacy);
                 }
                 catch (Exception ex)
                 {

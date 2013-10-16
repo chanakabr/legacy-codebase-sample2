@@ -698,5 +698,130 @@ namespace TVPApiModule.Services
 
             return res;
         }
+
+        public bool AddItemToList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        {
+            bool res = false;
+
+            try
+            {
+                UserItemList userItemList = new UserItemList()
+                {
+                    itemObj = itemObjects,
+                    itemType = itemType,
+                    listType = listType,
+                    siteGuid = siteGuid
+                    
+                };
+                res = m_Module.AddItemToList(m_wsUserName, m_wsPassword, userItemList);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol AddItemToList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuide: {3}",
+                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
+            }
+
+            return res;
+        }
+
+        public bool RemoveItemFromList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        {
+            bool res = false;
+
+            try
+            {
+                UserItemList userItemList = new UserItemList()
+                {
+                    itemObj = itemObjects,
+                    itemType = itemType,
+                    listType = listType,
+                    siteGuid = siteGuid
+
+                };
+                res = m_Module.RemoveItemFromList(m_wsUserName, m_wsPassword, userItemList);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol RemoveItemFromList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
+                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
+            }
+
+            return res;
+        }
+
+        public bool UpdateItemInList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        {
+            bool res = false;
+
+            try
+            {
+                UserItemList userItemList = new UserItemList()
+                {
+                    itemObj = itemObjects,
+                    itemType = itemType,
+                    listType = listType,
+                    siteGuid = siteGuid
+
+                };
+                res = m_Module.UpdateItemInList(m_wsUserName, m_wsPassword, userItemList);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol UpdateItemInList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
+                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
+            }
+
+            return res;
+        }
+
+        public UserItemList[] GetItemFromList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        {
+            UserItemList[] res = null;
+
+            try
+            {
+                UserItemList userItemList = new UserItemList()
+                {
+                    itemObj = itemObjects,
+                    itemType = itemType,
+                    listType = listType,
+                    siteGuid = siteGuid
+
+                };
+                res = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol GetItemFromList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
+                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
+            }
+
+            return res;
+        }
+
+        public KeyValuePair[] IsItemExistsInList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        {
+            KeyValuePair[] res = null;
+
+            try
+            {
+                UserItemList userItemList = new UserItemList()
+                {
+                    itemObj = itemObjects,
+                    itemType = itemType,
+                    listType = listType,
+                    siteGuid = siteGuid
+
+                };
+                res = m_Module.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol IsItemExistsInList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
+                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
+            }
+
+            return res;
+        }
     }
 }
