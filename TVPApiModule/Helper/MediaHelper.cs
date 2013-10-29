@@ -135,7 +135,22 @@ namespace TVPApi
             // create a signature for search loader
             //string sSigature = string.Format(@"{0}={1}|{2}|{3}", tagName, value, groupID, initObj.Platform);
 
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass, dictTags) { MediaType = mediaType, SearchTokenSignature = sSigature, Platform = initObj.Platform, GroupID = groupID, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, PictureSize = picSize, CutType = SearchMediaLoader.eCutType.And, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass, dictTags) 
+                { 
+                    MediaType = mediaType,
+                    SearchTokenSignature = sSigature,
+                    Platform = initObj.Platform,
+                    GroupID = groupID, WithInfo = true,
+                    PageSize = pageSize,
+                    PageIndex = pageIndex,
+                    OrderBy = (OrderBy)orderBy,
+                    PictureSize = picSize,
+                    CutType = SearchMediaLoader.eCutType.And,
+                    DeviceUDID = initObj.UDID,
+                    Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()),
+                    Language = initObj.Locale.LocaleLanguage 
+                };
+
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
