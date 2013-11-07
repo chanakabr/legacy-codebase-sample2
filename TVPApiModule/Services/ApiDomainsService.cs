@@ -327,9 +327,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public DomainResponseObject RemoveDomain(int domainID)
+        public DomainResponseStatus RemoveDomain(int domainID)
         {
-            DomainResponseObject response = null;
+            DomainResponseStatus response = DomainResponseStatus.UnKnown;
 
             try
             {
@@ -337,12 +337,27 @@ namespace TVPApiModule.Services
             }
             catch (Exception e)
             {
-                logger.ErrorFormat("Error occured in SetDeviceInfo, Error : {0} Parameters : Domain ID: {1}", e.Message, domainID);
+                logger.ErrorFormat("Error in RemoveDomain, Error : {0} Parameters : Domain ID: {1}", e.Message, domainID);
             }
 
             return response;
         }
 
+        public int[] GetDomainIDsByOperatorCoGuid(string operatorCoGuid)
+        {
+            int[] response = null;
+
+            try
+            {
+                response = m_Module.GetDomainIDsByOperatorCoGuid(m_wsUserName, m_wsPassword, operatorCoGuid);
+            }
+            catch (Exception e)
+            {
+                logger.ErrorFormat("Error in GetDomainIDsByOperatorCoGuid, Error : {0} Parameters : operatorCoGuid: {1}", e.Message, operatorCoGuid);
+            }
+
+            return response;
+        }
 
     }
 }

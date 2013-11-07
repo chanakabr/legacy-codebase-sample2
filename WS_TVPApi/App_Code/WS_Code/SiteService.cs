@@ -996,12 +996,7 @@ namespace TVPApiServices
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupID, initObj.Platform);
                     SocialActionResponseStatus response = service.DoSocialAction(mediaID, initObj.SiteGuid, initObj.UDID, socialAction, socialPlatform, actionParam);
-
-                    if (response == SocialActionResponseStatus.OK || response == SocialActionResponseStatus.INVALID_ACCESS_TOKEN)
-                        sRes = response.ToString();
-                    else
-                        sRes = SocialActionResponseStatus.ERROR.ToString();
-
+                    sRes = response.ToString();
                 }
                 catch (Exception ex)
                 {

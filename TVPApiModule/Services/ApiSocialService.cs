@@ -176,26 +176,14 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public string[] GetUsersLikedMedia(string iSiteGuid, int iMediaID, SocialPlatform ePlatform, bool bOnlyFriends,
-                                           int iStartIndex, int iPageSize)
+        public string[] GetUsersLikedMedia(int iSiteGuid, int iMediaID, int iPlatform, bool bOnlyFriends, int iStartIndex, int iPageSize)
         {
             string[] res = null;
 
             try
             {
-                UserSocialActionQueryRequest userActionRequest = new UserSocialActionQueryRequest()
-                {
-                    m_eAssetType = eAssetType.MEDIA,
-                    m_eSocialPlatform = ePlatform,
-                    m_eUserActions = eUserAction.LIKE,
-                    m_nAssetID = iMediaID,
-                    m_nNumOfRecords = iPageSize,
-                    m_nStartIndex = iStartIndex,
-                    m_sSiteGuid = iSiteGuid
-                };
-                UserSocialActionObject[] result = m_Module.GetUserActions(m_wsUserName, m_wsPassword, userActionRequest);
-                res = result.Select(r => r.m_sSiteGuid).ToArray();
-
+                res = m_Module.GetUsersLikedMedia(m_wsUserName, m_wsPassword, iSiteGuid, iMediaID, iPlatform,
+                                                  bOnlyFriends, iStartIndex, iPageSize);
             }
             catch (Exception ex)
             {

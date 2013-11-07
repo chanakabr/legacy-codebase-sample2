@@ -18,6 +18,7 @@ using TVPApiModule.Objects;
 using TVPApiModule.Helper;
 using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using TVPApiModule.Manager;
 
 namespace TVPApiServices
 {
@@ -237,8 +238,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
-                    lstComment = CommentHelper.GetMediaComments(account.TVMUser, account.TVMPass, mediaID, pageSize, pageIndex);
+                    lstComment = CommentHelper.GetMediaComments(mediaID, 0, groupID, pageSize, pageIndex);
                 }
                 catch (Exception ex)
                 {
@@ -2436,6 +2436,63 @@ namespace TVPApiServices
 
             return msg;
         }
+        #endregion
+
+        #region EPGComments
+
+        [WebMethod(EnableSession = true, Description = "Get EPG Comments List")]
+        public List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(InitializationObject initObj, int epgProgramID, TVPPro.SiteManager.Helper.CatalogEnums.EPGCommentType commentType, int pageSize, int pageIndex)
+        {
+            List<TVPPro.SiteManager.Objects.EPGComment> retVal = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGCommentsList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    int language = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
+                    retVal = CommentHelper.GetEPGCommentsList(groupId, initObj.Platform, initObj.Locale.LocaleLanguage, epgProgramID, commentType, pageSize, pageIndex);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return retVal;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Add EPG Comment")]
+        public string AddEPGComment(InitializationObject initObj, int epgProgramID, TVPPro.SiteManager.Helper.CatalogEnums.EPGCommentType commentType, DateTime publishDate, string contentText, string country, string header, string subHeader, string writer)
+        {
+            string retVal = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "AddEPGComment", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    retVal = CommentHelper.AddEPGComment(groupId, initObj.Platform, initObj.Locale.LocaleLanguage, initObj.SiteGuid, initObj.UDID, epgProgramID, commentType, publishDate, contentText, country, header, subHeader, writer).ToString();
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return retVal;
+        }
+
         #endregion
     }
 }

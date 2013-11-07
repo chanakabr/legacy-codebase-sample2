@@ -90,17 +90,19 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get all friends that liked a media")]
         public string[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersLikedMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersLikedMedia", initObj.ApiUser, initObj.ApiPass,
+                                                      SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(initObj.SiteGuid))
+                    int siteGuid = 0;
+                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
                     {
                         TVPApiModule.Services.ApiSocialService service =
                             new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.GetUsersLikedMedia(initObj.SiteGuid, mediaID, SocialPlatform.FACEBOOK, onlyFriends,
+                        return service.GetUsersLikedMedia(siteGuid, mediaID, (int)SocialPlatform.FACEBOOK, onlyFriends,
                                                           startIndex, pageSize);
                     }
                 }

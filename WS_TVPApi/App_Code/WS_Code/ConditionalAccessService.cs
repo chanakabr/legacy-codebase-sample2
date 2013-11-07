@@ -309,5 +309,46 @@ namespace TVPApiServices
             return res;
         }
 
+        public UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate)
+        {
+            UserBillingTransactionsResponse[] res = null;
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetUsersBillingHistory(siteGuids, startDate, endDate);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            return res;
+        }
+
+        public DomainBillingTransactionsResponse[] GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate)
+        {
+            DomainBillingTransactionsResponse[] res = null;
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainsBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainsBillingHistory(domainIDs, startDate, endDate);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            return res;
+        }
+
+        
     }
 }

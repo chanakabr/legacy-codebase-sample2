@@ -456,9 +456,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Remove Domain")]
-        public DomainResponseObject RemoveDomain(InitializationObject initObj, int domainID)
+        public string RemoveDomain(InitializationObject initObj)
         {
-            DomainResponseObject resDomain = null;
+            DomainResponseStatus resDomain = DomainResponseStatus.UnKnown;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -467,7 +467,7 @@ namespace TVPApiServices
 
                 try
                 {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDomain(domainID);
+                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDomain(initObj.DomainID);
                 }
                 catch (Exception ex)
                 {
@@ -475,7 +475,32 @@ namespace TVPApiServices
                 }
             }
 
-            return resDomain;
+            return resDomain.ToString();
         }
+
+        [WebMethod(EnableSession = true, Description = "Get DomainIDs By Operator CoGuid")]
+        public int[] GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
+        {
+            int[] resDomains = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDsByOperatorCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+
+                try
+                {
+                    resDomains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainIDsByOperatorCoGuid(operatorCoGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+
+            return resDomains;
+        }
+
+        
     }
 }

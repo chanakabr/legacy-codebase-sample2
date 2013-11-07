@@ -45,5 +45,11 @@ namespace TVPApiServices
 
         [OperationContract]
         string GetEPGLicensedLink(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType);
+
+        [OperationContract]
+        UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate);
+
+        [OperationContract]
+        DomainBillingTransactionsResponse[] GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate);
     }
 }

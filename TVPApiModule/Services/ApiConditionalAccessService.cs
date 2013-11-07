@@ -683,6 +683,39 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public UserBillingTransactionsResponse[] GetUsersBillingHistory(string[] siteGuids, DateTime startDate, DateTime endDate)
+        {
+            UserBillingTransactionsResponse[] retVal = null;
+
+            try
+            {
+                retVal = m_Module.GetUsersBillingHistory(m_wsUserName, m_wsPassword, siteGuids, startDate, endDate);
+
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUsersBillingHistory, Error Message: {0}, Parameters :  startDate: {1}, endDate: {2}", ex.Message, startDate, endDate);
+            }
+            return retVal;
+        }
+
+        public DomainBillingTransactionsResponse[] GetDomainsBillingHistory(int[] domainIDs, DateTime startDate, DateTime endDate)
+        {
+            DomainBillingTransactionsResponse[] retVal = null;
+
+            try
+            {
+                retVal = m_Module.GetDomainsBillingHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
+
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainsBillingHistory, Error Message: {0}, Parameters :  startDate: {1}, endDate: {2}", ex.Message, startDate, endDate);
+            }
+            return retVal;
+        }
+        
+
         #endregion
     }
 }
