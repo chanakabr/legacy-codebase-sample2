@@ -149,6 +149,7 @@
     <Compile Include="Objects\CRM\UserDynamicDataContainer.cs" />
     <Compile Include="Objects\CRM\UserType.cs" />
     <Compile Include="Objects\Enums.cs" />
+    <Compile Include="Objects\External.cs" />
     <Compile Include="Objects\TagMetaIntPairArray.cs" />
     <Compile Include="Objects\ExtraParameters.cs" />
     <Compile Include="Objects\Notification.cs" />
@@ -188,18 +189,18 @@
     </Compile>
     <Compile Include="Services\ApiConditionalAccessService.cs" />
     <Compile Include="Services\ApiDomainsService.cs" />
+    <Compile Include="Services\ApiNotificationService.cs" />
     <Compile Include="Services\ApiPricingService.cs" />
     <Compile Include="Services\ApiApiService.cs" />
     <Compile Include="Services\ApiSocialService.cs" />
     <Compile Include="Services\ApiUsersService.cs" />
     <Compile Include="Services\ApiBillingService.cs" />
-    <Compile Include="Services\ApiNotificationService.cs" />
     <Compile Include="Web References\tvapi\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
-    <Compile Include="Web References\YesService\Reference.cs">
+    <Compile Include="Web References\yes.tvinci.ITProxy\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
@@ -250,16 +251,16 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://84.47.142.104:6300/dataflow/yesService%3fwsdl">
+    <WebReferenceUrl Include="http://itproxy.tvinci.yes/service.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\YesService\</RelPath>
-      <UpdateFromURL>http://84.47.142.104:6300/dataflow/yesService%3fwsdl</UpdateFromURL>
+      <RelPath>Web References\yes.tvinci.ITProxy\</RelPath>
+      <UpdateFromURL>http://itproxy.tvinci.yes/service.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>TVPApiModule_YesService_YES_InterfaceService</CachedSettingsPropName>
+      <CachedSettingsPropName>TVPApiModule_yes_tvinci_ITProxy_Service</CachedSettingsPropName>
     </WebReferenceUrl>
     <WebReferenceUrl Include="http://platform-us.tvinci.com/tvapi.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
@@ -279,59 +280,14 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Web References\YesService\AddDeviceResponse.datasource">
+    <None Include="Web References\yes.tvinci.ITProxy\Entitlement.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\YesService\AddUserResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\BillTvodResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\CreateTveAccountResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\DeleteDeviceResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\DeleteTveAccountResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\DeleteUserResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\EntitleProductResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\GetAllProductsOfAccountResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\GetAllUsersAndDevicesOfAccountResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\GetTvodPriceResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\LoadVODOffersResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\PurchaseSvodResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\Reference.map">
+    <None Include="Web References\yes.tvinci.ITProxy\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Web References\YesService\SynchronizeProductsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\UpdateDeviceResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\UpdateUserResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\YesService\YES.wsdl" />
+    <None Include="Web References\yes.tvinci.ITProxy\service.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\tvapi\CategoryObject.datasource">
@@ -386,6 +342,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\tvapi\tvapi.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\yes.tvinci.ITProxy\service.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

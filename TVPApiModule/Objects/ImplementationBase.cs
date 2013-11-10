@@ -40,6 +40,11 @@ namespace TVPApiModule.Objects
 
         }
 
+        public virtual DomainResponseObject RemoveDeviceToDomain()
+        {
+            return new TVPApiModule.Services.ApiDomainsService(_nGroupID, _initObj.Platform).RemoveDeviceToDomain(_initObj.DomainID, _initObj.UDID);
+
+        }
         
         public virtual string MediaHit(int nMediaID, int nFileID, int nLocationID)
         {
@@ -55,6 +60,47 @@ namespace TVPApiModule.Objects
         public virtual string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, int nLocationID)
         {
             return ActionHelper.MediaMark(_initObj, _nGroupID, _initObj.Platform, eAction, nMediaType, nMediaID, nFileID, nLocationID);
+        }
+
+        public virtual bool IsItemPurchased(int iFileID, string sUserGuid)
+        {
+            bool bRet = false;
+
+            MediaFileItemPricesContainer[] prices = new ApiConditionalAccessService(_nGroupID, _initObj.Platform).GetItemsPrice(new int[] { iFileID }, sUserGuid, true);
+
+            MediaFileItemPricesContainer mediaPrice = null;
+            foreach (MediaFileItemPricesContainer mp in prices)
+            {
+                if (mp.m_nMediaFileID == iFileID)
+                {
+                    mediaPrice = mp;
+                    break;
+                }
+            }
+
+            if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
+            {
+                TVPApi.PriceReason priceReason = (TVPApi.PriceReason)mediaPrice.m_oItemPrices[0].m_PriceReason;
+
+                bRet = mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice == 0 &&
+                       (priceReason == TVPApi.PriceReason.PPVPurchased ||
+                        priceReason == TVPApi.PriceReason.SubscriptionPurchased ||
+                        priceReason == TVPApi.PriceReason.PrePaidPurchased ||
+                        priceReason == TVPApi.PriceReason.Free);
+            }
+            else
+            {
+                bRet = true;
+            }
+
+            return bRet;
+        }
+
+        public virtual string GetMediaLicenseData(int iMediaFileID, int iMediaID)
+        {
+            string sRet = string.Empty;
+
+            return sRet;
         }
     }
 }

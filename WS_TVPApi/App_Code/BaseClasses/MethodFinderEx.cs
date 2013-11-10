@@ -72,7 +72,25 @@ public partial class MethodFinder
                 if (TargetType.IsArray) //Array
                 {
                     JavaScriptSerializer ser = new JavaScriptSerializer();
-                    Product = ser.GetType().GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
+                    try
+                    {
+                        if (TargetType.ToString().Equals("System.String[]"))
+                        {
+                            Product = Array.ConvertAll<object, string>((object[])ser.DeserializeObject(DeserializationTarget), Convert.ToString);
+                        }
+                        else if (TargetType.ToString().Equals("System.Int64[]"))
+                        {
+                            Product = Array.ConvertAll<object, long>((object[])ser.DeserializeObject(DeserializationTarget), Convert.ToInt64);
+                        }
+                        else
+                        {
+                            ser.GetType().GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        
+                    }
                 }
                 else
                 {
@@ -84,6 +102,11 @@ public partial class MethodFinder
                 }
             } while (false);
             return Product;
+        }
+
+        protected T ConvertTotype<T>(object objToConvert)
+        {
+            return (T)objToConvert;
         }
         /// <summary>
         /// Convert an object to its json represantation (string form)

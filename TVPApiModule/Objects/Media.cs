@@ -298,6 +298,8 @@ namespace TVPApi
 
             buildPictures(row);
 
+            buildPictures(row);
+
             if (withDynamic && initObj.Locale != null)
             {
                 logger.InfoFormat("Start Media dynamic build GroupID:", groupID);

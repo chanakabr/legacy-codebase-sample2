@@ -29,49 +29,58 @@ public partial class TechnicalSupport : System.Web.UI.Page
 		string RequestorIP = GetRequestorIP();
 
         bool ClearCache = false;
+        bool ClearCategories = false;
+        bool ClearEPG = false;
         bool.TryParse(Request.QueryString["ClearCache"].ToString(), out ClearCache);
+        bool.TryParse(Request.QueryString["ClearCategories"].ToString(), out ClearCache);
+        bool.TryParse(Request.QueryString["ClearEPG"].ToString(), out ClearCache);
 
 		if (RequestorIP.Contains("72.26.211") || RequestorIP.Equals("127.0.0.1") || ClearCache)
 		{
 			try
 			{
 				HttpRuntime.UnloadAppDomain();
-
-				//List<string> keys = new List<string>();
-
-				//foreach (DictionaryEntry entry in Context.Cache)
-				//{
-				//    keys.Add(entry.Key.ToString());
-				//}
-
-				//foreach (string key in keys)
-				//{
-				//    Context.Cache.Remove(key);
-				//}
-
-				//PageData.Instance.Init();
-				//MenuBuilder.Instance.Init();
-
-				//if (Request.UrlReferrer != null && !string.IsNullOrEmpty(Request.UrlReferrer.ToString()))
-				//{
-				//    Response.Redirect(LinkHelper.ParseURL(Request.UrlReferrer.ToString()));
-				//}
-				//else
-				//{
-				    Response.Write("Site cache cleared");
-				//}
+				    
+                Response.Write("Site cache cleared");
 			}
 			catch (Exception ex)
 			{
 				Response.Write("failed to clear site cache");
 			}
 		}
-		else
-		{
-			Response.Status = "404 Not Found";
-			Response.StatusCode = 404;
-			Response.Write("Permission denied");
-		}
+        if (ClearEPG)
+        {
+            var httpCache = HttpContext.Current.Cache;
+            var toRemove = httpCache.Cast<DictionaryEntry>()
+                .Select(de => (string)de.Key)
+                .Where(key => key.Contains("EPG_Programs"))
+                .ToArray();
+
+            foreach (var keyToRemove in toRemove)
+                httpCache.Remove(keyToRemove);
+
+            Response.Write("EPG cache cleared");
+        }
+        else if (ClearCategories)
+        {
+            
+            var httpCache = HttpContext.Current.Cache;
+            var toRemove = httpCache.Cast<DictionaryEntry>()
+                .Select(de => (string)de.Key)
+                .Where(key => key.Contains("Category"))
+                .ToArray();
+
+            foreach (var keyToRemove in toRemove)
+                httpCache.Remove(keyToRemove);
+
+            Response.Write("Category cache cleared");
+        }
+        else
+        {
+            Response.Status = "404 Not Found";
+            Response.StatusCode = 404;
+            Response.Write("Permission denied");
+        }
 	}
 
 	private string GetRequestorIP()

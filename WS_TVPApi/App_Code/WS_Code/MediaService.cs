@@ -19,6 +19,7 @@ using TVPApiModule.Helper;
 using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Manager;
+using TVPApiModule.Interfaces;
 
 namespace TVPApiServices
 {
@@ -951,7 +952,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get auto-complete media titles")]
-        public string[] GetAutoCompleteSearch(InitializationObject initObj, string prefixText, int?[] iMediaTypes, int pageSize, int pageIdx)
+        public string[] GetAutoCompleteSearch(InitializationObject initObj, string prefixText, int[] iMediaTypes, int pageSize, int pageIdx)
         {
             string[] retVal = null;
 
@@ -1258,33 +1259,8 @@ namespace TVPApiServices
             {
                 try
                 {
-
-                    MediaFileItemPricesContainer[] prices = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(new int[] { iFileID }, sUserGuid, true);
-
-                    MediaFileItemPricesContainer mediaPrice = null;
-                    foreach (MediaFileItemPricesContainer mp in prices)
-                    {
-                        if (mp.m_nMediaFileID == iFileID)
-                        {
-                            mediaPrice = mp;
-                            break;
-                        }
-                    }
-
-                    if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
-                    {
-                        TVPApi.PriceReason priceReason = (TVPApi.PriceReason)mediaPrice.m_oItemPrices[0].m_PriceReason;
-
-                        bRet = mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice == 0 &&
-                               (priceReason == TVPApi.PriceReason.PPVPurchased ||
-                                priceReason == TVPApi.PriceReason.SubscriptionPurchased ||
-                                priceReason == TVPApi.PriceReason.PrePaidPurchased ||
-                                priceReason == TVPApi.PriceReason.Free);
-                    }
-                    else
-                    {
-                        bRet = true;
-                    }
+                    IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
+                    bRet = impl.IsItemPurchased(iFileID, sUserGuid);
                 }
                 catch (Exception ex)
                 {
@@ -2406,6 +2382,33 @@ namespace TVPApiServices
             }
 
             return nResponse;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get DRM Media License data")]
+        public string GetMediaLicenseData(InitializationObject initObj, int iMediaFileID, int iMediaID)
+        {
+            string sResponse = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
+                    sResponse = impl.GetMediaLicenseData(iMediaFileID, iMediaID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return sResponse;
         }
 
         #region MessageBox

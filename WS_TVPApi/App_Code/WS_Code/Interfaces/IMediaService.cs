@@ -82,7 +82,7 @@ namespace TVPApiServices
         string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int?[] iMediaTypes);
 
         [OperationContract]
-        string[] GetAutoCompleteSearch(InitializationObject initObj, string prefixText, int?[] iMediaTypes, int pageSize, int pageIdx);
+        string[] GetAutoCompleteSearch(InitializationObject initObj, string prefixText, int[] iMediaTypes, int pageSize, int pageIdx);
 
         [OperationContract]
         bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
@@ -218,5 +218,8 @@ namespace TVPApiServices
 
         [OperationContract]
         List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize);
+
+        [OperationContract]
+        string GetMediaLicenseData(InitializationObject initObj, int iMediaFileID, int iMediaID);
     }
 }

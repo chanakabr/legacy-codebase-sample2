@@ -126,7 +126,7 @@
             // Exception was thrown - write log
             if (error is Exception)
             {
-                sError = "Unknown error";
+                sError = "Unknown error " + (error as Exception).InnerException.ToString();
                 
             }
             // Error occurred - write log

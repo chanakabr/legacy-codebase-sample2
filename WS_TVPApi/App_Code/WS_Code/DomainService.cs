@@ -14,6 +14,7 @@ using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using System.Web;
+using TVPApiModule.Interfaces;
 
 namespace TVPApiServices
 {
@@ -89,7 +90,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
+                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
+                    resDomain = impl.AddDeviceToDomain(sDeviceName, iDeviceBrandID);
+
+                    //resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDeviceToDomain(initObj.DomainID, initObj.UDID, sDeviceName, iDeviceBrandID);
                 }
                 catch (Exception ex)
                 {
@@ -359,32 +363,32 @@ namespace TVPApiServices
             return domainRes;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get domain CoGuid")]
-        public string GetDomainCoGuid(InitializationObject initObj, string domainName, string domainDesc, int masterGuid)
-        {
-            string res = string.Empty;
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //[WebMethod(EnableSession = true, Description = "Get domain CoGuid")]
+        //public string GetDomainCoGuid(InitializationObject initObj, string domainName, string domainDesc, int masterGuid)
+        //{
+        //    string res = string.Empty;
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    ApiUsersService usersService = new ApiUsersService(groupID, initObj.Platform);
-                    UserResponseObject userResponseObject = usersService.GetUserData(initObj.SiteGuid);
-                    if (userResponseObject.m_RespStatus == ResponseStatus.OK)
-                    {
-                        res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainCoGuid(userResponseObject.m_user.m_domianID);
-                    }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            ApiUsersService usersService = new ApiUsersService(groupID, initObj.Platform);
+        //            UserResponseObject userResponseObject = usersService.GetUserData(initObj.SiteGuid);
+        //            if (userResponseObject.m_RespStatus == ResponseStatus.OK)
+        //            {
+        //              res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainCoGuid(userResponseObject.m_user.m_domianID);  
+        //            }
+                    
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
 
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-
-            return res;
-        }
+        //    return res;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Get domain object by CoGuid")]
         public DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid)

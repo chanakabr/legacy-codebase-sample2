@@ -5,8 +5,8 @@
     <Setting Name="TVPApiModule_tvapi_tvapi" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://platform-us.tvinci.com/tvapi.asmx</Value>
     </Setting>
-    <Setting Name="TVPApiModule_YesService_YES_InterfaceService" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://84.47.142.104:6300/dataflow/yesService</Value>
+    <Setting Name="TVPApiModule_yes_tvinci_ITProxy_Service" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://itproxy.tvinci.yes/service.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>

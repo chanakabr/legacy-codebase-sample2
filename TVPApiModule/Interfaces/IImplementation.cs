@@ -17,5 +17,10 @@ namespace TVPApiModule.Interfaces
                                             string sIP, string sExtraParams);
 
         string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, int nLocationID);
+
+        bool IsItemPurchased(int iFileID, string sUserGuid);
+
+        string GetMediaLicenseData(int iMediaFileID, int iMediaID);
+
     }
 }
