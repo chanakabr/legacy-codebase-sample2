@@ -216,6 +216,37 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get subscriptions by user types")]
+        public List<Subscription> GetSubscriptionsContainingUserTypes(InitializationObject initObj, int isActive, int[] userTypesIDs)
+        {
+            List<Subscription> res = new List<Subscription>();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsContainingUserTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    Subscription[] arrSusbcriptiopns = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionsContainingUserTypes(isActive, userTypesIDs);
+                    if (arrSusbcriptiopns != null && arrSusbcriptiopns.Length > 0)
+                    {
+                        res = arrSusbcriptiopns.ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return res;
+
+        }
+
         #endregion
     }
 }

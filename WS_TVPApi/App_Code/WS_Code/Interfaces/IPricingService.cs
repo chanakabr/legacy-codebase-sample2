@@ -35,5 +35,12 @@ namespace TVPApiServices
 
         [OperationContract]
         int[] GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
+
+        [OperationContract]
+        List<Subscription>  GetSubscriptionsContainingUserTypes(InitializationObject initObj, int isActive, int[] userTypesIDs);
+
+
+
+
     }
 }
