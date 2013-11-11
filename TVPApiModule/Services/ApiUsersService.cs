@@ -823,5 +823,20 @@ namespace TVPApiModule.Services
 
             return res;
         }
+
+        public ResponseStatus SetUserTypeByUserID(string sSiteGuid, int userTypeID)
+        {
+            ResponseStatus bRet = ResponseStatus.OK;
+            try
+            {
+                bRet = m_Module.SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol SetUserTypeByUserID, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, userTypeID: {4}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
+                bRet = ResponseStatus.ErrorOnUpdatingUserType;
+            }
+            return bRet;
+        }
     }
 }

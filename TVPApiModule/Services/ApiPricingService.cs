@@ -166,6 +166,30 @@ namespace TVPApiModule.Services
             return subscriptions;
         }
 
+
+        public Subscription[] GetSubscriptionsContainingUserTypes(int isActive, int[] userTypesIDs)
+        {
+            Subscription[] subscriptions = null;
+            string sUserTypesIDs = string.Empty;
+
+            try
+            {                
+                subscriptions = m_Module.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
+            }
+            catch (Exception ex)
+            {
+                if (userTypesIDs != null && userTypesIDs.Length > 0)
+                {
+                    sUserTypesIDs = string.Join(",", userTypesIDs.Select(x => x.ToString()).ToArray());
+                }
+                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionsContainingUserTypes, Error Message: {0}, Parameters :  isActive: {1}, userTypesIDs : {2}", ex.Message, isActive, sUserTypesIDs);
+            }
+
+            return subscriptions;
+        }
+
+
+
         #endregion
     }
 }
