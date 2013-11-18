@@ -34,6 +34,9 @@ namespace TVPApiServices
         Country[] GetCountriesList(InitializationObject initObj);
 
         [OperationContract]
+        UserType[] GetGroupUserTypes(InitializationObject initObj);
+
+        [OperationContract]
         string CheckTemporaryToken(InitializationObject initObj, string sToken);
 
         [OperationContract]

@@ -617,7 +617,7 @@ namespace TVPApiModule.Services
         }
 
 
-        public UserType[] GetGroupUserTypes(string sWSUserName, string sWSPassword)
+        public UserType[] GetGroupUserTypes()
         {
             UserType[] bRet = null;
             try

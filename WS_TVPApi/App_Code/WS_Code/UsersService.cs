@@ -297,7 +297,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "GetGroupUserTypes")]
-        public UserType[] GetGroupUserTypes(InitializationObject initObj, string sUN, string sPass)
+        public UserType[] GetGroupUserTypes(InitializationObject initObj)
         {
             UserType[] response = null;
 
@@ -307,7 +307,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetGroupUserTypes(sUN, sPass);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetGroupUserTypes();
                 }
                 catch (Exception ex)
                 {
