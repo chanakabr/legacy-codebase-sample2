@@ -128,6 +128,7 @@
     <Compile Include="Helper\RssHelper.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
     <Compile Include="Helper\TranslationHelper.cs" />
+    <Compile Include="Helper\CRMHelper.cs" />
     <Compile Include="Helper\VoteHelper.cs" />
     <Compile Include="Helper\WSUtils.cs" />
     <Compile Include="HttpHandlers\CrossOriginHandler.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="Objects\CRM\UserBasicData.cs" />
     <Compile Include="Objects\CRM\UserDynamicData.cs" />
     <Compile Include="Objects\CRM\UserDynamicDataContainer.cs" />
+    <Compile Include="Objects\CRM\UserResponseObject.cs" />
     <Compile Include="Objects\CRM\UserType.cs" />
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\External.cs" />

@@ -9,6 +9,7 @@ using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.Helper;
 using System.Web;
+using TVPPro.SiteManager.TvinciPlatform.api;
 
 namespace TVPApiModule.Services
 {
@@ -574,6 +575,22 @@ namespace TVPApiModule.Services
             return bRet;
         }
 
+        public UserBasicData[] SearchUsers(string[] sTerms, string[] sFields, bool bIsExact)
+        {
+            UserBasicData[] bRet = null;
+
+            try
+            {
+                bRet = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error receive user data Protocol SearchUsers, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
+            }
+
+            return bRet;
+        }
+
         public void Logout(string sSiteGuid)
         {
             try
@@ -622,7 +639,7 @@ namespace TVPApiModule.Services
             UserType[] bRet = null;
             try
             {
-                bRet = m_Module.GetGroupUserTypes(m_wsUserName, m_wsPassword);
+                //bRet = m_Module.GetGroupUserTypes(m_wsUserName, m_wsPassword);
             }
             catch (Exception ex)
             {
@@ -671,7 +688,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
+                //res = m_Module.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
             }
             catch (Exception ex)
             {

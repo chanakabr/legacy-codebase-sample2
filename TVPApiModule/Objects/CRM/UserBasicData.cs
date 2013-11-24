@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiModule.Objects.CRM
 {
@@ -275,6 +276,64 @@ namespace TVPApiModule.Objects.CRM
             {
                 this.m_UserTypeField = value;
             }
+        }
+
+        public UserBasicData(TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData)
+        {
+            this.address = userBasicData.m_sAddress;
+            this.affiliate_code = userBasicData.m_sAffiliateCode;
+            this.city = userBasicData.m_sCity;
+            this.co_guid = userBasicData.m_CoGuid;
+
+            if (userBasicData.m_Country != null)
+            {
+                this.country = new TVPApiModule.Objects.CRM.Country();
+
+                this.country.country_code = userBasicData.m_Country.m_sCountryCode;
+                this.country.country_name = userBasicData.m_Country.m_sCountryName;
+                this.country.object_id = userBasicData.m_Country.m_nObjecrtID;
+            }
+
+            this.email = userBasicData.m_sEmail;
+            this.external_token = userBasicData.m_ExternalToken;
+            this.facebook_id = userBasicData.m_sFacebookID;
+            this.facebook_image = userBasicData.m_sFacebookImage;
+            this.facebook_token = userBasicData.m_sFacebookToken;
+            this.first_name = userBasicData.m_sFirstName;
+            this.is_facebook_image_permitted = userBasicData.m_bIsFacebookImagePermitted;
+            this.last_name = userBasicData.m_sLastName;
+            this.phone = userBasicData.m_sPhone;
+
+            if (userBasicData.m_State != null)
+            {
+                this.state = new TVPApiModule.Objects.CRM.State();
+
+                if (userBasicData.m_State.m_Country != null)
+                {
+                    this.state.country = new TVPApiModule.Objects.CRM.Country();
+
+                    this.state.country.country_code = userBasicData.m_State.m_Country.m_sCountryCode;
+                    this.state.country.country_name = userBasicData.m_State.m_Country.m_sCountryName;
+                    this.state.country.object_id = userBasicData.m_State.m_Country.m_nObjecrtID;
+                }
+
+                this.state.object_id = userBasicData.m_State.m_nObjecrtID;
+                this.state.state_code = userBasicData.m_State.m_sStateCode;
+                this.state.state_name = userBasicData.m_State.m_sStateName;
+            }
+
+            this.user_name = userBasicData.m_sUserName;
+
+            if (userBasicData.m_UserType != null)
+            {
+                this.user_type = new TVPApiModule.Objects.CRM.UserType();
+
+                this.user_type.description = userBasicData.m_UserType.Description;
+                this.user_type.id = userBasicData.m_UserType.ID;
+                this.user_type.is_default = userBasicData.m_UserType.IsDefault;
+            }
+
+            this.zip = userBasicData.m_sZip;
         }
     }
 }
