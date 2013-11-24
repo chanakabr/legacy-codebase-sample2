@@ -69,5 +69,12 @@ namespace TVPApiServices
         public string user_name { get; set; }
     }
 
+    public class SearchUsersRequest
+    {
+        [JsonProperty(Required = Required.Always)]
+        public string text { get; set; }
+    }
+    
+
 }
 

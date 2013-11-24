@@ -106,9 +106,48 @@ namespace TVPApiServices
             {
                 try
                 {
-                    UserResponseObject userResponseObject = new ApiUsersService(groupId, PlatformType.Web).GetUserByUsername(request.user_name);
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject userResponseObject = new ApiUsersService(groupId, PlatformType.Web).GetUserByUsername(request.user_name);
 
                     response.Initialize(userResponseObject);
+                }
+                catch (Exception ex)
+                {
+                    response.status_code = CRMResponseStatus.UnexpectedError;
+
+                    logger.ErrorFormat("CRMGateway Exception, Error Message: {0}", ex.Message);
+                }
+            }
+            else
+            {
+                response.status_code = CRMResponseStatus.UnknownGroup;
+            }
+
+            return response;
+        }
+
+        public SearchUsersResponse SearchUsers(SearchUsersRequest request)
+        {
+            SearchUsersResponse response = new SearchUsersResponse();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SearchUsers", m_apiUserName, m_apiPassword, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData[] usersBasicDataTVM = CRMHelper.SearchUsers(groupId, request.text);
+
+                    if (usersBasicDataTVM != null)
+                    {
+                        response.result = new List<TVPApiModule.Objects.CRM.UserBasicData>();
+
+                        foreach (TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicDataTVM in usersBasicDataTVM)
+                        {
+                            TVPApiModule.Objects.CRM.UserBasicData userResponseObject = new TVPApiModule.Objects.CRM.UserBasicData(userBasicDataTVM);
+
+                            response.result.Add(userResponseObject);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {

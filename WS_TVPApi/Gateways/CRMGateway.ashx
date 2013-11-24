@@ -26,13 +26,12 @@ public class CRMGateway : IHttpHandler {
 
         if (context.Request.IsSecureConnection)
         {
-            
             string sApiUser;
             string sApiPass;
 
             try
             {
-                if (ConnectionHelper.GetApiCredentials(context.Request.Headers["CRM_USER"], context.Request.Headers["CRM_PASS"], out sApiUser, out sApiPass))
+                if (ConnectionHelper.GetApiCredentials(context.Request.Headers["X-CRM-USER"], context.Request.Headers["X-CRM-PASS"], out sApiUser, out sApiPass))
                 {
                     string methodName = HttpContext.Current.Request.QueryString["m"];
 

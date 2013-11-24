@@ -13,12 +13,12 @@ namespace TVPApiServices
 
     public class CRMResponse
     {
+        public CRMResponseStatus status_code;
+
         public CRMResponse()
         {
             status_code = CRMResponseStatus.UnexpectedError;
         }
-
-        public CRMResponseStatus status_code;
     }
 
     public class DummyChargeUserForMediaFileResponse : CRMResponse
@@ -35,8 +35,6 @@ namespace TVPApiServices
     {
         #region Private Members
 
-        private TVPApiModule.Objects.CRM.ResponseStatus m_RespStatusField;
-
         private TVPApiModule.Objects.CRM.User m_userField;
 
         private string m_userInstanceIDField;
@@ -44,19 +42,6 @@ namespace TVPApiServices
         #endregion
 
         #region Properties
-
-        /// <remarks/>
-        public TVPApiModule.Objects.CRM.ResponseStatus response_status
-        {
-            get
-            {
-                return this.m_RespStatusField;
-            }
-            set
-            {
-                this.m_RespStatusField = value;
-            }
-        }
 
         /// <remarks/>
         public TVPApiModule.Objects.CRM.User user
@@ -88,9 +73,9 @@ namespace TVPApiServices
 
         #region Public Methods
 
-        public void Initialize(UserResponseObject userResponseObject)
+        public void Initialize(TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject userResponseObject)
         {
-            this.response_status = (TVPApiModule.Objects.CRM.ResponseStatus)userResponseObject.m_RespStatus;
+            //this.response_status = (TVPApiModule.Objects.CRM.ResponseStatus)userResponseObject.m_RespStatus;
             this.user_instance_id = userResponseObject.m_userInstanceID;
 
             if (userResponseObject.m_user != null)
@@ -99,62 +84,7 @@ namespace TVPApiServices
 
                 if (userResponseObject.m_user.m_oBasicData != null)
                 {
-                    this.user.basic_data = new TVPApiModule.Objects.CRM.UserBasicData();
-
-                    this.user.basic_data.address = userResponseObject.m_user.m_oBasicData.m_sAddress;
-                    this.user.basic_data.affiliate_code = userResponseObject.m_user.m_oBasicData.m_sAffiliateCode;
-                    this.user.basic_data.city = userResponseObject.m_user.m_oBasicData.m_sCity;
-                    this.user.basic_data.co_guid = userResponseObject.m_user.m_oBasicData.m_CoGuid;
-
-                    if (userResponseObject.m_user.m_oBasicData.m_Country != null)
-                    {
-                        this.user.basic_data.country = new TVPApiModule.Objects.CRM.Country();
-
-                        this.user.basic_data.country.country_code = userResponseObject.m_user.m_oBasicData.m_Country.m_sCountryCode;
-                        this.user.basic_data.country.country_name = userResponseObject.m_user.m_oBasicData.m_Country.m_sCountryName;
-                        this.user.basic_data.country.object_id = userResponseObject.m_user.m_oBasicData.m_Country.m_nObjecrtID;
-                    }
-
-                    this.user.basic_data.email = userResponseObject.m_user.m_oBasicData.m_sEmail;
-                    this.user.basic_data.external_token = userResponseObject.m_user.m_oBasicData.m_ExternalToken;
-                    this.user.basic_data.facebook_id = userResponseObject.m_user.m_oBasicData.m_sFacebookID;
-                    this.user.basic_data.facebook_image = userResponseObject.m_user.m_oBasicData.m_sFacebookImage;
-                    this.user.basic_data.facebook_token = userResponseObject.m_user.m_oBasicData.m_sFacebookToken;
-                    this.user.basic_data.first_name = userResponseObject.m_user.m_oBasicData.m_sFirstName;
-                    this.user.basic_data.is_facebook_image_permitted = userResponseObject.m_user.m_oBasicData.m_bIsFacebookImagePermitted;
-                    this.user.basic_data.last_name = userResponseObject.m_user.m_oBasicData.m_sLastName;
-                    this.user.basic_data.phone = userResponseObject.m_user.m_oBasicData.m_sPhone;
-
-                    if (userResponseObject.m_user.m_oBasicData.m_State != null)
-                    {
-                        this.user.basic_data.state = new TVPApiModule.Objects.CRM.State();
-
-                        if (userResponseObject.m_user.m_oBasicData.m_State.m_Country != null)
-                        {
-                            this.user.basic_data.state.country = new TVPApiModule.Objects.CRM.Country();
-
-                            this.user.basic_data.state.country.country_code = userResponseObject.m_user.m_oBasicData.m_State.m_Country.m_sCountryCode;
-                            this.user.basic_data.state.country.country_name = userResponseObject.m_user.m_oBasicData.m_State.m_Country.m_sCountryName;
-                            this.user.basic_data.state.country.object_id = userResponseObject.m_user.m_oBasicData.m_State.m_Country.m_nObjecrtID;
-                        }
-
-                        this.user.basic_data.state.object_id = userResponseObject.m_user.m_oBasicData.m_State.m_nObjecrtID;
-                        this.user.basic_data.state.state_code = userResponseObject.m_user.m_oBasicData.m_State.m_sStateCode;
-                        this.user.basic_data.state.state_name = userResponseObject.m_user.m_oBasicData.m_State.m_sStateName;
-                    }
-
-                    this.user.basic_data.user_name = userResponseObject.m_user.m_oBasicData.m_sUserName;
-
-                    if (userResponseObject.m_user.m_oBasicData.m_UserType != null)
-                    {
-                        this.user.basic_data.user_type = new TVPApiModule.Objects.CRM.UserType();
-
-                        this.user.basic_data.user_type.description = userResponseObject.m_user.m_oBasicData.m_UserType.Description;
-                        this.user.basic_data.user_type.id = userResponseObject.m_user.m_oBasicData.m_UserType.ID;
-                        this.user.basic_data.user_type.is_default = userResponseObject.m_user.m_oBasicData.m_UserType.IsDefault;
-                    }
-
-                    this.user.basic_data.zip = userResponseObject.m_user.m_oBasicData.m_sZip;
+                    this.user.basic_data = new TVPApiModule.Objects.CRM.UserBasicData(userResponseObject.m_user.m_oBasicData);  
                 }
 
                 this.user.domain_id = userResponseObject.m_user.m_domianID;
@@ -189,6 +119,11 @@ namespace TVPApiServices
         }
 
         #endregion
+    }
+
+    public class SearchUsersResponse : CRMResponse
+    {
+        public List<TVPApiModule.Objects.CRM.UserBasicData> result;
     }
 
     #endregion
