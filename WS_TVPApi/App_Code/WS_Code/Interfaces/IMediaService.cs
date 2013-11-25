@@ -221,5 +221,11 @@ namespace TVPApiServices
 
         [OperationContract]
         string GetMediaLicenseData(InitializationObject initObj, int iMediaFileID, int iMediaID);
+
+        [OperationContract]
+        List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(InitializationObject initObj, int epgProgramID, int pageSize, int pageIndex);
+
+        [OperationContract]
+        string AddEPGComment(InitializationObject initObj, int epgProgramID, string contentText, string header, string subHeader, string writer, bool autoActive);
     }
 }

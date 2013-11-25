@@ -51,5 +51,12 @@ namespace TVPApiServices
 
         [OperationContract]
         DomainBillingTransactionsResponse[] GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate);
+
+        [OperationContract]
+        PermittedMediaContainer[] GetDomainPermittedItems(InitializationObject initObj);
+
+        [OperationContract]
+        PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(InitializationObject initObj);
+
     }
 }

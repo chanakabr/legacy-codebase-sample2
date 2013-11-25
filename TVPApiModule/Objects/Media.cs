@@ -34,6 +34,7 @@ namespace TVPApi
         public DateTime CreationDate;
         public DateTime? LastWatchDate;
         public DateTime StartDate;
+        public DateTime CatalogStartDate;
         public string PicURL;
         public string URL;
         public string MediaWebLink;
@@ -258,6 +259,13 @@ namespace TVPApi
             }
             else
                 StartDate = new DateTime(1970, 1, 1);
+
+            if (!row.IsCatalogStartDateNull())
+            {
+                CatalogStartDate = row.CatalogStartDate;
+            }
+            else
+                CatalogStartDate = new DateTime(1970, 1, 1);
 
             // add sub file foramt info
             if (!row.IsSubDurationNull())

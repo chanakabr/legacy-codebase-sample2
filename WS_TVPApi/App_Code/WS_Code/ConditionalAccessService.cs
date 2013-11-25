@@ -349,6 +349,44 @@ namespace TVPApiServices
             return res;
         }
 
-        
+        public PermittedMediaContainer[] GetDomainPermittedItems(InitializationObject initObj)
+        {
+            PermittedMediaContainer[] res = null;
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainPermittedItems(initObj.DomainID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            return res;
+        }
+
+        public PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(InitializationObject initObj)
+        {
+            PermittedSubscriptionContainer[] res = null;
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainPermittedSubscriptions(initObj.DomainID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            return res;
+        }
     }
 }

@@ -80,7 +80,7 @@ namespace TVPApi
 
                         if (!string.IsNullOrEmpty(isOfflineSync))
                             new ApiUsersService(groupID, platform).RemoveUserOfflineMedia(sUserID, mediaID);
-                        
+
                         //long guidNum = Convert.ToInt64(sUserID);
                         //int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
                         //FavoritObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(sUserID, string.Empty, iDomainID, string.Empty);
@@ -147,88 +147,111 @@ namespace TVPApi
 
         public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, int mediaType, long iMediaID, long iFileID, int iLocation)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            return new APIMediaMark(account.TVMUser, account.TVMPass)
+            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
+            return new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, 0, 0, iLocation, 0, Action.ToString(), string.Empty, string.Empty, string.Empty, string.Empty)
             {
-                GroupID = groupID,
-                Platform = platform,
-                Action = Action,
-                MediaID = iMediaID,
-                Location = iLocation,
-                DeviceUDID = initObj.UDID,
-                SiteGUID = initObj.SiteGuid, 
-                FileID = iFileID
-            }.Execute();
+                Platform = platform.ToString()
+            }.Execute() as string;
+            //return new APIMediaMark(account.TVMUser, account.TVMPass)
+            //{
+            //    GroupID = groupID,
+            //    Platform = platform,
+            //    Action = Action,
+            //    MediaID = iMediaID,
+            //    Location = iLocation,
+            //    DeviceUDID = initObj.UDID,
+            //    SiteGUID = initObj.SiteGuid,
+            //    FileID = iFileID
+            //}.Execute();
         }
 
         public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, FileHolder fileParams, int iLocation)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            return new APIMediaMark(account.TVMUser, account.TVMPass)
+            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            return new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)fileParams.mediaID, (int)fileParams.fileID, fileParams.avg_bit_rate_num, fileParams.current_bit_rate_num, iLocation, fileParams.total_bit_rate_num, Action.ToString(), fileParams.duration, string.Empty, string.Empty, string.Empty)
             {
-                GroupID = groupID,
-                Platform = platform,
-                Action = Action,
-                MediaID = fileParams.mediaID,
-                Location = iLocation,
-                DeviceUDID = initObj.UDID,
-                SiteGUID = initObj.SiteGuid,
-                AvgBitRate = fileParams.avg_bit_rate_num,
-                CurrentBitRate = fileParams.current_bit_rate_num,
-                TotalBitRateNum = fileParams.total_bit_rate_num
-            }.Execute();
+                Platform = platform.ToString()
+            }.Execute() as string;
+            //return new APIMediaMark(account.TVMUser, account.TVMPass)
+            //{
+            //    GroupID = groupID,
+            //    Platform = platform,
+            //    Action = Action,
+            //    MediaID = fileParams.mediaID,
+            //    Location = iLocation,
+            //    DeviceUDID = initObj.UDID,
+            //    SiteGUID = initObj.SiteGuid,
+            //    AvgBitRate = fileParams.avg_bit_rate_num,
+            //    CurrentBitRate = fileParams.current_bit_rate_num,
+            //    TotalBitRateNum = fileParams.total_bit_rate_num
+            //}.Execute();
         }
 
         public static string MediaHit(InitializationObject initObj, int groupID, PlatformType platform, int mediaType, long iMediaID, long iFileID, int iLocation)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, FileID = iFileID, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
+            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
+            return new TVPPro.SiteManager.CatalogLoaders.MediaHitLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, 0, 0, iLocation, 0, string.Empty, string.Empty)
+            {
+                Platform = platform.ToString()
+            }.Execute() as string;
+            //return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, FileID = iFileID, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
         }
 
         public static string MediaHit(InitializationObject initObj, int groupID, PlatformType platform, long iMediaID, long iFileID, int iLocation)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
+            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            return new TVPPro.SiteManager.CatalogLoaders.MediaHitLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, 0, 0, iLocation, 0, string.Empty, string.Empty)
+            {
+                Platform = platform.ToString()
+            }.Execute() as string;
+            //return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
         }
 
         public static void MediaError(InitializationObject initObj, int groupID, PlatformType platform, int mediaType, long iMediaID, long iFileID, int iLocation, string sErrorCode, string sErrorMessage)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            new APIMediaMark(account.TVMUser, account.TVMPass)
+            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
+            new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, 0, 0, iLocation, 0, string.Empty, string.Empty, sErrorCode, sErrorMessage, string.Empty)
             {
-                GroupID = groupID,
-                Platform = platform,
-                //Action = action.error,
-                //ErrorCode = sErrorCode,
-                //ErrorMessage = sErrorMessage,
-                Location = iLocation,
-                MediaID = iMediaID,
-                FileID = iFileID,
-                DeviceUDID = initObj.UDID,
-                SiteGUID = initObj.SiteGuid
+                Platform = platform.ToString()
             }.Execute();
+            //new APIMediaMark(account.TVMUser, account.TVMPass)
+            //{
+            //    GroupID = groupID,
+            //    Platform = platform,
+            //    //Action = action.error,
+            //    //ErrorCode = sErrorCode,
+            //    //ErrorMessage = sErrorMessage,
+            //    Location = iLocation,
+            //    MediaID = iMediaID,
+            //    FileID = iFileID,
+            //    DeviceUDID = initObj.UDID,
+            //    SiteGUID = initObj.SiteGuid
+            //}.Execute();
         }
 
         public static void MediaError(InitializationObject initObj, int groupID, PlatformType platform, FileHolder fileParams, int iLocation, string sErrorCode, string sErrorMessage)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-
-            new APIMediaMark(account.TVMUser, account.TVMPass)
+            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+            new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)fileParams.mediaID, (int)fileParams.fileID, fileParams.avg_bit_rate_num, fileParams.current_bit_rate_num, iLocation, fileParams.total_bit_rate_num, string.Empty, fileParams.duration, string.Empty, string.Empty, string.Empty)
             {
-                GroupID = groupID,
-                Platform = platform,
-                //Action = action.error,
-                //ErrorCode = sErrorCode,
-                //ErrorMessage = sErrorMessage,
-                Location = iLocation,
-                MediaID = fileParams.mediaID,
-                FileID = fileParams.fileID,
-                DeviceUDID = initObj.UDID,
-                SiteGUID = initObj.SiteGuid,
-                AvgBitRate = fileParams.avg_bit_rate_num,
-                CurrentBitRate = fileParams.current_bit_rate_num,
-                TotalBitRateNum = fileParams.total_bit_rate_num
+                Platform = platform.ToString()
             }.Execute();
+            //new APIMediaMark(account.TVMUser, account.TVMPass)
+            //{
+            //    GroupID = groupID,
+            //    Platform = platform,
+            //    //Action = action.error,
+            //    //ErrorCode = sErrorCode,
+            //    //ErrorMessage = sErrorMessage,
+            //    Location = iLocation,
+            //    MediaID = fileParams.mediaID,
+            //    FileID = fileParams.fileID,
+            //    DeviceUDID = initObj.UDID,
+            //    SiteGUID = initObj.SiteGuid,
+            //    AvgBitRate = fileParams.avg_bit_rate_num,
+            //    CurrentBitRate = fileParams.current_bit_rate_num,
+            //    TotalBitRateNum = fileParams.total_bit_rate_num
+            //}.Execute();
         }
 
         public static string SendToFriend(InitializationObject initObj, int groupID, int mediaID, string senderName, string senderEmail, string toEmail, string msg)
@@ -240,8 +263,8 @@ namespace TVPApi
                 SenderName = senderName,
                 FriendEmail = toEmail,
                 EmailFrom = senderEmail,
-                AddedMessage = msg, 
-                GroupID = groupID, 
+                AddedMessage = msg,
+                GroupID = groupID,
                 Platform = initObj.Platform
             }.Execute().response.type;
         }

@@ -715,6 +715,36 @@ namespace TVPApiModule.Services
             }
             return retVal;
         }
+
+        public PermittedMediaContainer[] GetDomainPermittedItems(int domainID)
+        {
+            PermittedMediaContainer[] retVal = null;
+
+            try
+            {
+                retVal = m_Module.GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainPermittedItems, Error Message: {0}, Parameters :  domainID: {1}", ex.Message, domainID);
+            }
+            return retVal;
+        }
+
+        public PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(int domainID)
+        {
+            PermittedSubscriptionContainer[] retVal = null;
+
+            try
+            {
+                retVal = m_Module.GetDomainPermittedSubscriptions(m_wsUserName, m_wsPassword, domainID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainPermittedSubscriptions, Error Message: {0}, Parameters :  domainID: {1}", ex.Message, domainID);
+            }
+            return retVal;
+        }
         
 
         #endregion
