@@ -60,35 +60,58 @@ namespace TVPApiModule.CatalogLoaders
 
         protected override void BuildSpecificRequest()
         {
-            m_oRequest = new MediaSearchRequest()
+            List<KeyValue> TagAndMetaList = new List<KeyValue>(); 
+            m_oRequest = new MediaSearchFullRequest()
             {
                 m_bExact = Exact,
-                m_bAnd = And,
                 m_oOrderObj = new OrderObj()
                 {
                     m_eOrderBy = OrderBy,
                     m_eOrderDir = OrderDir,
                     m_eOrderValue = OrderMetaMame,
                 },
-                m_sName = Name,
-                m_sDescription = Description,
-                m_nMediaTypes = MediaTypes
+                m_nMediaTypes = MediaTypes,
             };
+
+            //In case search is performed by free text on all metas/tags
             if ((Metas == null || Metas.Count() == 0) && (Tags == null || Tags.Count == 0))
             {
                 Metas = APICatalogHelper.GetMetasTagsFromConfiguration("meta", Name, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
                 foreach (var meta in Metas)
                 {
-                    meta.m_sValue = Name;
+                    TagAndMetaList.Add(meta);
                 }
                 Tags = APICatalogHelper.GetMetasTagsFromConfiguration("tag", Name, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
                 foreach (var tag in Tags)
                 {
-                    tag.m_sValue = Name;
+                    TagAndMetaList.Add(tag);
+                }
+
+                TagAndMetaList.Add(new KeyValue() { m_sKey = "Name", m_sValue = Name });
+                TagAndMetaList.Add(new KeyValue() { m_sKey = "Description", m_sValue = Name });
+            }
+            //In case search is performed by exact metas/tags, not by free text
+            else
+            {
+                foreach (var meta in Metas)
+                {
+                    TagAndMetaList.Add(meta);
+                }
+
+                foreach (var tag in Tags)
+                {
+                    TagAndMetaList.Add(tag);
                 }
             }
-            (m_oRequest as MediaSearchRequest).m_lMetas = Metas;
-            (m_oRequest as MediaSearchRequest).m_lTags = Tags;
+
+            if (And)
+            {
+                (m_oRequest as MediaSearchFullRequest).m_AndList = TagAndMetaList;
+            }
+            else
+            {
+                (m_oRequest as MediaSearchFullRequest).m_OrList = TagAndMetaList;
+            }
         }
     }
 }
