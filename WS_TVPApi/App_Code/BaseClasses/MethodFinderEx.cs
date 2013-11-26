@@ -94,11 +94,13 @@ public partial class MethodFinder
                 }
                 else
                 {
-                    using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
-                    {
-                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(TargetType);
-                        Product = serializer.ReadObject(ms);
-                    }
+                    //using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
+                    //{
+                    //    DataContractJsonSerializer serializer = new DataContractJsonSerializer(TargetType);
+                    //    Product = serializer.ReadObject(ms);
+                    //}
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    Product = typeof(JavaScriptSerializer).GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(serializer, new object[] { DeserializationTarget });
                 }
             } while (false);
             return Product;
