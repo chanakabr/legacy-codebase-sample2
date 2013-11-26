@@ -692,6 +692,33 @@ namespace TVPApiServices
             return lstMedia;
         }
 
+        [WebMethod(EnableSession = true, Description = "Search medias using an 'Or' list and an 'and' list. Key-Value pairs of tags and metas are expected in the lists. Between the two lists an AND logic will be implemented. ")]
+        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, TVPApi.OrderBy orderBy)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchMediaByAndOrList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    //picSize is injected with an empty string
+                    lstMedia = MediaHelper.SearchMediaByAndOrList(initObj, mediaType, orList, andList, string.Empty, pageSize, pageIndex, groupID, orderBy, exact);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return lstMedia;
+        }
+
         //Search medias by tag
         [WebMethod(EnableSession = true, Description = "Search medias by tag")]
         public List<Media> SearchMediaByTag(InitializationObject initObj, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)

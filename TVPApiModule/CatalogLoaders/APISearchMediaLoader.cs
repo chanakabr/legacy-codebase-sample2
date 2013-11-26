@@ -31,6 +31,15 @@ namespace TVPApiModule.CatalogLoaders
         public int GroupIDParent { get; set; }
 
         #region Constructors
+        public APISearchMediaLoader(int groupID, PlatformType platform, string userIP, int pageSize, int pageIndex, string picSize, bool exact, List<KeyValue> orList,
+            List<KeyValue> andList, List<int> mediaTypes)
+            : base(groupID, userIP, pageSize, pageIndex, picSize, exact, orList, andList, mediaTypes)
+        {
+            GroupIDParent = SiteMapManager.GetInstance.GetPageData(GroupID, platform).GetTVMAccountByGroupID(groupID).BaseGroupID;
+            overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
+            Platform = platform.ToString();
+        }
+
         public APISearchMediaLoader(int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize, bool exact, bool and, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
             string description, List<int> mediaIDs, List<int> mediaTypes, List<KeyValue> metas, List<KeyValue> tags) 
             : base(groupID, userIP, pageSize, pageIndex, picSize, exact, and, orderBy, orderDir, orderValue, name, description, mediaIDs, mediaTypes, metas, tags)
@@ -73,44 +82,54 @@ namespace TVPApiModule.CatalogLoaders
                 m_nMediaTypes = MediaTypes,
             };
 
-            //In case search is performed by free text on all metas/tags
-            if ((Metas == null || Metas.Count() == 0) && (Tags == null || Tags.Count == 0))
+            //In case the request DOES NOT include an orList or an andList
+            if ((OrList == null || OrList.Count() == 0) && (AndList == null || AndList.Count == 0))
             {
-                Metas = APICatalogHelper.GetMetasTagsFromConfiguration("meta", Name, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
-                foreach (var meta in Metas)
+                //In case search is performed by free text on all metas/tags
+                if ((Metas == null || Metas.Count() == 0) && (Tags == null || Tags.Count == 0))
                 {
-                    TagAndMetaList.Add(meta);
+                    Metas = APICatalogHelper.GetMetasTagsFromConfiguration("meta", Name, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
+                    foreach (var meta in Metas)
+                    {
+                        TagAndMetaList.Add(meta);
+                    }
+                    Tags = APICatalogHelper.GetMetasTagsFromConfiguration("tag", Name, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
+                    foreach (var tag in Tags)
+                    {
+                        TagAndMetaList.Add(tag);
+                    }
+
+                    TagAndMetaList.Add(new KeyValue() { m_sKey = "Name", m_sValue = Name });
+                    TagAndMetaList.Add(new KeyValue() { m_sKey = "Description", m_sValue = Name });
                 }
-                Tags = APICatalogHelper.GetMetasTagsFromConfiguration("tag", Name, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
-                foreach (var tag in Tags)
+                //In case search is performed by exact metas/tags, not by free text
+                else
                 {
-                    TagAndMetaList.Add(tag);
+                    foreach (var meta in Metas)
+                    {
+                        TagAndMetaList.Add(meta);
+                    }
+
+                    foreach (var tag in Tags)
+                    {
+                        TagAndMetaList.Add(tag);
+                    }
                 }
 
-                TagAndMetaList.Add(new KeyValue() { m_sKey = "Name", m_sValue = Name });
-                TagAndMetaList.Add(new KeyValue() { m_sKey = "Description", m_sValue = Name });
+                if (And)
+                {
+                    (m_oRequest as MediaSearchFullRequest).m_AndList = TagAndMetaList;
+                }
+                else
+                {
+                    (m_oRequest as MediaSearchFullRequest).m_OrList = TagAndMetaList;
+                }
             }
-            //In case search is performed by exact metas/tags, not by free text
+            //In case the request includes an orList or an andList
             else
             {
-                foreach (var meta in Metas)
-                {
-                    TagAndMetaList.Add(meta);
-                }
-
-                foreach (var tag in Tags)
-                {
-                    TagAndMetaList.Add(tag);
-                }
-            }
-
-            if (And)
-            {
-                (m_oRequest as MediaSearchFullRequest).m_AndList = TagAndMetaList;
-            }
-            else
-            {
-                (m_oRequest as MediaSearchFullRequest).m_OrList = TagAndMetaList;
+                (m_oRequest as MediaSearchFullRequest).m_AndList = AndList;
+                (m_oRequest as MediaSearchFullRequest).m_OrList = OrList;
             }
         }
     }
