@@ -366,6 +366,20 @@ namespace TVPApiModule.Services
             }
             return res;
         }
+
+        public EPGChannelProgrammeObject[] GetEPGProgramsByScids(string siteGuid, string[] scids, Language language, int duration)
+        {
+            EPGChannelProgrammeObject[] res = null;
+            try
+            {
+                res = m_Module.GetEPGProgramsByScids(m_wsUserName, m_wsPassword, scids, language, duration);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramsByScids, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}, language: {4}, duration: {5}", ex.Message, siteGuid, SiteHelper.GetClientIP(), language, duration);
+            }
+            return res;
+        }
         #endregion
     }
 }

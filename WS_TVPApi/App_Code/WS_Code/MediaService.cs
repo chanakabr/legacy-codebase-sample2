@@ -20,6 +20,10 @@ using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Manager;
 using TVPApiModule.Interfaces;
+using TVPPro.SiteManager.DataEntities;
+using TVPPro.Configuration.OrcaRecommendations;
+using TVPApiModule.CatalogLoaders;
+using System.Configuration;
 
 namespace TVPApiServices
 {
@@ -584,6 +588,37 @@ namespace TVPApiServices
 
             return lstMedia;
         }
+
+        //[WebMethod(EnableSession = true, Description = "Get (ORCA) recommended medias by gallery")]
+        //public Object GetRecommendationsByGallery(InitializationObject initObj, int mediaID, string picSize, int parentalLevel, eGalleryType galleryType)
+        //{
+        //    logger.DebugFormat("MediaService::GetRecommendedMediasByGallery -> gallery type : {0}", galleryType);
+
+        //    Object retVal = null;
+
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
+        //            retVal = impl.GetRecommendedMediasByGallery(initObj, groupID, mediaID, picSize, parentalLevel, galleryType);
+                   
+                    
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
+
+        //    return retVal;
+        //}
 
         public List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
         {
@@ -2468,6 +2503,8 @@ namespace TVPApiServices
         }
         #endregion
 
+        #region EPG related
+
         #region EPGComments
 
         [WebMethod(EnableSession = true, Description = "Get EPG Comments List")]
@@ -2509,6 +2546,85 @@ namespace TVPApiServices
                 try
                 {
                     retVal = CommentHelper.AddEPGComment(groupId, initObj.Platform, initObj.Locale.LocaleLanguage, initObj.SiteGuid, initObj.UDID, epgProgramID, contentText, initObj.Locale.LocaleCountry, header, subHeader, writer, autoActive).ToString();
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return retVal;
+        }
+
+        #endregion
+
+        [WebMethod(EnableSession = true, Description = "Search EPG Programs")]
+        public List<EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
+        {
+            List<EPGChannelProgrammeObject> retVal = null;
+            List<BaseObject> loaderResult = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SearchEPGPrograms", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    int language = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
+                    DateTime _startTime, _endTime;
+
+                    _startTime = DateTime.UtcNow.AddDays(-int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    _endTime = DateTime.UtcNow.AddDays(int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+
+                    loaderResult = new APIEPGSearchLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime , _endTime)
+                        {
+                            Culture = initObj.Locale.LocaleLanguage
+                        }.Execute() as List<BaseObject>;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+            retVal = new List<EPGChannelProgrammeObject>();
+            foreach(ProgramObj p in loaderResult)
+            {
+                retVal.Add(p.m_oProgram);
+            }
+
+            return retVal;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get EPG AutoComplete")]
+        public List<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
+        {
+            List<string> retVal = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "EPGAutoComplete", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    int language = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
+
+                    DateTime _startTime, _endTime;
+
+                    _startTime = DateTime.UtcNow.AddDays(-int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    _endTime = DateTime.UtcNow.AddDays(int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));;
+
+                    retVal = new APIEPGAutoCompleteLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
+                        {
+                            Culture = initObj.Locale.LocaleLanguage
+                        }.Execute() as List<string>;
                 }
                 catch (Exception ex)
                 {
