@@ -21,7 +21,6 @@ using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Manager;
 using TVPApiModule.Interfaces;
 using TVPPro.SiteManager.DataEntities;
-using TVPPro.Configuration.OrcaRecommendations;
 using TVPApiModule.CatalogLoaders;
 using System.Configuration;
 
