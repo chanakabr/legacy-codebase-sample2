@@ -65,7 +65,6 @@ namespace TVPApi
                     {
                         long guidNum = Convert.ToInt64(sUserID);
                         int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
-                        retVal = new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), string.Empty);
 
                         if (!string.IsNullOrEmpty(isOfflineSync))
                             new ApiUsersService(groupID, platform).AddUserOfflineMedia(sUserID, mediaID);
