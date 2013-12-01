@@ -51,7 +51,6 @@ namespace TVPApiModule.Services
         #endregion
 
         public TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus DoSocialAction(int mediaID,
-                                                                                                  eAssetType type,
                                                                                                   string siteGuid,
                                                                                                   string udid,
                                                                                                   TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
@@ -74,7 +73,7 @@ namespace TVPApiModule.Services
                 BaseDoUserActionRequest actionRequest = new BaseDoUserActionRequest()
                 {
                     m_eAction = userAction,
-                    m_eAssetType = type,
+                    m_eAssetType = eAssetType.MEDIA,
                     m_eSocialPlatform = socialPlatform,
                     m_nAssetID = mediaID,
                     m_oKeyValue =  extraPatams,
