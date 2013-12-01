@@ -984,7 +984,7 @@ namespace TVPApiServices
         #region XXXX
 
         [WebMethod(EnableSession = true, Description = "Do Social Action")]
-        public string DoSocialAction(InitializationObject initObj, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam)
+        public string DoSocialAction(InitializationObject initObj, int mediaID, eAssetType type, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam)
         {
             string sRes = SocialActionResponseStatus.UNKNOWN.ToString();
 
@@ -995,7 +995,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupID, initObj.Platform);
-                    SocialActionResponseStatus response = service.DoSocialAction(mediaID, initObj.SiteGuid, initObj.UDID, socialAction, socialPlatform, actionParam);
+                    SocialActionResponseStatus response = service.DoSocialAction(mediaID,type, initObj.SiteGuid, initObj.UDID, socialAction, socialPlatform, actionParam);
                     sRes = response.ToString();
                 }
                 catch (Exception ex)
