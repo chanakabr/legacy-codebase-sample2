@@ -42,7 +42,7 @@ namespace TVPApi
             }
             else //check if OR search
             {
-                sTerms = sText.ToLower().Split(new string[] { "or" }, StringSplitOptions.RemoveEmptyEntries).Select( x => x.Trim()).ToArray();
+                sTerms = sText.ToLower().Split(new string[] { " or " }, StringSplitOptions.RemoveEmptyEntries).Select( x => x.Trim()).ToArray();
             }
 
             return new ApiUsersService(groupId, PlatformType.Web).SearchUsers(sTerms, sFields, bIsExact);
