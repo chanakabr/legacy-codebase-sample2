@@ -17,7 +17,7 @@ namespace TVPApiServices
 
         public CRMResponse()
         {
-            status_code = CRMResponseStatus.UnexpectedError;
+            status_code = CRMResponseStatus.OK;
         }
     }
 
