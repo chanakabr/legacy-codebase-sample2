@@ -76,6 +76,8 @@ namespace TVPApi
             public AdvertisingProvider OverlayProvider;
             public string[] BreakPoints;
             public string[] OverlayPoints;
+            public string Language;
+            public bool IsDefaultLang;
         }
 
         public struct Picture
@@ -346,6 +348,9 @@ namespace TVPApi
                     file.URL = rowFile["URL"].ToString();
                     file.Duration = rowFile["Duration"].ToString();
                     file.Format = rowFile["Format"].ToString();
+                    file.Language = rowFile["Language"].ToString();
+                    file.IsDefaultLang = bool.Parse(rowFile["IsDefaultLang"].ToString());
+
 
                     int preProviderID = Convert.ToInt32(rowFile["PreProviderID"].ToString());
 
