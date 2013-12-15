@@ -349,7 +349,7 @@ namespace TVPApi
                     file.Duration = rowFile["Duration"].ToString();
                     file.Format = rowFile["Format"].ToString();
                     file.Language = rowFile["Language"].ToString();
-                    file.IsDefaultLang = bool.Parse(rowFile["IsDefaultLang"].ToString());
+                    file.IsDefaultLang = Convert.ToBoolean(Convert.ToInt16(rowFile["IsDefaultLang"].ToString()));
 
 
                     int preProviderID = Convert.ToInt32(rowFile["PreProviderID"].ToString());
