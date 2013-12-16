@@ -83,6 +83,8 @@
         logger.Error(string.Concat("Request: ", Request.RawUrl), ex);
         
         Server.ClearError();
+        
+        Response.Write("Error");
     }
 
     void Session_Start(object sender, EventArgs e) 
