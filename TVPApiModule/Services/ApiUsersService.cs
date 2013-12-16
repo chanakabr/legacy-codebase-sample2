@@ -69,8 +69,7 @@ namespace TVPApiModule.Services
             LogInResponseData loginData = new LogInResponseData();
 
             try
-            {
-                sDeviceID = string.Empty;
+            {                
                 sUserName = HttpUtility.UrlDecode(sUserName);
                 UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin);
 
@@ -581,7 +580,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                bRet = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+                //bRet = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
             }
             catch (Exception ex)
             {
