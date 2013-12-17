@@ -687,7 +687,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                //res = m_Module.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
+                res = m_Module.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
             }
             catch (Exception ex)
             {
