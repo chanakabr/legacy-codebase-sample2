@@ -1075,7 +1075,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = ActionHelper.SendToFriend(initObj, groupID, mediaID, senderName, senderEmail, toEmail, msg);
+                    retVal = ActionHelper.SendToFriend(initObj, groupID, mediaID, senderName, senderEmail, toEmail, msg).ToString();
                 }
                 catch (Exception ex)
                 {

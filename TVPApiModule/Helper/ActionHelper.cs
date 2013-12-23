@@ -253,19 +253,21 @@ namespace TVPApi
             //}.Execute();
         }
 
-        public static string SendToFriend(InitializationObject initObj, int groupID, int mediaID, string senderName, string senderEmail, string toEmail, string msg)
+        public static bool SendToFriend(InitializationObject initObj, int groupID, int mediaID, string senderName, string senderEmail, string toEmail, string msg)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
-            return new APISendToFriendLoader(account.TVMUser, account.TVMPass, mediaID.ToString())
-            {
-                MediaID = mediaID.ToString(),
-                SenderName = senderName,
-                FriendEmail = toEmail,
-                EmailFrom = senderEmail,
-                AddedMessage = msg,
-                GroupID = groupID,
-                Platform = initObj.Platform
-            }.Execute().response.type;
+            return new ApiApiService(groupID, initObj.Platform).SendToFriend(senderName, senderEmail, toEmail, toEmail, mediaID);
+
+            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
+            //return new APISendToFriendLoader(account.TVMUser, account.TVMPass, mediaID.ToString())
+            //{
+            //    MediaID = mediaID.ToString(),
+            //    SenderName = senderName,
+            //    FriendEmail = toEmail,
+            //    EmailFrom = senderEmail,
+            //    AddedMessage = msg,
+            //    GroupID = groupID,
+            //    Platform = initObj.Platform
+            //}.Execute().response.type;
         }
 
         public ActionHelper()
