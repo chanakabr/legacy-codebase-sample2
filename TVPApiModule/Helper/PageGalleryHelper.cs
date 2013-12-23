@@ -97,7 +97,8 @@ namespace TVPApi
                                     select items).FirstOrDefault();
                 if (item != null)
                 {
-                    retVal = MediaHelper.GetMediaList(initObj, item.TVMUser, item.TVMPass, item.TVMChannelID, picSize, pageSize, pageIndex, groupID, MediaHelper.LoaderType.Channel, orderBy);
+                    retVal = MediaHelper.GetChannelMultiFilter(initObj, (int)item.TVMChannelID, picSize, pageSize, pageIndex, groupID, orderBy, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.WCF_ONLY_DEFAULT_VALUE);
+                    //GetMediaList(initObj, item.TVMUser, item.TVMPass, item.TVMChannelID, picSize, pageSize, pageIndex, groupID, MediaHelper.LoaderType.Channel, orderBy);
                 }
             }
             return retVal;

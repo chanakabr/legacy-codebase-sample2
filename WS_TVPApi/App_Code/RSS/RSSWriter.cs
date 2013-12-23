@@ -88,7 +88,7 @@ public class RSSWriter
                 initObj.Platform = PlatformType.STB;
                 initObj.ApiUser = "tvpapi_93";
                 initObj.ApiPass = "11111";
-                List<Media> userItems = mediaService.GetUserItems(initObj, userItemType, 0, "full", 50, 0);
+                List<Media> userItems = mediaService.GetUserItems(initObj, userItemType, "full", 50, 0);
                 HttpContext.Current.Items["Platform"] = PlatformType.STB;
                 
                 string mediaStr = GetIDsString(userItems);

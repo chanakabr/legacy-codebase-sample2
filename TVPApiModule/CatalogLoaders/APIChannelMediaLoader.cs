@@ -11,6 +11,7 @@ using TVPApi;
 using System.Data;
 using TVPPro.Configuration.Technical;
 using TVPApiModule.Manager;
+using TVPApiModule.Helper;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -24,37 +25,37 @@ namespace TVPApiModule.CatalogLoaders
             set 
             { 
                 m_sCulture = value;
-                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
             }
         }
-        
-        public int GroupIDParent { get; set; }
-        
 
         #region Constructors
-        public APIChannelMediaLoader(int channelID, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize,List<KeyValue> tagsMetas = null, CutWith cutWith = Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.AND)
+        public APIChannelMediaLoader(int channelID, int groupID, PlatformType platform, string udid, string userIP, int pageSize, int pageIndex, string picSize, string language, List<KeyValue> tagsMetas = null, CutWith cutWith = Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.AND)
             : base(channelID, groupID, userIP, pageSize, pageIndex, picSize, tagsMetas, cutWith)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
-            GroupIDParent = groupIDParent;
-            Platform = platform;
+            Platform = platform.ToString();
+            DeviceId = udid;   
+            Culture = language;
         }
         #endregion
 
         public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)
         {
-            FlashVars techConfigFlashVars = ConfigManager.GetInstance().GetConfig(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).TechnichalConfiguration.Data.TVM.FlashVars;
-            string fileFormat = techConfigFlashVars.FileFormat;
-            string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
-            dsItemInfo retVal = CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
-            dsItemInfo.ChannelRow channelRow = retVal.Channel.NewChannelRow();
-            ChannelResponse response = m_oResponse as ChannelResponse;
-            channelRow.ChannelId = response.Id.ToString();
-            channelRow.Title = response.m_sName;
-            channelRow.Description = response.m_sDescription;
-            channelRow.EnableRssFeed = response.m_sEnableRssFeed == 1 ? true : false;
-            retVal.Channel.AddChannelRow(channelRow);
-            return retVal;        
+            return APICatalogHelper.MediaObjToMedias(medias, PicSize, m_oResponse.m_nTotalItems, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
+
+            //FlashVars techConfigFlashVars = ConfigManager.GetInstance().GetConfig(GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).TechnichalConfiguration.Data.TVM.FlashVars;
+            //string fileFormat = techConfigFlashVars.FileFormat;
+            //string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
+            //dsItemInfo retVal = CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
+            //dsItemInfo.ChannelRow channelRow = retVal.Channel.NewChannelRow();
+            //ChannelResponse response = m_oResponse as ChannelResponse;
+            //channelRow.ChannelId = response.Id.ToString();
+            //channelRow.Title = response.m_sName;
+            //channelRow.Description = response.m_sDescription;
+            //channelRow.EnableRssFeed = response.m_sEnableRssFeed == 1 ? true : false;
+            //retVal.Channel.AddChannelRow(channelRow);
+            //return retVal;        
         }
     }
 }

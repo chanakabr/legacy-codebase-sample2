@@ -145,7 +145,7 @@ namespace TVPApi
                 string wsUser = string.Empty;
                 GetWSUserPass(groupID, ref wsUser, ref wsPass);
                 long mediaCount = 0;
-                List<Media> mediaList = MediaHelper.GetChannelMediaList(GetInitObj(), wsUser, wsPass, item.TVMChannelID, "full", items, index, groupID, ref mediaCount);
+                List<Media> mediaList = MediaHelper.GetChannelMultiFilter(GetInitObj(), (int)item.TVMChannelID, "full", items, index, groupID, OrderBy.None, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.OR);
                 retVal = ParseChannelToActivaChannel(mediaList, mediaCount, groupID, platform);
                 retVal.sectionTitle = item.Title;
                 retVal.test = "TestVal";

@@ -192,7 +192,7 @@ public class GWFrontController
 
         long mediaCount = 0;
         string picSize = ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
-        List<Media> lstMedias = m_MediaService.GetChannelMediaListWithMediaCount(accessInfo.initObj, (long)prms[0], picSize, 50, 0, ref mediaCount);        
+        List<Media> lstMedias = m_MediaService.GetChannelMultiFilter(accessInfo.initObj, (int)prms[0], picSize, 50, 0, OrderBy.None, eOrderDirection.Asc, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.OR);        
         
         if (lstMedias != null)
         {
@@ -225,18 +225,18 @@ public class GWFrontController
         return cInfo;
     }
 
-    public object GetMediaInfo(params object[] prms)
-    {
-        string picSize = ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
+    //public object GetMediaInfo(params object[] prms)
+    //{
+    //    string picSize = ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
 
-        Media media = m_MediaService.GetMediaInfo(accessInfo.initObj, (long)prms[0], (int)prms[1], picSize, true);
+    //    Media media = m_MediaService.GetMediaInfo(accessInfo.initObj, (int)prms[0], picSize, true);
 
-        //XXX Error handling
-        if (media == null)
-            return new XmlModels.GetMediaInfo();
+    //    //XXX Error handling
+    //    if (media == null)
+    //        return new XmlModels.GetMediaInfo();
 
-        return GetMediaObj(media, true);
-    }
+    //    return GetMediaObj(media, true);
+    //}
 
     private XmlModels.GetMediaInfo GetMediaObj(Media media, bool doFullMedia)
     {

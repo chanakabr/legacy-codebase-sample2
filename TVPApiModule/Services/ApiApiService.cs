@@ -376,7 +376,21 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramsByScids, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}, language: {4}, duration: {5}", ex.Message, siteGuid, SiteHelper.GetClientIP(), language, duration);
+                logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramsByScids, Error Message: {0}, Parameters :  siteGuid: {1}, clientIP: {2}, language: {3}, duration: {4}", ex.Message, siteGuid, SiteHelper.GetClientIP(), language, duration);
+            }
+            return res;
+        }
+
+        public bool SendToFriend(string senderName, string senderMail, string mailTo, int mediaID)
+        {
+            bool res = false;
+            try
+            {
+                res = m_Module.SendToFriend(m_wsUserName, m_wsPassword, senderName, senderMail, mailTo, mailTo, mediaID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SendToFriend, Error Message: {0}, Parameters :  senderName: {1}, senderMail: {2}, mailTo: {3}, mediaID: {4}", ex.Message, senderName, senderMail, mailTo, mediaID);
             }
             return res;
         }

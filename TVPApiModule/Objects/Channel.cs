@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.DataEntities;
 
 /// <summary>
@@ -56,6 +57,18 @@ namespace TVPApi
             if (long.TryParse(channelRow.ChannelId, out channelID))
             {
                 ChannelID = channelID;
+            }
+        }
+
+        public Channel(channelObj channel, string picSize)
+        {
+            Title = channel.m_sTitle;
+            ChannelID = channel.m_nChannelID;
+            MediaCount = 0;
+            if (!string.IsNullOrEmpty(picSize) && channel.m_lPic != null)
+            {
+                var pic = channel.m_lPic.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
+                PicURL = pic == null ? string.Empty : pic.m_sURL;
             }
         }
 

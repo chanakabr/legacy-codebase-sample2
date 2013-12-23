@@ -67,10 +67,7 @@ namespace TVPApi
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oCatalogChannelsListsLoader = new APIChannelsListsLoader(0, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
-                {
-                    Culture = Language
-                };
+                m_oCatalogChannelsListsLoader = new APIChannelsListsLoader(0, GroupID, Platform, string.Empty, SiteHelper.GetClientIP(), Language, PageSize, PageIndex, PicSize);
                 return m_oCatalogChannelsListsLoader.Execute() as dsItemInfo;
             }
             else

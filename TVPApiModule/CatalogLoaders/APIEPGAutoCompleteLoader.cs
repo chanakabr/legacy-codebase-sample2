@@ -11,7 +11,6 @@ namespace TVPApiModule.CatalogLoaders
     [Serializable]
     public class APIEPGAutoCompleteLoader : EPGAutoCompleteLoader
     {
-
         private string m_sCulture;
 
         public string Culture
@@ -26,10 +25,12 @@ namespace TVPApiModule.CatalogLoaders
 
         #region Constructors
 
-        public APIEPGAutoCompleteLoader(int groupID, string platform, string userIP, int pageSize, int pageIndex, string searchText, DateTime startTime, DateTime endTime)
+        public APIEPGAutoCompleteLoader(int groupID, PlatformType platform, string udid, string userIP, string language, int pageSize, int pageIndex, string searchText, DateTime startTime, DateTime endTime)
             : base(groupID, userIP, pageSize, pageIndex, searchText, startTime, endTime)
         {
-            Platform = platform;
+            Platform = platform.ToString();
+            DeviceId = udid;
+            Culture = language;
         }
 
         #endregion

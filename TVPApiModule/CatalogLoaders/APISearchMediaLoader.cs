@@ -24,47 +24,45 @@ namespace TVPApiModule.CatalogLoaders
             set
             {
                 m_sCulture = value;
-                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
             }
         }
 
-        public int GroupIDParent { get; set; }
-
         #region Constructors
-        public APISearchMediaLoader(int groupID, PlatformType platform, string userIP, int pageSize, int pageIndex, string picSize, bool exact, List<KeyValue> orList,
+        public APISearchMediaLoader(int groupID, PlatformType platform, string udid, string userIP, string language, int pageSize, int pageIndex, string picSize, bool exact, List<KeyValue> orList,
             List<KeyValue> andList, List<int> mediaTypes)
             : base(groupID, userIP, pageSize, pageIndex, picSize, exact, orList, andList, mediaTypes)
         {
-            GroupIDParent = SiteMapManager.GetInstance.GetPageData(GroupID, platform).GetTVMAccountByGroupID(groupID).BaseGroupID;
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             Platform = platform.ToString();
+            DeviceId = udid;
+            Culture = language;
         }
 
-        public APISearchMediaLoader(int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize, bool exact, bool and, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
+        public APISearchMediaLoader(int groupID, PlatformType platform, string udid, string userIP, string language, int pageSize, int pageIndex, string picSize, bool exact, bool and, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
             string description, List<int> mediaIDs, List<int> mediaTypes, List<KeyValue> metas, List<KeyValue> tags) 
             : base(groupID, userIP, pageSize, pageIndex, picSize, exact, and, orderBy, orderDir, orderValue, name, description, mediaIDs, mediaTypes, metas, tags)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
-            GroupIDParent = groupIDParent;
-            Platform = platform;
+            Platform = platform.ToString();
+            DeviceId = udid;
+            Culture = language;
         }
 
-        public APISearchMediaLoader(int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize, string searchText)
-            : base(groupID, userIP, pageSize, pageIndex, picSize, searchText)
+        public APISearchMediaLoader(int groupID, PlatformType platform, string udid, string userIP, string language, int pageSize, int pageIndex, string picSize, string searchText)
+            : base(groupID, userIP, pageSize, pageIndex, picSize, searchText) 
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
-            GroupIDParent = groupIDParent;
-            Platform = platform;
+            Platform = platform.ToString();
+            DeviceId = udid;
+            Culture = language;
         }
 
         #endregion
 
         public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)
         {
-            FlashVars techConfigFlashVars = ConfigManager.GetInstance().GetConfig(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).TechnichalConfiguration.Data.TVM.FlashVars;
-            string fileFormat = techConfigFlashVars.FileFormat;
-            string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
-            return CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
+            return APICatalogHelper.MediaObjToMedias(medias, PicSize, m_oResponse.m_nTotalItems, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));            
         }
 
         protected override void BuildSpecificRequest()

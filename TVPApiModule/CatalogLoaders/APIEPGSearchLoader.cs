@@ -28,10 +28,12 @@ namespace TVPApiModule.CatalogLoaders
 
         #region Constructors
 
-        public APIEPGSearchLoader(int groupID, string platform, string userIP, int pageSize, int pageIndex, string searchText, DateTime startTime, DateTime endTime)
+        public APIEPGSearchLoader(int groupID, PlatformType platform, string udid, string userIP, string language, int pageSize, int pageIndex, string searchText, DateTime startTime, DateTime endTime)
             : base(groupID, userIP, pageSize, pageIndex, searchText, startTime, endTime)
         {
-            Platform = platform;
+            Platform = platform.ToString();
+            DeviceId = udid;
+            Culture = language;
         }
         #endregion
 

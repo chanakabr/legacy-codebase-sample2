@@ -9,6 +9,7 @@ using TVPPro.Configuration.Technical;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using TVPApiModule.Helper;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -22,27 +23,25 @@ namespace TVPApiModule.CatalogLoaders
             set
             {
                 m_sCulture = value;
-                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
             }
         }
 
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        public APIChannelsListsLoader(int categoryID, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize)
+        public APIChannelsListsLoader(int categoryID, int groupID, PlatformType platform, string udid, string userIP, string language, int pageSize, int pageIndex, string picSize)
             : base(categoryID, groupID, userIP, pageSize, pageIndex, picSize)
         {
-            GroupIDParent = groupIDParent;
-            Platform = platform;
+            Platform = platform.ToString();
+            DeviceId = udid;
+            Culture = language;
         }
         #endregion
 
-        public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)
+        public object ApiExecuteMultiMediaAdapter(List<channelObj> channels)
         {
-            FlashVars techConfigFlashVars = ConfigManager.GetInstance().GetConfig(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).TechnichalConfiguration.Data.TVM.FlashVars;
-            string fileFormat = techConfigFlashVars.FileFormat;
-            string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
-            return CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
+            return APICatalogHelper.ChannelObjToChannel(channels, PicSize);
         }
     }
 }

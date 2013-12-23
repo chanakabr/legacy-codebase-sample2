@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
+using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 
@@ -9,6 +11,30 @@ namespace TVPApiModule.Helper
 {
     public class APICatalogHelper
     {
+        public static List<Media> MediaObjToMedias(List<BaseObject> medias, string picSize, int totalItems, int groupID, PlatformType platform)
+        {
+            List<Media> retVal = new List<Media>();
+            Media media;
+            foreach (MediaObj mediaObj in medias)
+            {
+                media = new Media(mediaObj, picSize, totalItems, groupID, platform);
+                retVal.Add(media);
+            }
+            return retVal;
+        }
+
+        public static List<Channel> ChannelObjToChannel(List<channelObj> channels, string picSize)
+        {
+            List<Channel> retVal = new List<Channel>();
+            Channel channel;
+            foreach (channelObj channelObj in channels)
+            {
+                channel = new Channel(channelObj, picSize);
+                retVal.Add(channel);
+            }
+            return retVal;
+        }
+
         public static List<KeyValue> GetMetasTagsFromConfiguration(string type, string value, int groupID, PlatformType platform)
         {
             List<KeyValue> retVal = new List<KeyValue>();

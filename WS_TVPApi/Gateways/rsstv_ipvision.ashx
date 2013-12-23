@@ -389,7 +389,7 @@ public class rsstv_ipvision : BaseGateway, IHttpHandler
 
     private void CreateItemsInChannel(XmlElement channel, GalleryItem gi)
     {
-        List<Media> medias = m_MediaService.GetChannelMediaList(GetInitObj(), gi.TVMChannelID, "full", 50, 0, OrderBy.None);
+        List<Media> medias = m_MediaService.GetChannelMultiFilter(GetInitObj(), (int)gi.TVMChannelID, "full", 50, 0, OrderBy.None, eOrderDirection.Asc, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.OR);
         InitializationObject initObj = GetInitObj();
         initObj.SiteGuid = new TVPApiModule.Services.ApiUsersService(groupId, devType).SignIn("adina@tvinci.com", "eliron27", Session.SessionID, string.Empty, false).SiteGuid;
 

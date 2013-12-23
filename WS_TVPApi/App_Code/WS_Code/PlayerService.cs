@@ -57,7 +57,7 @@ namespace TVPApiServices
         [System.Web.Script.Services.ScriptMethod()]
         [System.Xml.Serialization.XmlInclude(typeof(XmlDocument))]
         [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
-        [System.Xml.Serialization.XmlInclude(typeof(Media.File))]
+        [System.Xml.Serialization.XmlInclude(typeof(File))]
         public MediaWrapper GetMediaInfo(InitializationObject initObj, long MediaID, string picSize)
         {
             MediaWrapper retMedia = new MediaWrapper();
@@ -68,11 +68,11 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retMedia.Media = MediaHelper.GetMediaInfo(initObj, MediaID, picSize, groupID);
+                    retMedia.Media = MediaHelper.GetMediasInfo(initObj, new List<int>() { (int)MediaID }, picSize, groupID, false)[0];
 
-                    Media.File trailerFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat.ToLower()).SingleOrDefault();
+                    File trailerFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat.ToLower()).SingleOrDefault();
 
-                    if (!trailerFile.Equals(default(Media.File)))
+                    if (!trailerFile.Equals(default(File)))
                     {
                         retMedia.Media.Files.Remove(trailerFile);
 
@@ -81,9 +81,9 @@ namespace TVPApiServices
                         retMedia.Media.Files.Insert(0, trailerFile);
                     }
 
-                    Media.File trickPlayFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrickPlayFileFormat.ToLower()).SingleOrDefault();
+                    File trickPlayFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrickPlayFileFormat.ToLower()).SingleOrDefault();
 
-                    if (!trickPlayFile.Equals(default(Media.File)))
+                    if (!trickPlayFile.Equals(default(File)))
                     {
                         retMedia.Media.Files.Remove(trickPlayFile);
 

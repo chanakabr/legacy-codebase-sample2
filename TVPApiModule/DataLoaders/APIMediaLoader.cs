@@ -72,14 +72,11 @@ namespace TVPApi
             bool bShouldUseCache;
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
             {
-                return new TVPApiModule.CatalogLoaders.APIMediaLoader(int.Parse(MediaID), SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PicSize)
+                return new TVPApiModule.CatalogLoaders.APIMediaLoader(int.Parse(MediaID), GroupID, Platform, DeviceUDID, SiteHelper.GetClientIP(), PicSize, Language)
                 {
-                    DeviceId = DeviceUDID,
                     OnlyActiveMedia = true,
-                    Platform = Platform.ToString(),
                     UseFinalDate = bool.Parse(UseFinalEndDate),
                     UseStartDate = bool.Parse(GetFutureStartDate),
-                    Culture = Language
                 }.Execute() as dsItemInfo;
             }
             else

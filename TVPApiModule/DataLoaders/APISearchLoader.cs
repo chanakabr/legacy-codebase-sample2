@@ -120,7 +120,7 @@ namespace TVPApi
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oCatalogSearchLoader = new APISearchMediaLoader(SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize, Name)
+                m_oCatalogSearchLoader = new APISearchMediaLoader(GroupID, Platform, DeviceUDID, SiteHelper.GetClientIP(), Language, PageSize, PageIndex, PictureSize, Name)
                 {
                     And = CutType == eCutType.And ? true : false,
                     Exact = ExactSearch,
@@ -133,8 +133,6 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     UseFinalDate = bool.Parse(UseFinalEndDate),
                     //UseStartDate = bool.Parse(GetFutureStartDate),
-                    DeviceId = DeviceUDID,
-                    Culture = Language,
                 };
                 if (OrderBy != TVPApi.OrderBy.None)
                 {

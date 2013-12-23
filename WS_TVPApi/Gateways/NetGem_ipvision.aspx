@@ -1,1 +1,1 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="NetGem_ipvision.aspx.cs" Inherits="Gateways_NetGem_ipvision" %>
+﻿<%--<%@ Page Language="C#" AutoEventWireup="true" CodeFile="NetGem_ipvision.aspx.cs" Inherits="Gateways_NetGem_ipvision" %>--%>

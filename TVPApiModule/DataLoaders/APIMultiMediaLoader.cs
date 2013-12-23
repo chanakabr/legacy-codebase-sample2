@@ -80,11 +80,10 @@ namespace TVPApiModule.DataLoaders
                     mediaIDs.Add(int.Parse(id));
                 }
 
-                return new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDs, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PicSize)
+                return new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDs, GroupID, Platform, string.Empty, SiteHelper.GetClientIP(), PicSize, Language)
                 {
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
-                    Culture = Language,                    
                 }.Execute() as dsItemInfo;
             }
             else

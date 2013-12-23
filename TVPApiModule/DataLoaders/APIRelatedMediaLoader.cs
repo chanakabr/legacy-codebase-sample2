@@ -108,18 +108,16 @@ namespace TVPApi
                 m_oCatalogRelatedLoader = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(
                     (int)MediaID, 
                     MediaTypes != null ? MediaTypes.ToList() : new List<int>(), 
-                    SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, 
                     GroupID,
-                    Platform.ToString(),
+                    Platform,
+                    DeviceUDID,
                     SiteHelper.GetClientIP(), 
                     PageSize, 
                     PageIndex, 
-                    PicSize)
+                    PicSize,
+                    Language)
                 {
-                    DeviceId = DeviceUDID,
                     OnlyActiveMedia = true,
-                    Platform = Platform.ToString(),
-                    Culture = Language,
                 };
                 return m_oCatalogRelatedLoader.Execute() as dsItemInfo;
             }

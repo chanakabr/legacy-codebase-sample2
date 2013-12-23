@@ -144,24 +144,12 @@ namespace TVPApi
             return retVal;
         }
 
-        public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, int mediaType, long iMediaID, long iFileID, int iLocation)
+        public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, int mediaType, int iMediaID, int iFileID, int iLocation)
         {
-            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            return new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, 0, 0, iLocation, 0, Action.ToString(), string.Empty, string.Empty, string.Empty, string.Empty)
+            return new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, iMediaID, iFileID, 0, 0, iLocation, 0, Action.ToString(), string.Empty, string.Empty, string.Empty, string.Empty)
             {
                 Platform = platform.ToString()
             }.Execute() as string;
-            //return new APIMediaMark(account.TVMUser, account.TVMPass)
-            //{
-            //    GroupID = groupID,
-            //    Platform = platform,
-            //    Action = Action,
-            //    MediaID = iMediaID,
-            //    Location = iLocation,
-            //    DeviceUDID = initObj.UDID,
-            //    SiteGUID = initObj.SiteGuid,
-            //    FileID = iFileID
-            //}.Execute();
         }
 
         public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, FileHolder fileParams, int iLocation)
@@ -186,14 +174,12 @@ namespace TVPApi
             //}.Execute();
         }
 
-        public static string MediaHit(InitializationObject initObj, int groupID, PlatformType platform, int mediaType, long iMediaID, long iFileID, int iLocation)
+        public static string MediaHit(InitializationObject initObj, int groupID, PlatformType platform, int mediaType, int iMediaID, int iFileID, int iLocation)
         {
-            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            return new TVPPro.SiteManager.CatalogLoaders.MediaHitLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, 0, 0, iLocation, 0, string.Empty, string.Empty)
+            return new TVPPro.SiteManager.CatalogLoaders.MediaHitLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, iMediaID, iFileID, 0, 0, iLocation, 0, string.Empty, string.Empty)
             {
                 Platform = platform.ToString()
             }.Execute() as string;
-            //return new APIMediaHit(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = platform, FileID = iFileID, MediaID = iMediaID, Location = iLocation, DeviceUDID = initObj.UDID, SiteGUID = initObj.SiteGuid }.Execute();
         }
 
         public static string MediaHit(InitializationObject initObj, int groupID, PlatformType platform, long iMediaID, long iFileID, int iLocation)
@@ -253,19 +239,9 @@ namespace TVPApi
             //}.Execute();
         }
 
-        public static string SendToFriend(InitializationObject initObj, int groupID, int mediaID, string senderName, string senderEmail, string toEmail, string msg)
+        public static bool SendToFriend(InitializationObject initObj, int groupID, int mediaID, string senderName, string senderEmail, string toEmail)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
-            return new APISendToFriendLoader(account.TVMUser, account.TVMPass, mediaID.ToString())
-            {
-                MediaID = mediaID.ToString(),
-                SenderName = senderName,
-                FriendEmail = toEmail,
-                EmailFrom = senderEmail,
-                AddedMessage = msg,
-                GroupID = groupID,
-                Platform = initObj.Platform
-            }.Execute().response.type;
+            return new ApiApiService(groupID, initObj.Platform).SendToFriend(senderName, senderEmail, toEmail, mediaID);
         }
 
         public ActionHelper()

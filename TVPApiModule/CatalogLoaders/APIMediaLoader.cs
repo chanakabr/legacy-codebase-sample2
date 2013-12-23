@@ -10,6 +10,7 @@ using TVPPro.SiteManager.DataEntities;
 using TVPApi;
 using TVPPro.Configuration.Technical;
 using TVPApiModule.Manager;
+using TVPApiModule.Helper;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -23,34 +24,30 @@ namespace TVPApiModule.CatalogLoaders
             set
             {
                 m_sCulture = value;
-                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
+                Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
             }
         }
 
-        public int GroupIDParent { get; set; }
-
         #region Constructors
-        public APIMediaLoader(int mediaID, int groupID, int groupIDParent, string platform, string userIP, string picSize) :
-            this(new List<int>() { mediaID }, groupID, groupIDParent, platform, userIP, picSize)
+        public APIMediaLoader(int mediaID, int groupID, PlatformType platform, string udid, string userIP, string picSize, string language) :
+            this(new List<int>() { mediaID }, groupID, platform, udid, userIP, picSize, language)
         {
         }
 
-        public APIMediaLoader(List<int> mediaIDs, int groupID, int groupIDParent, string platform, string userIP, string picSize) :
+        public APIMediaLoader(List<int> mediaIDs, int groupID, PlatformType platform, string udid, string userIP, string picSize, string language) :
             base(mediaIDs, groupID, userIP, picSize)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
-            GroupIDParent = groupIDParent;
-            Platform = platform;
+            Platform = platform.ToString();
+            DeviceId = udid;
+            Culture = language;
         }
 
         #endregion
 
         public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)
         {
-            FlashVars techConfigFlashVars = ConfigManager.GetInstance().GetConfig(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).TechnichalConfiguration.Data.TVM.FlashVars;
-            string fileFormat = techConfigFlashVars.FileFormat;
-            string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
-            return CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
+            return APICatalogHelper.MediaObjToMedias(medias, PicSize, m_oResponse.m_nTotalItems, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
         }
     }
 }

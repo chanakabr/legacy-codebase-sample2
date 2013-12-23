@@ -10,6 +10,7 @@ using TVPApiModule.Services;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 /// <summary>
 /// Summary description for Media
@@ -18,6 +19,32 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApi
 {
+    public class ExtIDPair
+    {
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class File
+    {
+        public string FileID { get; set; }
+        public string URL { get; set; }
+        public string Duration { get; set; }
+        public string Format { get; set; }
+        public AdvertisingProvider PreProvider { get; set; }
+        public AdvertisingProvider PostProvider { get; set; }
+        public AdvertisingProvider BreakProvider { get; set; }
+        public AdvertisingProvider OverlayProvider { get; set; }
+        public string[] BreakPoints { get; set; }
+        public string[] OverlayPoints { get; set; }
+    }
+
+    public class Picture
+    {
+        public string PicSize { get; set; }
+        public string URL { get; set; }
+    }
+
     public class Media
     {
         #region Properties
@@ -57,32 +84,6 @@ namespace TVPApi
         public string GeoBlock;
         public long TotalItems;
         public int? like_counter;
-
-        public struct ExtIDPair
-        {
-            public string Key;
-            public string Value;
-        }
-
-        public struct File
-        {
-            public string FileID;
-            public string URL;
-            public string Duration;
-            public string Format;
-            public AdvertisingProvider PreProvider;
-            public AdvertisingProvider PostProvider;
-            public AdvertisingProvider BreakProvider;
-            public AdvertisingProvider OverlayProvider;
-            public string[] BreakPoints;
-            public string[] OverlayPoints;
-        }
-
-        public struct Picture
-        {
-            public string PicSize;
-            public string URL;
-        }
 
         public List<TagMetaPair> Tags
         {
@@ -163,14 +164,21 @@ namespace TVPApi
 
         }
 
+        public Media(MediaObj mediaObj, string picSize, long totalItems, int groupID, PlatformType platform)//, bool withDynamic)
+        {
+            InitMediaObj(mediaObj, picSize, totalItems, groupID, platform);//, withDynamic);
+        }
+
+
+
         public Media(dsItemInfo.ItemRow itemRow, InitializationObject initObj, int groupID, bool withDynamic)
         {
-            InitMediaObj(itemRow, initObj, groupID, withDynamic, 0);
+            //InitMediaObj(itemRow, initObj, groupID, withDynamic, 0);
         }
 
         public Media(dsItemInfo.ItemRow itemRow, InitializationObject initObj, int groupID, bool withDynamic, long iMediaCount)
         {
-            InitMediaObj(itemRow, initObj, groupID, withDynamic, iMediaCount);
+            //InitMediaObj(itemRow, initObj, groupID, withDynamic, iMediaCount);
         }
         #endregion
 
@@ -199,243 +207,435 @@ namespace TVPApi
             }
             return retVal;
         }
+
+        private void InitMediaObj(MediaObj mediaObj, string picSize, long totalItems, int groupID, PlatformType platform)//, bool withDynamic)
+        {
+            if (mediaObj != null)
+            {
+                MediaID = mediaObj.m_nID.ToString();
+                MediaName = mediaObj.m_sName;
+                MediaTypeID = mediaObj.m_oMediaType.m_nTypeID.ToString();
+                MediaTypeName = mediaObj.m_oMediaType.m_sTypeName;
+                Rating = mediaObj.m_oRatingMedia.m_nRatingAvg;
+                ViewCounter = mediaObj.m_oRatingMedia.m_nViwes;
+                Description = mediaObj.m_sDescription;
+                CreationDate = mediaObj.m_dCreationDate;
+                LastWatchDate = mediaObj.m_dLastWatchedDate;
+                StartDate = mediaObj.m_dStartDate;
+                CatalogStartDate = mediaObj.m_dCatalogStartDate;
+                like_counter = mediaObj.m_nLikeCounter;
+
+                TotalItems = totalItems;
+
+                if (!string.IsNullOrEmpty(picSize))
+                    PicURL = (from pic in mediaObj.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
+
+
+                //media.GeoBlock = No data... 
+
+                // Problems...
+                //media.MediaDynamicData;
+
+                //MediaWebLink
+                MediaWebLink = GetMediaWebLink(groupID, platform);
+
+                //Files
+                buildFiles(mediaObj.m_lFiles, mediaObj.m_lBranding, groupID, platform);
+
+                //Metas & Tags
+                BuildTagMetas(mediaObj.m_lMetas, mediaObj.m_lTags, groupID, platform);
+
+
+                //ExternalIDs
+                if (!string.IsNullOrEmpty(mediaObj.m_ExternalIDs))
+                    ExternalIDs.Add(new ExtIDPair() { Key = "epg_id", Value = mediaObj.m_ExternalIDs });
+
+                //Pictures
+                buildPictures(mediaObj.m_lPicture);
+            }
+        }
+
+
         //Fill properies according to media row
-        private void InitMediaObj(dsItemInfo.ItemRow row, InitializationObject initObj, int groupID, bool withDynamic, long iMediaCount)
+        //private void InitMediaObj(dsItemInfo.ItemRow row, InitializationObject initObj, int groupID, bool withDynamic, long iMediaCount)
+        //{
+        //    MediaID = row.ID;
+        //    if (!row.IsMediaTypeIDNull())
+        //    {
+        //        MediaTypeID = row.MediaTypeID;
+        //    }
+
+        //    MediaName = row.Title;
+
+        //    if (!row.IsMediaTypeNull())
+        //    {
+        //        MediaTypeName = row.MediaType;
+        //    }
+        //    if (!row.IsDescriptionShortNull())
+        //    {
+        //        Description = row.DescriptionShort;
+        //    }
+
+        //    if (!row.IsImageLinkNull())
+        //    {
+        //        PicURL = row.ImageLink;
+        //    }
+        //    if (!row.IsURLNull())
+        //    {
+        //        URL = row.URL;
+        //    }
+
+        //    if (!row.IsFileIDNull())
+        //    {
+        //        FileID = row.FileID;
+        //    }
+
+        //    if (!row.IsDurationNull())
+        //    {
+        //        Duration = row.Duration;
+        //    }
+
+        //    if (!row.IsRateNull())
+        //    {
+        //        Rating = row.Rate;
+        //    }
+        //    if (!row.IsViewCounterNull())
+        //    {
+        //        ViewCounter = row.ViewCounter;
+        //    }
+        //    if (!row.IsCreationDateNull())
+        //    {
+        //        CreationDate = row.CreationDate;
+        //    }
+        //    else
+        //        CreationDate = new DateTime(1970, 1, 1);
+
+        //    if (!row.IsStartDateNull())
+        //    {
+        //        StartDate = row.StartDate;
+        //    }
+        //    else
+        //        StartDate = new DateTime(1970, 1, 1);
+
+        //    if (!row.IsCatalogStartDateNull())
+        //    {
+        //        CatalogStartDate = row.CatalogStartDate;
+        //    }
+        //    else
+        //        CatalogStartDate = new DateTime(1970, 1, 1);
+
+        //    // add sub file foramt info
+        //    if (!row.IsSubDurationNull())
+        //    {
+        //        SubDuration = row.SubDuration;
+        //    }
+        //    if (!row.IsSubFileFormatNull())
+        //    {
+        //        SubFileFormat = row.SubFileFormat;
+        //    }
+        //    if (!row.IsSubFileIDNull())
+        //    {
+        //        SubFileID = row.SubFileID;
+        //    }
+        //    if (!row.IsSubURLNull())
+        //    {
+        //        SubURL = row.SubURL;
+        //    }
+        //    if (!row.IsGeoBlockNull())
+        //    {
+        //        GeoBlock = row.GeoBlock;
+        //    }
+        //    if (!String.IsNullOrEmpty(row.Likes))
+        //    {
+        //        like_counter = Convert.ToInt32(row.Likes);
+        //    }
+        //    if (!row.IsLastWatchedDateNull())
+        //    {
+        //        LastWatchDate = row.LastWatchedDate;
+        //    }
+        //    MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
+
+        //    BuildTagMetas(groupID, row, initObj.Platform);
+
+        //    buildFiles(row);
+
+        //    builtExternalIDs(row);
+
+        //    buildPictures(row);
+
+        //    buildPictures(row);
+
+        //    if (withDynamic && initObj.Locale != null)
+        //    {
+        //        logger.InfoFormat("Start Media dynamic build GroupID:", groupID);
+
+        //        BuildDynamicObj(initObj, groupID);
+        //    }
+
+        //    TotalItems = iMediaCount;
+        //}
+
+
+        //private void builtExternalIDs(dsItemInfo.ItemRow row)
+        //{
+        //    System.Data.DataRow[] rowExtIDs = row.GetChildRows("Item_ExtIDs");
+        //    if (rowExtIDs != null && rowExtIDs.Length > 0)
+        //    {
+        //        foreach (System.Data.DataRow rowExt in rowExtIDs)
+        //        {
+        //            foreach (System.Data.DataColumn dc in rowExt.Table.Columns)
+        //            {
+        //                if (!dc.ColumnName.Equals("ID"))
+        //                    ExternalIDs.Add(new ExtIDPair() { Key = dc.ColumnName, Value = rowExt[dc.ColumnName].ToString() });
+        //            }
+        //        }
+        //    }
+        //}
+
+
+
+        private void buildFiles(List<FileMedia> files, List<Branding> brandings, int groupID, PlatformType platform)
         {
-            MediaID = row.ID;
-            if (!row.IsMediaTypeIDNull())
-            {
-                MediaTypeID = row.MediaTypeID;
-            }
+            // Get file formats from configuration
+            var techConfigFlashVars = ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.FlashVars;
+            string fileFormat = techConfigFlashVars.FileFormat;
+            string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
 
-            MediaName = row.Title;
+            FileID = "0"; // default value
 
-            if (!row.IsMediaTypeNull())
+            if (files != null && files.Count > 0)
             {
-                MediaTypeName = row.MediaType;
-            }
-            if (!row.IsDescriptionShortNull())
-            {
-                Description = row.DescriptionShort;
-            }
-
-            if (!row.IsImageLinkNull())
-            {
-                PicURL = row.ImageLink;
-            }
-            if (!row.IsURLNull())
-            {
-                URL = row.URL;
-            }
-
-            if (!row.IsFileIDNull())
-            {
-                FileID = row.FileID;
-            }
-
-            if (!row.IsDurationNull())
-            {
-                Duration = row.Duration;
-            }
-
-            if (!row.IsRateNull())
-            {
-                Rating = row.Rate;
-            }
-            if (!row.IsViewCounterNull())
-            {
-                ViewCounter = row.ViewCounter;
-            }
-            if (!row.IsCreationDateNull())
-            {
-                CreationDate = row.CreationDate;
-            }
-            else
-                CreationDate = new DateTime(1970, 1, 1);
-
-            if (!row.IsStartDateNull())
-            {
-                StartDate = row.StartDate;
-            }
-            else
-                StartDate = new DateTime(1970, 1, 1);
-
-            if (!row.IsCatalogStartDateNull())
-            {
-                CatalogStartDate = row.CatalogStartDate;
-            }
-            else
-                CatalogStartDate = new DateTime(1970, 1, 1);
-
-            // add sub file foramt info
-            if (!row.IsSubDurationNull())
-            {
-                SubDuration = row.SubDuration;
-            }
-            if (!row.IsSubFileFormatNull())
-            {
-                SubFileFormat = row.SubFileFormat;
-            }
-            if (!row.IsSubFileIDNull())
-            {
-                SubFileID = row.SubFileID;
-            }
-            if (!row.IsSubURLNull())
-            {
-                SubURL = row.SubURL;
-            }
-            if (!row.IsGeoBlockNull())
-            {
-                GeoBlock = row.GeoBlock;
-            }
-            if (!String.IsNullOrEmpty(row.Likes))
-            {
-                like_counter = Convert.ToInt32(row.Likes);
-            }
-            if (!row.IsLastWatchedDateNull())
-            {
-                LastWatchDate = row.LastWatchedDate;
-            }
-            MediaWebLink = GetMediaWebLink(groupID, initObj.Platform);
-
-            BuildTagMetas(groupID, row, initObj.Platform);
-
-            buildFiles(row);
-
-            builtExternalIDs(row);
-
-            buildPictures(row);
-
-            buildPictures(row);
-
-            if (withDynamic && initObj.Locale != null)
-            {
-                logger.InfoFormat("Start Media dynamic build GroupID:", groupID);
-
-                BuildDynamicObj(initObj, groupID);
-            }
-
-            TotalItems = iMediaCount;
-        }
-
-        private void builtExternalIDs(dsItemInfo.ItemRow row)
-        {
-            System.Data.DataRow[] rowExtIDs = row.GetChildRows("Item_ExtIDs");
-            if (rowExtIDs != null && rowExtIDs.Length > 0)
-            {
-                foreach (System.Data.DataRow rowExt in rowExtIDs)
+                File mediaFile;
+                foreach (FileMedia file in files)
                 {
-                    foreach (System.Data.DataColumn dc in rowExt.Table.Columns)
+                    mediaFile = new File();
+
+                    mediaFile.FileID = file.m_nFileId.ToString();
+                    mediaFile.URL = file.m_sUrl;
+                    mediaFile.Duration = file.m_nDuration.ToString();
+                    mediaFile.Format = file.m_sFileFormat;
+
+                    if (file.m_sFileFormat.ToLower() == fileFormat.ToLower())
                     {
-                        if (!dc.ColumnName.Equals("ID"))
-                            ExternalIDs.Add(new ExtIDPair() { Key = dc.ColumnName, Value = rowExt[dc.ColumnName].ToString() });
+                        URL = file.m_sUrl;
+                        Duration = file.m_nDuration.ToString();
+                        FileID = file.m_nFileId.ToString();
                     }
+                    if (file.m_sFileFormat.ToLower() == subFileFormat.ToLower())
+                    {
+                        SubDuration = file.m_nDuration.ToString();
+                        SubFileFormat = file.m_sFileFormat;
+                        SubFileID = file.m_nFileId.ToString();
+                        SubURL = file.m_sUrl;
+                    }
+
+                    if (file.m_oPreProvider != null)
+                        mediaFile.PreProvider = new AdvertisingProvider(file.m_oPreProvider.ProviderID, file.m_oPreProvider.ProviderName);
+
+                    if (file.m_oPostProvider != null)
+                        mediaFile.PostProvider = new AdvertisingProvider(file.m_oPostProvider.ProviderID, file.m_oPostProvider.ProviderName);
+
+                    if (file.m_oBreakProvider != null)
+                    {
+                        mediaFile.BreakProvider = new AdvertisingProvider(file.m_oBreakProvider.ProviderID, file.m_oBreakProvider.ProviderName);
+                        if (!string.IsNullOrEmpty(file.m_sBreakpoints))
+                            mediaFile.BreakPoints = file.m_sBreakpoints.ToString().Split(';');
+                    }
+
+                    if (file.m_oOverlayProvider != null)
+                    {
+                        mediaFile.OverlayProvider = new AdvertisingProvider(file.m_oOverlayProvider.ProviderID, file.m_oOverlayProvider.ProviderName);
+                        if (!string.IsNullOrEmpty(file.m_sOverlaypoints))
+                            mediaFile.OverlayPoints = file.m_sOverlaypoints.ToString().Split(';');
+                    }
+
+                    Files.Add(mediaFile);
+                }
+            }
+
+            if (brandings != null && brandings.Count > 0)
+            {
+                File mediaFile;
+                foreach (Branding branding in brandings)
+                {
+                    mediaFile = new File();
+
+                    mediaFile.FileID = branding.m_nFileId.ToString();
+                    mediaFile.URL = branding.m_sUrl;
+                    mediaFile.Duration = branding.m_nDuration.ToString();
+                    mediaFile.Format = branding.m_sFileFormat;
+
+                    Files.Add(mediaFile);
                 }
             }
         }
 
-        private void buildFiles(dsItemInfo.ItemRow row)
-        {
-            System.Data.DataRow[] rowFiles = row.GetChildRows("Item_files");
-            if (rowFiles != null && rowFiles.Length > 0)
-            {
-                foreach (System.Data.DataRow rowFile in rowFiles)
-                {
-                    File file = new File();
-                    file.FileID = rowFile["FileID"].ToString();
-                    file.URL = rowFile["URL"].ToString();
-                    file.Duration = rowFile["Duration"].ToString();
-                    file.Format = rowFile["Format"].ToString();
+        //private void buildFiles(dsItemInfo.ItemRow row)
+        //{
+        //    System.Data.DataRow[] rowFiles = row.GetChildRows("Item_files");
+        //    if (rowFiles != null && rowFiles.Length > 0)
+        //    {
+        //        foreach (System.Data.DataRow rowFile in rowFiles)
+        //        {
+        //            File file = new File();
+        //            file.FileID = rowFile["FileID"].ToString();
+        //            file.URL = rowFile["URL"].ToString();
+        //            file.Duration = rowFile["Duration"].ToString();
+        //            file.Format = rowFile["Format"].ToString();
 
-                    int preProviderID = Convert.ToInt32(rowFile["PreProviderID"].ToString());
+        //            int preProviderID = Convert.ToInt32(rowFile["PreProviderID"].ToString());
 
-                    if (preProviderID != 0)
-                        file.PreProvider = new AdvertisingProvider(preProviderID, rowFile["PostProviderName"].ToString());
+        //            if (preProviderID != 0)
+        //                file.PreProvider = new AdvertisingProvider(preProviderID, rowFile["PostProviderName"].ToString());
 
-                    int postProviderID = Convert.ToInt32(rowFile["PostProviderID"].ToString());
+        //            int postProviderID = Convert.ToInt32(rowFile["PostProviderID"].ToString());
                     
-                    if (postProviderID != 0)
-                        file.PostProvider = new AdvertisingProvider(postProviderID, rowFile["PostProviderName"].ToString());
+        //            if (postProviderID != 0)
+        //                file.PostProvider = new AdvertisingProvider(postProviderID, rowFile["PostProviderName"].ToString());
 
-                    int breakProviderID = Convert.ToInt32(rowFile["BreakProviderID"].ToString());
+        //            int breakProviderID = Convert.ToInt32(rowFile["BreakProviderID"].ToString());
                     
-                    if (breakProviderID != 0)
-                    {
-                        file.BreakProvider = new AdvertisingProvider(breakProviderID, rowFile["BreakProviderName"].ToString());
+        //            if (breakProviderID != 0)
+        //            {
+        //                file.BreakProvider = new AdvertisingProvider(breakProviderID, rowFile["BreakProviderName"].ToString());
 
-                        if (rowFile["BreakPoints"] != null)
-                            file.BreakPoints = rowFile["BreakPoints"].ToString().Split(';');
-                    }
+        //                if (rowFile["BreakPoints"] != null)
+        //                    file.BreakPoints = rowFile["BreakPoints"].ToString().Split(';');
+        //            }
 
-                    int overlayPoviderID = Convert.ToInt32(rowFile["OverlayProviderID"].ToString());
+        //            int overlayPoviderID = Convert.ToInt32(rowFile["OverlayProviderID"].ToString());
 
-                    if (overlayPoviderID != 0)
-                    {
-                        file.OverlayProvider = new AdvertisingProvider(overlayPoviderID, rowFile["OverlayProviderName"].ToString());
+        //            if (overlayPoviderID != 0)
+        //            {
+        //                file.OverlayProvider = new AdvertisingProvider(overlayPoviderID, rowFile["OverlayProviderName"].ToString());
 
-                        if (rowFile["OverlayPoints"] != null)
-                            file.OverlayPoints = rowFile["OverlayPoints"].ToString().Split(';');
-                    }
+        //                if (rowFile["OverlayPoints"] != null)
+        //                    file.OverlayPoints = rowFile["OverlayPoints"].ToString().Split(';');
+        //            }
 
-                    Files.Add(file);
-                }
-            }
-        }
+        //            Files.Add(file);
+        //        }
+        //    }
+        //}
 
-        private void buildPictures(dsItemInfo.ItemRow row)
+        private void buildPictures(List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture> pictures)
         {
-            System.Data.DataRow[] rowPictures = row.GetChildRows("Pictures_Item");
-            if (rowPictures != null && rowPictures.Length > 0)
+            if (pictures != null)
             {
-                foreach (System.Data.DataRow rowPicture in rowPictures)
+                TVPApi.Picture picture;
+                foreach (Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture pic in pictures)
                 {
-                    Picture pic = new Picture();
-                    pic.PicSize = rowPicture["PicSize"].ToString();
-                    pic.URL = rowPicture["URL"].ToString();
-                    Pictures.Add(pic);
+                    picture = new TVPApi.Picture();
+                    picture.PicSize = pic.m_sSize;
+                    picture.URL = pic.m_sURL;
+                    Pictures.Add(picture);
                 }
             }
         }
 
-        private void BuildTagMetas(int groupID, dsItemInfo.ItemRow row, PlatformType platform)
+
+        //private void buildPictures(dsItemInfo.ItemRow row)
+        //{
+        //    System.Data.DataRow[] rowPictures = row.GetChildRows("Pictures_Item");
+        //    if (rowPictures != null && rowPictures.Length > 0)
+        //    {
+        //        foreach (System.Data.DataRow rowPicture in rowPictures)
+        //        {
+        //            Picture pic = new Picture();
+        //            pic.PicSize = rowPicture["PicSize"].ToString();
+        //            pic.URL = rowPicture["URL"].ToString();
+        //            Pictures.Add(pic);
+        //        }
+        //    }
+        //}
+
+        private void BuildTagMetas(List<Metas> metas, List<Tags> tags, int groupID, PlatformType platform)
         {
-            System.Data.DataRow[] tagsRow = row.GetChildRows("Item_Tags");
-            if (tagsRow != null && tagsRow.Length > 0)
+            TagMetaPair pair;
+
+            string[] adMetas = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Metas.Split(';');
+
+            foreach (Metas meta in metas)
             {
+                if (meta.m_oTagMeta.m_sName != "ID")
+                {
+                    pair = new TagMetaPair(meta.m_oTagMeta.m_sName, meta.m_sValue);
+                    Metas.Add(pair);
+
+                    if (adMetas.Contains(pair.Key))
+                        AdvertisingParameters.Add(pair);
+                }
+            }
+
+            //Copy Tags
+
+            foreach (Tags tag in tags)
+            {
+                if (tag.m_oTagMeta.m_sName != "ID")
+                {
+                    foreach (string tagValue in tag.m_lValues)
+                    {
+                        TagMetaPair mediaTag = Tags.Where(t => t.Key == tag.m_oTagMeta.m_sName).FirstOrDefault();
+                        if (mediaTag.Key == null && mediaTag.Value == null) // Change this!!!
+                        {
+                            pair = new TagMetaPair(tag.m_oTagMeta.m_sName, tagValue);
+                            Tags.Add(pair);
+                        }
+                        else
+                        {
+                            mediaTag.Value = (!String.IsNullOrEmpty(mediaTag.Value.ToString())) ? string.Concat(mediaTag.Value.ToString(), "|", tagValue) : tagValue;
+                        }
+                    }
+                }
                 string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
 
-                //Create tag meta pair objects list for all tags
-                foreach (System.Data.DataColumn tag in tagsRow[0].Table.Columns)
+                foreach (TagMetaPair mediaTag in Tags)
                 {
-                    if (tag.ColumnName != "ID")
-                    {
-                        TagMetaPair pair = new TagMetaPair(tag.ColumnName, tagsRow[0][tag.ColumnName].ToString());
-                        Tags.Add(pair);
-
-                        if (adTags.Contains(pair.Key))
-                            AdvertisingParameters.Add(pair);
-                    }
-                }
-            }
-            System.Data.DataRow[] metasRow = row.GetChildRows("Item_Metas");
-            if (metasRow != null && metasRow.Length > 0)
-            {
-                string[] adMetas = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Metas.Split(';');
-
-                //Create tag meta pair objects list for all metas
-                foreach (System.Data.DataColumn meta in metasRow[0].Table.Columns)
-                {
-                    if (meta.ColumnName != "ID")
-                    {
-                        TagMetaPair pair = new TagMetaPair(meta.ColumnName, metasRow[0][meta.ColumnName].ToString());
-                        Metas.Add(pair);
-
-                        if (adMetas.Contains(pair.Key))
-                            AdvertisingParameters.Add(pair);
-                    }
+                    if (adTags.Contains(mediaTag.Key))
+                        AdvertisingParameters.Add(mediaTag);
                 }
             }
         }
+
+        //private void BuildTagMetas(int groupID, dsItemInfo.ItemRow row, PlatformType platform)
+        //{
+        //    System.Data.DataRow[] tagsRow = row.GetChildRows("Item_Tags");
+        //    if (tagsRow != null && tagsRow.Length > 0)
+        //    {
+        //        string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
+
+        //        //Create tag meta pair objects list for all tags
+        //        foreach (System.Data.DataColumn tag in tagsRow[0].Table.Columns)
+        //        {
+        //            if (tag.ColumnName != "ID")
+        //            {
+        //                TagMetaPair pair = new TagMetaPair(tag.ColumnName, tagsRow[0][tag.ColumnName].ToString());
+        //                Tags.Add(pair);
+
+        //                if (adTags.Contains(pair.Key))
+        //                    AdvertisingParameters.Add(pair);
+        //            }
+        //        }
+        //    }
+        //    System.Data.DataRow[] metasRow = row.GetChildRows("Item_Metas");
+        //    if (metasRow != null && metasRow.Length > 0)
+        //    {
+        //        string[] adMetas = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Metas.Split(';');
+
+        //        //Create tag meta pair objects list for all metas
+        //        foreach (System.Data.DataColumn meta in metasRow[0].Table.Columns)
+        //        {
+        //            if (meta.ColumnName != "ID")
+        //            {
+        //                TagMetaPair pair = new TagMetaPair(meta.ColumnName, metasRow[0][meta.ColumnName].ToString());
+        //                Metas.Add(pair);
+
+        //                if (adMetas.Contains(pair.Key))
+        //                    AdvertisingParameters.Add(pair);
+        //            }
+        //        }
+        //    }
+        //}
 
         private long GetMediaMark()
         {
@@ -446,7 +646,7 @@ namespace TVPApi
         }
 
         //Build dynamic data if needed (is favorite, price, price status, notifications..)
-        private void BuildDynamicObj(InitializationObject initObj, int groupID)
+        public void BuildDynamicObj(InitializationObject initObj, int groupID)
         {
             this.MediaDynamicData = new DynamicData();
 
@@ -485,7 +685,7 @@ namespace TVPApi
 
             if (!string.IsNullOrEmpty(initObj.SiteGuid))
             {
-                if (MediaHelper.IsFavoriteMedia(initObj, groupID, int.Parse(MediaID)))
+                if (MediaHelper.AreMediasFavorite(initObj, groupID, new List<int>() { mediID })[0].Value)
                 {
                     MediaDynamicData.IsFavorite = true;
                 }

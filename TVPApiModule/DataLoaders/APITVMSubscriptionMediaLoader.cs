@@ -105,17 +105,17 @@ namespace TVPApiModule.DataLoaders
             {
                 m_oSubscriptionMediaLoader = new TVPApiModule.CatalogLoaders.APISubscriptionMediaLoader(
                     (int)BaseID,
-                    SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, 
                     GroupID,
-                    Platform.ToString(),
+                    Platform,
+                    string.Empty,
                     SiteHelper.GetClientIP(), 
+                    Language,
                     PageSize, 
                     PageIndex, 
                     PicSize)
                 {
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
-                    Culture = Language,
                     MediaTypes = MediaType.HasValue ? new List<int>() { MediaType.Value } : null
                 };
                 return m_oSubscriptionMediaLoader.Execute() as dsItemInfo;
