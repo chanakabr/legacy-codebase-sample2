@@ -2520,7 +2520,6 @@ namespace TVPApiServices
             {
                 try
                 {
-                    int language = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
                     retVal = CommentHelper.GetEPGCommentsList(groupId, initObj.Platform, initObj.Locale.LocaleLanguage, epgProgramID, pageSize, pageIndex);
                 }
                 catch (Exception ex)
@@ -2576,7 +2575,6 @@ namespace TVPApiServices
             {
                 try
                 {
-                    int language = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
                     DateTime _startTime, _endTime;
 
                     _startTime = DateTime.UtcNow.AddDays(-int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
@@ -2616,8 +2614,6 @@ namespace TVPApiServices
             {
                 try
                 {
-                    int language = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
-
                     DateTime _startTime, _endTime;
 
                     _startTime = DateTime.UtcNow.AddDays(-int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
