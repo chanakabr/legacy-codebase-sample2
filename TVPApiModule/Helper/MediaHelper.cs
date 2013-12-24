@@ -49,16 +49,16 @@ namespace TVPApi
         }
 
         // Get medias info (used for get media info too)
-        public static List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaIDs, string picSize, int groupID, bool withDynamic)
+        public static List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaIDs, string picSize, int groupID)
         {
             List<Media> retVal = new TVPApiModule.CatalogLoaders.APIMediaLoader(MediaIDs, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), picSize, initObj.Locale.LocaleLanguage)
             .Execute() as List<Media>;
 
-            if (withDynamic && retVal != null && retVal.Count > 0)
-            {
-                foreach (var media in retVal)
-                    media.BuildDynamicObj(initObj, groupID);
-            }
+            //if (withDynamic && retVal != null && retVal.Count > 0)
+            //{
+            //    foreach (var media in retVal)
+            //        media.BuildDynamicObj(initObj, groupID);
+            //}
             return retVal;
         }
 

@@ -72,7 +72,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Get list media info")]
         [System.Xml.Serialization.XmlInclude(typeof(DynamicData))]
-        public List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaID, string picSize, bool withDynamic)
+        public List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaID, string picSize)
         {
             List<Media> retMedia = null;
 
@@ -82,7 +82,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retMedia = MediaHelper.GetMediasInfo(initObj, MediaID, picSize, groupID, withDynamic);
+                    retMedia = MediaHelper.GetMediasInfo(initObj, MediaID, picSize, groupID);
                 }
                 catch (Exception ex)
                 {

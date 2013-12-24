@@ -68,7 +68,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retMedia.Media = MediaHelper.GetMediasInfo(initObj, new List<int>() { (int)MediaID }, picSize, groupID, false)[0];
+                    retMedia.Media = MediaHelper.GetMediasInfo(initObj, new List<int>() { (int)MediaID }, picSize, groupID)[0];
 
                     File trailerFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat.ToLower()).SingleOrDefault();
 
