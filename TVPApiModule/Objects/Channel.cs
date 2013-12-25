@@ -16,7 +16,7 @@ namespace TVPApi
 
         public string Title { get; set; }
         public long ChannelID { get; set; }
-        private int MediaCount { get; set; }
+        public int MediaCount { get; set; }
         public string PicURL { get; set; }
 
         public Channel(dsCategory.ChannelsRow channelRow)

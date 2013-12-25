@@ -11,6 +11,7 @@ using System.Web.Script.Serialization;
 
 namespace TVPApi
 {
+    [Serializable]
     public class InitializationObject
     {
         //User locale object
@@ -31,6 +32,7 @@ namespace TVPApi
         }
     }
 
+    [Serializable]
     public class Locale
     {
         public string LocaleLanguage { get; set; }
