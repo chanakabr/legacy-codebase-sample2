@@ -162,7 +162,7 @@ namespace TVPApiServices
                     TVPApiModule.Services.ApiSocialService service =
                         new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
 
-                    FacebookConfig config = service.GetFBConfig(sSTG);
+                    FacebookConfig config = service.GetFBConfig("0");
                     FBConnectConfig retVal = new FBConnectConfig
                         {
                             appId = config.sFBKey,
@@ -195,7 +195,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetFBUserData(sToken, sSTG);
+                    return service.GetFBUserData(sToken, "0");
                 }
                 catch (Exception ex)
                 {
@@ -248,7 +248,7 @@ namespace TVPApiServices
 
                     ApiSocialService service = new ApiSocialService(groupId, initObj.Platform);
                     var oExtra = new List<KeyValuePair>() { new KeyValuePair(){ key = "news", value = bGetNewsletter ? "1" : "0"}, new KeyValuePair() {key = "domain", value = bCreateNewDomain ? "1" : "0"} };
-                    return service.FBUserRegister(sToken, sSTG, oExtra, Context.Request.UserHostAddress);
+                    return service.FBUserRegister(sToken, "0", oExtra, Context.Request.UserHostAddress);
 
                 }
                 catch (Exception ex)
