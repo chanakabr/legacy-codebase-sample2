@@ -96,6 +96,7 @@ namespace TVPApiModule.Objects
 						{
 							string tvmValue = oRow["TVMValue"] as string;
 							string culture = (string) oRow["Culture"];
+                            string name = (string)oRow["Name"];
 
 							logger.DebugFormat("Found language with culture '{0}', is default '{1}', is used '{2}'", oRow["Culture"], oRow["isDefault"], oRow["IsUsed"]);
 
@@ -145,7 +146,7 @@ namespace TVPApiModule.Objects
 								subQuery.Finish();
 							}
 
-							result.LanguageDictionary.Add(key, new LanguageContext(key, valueInDB, direction, culture, languageData) { TVMValue = tvmValue });
+							result.LanguageDictionary.Add(key, new LanguageContext(key, valueInDB, direction, culture, languageData) { TVMValue = tvmValue, Name = name });
 						}
 						catch (Exception ex)
 						{

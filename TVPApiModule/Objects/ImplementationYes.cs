@@ -14,6 +14,12 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
 using log4net;
+using TVPApiModule.Helper;
+using TVPApiModule.yes.tvinci.ITProxy;
+using System.Configuration;
+using TVPApiModule.Objects.ORCARecommendations;
+using System.Text.RegularExpressions;
+using TVPPro.Configuration.OrcaRecommendations;
 
 namespace TVPApiModule.Objects
 {
@@ -175,6 +181,150 @@ namespace TVPApiModule.Objects
 
             return sRet;
         }
+
+
+        public override Object GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)//TVPApiModule.Objects.Enums.eGalleryType galleryType)
+        {
+            logger.DebugFormat("ImplementationYes::GetRecommendedMediasByGallery -> gallery type : {0}", galleryType);
+
+            Object retVal = null;
+
+            // get ORCA response
+            object orcaResponse = GetOrcaResponse(groupID, initObj.Platform, mediaID, maxParentalLevel, galleryType);
+
+            if (orcaResponse == null || 
+                (orcaResponse is List<VideoRecommendation> && (orcaResponse as List<VideoRecommendation>).Count == 0) ||
+                (orcaResponse is List<LiveRecommendation> && (orcaResponse as List<LiveRecommendation>).Count == 0))
+            {
+                logger.Error("ImplementationYes::GetRecommendedMediasByGallery -> No response from Orca");
+
+                // get data from configuration
+                var orcaConfiguration = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).OrcaRecommendationsConfiguration;
+                int maxResults = orcaConfiguration.Data.MaxResults;
+                int channelID;
+
+                if (orcaResponse is List<LiveRecommendation>)
+                    channelID = orcaConfiguration.Data.LiveFailOverChannelID;                    
+                else
+                    channelID = orcaConfiguration.Data.VODFailOverChannelID;
+
+                retVal = RecommendationsHelper.GetFailOverChannel(initObj, groupID, channelID, picSize, maxResults);
+                return retVal;
+            }
+            
+
+            switch (orcaResponse.GetType().ToString())
+            {
+                case "System.Collections.Generic.List`1[TVPApiModule.Objects.ORCARecommendations.VideoRecommendation]":
+                    // VOD recommendations - return medias
+                    List<VideoRecommendation> videoRecommendations = orcaResponse as List<VideoRecommendation>;
+                    dsItemInfo medias = RecommendationsHelper.GetVodRecommendedMediasFromCatalog(groupID, initObj.Platform, picSize, videoRecommendations);
+                    if (medias != null && medias.Item != null)
+                    {
+                        Media [] orderedMedias = new Media[videoRecommendations.Count];
+                        Media media;
+                        int index;
+                        string ibmsTitleID;
+                        foreach (dsItemInfo.ItemRow row in medias.Item.Rows)
+                        {
+                            media = new Media(row, initObj, groupID, false, medias.Item.Count);
+                            ibmsTitleID = GetIBMSTitleID(media.Metas.Where(m => m.Key == "IBMSTitleID").First().Value);
+                            index = videoRecommendations.FindIndex(r => r.ContentID.ToString() ==  ibmsTitleID ||
+                                r.ContentID.ToString() == media.Tags.Where(t => t.Key == "OfferID").First().Value);
+                            orderedMedias[index] = media;
+                        }
+                        retVal = orderedMedias.Where(m => m != null).ToList();
+                    }
+
+                    break;
+                case "System.Collections.Generic.List`1[TVPApiModule.Objects.ORCARecommendations.LiveRecommendation]":
+                    // Live recommendations = return programme objects
+                    retVal = RecommendationsHelper.GetLiveRecommendedMedias(initObj.SiteGuid, groupID, initObj.Platform, initObj.Locale.LocaleLanguage, picSize, orcaResponse as List<LiveRecommendation>);
+
+                    break;
+                default:
+                    break;
+            }
+            return retVal; 
+        }
+
+        private string GetIBMSTitleID(string src)
+        {
+            int start = src.LastIndexOf('/');
+            int to = src.LastIndexOf('-');
+            if (start < 0 || to < 0) return "";
+            return src.Substring(start + 1, to - start - 1);
+        }
+
+        private object GetOrcaResponse(int groupID, PlatformType platform, int mediaID, int maxParentalLevel, eGalleryType galleryType)
+        {
+            object orcaResponse = null;
+            string stringOrcaResponse = null;
+
+            // get ORCA configuration
+            var orcaConfiguration = ConfigManager.GetInstance().GetConfig(groupID, platform).OrcaRecommendationsConfiguration;
+
+            // get params for ORCA request
+            string userToken = string.Empty; // Change later
+            int maxResults = orcaConfiguration.Data.MaxResults;
+            int defaultParentalLevel = orcaConfiguration.Data.DefaultParentalLevel;
+
+            maxParentalLevel = maxParentalLevel == 0 ? defaultParentalLevel : maxParentalLevel; 
+
+            // get gallery configuration by gallery type
+            Gallery galleryConfiguration = RecommendationsHelper.GetGalleryConfigurationByType(orcaConfiguration, galleryType);
+            if (galleryConfiguration == null)
+            {
+                logger.ErrorFormat("No configuration for gallery type: {0}", galleryType); 
+                return null;
+            }
+
+            // get params from gallery configuration
+            string blend = galleryConfiguration.GalleryTypeData.blend;
+            string type = galleryConfiguration.GalleryTypeData.type;
+
+            TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[]  extraParams = RecommendationsHelper.GetExtraParamsFromConfig(galleryConfiguration.GalleryTypeData.Params.ParamCollection, mediaID, groupID, platform);
+
+            try
+            {
+                using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
+                {
+                    switch (galleryConfiguration.eContentType)
+                    {
+                        case eContentType.VOD:
+                            // get ORCA VOD response
+                            stringOrcaResponse = proxy.GetVideoRecommendationList(userToken, maxResults, maxParentalLevel, blend, type, extraParams);
+                            // Parse ORCA xml response to video recommendations
+                            orcaResponse = RecommendationsHelper.ParseOrcaResponseToVideoRecommendationList(stringOrcaResponse);
+                            break;
+                        case eContentType.Live:
+                            // get start time and end time
+                            long startTime = RecommendationsHelper.ConvertDateTimeToEpoch(DateTime.UtcNow.AddHours(orcaConfiguration.Data.GMTOffset));
+                            long endTime = RecommendationsHelper.ConvertDateTimeToEpoch(RecommendationsHelper.GetEndTimeForLiveRequest(orcaConfiguration));
+                            
+
+                            // get ORCA live response
+                            stringOrcaResponse = proxy.GetLiveRecommendationList(userToken, maxResults, maxParentalLevel, blend, startTime, endTime);
+                            // Parse ORCA xml response to live recommendations
+                            orcaResponse = RecommendationsHelper.ParseOrcaResponseToLiveRecommendationList(stringOrcaResponse);
+                            if (orcaResponse == null)
+                                orcaResponse = new List<LiveRecommendation>();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("ImplementationYes::GetOrcaResponse -> {0}", ex);
+            }
+            return orcaResponse;
+
+        }
+
+        
+
         //public override string MediaMark(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action eAction, int nMediaType, int nMediaID, int nFileID, int nLocationID)
         //{
         //    string retVal = string.Empty;

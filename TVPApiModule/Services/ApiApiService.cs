@@ -381,6 +381,30 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public EPGChannelProgrammeObject[] SearchEPGContent(string searchValue, int nPageIndex, int nPageSize)
+        {
+            EPGChannelProgrammeObject[] res = null;
+
+            string sKey = string.Format("{0}_{1}_{2}", searchValue, nPageIndex, nPageSize);
+
+            // return object from cache if exist
+            object oFromCache = DataHelper.GetCacheObject(sKey);
+            if (oFromCache != null && oFromCache is EPGChannelProgrammeObject[]) return oFromCache as EPGChannelProgrammeObject[];
+
+            try
+            {
+                res = m_Module.SearchEPGContent(m_wsUserName, m_wsPassword, searchValue, nPageIndex, nPageSize);
+                if (res != null && res.Length > 0)
+                    DataHelper.SetCacheObject(sKey, res);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SearchEPGContent, Error Message: {0}, Parameters :  searchValue: {1}, User ID: {2}", ex.Message, searchValue, UsersService.Instance.GetUserID());
+            }
+            return res;
+        }
+
+
         public bool SendToFriend(string senderName, string senderMail, string mailTo, string nameTo, int mediaID)
         {
             bool res = false;

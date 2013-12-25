@@ -89,6 +89,7 @@
     <Compile Include="CatalogLoaders\APISearchMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APISubscriptionMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIUserSocialMediaLoader.cs" />
+    <Compile Include="Configuration\ApiOrcaRecommendationsConfiguration.cs" />
     <Compile Include="Configuration\ApiPlatformServicesConfiguration.cs" />
     <Compile Include="Configuration\ApiSiteConfiguration.cs" />
     <Compile Include="Configuration\ApiMediaConfiguration.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="Helper\PagingHelper.cs" />
     <Compile Include="Helper\ParserHelper.cs" />
     <Compile Include="Helper\ProfileHelper.cs" />
+    <Compile Include="Helper\RecommendationsHelper.cs" />
     <Compile Include="Helper\ResponseTimeHelper.cs" />
     <Compile Include="Helper\RssHelper.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
@@ -154,6 +156,8 @@
     <Compile Include="Objects\CRM\UserType.cs" />
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\External.cs" />
+    <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
+    <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
     <Compile Include="Objects\TagMetaIntPairArray.cs" />
     <Compile Include="Objects\ExtraParameters.cs" />
     <Compile Include="Objects\Notification.cs" />
@@ -287,6 +291,9 @@
     <None Include="Web References\yes.tvinci.ITProxy\Entitlement.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\yes.tvinci.ITProxy\OfferListTypeOffer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\yes.tvinci.ITProxy\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -350,6 +357,7 @@
   <ItemGroup>
     <None Include="Web References\yes.tvinci.ITProxy\service.disco" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

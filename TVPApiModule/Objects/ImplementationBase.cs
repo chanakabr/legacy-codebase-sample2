@@ -6,6 +6,8 @@ using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApi;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Services;
+using TVPPro.Configuration.OrcaRecommendations;
+using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 
@@ -101,6 +103,11 @@ namespace TVPApiModule.Objects
             string sRet = string.Empty;
 
             return sRet;
+        }
+
+        public virtual Object GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)
+        {
+            return null;
         }
     }
 }

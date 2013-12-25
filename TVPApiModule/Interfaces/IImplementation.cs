@@ -5,6 +5,9 @@ using System.Text;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
+using TVPApi;
+using TVPPro.SiteManager.DataEntities;
+using TVPPro.Configuration.OrcaRecommendations;
 
 namespace TVPApiModule.Interfaces
 {
@@ -21,6 +24,8 @@ namespace TVPApiModule.Interfaces
         bool IsItemPurchased(int iFileID, string sUserGuid);
 
         string GetMediaLicenseData(int iMediaFileID, int iMediaID);
+
+        Object GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType);
 
     }
 }
