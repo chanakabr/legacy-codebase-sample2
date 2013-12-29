@@ -580,7 +580,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                //bRet = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+                bRet = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
             }
             catch (Exception ex)
             {
