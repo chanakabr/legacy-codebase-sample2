@@ -309,6 +309,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get user's billing history")]
         public UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate)
         {
             UserBillingTransactionsResponse[] res = null;
@@ -329,6 +330,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get domain's billing history")]
         public DomainBillingTransactionsResponse[] GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate)
         {
             DomainBillingTransactionsResponse[] res = null;
@@ -349,6 +351,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Retrieve domain's permitted media")]
         public PermittedMediaContainer[] GetDomainPermittedItems(InitializationObject initObj)
         {
             PermittedMediaContainer[] res = null;
@@ -369,6 +372,7 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Retrieve domain's permitted subscriptions")]
         public PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(InitializationObject initObj)
         {
             PermittedSubscriptionContainer[] res = null;
