@@ -728,7 +728,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Search medias using an 'Or' list and an 'and' list. Key-Value pairs of tags and metas are expected in the lists. Between the two lists an AND logic will be implemented. ")]
-        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, TVPApi.OrderBy orderBy)
+        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMeta)
         {
             List<Media> lstMedia = null;
 
@@ -739,7 +739,7 @@ namespace TVPApiServices
                 try
                 {
                     //picSize is injected with an empty string
-                    lstMedia = MediaHelper.SearchMediaByAndOrList(initObj, mediaType, orList, andList, string.Empty, pageSize, pageIndex, groupID, orderBy, exact);
+                    lstMedia = MediaHelper.SearchMediaByAndOrList(initObj, mediaType, orList, andList, string.Empty, pageSize, pageIndex, groupID, exact, orderBy, orderDir, orderMeta);
                 }
                 catch (Exception ex)
                 {

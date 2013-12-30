@@ -226,24 +226,31 @@ namespace TVPApi
             return retVal;
         }
 
-        public static List<Media> SearchMediaByAndOrList(InitializationObject initObj, int mediaType, List<KeyValue> orList, List<KeyValue> andList, string picSize, int pageSize, int pageIndex, int groupID, TVPApi.OrderBy orderBy, bool exact)
+        public static List<Media> SearchMediaByAndOrList(InitializationObject initObj, int mediaType, List<KeyValue> orList, List<KeyValue> andList, string picSize, int pageSize, int pageIndex, int groupID, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMeta)
         {
             List<Media> retVal = new List<Media>();
             //SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
 
-            APISearchMediaLoader searchLoader = new APISearchMediaLoader(groupID, initObj.Platform, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, exact, orList,
-                                                                    andList, new List<int>() {mediaType}) {DeviceId = initObj.UDID };
-
-            if (orderBy != (int)TVPApi.OrderBy.None)
+            APISearchMediaLoader searchLoader = new APISearchMediaLoader(groupID, initObj.Platform, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, exact, orList, andList, new List<int>() {mediaType}) 
             {
-                searchLoader.OrderBy = TVPApiModule.Helper.APICatalogHelper.GetCatalogOrderBy(orderBy);
-                // XXX: For specific date sorting, make this by Descending
-                if (searchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE || searchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE)
-                    searchLoader.OrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
-                else
-                    searchLoader.OrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.ASC;
-                searchLoader.OrderMetaMame = string.Empty;
-            }
+                DeviceId = initObj.UDID, 
+                OrderMetaMame = orderMeta, 
+                OrderBy = orderBy, 
+                OrderDir = orderDir 
+            };
+
+            //Removed 30/12/2013. Using orderBy and orderDir and orderMeta from request.
+
+                //if (orderBy != (int)TVPApi.OrderBy.None)
+                //{
+                //    searchLoader.OrderBy = TVPApiModule.Helper.APICatalogHelper.GetCatalogOrderBy(orderBy);
+                //    // XXX: For specific date sorting, make this by Descending
+                //    if (searchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE || searchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE)
+                //        searchLoader.OrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
+                //    else
+                //        searchLoader.OrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.ASC;
+                //    searchLoader.OrderMetaMame = string.Empty;
+                //}
 
             dsItemInfo mediaInfo = searchLoader.Execute() as dsItemInfo;
 
