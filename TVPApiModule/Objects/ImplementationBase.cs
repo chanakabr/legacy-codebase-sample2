@@ -32,7 +32,7 @@ namespace TVPApiModule.Objects
                                        .GetConfig(_nGroupID, _initObj.Platform)
                                        .SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
 
-            return new TVPApiModule.Services.ApiUsersService(_nGroupID, _initObj.Platform).SignIn(sUsername, sPassword, string.Empty, _initObj.UDID, isSingleLogin);
+            return new TVPApiModule.Services.ApiUsersService(_nGroupID, _initObj.Platform).SignIn(sUsername, sPassword, _initObj.UDID, string.Empty, isSingleLogin);
         }
 
         
