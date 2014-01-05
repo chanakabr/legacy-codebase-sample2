@@ -31,9 +31,12 @@ public partial class TechnicalSupport : System.Web.UI.Page
         bool ClearCache = false;
         bool ClearCategories = false;
         bool ClearEPG = false;
-        bool.TryParse(Request.QueryString["ClearCache"].ToString(), out ClearCache);
-        bool.TryParse(Request.QueryString["ClearCategories"].ToString(), out ClearCache);
-        bool.TryParse(Request.QueryString["ClearEPG"].ToString(), out ClearCache);
+        if (Request.QueryString["ClearCache"] != null)
+            bool.TryParse(Request.QueryString["ClearCache"].ToString(), out ClearCache);
+        if (Request.QueryString["ClearCategories"] != null)
+            bool.TryParse(Request.QueryString["ClearCategories"].ToString(), out ClearCache);
+        if (Request.QueryString["ClearEPG"] != null)
+            bool.TryParse(Request.QueryString["ClearEPG"].ToString(), out ClearCache);
 
 		if (RequestorIP.Contains("72.26.211") || RequestorIP.Equals("127.0.0.1") || ClearCache)
 		{
@@ -48,7 +51,7 @@ public partial class TechnicalSupport : System.Web.UI.Page
 				Response.Write("failed to clear site cache");
 			}
 		}
-        if (ClearEPG)
+        else if (ClearEPG)
         {
             var httpCache = HttpContext.Current.Cache;
             var toRemove = httpCache.Cast<DictionaryEntry>()
