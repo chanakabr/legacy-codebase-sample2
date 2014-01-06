@@ -7,8 +7,9 @@ namespace TVPApiModule.Objects.ORCARecommendations
 {
     public class VideoRecommendation
     {
-        public int ContentID { get; set; }
+        public string ContentID { get; set; }
         public string ContentType { get; set; }
+        public string SeriesID { get; set; }
     }
 
 }

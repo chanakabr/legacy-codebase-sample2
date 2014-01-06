@@ -224,14 +224,18 @@ namespace TVPApiModule.Objects
                         Media [] orderedMedias = new Media[videoRecommendations.Count];
                         Media media;
                         int index;
-                        string ibmsTitleID;
+                        string ibmsTitleID, ibmsSeriesID, offerID;
                         foreach (dsItemInfo.ItemRow row in medias.Item.Rows)
                         {
                             media = new Media(row, initObj, groupID, false, medias.Item.Count);
-                            ibmsTitleID = GetIBMSTitleID(media.Metas.Where(m => m.Key == "IBMSTitleID").First().Value);
-                            index = videoRecommendations.FindIndex(r => r.ContentID.ToString() ==  ibmsTitleID ||
-                                r.ContentID.ToString() == media.Tags.Where(t => t.Key == "OfferID").First().Value);
-                            orderedMedias[index] = media;
+                            ibmsTitleID = GetExternalID(media.Metas.Where(m => m.Key == "IBMSTitleID").FirstOrDefault().Value);
+                            ibmsSeriesID = GetExternalID(media.Metas.Where(m => m.Key == "IBMSseriesID").FirstOrDefault().Value);
+                            offerID = GetExternalID(media.Tags.Where(t => t.Key == "OfferID").FirstOrDefault().Value);
+                            index = videoRecommendations.FindIndex(r => r.ContentID.ToString() ==  ibmsTitleID || r.SeriesID == ibmsSeriesID ||
+                                r.ContentID.ToString() == offerID);
+
+                            if (index != -1)
+                                orderedMedias[index] = media;
                         }
                         retVal = orderedMedias.Where(m => m != null).ToList();
                     }
@@ -248,12 +252,21 @@ namespace TVPApiModule.Objects
             return retVal; 
         }
 
-        private string GetIBMSTitleID(string src)
+        private string GetExternalID(string src)
         {
-            int start = src.LastIndexOf('/');
-            int to = src.LastIndexOf('-');
-            if (start < 0 || to < 0) return "";
-            return src.Substring(start + 1, to - start - 1);
+            if (!string.IsNullOrEmpty(src))
+            {
+                int start = src.LastIndexOf('/');
+
+                if (start > 0 && src.Substring(start).Contains('-'))
+                {
+                    int to = src.LastIndexOf('-');
+                    if (start < 0 || to < 0) return "";
+                    return src.Substring(start + 1, to - start - 1);
+                }
+                else return src.Substring(start + 1);
+            }
+            else return string.Empty;
         }
 
         private object GetOrcaResponse(int groupID, PlatformType platform, int mediaID, int maxParentalLevel, eGalleryType galleryType)
@@ -282,6 +295,7 @@ namespace TVPApiModule.Objects
             // get params from gallery configuration
             string blend = galleryConfiguration.GalleryTypeData.blend;
             string type = galleryConfiguration.GalleryTypeData.type;
+            string genres = galleryConfiguration.GalleryTypeData.genres;
 
             TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[]  extraParams = RecommendationsHelper.GetExtraParamsFromConfig(galleryConfiguration.GalleryTypeData.Params.ParamCollection, mediaID, groupID, platform);
 
@@ -293,7 +307,7 @@ namespace TVPApiModule.Objects
                     {
                         case eContentType.VOD:
                             // get ORCA VOD response
-                            stringOrcaResponse = proxy.GetVideoRecommendationList(userToken, maxResults, maxParentalLevel, blend, type, extraParams);
+                            stringOrcaResponse = proxy.GetVideoRecommendationList(userToken, maxResults, maxParentalLevel, blend, type, genres, extraParams);
                             // Parse ORCA xml response to video recommendations
                             orcaResponse = RecommendationsHelper.ParseOrcaResponseToVideoRecommendationList(stringOrcaResponse);
                             break;
@@ -535,5 +549,14 @@ namespace TVPApiModule.Objects
 
         }
 
+        public string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink)
+        {
+            string retVal = null;
+            using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
+            {
+                retVal = proxy.GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), initObj.UDID);
+            }
+            return retVal;
+        }
     }
 }

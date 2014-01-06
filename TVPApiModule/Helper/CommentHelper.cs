@@ -42,7 +42,7 @@ namespace TVPApi
 
         private static Comment parseCommentContextToComment(CommentContext context)
         {
-            Comment comment = new Comment(context.Writer, context.Header, context.Date, context.Content);
+            Comment comment = new Comment(context.Writer, context.Header, context.Date, context.Content, context.UserPicURL);
             return comment;
         }
 

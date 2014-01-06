@@ -27,5 +27,6 @@ namespace TVPApiModule.Interfaces
 
         Object GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType);
 
+        string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink);
     }
 }

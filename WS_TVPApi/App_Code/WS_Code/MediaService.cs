@@ -2035,7 +2035,9 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
+
+                    IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
+                    sResponse = impl.GetMediaLicenseLink(initObj, groupId, mediaFileID, baseLink);
                 }
                 catch (Exception ex)
                 {

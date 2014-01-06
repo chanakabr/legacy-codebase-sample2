@@ -49,6 +49,8 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         private System.Threading.SendOrPostCallback GetLiveRecommendationListOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetMediaLicenseLinkOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -116,6 +118,9 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         /// <remarks/>
         public event GetLiveRecommendationListCompletedEventHandler GetLiveRecommendationListCompleted;
+        
+        /// <remarks/>
+        public event GetMediaLicenseLinkCompletedEventHandler GetMediaLicenseLinkCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/AddDevice", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -428,24 +433,25 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/GetVideoRecommendationList", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string GetVideoRecommendationList(string userToken, int maxResults, int maxParentalLevel, string blend, string type, KeyValuePair[] extraParams) {
+        public string GetVideoRecommendationList(string userToken, int maxResults, int maxParentalLevel, string blend, string type, string genres, KeyValuePair[] extraParams) {
             object[] results = this.Invoke("GetVideoRecommendationList", new object[] {
                         userToken,
                         maxResults,
                         maxParentalLevel,
                         blend,
                         type,
+                        genres,
                         extraParams});
             return ((string)(results[0]));
         }
         
         /// <remarks/>
-        public void GetVideoRecommendationListAsync(string userToken, int maxResults, int maxParentalLevel, string blend, string type, KeyValuePair[] extraParams) {
-            this.GetVideoRecommendationListAsync(userToken, maxResults, maxParentalLevel, blend, type, extraParams, null);
+        public void GetVideoRecommendationListAsync(string userToken, int maxResults, int maxParentalLevel, string blend, string type, string genres, KeyValuePair[] extraParams) {
+            this.GetVideoRecommendationListAsync(userToken, maxResults, maxParentalLevel, blend, type, genres, extraParams, null);
         }
         
         /// <remarks/>
-        public void GetVideoRecommendationListAsync(string userToken, int maxResults, int maxParentalLevel, string blend, string type, KeyValuePair[] extraParams, object userState) {
+        public void GetVideoRecommendationListAsync(string userToken, int maxResults, int maxParentalLevel, string blend, string type, string genres, KeyValuePair[] extraParams, object userState) {
             if ((this.GetVideoRecommendationListOperationCompleted == null)) {
                 this.GetVideoRecommendationListOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetVideoRecommendationListOperationCompleted);
             }
@@ -455,6 +461,7 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
                         maxParentalLevel,
                         blend,
                         type,
+                        genres,
                         extraParams}, this.GetVideoRecommendationListOperationCompleted, userState);
         }
         
@@ -501,6 +508,43 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
             if ((this.GetLiveRecommendationListCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetLiveRecommendationListCompleted(this, new GetLiveRecommendationListCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/GetMediaLicenseLink", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string GetMediaLicenseLink(string sSiteGuid, int iMediaFileID, string sUrlBaseLink, string sClientIP, string sUDID) {
+            object[] results = this.Invoke("GetMediaLicenseLink", new object[] {
+                        sSiteGuid,
+                        iMediaFileID,
+                        sUrlBaseLink,
+                        sClientIP,
+                        sUDID});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetMediaLicenseLinkAsync(string sSiteGuid, int iMediaFileID, string sUrlBaseLink, string sClientIP, string sUDID) {
+            this.GetMediaLicenseLinkAsync(sSiteGuid, iMediaFileID, sUrlBaseLink, sClientIP, sUDID, null);
+        }
+        
+        /// <remarks/>
+        public void GetMediaLicenseLinkAsync(string sSiteGuid, int iMediaFileID, string sUrlBaseLink, string sClientIP, string sUDID, object userState) {
+            if ((this.GetMediaLicenseLinkOperationCompleted == null)) {
+                this.GetMediaLicenseLinkOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetMediaLicenseLinkOperationCompleted);
+            }
+            this.InvokeAsync("GetMediaLicenseLink", new object[] {
+                        sSiteGuid,
+                        iMediaFileID,
+                        sUrlBaseLink,
+                        sClientIP,
+                        sUDID}, this.GetMediaLicenseLinkOperationCompleted, userState);
+        }
+        
+        private void OnGetMediaLicenseLinkOperationCompleted(object arg) {
+            if ((this.GetMediaLicenseLinkCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetMediaLicenseLinkCompleted(this, new GetMediaLicenseLinkCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2317,6 +2361,32 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         private object[] results;
         
         internal GetLiveRecommendationListCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    public delegate void GetMediaLicenseLinkCompletedEventHandler(object sender, GetMediaLicenseLinkCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetMediaLicenseLinkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetMediaLicenseLinkCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

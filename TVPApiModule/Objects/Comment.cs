@@ -32,6 +32,7 @@ namespace TVPApi
             get { return m_addedDate; }
             set { m_addedDate = value; }
         }
+
         private string m_content;
 
         public string Content
@@ -40,12 +41,21 @@ namespace TVPApi
             set { m_content = value; }
         }
 
-        public Comment(string author, string header, string addedDate, string content)
+        private string m_userPicURL;
+
+        public string UserPicURL
+        {
+            get { return m_userPicURL; }
+            set { m_userPicURL = value; }
+        }
+
+        public Comment(string author, string header, string addedDate, string content, string userPicURL)
         {
             m_author = author;
             m_header = header;
             m_addedDate = addedDate;
             m_content = content;
+            m_userPicURL = userPicURL;
         }
     }
 }

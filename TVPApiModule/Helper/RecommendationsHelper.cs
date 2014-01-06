@@ -33,22 +33,21 @@ namespace TVPApiModule.Helper
             List<VideoRecommendation> retVal = new List<VideoRecommendation>();
 
             VideoRecommendation recommendation;
-            int contentIDIntValue;
 
             foreach (Match m in Regex.Matches(xml, @"(?<=VideoRecommendation)[\S\s]*?(?=\<\/VideoRecommendation>)"))
             {
                 recommendation = new VideoRecommendation();
                 Match externalContentId = Regex.Match(m.Value, "(?<externalContentId>(?<=\\bexternalContentId=\")[^\"]*)");
                 if (externalContentId.Success)
-                {
-                    int.TryParse(externalContentId.Value, out contentIDIntValue);
-                    recommendation.ContentID = contentIDIntValue;
-                    contentIDIntValue = 0;
-                }
+                    recommendation.ContentID = externalContentId.Value;
                 Match contentType = Regex.Match(m.Value, "(?<contentType>(?<=\\bcontentType=\")[^\"]*)");
                 if (contentType.Success)
-                {
                     recommendation.ContentType = contentType.Value;
+                if (recommendation.ContentType == "Season")
+                {
+                    Match externalSeriesId = Regex.Match(m.Value, "(?<externalSeriesId>(?<=\\bexternalSeriesId=\")[^\"]*)");
+                    if (externalContentId.Success)
+                        recommendation.SeriesID = externalSeriesId.Value;
                 }
                 retVal.Add(recommendation);
             }
@@ -96,32 +95,42 @@ namespace TVPApiModule.Helper
             List<KeyValue> metas = new List<KeyValue>();
             List<KeyValue> tags = new List<KeyValue>();
 
+            List<KeyValue> orList = new List<KeyValue>();
+
 
             foreach (var recommendation in videoRecommendations)
             {
-                if (recommendation.ContentType == "Movie" || recommendation.ContentType == "Episode")
+                if (recommendation.ContentType == "Movie" || recommendation.ContentType == "Program")
                     //testMetas.Add(recommendation.ContentID.ToString());
-                    metas.Add(new KeyValue() { m_sKey = "IBMSTitleID", m_sValue = recommendation.ContentID.ToString() });
+                    //metas.Add(new KeyValue() { m_sKey = "IBMSTitleID", m_sValue = recommendation.ContentID });
+                    orList.Add(new KeyValue() { m_sKey = "IBMSTitleID", m_sValue = recommendation.ContentID });
 
+
+                else if (recommendation.ContentType == "Season")
+                    //metas.Add(new KeyValue() { m_sKey = "IBMSseriesID", m_sValue = string.IsNullOrEmpty(recommendation.SeriesID) ? string.Empty : recommendation.SeriesID });
+                    orList.Add(new KeyValue() { m_sKey = "IBMSseriesID", m_sValue = string.IsNullOrEmpty(recommendation.SeriesID) ? string.Empty : recommendation.SeriesID });
                 else
                     //testTags.Add(recommendation.ContentID.ToString());
-                    tags.Add(new KeyValue() { m_sKey = "OfferID", m_sValue = recommendation.ContentID.ToString() });                        
+                    //tags.Add(new KeyValue() { m_sKey = "OfferID", m_sValue = recommendation.ContentID});                        
+                    orList.Add(new KeyValue() { m_sKey = "OfferID", m_sValue = recommendation.ContentID });                        
             }
 
             APISearchMediaLoader loader = new APISearchMediaLoader(groupID, groupID, platform.ToString(), SiteHelper.GetClientIP(), 0, 0, picSize, string.Empty)
             {
-                Tags = tags,
+                //Tags = tags,
                 //Tags = new List<KeyValue>()
                 //        {
                 //            new KeyValue() {m_sKey = "OfferID", m_sValue = string.Join(";", testTags.ToArray()),}
                 //        },
-                Metas = metas,
+                //Metas = metas,
                 //Metas = new List<KeyValue>()
                 //        {
                 //            new KeyValue() {m_sKey = "IBMSTitleID", m_sValue = string.Join(";", testMetas.ToArray()),}
                 //        },
+                OrList = orList, 
                 And = false,
-                Exact = false
+                Exact = false, 
+                
             };
 
             loader.Name = string.Empty;
@@ -136,7 +145,7 @@ namespace TVPApiModule.Helper
         {
             TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] epgChannelProgrammes = null;
 
-            string[] scids = liveRecommendations.Select(r => r.ProgramID).ToArray();
+            string[] pids = liveRecommendations.Select(r => r.ProgramID).ToArray();
 
             try
             {
@@ -147,7 +156,7 @@ namespace TVPApiModule.Helper
                     language = (Language)Enum.Parse(typeof(Language), lng.Name);
 
                 var duration = (int)(RecommendationsHelper.GetEndTimeForLiveRequest(ConfigManager.GetInstance().GetConfig(groupID, platform).OrcaRecommendationsConfiguration) - DateTime.UtcNow).TotalMinutes;
-                epgChannelProgrammes = apiService.GetEPGProgramsByScids(siteGuid, scids, language , duration);
+                epgChannelProgrammes = apiService.GetEPGProgramsByProgramsIdentefier(siteGuid, pids, language, duration);
                 
             }
             catch (Exception ex)
@@ -192,7 +201,7 @@ namespace TVPApiModule.Helper
             dsItemInfo media = new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaID, groupID, groupID, platform.ToString(), SiteHelper.GetClientIP(), string.Empty).Execute() as dsItemInfo;
             if (media != null && media.Item.Count > 0)
             {
-                if (media.Item[0].MediaType.ToLower() == "episode" || media.Item[0].MediaType.ToLower() == "movie")
+                if (media.Item[0].MediaType.ToLower() == "program" || media.Item[0].MediaType.ToLower() == "movie")
                 {
                     string sIbmsTitleID = media.Item[0].GetMetasRows()[0]["IBMSTitleID"].ToString();
                     string[] ibmsTitleID = !string.IsNullOrEmpty(sIbmsTitleID) ? sIbmsTitleID.Split('-') : null;
