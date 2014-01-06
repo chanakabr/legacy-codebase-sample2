@@ -114,7 +114,7 @@ namespace TVPApi
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize, TagsMetas, CutWith)
+                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, OrderObj, PicSize, TagsMetas, CutWith)
                 {
                     Culture = Language,
                     DeviceId = DeviceUDID,
