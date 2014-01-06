@@ -213,7 +213,7 @@ namespace TVPApiModule.Helper
             List<Media> retVal = null;
 
             // get channel medias 
-            dsItemInfo medias = new APIChannelMediaLoader(channelID, groupID, groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), maxResults, 0, picSize, null, CutWith.OR).Execute() as dsItemInfo;
+            dsItemInfo medias = new APIChannelMediaLoader(channelID, groupID, groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), maxResults, 0, null,picSize, null, CutWith.OR).Execute() as dsItemInfo;
             if (medias != null && medias.Item != null && medias.Item.Rows != null && medias.Item.Rows.Count > 0)
             {
                 retVal = new List<Media>();
