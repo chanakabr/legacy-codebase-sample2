@@ -111,7 +111,7 @@ namespace TVPApiModule.Objects
 
             using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
             {
-                yes.tvinci.ITProxy.Entitlement[] ent = GetEntitlementForUserAndMedias(sUserGuid, iFileID);
+                yes.tvinci.ITProxy.Entitlement[] ent = GetValidEntitlements(GetEntitlementForUserAndMedias(sUserGuid, iFileID));
 
                 if (ent != null && ent.Length > 0) bRet = true;
             }
@@ -156,7 +156,8 @@ namespace TVPApiModule.Objects
                         return sRet;
                     }
 
-                    yes.tvinci.ITProxy.Entitlement[] ent = GetEntitlementForUserAndMedias(_initObj.SiteGuid, iMediaID);
+                    yes.tvinci.ITProxy.Entitlement[] ent = GetValidEntitlements(GetEntitlementForUserAndMedias(_initObj.SiteGuid, iMediaID));
+                    
                     if (ent != null && ent.Length > 0)
                     {
                         try
@@ -557,6 +558,11 @@ namespace TVPApiModule.Objects
                 retVal = proxy.GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), initObj.UDID);
             }
             return retVal;
+        }
+
+        private yes.tvinci.ITProxy.Entitlement[] GetValidEntitlements(yes.tvinci.ITProxy.Entitlement[] ent)
+        {
+            return ent.Where(e => e.status != EntitlementStatus.DELETED && e.status != EntitlementStatus.REVOKED).ToArray();
         }
     }
 }
