@@ -550,7 +550,7 @@ namespace TVPApiModule.Objects
 
         }
 
-        public string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink)
+        public override string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink)
         {
             string retVal = null;
             using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())

@@ -111,7 +111,7 @@ namespace TVPApiModule.Objects
         }
 
 
-        public string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink)
+        public virtual string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink)
         {
             return new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
         }
