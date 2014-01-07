@@ -43,7 +43,8 @@ public partial class Gateways_JsonPostGW : BaseGateway
                               !pair.Key.Equals("tagPairs") &&
                               !pair.Key.Equals("metaPairs") &&
                               !pair.Key.Equals("userBasicData") &&
-                              !pair.Key.Equals("userDynamicData")) ? pair.Value.ToString(Formatting.None).Replace("\"", @"") : pair.Value.ToString(Formatting.None);
+                              !pair.Key.Equals("userDynamicData")) &&
+                              !pair.Key.Equals("orderObj") ? pair.Value.ToString(Formatting.None).Replace("\"", @"") : pair.Value.ToString(Formatting.None);
 
                 HttpContext.Current.Items.Add(pair.Key, sValue);
             }
