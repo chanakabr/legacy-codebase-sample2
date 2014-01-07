@@ -151,6 +151,33 @@ namespace TVPApiServices
             return lstMedia;
         }
 
+        //Get Channel medias
+        [WebMethod(EnableSession = true, Description = "Get Channel medias with multiple filters")]
+        public List<Media> GetOrderedChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetChannelMultiFilter", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.GetOrderedChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, orderObj, tagsMetas, cutWith);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return lstMedia;
+        }
+
         //Get channel media with total number of medias
         [WebMethod(EnableSession = true, Description = "Get channel media with total number of medias")]
         public List<Media> GetChannelMediaListWithMediaCount(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, ref long mediaCount)
