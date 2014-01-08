@@ -79,7 +79,7 @@ namespace TVPApiServices
         //List<string> GetNMostSearchedTexts(InitializationObject initObj, int N, int pageSize, int start_index);
 
         [OperationContract]
-        string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int?[] iMediaTypes);
+        string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes);
 
         //[OperationContract]
         //string[] GetAutoCompleteSearch(InitializationObject initObj, string prefixText, int[] iMediaTypes, int pageSize, int pageIdx);
@@ -169,13 +169,13 @@ namespace TVPApiServices
         List<Media> GetSubscriptionMedias(InitializationObject initObj, string[] sSubID, string picSize, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy);
 
         [OperationContract]
-        PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj);
+        PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid);
 
         //[OperationContract]
         //void ToggleOfflineMode(InitializationObject initObj, bool isTurnOn);
 
         [OperationContract]
-        List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj, string picSize);
+        List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj, string siteGuid, string picSize);
 
         //[OperationContract]
         //List<Media> SearchMediaByMetasTagsExact(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
@@ -217,13 +217,13 @@ namespace TVPApiServices
         string ChargeUserForMediaSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID);
 
         [OperationContract]
-        string DummyChargeUserForSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID);
+        string DummyChargeUserForSubscription(InitializationObject initObj, string siteGuid, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID);
 
         //[OperationContract]
         //string ChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);
 
         [OperationContract]
-        string DummyChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);
+        string DummyChargeUserForMediaFile(InitializationObject initObj, string siteGuid, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);
 
         [OperationContract]
         List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize);

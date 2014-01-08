@@ -23,6 +23,8 @@ using TVPApiModule.Interfaces;
 using TVPPro.SiteManager.DataEntities;
 using TVPApiModule.CatalogLoaders;
 using System.Configuration;
+using TVPPro.SiteManager.CatalogLoaders;
+using TVPPro.SiteManager.DataLoaders;
 
 namespace TVPApiServices
 {
@@ -40,7 +42,7 @@ namespace TVPApiServices
 
         #region Get media
 
-        ////Get specific media info - removed!
+        ////Get specific media info - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get specific media info")]
         //[System.Xml.Serialization.XmlInclude(typeof(DynamicData))]
         //public Media GetMediaInfo(InitializationObject initObj, int MediaID, string picSize, bool withDynamic)
@@ -72,7 +74,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Get list media info")]
         [System.Xml.Serialization.XmlInclude(typeof(DynamicData))]
-        public List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaID, string picSize)
+        public List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaIDs, string picSize)
         {
             List<Media> retMedia = null;
 
@@ -82,7 +84,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retMedia = MediaHelper.GetMediasInfo(initObj, MediaID, picSize, groupID);
+                    retMedia = new TVPApiModule.CatalogLoaders.APIMediaLoader(MediaIDs, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), picSize, initObj.Locale.LocaleLanguage)
+                    {
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -97,7 +102,7 @@ namespace TVPApiServices
             return retMedia;
         }
 
-        ////Get Channel medias - removed!
+        ////Get Channel medias - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get Channel medias")]
         //public List<Media> GetChannelMediaList(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         //{
@@ -126,7 +131,7 @@ namespace TVPApiServices
 
         //Get Channel medias
         [WebMethod(EnableSession = true, Description = "Get Channel medias with multiple filters")]
-        public List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
+        public List<Media> GetChannelMultiFilter(InitializationObject initObj, int channelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
         {
             List<Media> lstMedia = null;
 
@@ -136,7 +141,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, orderBy, tagsMetas, cutWith);
+                    lstMedia = new APIChannelMediaLoader(channelID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage, tagsMetas, cutWith)
+                    {
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -151,7 +159,7 @@ namespace TVPApiServices
             return lstMedia;
         }
 
-        ////Get channel media with total number of medias - removed!
+        ////Get channel media with total number of medias - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get channel media with total number of medias")]
         //public List<Media> GetChannelMediaListWithMediaCount(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, ref long mediaCount)
         //{
@@ -178,7 +186,7 @@ namespace TVPApiServices
         //    return lstMedia;
         //}
 
-        //// Check if media has been added to favorites - removed!
+        //// Check if media has been added to favorites - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Check if media has been added to favorites")]
         //public bool IsMediaFavorite(InitializationObject initObj, int mediaID)
         //{
@@ -216,7 +224,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    result = MediaHelper.AreMediasFavorite(initObj, groupID, mediaIds);
+                    FavoritObject[] favoriteObjects = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
+
+                    if (favoriteObjects != null)
+                        result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.m_sItemCode == y.ToString()).Count() > 0)).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -243,7 +254,16 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstComment = CommentHelper.GetMediaComments(mediaID, groupID, pageSize, pageIndex);
+                    MediaComments mediaComments = (new MediaCommentsListLoader(mediaID, groupID, SiteHelper.GetClientIP(), pageSize, pageIndex)).Execute() as MediaComments;
+
+                    if (mediaComments != null && mediaComments.commentsList.Count > 0)
+                    {
+                        lstComment = new List<Comment>();
+                        foreach (CommentContext context in mediaComments.commentsList)
+                        {
+                            lstComment.Add(new Comment(context.Writer, context.Header, context.Date, context.Content));
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -260,7 +280,7 @@ namespace TVPApiServices
 
         //Get User Items (Favorites, Rentals etc..)
         [WebMethod(EnableSession = true, Description = "Get User Items (Favorites, Rentals etc..)")]
-        public FavoritObject[] GetUserFavorites(InitializationObject initObj)
+        public FavoritObject[] GetUserFavorites(InitializationObject initObj, string siteGuid)
         {
             FavoritObject[] favoritesObj = null;
 
@@ -270,7 +290,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
+                    favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
                     favoritesObj = favoritesObj.OrderByDescending(r => r.m_dUpdateDate.Date).ThenByDescending(r => r.m_dUpdateDate.TimeOfDay).ToArray();
                     //lstMedia = new Api MediaHelper.GetUserItems(initObj, itemType, mediaType, picSize, pageSize, start_index, groupID);
                 }
@@ -329,7 +349,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetRelatedMediaList(initObj, mediaID, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
+                    lstMedia = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(mediaID, reqMediaTypes, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage)
+                    {
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -345,7 +368,7 @@ namespace TVPApiServices
         }
 
 
-        ////Get related media info - removed!
+        ////Get related media info - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get related media info")]
         //public List<Media> GetRelatedMedias(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)
         //{
@@ -372,7 +395,7 @@ namespace TVPApiServices
         //    return lstMedia;
         //}
 
-        ////Get related media info with total number of medias - removed
+        ////Get related media info with total number of medias - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get related media info with total number of medias")]
         //public List<Media> GetRelatedMediaWithMediaCount(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, ref long mediaCount)
         //{
@@ -411,7 +434,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetPeopleWhoWatchedList(initObj, mediaID, picSize, pageSize, pageIndex, groupID);
+                    lstMedia = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader(mediaID, 0, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage)
+                    {
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -437,7 +463,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetUserSocialMedias(initObj, picSize, pageSize, pageIndex, groupID, socialAction, socialPlatform);
+                    lstMedia = new APIUserSocialMediaLoader(initObj.SiteGuid, socialAction, socialPlatform, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+                    {
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -463,7 +492,11 @@ namespace TVPApiServices
             {
                 try
                 {
-                    List<Media> lstMedia = GetUserSocialMedias(initObj, socialPlatform, socialAction, "full", 20, 0);
+                    List<Media> lstMedia = new APIUserSocialMediaLoader(initObj.SiteGuid, socialAction, socialPlatform, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 20, 0, "full")
+                    {
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
+ 
 
                     bRet = (from r in lstMedia where r.MediaID.Equals(sMediaID) select true).FirstOrDefault();
                 }
@@ -491,7 +524,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetLastWatchedMedias(initObj, picSize, pageSize, pageIndex, groupID);
+                    lstMedia = new APIPersonalLastWatchedLoader(initObj.SiteGuid, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+                    {
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -517,7 +553,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetLastWatchedMediasByPeriod(initObj, picSize, periodBefore, groupID, byPeriod);
+                    List<Media> lstAllMedias = new TVPApiModule.CatalogLoaders.APIPersonalLastWatchedLoader(initObj.SiteGuid, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 100, 0, picSize).Execute() as List<Media>;
+
+                    lstMedia = (from media in lstAllMedias
+                                 where
+                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays >= 0 &&
+                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays <= (periodBefore + 1) * (int)byPeriod
+                                 select media).ToList<Media>();
                 }
                 catch (Exception ex)
                 {
@@ -543,7 +585,11 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetMediasInPackage(initObj, baseID, mediaType, groupID, picSize, pageSize, pageIndex);
+                    lstMedia = new APISubscriptionMediaLoader(baseID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+                    {
+                        MediaTypes = new List<int>() { mediaType },
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -564,7 +610,7 @@ namespace TVPApiServices
             return null;
         }
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get media list for package")]
         //public List<Media> GetRecommendedMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex)
         //{
@@ -633,7 +679,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetRecommendedMediasList(initObj, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
+                    lstMedia = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(initObj.SiteGuid, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+                    {
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -652,7 +701,7 @@ namespace TVPApiServices
 
         #region Search media
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Search medias by multi tags")]
         //public List<Media> SearchMediaByMultiTag(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         //{
@@ -679,7 +728,7 @@ namespace TVPApiServices
         //    return lstMedia;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Search medias by multi tags")]
         //public List<Media> SearchMediaByMetasTags(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         //{
@@ -706,7 +755,7 @@ namespace TVPApiServices
         //    return lstMedia;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Search medias by multi tags")]
         //public List<Media> SearchMediaByMetasTagsExact(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         //{
@@ -744,7 +793,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.SearchMediaByAndOrList(initObj, mediaType, orList, andList, picSize, pageSize, pageIndex, groupID, orderBy, orderDir, orderMetaName, exact);
+                    lstMedia = new APISearchMediaLoader(groupID, initObj.Platform, initObj.UDID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize, exact, orList, andList, new List<int>() { mediaType })
+                    {
+                        OrderBy = orderBy,
+                        OrderDir = orderDir,
+                        OrderMetaMame = orderMetaName,
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -759,7 +814,7 @@ namespace TVPApiServices
             return lstMedia;
         }
 
-        ////Search medias by tag - removed!
+        ////Search medias by tag - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Search medias by tag")]
         //public List<Media> SearchMediaByTag(InitializationObject initObj, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         //{
@@ -786,7 +841,7 @@ namespace TVPApiServices
         //    return lstMedia;
         //}
 
-        ////Search medias by meta - removed
+        ////Search medias by meta - Deprecated
         //[WebMethod(EnableSession = true, Description = "Search medias by meta")]
         //public List<Media> SearchMediaByMeta(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         //{
@@ -813,7 +868,7 @@ namespace TVPApiServices
         //    return lstMedia;
         //}
 
-        ////Search media by meta with total items number - removed
+        ////Search media by meta with total items number - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Search media by meta with total items number")]
         //public List<Media> SearchMediaByMetaWithMediaCount(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, ref long mediaCount)
         //{
@@ -891,7 +946,7 @@ namespace TVPApiServices
             return retCategory;
         }
 
-        ////Search media by free text - removed!
+        ////Search media by free text - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Search media by free text")]
         //public List<Media> SearchMedia(InitializationObject initObj, string text, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         //{
@@ -945,7 +1000,7 @@ namespace TVPApiServices
             return programs;
         }
 
-        ////Search media by free text - removed!
+        ////Search media by free text - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Search media by free text")]
         //public List<Media> SearchMediaByTypes(InitializationObject initObj, string text, int[] mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         //{
@@ -972,7 +1027,7 @@ namespace TVPApiServices
         //    return lstMedia;
         //}
 
-        ////Search media by free text with response total media count - removed!
+        ////Search media by free text with response total media count - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Search media by free text with response total media count")]
         //public List<Media> SearchMediaWithMediaCount(InitializationObject initObj, string text, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, ref long mediaCount)
         //{
@@ -999,7 +1054,7 @@ namespace TVPApiServices
         //    return lstMedia;
         //}
 
-        ////Get most searched text - removed!
+        ////Get most searched text - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get most searched text")]
         //public List<string> GetNMostSearchedTexts(InitializationObject initObj, int N, int pageSize, int start_index)
         //{
@@ -1018,7 +1073,7 @@ namespace TVPApiServices
         //    return retVal;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get auto-complete media titles")]
         //public string[] GetAutoCompleteSearch(InitializationObject initObj, string prefixText, int[] iMediaTypes, int pageSize, int pageIdx)
         //{
@@ -1045,7 +1100,7 @@ namespace TVPApiServices
 
         // Get auto-complete media titles
         [WebMethod(EnableSession = true, Description = "Get auto-complete media titles")]
-        public string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int?[] iMediaTypes)
+        public string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes)
         {
             string[] retVal = null;
 
@@ -1056,8 +1111,10 @@ namespace TVPApiServices
                 List<string> lstRet = new List<String>();
 
                 int maxItems = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems;
-                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
-                    prefixText, initObj.Locale.LocaleLanguage, 0, maxItems);
+                string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
+                string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
+                
+                List<string> lstResponse = new ApiApiService(groupID, initObj.Platform).GetAutoCompleteList(iMediaTypes != null ? iMediaTypes : new int[0], arrMetaNames, arrTagNames, prefixText, initObj.Locale.LocaleLanguage, 0, maxItems).ToList();
 
                 foreach (String sTitle in lstResponse)
                 {
@@ -1082,7 +1139,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = ActionHelper.SendToFriend(initObj, groupID, mediaID, senderName, senderEmail, toEmail);
+                    retVal = new ApiApiService(groupID, initObj.Platform).SendToFriend(senderName, senderEmail, toEmail, mediaID);
                 }
                 catch (Exception ex)
                 {
@@ -1108,7 +1165,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = CommentHelper.SaveMediaComments(groupID, initObj.Platform, initObj.SiteGuid, initObj.UDID, initObj.Locale.LocaleLanguage, initObj.Locale.LocaleCountry, mediaID, writer, header, subheader, content, autoActive);
+                    int ilanguage = TextLocalizationManager.Instance.GetTextLocalization(groupID, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
+                    CommentResponse response = new MediaCommentLoader(groupID, SiteHelper.GetClientIP(), ilanguage, initObj.SiteGuid, initObj.UDID, mediaID, content, initObj.Locale.LocaleCountry, header, subheader, writer, autoActive)
+                        .Execute() as CommentResponse;
+                    retVal = response != null ? response.eStatusComment == StatusComment.SUCCESS : false;
                 }
                 catch (Exception ex)
                 {
@@ -1148,7 +1208,7 @@ namespace TVPApiServices
             return retVal;
         }
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Rate a Media")]
         //public TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject RateMedia(InitializationObject initObj, int mediaID, int mediaType, int extraVal)
         //{
@@ -1174,7 +1234,7 @@ namespace TVPApiServices
         //    return retVal;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "")]
         //public List<Media> GetMediasByMostAction(InitializationObject initObj, TVPApi.ActionType action, int mediaType)
         //{
@@ -1194,7 +1254,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, mediaType, iMediaID, iFileID, iLocation);
+                    sRet = new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, iMediaID, iFileID, 0, 0, iLocation, 0, Action.ToString(), string.Empty, string.Empty, string.Empty, string.Empty)
+                    {
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as string;
                 }
                 catch (Exception ex)
                 {
@@ -1220,7 +1283,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, mediaType, iMediaID, iFileID, iLocation);
+                    sRet = new TVPPro.SiteManager.CatalogLoaders.MediaHitLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, iMediaID, iFileID, 0, 0, iLocation, 0, string.Empty, string.Empty)
+                    {
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as string;
                 }
                 catch (Exception ex)
                 {
@@ -1264,7 +1330,7 @@ namespace TVPApiServices
 
         #region Purchase
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get media price reason")]
         //public TVPApi.PriceReason GetItemPriceReason(InitializationObject initObj, int iFileID)
         //{
@@ -1340,7 +1406,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased items for a user")]
-        public PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj)
+        public PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj, string siteGuid)
         {
             PermittedMediaContainer[] permittedMediaContainer = { };
 
@@ -1350,7 +1416,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(initObj.SiteGuid);
+                    var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(siteGuid);
 
                     if (permitted != null)
                         permittedMediaContainer = permitted.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
@@ -1368,7 +1434,7 @@ namespace TVPApiServices
             return permittedMediaContainer;
         }
 
-        ////Search medias by meta - removed!
+        ////Search medias by meta - Deprecated!
         //[WebMethod(EnableSession = true, Description = "Search medias by meta")]
         //public List<Media> GetSubscriptionMedia(InitializationObject initObj, string sSubID, string picSize, TVPApi.OrderBy orderBy)
         //{
@@ -1406,10 +1472,15 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.SearchMediaBySubIDs(initObj, subIDs, picSize, groupID, orderBy);
+                    List<KeyValue> orList = new List<KeyValue>();
+                    foreach (var id in subIDs)
+                        orList.Add(new KeyValue() { m_sKey = "Base ID", m_sValue = id });
 
-                    //foreach (string subID in sSubID)
-                        //lstMedia.AddRange(GetSubscriptionMedia(initObj, subID, picSize, orderBy));
+                    return new APISearchMediaLoader(groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 0, 0, picSize, true, orList, null, null)
+                    {
+                        UseStartDate = true,
+                        OrderBy = orderBy,
+                    }.Execute() as List<Media>;
                 }
                 catch (Exception ex)
                 {
@@ -1425,7 +1496,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions for a user")]
-        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj)
+        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid)
         {
             PermittedSubscriptionContainer[] permitedSubscriptions = new PermittedSubscriptionContainer[] { };
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -1434,7 +1505,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(initObj.SiteGuid);
+                    var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);
 
                     if (permitted != null)
                         permitedSubscriptions = permitted.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
@@ -1453,7 +1524,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions and packages info for a user")]
-        public List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj, string picSize)
+        public List<PermittedPackages> GetUserPermittedPackages(InitializationObject initObj, string siteGuid, string picSize)
         {
             List<PermittedPackages> permittedPackages = new List<PermittedPackages>();
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -1462,7 +1533,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    PermittedSubscriptionContainer[] permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(initObj.SiteGuid);
+                    PermittedSubscriptionContainer[] permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);
 
                     if (permitedSubscriptions == null || permitedSubscriptions.Count() == 0)
                         return permittedPackages;
@@ -1525,7 +1596,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user dummy purchase for file")]
-        public string DummyChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
+        public string DummyChargeUserForMediaFile(InitializationObject initObj, string siteGuid, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
         {
             string response = string.Empty;
 
@@ -1535,7 +1606,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, SiteHelper.GetClientIP(), siteGuid, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -1550,35 +1621,34 @@ namespace TVPApiServices
             return response;
         }
 
-        //// removed!
-        //[WebMethod(EnableSession = true, Description = "Perform a user purchase for file")]
-        //public string ChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
-        //{
-        //    string response = string.Empty;
+        [WebMethod(EnableSession = true, Description = "Perform a user purchase for file")]
+        public string ChargeUserForMediaFile(InitializationObject initObj, string siteGuid, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
+        {
+            string response = string.Empty;
 
-        //    // get the client IP from header/method parameters
-        //    string clientIp = string.IsNullOrEmpty(sUserIP) ? SiteHelper.GetClientIP() : sUserIP;
+            // get the client IP from header/method parameters
+            string clientIp = string.IsNullOrEmpty(sUserIP) ? SiteHelper.GetClientIP() : sUserIP;
 
-        //    int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, clientIp);
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, clientIp);
 
-        //    if (groupId > 0)
-        //    {
-        //        try
-        //        {
-        //            response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, clientIp, initObj.SiteGuid, initObj.UDID);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            HttpContext.Current.Items.Add("Error", ex);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        HttpContext.Current.Items.Add("Error", "Unknown group");
-        //    }
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, clientIp, siteGuid, initObj.UDID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
         [WebMethod(EnableSession = true, Description = "Cancel Subscription")]
         public bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID)
@@ -1637,7 +1707,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user dummy purchase for subscription")]
-        public string DummyChargeUserForSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID)
+        public string DummyChargeUserForSubscription(InitializationObject initObj, string siteGuid, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID)
         {
             string response = string.Empty;
 
@@ -1647,7 +1717,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, initObj.SiteGuid, sExtraParameters, sUDID);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, siteGuid, sExtraParameters, sUDID);
                 }
                 catch (Exception ex)
                 {
@@ -1662,39 +1732,40 @@ namespace TVPApiServices
             return response;
         }
 
-        [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
-        public MediaFileItemPricesContainer[] GetItemPrices(InitializationObject initObj, int[] fileIds, bool bOnlyLowest)
-        {
-            MediaFileItemPricesContainer[] itemPrices = null;
+        //// Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
+        //public MediaFileItemPricesContainer[] GetItemPrices(InitializationObject initObj, int[] fileIds, bool bOnlyLowest)
+        //{
+        //    MediaFileItemPricesContainer[] itemPrices = null;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupId > 0)
-            {
-                try
-                {
-                    System.Collections.ArrayList al = new System.Collections.ArrayList();
-                    foreach (int fileID in fileIds)
-                    {
-                        MediaFileItemPricesContainer[] tmpRes = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(new int[] { fileID }, initObj.SiteGuid, bOnlyLowest);
-                        if (tmpRes != null)
-                            al.AddRange(tmpRes);
-                    }
+        //    if (groupId > 0)
+        //    {
+        //        try
+        //        {
+        //            System.Collections.ArrayList al = new System.Collections.ArrayList();
+        //            foreach (int fileID in fileIds)
+        //            {
+        //                MediaFileItemPricesContainer[] tmpRes = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(new int[] { fileID }, initObj.SiteGuid, bOnlyLowest);
+        //                if (tmpRes != null)
+        //                    al.AddRange(tmpRes);
+        //            }
 
-                    itemPrices = (MediaFileItemPricesContainer[])al.ToArray(typeof(MediaFileItemPricesContainer));
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //            itemPrices = (MediaFileItemPricesContainer[])al.ToArray(typeof(MediaFileItemPricesContainer));
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return itemPrices;
-        }
+        //    return itemPrices;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Get product code for subscription")]
         public string GetSubscriptionProductCode(InitializationObject initObj, int subID)
@@ -1759,7 +1830,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user transaction history")]
-        public BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, int start_index, int pageSize)
+        public BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, string siteGuid, int start_index, int pageSize)
         {
             BillingTransactionsResponse transactions = null;
 
@@ -1769,7 +1840,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    transactions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserTransactionHistory(initObj.SiteGuid, start_index, pageSize);
+                    transactions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserTransactionHistory(siteGuid, start_index, pageSize);
                 }
                 catch (Exception ex)
                 {
@@ -1785,7 +1856,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user expired items")]
-        public PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, int iTotalItems)
+        public PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, string siteGuid, int iTotalItems)
         {
             PermittedMediaContainer[] items = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -1794,7 +1865,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredItems(initObj.SiteGuid, iTotalItems);
+                    items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredItems(siteGuid, iTotalItems);
                     if (items != null)
                     {
                         items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
@@ -1819,7 +1890,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user expired subscription")]
-        public PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, int iTotalItems)
+        public PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int iTotalItems)
         {
             PermittedSubscriptionContainer[] items = null;
 
@@ -1829,7 +1900,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredSubscriptions(initObj.SiteGuid, iTotalItems);
+                    items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredSubscriptions(siteGuid, iTotalItems);
                     if (items != null)
                         items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
                 }
@@ -1851,7 +1922,7 @@ namespace TVPApiServices
             return items;
         }
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get subscription price")]
         //public SubscriptionsPricesContainer[] GetSubscriptionsPrices(InitializationObject initObj, string[] SubscriptionIDs)
         //{
@@ -1932,7 +2003,7 @@ namespace TVPApiServices
             return oResponse.ToString();
         }
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Add user social sites action")]
         //public bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
         //{
@@ -1959,7 +2030,7 @@ namespace TVPApiServices
         //    return bResponse;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Has the user voted already")]
         //public bool IsUserVoted(InitializationObject initObj, int iMediaID)
         //{
@@ -1987,7 +2058,7 @@ namespace TVPApiServices
         //    return bResponse;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Has the user voted already")]
         //public int GetVoteRatio(InitializationObject initObj, int iMediaID)
         //{
@@ -2042,7 +2113,7 @@ namespace TVPApiServices
             return sResponse;
         }
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get user offline list")]
         //public UserOfflineObject[] GetUserOfflineList(InitializationObject initObj)
         //{
@@ -2070,7 +2141,7 @@ namespace TVPApiServices
         //    return sResponse;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Toggle the user offline mode")]
         //public void ToggleOfflineMode(InitializationObject initObj, bool isTurnOn)
         //{
@@ -2093,7 +2164,7 @@ namespace TVPApiServices
         //    }
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get full user offline list")]
         //public List<Media> GetUserOfflineListFull(InitializationObject initObj, string picSize, bool withDynamic)
         //{
@@ -2125,7 +2196,7 @@ namespace TVPApiServices
         //    return lResponse;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Add user offline media")]
         //public bool AddUserOfflineMedia(InitializationObject initObj, int mediaID)
         //{
@@ -2152,7 +2223,7 @@ namespace TVPApiServices
         //    return bResponse;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Remove user offline media")]
         //public bool RemoveUserOfflineMedia(InitializationObject initObj, int mediaID)
         //{
@@ -2179,7 +2250,7 @@ namespace TVPApiServices
         //    return bResponse;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Clear user offline list")]
         //public bool ClearUserOfflineList(InitializationObject initObj)
         //{
@@ -2206,7 +2277,7 @@ namespace TVPApiServices
         //    return bResponse;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Check if media is blocked by Geo")]
         //public string CheckGeoBlockForMedia(InitializationObject initObj, int iMediaID)
         //{
@@ -2259,7 +2330,7 @@ namespace TVPApiServices
             return sRet;
         }
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get EPG Channel Program by Dates")]
         //public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(InitializationObject initObj, string channelID, string picSize, DateTime fromDate, DateTime toDate, int utcOffset)
         //{
@@ -2285,7 +2356,7 @@ namespace TVPApiServices
         //    return sRet;
         //}
 
-        //// removed!
+        //// Deprecated!
         //[WebMethod(EnableSession = true, Description = "Get EPG Channels")]
         //public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] GetEPGChannelsPrograms(InitializationObject initObj, string sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         //{
@@ -2369,7 +2440,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get All Channels")]
-        public List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize)
+        public List<Channel> GetChannelsList(InitializationObject initObj, string picSize)
         {
             List<Channel> sRet = null;
 
@@ -2379,7 +2450,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ChannelHelper.GetChannelsList(initObj, sPicSize, groupId);
+                    sRet = new APIChannelsListsLoader(0, groupId, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 0, 0, picSize).Execute() as List<Channel>;
                 }
                 catch (Exception ex)
                 {
@@ -2520,7 +2591,9 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = CommentHelper.GetEPGCommentsList(groupId, initObj.Platform, initObj.Locale.LocaleLanguage, epgProgramID, pageSize, pageIndex);
+                    int ilanguage = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
+                    retVal = new TVPPro.SiteManager.CatalogLoaders.EPGCommentsListLoader(epgProgramID, ilanguage, groupId, SiteHelper.GetClientIP(), pageSize, pageIndex)
+                        .Execute() as List<TVPPro.SiteManager.Objects.EPGComment>;
                 }
                 catch (Exception ex)
                 {
@@ -2546,7 +2619,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = CommentHelper.AddEPGComment(groupId, initObj.Platform, initObj.Locale.LocaleLanguage, initObj.SiteGuid, initObj.UDID, epgProgramID, contentText, initObj.Locale.LocaleCountry, header, subHeader, writer, autoActive).ToString();
+                    int ilanguage = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
+                    CommentResponse response = new TVPPro.SiteManager.CatalogLoaders.EPGCommentLoader(groupId, SiteHelper.GetClientIP(), ilanguage, initObj.SiteGuid, initObj.UDID, epgProgramID, contentText, initObj.Locale.LocaleCountry, header, subHeader, writer, autoActive)
+                        .Execute() as CommentResponse;
+                    retVal = response != null ? response.eStatusComment.ToString() : StatusComment.FAIL.ToString();
                 }
                 catch (Exception ex)
                 {

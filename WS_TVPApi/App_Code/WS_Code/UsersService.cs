@@ -133,7 +133,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Logout")]
-        public void Logout(InitializationObject initObj, string sSiteGuid)
+        public void Logout(InitializationObject initObj, string siteGuid)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "Logout", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -141,7 +141,6 @@ namespace TVPApiServices
             {
                 try
                 {
-                    string siteGuid = string.IsNullOrEmpty(sSiteGuid) ? initObj.SiteGuid : sSiteGuid;
                     new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).Logout(siteGuid);
                 }
                 catch (Exception ex)
@@ -323,7 +322,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Renews user PIN")]
-        public string RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID)
+        public string RenewUserPIN(InitializationObject initObj, string siteGUID, int ruleID)
         {
             ResponseStatus response = ResponseStatus.OK;
 
@@ -333,7 +332,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).RenewUserPIN(sSiteGUID, ruleID);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).RenewUserPIN(siteGUID, ruleID);
                 }
                 catch (Exception ex)
                 {
@@ -401,7 +400,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Adds Item To List")]
-        public bool AddItemToList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool AddItemToList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             bool response = false;
 
@@ -411,7 +410,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).AddItemToList(initObj.SiteGuid, itemObjects, itemType, listType);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).AddItemToList(siteGuid, itemObjects, itemType, listType);
                 }
                 catch (Exception ex)
                 {
@@ -427,7 +426,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Removes Item From List")]
-        public bool RemoveItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool RemoveItemFromList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             bool response = false;
 
@@ -437,7 +436,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).RemoveItemFromList(initObj.SiteGuid, itemObjects, itemType, listType);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).RemoveItemFromList(siteGuid, itemObjects, itemType, listType);
                 }
                 catch (Exception ex)
                 {
@@ -453,7 +452,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Updates Item In List")]
-        public bool UpdateItemInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool UpdateItemInList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             bool response = false;
 
@@ -463,7 +462,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).UpdateItemInList(initObj.SiteGuid, itemObjects, itemType, listType);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).UpdateItemInList(siteGuid, itemObjects, itemType, listType);
                 }
                 catch (Exception ex)
                 {
@@ -479,7 +478,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets Item From List")]
-        public UserItemList[] GetItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public UserItemList[] GetItemFromList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             UserItemList[] response = null;
 
@@ -489,7 +488,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetItemFromList(initObj.SiteGuid, itemObjects, itemType, listType);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetItemFromList(siteGuid, itemObjects, itemType, listType);
                 }
                 catch (Exception ex)
                 {
@@ -505,7 +504,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Is Item Exists In List")]
-        public KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public KeyValuePair[] IsItemExistsInList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             KeyValuePair[] response = null;
 
@@ -515,7 +514,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsItemExistsInList(initObj.SiteGuid, itemObjects, itemType, listType);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsItemExistsInList(siteGuid, itemObjects, itemType, listType);
                 }
                 catch (Exception ex)
                 {
@@ -531,7 +530,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set UserType by UserID")]
-        public string SetUserTypeByUserID(InitializationObject initObj, string sSiteGUID, int nUserTypeID)
+        public string SetUserTypeByUserID(InitializationObject initObj, string siteGUID, int nUserTypeID)
         {
             ResponseStatus response = ResponseStatus.OK;
 
@@ -541,7 +540,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserTypeByUserID(sSiteGUID, nUserTypeID);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserTypeByUserID(siteGUID, nUserTypeID);
                 }
                 catch (Exception ex)
                 {

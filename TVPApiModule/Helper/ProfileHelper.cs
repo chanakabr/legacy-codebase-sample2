@@ -38,17 +38,18 @@ namespace TVPApi
             return retVal;
         }
 
-        public static Profile GetBottomProfile(InitializationObject initObj, long ID, int groupID)
-        {
-            Profile retVal = null;
-            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
-            if (siteMap != null)
-            {
-                List<Profile> bottomProfiles = siteMap.GetBottomProfiles();
-                retVal = GetProfileFromList(bottomProfiles, ID);
-            }
-            return retVal;
-        }
+
+        //public static Profile GetBottomProfile(InitializationObject initObj, long ID, int groupID)
+        //{
+        //    Profile retVal = null;
+        //    SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+        //    if (siteMap != null)
+        //    {
+        //        List<Profile> bottomProfiles = siteMap.GetBottomProfiles();
+        //        retVal = GetProfileFromList(bottomProfiles, ID);
+        //    }
+        //    return retVal;
+        //}
 
         public static Profile GetSideProfile(InitializationObject initObj, long ID, int groupID)
         {

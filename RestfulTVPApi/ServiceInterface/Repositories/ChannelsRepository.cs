@@ -19,7 +19,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                lstMedia = MediaHelper.GetChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, orderBy, tagsMetas, cutWith);
+                lstMedia = MediaHelper.GetChannelMultiFilter(initObj.Platform, initObj.UDID, initObj.Locale.LocaleLanguage, ChannelID, picSize, pageSize, pageIndex, groupID, orderBy, tagsMetas, cutWith);
             }
             else
             {

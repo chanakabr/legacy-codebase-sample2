@@ -19,10 +19,10 @@ namespace TVPApi
        
 
         //Get specific menu
-        public static Menu GetMenuByID(InitializationObject initObj, long ID, int groupID)
+        public static Menu GetMenuByID(PlatformType platform, Locale locale, long ID, int groupID)
         {
             Menu retVal = null;
-            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
             if (siteMap != null)
             {
                 List<Menu> menues = siteMap.Menues;
@@ -34,10 +34,10 @@ namespace TVPApi
         }
 
         //Get specific footer
-        public static Menu GetFooterByID(InitializationObject initObj, long ID, int groupID)
+        public static Menu GetFooterByID(PlatformType platform, Locale locale, long ID, int groupID)
         {
             Menu retVal = null;
-            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
             if (siteMap != null)
             {
                 List<Menu> footers = siteMap.Footers;

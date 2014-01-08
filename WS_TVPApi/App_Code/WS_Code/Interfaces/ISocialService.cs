@@ -14,16 +14,16 @@ namespace TVPApiServices
     public interface ISocialService
     {
         [OperationContract]
-        FriendWatchedObject[] GetAllFriendsWatched(InitializationObject initObj, int maxResult);
+        FriendWatchedObject[] GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult);
 
         [OperationContract]
-        FriendWatchedObject[] GetFriendsWatchedByMedia(InitializationObject initObj, int mediaId);
+        FriendWatchedObject[] GetFriendsWatchedByMedia(InitializationObject initObj, string siteGuid, int mediaId);
 
         [OperationContract]
         string[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize);
 
         [OperationContract]
-        string[] GetUserFriends(InitializationObject initObj);
+        string[] GetUserFriends(InitializationObject initObj, string siteGuid);
 
         [OperationContract]
         FBConnectConfig FBConfig(InitializationObject initObj, string sSTG);
@@ -38,33 +38,33 @@ namespace TVPApiServices
         FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword);
 
         [OperationContract]
-        string GetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction);
+        string GetUserSocialPrivacy(InitializationObject initObj, string siteGuid, SocialPlatform socialPlatform, eUserAction userAction);
 
         [OperationContract]
-        eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj);
+        eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid);
 
         [OperationContract]
-        bool SetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction, eSocialPrivacy socialPrivacy);
+        bool SetUserSocialPrivacy(InitializationObject initObj, string siteGuid, SocialPlatform socialPlatform, eUserAction userAction, eSocialPrivacy socialPrivacy);
 
         [OperationContract]
-        UserSocialActionObject[] GetUserActions(InitializationObject initObj,  eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
+        UserSocialActionObject[] GetUserActions(InitializationObject initObj, string siteGuid, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, eAssetType assetType ,int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
+        UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        string DoUserAction(InitializationObject initObj, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID);
+        string DoUserAction(InitializationObject initObj, string siteGuid, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID);
 
         [OperationContract]
-        string GetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform);
+        string GetUserExternalActionShare(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform);
 
         [OperationContract]
-        string GetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform);
+        string GetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform);
 
         [OperationContract]
-        bool SetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
+        bool SetUserExternalActionShare(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
 
         [OperationContract]
-        bool SetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
+        bool SetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
     }
 }

@@ -32,7 +32,7 @@ namespace TVPApiServices
         #region public methods
 
         [WebMethod(EnableSession = true, Description = "Get last billing Info")]
-        public AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, int billingMethod)
+        public AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, string siteGuid, int billingMethod)
         {
             AdyenBillingDetail response = null;
 
@@ -42,7 +42,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetLastBillingUserInfo(initObj.SiteGuid, billingMethod);
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetLastBillingUserInfo(siteGuid, billingMethod);
                 }
                 catch (Exception ex)
                 {

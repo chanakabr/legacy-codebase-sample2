@@ -140,8 +140,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] GetAllFriendsWatched(int sGuid,
-                                                                                                   int maxResult)
+        public TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] GetAllFriendsWatched(int sGuid, int maxResult)
         {
             TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] res = null;
 
@@ -151,8 +150,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error occurred in GetAllFriendsWatched, Error : {0} Parameters : siteGuid {1}",
-                                   ex.Message, sGuid);
+                logger.ErrorFormat("Error occurred in GetAllFriendsWatched, Error : {0} Parameters : siteGuid {1}", ex.Message, sGuid);
             }
 
             return res;

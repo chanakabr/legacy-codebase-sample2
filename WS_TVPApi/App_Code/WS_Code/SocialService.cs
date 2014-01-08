@@ -26,21 +26,19 @@ namespace TVPApiServices
         private readonly ILog logger = LogManager.GetLogger(typeof(SocialService));
 
         [WebMethod(EnableSession = true, Description = "Get all medias that user's friends watched")]
-        public FriendWatchedObject[] GetAllFriendsWatched(InitializationObject initObj, int maxResult)
+        public FriendWatchedObject[] GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAllFriendsWatched", initObj.ApiUser, initObj.ApiPass,
-                                                      SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAllFriendsWatched", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                    int iSiteGuid = 0;
+                    if (Int32.TryParse(siteGuid, out iSiteGuid))
                     {
-                        TVPApiModule.Services.ApiSocialService service =
-                            new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.GetAllFriendsWatched(siteGuid, maxResult);
+                        TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                        return service.GetAllFriendsWatched(iSiteGuid, maxResult);
                     }
                 }
                 catch (Exception ex)
@@ -57,21 +55,19 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all friends that watched the specified media")]
-        public FriendWatchedObject[] GetFriendsWatchedByMedia(InitializationObject initObj, int mediaId)
+        public FriendWatchedObject[] GetFriendsWatchedByMedia(InitializationObject initObj, string siteGuid, int mediaId)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsWatchedByMedia", initObj.ApiUser,
-                                                      initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsWatchedByMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                    int iSiteGuid = 0;
+                    if (Int32.TryParse(siteGuid, out iSiteGuid))
                     {
-                        TVPApiModule.Services.ApiSocialService service =
-                            new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.GetFriendsWatchedByMedia(siteGuid, mediaId);
+                        TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                        return service.GetFriendsWatchedByMedia(iSiteGuid, mediaId);
                     }
                 }
                 catch (Exception ex)
@@ -120,20 +116,18 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all user's friends")]
-        public string[] GetUserFriends(InitializationObject initObj)
+        public string[] GetUserFriends(InitializationObject initObj, string siteGuid)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFriends", initObj.ApiUser, initObj.ApiPass,
-                                                      SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFriends", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                    int iSiteGuid = 0;
+                    if (Int32.TryParse(siteGuid, out iSiteGuid))
                     {
-                        TVPApiModule.Services.ApiSocialService service =
-                            new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.GetUserFriends(siteGuid);
+                        TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                        return service.GetUserFriends(iSiteGuid);
                     }
                 }
                 catch (Exception ex)
@@ -152,15 +146,13 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get all user's friends")]
         public FBConnectConfig FBConfig(InitializationObject initObj, string sSTG)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBConfig", initObj.ApiUser, initObj.ApiPass,
-                                                      SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBConfig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
                 {
 
-                    TVPApiModule.Services.ApiSocialService service =
-                        new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                    TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
 
                     FacebookConfig config = service.GetFBConfig(sSTG);
                     FBConnectConfig retVal = new FBConnectConfig
@@ -188,8 +180,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Gets FB user data")]
         public FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken, string sSTG)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFBUserData", initObj.ApiUser, initObj.ApiPass,
-                                                      SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFBUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
@@ -213,14 +204,12 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Merges FB user")]
         public FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserMerge", initObj.ApiUser, initObj.ApiPass,
-      SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserMerge", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
                 {
-                    TVPApiModule.Services.ApiSocialService service =
-                        new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
+                    TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
                     return service.FBUserMerge(sToken, sFBID, sUsername, sPassword);
                 }
                 catch (Exception ex)
@@ -239,8 +228,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Registers FB user")]
         public FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter, string sSTG)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserRegister", initObj.ApiUser, initObj.ApiPass,
-                    SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserRegister", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
@@ -263,18 +251,18 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user social privacy")]
-        public string GetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction)
+        public string GetUserSocialPrivacy(InitializationObject initObj, string siteGuid, SocialPlatform socialPlatform, eUserAction userAction)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                    int iSiteGuid = 0;
+                    if (Int32.TryParse(siteGuid, out iSiteGuid))
                     {
                         TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.GetUserSocialPrivacy(siteGuid, socialPlatform, userAction).ToString();
+                        return service.GetUserSocialPrivacy(iSiteGuid, socialPlatform, userAction).ToString();
                     }
                 }
                 catch (Exception ex)
@@ -287,18 +275,18 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user allowed social privacy list")]
-        public eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj)
+        public eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserAllowedSocialPrivacyList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                    int iSiteGuid = 0;
+                    if (Int32.TryParse(siteGuid, out iSiteGuid))
                     {
                         TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.GetUserAllowedSocialPrivacyList(siteGuid);
+                        return service.GetUserAllowedSocialPrivacyList(iSiteGuid);
                     }
                 }
                 catch (Exception ex)
@@ -311,18 +299,18 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets user social privacy")]
-        public bool SetUserSocialPrivacy(InitializationObject initObj, SocialPlatform socialPlatform, eUserAction userAction, eSocialPrivacy socialPrivacy)
+        public bool SetUserSocialPrivacy(InitializationObject initObj, string siteGuid, SocialPlatform socialPlatform, eUserAction userAction, eSocialPrivacy socialPrivacy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserSocialPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
+                    int iSiteGuid = 0;
+                    if (Int32.TryParse(siteGuid, out iSiteGuid))
                     {
                         TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.SetUserSocialPrivacy(siteGuid, socialPlatform ,userAction, socialPrivacy);
+                        return service.SetUserSocialPrivacy(iSiteGuid, socialPlatform, userAction, socialPrivacy);
                     }
                 }
                 catch (Exception ex)
@@ -335,7 +323,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user actions")]
-        public UserSocialActionObject[] GetUserActions(InitializationObject initObj, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public UserSocialActionObject[] GetUserActions(InitializationObject initObj, string siteGuid, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -343,7 +331,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetUserActions(initObj.SiteGuid, userAction, assetType, assetID, startIndex, numOfRecords, socialPlatform);
+                    return service.GetUserActions(siteGuid, userAction, assetType, assetID, startIndex, numOfRecords, socialPlatform);
                 }
                 catch (Exception ex)
                 {
@@ -355,7 +343,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets friends actions")]
-        public UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -363,7 +351,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetFriendsActions(initObj.SiteGuid, userActions, assetType, assetID, startIndex, numOfRecords, socialPlatform);
+                    return service.GetFriendsActions(siteGuid, userActions, assetType, assetID, startIndex, numOfRecords, socialPlatform);
                 }
                 catch (Exception ex)
                 {
@@ -375,7 +363,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Does a user requested action")]
-        public string DoUserAction(InitializationObject initObj, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
+        public string DoUserAction(InitializationObject initObj, string siteGuid, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "DoUserAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -383,7 +371,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.DoUserAction(initObj.SiteGuid, initObj.UDID, userAction, extraParams, socialPlatform, assetType, assetID).ToString();
+                    return service.DoUserAction(siteGuid, initObj.UDID, userAction, extraParams, socialPlatform, assetType, assetID).ToString();
                 }
                 catch (Exception ex)
                 {
@@ -395,7 +383,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets User Facebook Action Privacy")]
-        public string GetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform)
+        public string GetUserExternalActionShare(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFBActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -403,7 +391,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetUserExternalActionShare(initObj.SiteGuid, userAction, socialPlatform).ToString();
+                    return service.GetUserExternalActionShare(siteGuid, userAction, socialPlatform).ToString();
                 }
                 catch (Exception ex)
                 {
@@ -415,7 +403,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets User Internal Action Privacy")]
-        public string GetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform)
+        public string GetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -423,7 +411,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetUserInternalActionPrivacy(initObj.SiteGuid, userAction, socialPlatform).ToString();
+                    return service.GetUserInternalActionPrivacy(siteGuid, userAction, socialPlatform).ToString();
                 }
                 catch (Exception ex)
                 {
@@ -435,7 +423,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets User Facebook Action Privacy")]
-        public bool SetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
+        public bool SetUserExternalActionShare(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserFBActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -443,7 +431,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.SetUserExternalActionShare(initObj.SiteGuid, userAction, socialPlatform, actionPrivacy);
+                    return service.SetUserExternalActionShare(siteGuid, userAction, socialPlatform, actionPrivacy);
                 }
                 catch (Exception ex)
                 {
@@ -455,7 +443,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
-        public bool SetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
+        public bool SetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -463,7 +451,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.SetUserInternalActionPrivacy(initObj.SiteGuid, userAction, socialPlatform, actionPrivacy);
+                    return service.SetUserInternalActionPrivacy(siteGuid, userAction, socialPlatform, actionPrivacy);
                 }
                 catch (Exception ex)
                 {

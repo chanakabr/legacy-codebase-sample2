@@ -573,14 +573,13 @@ namespace TVPApi
         //    return retVal;
         //}
 
-        public static List<Media> GetChannelMultiFilter(InitializationObject initObj, int channelID, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, List<KeyValue> tagsMetas, CutWith cutWith)
+        public static List<Media> GetChannelMultiFilter(PlatformType platform, string udid, string language, int channelID, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, List<KeyValue> tagsMetas, CutWith cutWith)
         {
             List<Media> retVal = new List<Media>();
 
-            retVal = new APIChannelMediaLoader(channelID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage, tagsMetas, cutWith)
+            retVal = new APIChannelMediaLoader(channelID, groupID, platform, udid, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, language, tagsMetas, cutWith)
             {
-                DeviceId = initObj.UDID,
-                UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
             }.Execute() as List<Media>;
 
             // What to do with that???

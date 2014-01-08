@@ -26,7 +26,7 @@ namespace TVPApi
         public static List<TVPApi.PageGallery> GetPageGallerisByPageID(InitializationObject initObj, long ID, int groupID, int pageSize, int startIndex)
         {
             List<TVPApi.PageGallery> retVal = null;
-            TVPApi.PageContext page = PageDataHelper.GetPageContextByID(initObj, groupID, ID, false, false);
+            TVPApi.PageContext page = PageDataHelper.GetPageContextByID(initObj.Platform, groupID, initObj.Locale, ID, false, false);
             if (page != null)
             {
                 retVal = page.GetGalleries();
@@ -43,7 +43,7 @@ namespace TVPApi
         public static List<TVPApi.PageGallery> GetPageGallerisByPageToken(InitializationObject initObj, TVPApi.Pages token, int groupID)
         {
             List<TVPApi.PageGallery> retVal = null;
-            TVPApi.PageContext page = PageDataHelper.GetPageContextByToken(initObj, groupID, token, false, false);
+            TVPApi.PageContext page = PageDataHelper.GetPageContextByToken(initObj.Platform, groupID, initObj.Locale, token, false, false);
             if (page != null)
             {
                 retVal = page.GetGalleries();
@@ -53,10 +53,10 @@ namespace TVPApi
 
 
         //Get specific gallery ID
-        public static TVPApi.PageGallery GetGalleryByID(InitializationObject initObj, long ID, long PageID, int groupID)
+        public static TVPApi.PageGallery GetGalleryByID(PlatformType platform, Locale locale, long ID, long PageID, int groupID)
         {
             PageGallery retVal = null;
-            TVPApi.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+            TVPApi.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
             if (siteMap != null)
             {
                 PageContext page = (from pages in siteMap.GetPages()
@@ -75,10 +75,10 @@ namespace TVPApi
 
 
         //Get Gallery Items for the gallery
-        public static List<GalleryItem> GetGalleryContent(InitializationObject initObj, long PageID, long ID, string picSize, int groupID)
+        public static List<GalleryItem> GetGalleryContent(PlatformType platform, Locale locale, long PageID, long ID, string picSize, int groupID)
         {
             List<GalleryItem> retVal = new List<GalleryItem>();
-            PageGallery gallery = GetGalleryByID(initObj, PageID, ID, groupID);
+            PageGallery gallery = GetGalleryByID(platform, locale, PageID, ID, groupID);
             if (gallery != null)
             {
                 retVal = gallery.GalleryItems;
@@ -86,10 +86,10 @@ namespace TVPApi
             return retVal;
         }
 
-        public static List<Media> GetGalleryItemContent(InitializationObject initObj, long PageID, long GalleryID, long ItemID, string picSize, int groupID, int pageSize, int pageIndex, OrderBy orderBy)
+        public static List<Media> GetGalleryItemContent(PlatformType platform, string udid, Locale locale, long PageID, long GalleryID, long ItemID, string picSize, int groupID, int pageSize, int pageIndex, OrderBy orderBy)
         {
             List<Media> retVal = new List<Media>();
-            PageGallery gallery = GetGalleryByID(initObj, GalleryID, PageID, groupID);
+            PageGallery gallery = GetGalleryByID(platform, locale, GalleryID, PageID, groupID);
             if (gallery != null)
             {
                 GalleryItem item = (from items in gallery.GalleryItems
@@ -97,7 +97,7 @@ namespace TVPApi
                                     select items).FirstOrDefault();
                 if (item != null)
                 {
-                    retVal = MediaHelper.GetChannelMultiFilter(initObj, (int)item.TVMChannelID, picSize, pageSize, pageIndex, groupID, orderBy, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.WCF_ONLY_DEFAULT_VALUE);
+                    retVal = MediaHelper.GetChannelMultiFilter(platform, udid, locale.LocaleLanguage, (int)item.TVMChannelID, picSize, pageSize, pageIndex, groupID, orderBy, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.WCF_ONLY_DEFAULT_VALUE);
                     //GetMediaList(initObj, item.TVMUser, item.TVMPass, item.TVMChannelID, picSize, pageSize, pageIndex, groupID, MediaHelper.LoaderType.Channel, orderBy);
                 }
             }

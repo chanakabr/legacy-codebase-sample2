@@ -21,10 +21,10 @@ public class PageDataHelper
     }
 
     //Get specific page from site map by ID
-    public static TVPApi.PageContext GetPageContextByID(InitializationObject initObj, int groupID, long ID, bool withMenu, bool withFooter)
+    public static TVPApi.PageContext GetPageContextByID(PlatformType platform, int groupID, Locale locale, long ID, bool withMenu, bool withFooter)
     {
         PageContext retVal = null;
-        List<PageContext> pages = GetPages(initObj, groupID);
+        List<PageContext> pages = GetPages(platform, groupID, locale);
         if (pages != null)
         {
             retVal = (from page in pages
@@ -32,16 +32,16 @@ public class PageDataHelper
                       select page).FirstOrDefault() as PageContext;
         }
 
-        AddMenuToPageContext(retVal, initObj, withMenu, withFooter, groupID);
+        AddMenuToPageContext(retVal, platform, locale, withMenu, withFooter, groupID);
         return retVal;
     }
 
 
     //Get specific page from site map by token
-    public static TVPApi.PageContext GetPageContextByToken(InitializationObject initObj, int groupID, TVPApi.Pages token, bool withMenu, bool withFooter)
+    public static TVPApi.PageContext GetPageContextByToken(PlatformType platform, int groupID, Locale locale, TVPApi.Pages token, bool withMenu, bool withFooter)
     {
         PageContext retVal = null;
-        List<PageContext> pages = GetPages(initObj, groupID);
+        List<PageContext> pages = GetPages(platform, groupID, locale);
         if (pages != null)
         {
             retVal = (from page in pages
@@ -49,19 +49,19 @@ public class PageDataHelper
                       select page).FirstOrDefault() as PageContext;
         }
 
-        AddMenuToPageContext(retVal, initObj, withMenu, withFooter, groupID);
+        AddMenuToPageContext(retVal, platform, locale, withMenu, withFooter, groupID);
         
         return retVal;
     }
 
     //Get all site map pages
-    public static List<PageContext> GetPages(InitializationObject initObj, int groupID)
+    public static List<PageContext> GetPages(PlatformType platform, int groupID, Locale locale)
     {
         List<PageContext> retVal = null;
 
-        logger.InfoFormat("GetPages-> [{0}, {1}]", groupID, initObj.Platform);
+        logger.InfoFormat("GetPages-> [{0}, {1}]", groupID, platform);
 
-        TVPApi.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+        TVPApi.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
         if (siteMap != null)
         {
             retVal = siteMap.GetPages();
@@ -100,17 +100,17 @@ public class PageDataHelper
 
     }
 
-    private static void AddMenuToPageContext(PageContext page, InitializationObject initObj, bool withMenu, bool withFooter, int groupID)
+    private static void AddMenuToPageContext(PageContext page, PlatformType platform, Locale locale, bool withMenu, bool withFooter, int groupID)
     {
         if (page != null)
         {
             if (withMenu)
             {
-                page.Menu = MenuHelper.GetMenuByID(initObj, page.MenuID, groupID);
+                page.Menu = MenuHelper.GetMenuByID(platform, locale, page.MenuID, groupID);
             }
             if (withFooter)
             {
-                page.Footer = MenuHelper.GetFooterByID(initObj, page.FooterID, groupID);
+                page.Footer = MenuHelper.GetFooterByID(platform, locale, page.FooterID, groupID);
             }
         }
     }

@@ -35,32 +35,33 @@ namespace TVPApiServices
 
         #region SiteMap
 
-        //Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map
-        [WebMethod(EnableSession = true, Description = "Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map")]
-        public TVPApi.SiteMap GetSiteMap(InitializationObject initObj)
-        {
-            TVPApi.SiteMap retSiteMap = null;
+        //// Deprecated
+        ////Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map
+        //[WebMethod(EnableSession = true, Description = "Get complete user site map - retrieve on first time from DB for each new groupID. Next calls will get ready site map")]
+        //public TVPApi.SiteMap GetSiteMap(InitializationObject initObj)
+        //{
+        //    TVPApi.SiteMap retSiteMap = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSiteMap", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSiteMap", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    retSiteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            retSiteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return retSiteMap;
-        }
+        //    return retSiteMap;
+        //}
 
         #endregion
 
@@ -78,7 +79,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retPageContext = PageDataHelper.GetPageContextByID(initObj, groupID, ID, withMenu, withFooter);
+                    retPageContext = PageDataHelper.GetPageContextByID(initObj.Platform, groupID, initObj.Locale, ID, withMenu, withFooter);
                 }
                 catch (Exception ex)
                 {
@@ -93,58 +94,59 @@ namespace TVPApiServices
             return retPageContext;
         }
 
-        //Get specific page from site map
-        [WebMethod(EnableSession = true, Description = "Get specific page from site map")]
-        public PageContext GetPageByToken(InitializationObject initObj, Pages token, bool withMenu, bool withFooter)
-        {
-            PageContext retPageContext = null;
+        ////Get specific page from site map - Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get specific page from site map")]
+        //public PageContext GetPageByToken(InitializationObject initObj, Pages token, bool withMenu, bool withFooter)
+        //{
+        //    PageContext retPageContext = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    retPageContext = PageDataHelper.GetPageContextByToken(initObj, groupID, token, withMenu, withFooter);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            retPageContext = PageDataHelper.GetPageContextByToken(initObj, groupID, token, withMenu, withFooter);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return retPageContext;
-        }
+        //    return retPageContext;
+        //}
 
-        [WebMethod(EnableSession = true, Description = "Get site menu")]
-        public Menu GetMenu(InitializationObject initObj, long ID)
-        {
-            Menu retMenu = null;
+        //// Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get site menu")]
+        //public Menu GetMenu(InitializationObject initObj, long ID)
+        //{
+        //    Menu retMenu = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMenu", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMenu", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    retMenu = MenuHelper.GetMenuByID(initObj, ID, groupID);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            retMenu = MenuHelper.GetMenuByID(initObj, ID, groupID);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return retMenu;
-        }
+        //    return retMenu;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Get site footer menu")]
         public Menu GetFooter(InitializationObject initObj, long ID)
@@ -157,7 +159,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retMenu = MenuHelper.GetFooterByID(initObj, ID, groupID);
+                    retMenu = MenuHelper.GetFooterByID(initObj.Platform, initObj.Locale, ID, groupID);
                 }
                 catch (Exception ex)
                 {
@@ -172,88 +174,89 @@ namespace TVPApiServices
             return retMenu;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get site side galleries")]
-        public Profile GetSideProfile(InitializationObject initObj, long ID)
-        {
-            Profile retProfile = null;
+        //// Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get site side galleries")]
+        //public Profile GetSideProfile(InitializationObject initObj, long ID)
+        //{
+        //    Profile retProfile = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSideProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSideProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    retProfile = ProfileHelper.GetSideProfile(initObj, ID, groupID);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            retProfile = ProfileHelper.GetSideProfile(initObj, ID, groupID);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return retProfile;
-        }
+        //    return retProfile;
+        //}
 
-        //Get full bottom profile from site map
-        [WebMethod(EnableSession = true, Description = "Get full bottom profile from site map")]
-        public Profile GetBottomProfile(InitializationObject initObj, long ID)
-        {
-            Profile retProfile = null;
+        ////Get full bottom profile from site map - Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get full bottom profile from site map")]
+        //public Profile GetBottomProfile(InitializationObject initObj, long ID)
+        //{
+        //    Profile retProfile = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBottomProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBottomProfile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    retProfile = ProfileHelper.GetBottomProfile(initObj, ID, groupID);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            retProfile = ProfileHelper.GetBottomProfile(initObj, ID, groupID);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return retProfile;
-        }
+        //    return retProfile;
+        //}
         #endregion
 
         #region Galleries
 
-        //Get all page galleries from site map
-        [WebMethod(EnableSession = true, Description = "Get all page galleries from site map")]
-        public List<PageGallery> GetPageGalleries(InitializationObject initObj, long PageID, int pageSize, int start_index)
-        {
-            List<PageGallery> lstPageGallery = null;
+        ////Get all page galleries from site map - Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get all page galleries from site map")]
+        //public List<PageGallery> GetPageGalleries(InitializationObject initObj, long PageID, int pageSize, int start_index)
+        //{
+        //    List<PageGallery> lstPageGallery = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    lstPageGallery = PageGalleryHelper.GetPageGallerisByPageID(initObj, PageID, groupID, pageSize, start_index);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            lstPageGallery = PageGalleryHelper.GetPageGallerisByPageID(initObj, PageID, groupID, pageSize, start_index);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return lstPageGallery;
-        }
+        //    return lstPageGallery;
+        //}
 
         //Get all page galleries from site map
         [WebMethod(EnableSession = true, Description = "Get all page galleries from site map")]
@@ -268,7 +271,7 @@ namespace TVPApiServices
                 try
                 {
                     ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
-                    retPageGallery = PageGalleryHelper.GetGalleryByID(initObj, galleryID, PageID, groupID);
+                    retPageGallery = PageGalleryHelper.GetGalleryByID(initObj.Platform, initObj.Locale, galleryID, PageID, groupID);
                 }
                 catch (Exception ex)
                 {
@@ -295,7 +298,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstGalleryItem = PageGalleryHelper.GetGalleryContent(initObj, ID, PageID, picSize, groupID);
+                    lstGalleryItem = PageGalleryHelper.GetGalleryContent(initObj.Platform, initObj.Locale, ID, PageID, picSize, groupID);
                 }
                 catch (Exception ex)
                 {
@@ -327,7 +330,7 @@ namespace TVPApiServices
                     if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)                    
                         pageIndex = pageIndex / pageSize;                    
 
-                    lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, orderBy);
+                    lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj.Platform, initObj.UDID, initObj.Locale, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, orderBy);
                 }
                 catch (Exception ex)
                 {
@@ -345,34 +348,35 @@ namespace TVPApiServices
         #endregion
 
         #region User
-        [WebMethod(EnableSession = true, Description = "Get Group Rules")]
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj)
-        {
-            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
+        //// Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get Group Rules")]
+        //public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj)
+        //{
+        //    TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupRules();
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupRules();
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Get User Group Rules")]
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj)
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid)
         {
             TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
 
@@ -382,7 +386,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserGroupRules(initObj.SiteGuid);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserGroupRules(siteGuid);
                 }
                 catch (Exception ex)
                 {
@@ -397,8 +401,9 @@ namespace TVPApiServices
             return response;
         }
 
+        
         [WebMethod(EnableSession = true, Description = "Set User Group Rule")]
-        public bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive)
+        public bool SetUserGroupRule(InitializationObject initObj, string siteGuid, int ruleID, string PIN, int isActive)
         {
             bool response = false;
 
@@ -408,7 +413,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetUserGroupRule(initObj.SiteGuid, ruleID, PIN, isActive);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetUserGroupRule(siteGuid, ruleID, PIN, isActive);
                 }
                 catch (Exception ex)
                 {
@@ -424,7 +429,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Check Parental PIN")]
-        public bool CheckParentalPIN(InitializationObject initObj, int ruleID, string PIN)
+        public bool CheckParentalPIN(InitializationObject initObj, string siteGuid, int ruleID, string PIN)
         {
             bool response = false;
 
@@ -434,7 +439,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).CheckParentalPIN(initObj.SiteGuid, ruleID, PIN);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).CheckParentalPIN(siteGuid, ruleID, PIN);
                 }
                 catch (Exception ex)
                 {
@@ -450,7 +455,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Secured SiteGuid")]
-        public string GetSecuredSiteGuid(InitializationObject initObj)
+        public string GetSecuredSiteGuid(InitializationObject initObj, string siteGuid)
         {
             string sRet = string.Empty;
 
@@ -462,7 +467,7 @@ namespace TVPApiServices
                 {
                     string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
                     string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
-                    sRet = SecurityHelper.EncryptSiteGuid(privateKey, IV, initObj.SiteGuid);
+                    sRet = SecurityHelper.EncryptSiteGuid(privateKey, IV, siteGuid);
                 }
                 catch (Exception ex)
                 {
@@ -691,7 +696,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Has user connected to FB")]
-        public bool IsFacebookUser(InitializationObject initObj)
+        public bool IsFacebookUser(InitializationObject initObj, string siteGuid)
         {
             bool bRes = false;
 
@@ -701,7 +706,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    UserResponseObject userObj = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(initObj.SiteGuid);
+                    UserResponseObject userObj = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(siteGuid);
                     bRes = !string.IsNullOrEmpty(userObj.m_user.m_oBasicData.m_sFacebookID);
                 }
                 catch (Exception ex)
@@ -745,7 +750,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-Out a user")]
-        public void SignOut(InitializationObject initObj)
+        public void SignOut(InitializationObject initObj, string siteGuid)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -755,7 +760,7 @@ namespace TVPApiServices
                 {
                     //XXX: Do the UDID empty stuff
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                    new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignOut(initObj.SiteGuid, initObj.UDID, string.Empty, isSingleLogin);
+                    new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignOut(siteGuid, initObj.UDID, string.Empty, isSingleLogin);
                 }
                 catch (Exception ex)
                 {
@@ -769,7 +774,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Check if user is signed in")]
-        public bool IsUserSignedIn(InitializationObject initObj)
+        public bool IsUserSignedIn(InitializationObject initObj, string siteGuid)
         {
             bool bRet = false;
 
@@ -781,7 +786,7 @@ namespace TVPApiServices
                 {
                     //XXX: Do the UDID empty stuff
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(initObj.SiteGuid, initObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);
+                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(siteGuid, initObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);
                 }
                 catch (Exception ex)
                 {
@@ -797,8 +802,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Edit user details info")]
-        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData,
-            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
+        public UserResponseObject SetUserData(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -808,7 +812,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, userBasicData, userDynamicData);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(siteGuid, userBasicData, userDynamicData);
                 }
                 catch (Exception ex)
                 {
@@ -823,35 +827,36 @@ namespace TVPApiServices
             return response;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get user details info")]
-        public UserResponseObject GetUserData(InitializationObject initObj, string sSiteGuid)
-        {
-            UserResponseObject response = new UserResponseObject();
+        //// Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get user details info")]
+        //public UserResponseObject GetUserData(InitializationObject initObj, string sSiteGuid)
+        //{
+        //    UserResponseObject response = new UserResponseObject();
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    string siteGuid = (string.IsNullOrEmpty(sSiteGuid)) ? initObj.SiteGuid : sSiteGuid;
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(siteGuid);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            string siteGuid = (string.IsNullOrEmpty(sSiteGuid)) ? initObj.SiteGuid : sSiteGuid;
+        //            response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(siteGuid);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Get users details info")]
-        public UserResponseObject[] GetUsersData(InitializationObject initObj, string sSiteGuid)
+        public UserResponseObject[] GetUsersData(InitializationObject initObj, string siteGuid)
         {
             UserResponseObject[] response = null;
 
@@ -861,7 +866,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUsersData(sSiteGuid);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUsersData(siteGuid);
                 }
                 catch (Exception ex)
                 {
@@ -876,31 +881,32 @@ namespace TVPApiServices
             return response;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get user CA status")]
-        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus GetUserCAStatus(InitializationObject initObj)
-        {
-            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus response = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus.Annonymus;
+        //// Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get user CA status")]
+        //public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus GetUserCAStatus(InitializationObject initObj)
+        //{
+        //    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus response = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus.Annonymus;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserCAStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserCAStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
-            {
-                try
-                {
-                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).GetUserCAStatus(initObj.SiteGuid);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupID > 0)
+        //    {
+        //        try
+        //        {
+        //            response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).GetUserCAStatus(initObj.SiteGuid);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Forgot password")]
         public bool SendNewPassword(InitializationObject initObj, string sUserName)
@@ -929,7 +935,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set specific dynamic user key data")]
-        public bool SetUserDynamicData(InitializationObject initObj, string sKey, string sValue)
+        public bool SetUserDynamicData(InitializationObject initObj, string siteGuid, string sKey, string sValue)
         {
             bool bRet = false;
 
@@ -939,7 +945,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserDynamicData(initObj.SiteGuid, sKey, sValue);
+                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserDynamicData(siteGuid, sKey, sValue);
                 }
                 catch (Exception ex)
                 {
@@ -955,7 +961,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Clean User History")]
-        public bool CleanUserHistory(InitializationObject initObj, int[] mediaIDs)
+        public bool CleanUserHistory(InitializationObject initObj, string siteGuid, int[] mediaIDs)
         {
             bool bRet = false;
 
@@ -965,7 +971,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    bRet = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).CleanUserHistory(initObj.SiteGuid, mediaIDs);
+                    bRet = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).CleanUserHistory(siteGuid, mediaIDs);
                 }
                 catch (Exception ex)
                 {
@@ -984,7 +990,7 @@ namespace TVPApiServices
         #region XXXX
 
         [WebMethod(EnableSession = true, Description = "Do Social Action")]
-        public string DoSocialAction(InitializationObject initObj, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam)
+        public string DoSocialAction(InitializationObject initObj, string siteGuid, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam)
         {
             string sRes = SocialActionResponseStatus.UNKNOWN.ToString();
 
@@ -995,7 +1001,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupID, initObj.Platform);
-                    SocialActionResponseStatus response = service.DoSocialAction(mediaID, initObj.SiteGuid, initObj.UDID, socialAction, socialPlatform, actionParam);
+                    SocialActionResponseStatus response = service.DoSocialAction(mediaID, siteGuid, initObj.UDID, socialAction, socialPlatform, actionParam);
                     sRes = response.ToString();
                 }
                 catch (Exception ex)
@@ -1008,7 +1014,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user social actions")]
-        public UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
+        public UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, string siteGuid, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
         {
             UserSocialActionObject[] res = null;
 
@@ -1019,7 +1025,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupID, initObj.Platform);
-                    res = service.GetUserSocialActions(initObj.SiteGuid, socialAction, socialPlatform, isOnlyFriends, startIndex, numOfItems);
+                    res = service.GetUserSocialActions(siteGuid, socialAction, socialPlatform, isOnlyFriends, startIndex, numOfItems);
 
                 }
                 catch (Exception ex)
@@ -1220,7 +1226,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user started watching medias")]
-        public string[] GetUserStartedWatchingMedias(InitializationObject initObj, int numOfItems)
+        public string[] GetUserStartedWatchingMedias(InitializationObject initObj, string siteGuid, int numOfItems)
         {
             string[] response = null;
 
@@ -1230,7 +1236,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserStartedWatchingMedias(initObj.SiteGuid, numOfItems);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserStartedWatchingMedias(siteGuid, numOfItems);
                 }
                 catch (Exception ex)
                 {

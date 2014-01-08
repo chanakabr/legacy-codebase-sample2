@@ -58,7 +58,7 @@ namespace TVPApiServices
         [System.Xml.Serialization.XmlInclude(typeof(XmlDocument))]
         [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
         [System.Xml.Serialization.XmlInclude(typeof(File))]
-        public MediaWrapper GetMediaInfo(InitializationObject initObj, long MediaID, string picSize)
+        public MediaWrapper GetMediaInfo(InitializationObject initObj, int MediaID, string picSize)
         {
             MediaWrapper retMedia = new MediaWrapper();
 
@@ -68,7 +68,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retMedia.Media = MediaHelper.GetMediasInfo(initObj, new List<int>() { (int)MediaID }, picSize, groupID)[0];
+                    retMedia.Media = (new TVPApiModule.CatalogLoaders.APIMediaLoader(MediaID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), picSize, initObj.Locale.LocaleLanguage)
+                        .Execute() as List<Media>)[0];
 
                     File trailerFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat.ToLower()).SingleOrDefault();
 
@@ -122,7 +123,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, fileParam, iLocation);
+                    sRet = new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)fileParam.mediaID, (int)fileParam.fileID, fileParam.avg_bit_rate_num, fileParam.current_bit_rate_num, iLocation, fileParam.total_bit_rate_num, Action.ToString(), fileParam.duration, string.Empty, string.Empty, string.Empty)
+                    {
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as string;
                 }
                 catch (Exception ex)
                 {
@@ -148,7 +152,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, iMediaID, iFileID, iLocation);
+                    sRet = new TVPPro.SiteManager.CatalogLoaders.MediaHitLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, 0, 0, iLocation, 0, string.Empty, string.Empty)
+                    {
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as string;
                 }
                 catch (Exception ex)
                 {
@@ -212,7 +219,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ActionHelper.MediaError(initObj, groupID, initObj.Platform, fileParam, location, errorCode, errorMessage);
+                    new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)fileParam.mediaID, (int)fileParam.fileID, fileParam.avg_bit_rate_num, fileParam.current_bit_rate_num, location, fileParam.total_bit_rate_num, string.Empty, fileParam.duration, string.Empty, string.Empty, string.Empty)
+                    {
+                        Platform = initObj.Platform.ToString()
+                    }.Execute();
                 }
                 catch (Exception ex)
                 {

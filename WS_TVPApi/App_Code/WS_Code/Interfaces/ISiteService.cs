@@ -15,36 +15,36 @@ namespace TVPApiServices
     public interface ISiteService
     {
         #region SiteMap
-        [OperationContract]
-        TVPApi.SiteMap GetSiteMap(InitializationObject initObj);
+        //[OperationContract]
+        //TVPApi.SiteMap GetSiteMap(InitializationObject initObj);
         #endregion
 
-        [OperationContract]
-        TVPApi.PageContext GetPage(InitializationObject initObj, long ID, bool withMenu, bool withFooter);
+        //[OperationContract]
+        //TVPApi.PageContext GetPage(InitializationObject initObj, long ID, bool withMenu, bool withFooter);
 
-        [OperationContract]
-        TVPApi.PageContext GetPageByToken(InitializationObject initObj, Pages token, bool withMenu, bool withFooter);
+        //[OperationContract]
+        //TVPApi.PageContext GetPageByToken(InitializationObject initObj, Pages token, bool withMenu, bool withFooter);
 
-        [OperationContract]
-        Menu GetMenu(InitializationObject initObj, long ID);
+        //[OperationContract]
+        //Menu GetMenu(InitializationObject initObj, long ID);
 
         [OperationContract]
         Menu GetFooter(InitializationObject initObj, long ID);
 
-        [OperationContract]
-        Profile GetBottomProfile(InitializationObject initObj, long ID);
+        //[OperationContract]
+        //Profile GetBottomProfile(InitializationObject initObj, long ID);
 
-        [OperationContract]
-        List<TVPApi.PageGallery> GetPageGalleries(InitializationObject initObj, long PageID, int pageSize, int start_index);
+        //[OperationContract]
+        //List<TVPApi.PageGallery> GetPageGalleries(InitializationObject initObj, long PageID, int pageSize, int start_index);
 
         [OperationContract]
         PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);        
 
         [OperationContract]
-        string DoSocialAction(InitializationObject initObj, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam);
+        string DoSocialAction(InitializationObject initObj, string siteGuid, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam);
 
         [OperationContract]
-        bool IsFacebookUser(InitializationObject initObj);
+        bool IsFacebookUser(InitializationObject initObj, string siteGuid);
 
         [OperationContract]
         string GetSiteGuid(InitializationObject initObj, string userName, string password);
@@ -62,16 +62,16 @@ namespace TVPApiServices
         TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject SSOSignIn(InitializationObject initObj, string userName, string password, int providerID);
 
         [OperationContract]
-        bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive);
+        bool SetUserGroupRule(InitializationObject initObj, string siteGuid, int ruleID, string PIN, int isActive);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj);
+        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid);
+
+        //[OperationContract]
+        //TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj);
-
-        [OperationContract]
-        bool CheckParentalPIN(InitializationObject initObj, int ruleID, string PIN);
+        bool CheckParentalPIN(InitializationObject initObj, string siteGuid, int ruleID, string PIN);
 
         [OperationContract]
         TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
@@ -89,9 +89,9 @@ namespace TVPApiServices
         TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetEPGProgramRules(InitializationObject initObj, int MediaId, int programId, string IP);
 
         [OperationContract]
-        string[] GetUserStartedWatchingMedias(InitializationObject initObj, int numOfItems);
+        string[] GetUserStartedWatchingMedias(InitializationObject initObj, string siteGuid, int numOfItems);
 
         [OperationContract]
-        bool CleanUserHistory(InitializationObject initObj, int[] mediaIDs);
+        bool CleanUserHistory(InitializationObject initObj, string siteGuid, int[] mediaIDs);
     }
 }

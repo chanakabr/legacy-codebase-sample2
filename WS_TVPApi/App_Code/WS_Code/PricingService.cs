@@ -56,31 +56,32 @@ namespace TVPApiServices
             return response;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get all subscriptions contains media file")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
-        {
-            TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] subs = null;
+        //// Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get all subscriptions contains media file")]
+        //public TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
+        //{
+        //    TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] subs = null;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsContainingMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsContainingMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupId > 0)
-            {
-                try
-                {
-                    subs = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionsContainingMediaFile(iMediaID, iFileID);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupId > 0)
+        //    {
+        //        try
+        //        {
+        //            subs = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionsContainingMediaFile(iMediaID, iFileID);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return subs;
-        }
+        //    return subs;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Get all subscriptions ID's contains media file")]
         public int[] GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
@@ -161,31 +162,32 @@ namespace TVPApiServices
             return couponStatus;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get campaigns by type")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.Campaign[] GetCampaignsByType(InitializationObject initObj, CampaignTrigger trigger, bool isAlsoInactive)
-        {
-            TVPPro.SiteManager.TvinciPlatform.Pricing.Campaign[] campaigns = null;
+        ////Deprecated!
+        //[WebMethod(EnableSession = true, Description = "Get campaigns by type")]
+        //public TVPPro.SiteManager.TvinciPlatform.Pricing.Campaign[] GetCampaignsByType(InitializationObject initObj, CampaignTrigger trigger, bool isAlsoInactive)
+        //{
+        //    TVPPro.SiteManager.TvinciPlatform.Pricing.Campaign[] campaigns = null;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCampaignsByType", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+        //    int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCampaignsByType", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupId > 0)
-            {
-                try
-                {
-                    campaigns = new ApiPricingService(groupId, initObj.Platform).GetCampaignsByType(trigger, isAlsoInactive, initObj.UDID);  
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items.Add("Error", ex);
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
-            }
+        //    if (groupId > 0)
+        //    {
+        //        try
+        //        {
+        //            campaigns = new ApiPricingService(groupId, initObj.Platform).GetCampaignsByType(trigger, isAlsoInactive, initObj.UDID);  
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            HttpContext.Current.Items.Add("Error", ex);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        HttpContext.Current.Items.Add("Error", "Unknown group");
+        //    }
 
-            return campaigns;
-        }
+        //    return campaigns;
+        //}
 
         [WebMethod(EnableSession = true, Description = "Get subscription data")]
         public List<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs)

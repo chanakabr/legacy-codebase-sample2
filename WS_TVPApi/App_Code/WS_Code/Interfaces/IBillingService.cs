@@ -16,7 +16,7 @@ namespace TVPApiServices
     public interface IBillingService
     {
         [OperationContract]
-        AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, int billingMethod);
+        AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, string siteGuid, int billingMethod);
 
         [OperationContract]
         string GetClientMerchantSig(InitializationObject initObj, string sParamaters);

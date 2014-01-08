@@ -171,15 +171,15 @@ namespace TVPApi
 
 
 
-        public Media(dsItemInfo.ItemRow itemRow, InitializationObject initObj, int groupID, bool withDynamic)
-        {
-            //InitMediaObj(itemRow, initObj, groupID, withDynamic, 0);
-        }
+        //public Media(dsItemInfo.ItemRow itemRow, InitializationObject initObj, int groupID, bool withDynamic)
+        //{
+        //    //InitMediaObj(itemRow, initObj, groupID, withDynamic, 0);
+        //}
 
-        public Media(dsItemInfo.ItemRow itemRow, InitializationObject initObj, int groupID, bool withDynamic, long iMediaCount)
-        {
-            //InitMediaObj(itemRow, initObj, groupID, withDynamic, iMediaCount);
-        }
+        //public Media(dsItemInfo.ItemRow itemRow, InitializationObject initObj, int groupID, bool withDynamic, long iMediaCount)
+        //{
+        //    //InitMediaObj(itemRow, initObj, groupID, withDynamic, iMediaCount);
+        //}
         #endregion
 
         #region private functions
