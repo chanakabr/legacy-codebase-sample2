@@ -646,74 +646,74 @@ namespace TVPApi
         }
 
         //Build dynamic data if needed (is favorite, price, price status, notifications..)
-        public void BuildDynamicObj(InitializationObject initObj, int groupID)
-        {
-            this.MediaDynamicData = new DynamicData();
-
-            PermittedMediaContainer[] MediaItems = new ApiConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(initObj.SiteGuid);
-            int mediID = int.Parse(MediaID);
-            if (MediaItems != null)
-            {
-                var ItemPermited = (from m in MediaItems where m.m_nMediaID == mediID select m).FirstOrDefault();
-                if (ItemPermited != null)
-                {
-                    MediaDynamicData.Price = "Free";
-                    MediaDynamicData.PriceType = PriceReason.PPVPurchased;
-                    if (ItemPermited.m_dEndDate != null)
-                    {
-                        MediaDynamicData.ExpirationDate = ItemPermited.m_dEndDate;
-                    }
-                }
-                else
-                {
-                    string price;
-                    PriceReason reason;
-                    GetPrice(out price, out reason, groupID, initObj.SiteGuid, initObj.Platform);
-                    MediaDynamicData.PriceType = reason;
-                    MediaDynamicData.Price = price;
-                }
-            }
-            else
-            {
-                string price;
-                PriceReason reason;
-                GetPrice(out price, out reason, groupID, initObj.SiteGuid, initObj.Platform);
-                MediaDynamicData.PriceType = reason;
-                MediaDynamicData.Price = price;
-
-            }
-
-            if (!string.IsNullOrEmpty(initObj.SiteGuid))
-            {
-                if (MediaHelper.AreMediasFavorite(initObj, groupID, new List<int>() { mediID })[0].Value)
-                {
-                    MediaDynamicData.IsFavorite = true;
-                }
-                else
-                {
-                    MediaDynamicData.IsFavorite = false;
-                }
-            }
-
-        }
-
-        //private bool IsItemFavorite(int mediaID, string userGuid,int iDomainID, string sUDID, int groupID, PlatformType platform)
+        //public void BuildDynamicObj(InitializationObject initObj, int groupID)
         //{
-        //    bool retVal = false;
-        //    FavoritObject[] favoriteObj = new ApiUsersService(groupID, platform).GetUserFavorites(userGuid, string.Empty, iDomainID, sUDID);
-        //    if (favoriteObj != null)
+        //    this.MediaDynamicData = new DynamicData();
+
+        //    PermittedMediaContainer[] MediaItems = new ApiConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(initObj.SiteGuid);
+        //    int mediID = int.Parse(MediaID);
+        //    if (MediaItems != null)
         //    {
-        //        for (int i = 0; i < favoriteObj.Length; i++)
+        //        var ItemPermited = (from m in MediaItems where m.m_nMediaID == mediID select m).FirstOrDefault();
+        //        if (ItemPermited != null)
         //        {
-        //            if (favoriteObj[i].m_sItemCode == mediaID.ToString())
+        //            MediaDynamicData.Price = "Free";
+        //            MediaDynamicData.PriceType = PriceReason.PPVPurchased;
+        //            if (ItemPermited.m_dEndDate != null)
         //            {
-        //                retVal = true;
-        //                break;
+        //                MediaDynamicData.ExpirationDate = ItemPermited.m_dEndDate;
         //            }
         //        }
+        //        else
+        //        {
+        //            string price;
+        //            PriceReason reason;
+        //            GetPrice(out price, out reason, groupID, initObj.SiteGuid, initObj.Platform);
+        //            MediaDynamicData.PriceType = reason;
+        //            MediaDynamicData.Price = price;
+        //        }
         //    }
-        //    return retVal;
+        //    else
+        //    {
+        //        string price;
+        //        PriceReason reason;
+        //        GetPrice(out price, out reason, groupID, initObj.SiteGuid, initObj.Platform);
+        //        MediaDynamicData.PriceType = reason;
+        //        MediaDynamicData.Price = price;
+
+        //    }
+
+        //    if (!string.IsNullOrEmpty(initObj.SiteGuid))
+        //    {
+        //        if (MediaHelper.AreMediasFavorite(initObj, groupID, new List<int>() { mediID })[0].Value)
+        //        {
+        //            MediaDynamicData.IsFavorite = true;
+        //        }
+        //        else
+        //        {
+        //            MediaDynamicData.IsFavorite = false;
+        //        }
+        //    }
+
         //}
+
+        ////private bool IsItemFavorite(int mediaID, string userGuid,int iDomainID, string sUDID, int groupID, PlatformType platform)
+        ////{
+        ////    bool retVal = false;
+        ////    FavoritObject[] favoriteObj = new ApiUsersService(groupID, platform).GetUserFavorites(userGuid, string.Empty, iDomainID, sUDID);
+        ////    if (favoriteObj != null)
+        ////    {
+        ////        for (int i = 0; i < favoriteObj.Length; i++)
+        ////        {
+        ////            if (favoriteObj[i].m_sItemCode == mediaID.ToString())
+        ////            {
+        ////                retVal = true;
+        ////                break;
+        ////            }
+        ////        }
+        ////    }
+        ////    return retVal;
+        ////}
 
         private void GetPrice(out string price, out PriceReason reason, int groupID, string userGuid, PlatformType platform)
         {

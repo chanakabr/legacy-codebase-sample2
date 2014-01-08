@@ -9,6 +9,7 @@ using ODBCWrapper;
 using TVPPro.SiteManager.DataLoaders;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
+using TVPApiModule.CatalogLoaders;
 namespace TVPApi
 {
     public class AbertisJSONParser : IParser
@@ -145,7 +146,10 @@ namespace TVPApi
                 string wsUser = string.Empty;
                 GetWSUserPass(groupID, ref wsUser, ref wsPass);
                 long mediaCount = 0;
-                List<Media> mediaList = MediaHelper.GetChannelMultiFilter(GetInitObj().Platform, GetInitObj().UDID, GetInitObj().Locale.LocaleLanguage, (int)item.TVMChannelID, "full", items, index, groupID, OrderBy.None, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.OR);
+                List<Media> mediaList = new APIChannelMediaLoader((int)item.TVMChannelID, groupID, platform, GetInitObj().UDID, SiteHelper.GetClientIP(), items, index, "full", GetInitObj().Locale.LocaleLanguage, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.OR)
+                {
+                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                }.Execute() as List<Media>;
                 retVal = ParseChannelToActivaChannel(mediaList, mediaCount, groupID, platform);
                 retVal.sectionTitle = item.Title;
                 retVal.test = "TestVal";

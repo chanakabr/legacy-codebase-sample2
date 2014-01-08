@@ -7,6 +7,7 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.CatalogLoaders;
 
 /// <summary>
 /// Summary description for PageGalleryHelper
@@ -97,8 +98,10 @@ namespace TVPApi
                                     select items).FirstOrDefault();
                 if (item != null)
                 {
-                    retVal = MediaHelper.GetChannelMultiFilter(platform, udid, locale.LocaleLanguage, (int)item.TVMChannelID, picSize, pageSize, pageIndex, groupID, orderBy, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.WCF_ONLY_DEFAULT_VALUE);
-                    //GetMediaList(initObj, item.TVMUser, item.TVMPass, item.TVMChannelID, picSize, pageSize, pageIndex, groupID, MediaHelper.LoaderType.Channel, orderBy);
+                    retVal = new APIChannelMediaLoader((int)item.TVMChannelID, groupID, platform, udid, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, locale.LocaleLanguage, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.WCF_ONLY_DEFAULT_VALUE)
+                    {
+                        UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    }.Execute() as List<Media>;
                 }
             }
             return retVal;

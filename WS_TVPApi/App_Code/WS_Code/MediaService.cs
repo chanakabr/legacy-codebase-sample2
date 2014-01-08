@@ -319,7 +319,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetUserItems(initObj, itemType, picSize, pageSize, start_index, groupID);
+                    lstMedia = MediaHelper.GetUserItems(initObj.Platform, initObj.SiteGuid, initObj.DomainID, initObj.UDID, initObj.Locale.LocaleLanguage, itemType, picSize, pageSize, start_index, groupID);
                 }
                 catch (Exception ex)
                 {
