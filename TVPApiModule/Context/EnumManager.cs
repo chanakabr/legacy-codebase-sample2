@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Xml.Serialization;
 using TVPPro.SiteManager.Context;
 /// <summary>
 /// Summary description for EnumManager
@@ -36,6 +37,7 @@ namespace TVPApi
         PrePaidPurchased
     }
 
+    [XmlType(TypeName = "TVPApiOrderBy")]
     public enum OrderBy
     {
         None = 0,
