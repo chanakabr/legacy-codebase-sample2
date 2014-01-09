@@ -644,6 +644,7 @@ namespace TVPApi
 
             lstMedias = (from media in lstAllMedias
                          where
+                             (media.LastWatchDate.HasValue) &&
                              (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays >= 0 &&
                              (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays <= (periodBefore + 1) * (int)byPeriod
                          select media).ToList<Media>();
