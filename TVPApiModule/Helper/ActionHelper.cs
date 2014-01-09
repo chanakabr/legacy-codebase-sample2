@@ -63,13 +63,16 @@ namespace TVPApi
             {
                 case ActionType.AddFavorite:
                     {
-                        long guidNum = Convert.ToInt64(sUserID);
-                        int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
+                        long guidNum = 0;
+                        if (Int64.TryParse(sUserID, out guidNum))
+                        {
+                            int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
 
-                        if (!string.IsNullOrEmpty(isOfflineSync))
-                            new ApiUsersService(groupID, platform).AddUserOfflineMedia(sUserID, mediaID);
+                            if (!string.IsNullOrEmpty(isOfflineSync))
+                                new ApiUsersService(groupID, platform).AddUserOfflineMedia(sUserID, mediaID);
 
-                        retVal = new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), extraVal.ToString());
+                            retVal = new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), extraVal.ToString());
+                        }
                         break;
                     }
                 case ActionType.RemoveFavorite:
