@@ -67,7 +67,7 @@ namespace TVPApiModule.Services
                 else
                 {
                     extraPatams = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[1];
-                    extraPatams[0] = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "link", value = actionParam};
+                    extraPatams[0] = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "link", value = actionParam };
                 }
 
                 BaseDoUserActionRequest actionRequest = new BaseDoUserActionRequest()
@@ -76,11 +76,14 @@ namespace TVPApiModule.Services
                     m_eAssetType = eAssetType.MEDIA,
                     m_eSocialPlatform = socialPlatform,
                     m_nAssetID = mediaID,
-                    m_oKeyValue =  extraPatams,
+                    m_oKeyValue = extraPatams,
                     m_sDeviceUDID = udid,
                     m_sSiteGuid = siteGuid
                 };
-                eRes = m_Module.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                DoSocialActionResponse response = m_Module.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                if (response != null)
+                    eRes = response.m_eActionResponseStatusIntern;
+
             }
             catch (Exception ex)
             {
@@ -383,9 +386,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public SocialActionResponseStatus DoUserAction(string siteGuid, string udid, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
+        public DoSocialActionResponse DoUserAction(string siteGuid, string udid, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
         {
-            SocialActionResponseStatus res = SocialActionResponseStatus.UNKNOWN;
+            DoSocialActionResponse res = null;
 
             try
             {
