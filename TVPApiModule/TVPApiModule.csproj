@@ -80,6 +80,7 @@
     <Compile Include="CatalogLoaders\APIChannelsListsLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGAutoCompleteLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGSearchLoader.cs" />
+    <Compile Include="CatalogLoaders\APIMediaCommentsListLoader.cs" />
     <Compile Include="CatalogLoaders\APIMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIPeopleWhoLikedLoader.cs" />
     <Compile Include="CatalogLoaders\APIPeopleWhoWatchedLoader.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="DataLoaders\APISendToFriendLoader.cs" />
     <Compile Include="DataLoaders\APIChannelsListLoader.cs" />
     <Compile Include="DBConfiguration\TVinciDBConfiguration.cs" />
+    <Compile Include="Extentions\TranslateExtensions.cs" />
     <Compile Include="Helper\ActionHelper.cs" />
     <Compile Include="Helper\APICatalogHelper.cs" />
     <Compile Include="Helper\CategoryTreeHelper.cs" />
@@ -154,35 +156,44 @@
     <Compile Include="Objects\CRM\UserType.cs" />
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\External.cs" />
+    <Compile Include="Objects\Responses\BillingResponse.cs" />
+    <Compile Include="Objects\Responses\BillingTransactionsResponse.cs" />
+    <Compile Include="Objects\Responses\EPGChannel.cs" />
+    <Compile Include="Objects\Responses\EPGMultiChannelProgramme.cs" />
+    <Compile Include="Objects\Responses\Favorite.cs" />
+    <Compile Include="Objects\Responses\GroupRule.cs" />
+    <Compile Include="Objects\Responses\MediaContainer.cs" />
+    <Compile Include="Objects\Responses\MediaMark.cs" />
+    <Compile Include="Objects\Responses\SubscriptionContainer.cs" />
     <Compile Include="Objects\TagMetaIntPairArray.cs" />
     <Compile Include="Objects\ExtraParameters.cs" />
     <Compile Include="Objects\Notification.cs" />
     <Compile Include="Objects\TagMetaPairArray.cs" />
     <Compile Include="Objects\AdvertisingProvider.cs" />
     <Compile Include="Objects\ImplementationBase.cs" />
-    <Compile Include="Objects\Category.cs" />
-    <Compile Include="Objects\Channel.cs" />
-    <Compile Include="Objects\Comment.cs" />
+    <Compile Include="Objects\Responses\Category.cs" />
+    <Compile Include="Objects\Responses\Channel.cs" />
+    <Compile Include="Objects\Responses\Comment.cs" />
     <Compile Include="Objects\DynamicData.cs" />
     <Compile Include="Objects\FBConnectObjects.cs" />
     <Compile Include="Objects\InitializationObject.cs" />
     <Compile Include="Objects\Locale.cs" />
-    <Compile Include="Objects\Media.cs" />
+    <Compile Include="Objects\Responses\Media.cs" />
     <Compile Include="Objects\Menu.cs" />
     <Compile Include="Objects\MenuItem.cs" />
     <Compile Include="Objects\PageData.cs" />
     <Compile Include="Objects\PageInfo.cs" />
-    <Compile Include="Objects\PermittedPackages.cs" />
+    <Compile Include="Objects\Responses\PermittedPackages.cs" />
     <Compile Include="Objects\Profile.cs" />
     <Compile Include="Objects\ProfileInfo.cs" />
     <Compile Include="Objects\SafeDictionary.cs" />
     <Compile Include="Objects\SiteMap.cs" />
-    <Compile Include="Objects\SubscriptionPrice.cs" />
+    <Compile Include="Objects\Responses\SubscriptionPrice.cs" />
     <Compile Include="Objects\TagMetaPair.cs" />
     <Compile Include="Objects\ImplementationYes.cs" />
     <Compile Include="Objects\TextLocalization.cs" />
     <Compile Include="Objects\Translation.cs" />
-    <Compile Include="Objects\UserVote.cs" />
+    <Compile Include="Objects\Responses\UserVote.cs" />
     <Compile Include="Parsers\AbertisJSONParser.cs" />
     <Compile Include="Parsers\UsersXMLParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -350,6 +361,7 @@
   <ItemGroup>
     <None Include="Web References\yes.tvinci.ITProxy\service.disco" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

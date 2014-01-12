@@ -673,7 +673,7 @@ namespace RestfulTVPApi.ServiceInterface
         }
 
         //Ofir - moved from ca
-        public SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string[] sSubscriptions, string siteGuid, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             SubscriptionsPricesContainer[] res = null;
 
@@ -681,7 +681,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                res = new ApiConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPricesWithCoupon(initObj.SiteGuid, sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                res = new ApiConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPricesWithCoupon(sSubscriptions, siteGuid, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
             }
             else
             {

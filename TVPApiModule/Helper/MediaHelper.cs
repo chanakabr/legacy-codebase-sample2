@@ -10,11 +10,11 @@ using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.Helper;
 using System.Text;
 using TVPPro.Configuration.Media;
-using TVPApiModule.DataLoaders;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.CatalogLoaders;
+using TVPApiModule.Objects.Responses;
 
 /// <summary>
 /// Summary description for MediaHelper
@@ -721,7 +721,7 @@ namespace TVPApi
             {
                 case UserItemType.Favorite:
                     {
-                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(siteGuid, string.Empty, domainID, string.Empty);//initObj.UDID);
+                        Favorite[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(siteGuid, string.Empty, domainID, string.Empty);
 
                         if (favoritesObj != null)
                         {
@@ -733,20 +733,20 @@ namespace TVPApi
                     }
                 case UserItemType.Rental:
                     {
-                        PermittedMediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(guid);
+                        MediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(guid);
                         mediaIDsList = MediaPermitedItems.Select(mp => mp.m_nMediaID).ToList();
                         retVal = new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDsList, groupID, platform, udid, SiteHelper.GetClientIP(), picSize, language).Execute() as List<Media>;
                         break;
                     }
                 case UserItemType.Package:
                     {
-                        PermittedSubscriptionContainer[] PermitedPackages = new ApiConditionalAccessService(groupID, platform).GetUserPermitedSubscriptions(guid);
+                        SubscriptionContainer[] PermitedPackages = new ApiConditionalAccessService(groupID, platform).GetUserPermitedSubscriptions(guid);
                         if (PermitedPackages != null && PermitedPackages.Length > 0)
                         {
                             List<KeyValue> BaseIdsDict = new List<KeyValue>();
                             StringBuilder sb = new StringBuilder();
 
-                            foreach (PermittedSubscriptionContainer sub in PermitedPackages)
+                            foreach (SubscriptionContainer sub in PermitedPackages)
                             {
                                 sb.AppendFormat("{0}{1}", sub.m_sSubscriptionCode, ";");
                                 var pair = BaseIdsDict.Where(bid => bid.m_sKey == "Base ID").FirstOrDefault();

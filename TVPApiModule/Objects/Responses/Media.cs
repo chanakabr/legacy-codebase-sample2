@@ -37,12 +37,25 @@ namespace TVPApi
         public AdvertisingProvider OverlayProvider { get; set; }
         public string[] BreakPoints { get; set; }
         public string[] OverlayPoints { get; set; }
+        public string CoGuid { get; set; }
     }
 
     public class Picture
     {
         public string PicSize { get; set; }
         public string URL { get; set; }
+    }
+
+    public class TagMetaPair
+    {
+        public string Key { get; set; }
+        public string Value { get; set; }
+
+        public TagMetaPair(string key, string value)
+        {
+            Key = key;
+            Value = value;
+        }
     }
 
     public class Media
@@ -414,6 +427,7 @@ namespace TVPApi
                     mediaFile.URL = file.m_sUrl;
                     mediaFile.Duration = file.m_nDuration.ToString();
                     mediaFile.Format = file.m_sFileFormat;
+                    mediaFile.CoGuid = file.m_sCoGUID;
 
                     if (file.m_sFileFormat.ToLower() == fileFormat.ToLower())
                     {
@@ -464,6 +478,7 @@ namespace TVPApi
                     mediaFile.URL = branding.m_sUrl;
                     mediaFile.Duration = branding.m_nDuration.ToString();
                     mediaFile.Format = branding.m_sFileFormat;
+                    mediaFile.CoGuid = branding.m_sCoGUID;
 
                     Files.Add(mediaFile);
                 }

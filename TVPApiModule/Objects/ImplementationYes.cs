@@ -14,6 +14,7 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
 using log4net;
+using TVPApiModule.CatalogLoaders;
 
 namespace TVPApiModule.Objects
 {
@@ -118,29 +119,30 @@ namespace TVPApiModule.Objects
             string sRet = string.Empty;
             string sError = @"{{""Error"":{0}, ""Description"":""{1}""}}";
 
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, iMediaID.ToString()) { GroupID = _nGroupID, Platform = _initObj.Platform, DeviceUDID = _initObj.UDID, Language = _initObj.Locale.LocaleLanguage }.Execute());
+
+            List<Media> mediaInfo = new APIMediaLoader(iMediaID, _nGroupID, _initObj.Platform, _initObj.UDID, SiteHelper.GetClientIP(), string.Empty, _initObj.Locale.LocaleLanguage)
+                .Execute() as List<Media>;
 
             // Error
-            if (mediaInfo.Item.Rows.Count == 0)
+            if (mediaInfo == null || mediaInfo.Count > 0)
             {
                 sRet += string.Format(sError, 1000, "MediaID '" + iMediaID + "'was not found");
                 logger.ErrorFormat("ImplementationYes::GetMediaLicenseData -> {0}", sRet);
 
                 return sRet;
             }
-            else if (mediaInfo.Item[0].GetChildRows("Item_Metas").Length > 0 && !mediaInfo.Item[0].GetChildRows("Item_Metas")[0].Table.Columns.Contains("BundleID"))
+            else if (mediaInfo[0].Metas != null && mediaInfo[0].Metas.Count > 0 && mediaInfo[0].Metas.Where(m => m.Key == "BundleID").FirstOrDefault() == null)
             {
                 sRet += string.Format(sError, 1001, "No 'BundleID' field for MediaID " + iMediaID);
                 return sRet;
             }
 
-            if (mediaInfo.Item.Rows.Count > 0 && mediaInfo.Item[0].GetChildRows("Item_Metas").Length > 0 && mediaInfo.Item[0].GetChildRows("Item_Metas")[0].Table.Columns.Contains("BundleID"))
+            if (mediaInfo[0].Metas != null && mediaInfo[0].Metas.Count > 0 && mediaInfo[0].Metas.Where(m => m.Key == "BundleID").FirstOrDefault() != null)
             {
                 using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
                 {
-                    string sBundleID = mediaInfo.Item[0].GetChildRows("Item_Metas")[0]["BundleID"].ToString();
-                    string sComponentID = mediaInfo.Files.Where(r => r.FileID.Equals(iMediaFileID.ToString())).FirstOrDefault().CoGuid;
+                    string sBundleID = mediaInfo[0].Metas.Where(m => m.Key == "BundleID").FirstOrDefault().Value;
+                    string sComponentID = mediaInfo[0].Files[0].CoGuid;
                     
                     // Error no file component ID
                     if(string.IsNullOrEmpty(sComponentID)) {
@@ -308,14 +310,18 @@ namespace TVPApiModule.Objects
                     {
                         string sAccountUuid = dynamicData.m_sValue;
 
-                        TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-                        dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, iMediaID.ToString()) { GroupID = _nGroupID, Platform = _initObj.Platform, DeviceUDID = _initObj.UDID, Language = _initObj.Locale.LocaleLanguage }.Execute());
+                        //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
+                        //dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, iMediaID.ToString()) { GroupID = _nGroupID, Platform = _initObj.Platform, DeviceUDID = _initObj.UDID, Language = _initObj.Locale.LocaleLanguage }.Execute());
 
-                        if (mediaInfo.Item.Count > 0 && mediaInfo.Item[0].GetChildRows("Item_Tags").Length > 0)
+                        List<Media> mediaInfo = new APIMediaLoader(iMediaID, _nGroupID, _initObj.Platform, _initObj.UDID, SiteHelper.GetClientIP(), string.Empty, _initObj.Locale.LocaleLanguage)
+                            .Execute() as List<Media>; 
+
+                        //if (mediaInfo.Item.Count > 0 && mediaInfo.Item[0].GetChildRows("Item_Tags").Length > 0)
+                        if (mediaInfo != null && mediaInfo.Count > 0 && mediaInfo[0].Tags != null && mediaInfo[0].Tags.Count > 0)
                         {
-                            if (mediaInfo.Item[0].GetChildRows("Item_Tags")[0].Table.Columns.Contains("Product key"))
+                            if (mediaInfo[0].Tags.Where(t=> t.Key == "Product key").FirstOrDefault() != null)
                             {
-                                string[] sProductPKs = mediaInfo.Item[0].GetChildRows("Item_Tags")[0]["Product key"].ToString().Split('|');
+                                string[] sProductPKs = mediaInfo[0].Tags.Where(t => t.Key == "Product key").FirstOrDefault().Value.Split('|');
                                 int[] iProductPKs = sProductPKs.Select(x => int.Parse(x)).ToArray();
                                 ent = proxy.GetEntitlements(sAccountUuid, iProductPKs);
                             }

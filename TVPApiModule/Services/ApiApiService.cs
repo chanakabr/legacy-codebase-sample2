@@ -7,6 +7,8 @@ using TVPApi;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Extentions;
 
 namespace TVPApiModule.Services
 {
@@ -69,12 +71,12 @@ namespace TVPApiModule.Services
             return operators;
         }
 
-        public MediaMarkObject GetMediaMark(string sSiteGuid, int iMediaID)
+        public MediaMark GetMediaMark(string sSiteGuid, int iMediaID)
         {
-            MediaMarkObject mediaMark = null;
+            MediaMark mediaMark = null;
             try
             {
-                mediaMark = m_Module.GetMediaMark(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid);
+                mediaMark = m_Module.GetMediaMark(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -128,12 +130,14 @@ namespace TVPApiModule.Services
             return geo;
         }
 
-        public EPGChannelObject[] GetEPGChannel(string sPicSize)
+        public EPGChannel[] GetEPGChannel(string sPicSize)
         {
-            EPGChannelObject[] objEPGRes = null;
+            EPGChannel[] objEPGRes = null;
             try
             {
-                objEPGRes = m_Module.GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
+                var response = m_Module.GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
+                if (response != null)
+                    objEPGRes = response.Select(c => c.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -170,12 +174,14 @@ namespace TVPApiModule.Services
             return objEPGProgramRes;
         }
 
-        public EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public EPGMultiChannelProgramme[] GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
-            EPGMultiChannelProgrammeObject[] objEPGProgramRes = null;
+            EPGMultiChannelProgramme[] objEPGProgramRes = null;
             try
             {
-                objEPGProgramRes = m_Module.GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+                var response = m_Module.GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+                if (response != null)
+                    objEPGProgramRes = response.Select(p => p.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -184,12 +190,14 @@ namespace TVPApiModule.Services
             return objEPGProgramRes;
         }
 
-        public GroupRule[] GetGroupMediaRules(int MediaId, int siteGuid, string udid)
+        public TVPApiModule.Objects.Responses.GroupRule[] GetGroupMediaRules(int MediaId, int siteGuid, string udid)
         {
-            GroupRule[] res = null;
+            TVPApiModule.Objects.Responses.GroupRule[] res = null;
             try
             {
-                res = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
+                var response = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
+                if (response != null)
+                    res = response.Select(r => r.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -198,9 +206,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public GroupRule[] GetGroupRules()
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules()
         {
-            GroupRule[] res = null;
+            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] res = null;
             try
             {
                 res = m_Module.GetGroupRules(m_wsUserName, m_wsPassword);
@@ -212,9 +220,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public GroupRule[] GetUserGroupRules(string siteGuid)
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(string siteGuid)
         {
-            GroupRule[] res = null;
+            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] res = null;
             try
             {
                 res = m_Module.GetUserGroupRules(m_wsUserName, m_wsPassword, siteGuid);
@@ -296,9 +304,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public GroupRule[] GetDomainGroupRules(int domainID)
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetDomainGroupRules(int domainID)
         {
-            GroupRule[] res = null;
+            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] res = null;
             try
             {
                 res = m_Module.GetDomainGroupRules(m_wsUserName, m_wsPassword, domainID);
@@ -325,9 +333,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public GroupRule[] GetEPGProgramRules(int MediaId, int programId, int siteGuid, string IP, string udid)
+        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetEPGProgramRules(int MediaId, int programId, int siteGuid, string IP, string udid)
         {
-            GroupRule[] res = null;
+            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] res = null;
             try
             {
                 res = m_Module.GetEPGProgramRules(m_wsUserName, m_wsPassword, MediaId, programId, siteGuid, IP, udid);
@@ -391,6 +399,33 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : SendToFriend, Error Message: {0}, Parameters :  senderName: {1}, senderMail: {2}, mailTo: {3}, mediaID: {4}", ex.Message, senderName, senderMail, mailTo, mediaID);
+            }
+            return res;
+        }
+
+        public EPGChannelProgramme[] SearchEPGContent(string searchValue, int nPageIndex, int nPageSize)
+        {
+            EPGChannelProgramme[] res = null;
+
+            string sKey = string.Format("{0}_{1}_{2}", searchValue, nPageIndex, nPageSize);
+
+            // return object from cache if exist
+            object oFromCache = DataHelper.GetCacheObject(sKey);
+            if (oFromCache != null && oFromCache is EPGChannelProgramme[]) 
+                return (oFromCache as EPGChannelProgramme[]);
+
+            try
+            {
+                EPGChannelProgrammeObject[] response = m_Module.SearchEPGContent(m_wsUserName, m_wsPassword, searchValue, nPageIndex, nPageSize);
+                if (response != null && response.Length > 0)
+                {
+                    res = response.Select(p => p.ToApiObject()).ToArray();
+                    DataHelper.SetCacheObject(sKey, res);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SearchEPGContent, Error Message: {0}, Parameters :  searchValue: {1}, User ID: {2}", ex.Message, searchValue, UsersService.Instance.GetUserID());
             }
             return res;
         }

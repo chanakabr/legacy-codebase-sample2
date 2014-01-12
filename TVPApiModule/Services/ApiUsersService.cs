@@ -10,6 +10,8 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.Helper;
 using System.Web;
 using TVPPro.SiteManager.TvinciPlatform.api;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Extentions;
 
 namespace TVPApiModule.Services
 {
@@ -158,20 +160,23 @@ namespace TVPApiModule.Services
             return IsRemoved;
         }
 
-        public FavoritObject[] GetUserFavorites(string sSiteGuid, string sItemType, int iDomainID, string sUDID)
+        public Favorite[] GetUserFavorites(string sSiteGuid, string sItemType, int iDomainID, string sUDID)
         {
-            FavoritObject[] response = null;
+            Favorite[] retVal = null;
 
             try
             {
-                response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+
+                FavoritObject[] response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+                if (response != null && response.Length > 0)
+                    retVal = response.Select( r => r.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error recive user data Protocol GetUserFavorites, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
             }
 
-            return response;
+            return retVal;
         }
 
         public bool AddUserFavorite(string sSiteGuid, int iDomainID, string sUDID, string sMediaType, string sMediaID, string sExtra)
