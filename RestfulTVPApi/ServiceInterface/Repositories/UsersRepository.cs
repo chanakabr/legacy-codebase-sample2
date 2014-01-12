@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Xml;
 using TVPApi;
+using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
@@ -14,15 +15,15 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class UsersRepository : IUsersRepository
     {
-        public UserResponseObject GetUserData(InitializationObject initObj, string siteGuid)
+        public UserResponseObject[] GetUsersData(InitializationObject initObj, string siteGuids)
         {
-            UserResponseObject response = null;
+            UserResponseObject[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(siteGuid);
+                response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUsersData(siteGuids);
 
                 XmlDocument a = WSExtension.XmlResponse;
             }
@@ -34,6 +35,7 @@ namespace RestfulTVPApi.ServiceInterface
             return response;
         }
 
+        //Ofir - Moved from Site
         public UserResponseObject SetUserData(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
         {
             UserResponseObject response = null;
@@ -52,6 +54,7 @@ namespace RestfulTVPApi.ServiceInterface
             return response;
         }
 
+        //Ofir - Moved from Media
         public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid)
         {
             PermittedSubscriptionContainer[] permitedSubscriptions = new PermittedSubscriptionContainer[] { };
@@ -73,6 +76,7 @@ namespace RestfulTVPApi.ServiceInterface
             return permitedSubscriptions;
         }
 
+        //Ofir - Moved from Media
         public PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int totalItems)
         {
             PermittedSubscriptionContainer[] items = null;
@@ -99,6 +103,7 @@ namespace RestfulTVPApi.ServiceInterface
             return items;
         }
 
+        //Ofir - Moved from Media
         public PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj, string siteGuid)
         {
             PermittedMediaContainer[] permittedMediaContainer = { };
@@ -120,6 +125,7 @@ namespace RestfulTVPApi.ServiceInterface
             return permittedMediaContainer;
         }
 
+        //Ofir - Moved from Media
         public PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, string siteGuid, int totalItems)
         {
             PermittedMediaContainer[] permittedMediaContainer = { };
@@ -141,6 +147,7 @@ namespace RestfulTVPApi.ServiceInterface
             return permittedMediaContainer;
         }
 
+        //Ofir - Moved from Site
         public UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
         {
             UserResponseObject response = new UserResponseObject();
@@ -159,6 +166,8 @@ namespace RestfulTVPApi.ServiceInterface
             return response;
         }
 
+        //Ofir - Moved from Media
+        //Ofir - Should DomainID passed as param?
         public FavoritObject[] GetUserFavorites(InitializationObject initObj, string siteGuid)
         {
             FavoritObject[] favoritesObj = null;
@@ -177,54 +186,6 @@ namespace RestfulTVPApi.ServiceInterface
             }
 
             return favoritesObj;
-        }
-
-        public bool AddUserFavorite(InitializationObject initObj, string siteGuid, int mediaID, int mediaType, int extraVal)
-        {
-            bool retVal = false;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserFavorites", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                string isOfflineSync = ConfigurationManager.AppSettings[string.Concat(groupID, "_OfflineFavoriteSync")];
-
-                retVal = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).AddUserFavorite(siteGuid, initObj.DomainID, initObj.UDID, mediaType.ToString(), mediaID.ToString(), extraVal.ToString());
-
-                if (!string.IsNullOrEmpty(isOfflineSync))
-                    new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).AddUserOfflineMedia(siteGuid, mediaID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
-            return retVal;
-        }
-
-        public bool RemoveUserFavorite(InitializationObject initObj, string siteGuid, int mediaID)
-        {
-            bool retVal = false;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserFavorites", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                string isOfflineSync = ConfigurationManager.AppSettings[string.Concat(groupID, "_OfflineFavoriteSync")];
-
-                new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).RemoveUserFavorite(siteGuid, new int[] { mediaID });
-
-                retVal = true;
-
-                if (!string.IsNullOrEmpty(isOfflineSync))
-                    new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).RemoveUserOfflineMedia(siteGuid, mediaID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
-            return retVal;
         }
 
         public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid)
@@ -567,6 +528,225 @@ namespace RestfulTVPApi.ServiceInterface
             }
 
             return response;
+        }
+
+        public List<Media> GetLastWatchedMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastWatchedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                lstMedia = new APIPersonalLastWatchedLoader(initObj.SiteGuid, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+                {
+                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                }.Execute() as List<Media>;
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return lstMedia;
+        }
+
+        public List<Media> GetUserSocialMedias(InitializationObject initObj, int socialPlatform, int socialAction, string picSize, int pageSize, int pageIndex)
+        {
+            List<Media> lstMedia = new List<Media>();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                lstMedia = new APIUserSocialMediaLoader(initObj.SiteGuid, socialAction, socialPlatform, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+                {
+                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                }.Execute() as List<Media>;
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return lstMedia;
+        }
+
+        public BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, int start_index, int pageSize)
+        {
+            BillingTransactionsResponse transactions = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserTransactionHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                transactions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserTransactionHistory(initObj.SiteGuid, start_index, pageSize);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return transactions;
+        }
+
+        public Country[] GetCountriesList(InitializationObject initObj)
+        {
+            Country[] response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetCountriesList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetCountriesList();
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return response;
+        }
+
+        //Ofir - moved from ca
+        public BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode)
+        {
+            BillingResponse res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CC_ChargeUserForPrePaid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                res = new ApiConditionalAccessService(groupId, initObj.Platform).CC_ChargeUserForPrePaid(initObj.SiteGuid, price, currency, productCode, ppvModuleCode, initObj.UDID);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return res;
+        }
+
+        //Ofir - moved from ca
+        public string GetGoogleSignature(InitializationObject initObj, int customerId)
+        {
+            string res = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetGoogleSignature", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetGoogleSignature(initObj.SiteGuid, customerId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return res;
+        }
+
+        //Ofir - moved from ca
+        public MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        {
+            MediaFileItemPricesContainer[] res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemsPricesWithCoupons", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                res = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPricesWithCoupons(initObj.SiteGuid, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return res;
+        }
+
+        //Ofir - moved from ca
+        public SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        {
+            SubscriptionsPricesContainer[] res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsPricesWithCoupon", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                res = new ApiConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPricesWithCoupon(initObj.SiteGuid, sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return res;
+        }
+
+        //Ofir - moved from ca
+        public UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate)
+        {
+            UserBillingTransactionsResponse[] res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                res = new ApiConditionalAccessService(groupId, initObj.Platform).GetUsersBillingHistory(siteGuids, startDate, endDate);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return res;
+        }
+
+        //Ofir - moved from ca
+        public BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode, string receipt)
+        {
+            BillingResponse res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "InApp_ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            
+            if (groupId > 0)
+            {
+                res = new ApiConditionalAccessService(groupId, initObj.Platform).InApp_ChargeUserForMediaFile(initObj.SiteGuid, price, currency, productCode, ppvModuleCode, initObj.UDID, receipt);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return res;
+        }
+
+        //Ofir - moved from Media
+        //Ofir - Should SiteGuid, DomainID, UDID, LocalLangauge be a param
+        public List<Media> GetUserItems(InitializationObject initObj, UserItemType itemType, string picSize, int pageSize, int start_index)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                lstMedia = MediaHelper.GetUserItems(initObj.Platform, initObj.SiteGuid, initObj.DomainID, initObj.UDID, initObj.Locale.LocaleLanguage, itemType, picSize, pageSize, start_index, groupID);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return lstMedia;
         }
     }
 }

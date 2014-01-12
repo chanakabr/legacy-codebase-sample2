@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
+using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Helper;
 using TVPPro.SiteManager.Helper;
 
@@ -11,6 +12,8 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class ChannelsRepository : IChannelsRepository
     {
+
+        //Ofir - Moved from Media
         public List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
         {
             List<Media> lstMedia = null;
@@ -19,7 +22,10 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                lstMedia = MediaHelper.GetChannelMultiFilter(initObj.Platform, initObj.UDID, initObj.Locale.LocaleLanguage, ChannelID, picSize, pageSize, pageIndex, groupID, orderBy, tagsMetas, cutWith);
+                lstMedia = new APIChannelMediaLoader(ChannelID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage, tagsMetas, cutWith)
+                {
+                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                }.Execute() as List<Media>;
             }
             else
             {
@@ -29,6 +35,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
+        //Ofir - Moved from Administration
         public List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize)
         {
             List<Channel> sRet = null;
@@ -47,6 +54,7 @@ namespace RestfulTVPApi.ServiceInterface
             return sRet;
         }
 
+        //Ofir - Moved from Media
         public Category GetCategory(InitializationObject initObj, int categoryID)
         {
             Category retCategory = null;
@@ -65,6 +73,7 @@ namespace RestfulTVPApi.ServiceInterface
             return retCategory;
         }
 
+        //Ofir - Moved from Media
         public Category GetFullCategory(InitializationObject initObj, int categoryID, string picSize)
         {
             Category retCategory = null;

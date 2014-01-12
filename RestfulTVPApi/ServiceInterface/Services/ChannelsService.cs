@@ -16,8 +16,8 @@ namespace RestfulTVPApi.ServiceInterface
 
     #region Objects
 
-    [Route("/channels/{ChannelID}/medias", "GET", Summary = "Get Channel Multi Filter", Notes = "Get Channel Multi Filter")]
-    public class GetChannelMultiFilter : PagingRequest, IReturn<IEnumerable<MediaDTO>>
+    [Route("/channels/{ChannelID}/medias", "GET", Notes = "This method returns an array of the media inside the channel")]
+    public class GetChannelMultiFilterRequest : PagingRequest, IReturn<IEnumerable<Media>>
     {
         [ApiMember(Name = "channel_id", Description = "Channel ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int channel_id { get; set; }
@@ -36,22 +36,22 @@ namespace RestfulTVPApi.ServiceInterface
         public CutWith cut_with { get; set; }
     }
 
-    [Route("/channels/{ChannelID}", "GET", Summary = "Get Channels List", Notes = "Get Channels List")]
-    public class GetChannelsList : PagingRequest, IReturn<IEnumerable<Channel>>
+    [Route("/channels/{ChannelID}", "GET", Notes = "This method returns an array of all channels that exist for this customer site")]
+    public class GetChannelsListRequest : RequestBase, IReturn<IEnumerable<Channel>>
     {
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
     }
 
-    [Route("/categories/{category_id}", "GET", Summary = "Get Category", Notes = "Get Category")]
-    public class GetCategory : RequestBase, IReturn<Category>
+    [Route("/categories/{category_id}", "GET", Notes = "This method searches for all channels in a category. Category is an ordered hierarchical list of channels that belong to a similar theme or type")]
+    public class GetCategoryRequest : RequestBase, IReturn<Category>
     {
         [ApiMember(Name = "category_id", Description = "Category ID", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public int category_id { get; set; }
     }
 
-    [Route("/categories/{category_id}/full", "GET", Summary = "Get Full Category", Notes = "Get Full Category")]
-    public class GetFullCategory : RequestBase, IReturn<Category>
+    [Route("/categories/{category_id}/full", "GET", Notes = "Category is an ordered hierarchical list of channels that belong to a similar theme or type. This method searches for a category and its dependences. When the category contains inner categories, the categories and the inner categories are returned")]
+    public class GetFullCategoryRequest : RequestBase, IReturn<Category>
     {
         [ApiMember(Name = "category_id", Description = "Category ID", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public int category_id { get; set; }
@@ -67,7 +67,7 @@ namespace RestfulTVPApi.ServiceInterface
     {
         public IChannelsRepository _repository { get; set; }  //Injected by IOC
 
-        public HttpResult Get(GetChannelMultiFilter request)
+        public HttpResult Get(GetChannelMultiFilterRequest request)
         {
             var response = _repository.GetChannelMultiFilter(request.InitObj, request.channel_id, request.pic_size, request.page_size, request.page_number, request.order_by, request.order_dir, request.tags_metas, request.cut_with);
 
@@ -76,12 +76,10 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            var responseDTO = response.Select(x => x.ToDto());
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetChannelsList request)
+        public HttpResult Get(GetChannelsListRequest request)
         {
             var response = _repository.GetChannelsList(request.InitObj, request.pic_size);
 
@@ -90,12 +88,10 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            var responseDTO = response.Select(x => x.ToDto());
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetCategory request)
+        public HttpResult Get(GetCategoryRequest request)
         {
             var response = _repository.GetCategory(request.InitObj, request.category_id);
 
@@ -104,12 +100,10 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            var responseDTO = response.ToDto();
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetFullCategory request)
+        public HttpResult Get(GetFullCategoryRequest request)
         {
             var response = _repository.GetFullCategory(request.InitObj, request.category_id, request.pic_size);
 
@@ -118,9 +112,7 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            var responseDTO = response.ToDto();
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
     }
 }

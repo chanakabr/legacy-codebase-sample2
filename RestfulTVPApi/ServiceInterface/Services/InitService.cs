@@ -19,7 +19,7 @@ namespace RestfulTVPApi.ServiceInterface
     #region Objects
 
     [Route("/init", "POST", Summary = "Get Secured Initialization Object", Notes = "Get Secured Initialization Object")]
-    public class SecuredInitObj : IReturn<string>
+    public class SecuredInitObjRequest : IReturn<string>
     {
         [ApiMember(Name = "init_obj", Description = "Initialization Object", ParameterType = "body", DataType = "InitializationObject", IsRequired = true)]
         public InitializationObject init_obj { get; set; }
@@ -30,7 +30,7 @@ namespace RestfulTVPApi.ServiceInterface
     [RequiresAuthentication]
     public class InitService : Service
     {
-        public HttpResult Post(SecuredInitObj request)
+        public HttpResult Post(SecuredInitObjRequest request)
         {
             if (request.init_obj == null)
             {

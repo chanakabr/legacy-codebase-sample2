@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Web;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Manager;
@@ -14,7 +15,8 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class EpgRepository : IEpgRepository
     {
-
+        //Ofir - Moved from Media
+        //ofir - should udid, LocaleLanguage be passed as a param?
         public List<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
         {
             List<string> retVal = null;
@@ -41,6 +43,7 @@ namespace RestfulTVPApi.ServiceInterface
             return retVal;
         }
 
+        //Ofir - Moved from Media
         public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
         {
             TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] sRet = null;
@@ -59,6 +62,8 @@ namespace RestfulTVPApi.ServiceInterface
             return sRet;
         }
 
+        //Ofir - Moved from Media
+        //ofir - should LocaleLanguage be passed as a param?
         public List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(InitializationObject initObj, int epgProgramID, int pageSize, int pageIndex)
         {
             List<TVPPro.SiteManager.Objects.EPGComment> retVal = null;
@@ -77,6 +82,7 @@ namespace RestfulTVPApi.ServiceInterface
             return retVal;
         }
 
+        //Ofir - Moved from Media
         public TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
             TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[] sRet = null;
@@ -93,6 +99,42 @@ namespace RestfulTVPApi.ServiceInterface
             }
 
             return sRet;
+        }
+
+        //Ofir - Moved from Media
+        //ofir - should udid,LocaleLanguage be passed as a param?
+        public List<EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
+        {
+            List<EPGChannelProgrammeObject> retVal = null;
+            List<BaseObject> loaderResult = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SearchEPGPrograms", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                DateTime _startTime, _endTime;
+
+                _startTime = DateTime.UtcNow.AddDays(-int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                _endTime = DateTime.UtcNow.AddDays(int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+
+                loaderResult = new APIEPGSearchLoader(groupId, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, searchText, _startTime, _endTime)
+                {
+                    Culture = initObj.Locale.LocaleLanguage
+                }.Execute() as List<BaseObject>;
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            retVal = new List<EPGChannelProgrammeObject>();
+
+            foreach (ProgramObj p in loaderResult)
+            {
+                retVal.Add(p.m_oProgram);
+            }
+
+            return retVal;
         }
     }
 }

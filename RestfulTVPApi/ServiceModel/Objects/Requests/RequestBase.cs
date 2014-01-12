@@ -12,8 +12,8 @@ namespace RestfulTVPApi.ServiceModel
 
     public abstract class RequestBase
     {
-        [ApiMember(Name = "fields", Description = "Fields", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
-        public string fields { get; set; }
+        //[ApiMember(Name = "fields", Description = "Fields", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
+        //public string fields { get; set; }
 
         [ApiMember(Name = "X-InitObj", Description = "Initialization Object", ParameterType = "header", DataType = SwaggerType.String, IsRequired = true)]
         public InitializationObject InitObj { get; set; }

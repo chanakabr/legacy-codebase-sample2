@@ -11,7 +11,7 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public interface IUsersRepository
     {
-        UserResponseObject GetUserData(InitializationObject initObj, string siteGuid);
+        UserResponseObject[] GetUsersData(InitializationObject initObj, string siteGuids);
 
         UserResponseObject SetUserData(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData);
 
@@ -26,10 +26,6 @@ namespace RestfulTVPApi.ServiceInterface
         UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode);
 
         FavoritObject[] GetUserFavorites(InitializationObject initObj, string siteGuid);
-
-        bool AddUserFavorite(InitializationObject initObj, string siteGuid, int mediaID, int mediaType, int extraVal);
-
-        bool RemoveUserFavorite(InitializationObject initObj, string siteGuid, int mediaID);
 
         TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid);
 
@@ -68,5 +64,27 @@ namespace RestfulTVPApi.ServiceInterface
         string[] GetPrepaidBalance(InitializationObject initObj, string currencyCode);
 
         UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
+
+        List<Media> GetLastWatchedMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex);
+
+        List<Media> GetUserSocialMedias(InitializationObject initObj, int socialPlatform, int socialAction, string picSize, int pageSize, int pageIndex);
+
+        BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, int start_index, int pageSize);
+
+        Country[] GetCountriesList(InitializationObject initObj);
+
+        BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode);
+
+        string GetGoogleSignature(InitializationObject initObj, int customerId);
+
+        MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+
+        SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+
+        UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate);
+
+        BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode, string receipt);
+
+        List<Media> GetUserItems(InitializationObject initObj, UserItemType itemType, string picSize, int pageSize, int start_index);
     }
 }

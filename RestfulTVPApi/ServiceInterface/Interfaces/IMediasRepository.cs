@@ -40,5 +40,13 @@ namespace RestfulTVPApi.ServiceInterface
         List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes);
 
         bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
+
+        List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName);
+
+        bool SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail);
+
+        string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes);
+
+        int[] GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
     }
 }

@@ -584,5 +584,44 @@ namespace RestfulTVPApi.ServiceModel
 
             return responseDTO;
         }
+
+        public static BillingTransactionsResponseDTO ToDto(this BillingTransactionsResponse response)
+        {
+            if (response == null)
+                return null;
+
+            BillingTransactionsResponseDTO responseDTO = new BillingTransactionsResponseDTO();
+
+            if (response.m_Transactions != null)
+            {
+                responseDTO.m_Transactions = response.m_Transactions.Select(x => x.ToDto()).ToArray();
+            }
+
+            responseDTO.m_nTransactionsCount = response.m_nTransactionsCount;
+
+            return responseDTO;
+        }
+
+        public static BillingTransactionContainerDTO ToDto(this BillingTransactionContainer response)
+        {
+            if (response == null)
+                return null;
+
+            BillingTransactionContainerDTO responseDTO = new BillingTransactionContainerDTO();
+
+            //responseDTO.m_bIsRecurring = response.m_bIsRecurring;
+            //responseDTO.m_dtActionDate = response.m_dtActionDate;
+            //responseDTO.m_dtEndDate = response.m_dtEndDate;
+            //responseDTO.m_dtStartDate = response.m_dtStartDate;
+            //responseDTO.m_eBillingAction = (BillingActionDTO)response.m_eBillingAction;
+            //responseDTO.m_eItemType = (BillingItemsTypeDTO)response.m_eItemType;
+            //responseDTO.m_ePaymentMethod = response.m_ePaymentMethod.ToDto();
+            //responseDTO.m_nBillingProviderRef = response.m_nBillingProviderRef;
+            //responseDTO.m_nPurchaseID = response.m_nPurchaseID;
+            //responseDTO. = response.m_bIsRecurring;
+            //responseDTO.m_bIsRecurring = response.m_bIsRecurring;
+
+            return responseDTO;
+        }
     }
 }

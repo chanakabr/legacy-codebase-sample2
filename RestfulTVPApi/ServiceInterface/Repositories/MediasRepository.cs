@@ -9,12 +9,15 @@ using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Interfaces;
+using TVPApiModule.CatalogLoaders;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public class MediasRepository : IMediasRepository
     {
-        public List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaID, string picSize)
+        //Ofir - Should udid, LocaleLanguage be a param?
+        public List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaIDs, string picSize)
         {
             List<Media> retMedia = null;
 
@@ -22,7 +25,10 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                retMedia = MediaHelper.GetMediasInfo(initObj, MediaID, picSize, groupID);
+                retMedia = new TVPApiModule.CatalogLoaders.APIMediaLoader(MediaIDs, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), picSize, initObj.Locale.LocaleLanguage)
+                {
+                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                }.Execute() as List<Media>;
             }
             else
             {
@@ -50,6 +56,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstComment;
         }
 
+        //Ofir - Should udid, LocaleLanguage, LocaleCountry be a param?
         public bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive)
         {
             bool retVal = false;
@@ -122,6 +129,7 @@ namespace RestfulTVPApi.ServiceInterface
             return sRet;
         }
 
+        //Ofir - Should udid, LocaleLanguage be a param?
         public List<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, List<int> reqMediaTypes)
         {
             List<Media> lstMedia = null;
@@ -130,7 +138,10 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                lstMedia = MediaHelper.GetRelatedMediaList(initObj, mediaID, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
+                lstMedia = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(mediaID, reqMediaTypes, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage)
+                {
+                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                }.Execute() as List<Media>;
             }
             else
             {
@@ -140,6 +151,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
+        //Ofir - Should udid, LocaleLanguage be a param?
         public List<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex)
         {
             List<Media> lstMedia = null;
@@ -148,7 +160,10 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                lstMedia = MediaHelper.GetPeopleWhoWatchedList(initObj, mediaID, picSize, pageSize, pageIndex, groupID);
+                lstMedia = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader(mediaID, 0, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage)
+                {
+                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                }.Execute() as List<Media>;
             }
             else
             {
@@ -158,6 +173,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
+        //Ofir - Should SiteGuid, DomainID be a param?
         public List<KeyValuePair<int, bool>> AreMediasFavorite(InitializationObject initObj, List<int> mediaIds)
         {
             List<KeyValuePair<int, bool>> result = new List<KeyValuePair<int, bool>>();
@@ -166,7 +182,10 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                result = MediaHelper.AreMediasFavorite(initObj, groupID, mediaIds);
+                FavoritObject[] favoriteObjects = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
+
+                if (favoriteObjects != null)
+                    result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.m_sItemCode == y.ToString()).Count() > 0)).ToList();
             }
             else
             {
@@ -176,6 +195,8 @@ namespace RestfulTVPApi.ServiceInterface
             return result;
         }
 
+        //Ofir - Moved from Player.
+        //Ofir - Should udid be a param?
         public string GetMediaLicenseLink(InitializationObject initObj, int mediaFileID, string baseLink)
         {
             string sResponse = string.Empty;
@@ -194,7 +215,8 @@ namespace RestfulTVPApi.ServiceInterface
             return sResponse;
         }
 
-        public bool IsItemPurchased(InitializationObject initObj, int iFileID, string sUserGuid)
+        //Ofir - Should sSiteGUID be a param?
+        public bool IsItemPurchased(InitializationObject initObj, int iFileID, string sSiteGUID)
         {
 
             bool bRet = false;
@@ -205,7 +227,7 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
 
-                bRet = impl.IsItemPurchased(iFileID, sUserGuid);
+                bRet = impl.IsItemPurchased(iFileID, sSiteGUID);
             }
             else
             {
@@ -215,6 +237,7 @@ namespace RestfulTVPApi.ServiceInterface
             return bRet;
         }
 
+        //Ofir - Should SiteGuid, udid be a param?
         public PrePaidResponseStatus ChargeMediaWithPrepaid(InitializationObject initObj, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode)
         {
             PrePaidResponseStatus oResponse = PrePaidResponseStatus.UnKnown;
@@ -233,6 +256,8 @@ namespace RestfulTVPApi.ServiceInterface
             return oResponse;
         }
 
+        //Moved from CRM
+        //Ofir - Should SiteGuid, udid be a param?
         public string DummyChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon)
         {
             string response = string.Empty;
@@ -251,6 +276,7 @@ namespace RestfulTVPApi.ServiceInterface
             return response;
         }
 
+        //Ofir - Should SiteGuid, udid, LocaleLanguage be a param?
         public List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
         {
             List<Media> lstMedia = null;
@@ -259,7 +285,10 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                lstMedia = MediaHelper.GetRecommendedMediasList(initObj, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
+                lstMedia = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(initObj.SiteGuid, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+                {
+                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                }.Execute() as List<Media>;
             }
             else
             {
@@ -269,6 +298,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
+        //Ofir - Should SiteGuid, udid, domianID be a param?
         public bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal)
         {
             bool retVal = false;
@@ -285,6 +315,98 @@ namespace RestfulTVPApi.ServiceInterface
             }
 
             return retVal;
+        }
+
+        //Ofir - Should udid, LocaleLanguage be a param?
+        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchMediaByAndOrList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                lstMedia = new APISearchMediaLoader(groupID, initObj.Platform, initObj.UDID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize, exact, orList, andList, new List<int>() { mediaType })
+                {
+                    OrderBy = orderBy,
+                    OrderDir = orderDir,
+                    OrderMetaMame = orderMetaName,
+                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                }.Execute() as List<Media>;
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return lstMedia;
+        }
+
+        public bool SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail)
+        {
+            bool retVal = false;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SendToFriend", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                retVal = ActionHelper.SendToFriend(initObj, groupID, mediaID, senderName, senderEmail, toEmail);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return retVal;
+        }
+
+        //Ofir - Should LocaleLanguage be a param?
+        public string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes)
+        {
+            string[] retVal = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetAutoCompleteSearchList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                List<string> lstRet = new List<String>();
+
+                int maxItems = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems;
+                string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
+                string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
+
+                List<string> lstResponse = new ApiApiService(groupID, initObj.Platform).GetAutoCompleteList(iMediaTypes != null ? iMediaTypes : new int[0], arrMetaNames, arrTagNames, prefixText, initObj.Locale.LocaleLanguage, 0, maxItems).ToList();
+
+                foreach (String sTitle in lstResponse)
+                {
+                    if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
+                }
+                retVal = lstRet.ToArray();
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return retVal;
+        }
+
+        //Moved from Pricing
+        public int[] GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
+        {
+            int[] subIds = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionIDsContainingMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                subIds = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionIDsContainingMediaFile(iMediaID, iFileID);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return subIds;
         }
     }
 }

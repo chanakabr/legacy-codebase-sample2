@@ -9,38 +9,40 @@ using RestfulTVPApi.ServiceModel;
 using System.Linq;
 using TVPApi;
 using ServiceStack;
+using TVPPro.SiteManager.TvinciPlatform.api;
+using TVPPro.SiteManager.Objects;
 
 namespace RestfulTVPApi.ServiceInterface
 {
 
     #region Objects
 
-    [Route("/epg/autocomplete/{search_text}", "GET", Summary = "Logout", Notes = "Logout")]
-    public class GetEPGAutoComplete : PagingRequest, IReturn<IEnumerable<string>>
+    [Route("/epg/auto_complete", "GET", Notes = "This method returns a string array of EPG program names that starts with the given search text")]
+    public class GetEPGAutoCompleteRequest : PagingRequest, IReturn<IEnumerable<string>>
     {
-        [ApiMember(Name = "search_text", Description = "Search Text", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "search_text", Description = "Search Text", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string search_text { get; set; }
     }
 
-    [Route("/epg/channels", "GET", Summary = "Get Channel Multi Filter", Notes = "Get Channel Multi Filter")]
-    public class GetEPGChannels : PagingRequest, IReturn<IEnumerable<EPGChannelObjectDTO>>
+    [Route("/epg/channels", "GET", Notes = "This method returns an array of EPG Channels for a specific account")]
+    public class GetEPGChannelsRequest : PagingRequest, IReturn<IEnumerable<EPGChannelObject>>
     {
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "order_by", Description = "Order By", ParameterType = "query", DataType = "OrderBy", IsRequired = false)]
-        [ApiAllowableValues("order_by", typeof(OrderBy))]
-        public OrderBy order_by { get; set; }
+        [ApiAllowableValues("order_by", typeof(TVPApi.OrderBy))]
+        public TVPApi.OrderBy order_by { get; set; }
     }
 
-    [Route("/epg/channels/programs/{program_id}/comments", "GET", Summary = "Get EPG Comments List", Notes = "Get EPG Comments List")]
-    public class GetEPGCommentsList : PagingRequest, IReturn<IEnumerable<EPGCommentDTO>>
+    [Route("/epg/channels/programs/{program_id}/comments", "GET", Notes = "This method returns a list of EPG comments created by users")]
+    public class GetEPGCommentsListRequest : PagingRequest, IReturn<IEnumerable<EPGComment>>
     {
         [ApiMember(Name = "program_id", Description = "Program ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int program_id { get; set; }
     }
 
-    [Route("/epg/channels/{channel_ids}", "GET", Summary = "Get EPG Channels programs", Notes = "Get EPG Channels programs")]
-    public class GetEPGMultiChannelProgram : PagingRequest, IReturn<IEnumerable<EPGMultiChannelProgrammeObjectDTO>>
+    [Route("/epg/channels/{channel_ids}", "GET", Notes = "This method returns an array of EPG channel programs, for each EPG channel entered, and which is available for the time range entered. This method is usually followed by GetEPGChannels")]
+    public class GetEPGMultiChannelProgramRequest : PagingRequest, IReturn<IEnumerable<EPGMultiChannelProgrammeObjectDTO>>
     {
         [ApiMember(Name = "channel_ids", Description = "Channels IDs", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public string[] channel_ids { get; set; }
@@ -57,6 +59,13 @@ namespace RestfulTVPApi.ServiceInterface
         public int utc_offset { get; set; }
     }
 
+    [Route("/epg/channels/programs", "GET", Notes = "This method searches the EPG programs by search text")]
+    public class SearchEPGProgramsRequest : PagingRequest, IReturn<IEnumerable<EPGChannelProgrammeObjectDTO>>
+    {
+        [ApiMember(Name = "search_text", Description = "Search Text", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string search_text { get; set; }
+    }
+
     #endregion
 
     [RequiresAuthentication]
@@ -65,9 +74,21 @@ namespace RestfulTVPApi.ServiceInterface
     {
         public IEpgRepository _repository { get; set; }  //Injected by IOC
 
-        public HttpResult Get(GetEPGAutoComplete request)
+        public HttpResult Get(GetEPGAutoCompleteRequest request)
         {
             var response = _repository.GetEPGAutoComplete(request.InitObj, request.search_text, request.page_size, request.page_number);
+
+            if (response == null)
+            {
+                return new HttpResult(HttpStatusCode.InternalServerError);
+            }
+
+            return new HttpResult(response, HttpStatusCode.OK);
+        }
+
+        public HttpResult Get(GetEPGChannelsRequest request)
+        {
+            var response = _repository.GetEPGChannels(request.InitObj, request.pic_size, request.order_by);
 
             if (response == null)
             {
@@ -77,21 +98,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetEPGChannels request)
-        {
-            var response = _repository.GetEPGChannels(request.InitObj, request.pic_size, request.order_by);
-
-            if (response == null)
-            {
-                return new HttpResult(HttpStatusCode.InternalServerError);
-            }
-
-            var responseDTO = response.Select(x => x.ToDto());
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
-        }
-
-        public HttpResult Get(GetEPGCommentsList request)
+        public HttpResult Get(GetEPGCommentsListRequest request)
         {
             var response = _repository.GetEPGCommentsList(request.InitObj, request.program_id, request.page_size, request.page_number);
 
@@ -100,12 +107,10 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            var responseDTO = response.Select(x => x.ToDto());
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetEPGMultiChannelProgram request)
+        public HttpResult Get(GetEPGMultiChannelProgramRequest request)
         {
             var response = _repository.GetEPGMultiChannelProgram(request.InitObj, request.channel_ids, request.pic_size, request.unit, request.from_offset, request.to_offset, request.utc_offset);
 
@@ -114,9 +119,19 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            var responseDTO = response.Select(x => x.ToDto());
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+        }
 
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+        public HttpResult Get(SearchEPGProgramsRequest request)
+        {
+            var response = _repository.SearchEPGPrograms(request.InitObj, request.search_text, request.page_size, request.page_number);
+
+            if (response == null)
+            {
+                return new HttpResult(HttpStatusCode.InternalServerError);
+            }
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
     }
 }
