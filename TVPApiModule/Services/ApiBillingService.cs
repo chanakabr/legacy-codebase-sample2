@@ -7,7 +7,8 @@ using TVPApi;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Billing;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Extentions;
 
 namespace TVPApiModule.Services
 {
@@ -44,7 +45,7 @@ namespace TVPApiModule.Services
             AdyenBillingDetail response = null;
             try
             {
-                response = m_Module.GetLastBillingUserInfo(m_wsUserName, m_wsPassword, siteGuid, billingMethod);
+                response = m_Module.GetLastBillingUserInfo(m_wsUserName, m_wsPassword, siteGuid, billingMethod).ToApiObject();
             }
             catch (Exception ex)
             {

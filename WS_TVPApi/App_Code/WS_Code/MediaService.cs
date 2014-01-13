@@ -226,7 +226,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    Favorite[] favoriteObjects = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
+                    FavoriteObject[] favoriteObjects = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
 
                     if (favoriteObjects != null)
                         result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.m_sItemCode == y.ToString()).Count() > 0)).ToList();
@@ -273,9 +273,9 @@ namespace TVPApiServices
 
         //Get User Items (Favorites, Rentals etc..)
         [WebMethod(EnableSession = true, Description = "Get User Items (Favorites, Rentals etc..)")]
-        public Favorite[] GetUserFavorites(InitializationObject initObj, string siteGuid)
+        public FavoriteObject[] GetUserFavorites(InitializationObject initObj, string siteGuid)
         {
-            Favorite[] favoritesObj = null;
+            FavoriteObject[] favoritesObj = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserFavorites", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -967,9 +967,9 @@ namespace TVPApiServices
 
         //Search media by free text
         [WebMethod(EnableSession = true, Description = "Search EPG by free text")]
-        public EPGChannelProgramme[] SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
+        public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
-            EPGChannelProgramme[] programs = { };
+            TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] programs = { };
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchEPG", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1294,9 +1294,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get last player position")]
-        public TVPApiModule.Objects.Responses.MediaMark GetMediaMark(InitializationObject initObj, int iMediaID)
+        public TVPApiModule.Objects.Responses.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID)
         {
-            TVPApiModule.Objects.Responses.MediaMark mediaMark = null;
+            TVPApiModule.Objects.Responses.MediaMarkObject mediaMark = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1398,9 +1398,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased items for a user")]
-        public MediaContainer[] GetUserPermittedItems(InitializationObject initObj, string siteGuid)
+        public TVPApiModule.Objects.Responses.PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj, string siteGuid)
         {
-            MediaContainer[] permittedMediaContainer = { };
+            TVPApiModule.Objects.Responses.PermittedMediaContainer[] permittedMediaContainer = { };
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1488,9 +1488,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get list of purchased subscriptions for a user")]
-        public SubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid)
+        public TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid)
         {
-            SubscriptionContainer[] permitedSubscriptions = new SubscriptionContainer[] { };
+            TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] permitedSubscriptions = new TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] { };
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
@@ -1525,14 +1525,14 @@ namespace TVPApiServices
             {
                 try
                 {
-                    SubscriptionContainer[] permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);
+                    TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);
 
                     if (permitedSubscriptions == null || permitedSubscriptions.Count() == 0)
                         return permittedPackages;
 
                     permitedSubscriptions = permitedSubscriptions.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
 
-                    foreach (SubscriptionContainer psc in permitedSubscriptions)
+                    foreach (TVPApiModule.Objects.Responses.PermittedSubscriptionContainer psc in permitedSubscriptions)
                     {
                         PermittedPackages pp = new PermittedPackages();
                         pp.PermittedSubscriptions = psc;
@@ -1848,9 +1848,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user expired items")]
-        public MediaContainer[] GetUserExpiredItems(InitializationObject initObj, string siteGuid, int iTotalItems)
+        public TVPApiModule.Objects.Responses.PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, string siteGuid, int iTotalItems)
         {
-            MediaContainer[] items = null;
+            TVPApiModule.Objects.Responses.PermittedMediaContainer[] items = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
@@ -1875,16 +1875,16 @@ namespace TVPApiServices
 
             if (items == null)
             {
-                items = new MediaContainer[0];
+                items = new TVPApiModule.Objects.Responses.PermittedMediaContainer[0];
             }
 
             return items;
         }
 
         [WebMethod(EnableSession = true, Description = "Get user expired subscription")]
-        public SubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int iTotalItems)
+        public TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int iTotalItems)
         {
-            SubscriptionContainer[] items = null;
+            TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] items = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1908,7 +1908,7 @@ namespace TVPApiServices
 
             if (items == null)
             {
-                items = new SubscriptionContainer[0];
+                items = new TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[0];
             }
 
             return items;
@@ -2376,9 +2376,9 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get Multi EPG Channels")]
-        public EPGMultiChannelProgramme[] GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
-            EPGMultiChannelProgramme[] sRet = null;
+            EPGMultiChannelProgrammeObject[] sRet = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGMultiChannelProgram", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2632,9 +2632,9 @@ namespace TVPApiServices
         #endregion
 
         [WebMethod(EnableSession = true, Description = "Search EPG Programs")]
-        public List<EPGChannelProgramme> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
+        public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
         {
-            List<EPGChannelProgramme> retVal = null;
+            List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> retVal = null;
             List<BaseObject> loaderResult = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SearchEPGPrograms", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -2662,7 +2662,7 @@ namespace TVPApiServices
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
             }
-            retVal = new List<EPGChannelProgramme>();
+            retVal = new List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>();
             foreach(ProgramObj p in loaderResult)
             {
                 retVal.Add(p.m_oProgram.ToApiObject());

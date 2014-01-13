@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
-    public class SubscriptionContainer
+    public class PermittedSubscriptionContainer
     {
         public string m_sSubscriptionCode { get; set; }
 

@@ -44,7 +44,7 @@ namespace TVPApiServices
         public class MediaWrapper
         {
             public Media Media { get; set; }
-            public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] Rules { get; set; }
+            public TVPApiModule.Objects.Responses.GroupRule[] Rules { get; set; }
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace TVPApiServices
             string sLastPosition = "0";
             if (MediaId != 0)
             {
-                TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMark = null;
+                TVPApiModule.Objects.Responses.MediaMarkObject mediaMark = null;
 
                 int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

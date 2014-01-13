@@ -5,13 +5,13 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
-    public class EPGMultiChannelProgramme
+    public class EPGMultiChannelProgrammeObject
     {
         public string EPG_CHANNEL_ID { get; set; }
-        public EPGChannelProgramme[] EPGChannelProgrammeObject { get; set; }
+        public EPGChannelProgrammeObject[] EPGChannelProgrammeObject { get; set; }
     }
 
-    public class EPGChannelProgramme
+    public class EPGChannelProgrammeObject
     {
         public long EPG_ID { get; set; }
         public string EPG_CHANNEL_ID { get; set; }

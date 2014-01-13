@@ -743,13 +743,13 @@ namespace TVPApi
                 MediasArray[0] = MediaFileID;
 
                 //Get media price from conditional access.
-                MediaFileItemPricesContainer[] MediasPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(MediasArray, userGuid, true);
+                TVPApiModule.Objects.Responses.MediaFileItemPricesContainer[] MediasPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(MediasArray, userGuid, true);
 
                 if (MediasPrices != null)
                 {
                     //Locating the media inside the array
-                    MediaFileItemPricesContainer mediaPriceCont = null;
-                    foreach (MediaFileItemPricesContainer mp in MediasPrices)
+                    TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mediaPriceCont = null;
+                    foreach (TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mp in MediasPrices)
                     {
                         if (mp.m_nMediaFileID == MediaFileID)
                             mediaPriceCont = mp;
@@ -762,18 +762,18 @@ namespace TVPApi
                             price = mediaPriceCont.m_oItemPrices[0].m_oPrice.m_dPrice.ToString();
                             switch (mediaPriceCont.m_oItemPrices[0].m_PriceReason)
                             {
-                                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PriceReason.ForPurchase:
+                                case TVPApiModule.Objects.Responses.PriceReason.ForPurchase:
                                     {
                                         reason = PriceReason.ForPurchase;
                                         break;
                                     }
-                                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PriceReason.Free:
+                                case TVPApiModule.Objects.Responses.PriceReason.Free:
                                     {
                                         reason = PriceReason.Free;
                                         break;
                                     }
-                                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PriceReason.PPVPurchased:
-                                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PriceReason.SubscriptionPurchased:
+                                case TVPApiModule.Objects.Responses.PriceReason.PPVPurchased:
+                                case TVPApiModule.Objects.Responses.PriceReason.SubscriptionPurchased:
                                     {
                                         reason = PriceReason.PPVPurchased;
                                         break;

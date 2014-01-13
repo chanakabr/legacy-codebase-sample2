@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
-    public class Favorite
+    public class FavoriteObject
     {
         public string m_sDeviceUDID { get; set; }
 

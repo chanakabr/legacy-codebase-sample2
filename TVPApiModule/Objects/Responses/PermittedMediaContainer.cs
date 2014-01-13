@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
-    public class MediaContainer
+    public class PermittedMediaContainer
     {
         public int m_nMediaID { get; set; }
 

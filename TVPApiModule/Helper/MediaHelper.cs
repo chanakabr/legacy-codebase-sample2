@@ -721,7 +721,7 @@ namespace TVPApi
             {
                 case UserItemType.Favorite:
                     {
-                        Favorite[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(siteGuid, string.Empty, domainID, string.Empty);
+                        FavoriteObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(siteGuid, string.Empty, domainID, string.Empty);
 
                         if (favoritesObj != null)
                         {
@@ -733,20 +733,20 @@ namespace TVPApi
                     }
                 case UserItemType.Rental:
                     {
-                        MediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(guid);
+                        TVPApiModule.Objects.Responses.PermittedMediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(guid);
                         mediaIDsList = MediaPermitedItems.Select(mp => mp.m_nMediaID).ToList();
                         retVal = new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDsList, groupID, platform, udid, SiteHelper.GetClientIP(), picSize, language).Execute() as List<Media>;
                         break;
                     }
                 case UserItemType.Package:
                     {
-                        SubscriptionContainer[] PermitedPackages = new ApiConditionalAccessService(groupID, platform).GetUserPermitedSubscriptions(guid);
+                        TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] PermitedPackages = new ApiConditionalAccessService(groupID, platform).GetUserPermitedSubscriptions(guid);
                         if (PermitedPackages != null && PermitedPackages.Length > 0)
                         {
                             List<KeyValue> BaseIdsDict = new List<KeyValue>();
                             StringBuilder sb = new StringBuilder();
 
-                            foreach (SubscriptionContainer sub in PermitedPackages)
+                            foreach (TVPApiModule.Objects.Responses.PermittedSubscriptionContainer sub in PermitedPackages)
                             {
                                 sb.AppendFormat("{0}{1}", sub.m_sSubscriptionCode, ";");
                                 var pair = BaseIdsDict.Where(bid => bid.m_sKey == "Base ID").FirstOrDefault();

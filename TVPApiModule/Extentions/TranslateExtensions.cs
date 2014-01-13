@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.api;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.SiteManager.TvinciPlatform.Users;
+//using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Extentions
 {
@@ -80,12 +78,12 @@ namespace TVPApiModule.Extentions
         //    return response;
         //}
 
-        public static SubscriptionContainer ToApiObject(this PermittedSubscriptionContainer response)
+        public static TVPApiModule.Objects.Responses.PermittedSubscriptionContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PermittedSubscriptionContainer response)
         {
             if (response == null)
                 return null;
 
-            SubscriptionContainer retVal = new SubscriptionContainer();
+            TVPApiModule.Objects.Responses.PermittedSubscriptionContainer retVal = new TVPApiModule.Objects.Responses.PermittedSubscriptionContainer();
 
             retVal.m_bIsSubRenewable = response.m_bIsSubRenewable;
             retVal.m_bRecurringStatus = response.m_bRecurringStatus;
@@ -105,12 +103,12 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static MediaContainer ToApiObject(this PermittedMediaContainer response)
+        public static TVPApiModule.Objects.Responses.PermittedMediaContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PermittedMediaContainer response)
         {
             if (response == null)
                 return null;
 
-            MediaContainer retVal = new MediaContainer();
+            TVPApiModule.Objects.Responses.PermittedMediaContainer retVal = new TVPApiModule.Objects.Responses.PermittedMediaContainer();
 
             retVal.m_dCurrentDate = response.m_dCurrentDate;
             retVal.m_dEndDate = response.m_dEndDate;
@@ -126,12 +124,12 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static Favorite ToApiObject(this FavoritObject response)
+        public static TVPApiModule.Objects.Responses.FavoriteObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.FavoritObject response)
         {
             if (response == null)
                 return null;
 
-            Favorite retVal = new Favorite();
+            TVPApiModule.Objects.Responses.FavoriteObject retVal = new TVPApiModule.Objects.Responses.FavoriteObject();
 
             retVal.m_dUpdateDate = response.m_dUpdateDate;
             retVal.m_is_channel = response.m_is_channel;
@@ -326,12 +324,12 @@ namespace TVPApiModule.Extentions
         //    return response;
         //}
 
-        public static MediaMark ToApiObject(this MediaMarkObject response)
+        public static TVPApiModule.Objects.Responses.MediaMarkObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject response)
         {
             if (response == null)
                 return null;
 
-            MediaMark retVal = new MediaMark();
+            TVPApiModule.Objects.Responses.MediaMarkObject retVal = new TVPApiModule.Objects.Responses.MediaMarkObject();
 
             retVal.eStatus = (TVPApiModule.Objects.Responses.MediaMarkObjectStatus)response.eStatus;
             retVal.nGroupID = response.nGroupID;
@@ -461,12 +459,12 @@ namespace TVPApiModule.Extentions
         //    return response;
         //}
 
-        public static EPGMultiChannelProgramme ToApiObject(this EPGMultiChannelProgrammeObject response)
+        public static TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject response)
         {
             if (response == null)
                 return null;
 
-            TVPApiModule.Objects.Responses.EPGMultiChannelProgramme retVal = new TVPApiModule.Objects.Responses.EPGMultiChannelProgramme();
+            TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject retVal = new TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject();
 
             retVal.EPG_CHANNEL_ID = response.EPG_CHANNEL_ID;
 
@@ -478,12 +476,12 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static EPGChannelProgramme ToApiObject(this EPGChannelProgrammeObject response)
+        public static TVPApiModule.Objects.Responses.EPGChannelProgrammeObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject response)
         {
             if (response == null)
                 return null;
 
-            EPGChannelProgramme retVal = new EPGChannelProgramme();
+            TVPApiModule.Objects.Responses.EPGChannelProgrammeObject retVal = new TVPApiModule.Objects.Responses.EPGChannelProgrammeObject();
 
             retVal.CREATE_DATE = response.CREATE_DATE;
             retVal.DESCRIPTION = response.DESCRIPTION;
@@ -517,12 +515,12 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static EPGChannelProgramme ToApiObject(this Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject response)
+        public static TVPApiModule.Objects.Responses.EPGChannelProgrammeObject ToApiObject(this Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject response)
         {
             if (response == null)
                 return null;
 
-            EPGChannelProgramme retVal = new EPGChannelProgramme();
+            TVPApiModule.Objects.Responses.EPGChannelProgrammeObject retVal = new TVPApiModule.Objects.Responses.EPGChannelProgrammeObject();
 
             retVal.CREATE_DATE = response.CREATE_DATE;
             retVal.DESCRIPTION = response.DESCRIPTION;
@@ -702,6 +700,426 @@ namespace TVPApiModule.Extentions
 
             retVal.m_nTransactionsCount = response.m_nTransactionsCount;
             retVal.m_Transactions = response.m_Transactions.Select(t => t.ToApiObject()).ToArray();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.AdyenBillingDetail ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.AdyenBillingDetail retVal = new TVPApiModule.Objects.Responses.AdyenBillingDetail();
+
+            retVal.billingInfo = response.billingInfo.ToApiObject();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.BillingInfo ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Billing.BillingInfo response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.BillingInfo retVal = new TVPApiModule.Objects.Responses.BillingInfo();
+
+            retVal.cvc = response.cvc;
+            retVal.expiryMonth = response.expiryMonth;
+            retVal.expiryYear = response.expiryYear;
+            retVal.holderName = response.holderName;
+            retVal.lastFourDigits = response.lastFourDigits;
+            retVal.variant = response.variant;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.CampaignActionInfo ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.CampaignActionInfo retVal = new TVPApiModule.Objects.Responses.CampaignActionInfo();
+
+            retVal.m_mediaID = response.m_mediaID;
+            retVal.m_siteGuid = response.m_siteGuid;
+            retVal.m_mediaLink = response.m_mediaLink;
+            retVal.m_senderName = response.m_senderName;
+            retVal.m_senderEmail = response.m_senderEmail;
+            retVal.m_status = (Objects.Responses.CampaignActionResult)response.m_status;
+            retVal.m_socialInviteInfo = response.m_socialInviteInfo.ToApiObject();
+            retVal.m_voucherReceipents = response.m_voucherReceipents.Select(vr => vr.ToApiObject()).ToArray(); 
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.VoucherReceipentInfo ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.VoucherReceipentInfo response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.VoucherReceipentInfo retVal = new TVPApiModule.Objects.Responses.VoucherReceipentInfo();
+
+            retVal.m_emailAdd = response.m_emailAdd;
+            retVal.m_receipentName = response.m_receipentName;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.SocialInviteInfo ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SocialInviteInfo response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.SocialInviteInfo retVal = new TVPApiModule.Objects.Responses.SocialInviteInfo();
+
+            retVal.m_hashCode = response.m_hashCode;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.MediaFileItemPricesContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.MediaFileItemPricesContainer retVal = new TVPApiModule.Objects.Responses.MediaFileItemPricesContainer();
+
+            retVal.m_nMediaFileID = response.m_nMediaFileID;
+            retVal.m_oItemPrices = response.m_oItemPrices.Select(mf => mf.ToApiObject()).ToArray();
+            retVal.m_sProductCode = response.m_sProductCode;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.ItemPriceContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ItemPriceContainer response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.ItemPriceContainer retVal = new TVPApiModule.Objects.Responses.ItemPriceContainer();
+
+            retVal.m_sPPVModuleCode = response.m_sPPVModuleCode;
+            retVal.m_bSubscriptionOnly = response.m_bSubscriptionOnly;
+            retVal.m_oPrice = response.m_oPrice.ToApiObject();
+            retVal.m_oFullPrice = response.m_oFullPrice.ToApiObject();
+            retVal.m_PriceReason = (TVPApiModule.Objects.Responses.PriceReason)response.m_PriceReason;
+            retVal.m_relevantSub = response.m_relevantSub.ToApiObject();
+            retVal.m_relevantPP = response.m_relevantPP.ToApiObject();
+            retVal.m_oPPVDescription = response.m_oPPVDescription.Select(l => l.ToApiObject()).ToArray();
+            retVal.m_couponStatus = (TVPApiModule.Objects.Responses.CouponsStatus)response.m_couponStatus;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.Subscription ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Subscription response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.Subscription retVal = new TVPApiModule.Objects.Responses.Subscription();
+
+            retVal.m_sCodes = response.m_sCodes.Select(c => c.ToApiObject()).ToArray();
+            retVal.m_dStartDate = response.m_dStartDate;
+            retVal.m_dEndDate = response.m_dEndDate;
+            retVal.m_sFileTypes = response.m_sFileTypes;
+            retVal.m_bIsRecurring = response.m_bIsRecurring;
+            retVal.m_nNumberOfRecPeriods = response.m_nNumberOfRecPeriods;
+            retVal.m_oSubscriptionPriceCode = response.m_oSubscriptionPriceCode.ToApiObject();
+            retVal.m_oExtDisountModule = response.m_oExtDisountModule.ToApiObject();
+            retVal.m_sName = response.m_sName.Select(l => l.ToApiObject()).ToArray();
+            retVal.m_oSubscriptionUsageModule = response.m_oSubscriptionUsageModule.ToApiObject();
+            retVal.m_fictivicMediaID = response.m_fictivicMediaID;
+            retVal.m_Priority = response.m_Priority;
+            retVal.m_ProductCode = response.m_ProductCode;
+            retVal.m_SubscriptionCode = response.m_SubscriptionCode;
+            retVal.m_MultiSubscriptionUsageModule = response.m_MultiSubscriptionUsageModule.Select(m => m.ToApiObject()).ToArray();
+            retVal.n_GeoCommerceID = response.n_GeoCommerceID;
+            retVal.m_bIsInfiniteRecurring = response.m_bIsInfiniteRecurring;
+            retVal.m_oPreviewModule = response.m_oPreviewModule.ToApiObject();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.PrePaidModule ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PrePaidModule response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.PrePaidModule retVal = new TVPApiModule.Objects.Responses.PrePaidModule();
+
+            retVal.m_PriceCode = response.m_PriceCode.ToApiObject();
+            retVal.m_CreditValue = response.m_CreditValue.ToApiObject();
+            retVal.m_UsageModule = response.m_UsageModule.ToApiObject();
+            retVal.m_DiscountModule = response.m_DiscountModule.ToApiObject();
+            retVal.m_CouponsGroup = response.m_CouponsGroup.ToApiObject();
+            retVal.m_Description = response.m_Description.Select(l => l.ToApiObject()).ToArray();
+            retVal.m_ObjectCode = response.m_ObjectCode;
+            retVal.m_Title = response.m_Title;
+            retVal.m_isFixedCredit = response.m_isFixedCredit;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.LanguageContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LanguageContainer response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.LanguageContainer retVal = new TVPApiModule.Objects.Responses.LanguageContainer();
+
+            retVal.m_sLanguageCode3 = response.m_sLanguageCode3;
+            retVal.m_sValue = response.m_sValue;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.SubscriptionCodeContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SubscriptionCodeContainer response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.SubscriptionCodeContainer retVal = new TVPApiModule.Objects.Responses.SubscriptionCodeContainer();
+
+            retVal.m_sCode = response.m_sCode;
+            retVal.m_sName = response.m_sName;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.PriceCode ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PriceCode response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.PriceCode retVal = new TVPApiModule.Objects.Responses.PriceCode();
+
+            retVal.m_sCode = response.m_sCode;
+            retVal.m_oPrise = response.m_oPrise.ToApiObject();
+            retVal.m_nObjectID = response.m_nObjectID;
+            retVal.m_sDescription = response.m_sDescription.Select(l => l.ToApiObject()).ToArray();
+
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.DiscountModule ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.DiscountModule response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.DiscountModule retVal = new TVPApiModule.Objects.Responses.DiscountModule();
+
+            retVal.m_dPercent = response.m_dPercent;
+            retVal.m_eTheRelationType = (TVPApiModule.Objects.Responses.RelationTypes)response.m_eTheRelationType;
+            retVal.m_dStartDate = response.m_dStartDate;
+            retVal.m_dEndDate = response.m_dEndDate;
+            retVal.m_oWhenAlgo = response.m_oWhenAlgo.ToApiObject();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.UsageModule ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UsageModule response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.UsageModule retVal = new TVPApiModule.Objects.Responses.UsageModule();
+
+            retVal.m_nObjectID = response.m_nObjectID;
+            retVal.m_sVirtualName = response.m_sVirtualName;
+            retVal.m_nMaxNumberOfViews = response.m_nMaxNumberOfViews;
+            retVal.m_tsViewLifeCycle = response.m_tsViewLifeCycle;
+            retVal.m_tsMaxUsageModuleLifeCycle = response.m_tsMaxUsageModuleLifeCycle;
+            retVal.m_ext_discount_id = response.m_ext_discount_id;
+            retVal.m_internal_discount_id = response.m_internal_discount_id;
+            retVal.m_pricing_id = response.m_pricing_id;
+            retVal.m_coupon_id = response.m_coupon_id;
+            retVal.m_subscription_only = response.m_subscription_only;
+            retVal.m_is_renew = response.m_is_renew;
+            retVal.m_num_of_rec_periods = response.m_num_of_rec_periods;
+            retVal.m_device_limit_id = response.m_device_limit_id;
+            retVal.m_type = response.m_type;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.PreviewModule ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PreviewModule response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.PreviewModule retVal = new TVPApiModule.Objects.Responses.PreviewModule();
+
+            retVal.m_nID = response.m_nID;
+            retVal.m_sName = response.m_sName;
+            retVal.m_tsFullLifeCycle = response.m_tsFullLifeCycle;
+            retVal.m_tsNonRenewPeriod = response.m_tsNonRenewPeriod;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.CouponsGroup ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CouponsGroup response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.CouponsGroup retVal = new TVPApiModule.Objects.Responses.CouponsGroup();
+
+            retVal.m_oDiscountCode = response.m_oDiscountCode.ToApiObject();
+            retVal.m_sDiscountCode = response.m_sDiscountCode;
+            retVal.m_sDescription = response.m_sDescription.Select(l => l.ToApiObject()).ToArray();
+            retVal.m_dStartDate = response.m_dStartDate;
+            retVal.m_dEndDate = response.m_dEndDate;
+            retVal.m_nMaxUseCountForCoupon = response.m_nMaxUseCountForCoupon;
+            retVal.m_sGroupCode = response.m_sGroupCode;
+            retVal.m_sGroupName = response.m_sGroupName;
+            retVal.m_nFinancialEntityID = response.m_nFinancialEntityID;
+            retVal.m_nMaxRecurringUsesCountForCoupon = response.m_nMaxRecurringUsesCountForCoupon;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.WhenAlgo ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.WhenAlgo response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.WhenAlgo retVal = new TVPApiModule.Objects.Responses.WhenAlgo();
+
+            retVal.m_eAlgoType = (TVPApiModule.Objects.Responses.WhenAlgoType)response.m_eAlgoType;
+            retVal.m_nNTimes = response.m_nNTimes;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.SubscriptionsPricesContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SubscriptionsPricesContainer response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.SubscriptionsPricesContainer retVal = new TVPApiModule.Objects.Responses.SubscriptionsPricesContainer();
+
+            retVal.m_sSubscriptionCode = response.m_sSubscriptionCode;
+            retVal.m_oPrice = response.m_oPrice.ToApiObject();
+            retVal.m_PriceReason = (TVPApiModule.Objects.Responses.PriceReason)response.m_PriceReason;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.UserBillingTransactionsResponse ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserBillingTransactionsResponse response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.UserBillingTransactionsResponse retVal = new TVPApiModule.Objects.Responses.UserBillingTransactionsResponse();
+
+            retVal.m_sSiteGUID = response.m_sSiteGUID;
+            retVal.m_BillingTransactionResponse = response.m_BillingTransactionResponse.ToApiObject();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.DomainBillingTransactionsResponse response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse retVal = new TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse();
+
+            retVal.m_nDomainID = response.m_nDomainID;
+            retVal.m_BillingTransactionResponses = response.m_BillingTransactionResponses.Select(bt => bt.ToApiObject()).ToArray();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.DomainResponseObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Domains.DomainResponseObject response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.DomainResponseObject retVal = new TVPApiModule.Objects.Responses.DomainResponseObject();
+
+            retVal.m_oDomain = response.m_oDomain.ToApiObject();
+            retVal.m_oDomainResponseStatus = (TVPApiModule.Objects.Responses.DomainResponseStatus)response.m_oDomainResponseStatus;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.Domain ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Domains.Domain response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.Domain retVal = new TVPApiModule.Objects.Responses.Domain();
+
+            retVal.m_sName = response.m_sName;
+            retVal.m_sDescription = response.m_sDescription;
+            retVal.m_sCoGuid = response.m_sCoGuid;
+            retVal.m_nDomainID = response.m_nDomainID;
+            retVal.m_nGroupID = response.m_nGroupID;
+            retVal.m_nLimit = response.m_nLimit;
+            retVal.m_nDeviceLimit = response.m_nDeviceLimit;
+            retVal.m_nUserLimit = response.m_nUserLimit;
+            retVal.m_nConcurrentLimit = response.m_nConcurrentLimit;
+            retVal.m_nStatus = response.m_nStatus;
+            retVal.m_nIsActive = response.m_nIsActive;
+            retVal.m_UsersIDs = response.m_UsersIDs;
+            retVal.m_deviceFamilies = response.m_deviceFamilies.Select(d => d.ToApiObject()).ToArray();
+            retVal.m_masterGUIDs = response.m_masterGUIDs;
+            retVal.m_DomainStatus = (TVPApiModule.Objects.Responses.DomainStatus)response.m_DomainStatus;
+            retVal.m_frequencyFlag = response.m_frequencyFlag;
+            retVal.m_NextActionFreq = response.m_NextActionFreq;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.DeviceContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Domains.DeviceContainer response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.DeviceContainer retVal = new TVPApiModule.Objects.Responses.DeviceContainer();
+
+            retVal.m_deviceFamilyName = response.m_deviceFamilyName;
+            retVal.m_deviceFamilyID = response.m_deviceFamilyID;
+            retVal.m_deviceLimit = response.m_deviceLimit;
+            retVal.m_deviceConcurrentLimit = response.m_deviceConcurrentLimit;
+            retVal.DeviceInstances = response.DeviceInstances.Select(d => d.ToApiObject()).ToArray();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.Device ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Domains.Device response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.Device retVal = new TVPApiModule.Objects.Responses.Device();
+
+            retVal.m_id = response.m_id;
+            retVal.m_deviceUDID = response.m_deviceUDID;
+            retVal.m_deviceBrand = response.m_deviceBrand;
+            retVal.m_deviceFamily = response.m_deviceFamily;
+            retVal.m_deviceFamilyID = response.m_deviceFamilyID;
+            retVal.m_domainID = response.m_domainID;
+            retVal.m_deviceName = response.m_deviceName;
+            retVal.m_deviceBrandID = response.m_deviceBrandID;
+            retVal.m_pin = response.m_pin;
+            retVal.m_activationDate = response.m_activationDate;
+            retVal.m_state = (TVPApiModule.Objects.Responses.DeviceState)response.m_state;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.DeviceResponseObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Domains.DeviceResponseObject response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.DeviceResponseObject retVal = new TVPApiModule.Objects.Responses.DeviceResponseObject();
+
+            retVal.m_oDevice = response.m_oDevice.ToApiObject();
+            retVal.m_oDeviceResponseStatus = (DeviceResponseStatus)response.m_oDeviceResponseStatus;
 
             return retVal;
         }

@@ -5,6 +5,8 @@ using System.Text;
 using log4net;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Extentions;
 
 namespace TVPApiModule.Services
 {
@@ -51,12 +53,12 @@ namespace TVPApiModule.Services
             m_platform = platform;
         }
 
-        public DomainResponseObject AddUserToDomain(int domainID, int masterSiteGuid, int AddedUserGuid)
+        public TVPApiModule.Objects.Responses.DomainResponseObject AddUserToDomain(int domainID, int masterSiteGuid, int AddedUserGuid)
         {
-            DomainResponseObject domain = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
             try
             {
-                domain = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, masterSiteGuid, false);
+                domain = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, masterSiteGuid, false).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -66,13 +68,13 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public DomainResponseObject RemoveUserFromDomain(int iDomainID, string userGuidToRemove)
+        public TVPApiModule.Objects.Responses.DomainResponseObject RemoveUserFromDomain(int iDomainID, string userGuidToRemove)
         {
-            DomainResponseObject domain = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
             try
             {
-                domain = m_Module.RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, userGuidToRemove);
+                domain = m_Module.RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, userGuidToRemove).ToApiObject();
                 //if (res.m_oDomainResponseStatus == DomainResponseStatus.OK)
                 //    domain = res.m_oDomain;
             }
@@ -84,13 +86,13 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public DomainResponseObject AddDeviceToDomain(int iDomainID, string sUDID, string sDeviceName, int iDeviceBrandID)
+        public TVPApiModule.Objects.Responses.DomainResponseObject AddDeviceToDomain(int iDomainID, string sUDID, string sDeviceName, int iDeviceBrandID)
         {
-            DomainResponseObject domain = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
             try
             {
-                domain = m_Module.AddDeviceToDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID, sDeviceName, iDeviceBrandID);
+                domain = m_Module.AddDeviceToDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID, sDeviceName, iDeviceBrandID).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -100,13 +102,13 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public DomainResponseObject RemoveDeviceToDomain(int iDomainID, string sUDID)
+        public TVPApiModule.Objects.Responses.DomainResponseObject RemoveDeviceToDomain(int iDomainID, string sUDID)
         {
-            DomainResponseObject domain = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
             try
             {
-                domain = m_Module.RemoveDeviceFromDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID);
+                domain = m_Module.RemoveDeviceFromDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -116,13 +118,13 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public DomainResponseObject ChangeDeviceDomainStatus(int iDomainID, string sUDID, bool bActive)
+        public TVPApiModule.Objects.Responses.DomainResponseObject ChangeDeviceDomainStatus(int iDomainID, string sUDID, bool bActive)
         {
-            DomainResponseObject domain = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
             try
             {
-                domain = m_Module.ChangeDeviceDomainStatus(m_wsUserName, m_wsPassword, iDomainID, sUDID, bActive);
+                domain = m_Module.ChangeDeviceDomainStatus(m_wsUserName, m_wsPassword, iDomainID, sUDID, bActive).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -132,13 +134,13 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public Domain GetDomainInfo(int iDomainID)
+        public TVPApiModule.Objects.Responses.Domain GetDomainInfo(int iDomainID)
         {
-            Domain domain = null;
+            TVPApiModule.Objects.Responses.Domain domain = null;
 
             try
             {
-                domain = m_Module.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
+                domain = m_Module.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -148,13 +150,13 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public DomainResponseObject SetDomainInfo(int iDomainID, string sDomainName, string sDomainDescription)
+        public TVPApiModule.Objects.Responses.DomainResponseObject SetDomainInfo(int iDomainID, string sDomainName, string sDomainDescription)
         {
-            DomainResponseObject domain = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
             try
             {
-                domain = m_Module.SetDomainInfo(m_wsUserName, m_wsPassword, iDomainID, sDomainName, sDomainDescription);
+                domain = m_Module.SetDomainInfo(m_wsUserName, m_wsPassword, iDomainID, sDomainName, sDomainDescription).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -164,13 +166,15 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public Domain[] GetDeviceDomains(string udid)
+        public TVPApiModule.Objects.Responses.Domain[] GetDeviceDomains(string udid)
         {
-            Domain[] domains = null;
+            TVPApiModule.Objects.Responses.Domain[] domains = null;
 
             try
             {
-                domains = m_Module.GetDeviceDomains(m_wsUserName, m_wsPassword, udid);
+                var response = m_Module.GetDeviceDomains(m_wsUserName, m_wsPassword, udid);
+                if (response != null)
+                    domains = response.Select(d => d.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -196,12 +200,12 @@ namespace TVPApiModule.Services
             return pin;
         }
 
-        public DeviceResponseObject RegisterDeviceByPIN(string udid, int domainID, string pin)
+        public TVPApiModule.Objects.Responses.DeviceResponseObject RegisterDeviceByPIN(string udid, int domainID, string pin)
         {
-            DeviceResponseObject device = null;
+            TVPApiModule.Objects.Responses.DeviceResponseObject device = null;
             try
             {
-                device = m_Module.RegisterDeviceToDomainWithPIN(m_wsUserName, m_wsPassword, pin, domainID, string.Empty);
+                device = m_Module.RegisterDeviceToDomainWithPIN(m_wsUserName, m_wsPassword, pin, domainID, string.Empty).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -211,12 +215,12 @@ namespace TVPApiModule.Services
             return device;
         }
 
-        public DomainResponseObject ResetDomain(int domainID)
+        public TVPApiModule.Objects.Responses.DomainResponseObject ResetDomain(int domainID)
         {
-            DomainResponseObject response = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject response = null;
             try
             {
-                response = m_Module.ResetDomain(m_wsUserName, m_wsPassword, domainID);
+                response = m_Module.ResetDomain(m_wsUserName, m_wsPassword, domainID).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -241,12 +245,12 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public DomainResponseObject AddDomain(string domainName, string domainDesc, int masterGuid)
+        public TVPApiModule.Objects.Responses.DomainResponseObject AddDomain(string domainName, string domainDesc, int masterGuid)
         {
-            DomainResponseObject response = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject response = null;
             try
             {
-                response = m_Module.AddDomain(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid);
+                response = m_Module.AddDomain(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -256,12 +260,12 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public DomainResponseObject AddDomainWithCoGuid(string domainName, string domainDesc, int masterGuid, string CoGuid)
+        public TVPApiModule.Objects.Responses.DomainResponseObject AddDomainWithCoGuid(string domainName, string domainDesc, int masterGuid, string CoGuid)
         {
-            DomainResponseObject response = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject response = null;
             try
             {
-                response = m_Module.AddDomainWithCoGuid(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid, CoGuid);
+                response = m_Module.AddDomainWithCoGuid(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid, CoGuid).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -285,12 +289,12 @@ namespace TVPApiModule.Services
             return resp;
         }
 
-        public DomainResponseObject GetDomainByCoGuid(string coGuid)
+        public TVPApiModule.Objects.Responses.DomainResponseObject GetDomainByCoGuid(string coGuid)
         {
-            DomainResponseObject response = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject response = null;
             try
             {
-                response = m_Module.GetDomainByCoGuid(m_wsUserName, m_wsPassword, coGuid);
+                response = m_Module.GetDomainByCoGuid(m_wsUserName, m_wsPassword, coGuid).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -313,12 +317,12 @@ namespace TVPApiModule.Services
             return domainID;
         }
 
-        public DomainResponseObject SubmitAddUserToDomainRequest(int userID, string masterUsername)
+        public TVPApiModule.Objects.Responses.DomainResponseObject SubmitAddUserToDomainRequest(int userID, string masterUsername)
         {
-            DomainResponseObject res = null;
+            TVPApiModule.Objects.Responses.DomainResponseObject res = null;
             try
             {
-                res = m_Module.SubmitAddUserToDomainRequest(m_wsUserName, m_wsPassword, userID, masterUsername);
+                res = m_Module.SubmitAddUserToDomainRequest(m_wsUserName, m_wsPassword, userID, masterUsername).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -327,13 +331,13 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public DomainResponseStatus RemoveDomain(int domainID)
+        public TVPApiModule.Objects.Responses.DomainResponseStatus RemoveDomain(int domainID)
         {
-            DomainResponseStatus response = DomainResponseStatus.UnKnown;
+            TVPApiModule.Objects.Responses.DomainResponseStatus response = TVPApiModule.Objects.Responses.DomainResponseStatus.UnKnown;
 
             try
             {
-                response = m_Module.RemoveDomain(m_wsUserName, m_wsPassword, domainID);
+                response = (TVPApiModule.Objects.Responses.DomainResponseStatus)m_Module.RemoveDomain(m_wsUserName, m_wsPassword, domainID);
             }
             catch (Exception e)
             {

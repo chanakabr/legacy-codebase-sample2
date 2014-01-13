@@ -11,9 +11,8 @@ using log4net;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPPro.SiteManager.TvinciPlatform.Billing;
 using System.Web;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -25,16 +24,16 @@ namespace TVPApiServices
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     [System.Web.Script.Services.ScriptService]
-    public class BillingService : System.Web.Services.WebService, IBillingService
+    public class BillingService : System.Web.Services.WebService//, IBillingService
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(BillingService));
 
         #region public methods
 
         [WebMethod(EnableSession = true, Description = "Get last billing Info")]
-        public AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, string siteGuid, int billingMethod)
+        public TVPApiModule.Objects.Responses.AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, string siteGuid, int billingMethod)
         {
-            AdyenBillingDetail response = null;
+            TVPApiModule.Objects.Responses.AdyenBillingDetail response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastBillingUserInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

@@ -58,10 +58,10 @@ namespace TVPApiModule.Objects
         }
 
 
-        public override TVPPro.SiteManager.TvinciPlatform.Domains.DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
+        public override TVPApiModule.Objects.Responses.DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
         {
-            DomainResponseObject resp = base.AddDeviceToDomain(sDeviceName, nDeviceBrandID);
-            if (resp.m_oDomainResponseStatus == DomainResponseStatus.OK)
+            TVPApiModule.Objects.Responses.DomainResponseObject resp = base.AddDeviceToDomain(sDeviceName, nDeviceBrandID);
+            if (resp.m_oDomainResponseStatus == TVPApiModule.Objects.Responses.DomainResponseStatus.OK)
             {
                 ApiDomainsService domainsService = new ApiDomainsService(_nGroupID, _initObj.Platform);
                 ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
@@ -87,9 +87,9 @@ namespace TVPApiModule.Objects
                         }
                         catch (Exception ex)
                         {
-                            DomainResponseObject statusRemove = base.RemoveDeviceToDomain();
+                            TVPApiModule.Objects.Responses.DomainResponseObject statusRemove = base.RemoveDeviceToDomain();
 
-                            resp = new DomainResponseObject() { m_oDomainResponseStatus = DomainResponseStatus.Error, m_oDomain = statusRemove.m_oDomain };
+                            resp = new TVPApiModule.Objects.Responses.DomainResponseObject() { m_oDomainResponseStatus = TVPApiModule.Objects.Responses.DomainResponseStatus.Error, m_oDomain = statusRemove.m_oDomain };
 
                             logger.ErrorFormat("ITProxy->AddDevice Error. Params: AccountNumber={0}, UDID={1}, Username={2}, Exception: {3}", yesObj.AccountNumber, yesObj.UDID, yesObj.Username, (ex != null && ex.InnerException != null)? ex.InnerException.ToString() : ex.ToString()); 
                         }

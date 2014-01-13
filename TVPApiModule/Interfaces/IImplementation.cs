@@ -5,13 +5,14 @@ using System.Text;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Interfaces
 {
     public interface IImplementation
     {
         ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword);
-        DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID);
+        TVPApiModule.Objects.Responses.DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID);
         string MediaHit(int nMediaID, int nFileID, int nLocationID);
         string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode,
                                             string sIP, string sExtraParams);

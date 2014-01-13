@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
-    public class MediaMark
+    public class MediaMarkObject
     {
         public int nGroupID { get; set; }
 

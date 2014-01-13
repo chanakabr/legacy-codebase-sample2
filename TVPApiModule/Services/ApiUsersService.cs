@@ -160,9 +160,9 @@ namespace TVPApiModule.Services
             return IsRemoved;
         }
 
-        public Favorite[] GetUserFavorites(string sSiteGuid, string sItemType, int iDomainID, string sUDID)
+        public FavoriteObject[] GetUserFavorites(string sSiteGuid, string sItemType, int iDomainID, string sUDID)
         {
-            Favorite[] retVal = null;
+            FavoriteObject[] retVal = null;
 
             try
             {

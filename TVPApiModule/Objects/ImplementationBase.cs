@@ -34,13 +34,13 @@ namespace TVPApiModule.Objects
         }
 
         
-        public virtual DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
+        public virtual TVPApiModule.Objects.Responses.DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
         {
             return new TVPApiModule.Services.ApiDomainsService(_nGroupID, _initObj.Platform).AddDeviceToDomain(_initObj.DomainID, _initObj.UDID, sDeviceName, nDeviceBrandID);
 
         }
 
-        public virtual DomainResponseObject RemoveDeviceToDomain()
+        public virtual TVPApiModule.Objects.Responses.DomainResponseObject RemoveDeviceToDomain()
         {
             return new TVPApiModule.Services.ApiDomainsService(_nGroupID, _initObj.Platform).RemoveDeviceToDomain(_initObj.DomainID, _initObj.UDID);
 
@@ -66,10 +66,10 @@ namespace TVPApiModule.Objects
         {
             bool bRet = false;
 
-            MediaFileItemPricesContainer[] prices = new ApiConditionalAccessService(_nGroupID, _initObj.Platform).GetItemsPrice(new int[] { iFileID }, sUserGuid, true);
+            TVPApiModule.Objects.Responses.MediaFileItemPricesContainer[] prices = new ApiConditionalAccessService(_nGroupID, _initObj.Platform).GetItemsPrice(new int[] { iFileID }, sUserGuid, true);
 
-            MediaFileItemPricesContainer mediaPrice = null;
-            foreach (MediaFileItemPricesContainer mp in prices)
+            TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mediaPrice = null;
+            foreach (TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mp in prices)
             {
                 if (mp.m_nMediaFileID == iFileID)
                 {
