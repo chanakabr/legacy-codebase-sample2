@@ -6,6 +6,7 @@ using TVPPro.SiteManager.TvinciPlatform.Social;
 using log4net;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPApiModule.Extentions;
 
 namespace TVPApiModule.Services
 {
@@ -93,17 +94,18 @@ namespace TVPApiModule.Services
             return eRes;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] GetUserSocialActions(string siteGuid,
+        public TVPApiModule.Objects.Responses.UserSocialActionObject[] GetUserSocialActions(string siteGuid,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                       bool onlyFriends,
                                                                                                       int startIndex,
                                                                                                       int numOfItems)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] res = null;
+            TVPApiModule.Objects.Responses.UserSocialActionObject[] res = null;
 
             try
             {
+                TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] response;
                 if (onlyFriends)
                 {
                     GetFriendsActionsRequest friendActionRequest = new GetFriendsActionsRequest()
@@ -114,7 +116,7 @@ namespace TVPApiModule.Services
                         m_nStartIndex = startIndex,
                         m_sSiteGuid = siteGuid
                     };
-                    res = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
+                    response = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
                 }
                 else
                 {
@@ -126,8 +128,11 @@ namespace TVPApiModule.Services
                         m_nStartIndex = startIndex,
                         m_sSiteGuid = siteGuid
                     };
-                    res = m_Module.GetUserActions(m_wsUserName, m_wsPassword, userActionRequest);
+                    response = m_Module.GetUserActions(m_wsUserName, m_wsPassword, userActionRequest);
                 }
+
+                if (response != null)
+                    res = response.Select(s => s.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {

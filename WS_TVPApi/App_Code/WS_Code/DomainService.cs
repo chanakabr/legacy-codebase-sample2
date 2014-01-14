@@ -24,7 +24,7 @@ namespace TVPApiServices
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     [System.Web.Script.Services.ScriptService]
-    public class DomainService : System.Web.Services.WebService, IDomainService
+    public class DomainService : System.Web.Services.WebService//, IDomainService
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(DomainService));
 

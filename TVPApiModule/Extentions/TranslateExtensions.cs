@@ -3,80 +3,79 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVPApiModule.Objects.Responses;
-//using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Extentions
 {
     public static class TranslateExtensions
-    {    
-        //public static UserResponseObject To(this UserResponseObject response)
-        //{
-        //    if (response == null)
-        //        return null;
+    {
+        public static UserResponseObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject response)
+        {
+            if (response == null)
+                return null;
 
-        //    UserResponseObject response = new UserResponseObject();
+            UserResponseObject retVal = new UserResponseObject();
 
-        //    response.m_RespStatus = (ResponseStatus)response.m_RespStatus;
+            retVal.m_RespStatus = (ResponseStatus)response.m_RespStatus;
 
-        //    if (response.m_user != null)
-        //    {
-        //        response.m_user = new User();
+            if (response.m_user != null)
+            {
+                retVal.m_user = new User();
 
-        //        response.m_user.m_domianID = response.m_user.m_domianID;
-        //        response.m_user.m_eUserState = (UserState)response.m_user.m_eUserState;
-        //        response.m_user.m_isDomainMaster = response.m_user.m_isDomainMaster;
-        //        response.m_user.m_nSSOOperatorID = response.m_user.m_nSSOOperatorID;
+                retVal.m_user.m_domianID = response.m_user.m_domianID;
+                retVal.m_user.m_eUserState = (UserState)response.m_user.m_eUserState;
+                retVal.m_user.m_isDomainMaster = response.m_user.m_isDomainMaster;
+                retVal.m_user.m_nSSOOperatorID = response.m_user.m_nSSOOperatorID;
 
-        //        if (response.m_user.m_oBasicData != null)
-        //        {
-        //            response.m_user.m_oBasicData = new UserBasicData();
+                if (response.m_user.m_oBasicData != null)
+                {
+                    retVal.m_user.m_oBasicData = new UserBasicData();
 
-        //            response.m_user.m_oBasicData.m_bIsFacebookImagePermitted = response.m_user.m_oBasicData.m_bIsFacebookImagePermitted;
-        //            response.m_user.m_oBasicData.m_CoGuid = response.m_user.m_oBasicData.m_CoGuid;
+                    retVal.m_user.m_oBasicData.m_bIsFacebookImagePermitted = response.m_user.m_oBasicData.m_bIsFacebookImagePermitted;
+                    retVal.m_user.m_oBasicData.m_CoGuid = response.m_user.m_oBasicData.m_CoGuid;
 
-        //            response.m_user.m_oBasicData.m_Country = response.m_user.m_oBasicData.m_Country.To();
+                    retVal.m_user.m_oBasicData.m_Country = response.m_user.m_oBasicData.m_Country.ToApiObject();
 
-        //            response.m_user.m_oBasicData.m_ExternalToken = response.m_user.m_oBasicData.m_ExternalToken;
-        //            response.m_user.m_oBasicData.m_sAddress = response.m_user.m_oBasicData.m_sAddress;
-        //            response.m_user.m_oBasicData.m_sAffiliateCode = response.m_user.m_oBasicData.m_sAffiliateCode;
-        //            response.m_user.m_oBasicData.m_sCity = response.m_user.m_oBasicData.m_sCity;
-        //            response.m_user.m_oBasicData.m_sEmail = response.m_user.m_oBasicData.m_sEmail;
-        //            response.m_user.m_oBasicData.m_sFacebookID = response.m_user.m_oBasicData.m_sFacebookID;
-        //            response.m_user.m_oBasicData.m_sFacebookImage = response.m_user.m_oBasicData.m_sFacebookImage;
-        //            response.m_user.m_oBasicData.m_sFacebookToken = response.m_user.m_oBasicData.m_sFacebookToken;
-        //            response.m_user.m_oBasicData.m_sFirstName = response.m_user.m_oBasicData.m_sFirstName;
-        //            response.m_user.m_oBasicData.m_sLastName = response.m_user.m_oBasicData.m_sLastName;
-        //            response.m_user.m_oBasicData.m_sPhone = response.m_user.m_oBasicData.m_sPhone;
+                    retVal.m_user.m_oBasicData.m_ExternalToken = response.m_user.m_oBasicData.m_ExternalToken;
+                    retVal.m_user.m_oBasicData.m_sAddress = response.m_user.m_oBasicData.m_sAddress;
+                    retVal.m_user.m_oBasicData.m_sAffiliateCode = response.m_user.m_oBasicData.m_sAffiliateCode;
+                    retVal.m_user.m_oBasicData.m_sCity = response.m_user.m_oBasicData.m_sCity;
+                    retVal.m_user.m_oBasicData.m_sEmail = response.m_user.m_oBasicData.m_sEmail;
+                    retVal.m_user.m_oBasicData.m_sFacebookID = response.m_user.m_oBasicData.m_sFacebookID;
+                    retVal.m_user.m_oBasicData.m_sFacebookImage = response.m_user.m_oBasicData.m_sFacebookImage;
+                    retVal.m_user.m_oBasicData.m_sFacebookToken = response.m_user.m_oBasicData.m_sFacebookToken;
+                    retVal.m_user.m_oBasicData.m_sFirstName = response.m_user.m_oBasicData.m_sFirstName;
+                    retVal.m_user.m_oBasicData.m_sLastName = response.m_user.m_oBasicData.m_sLastName;
+                    retVal.m_user.m_oBasicData.m_sPhone = response.m_user.m_oBasicData.m_sPhone;
 
-        //            response.m_user.m_oBasicData.m_State = response.m_user.m_oBasicData.m_State.To();
+                    retVal.m_user.m_oBasicData.m_State = response.m_user.m_oBasicData.m_State.ToApiObject();
 
-        //            response.m_user.m_oBasicData.m_sUserName = response.m_user.m_oBasicData.m_sUserName;
-        //            response.m_user.m_oBasicData.m_sZip = response.m_user.m_oBasicData.m_sZip;
+                    retVal.m_user.m_oBasicData.m_sUserName = response.m_user.m_oBasicData.m_sUserName;
+                    retVal.m_user.m_oBasicData.m_sZip = response.m_user.m_oBasicData.m_sZip;
 
-        //            response.m_user.m_oBasicData.m_UserType = response.m_user.m_oBasicData.m_UserType.To();
-        //        }
+                    retVal.m_user.m_oBasicData.m_UserType = response.m_user.m_oBasicData.m_UserType.ToApiObject();
+                }
 
-        //        if (response.m_user.m_oDynamicData != null)
-        //        {
-        //            response.m_user.m_oDynamicData = new UserDynamicData();
+                if (response.m_user.m_oDynamicData != null)
+                {
+                    retVal.m_user.m_oDynamicData = new UserDynamicData();
 
-        //            if (response.m_user.m_oDynamicData.m_sUserData != null)
-        //            {
-        //                response.m_user.m_oDynamicData.m_sUserData = response.m_user.m_oDynamicData.m_sUserData.Select(x => new UserDynamicDataContainer()
-        //                {
-        //                    m_sDataType = x.m_sDataType,
-        //                    m_sValue = x.m_sValue
-        //                }).ToArray();
-        //            }
-        //        }
+                    if (response.m_user.m_oDynamicData.m_sUserData != null)
+                    {
+                        retVal.m_user.m_oDynamicData.m_sUserData = response.m_user.m_oDynamicData.m_sUserData.Select(x => new UserDynamicDataContainer()
+                        {
+                            m_sDataType = x.m_sDataType,
+                            m_sValue = x.m_sValue
+                        }).ToArray();
+                    }
+                }
 
-        //        response.m_user.m_sSiteGUID = response.m_user.m_sSiteGUID;
-        //    }
+                retVal.m_user.m_sSiteGUID = response.m_user.m_sSiteGUID;
+            }
 
-        //    response.m_userInstanceID = response.m_userInstanceID;
+            retVal.m_userInstanceID = response.m_userInstanceID;
 
-        //    return response;
-        //}
+            return retVal;
+        }
 
         public static TVPApiModule.Objects.Responses.PermittedSubscriptionContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PermittedSubscriptionContainer response)
         {
@@ -371,49 +370,49 @@ namespace TVPApiModule.Extentions
         //    return response;
         //}
 
-        //public static State To(this State response)
-        //{
-        //    if (response == null)
-        //        return null;
+        public static State ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.State response)
+        {
+            if (response == null)
+                return null;
 
-        //    State response = new State();
+            State retVal = new State();
 
-        //    response.m_Country = response.m_Country.To();
+            retVal.m_Country = response.m_Country.ToApiObject();
 
-        //    response.m_nObjecrtID = response.m_nObjecrtID;
-        //    response.m_sStateCode = response.m_sStateCode;
-        //    response.m_sStateName = response.m_sStateName;
+            retVal.m_nObjecrtID = response.m_nObjecrtID;
+            retVal.m_sStateCode = response.m_sStateCode;
+            retVal.m_sStateName = response.m_sStateName;
 
-        //    return response;
-        //}
+            return retVal;
+        }
 
-        //public static Country To(this Country response)
-        //{
-        //    if (response == null)
-        //        return null;
+        public static Country ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.Country response)
+        {
+            if (response == null)
+                return null;
 
-        //    Country response = new Country();
+            Country retVal = new Country();
 
-        //    response.m_nObjecrtID = response.m_nObjecrtID;
-        //    response.m_sCountryCode = response.m_sCountryCode;
-        //    response.m_sCountryName = response.m_sCountryName;
+            retVal.m_nObjecrtID = response.m_nObjecrtID;
+            retVal.m_sCountryCode = response.m_sCountryCode;
+            retVal.m_sCountryName = response.m_sCountryName;
 
-        //    return response;
-        //}
+            return retVal;
+        }
 
-        //public static UserType To(this TVPPro.SiteManager.TvinciPlatform.Users.UserType response)
-        //{
-        //    if (response == null)
-        //        return null;
+        public static UserType ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.UserType response)
+        {
+            if (response == null)
+                return null;
 
-        //    UserType response = new UserType();
+            UserType retVal = new UserType();
 
-        //    response.Description = response.Description;
-        //    response.ID = response.ID;
-        //    response.IsDefault = response.IsDefault;
+            retVal.Description = response.Description;
+            retVal.ID = response.ID;
+            retVal.IsDefault = response.IsDefault;
 
-        //    return response;
-        //}
+            return retVal;
+        }
 
         public static TVPApiModule.Objects.Responses.EPGChannel ToApiObject(this TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject response)
         {
@@ -1123,5 +1122,333 @@ namespace TVPApiModule.Extentions
 
             return retVal;
         }
+
+        public static TVPApiModule.Objects.Responses.PPVModule ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.PPVModule response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.PPVModule retVal = new TVPApiModule.Objects.Responses.PPVModule();
+
+            retVal.m_oPriceCode = response.m_oPriceCode.ToApiObject();
+            retVal.m_oUsageModule = response.m_oUsageModule.ToApiObject();
+            retVal.m_oDiscountModule = response.m_oDiscountModule.ToApiObject();
+            retVal.m_oCouponsGroup = response.m_oCouponsGroup.ToApiObject();
+            retVal.m_sDescription = response.m_sDescription.Select(l => l.ToApiObject()).ToArray();
+            retVal.m_sObjectCode = response.m_sObjectCode;
+            retVal.m_sObjectVirtualName = response.m_sObjectVirtualName;
+            retVal.m_bSubscriptionOnly = response.m_bSubscriptionOnly;
+            retVal.m_relatedFileTypes = response.m_relatedFileTypes;
+            retVal.m_Product_Code = response.m_Product_Code;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.PriceCode ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.PriceCode response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.PriceCode retVal = new TVPApiModule.Objects.Responses.PriceCode();
+
+            retVal.m_sCode = response.m_sCode;
+            retVal.m_oPrise = response.m_oPrise.ToApiObject();
+            retVal.m_nObjectID = response.m_nObjectID;
+            retVal.m_sDescription = response.m_sDescription.Select(l => l.ToApiObject()).ToArray();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.UsageModule ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.UsageModule response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.UsageModule retVal = new TVPApiModule.Objects.Responses.UsageModule();
+
+            retVal.m_nObjectID = response.m_nObjectID;
+            retVal.m_sVirtualName = response.m_sVirtualName;
+            retVal.m_nMaxNumberOfViews = response.m_nMaxNumberOfViews;
+            retVal.m_tsViewLifeCycle = response.m_tsViewLifeCycle;
+            retVal.m_tsMaxUsageModuleLifeCycle = response.m_tsMaxUsageModuleLifeCycle;
+            retVal.m_ext_discount_id = response.m_ext_discount_id;
+            retVal.m_internal_discount_id = response.m_internal_discount_id;
+            retVal.m_pricing_id = response.m_pricing_id;
+            retVal.m_coupon_id = response.m_coupon_id;
+            retVal.m_subscription_only = response.m_subscription_only;
+            retVal.m_is_renew = response.m_is_renew;
+            retVal.m_num_of_rec_periods = response.m_num_of_rec_periods;
+            retVal.m_device_limit_id = response.m_device_limit_id;
+            retVal.m_type = response.m_type;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.DiscountModule ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.DiscountModule response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.DiscountModule retVal = new TVPApiModule.Objects.Responses.DiscountModule();
+
+            retVal.m_dPercent = response.m_dPercent;
+            retVal.m_eTheRelationType = (TVPApiModule.Objects.Responses.RelationTypes)response.m_eTheRelationType;
+            retVal.m_dStartDate = response.m_dStartDate;
+            retVal.m_dEndDate = response.m_dEndDate;
+            retVal.m_oWhenAlgo = response.m_oWhenAlgo.ToApiObject();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.CouponsGroup ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.CouponsGroup response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.CouponsGroup retVal = new TVPApiModule.Objects.Responses.CouponsGroup();
+
+            retVal.m_oDiscountCode = response.m_oDiscountCode.ToApiObject();
+            retVal.m_sDiscountCode = response.m_sDiscountCode;
+            retVal.m_sDescription = response.m_sDescription.Select(l => l.ToApiObject()).ToArray();
+            retVal.m_dStartDate = response.m_dStartDate;
+            retVal.m_dEndDate = response.m_dEndDate;
+            retVal.m_nMaxUseCountForCoupon = response.m_nMaxUseCountForCoupon;
+            retVal.m_sGroupCode = response.m_sGroupCode;
+            retVal.m_sGroupName = response.m_sGroupName;
+            retVal.m_nFinancialEntityID = response.m_nFinancialEntityID;
+            retVal.m_nMaxRecurringUsesCountForCoupon = response.m_nMaxRecurringUsesCountForCoupon;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.LanguageContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.LanguageContainer response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.LanguageContainer retVal = new TVPApiModule.Objects.Responses.LanguageContainer();
+
+            retVal.m_sLanguageCode3 = response.m_sLanguageCode3;
+            retVal.m_sValue = response.m_sValue;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.Price ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.Price response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.Price retVal = new TVPApiModule.Objects.Responses.Price();
+
+            retVal.m_dPrice = response.m_dPrice;
+            retVal.m_oCurrency = response.m_oCurrency.ToApiObject();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.WhenAlgo ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.WhenAlgo response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.WhenAlgo retVal = new TVPApiModule.Objects.Responses.WhenAlgo();
+
+            retVal.m_eAlgoType = (TVPApiModule.Objects.Responses.WhenAlgoType)response.m_eAlgoType;
+            retVal.m_nNTimes = response.m_nNTimes;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.Currency ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.Currency response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.Currency retVal = new TVPApiModule.Objects.Responses.Currency();
+
+            retVal.m_nCurrencyID = response.m_nCurrencyID;
+            retVal.m_sCurrencyCD2 = response.m_sCurrencyCD2;
+            retVal.m_sCurrencyCD3 = response.m_sCurrencyCD3;
+            retVal.m_sCurrencySign = response.m_sCurrencySign;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.CouponData ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.CouponData retVal = new TVPApiModule.Objects.Responses.CouponData();
+
+            retVal.m_CouponStatus = (CouponsStatus)response.m_CouponStatus;
+            retVal.m_oCouponGroup = response.m_oCouponGroup.ToApiObject();
+            retVal.m_CouponType = (CouponType)response.m_CouponType;
+            retVal.m_campID = response.m_campID;
+            retVal.m_ownerGUID = response.m_ownerGUID;
+            retVal.m_ownerMedia = response.m_ownerMedia;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.Subscription ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.Subscription retVal = new TVPApiModule.Objects.Responses.Subscription();
+
+            retVal.m_sCodes = response.m_sCodes.Select(c => c.ToApiObject()).ToArray();
+            retVal.m_dStartDate = response.m_dStartDate;
+            retVal.m_dEndDate = response.m_dEndDate;
+            retVal.m_sFileTypes = response.m_sFileTypes;
+            retVal.m_bIsRecurring = response.m_bIsRecurring;
+            retVal.m_nNumberOfRecPeriods = response.m_nNumberOfRecPeriods;
+            retVal.m_oSubscriptionPriceCode = response.m_oSubscriptionPriceCode.ToApiObject();
+            retVal.m_oExtDisountModule = response.m_oExtDisountModule.ToApiObject();
+            retVal.m_sName = response.m_sName.Select(l => l.ToApiObject()).ToArray();
+            retVal.m_oSubscriptionUsageModule = response.m_oSubscriptionUsageModule.ToApiObject();
+            retVal.m_fictivicMediaID = response.m_fictivicMediaID;
+            retVal.m_Priority = response.m_Priority;
+            retVal.m_ProductCode = response.m_ProductCode;
+            retVal.m_SubscriptionCode = response.m_SubscriptionCode;
+            retVal.m_MultiSubscriptionUsageModule = response.m_MultiSubscriptionUsageModule.Select(m => m.ToApiObject()).ToArray();
+            retVal.n_GeoCommerceID = response.n_GeoCommerceID;
+            retVal.m_bIsInfiniteRecurring = response.m_bIsInfiniteRecurring;
+            retVal.m_oPreviewModule = response.m_oPreviewModule.ToApiObject();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.SubscriptionCodeContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.SubscriptionCodeContainer response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.SubscriptionCodeContainer retVal = new TVPApiModule.Objects.Responses.SubscriptionCodeContainer();
+
+            retVal.m_sCode = response.m_sCode;
+            retVal.m_sName = response.m_sName;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.PreviewModule ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.PreviewModule response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.PreviewModule retVal = new TVPApiModule.Objects.Responses.PreviewModule();
+
+            retVal.m_nID = response.m_nID;
+            retVal.m_sName = response.m_sName;
+            retVal.m_tsFullLifeCycle = response.m_tsFullLifeCycle;
+            retVal.m_tsNonRenewPeriod = response.m_tsNonRenewPeriod;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.GroupOperator ToApiObject(this TVPPro.SiteManager.TvinciPlatform.api.GroupOperator response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.GroupOperator retVal = new TVPApiModule.Objects.Responses.GroupOperator();
+
+            retVal.UIData = response.UIData.ToApiObject();
+            retVal.ID = response.ID;
+            retVal.Name = response.Name;
+            retVal.Type = (eOperatorType)response.Type;
+            retVal.LoginUrl = response.LoginUrl;
+            retVal.SubGroupID = response.SubGroupID;
+            retVal.Scopes = response.Scopes.Select(s => s.ToApiObject()).ToArray();
+            retVal.GroupUserName = response.GroupUserName;
+            retVal.GroupPassword = response.GroupPassword;
+            retVal.LogoutURL = response.LogoutURL;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.Scope ToApiObject(this TVPPro.SiteManager.TvinciPlatform.api.Scope response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.Scope retVal = new TVPApiModule.Objects.Responses.Scope();
+
+            retVal.LoginUrl = response.LoginUrl;
+            retVal.LogoutUrl = response.LogoutUrl;
+            retVal.Name = response.Name;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.UIData ToApiObject(this TVPPro.SiteManager.TvinciPlatform.api.UIData response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.UIData retVal = new TVPApiModule.Objects.Responses.UIData();
+
+            retVal.ColorCode = response.ColorCode;
+            retVal.picID = response.picID;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.UserSocialActionObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.UserSocialActionObject retVal = new TVPApiModule.Objects.Responses.UserSocialActionObject();
+
+            retVal.m_sSiteGuid = response.m_sSiteGuid;
+            retVal.m_eSocialAction = (eUserAction)response.m_eSocialAction;
+            retVal.m_eSocialPlatform = (SocialPlatform)response.m_eSocialPlatform;
+            retVal.nMediaID = response.nMediaID;
+            retVal.nProgramID = response.nProgramID;
+            retVal.assetType = (eAssetType)response.assetType;
+            retVal.m_dActionDate = response.m_dActionDate;
+
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.UserBasicData ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.UserBasicData retVal = new TVPApiModule.Objects.Responses.UserBasicData();
+
+            retVal.m_bIsFacebookImagePermitted = response.m_bIsFacebookImagePermitted;
+            retVal.m_CoGuid = response.m_CoGuid;
+            retVal.m_Country = response.m_Country.ToApiObject();
+            retVal.m_ExternalToken = response.m_ExternalToken;
+            retVal.m_sAddress = response.m_sAddress;
+            retVal.m_sAffiliateCode = response.m_sAffiliateCode;
+            retVal.m_sCity = response.m_sCity;
+            retVal.m_sEmail = response.m_sEmail;
+            retVal.m_sFacebookID = response.m_sFacebookID;
+            retVal.m_sFacebookImage = response.m_sFacebookImage;
+            retVal.m_sFacebookToken = response.m_sFacebookToken;
+            retVal.m_sFirstName = response.m_sFirstName;
+            retVal.m_sLastName = response.m_sLastName;
+            retVal.m_sPhone = response.m_sPhone;
+            retVal.m_State = response.m_State.ToApiObject();
+            retVal.m_sUserName = response.m_sUserName;
+            retVal.m_sZip = response.m_sZip;
+            retVal.m_UserType = response.m_UserType.ToApiObject();
+
+
+            return retVal;
+        }
+
+        
+
+
+
     }
 }

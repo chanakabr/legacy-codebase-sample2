@@ -37,7 +37,7 @@ namespace TVPApiModule.Objects.Responses
     }
 
 
-    public class Subscription
+    public class Subscription : PPVModule
     {
         public SubscriptionCodeContainer[] m_sCodes { get; set; }
 

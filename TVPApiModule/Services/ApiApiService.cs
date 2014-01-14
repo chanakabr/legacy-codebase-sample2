@@ -5,10 +5,11 @@ using System.Text;
 using log4net;
 using TVPApi;
 using TVPPro.SiteManager.Services;
-using TVPPro.SiteManager.TvinciPlatform.api;
+//using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
+using TVPPro.SiteManager.TvinciPlatform.api;
 
 namespace TVPApiModule.Services
 {
@@ -40,12 +41,14 @@ namespace TVPApiModule.Services
         #endregion C'tor
 
         #region Public methods
-        public GroupOperator[] GetGroupOperators(string scope)
+        public TVPApiModule.Objects.Responses.GroupOperator[] GetGroupOperators(string scope)
         {
-            GroupOperator[] response = null;
+            TVPApiModule.Objects.Responses.GroupOperator[] response = null;
             try
             {
-                response = m_Module.GetGroupOperators(m_wsUserName, m_wsPassword, scope);
+                var res = m_Module.GetGroupOperators(m_wsUserName, m_wsPassword, scope);
+                if (res != null)
+                    response = res.Select(o => o.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -55,12 +58,14 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public GroupOperator[] GetOperators(int[] operatorIds)
+        public TVPApiModule.Objects.Responses.GroupOperator[] GetOperators(int[] operatorIds)
         {
-            GroupOperator[] operators = null;
+            TVPApiModule.Objects.Responses.GroupOperator[] operators = null;
             try
             {
-                operators = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
+                var response = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
+                if (response != null)
+                    operators = response.Select(o => o.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -86,7 +91,7 @@ namespace TVPApiModule.Services
             return mediaMark;
         }
 
-        public bool AddUserSocialAction(int iMediaID, string sSiteGuid, SocialAction Action, SocialPlatform socialPlatform)
+        public bool AddUserSocialAction(int iMediaID, string sSiteGuid, SocialAction Action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
         {
             bool bRet = false;
             try
@@ -162,7 +167,7 @@ namespace TVPApiModule.Services
             return objEPGRes;
         }
 
-        public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] GetEPGChannel(string sChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] GetEPGChannel(string sChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
             TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] objEPGProgramRes = null;
             try
@@ -178,7 +183,7 @@ namespace TVPApiModule.Services
             return objEPGProgramRes;
         }
 
-        public TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
             TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject[] objEPGProgramRes = null;
             try
@@ -224,12 +229,14 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(string siteGuid)
+        public TVPApiModule.Objects.Responses.GroupRule[] GetUserGroupRules(string siteGuid)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] res = null;
+            TVPApiModule.Objects.Responses.GroupRule[] res = null;
             try
             {
-                res = m_Module.GetUserGroupRules(m_wsUserName, m_wsPassword, siteGuid);
+                var response = m_Module.GetUserGroupRules(m_wsUserName, m_wsPassword, siteGuid);
+                if (response != null)
+                    res = response.Select(r => r.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -271,16 +278,16 @@ namespace TVPApiModule.Services
             string[] res = null;
             try
             {
-                res = m_Module.GetAutoCompleteList(m_wsUserName, m_wsPassword, new RequestObj()
+                res = m_Module.GetAutoCompleteList(m_wsUserName, m_wsPassword, new TVPPro.SiteManager.TvinciPlatform.api.RequestObj()
                 {
-                    m_InfoStruct = new InfoStructObj()
+                    m_InfoStruct = new TVPPro.SiteManager.TvinciPlatform.api.InfoStructObj()
                     {
                         m_MediaTypes = mediaTypes,
                         m_Metas = metas,
                         m_Tags = tags,
                         m_sPrefix = prefix
                     },
-                    m_eRuleType = eCutType.Or,
+                    m_eRuleType = TVPPro.SiteManager.TvinciPlatform.api.eCutType.Or,
                     m_sLanguage = lang,
                     m_iPageIndex = pageIdx,
                     m_iPageSize = pageSize
@@ -308,12 +315,14 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetDomainGroupRules(int domainID)
+        public TVPApiModule.Objects.Responses.GroupRule[] GetDomainGroupRules(int domainID)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] res = null;
+            TVPApiModule.Objects.Responses.GroupRule[] res = null;
             try
             {
-                res = m_Module.GetDomainGroupRules(m_wsUserName, m_wsPassword, domainID);
+                var response = m_Module.GetDomainGroupRules(m_wsUserName, m_wsPassword, domainID);
+                if (response != null)
+                    res = response.Select(r => r.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -337,12 +346,14 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetEPGProgramRules(int MediaId, int programId, int siteGuid, string IP, string udid)
+        public TVPApiModule.Objects.Responses.GroupRule[] GetEPGProgramRules(int MediaId, int programId, int siteGuid, string IP, string udid)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] res = null;
+            TVPApiModule.Objects.Responses.GroupRule[] res = null;
             try
             {
-                res = m_Module.GetEPGProgramRules(m_wsUserName, m_wsPassword, MediaId, programId, siteGuid, IP, udid);
+                var response = m_Module.GetEPGProgramRules(m_wsUserName, m_wsPassword, MediaId, programId, siteGuid, IP, udid);
+                if (response != null)
+                    res = response.Select(r => r.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {

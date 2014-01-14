@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using TVPApi;
 using log4net;
+using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
+using TVPApiModule.Extentions;
 
 namespace TVPApiModule.Services
 {
@@ -37,12 +39,12 @@ namespace TVPApiModule.Services
 
         #region Public methods
 
-        public PPVModule GetPPVModuleData(int ppvCode, string sCountry, string sLanguage, string sDevice)
+        public TVPApiModule.Objects.Responses.PPVModule GetPPVModuleData(int ppvCode, string sCountry, string sLanguage, string sDevice)
         {
-            PPVModule response = null;
+            TVPApiModule.Objects.Responses.PPVModule response = null;
             try
             {
-                response = m_Module.GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice);
+                response = m_Module.GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice).ToApiObject(); ;
             }
             catch (Exception ex)
             {
@@ -71,13 +73,17 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public Subscription[] GetSubscriptionsContainingMediaFile(int iMediaID, int iMediaFileID)
+        public TVPApiModule.Objects.Responses.Subscription[] GetSubscriptionsContainingMediaFile(int iMediaID, int iMediaFileID)
         {
-            Subscription[] subscriptions = null;
+            TVPApiModule.Objects.Responses.Subscription[] subscriptions = null;
 
             try
             {
-                subscriptions = m_Module.GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+                var response = m_Module.GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+                if (response != null)
+                {
+                    subscriptions = response.Select(s => s.ToApiObject()).ToArray();
+                }
             }
             catch (Exception ex)
             {
@@ -87,13 +93,13 @@ namespace TVPApiModule.Services
             return subscriptions;
         }
 
-        public Subscription GetSubscriptionData(string subCode, bool getAlsoInactive)
+        public TVPApiModule.Objects.Responses.Subscription GetSubscriptionData(string subCode, bool getAlsoInactive)
         {
-            Subscription sub = null;
+            TVPApiModule.Objects.Responses.Subscription sub = null;
 
             try
             {
-                sub = m_Module.GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
+                sub = m_Module.GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -102,14 +108,14 @@ namespace TVPApiModule.Services
 
             return sub;
         }
-        
-        public CouponData GetCouponStatus(string sCouponCode)
+
+        public TVPApiModule.Objects.Responses.CouponData GetCouponStatus(string sCouponCode)
         {
-            CouponData couponData = null;
+            TVPApiModule.Objects.Responses.CouponData couponData = null;
 
             try
             {
-                couponData  = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
+                couponData  = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode).ToApiObject();
             }
             catch (Exception ex)
             {
@@ -119,13 +125,13 @@ namespace TVPApiModule.Services
             return couponData ;
         }
 
-        public CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID)
+        public TVPApiModule.Objects.Responses.CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID)
         {
-            CouponsStatus couponStatus = CouponsStatus.NotExists;
+            TVPApiModule.Objects.Responses.CouponsStatus couponStatus = TVPApiModule.Objects.Responses.CouponsStatus.NotExists;
             
             try
             {
-                couponStatus = m_Module.SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID); 
+                couponStatus = (TVPApiModule.Objects.Responses.CouponsStatus)m_Module.SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID); 
             } 
             catch (Exception ex)
             {
@@ -167,14 +173,18 @@ namespace TVPApiModule.Services
         }
 
 
-        public Subscription[] GetSubscriptionsContainingUserTypes(int isActive, int[] userTypesIDs)
+        public List<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingUserTypes(int isActive, int[] userTypesIDs)
         {
-            Subscription[] subscriptions = null;
+            List<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
             string sUserTypesIDs = string.Empty;
 
             try
             {                
-                subscriptions = m_Module.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
+                var response = m_Module.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
+                if (response != null)
+                {
+                    subscriptions = response.Select(s => s.ToApiObject()).ToList();
+                }
             }
             catch (Exception ex)
             {

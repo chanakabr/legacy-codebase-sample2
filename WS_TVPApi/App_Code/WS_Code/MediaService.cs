@@ -2386,7 +2386,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = new ApiApiService(groupId, initObj.Platform).GetEPGMultiChannelProgram(sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+                    var response = new ApiApiService(groupId, initObj.Platform).GetEPGMultiChannelProgram(sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
                 }
                 catch (Exception ex)
                 {

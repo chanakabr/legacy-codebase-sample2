@@ -350,9 +350,9 @@ namespace TVPApiServices
             return res;
         }
 
-        public PermittedMediaContainer[] GetDomainPermittedItems(InitializationObject initObj)
+        public TVPApiModule.Objects.Responses.PermittedMediaContainer[] GetDomainPermittedItems(InitializationObject initObj)
         {
-            PermittedMediaContainer[] res = null;
+            TVPApiModule.Objects.Responses.PermittedMediaContainer[] res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
@@ -370,9 +370,9 @@ namespace TVPApiServices
             return res;
         }
 
-        public PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(InitializationObject initObj)
+        public TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(InitializationObject initObj)
         {
-            PermittedSubscriptionContainer[] res = null;
+            TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {

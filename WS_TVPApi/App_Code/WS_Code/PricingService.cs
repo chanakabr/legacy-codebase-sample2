@@ -11,7 +11,7 @@ using log4net;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
+//using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using System.Web;
 
 namespace TVPApiServices
@@ -24,16 +24,16 @@ namespace TVPApiServices
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     [System.Web.Script.Services.ScriptService]
-    public class PricingService : System.Web.Services.WebService, IPricingService
+    public class PricingService : System.Web.Services.WebService//, IPricingService
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(PricingService));
 
         #region public methods
 
         [WebMethod(EnableSession = true, Description = "Get PPV Module data")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.PPVModule GetPPVModuleData(InitializationObject initObj, int ppvCode)
+        public TVPApiModule.Objects.Responses.PPVModule GetPPVModuleData(InitializationObject initObj, int ppvCode)
         {
-            TVPPro.SiteManager.TvinciPlatform.Pricing.PPVModule response = null;
+            TVPApiModule.Objects.Responses.PPVModule response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPPVModuleData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -110,9 +110,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Coupon status according to coupon code")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode)
+        public TVPApiModule.Objects.Responses.CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode)
         {        
-            TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData couponData = null;
+            TVPApiModule.Objects.Responses.CouponData couponData = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCouponStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -137,9 +137,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set Coupon used")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.CouponsStatus SetCouponUsed(InitializationObject initObj, string sCouponCode)
+        public TVPApiModule.Objects.Responses.CouponsStatus SetCouponUsed(InitializationObject initObj, string sCouponCode)
         {
-            TVPPro.SiteManager.TvinciPlatform.Pricing.CouponsStatus couponStatus = TVPPro.SiteManager.TvinciPlatform.Pricing.CouponsStatus.NotExists;
+            TVPApiModule.Objects.Responses.CouponsStatus couponStatus = TVPApiModule.Objects.Responses.CouponsStatus.NotExists;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetCouponUsed", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -147,7 +147,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    couponStatus = new ApiPricingService(groupId, initObj.Platform).SetCouponUsed(sCouponCode, initObj.SiteGuid); 
+                    couponStatus = (TVPApiModule.Objects.Responses.CouponsStatus)new ApiPricingService(groupId, initObj.Platform).SetCouponUsed(sCouponCode, initObj.SiteGuid); 
                 }
                 catch (Exception ex)
                 {
@@ -190,9 +190,9 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get subscription data")]
-        public List<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs)
+        public List<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs)
         {
-            List<Subscription> res = new List<Subscription>();
+            List<TVPApiModule.Objects.Responses.Subscription> res = new List<TVPApiModule.Objects.Responses.Subscription>();
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -219,9 +219,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get subscriptions by user types")]
-        public List<Subscription> GetSubscriptionsContainingUserTypes(InitializationObject initObj, int isActive, int[] userTypesIDs)
+        public List<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingUserTypes(InitializationObject initObj, int isActive, int[] userTypesIDs)
         {
-            List<Subscription> res = new List<Subscription>();
+            List<TVPApiModule.Objects.Responses.Subscription> res = new List<TVPApiModule.Objects.Responses.Subscription>();
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsContainingUserTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -229,11 +229,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    Subscription[] arrSusbcriptiopns = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionsContainingUserTypes(isActive, userTypesIDs);
-                    if (arrSusbcriptiopns != null && arrSusbcriptiopns.Length > 0)
-                    {
-                        res = arrSusbcriptiopns.ToList();
-                    }
+                    res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionsContainingUserTypes(isActive, userTypesIDs);
+                    
                 }
                 catch (Exception ex)
                 {

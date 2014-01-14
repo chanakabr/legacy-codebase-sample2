@@ -15,6 +15,7 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
 using log4net;
 using TVPApiModule.CatalogLoaders;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Objects
 {
@@ -41,7 +42,7 @@ namespace TVPApiModule.Objects
                     {
                         string perm = service.GetUserPermission(sUsername, sUserType);
                         new ApiUsersService(_nGroupID, _initObj.Platform).SetUserDynamicData(response.SiteGuid, "USER_PERMISSIONS", perm);
-                        UserResponseObject userData = new ApiUsersService(_nGroupID, _initObj.Platform).GetUserData(response.SiteGuid);
+                        TVPApiModule.Objects.Responses.UserResponseObject userData = new ApiUsersService(_nGroupID, _initObj.Platform).GetUserData(response.SiteGuid);
                         if (userData != null && userData.m_user != null && userData.m_user.m_oDynamicData != null)
                         {
                             response.UserData.m_oDynamicData = userData.m_user.m_oDynamicData;
@@ -66,8 +67,8 @@ namespace TVPApiModule.Objects
                 ApiDomainsService domainsService = new ApiDomainsService(_nGroupID, _initObj.Platform);
                 ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
 
-                UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
-                if (userResponseObject.m_RespStatus == ResponseStatus.OK && resp != null && resp.m_oDomain != null)
+                TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
+                if (userResponseObject.m_RespStatus == TVPApiModule.Objects.Responses.ResponseStatus.OK && resp != null && resp.m_oDomain != null)
                 {
                     string sAccountNumber = resp.m_oDomain.m_sCoGuid;
                     if (!string.IsNullOrEmpty(sAccountNumber) && userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
@@ -302,10 +303,10 @@ namespace TVPApiModule.Objects
             using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
             {
                 ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
-                UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
+                TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
                 if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oDynamicData != null)
                 {
-                    UserDynamicDataContainer dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
+                    TVPApiModule.Objects.Responses.UserDynamicDataContainer dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
                     if (dynamicData != null)
                     {
                         string sAccountUuid = dynamicData.m_sValue;

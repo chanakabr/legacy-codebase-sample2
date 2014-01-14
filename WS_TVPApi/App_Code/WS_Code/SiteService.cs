@@ -9,13 +9,14 @@ using TVPApiModule.Interfaces;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
-using TVPPro.SiteManager.TvinciPlatform.Users;
-using TVPPro.SiteManager.TvinciPlatform.Social;
+//using TVPPro.SiteManager.TvinciPlatform.Users;
+//using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 using TVPApiModule.Objects;
 using TVPApiModule.Helper;
 using System.Web.UI;
 using System.Web;
+using TVPPro.SiteManager.TvinciPlatform.Social;
 
 
 namespace TVPApiServices
@@ -28,7 +29,7 @@ namespace TVPApiServices
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     [System.Web.Script.Services.ScriptService]
-    public class SiteService : System.Web.Services.WebService, ISiteService
+    public class SiteService : System.Web.Services.WebService//, ISiteService
     {
 
         private readonly ILog logger = LogManager.GetLogger(typeof(SiteService));
@@ -376,9 +377,9 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get User Group Rules")]
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid)
+        public TVPApiModule.Objects.Responses.GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
+            TVPApiModule.Objects.Responses.GroupRule[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -483,9 +484,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Group Operators")]
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] GetGroupOperators(InitializationObject initObj, string scope)
+        public TVPApiModule.Objects.Responses.GroupOperator[] GetGroupOperators(InitializationObject initObj, string scope)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] response = null;
+            TVPApiModule.Objects.Responses.GroupOperator[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupOperators", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -509,9 +510,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Operators")]
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] GetOperators(InitializationObject initObj, int[] operators)
+        public TVPApiModule.Objects.Responses.GroupOperator[] GetOperators(InitializationObject initObj, int[] operators)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.GroupOperator[] response = null;
+            TVPApiModule.Objects.Responses.GroupOperator[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupOperators", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -535,9 +536,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "SSO Signin")]
-        public UserResponseObject SSOSignIn(InitializationObject initObj, string userName, string password, int providerID)
+        public TVPApiModule.Objects.Responses.UserResponseObject SSOSignIn(InitializationObject initObj, string userName, string password, int providerID)
         {
-            UserResponseObject response = null;
+            TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SSOSignIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -561,9 +562,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Check SSO Login")]
-        public UserResponseObject SSOCheckLogin(InitializationObject initObj, string userName, int providerID)
+        public TVPApiModule.Objects.Responses.UserResponseObject SSOCheckLogin(InitializationObject initObj, string userName, int providerID)
         {
-            UserResponseObject response = null;
+            TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SSOCheckLogin", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -587,9 +588,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user data by co-guid")]
-        public UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID)
+        public TVPApiModule.Objects.Responses.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID)
         {
-            UserResponseObject response = null;
+            TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserDataByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -643,7 +644,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Validate user")]
         public string GetSiteGuid(InitializationObject initObj, string userName, string password)
         {
-            TVPPro.SiteManager.TvinciPlatform.Users.User sRet = null;
+            TVPApiModule.Objects.Responses.User sRet = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ValidateUser", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -706,7 +707,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    UserResponseObject userObj = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(siteGuid);
+                    TVPApiModule.Objects.Responses.UserResponseObject userObj = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(siteGuid);
                     bRes = !string.IsNullOrEmpty(userObj.m_user.m_oBasicData.m_sFacebookID);
                 }
                 catch (Exception ex)
@@ -723,10 +724,10 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-Up a new user")]
-        public UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData,
+        public TVPApiModule.Objects.Responses.UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData,
             TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
         {
-            UserResponseObject response = new UserResponseObject();
+            TVPApiModule.Objects.Responses.UserResponseObject response = new TVPApiModule.Objects.Responses.UserResponseObject();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignUp", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -802,9 +803,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Edit user details info")]
-        public UserResponseObject SetUserData(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
+        public TVPApiModule.Objects.Responses.UserResponseObject SetUserData(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
         {
-            UserResponseObject response = new UserResponseObject();
+            TVPApiModule.Objects.Responses.UserResponseObject response = new TVPApiModule.Objects.Responses.UserResponseObject();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -856,9 +857,9 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get users details info")]
-        public UserResponseObject[] GetUsersData(InitializationObject initObj, string siteGuid)
+        public TVPApiModule.Objects.Responses.UserResponseObject[] GetUsersData(InitializationObject initObj, string siteGuid)
         {
-            UserResponseObject[] response = null;
+            TVPApiModule.Objects.Responses.UserResponseObject[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUsersData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -990,7 +991,7 @@ namespace TVPApiServices
         #region XXXX
 
         [WebMethod(EnableSession = true, Description = "Do Social Action")]
-        public string DoSocialAction(InitializationObject initObj, string siteGuid, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam)
+        public string DoSocialAction(InitializationObject initObj, string siteGuid, int mediaID, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction socialAction, SocialPlatform socialPlatform, string actionParam)
         {
             string sRes = SocialActionResponseStatus.UNKNOWN.ToString();
 
@@ -1014,9 +1015,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user social actions")]
-        public UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, string siteGuid, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
+        public TVPApiModule.Objects.Responses.UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, string siteGuid, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
         {
-            UserSocialActionObject[] res = null;
+            TVPApiModule.Objects.Responses.UserSocialActionObject[] res = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1089,9 +1090,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Domain Group Rules")]
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetDomainGroupRules(InitializationObject initObj)
+        public TVPApiModule.Objects.Responses.GroupRule[] GetDomainGroupRules(InitializationObject initObj)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
+            TVPApiModule.Objects.Responses.GroupRule[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1196,9 +1197,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get EPG program rules")]
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetEPGProgramRules(InitializationObject initObj, int MediaId, int programId, string IP)
+        public TVPApiModule.Objects.Responses.GroupRule[] GetEPGProgramRules(InitializationObject initObj, int MediaId, int programId, string IP)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
+            TVPApiModule.Objects.Responses.GroupRule[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetEPGProgramRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
