@@ -20,6 +20,7 @@ namespace RestfulTVPApi.ServiceInterface
             this.container.Register<IChannelsRepository, ChannelsRepository>();
             this.container.Register<ISubscriptionsRepository, SubscriptionsRepository>();
             this.container.Register<IEpgRepository, EpgRepository>();
+            this.container.Register<IDomainRepository, DomainRepository>();
         }
 
         public SimpleInjectorAdapter(Container container)
