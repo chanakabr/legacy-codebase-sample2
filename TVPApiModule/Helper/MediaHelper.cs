@@ -156,13 +156,7 @@ namespace TVPApi
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
 
-            if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
-            {
-                foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
-                {
-                    retVal.Add(new Media(row, initObj, groupID, false, mediaCount));
-                }
-            }
+            
 
             return retVal;
         }
@@ -737,43 +731,56 @@ namespace TVPApi
                     break;
                 case LoaderType.PeopleWhoWatched:
                     mediaInfo = (new APIPeopleWhoWatchedLoader(user, pass, ID, picSize) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, IsPosterPic = false, Language = initObj.Locale.LocaleLanguage }).Execute();
-                    isPaged = false;
+                    isPaged = true;
                     break;
                 case LoaderType.LastWatched:
                     TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
                     mediaInfo = new APILastWatchedLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, SiteGuid = initObj.SiteGuid, PageSize = pageSize, PageIndex = pageIndex, PicSize = picSize, Language = initObj.Locale.LocaleLanguage }.Execute();
+                    isPaged = true;
                     break;
                 case LoaderType.Recommended:
                     mediaInfo = new TVPApiModule.DataLoaders.APIPersonalRecommendedLoader(user, pass) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, SiteGuid = initObj.SiteGuid, PageSize = pageSize, PageIndex = pageIndex, PicSize = picSize, MediaTypes = reqMediaTypes, Language = initObj.Locale.LocaleLanguage }.Execute();
+                    isPaged = true;
                     break;
                 default:
                     mediaInfo = (new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage }.Execute());
+                    isPaged = true;
                     break;
             }
 
+            //if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
+            //{
+            //    int startIndex = (pageIndex) * pageSize;
+            //    //Local server Paging
+            //    IEnumerable<dsItemInfo.ItemRow> pagedDT;
+            //    if (!isPaged)
+            //    {
+            //        pagedDT = PagingHelper.GetPagedData<dsItemInfo.ItemRow>(startIndex, pageSize, mediaInfo.Item);
+            //    }
+            //    else
+            //    {
+            //        pagedDT = mediaInfo.Item;
+            //    }
+            //    //Parse to WS return objects
+            //    if (pagedDT != null)
+            //    {
+            //        foreach (dsItemInfo.ItemRow row in pagedDT)
+            //        {
+            //            retVal.Add(new Media(row, initObj, groupID, false, mediaCount));
+            //        }
+            //    }
+            //}
+            //return retVal;
+
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
-                int startIndex = (pageIndex) * pageSize;
-                //Local server Paging
-                IEnumerable<dsItemInfo.ItemRow> pagedDT;
-                if (!isPaged)
+                foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
                 {
-                    pagedDT = PagingHelper.GetPagedData<dsItemInfo.ItemRow>(startIndex, pageSize, mediaInfo.Item);
-                }
-                else
-                {
-                    pagedDT = mediaInfo.Item;
-                }
-                //Parse to WS return objects
-                if (pagedDT != null)
-                {
-                    foreach (dsItemInfo.ItemRow row in pagedDT)
-                    {
-                        retVal.Add(new Media(row, initObj, groupID, false, mediaCount));
-                    }
+                    retVal.Add(new Media(row, initObj, groupID, false, mediaCount));
                 }
             }
             return retVal;
+
         }
 
         //Get all channel medias
