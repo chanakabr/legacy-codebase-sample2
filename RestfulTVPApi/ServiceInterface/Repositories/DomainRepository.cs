@@ -55,29 +55,26 @@ namespace RestfulTVPApi.ServiceInterface
         {
             Domain[] domains = null;
             TVPApiModule.Services.ApiDomainsService.DeviceDomain[] devDomains = null;
+            
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (udId.Equals(initObj.UDID)) // Validating udid
+            if (groupID > 0)
             {
+                domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
 
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+                if (domains == null || domains.Count() == 0)
+                    return devDomains;
 
-                if (groupID > 0)
-                {
-                    domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
+                devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
 
-                    if (domains == null || domains.Count() == 0)
-                        return devDomains;
-
-                    devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
-
-                    for (int i = 0; i < domains.Count(); i++)
-                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = domains[i].m_nDomainID, DomainName = domains[i].m_sName, SiteGuid = domains[i].m_masterGUIDs[0].ToString() };
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
+                for (int i = 0; i < domains.Count(); i++)
+                    devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = domains[i].m_nDomainID, DomainName = domains[i].m_sName, SiteGuid = domains[i].m_masterGUIDs[0].ToString() };
             }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
 
             return devDomains;
         }
@@ -105,20 +102,17 @@ namespace RestfulTVPApi.ServiceInterface
         {
             DomainResponseObject resDomain = null;
 
-            if (udId.Equals(initObj.UDID) && initObj.DomainID.Equals(domainID.ToString()))
+
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveDeviceFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
             {
-
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveDeviceFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-                if (groupID > 0)
-                {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, initObj.UDID);
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
-                
+                resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, initObj.UDID);
+            }
+            else
+            {
+                throw new UnknownGroupException();
             }
 
             return resDomain;
@@ -129,19 +123,18 @@ namespace RestfulTVPApi.ServiceInterface
         {
             Domain domain = null;
 
-            if (initObj.DomainID.Equals(domainId.ToString()))
-            {
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-                if (groupID > 0)
-                {
-                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainInfo(initObj.DomainID);
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainInfo(initObj.DomainID);
             }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
 
             return domain;
         }
@@ -171,20 +164,19 @@ namespace RestfulTVPApi.ServiceInterface
         {
             DomainResponseObject resDomain = null;
 
-            if (initObj.DomainID == domainId)
+
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddUserToDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
             {
-
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddUserToDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-                if (groupID > 0)
-                {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, Convert.ToInt32(initObj.SiteGuid), addedUserGuid);
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
+                resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, Convert.ToInt32(initObj.SiteGuid), addedUserGuid);
             }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
 
             return resDomain;
         }
@@ -261,19 +253,18 @@ namespace RestfulTVPApi.ServiceInterface
         {
             DomainResponseStatus resDomain = DomainResponseStatus.UnKnown;
 
-            if (initObj.DomainID == domainId)
-            {
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-                if (groupID > 0)
-                {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDomain(initObj.DomainID);
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDomain(initObj.DomainID);
             }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
 
             return resDomain.ToString();
         }
@@ -283,19 +274,17 @@ namespace RestfulTVPApi.ServiceInterface
         {
             DomainResponseObject domain = null;
 
-            if (initObj.DomainID == domainId)
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveUserFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
             {
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "RemoveUserFromDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-                if (groupID > 0)
-                {
-
-                    domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveUserFromDomain(initObj.DomainID, userGuidToRemove);
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
+                domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveUserFromDomain(initObj.DomainID, userGuidToRemove);
+            }
+            else
+            {
+                throw new UnknownGroupException();
             }
 
             return domain;
@@ -306,19 +295,16 @@ namespace RestfulTVPApi.ServiceInterface
         {
             bool response = false;
 
-            if (initObj.UDID.Equals(udid))
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDeviceInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
             {
-
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDeviceInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-                if (groupID > 0)
-                {
-                    response = new ApiDomainsService(groupID, initObj.Platform).SetDeviceInfo(initObj.UDID, deviceName);
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
+                response = new ApiDomainsService(groupID, initObj.Platform).SetDeviceInfo(initObj.UDID, deviceName);
+            }
+            else
+            {
+                throw new UnknownGroupException();
             }
 
             return response;
@@ -329,19 +315,18 @@ namespace RestfulTVPApi.ServiceInterface
         {
             DomainResponseObject resDomain = null;
 
-            if (domainId == initObj.DomainID)
-            {
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-                if (groupID > 0)
-                {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDomainInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);
             }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
 
             return resDomain;
         }
@@ -377,21 +362,19 @@ namespace RestfulTVPApi.ServiceInterface
         {
             TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
 
-            if (initObj.DomainID == domainId)
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
             {
 
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-                if (groupID > 0)
-                {
-                    
-                        response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetDomainGroupRules(initObj.DomainID);
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
+                response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetDomainGroupRules(initObj.DomainID);
             }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
 
             return response;
         }
@@ -401,19 +384,17 @@ namespace RestfulTVPApi.ServiceInterface
         {
             bool response = false;
 
-            if (initObj.DomainID == domainId)
+
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDomainGroupRule", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
             {
-
-                int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetDomainGroupRule", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-                if (groupID > 0)
-                {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetDomainGroupRule(initObj.DomainID, ruleID, PIN, isActive);
-                }
-                else
-                {
-                    throw new UnknownGroupException();
-                }
+                response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetDomainGroupRule(initObj.DomainID, ruleID, PIN, isActive);
+            }
+            else
+            {
+                throw new UnknownGroupException();
             }
 
             return response;
@@ -477,16 +458,12 @@ namespace RestfulTVPApi.ServiceInterface
         {
             PermittedMediaContainer[] res = null;
 
-            if (domainId == initObj.DomainID)
-            {
-                int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-                if (groupId > 0)
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainPermittedItems(initObj.DomainID);
-                else
-                    throw new UnknownGroupException();
-            }
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+                res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainPermittedItems(initObj.DomainID);
             else
-             throw new UnknownGroupException();        
+                throw new UnknownGroupException();
 
             return res;
         }
@@ -495,23 +472,17 @@ namespace RestfulTVPApi.ServiceInterface
         {
             PermittedSubscriptionContainer[] res = null;
 
-            if (domainId == initObj.DomainID)
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
             {
-
-                int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-                if (groupId > 0)
-                {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainPermittedSubscriptions(initObj.DomainID);
-                }
-                else
-                {
-                    throw new UnknownGroupException();        
-                }
+                res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainPermittedSubscriptions(initObj.DomainID);
             }
             else
             {
                 throw new UnknownGroupException();
             }
+
+
 
             return res;
         }
