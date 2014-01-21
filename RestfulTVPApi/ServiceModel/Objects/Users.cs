@@ -274,7 +274,7 @@ namespace RestfulTVPApi.ServiceModel
         public string site_guid { get; set; }
     }
 
-    [Route("/user/{site_guid}/friends/social_platforms/{social_platform}/actions", "GET", Notes = "This method returns all social actions carried out by friends. Note: The result is filtered according to the input parameters.")]
+    [Route("/users/{site_guid}/friends/social_platforms/{social_platform}/actions", "GET", Notes = "This method returns all social actions carried out by friends. Note: The result is filtered according to the input parameters.")]
     public class GetFriendsActionsRequest : PagingRequest, IReturn<IEnumerable<UserSocialActionObject>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -291,7 +291,7 @@ namespace RestfulTVPApi.ServiceModel
         public TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform social_platform { get; set; }
     }
 
-    [Route("/user/{site_guid}/social_platforms/{social_platform}/actions", "GET", Notes = "This method returns all the social actions carried out by the user. Note: the results are filtered according to the specified parameters.")]
+    [Route("/users/{site_guid}/social_platforms/{social_platform}/actions", "GET", Notes = "This method returns all the social actions carried out by the user. Note: the results are filtered according to the specified parameters.")]
     public class GetUserActionsRequest : PagingRequest, IReturn<IEnumerable<UserSocialActionObject>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -309,7 +309,7 @@ namespace RestfulTVPApi.ServiceModel
         public TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform social_platform { get; set; }
     }
 
-    [Route("/user/{site_guid}/social_platforms/facebook/privacy_settings", "GET", Notes = "This method returns the user’s social privacy-level options as listed/configured on the based upon the privacy configured at his the user’s social network. Note: These are the social network privacy settings, not the Tvinci privacy settings.")]
+    [Route("/users/{site_guid}/social_platforms/facebook/privacy_settings", "GET", Notes = "This method returns the user’s social privacy-level options as listed/configured on the based upon the privacy configured at his the user’s social network. Note: These are the social network privacy settings, not the Tvinci privacy settings.")]
     public class GetUserAllowedSocialPrivacyListRequest : PagingRequest, IReturn<IEnumerable<eSocialPrivacy>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -317,7 +317,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     //??? ask avi
-    [Route("/user/{site_guid}/social_platforms/{social_platform}/actions/{user_action}/privacy_settings", "GET", Notes = "This method returns the user’s external privacy level settings for a specific social action. Note: These settings determine whether the action can be viewed by the user’s social-network friends on the social network.")]
+    [Route("/users/{site_guid}/social_platforms/{social_platform}/actions/{user_action}/privacy_settings", "GET", Notes = "This method returns the user’s external privacy level settings for a specific social action. Note: These settings determine whether the action can be viewed by the user’s social-network friends on the social network.")]
     public class GetUserExternalActionShareRequest : RequestBase, IReturn<eSocialActionPrivacy>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -343,7 +343,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     //??? ask avi
-    [Route("/user/{site_guid}/social_platforms/{social_platform}/privacy_settings", "GET", Notes = "This method returns the user’s social privacy level (authorizations) for a specified social platform and action.")]
+    [Route("/users/{site_guid}/social_platforms/{social_platform}/privacy_settings", "GET", Notes = "This method returns the user’s social privacy level (authorizations) for a specified social platform and action.")]
     public class GetUserSocialPrivacyRequest : RequestBase, IReturn<eSocialPrivacy>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -357,7 +357,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     //Maybe POST?
-    [Route("/user/{site_guid}/custom_data_id", "GET", Notes = "This method returns customer data. This is the first step in the purchase flow. Insert the method’s parameters (price, payment method, etc.,). Returns an integer.")]
+    [Route("/users/{site_guid}/custom_data_id", "GET", Notes = "This method returns customer data. This is the first step in the purchase flow. Insert the method’s parameters (price, payment method, etc.,). Returns an integer.")]
     public class AD_GetCustomDataIDRequest : RequestBase, IReturn<int>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -387,7 +387,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     //Maybe POST?
-    [Route("/user/{site_guid}/ad_custom_data_id", "GET", Notes = "This method is used as part of purchase flow process. The site indicates the item to purchase and passes required information (item ID, user information, purchase method, etc.) to the Tvinci system.")]
+    [Route("/users/{site_guid}/ad_custom_data_id", "GET", Notes = "This method is used as part of purchase flow process. The site indicates the item to purchase and passes required information (item ID, user information, purchase method, etc.) to the Tvinci system.")]
     public class GetCustomDataIDRequest : AD_GetCustomDataIDRequest
     {
         [ApiMember(Name = "override_end_date", Description = "Override end date?", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
@@ -516,7 +516,7 @@ namespace RestfulTVPApi.ServiceModel
         public NotificationMessageViewStatus view_status { get; set; }
     }
 
-    [Route("/user/{site_guid}/social_platforms/{social_platform}/actions/{user_action}/privacy_settings/external", "PUT", Notes = "This method sets the user’s external privacy level settings for a specific social action. Note: These settings determine whether the action can be viewed by the user’s social-network friends on the external social network.")]
+    [Route("/users/{site_guid}/social_platforms/{social_platform}/actions/{user_action}/privacy_settings/external", "PUT", Notes = "This method sets the user’s external privacy level settings for a specific social action. Note: These settings determine whether the action can be viewed by the user’s social-network friends on the external social network.")]
     public class SetUserExternalActionShareRequest : RequestBase, IReturn<bool>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -532,7 +532,7 @@ namespace RestfulTVPApi.ServiceModel
         public eSocialActionPrivacy social_action_privacy { get; set; }
     }
 
-    [Route("/user/{site_guid}/social_platforms/{social_platform}/actions/{user_action}/privacy_settings/internal", "PUT", Notes = "This method sets the user’s internal privacy level settings for a specific social action. Note: These settings determine whether the action can be viewed by the user’s social-network friends on the internal site.")]
+    [Route("/users/{site_guid}/social_platforms/{social_platform}/actions/{user_action}/privacy_settings/internal", "PUT", Notes = "This method sets the user’s internal privacy level settings for a specific social action. Note: These settings determine whether the action can be viewed by the user’s social-network friends on the internal site.")]
     public class SetUserInternalActionPrivacyRequest : SetUserExternalActionShareRequest { }
 
     #endregion
