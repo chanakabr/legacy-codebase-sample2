@@ -10,14 +10,15 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {
 
     #region Objects
 
-    [Route("/domains/{domain_id}", "POST", Summary = "Add Device To Domain", Notes = "Add device")]
-    public class AddDeviceToDomainRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    [Route("/domains/{domain_id}/devices", "POST", Summary = "Add Device To Domain", Notes = "Add device")]
+    public class AddDeviceToDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string domain_id { get; set; }
@@ -27,10 +28,9 @@ namespace RestfulTVPApi.ServiceInterface
         public int device_brand_id { get; set; }        
     }
 
-    [Route("/domains/{master_guid_id}", "POST", Summary = "Add Domain", Notes = "Add domain to master site user")]
-    public class AddDomainRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    [Route("/domains", "POST", Summary = "Add Domain", Notes = "Add domain to master site user")]
+    public class AddDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
-        //InitializationObject initObj, string domainName, string domainDesc, int masterGuid
         [ApiMember(Name = "domain_name", Description = "Domain Name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string device_name { get; set; }
         [ApiMember(Name = "domain_desc", Description = "Domain desc", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
@@ -39,67 +39,69 @@ namespace RestfulTVPApi.ServiceInterface
         public int master_guid_id { get; set; }
     }
 
-
     [Route("/devices/{udid}/domains", "GET", Summary = "Get the domains to which a device is associated", Notes = "Get a device's domains")]
-    public class GetDeviceDomainsRequest : RequestBase, IReturn<IEnumerable<DomainResponseObjectDTO>>
+    public class GetDeviceDomainsRequest : RequestBase, IReturn<IEnumerable<DomainResponseObject>>
     {
         [ApiMember(Name = "udid", Description = "Device id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string udid { get; set; }
     }
 
+    //move to api?
     [Route("/domains/{co_guid}", "GET", Summary = "Get a specific domain by a coguid", Notes = "Get a domain by coguid")]
-    public class GetDomainByCoGuidRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    public class GetDomainByCoGuidRequest : RequestBase, IReturn<DomainResponseObject>
     {
         [ApiMember(Name = "co_guid", Description = "CoGuid", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string co_guid { get; set; }
     }
 
     [Route("/domains/{domain_id}/devices/{udid}", "DELETE", Summary = "Remove User Favorite", Notes = "Remove User Favorite")]
-    public class RemoveDeviceFromDomainRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    public class RemoveDeviceFromDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
-        //int domainID, string udId, string sDeviceName, int iDeviceBrandID
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
-        [ApiMember(Name = "ud_id", Description = "Device Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "udid", Description = "Device Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string udid { get; set; }
-        [ApiMember(Name = "device_name", Description = "Device Name", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "device_name", Description = "Device Name", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string device_name { get; set; }
-        [ApiMember(Name = "device_brand_id", Description = "Device brand Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        [ApiMember(Name = "device_brand_id", Description = "Device brand Id", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public int device_brand_id { get; set; }
     }
 
     [Route("/domains/{domain_id}", "GET", Summary = "Get domain info", Notes = "Get domain info")]
-    public class GetDomainInfoRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    public class GetDomainInfoRequest : RequestBase, IReturn<DomainResponseObject>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
+    //Ofir - /devices/{udid}/domains/{domain_id}/status
     [Route("/devices/{udid}/domains", "PUT", Summary = "Change Device Domain status", Notes = "Change device domain status")]
-    public class ChangeDeviceDomainStatusRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    public class ChangeDeviceDomainStatusRequest : RequestBase, IReturn<DomainResponseObject>
     {
-        [ApiMember(Name = "udid", Description = "Device ID", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "udid", Description = "Device ID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string udid { get; set; }
         [ApiMember(Name = "is_active", Description = "indicates the new device domain status", ParameterType = "body", DataType = SwaggerType.Boolean, IsRequired = true)]
         public bool is_active { get; set; }
     }
 
-    [Route("/domains/{domain_id}/user/{added_user_guid}", "POST", Summary = "Adds a user to a domain", Notes = "Adds a user to a domain")]
-    public class AddUserToDomainRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    [Route("/domains/{domain_id}/users/{added_user_guid}", "POST", Summary = "Adds a user to a domain", Notes = "Adds a user to a domain")]
+    public class AddUserToDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
-        [ApiMember(Name = "added_user_guid", Description = "The new user to add to domain", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
+        [ApiMember(Name = "added_user_guid", Description = "The new user to add to domain", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int added_user_guid { get; set; }
         [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
+    //Move to api?
     [Route("/domains/{operator_co_guid}", "GET", Summary = "Returns all domain IDs belonging to a specific Operator by its co guid", Notes = "Returns all domain IDs belonging to a specific Operator by its co guid")]
-    public class GetDomainIDsByOperatorCoGuidRequest : RequestBase, IReturn<DomainIdsResponseObjectDTO>
+    public class GetDomainIDsByOperatorCoGuidRequest : RequestBase, IReturn<IEnumerable<int>>
     {
         [ApiMember(Name = "operator_co_guid", Description = "The operator coguid", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string operator_co_guid { get; set; }
     }
 
+    //Ofir - /devices/{udid}/pin
     [Route("/devices/{dev_brand_id}/pin", "GET", Summary = "generates a PIN code for adding a new device to a domain", Notes = "generates a PIN code for adding a new device to a domain")]
     public class GetPINForDeviceRequest : RequestBase, IReturn<string>
     {
@@ -107,8 +109,9 @@ namespace RestfulTVPApi.ServiceInterface
         public int dev_brand_id { get; set; }
     }
 
-    [Route("/devices/{pin}/pin", "POST", Summary = "registers a new device to a domain from an input PIN code", Notes = "registers a new device to a domain from an input PIN code")]
-    public class RegisterDeviceByPINRequest : RequestBase, IReturn<DeviceRegistrationResponseDTO>
+    //Ofir - move to api?
+    [Route("/devices/{udid}/pin", "POST", Summary = "registers a new device to a domain from an input PIN code", Notes = "registers a new device to a domain from an input PIN code")]
+    public class RegisterDeviceByPINRequest : RequestBase, IReturn<TVPApiModule.Services.ApiDomainsService.DeviceRegistration>
     {
         [ApiMember(Name = "pin", Description = "Pin code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string pin { get; set; }
@@ -121,8 +124,9 @@ namespace RestfulTVPApi.ServiceInterface
         public int domain_id { get; set; }
     }
 
+    //Ofir - /domains/{domain_id}/users/{removed_user_guid}
     [Route("/domains/{domain_id}/user/{removed_user_guid}", "DELETE", Summary = "Removes a user from a domain", Notes = "Removes a user from a domain")]
-    public class RemoveUserFromDomainRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    public class RemoveUserFromDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
         [ApiMember(Name = "removed_user_guid", Description = "The user to remove from domain", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string removed_user_guid { get; set; }
@@ -130,6 +134,7 @@ namespace RestfulTVPApi.ServiceInterface
         public int domain_id { get; set; }
     }
 
+    //Ofir - /devices/{udid}
     [Route("/devices/{udid}", "PUT", Summary = "Sets device name", Notes = "Sets device name")]
     public class SetDeviceInfoRequest : RequestBase, IReturn<bool>
     {
@@ -139,10 +144,9 @@ namespace RestfulTVPApi.ServiceInterface
         public string device_name { get; set; }
     }
 
-    [Route("/domains/{domain_id}/info", "PUT", Summary = "Sets domain description", Notes = "Sets domain description")]
-    public class SetDomainInfoRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    [Route("/domains/{domain_id}", "PUT", Summary = "Sets domain description", Notes = "Sets domain description")]
+    public class SetDomainInfoRequest : RequestBase, IReturn<DomainResponseObject>
     {
-        //sDomainName, sDomainDescription
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
         [ApiMember(Name = "domain_name", Description = "Domain Name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
@@ -151,8 +155,9 @@ namespace RestfulTVPApi.ServiceInterface
         public string domain_description { get; set; }
     }
 
-    [Route("/domains/{domain_id}/users/{master_user_name}", "POST", Summary = "A master user request to add another user to the domain", Notes = "Invokes AddUserToDomain")]
-    public class SubmitAddUserToDomainRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    //Ofir - Should siteguid be a prarm?
+    [Route("/domains/{domain_id}/users", "POST", Summary = "A master user request to add another user to the domain", Notes = "Invokes AddUserToDomain")]
+    public class SubmitAddUserToDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
         [ApiMember(Name = "domain_id", Description = "Is active", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
@@ -161,13 +166,13 @@ namespace RestfulTVPApi.ServiceInterface
     }
 
     [Route("/domains/{domain_id}/rules", "GET", Summary = "returns the rules for the domain", Notes = "returns the rules for the domain")]
-    public class GetDomainGroupRulesRequest : RequestBase, IReturn<GroupRuleDTO[]>
+    public class GetDomainGroupRulesRequest : RequestBase, IReturn<GroupRule[]>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
-    [Route("/domains/{domain_id}/rules", "POST", Summary = "returns the rules for the domain", Notes = "returns the rules for the domain")]
+    [Route("/domains/{domain_id}/rules", "PUT", Summary = "returns the rules for the domain", Notes = "returns the rules for the domain")]
     public class SetDomainGroupRuleRequest : RequestBase, IReturn<bool>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
@@ -180,8 +185,9 @@ namespace RestfulTVPApi.ServiceInterface
         public int is_active { get; set; }
     }
 
+    //ofir - /domains/{domain_ids}/billing_history
     [Route("/domains/{domain_ids}/billings/{start_date}/{end_date}", "POST", Summary = "Returns the billing history for an array of domains in a given time range", Notes = "Returns the billing history for an array of domains in a given time range")]
-    public class GetDomainsBillingHistoryRequest : RequestBase, IReturn<DomainBillingTransactionsResponse[]>
+    public class GetDomainsBillingHistoryRequest : RequestBase, IReturn<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.DomainBillingTransactionsResponse[]>
     {
         [ApiMember(Name = "domain_ids", Description = "Domain ids", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public int[] domain_ids { get; set; }
@@ -191,8 +197,9 @@ namespace RestfulTVPApi.ServiceInterface
         public DateTime end_date { get; set; }
     }
 
-    [Route("/domains/{domain_name}", "POST", Summary = "Adds a new domain by Co-GUID", Notes = "used when a device has an existing 3rd party association and identification number outside of the Tvinci system")]
-    public class AddDomainWithCoGuidRequest : RequestBase, IReturn<DomainResponseObjectDTO>
+    //Ofir - merge with adddomain, do co_guid as optional 
+    [Route("/domains", "POST", Summary = "Adds a new domain by Co-GUID", Notes = "used when a device has an existing 3rd party association and identification number outside of the Tvinci system")]
+    public class AddDomainWithCoGuidRequest : RequestBase, IReturn<DomainResponseObject>
     {
         [ApiMember(Name = "domain_name", Description = "Domain name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string domain_name { get; set; }
@@ -204,22 +211,23 @@ namespace RestfulTVPApi.ServiceInterface
         public string co_guid { get; set; }
     }
 
-    [Route("/domains/{co_guid}/devices", "GET", Summary = "Returns a domain ID using a 3rd party Co-GUID", Notes = "used when a device has an existing 3rd party association and identification number outside of the Tvinci system")]
+    //Move to api?
+    [Route("/domains/{co_guid}", "GET", Summary = "Returns a domain ID using a 3rd party Co-GUID", Notes = "used when a device has an existing 3rd party association and identification number outside of the Tvinci system")]
     public class GetDomainIDByCoGuidRequest : RequestBase, IReturn<int>
     {
         [ApiMember(Name = "co_guid", Description = "Domain Master Co-GUID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string co_guid { get; set; }
     }
 
-    [Route("/domains/{domain_id}/permitted_items", "GET", Summary = "Gets all the items permitted for the users in a given domain", Notes = "Gets all the items permitted for the users in a given domain")]
-    public class GetDomainPermittedItemsRequest : RequestBase, IReturn<PermittedMediaContainer[]>
+    [Route("/domains/{domain_id}/medias/permitted", "GET", Summary = "Gets all the items permitted for the users in a given domain", Notes = "Gets all the items permitted for the users in a given domain")]
+    public class GetDomainPermittedItemsRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PermittedMediaContainer[]>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
-    [Route("/domains/{domain_id}/permitted_subscriptions", "GET", Summary = "Gets all subscriptions permitted to the users in a given domain", Notes = "Gets all subscriptions permitted to the users in a given domain.")]
-    public class GetDomainPermittedSubscriptionsRequest : RequestBase, IReturn<PermittedSubscriptionContainer[]>
+    [Route("/domains/{domain_id}/subscriptions/permitted", "GET", Summary = "Gets all subscriptions permitted to the users in a given domain", Notes = "Gets all subscriptions permitted to the users in a given domain.")]
+    public class GetDomainPermittedSubscriptionsRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[]>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }

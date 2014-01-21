@@ -1,61 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+﻿using System.Collections.Generic;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
+using TVPApiModule.Objects.Responses;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
-
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public class SubscriptionsRepository : ISubscriptionsRepository
     {
-        //Ofir - Moved from Player.
-        //Ofir - Should SiteGuid be a param?
-        public bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID)
-        {
-            bool response = false;
-
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CancelSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                response = new ApiConditionalAccessService(groupId, initObj.Platform).CancelSubscription(initObj.SiteGuid, sSubscriptionID, sSubscriptionPurchaseID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
-            return response;
-        }
-
-        //Ofir - Moved from CRM.
-        //Ofir - Should SiteGuid be a param?
-        //Ofir - Why UDID is a param and siteguid not?
-        public string DummyChargeUserForSubscription(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID)
-        {
-            string response = string.Empty;
-
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "DummyChargeUserForSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, initObj.SiteGuid, sExtraParameters, sUDID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
-            return response;
-        }
-
-        //Ofir - Moved from Media.
         public List<Media> GetMediasInPackage(InitializationObject initObj, int baseID, int mediaType, string picSize, int pageSize, int pageIndex)
         {
             List<Media> lstMedia = null;
@@ -78,35 +31,6 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
-        //Ofir - Moved from Media.
-        public List<Media> GetSubscriptionMedias(InitializationObject initObj, string[] subIDs, string picSize, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy)
-        {
-            List<Media> lstMedia = new List<Media>();
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                List<KeyValue> orList = new List<KeyValue>();
-
-                foreach (var id in subIDs)
-                    orList.Add(new KeyValue() { m_sKey = "Base ID", m_sValue = id });
-
-                lstMedia = new APISearchMediaLoader(groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 0, 0, picSize, true, orList, null, null)
-                {
-                    UseStartDate = true,
-                    OrderBy = orderBy,
-                }.Execute() as List<Media>;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
-            return lstMedia;
-        }
-
-        //Ofir - Moved from Media.
         public List<SubscriptionPrice> GetSubscriptionDataPrices(InitializationObject initObj, int[] subIDs)
         {
             List<SubscriptionPrice> res = new List<SubscriptionPrice>();
@@ -135,7 +59,6 @@ namespace RestfulTVPApi.ServiceInterface
             return res;
         }
 
-        //Ofir - Moved from Media.
         public string GetSubscriptionProductCode(InitializationObject initObj, int subID)
         {
             string res = string.Empty;
@@ -154,7 +77,6 @@ namespace RestfulTVPApi.ServiceInterface
             return res;
         }
 
-        //Ofir - Moved from Pricing.
         public List<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs)
         {
             List<Subscription> res = new List<Subscription>();
@@ -177,5 +99,24 @@ namespace RestfulTVPApi.ServiceInterface
 
             return res;
         }
+
+        public SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string sSiteGUID, string[] sSubscriptions, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        {
+            SubscriptionsPricesContainer[] res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsPricesWithCoupon", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                res = new ApiConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPricesWithCoupon(sSubscriptions, sSiteGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return res;
+        }
+
     }
 }

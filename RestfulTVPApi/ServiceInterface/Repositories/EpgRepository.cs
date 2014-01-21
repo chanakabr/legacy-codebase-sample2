@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
-using TVPApiModule.Manager;
+using TVPApiModule.Objects.Responses;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public class EpgRepository : IEpgRepository
     {
-        //Ofir - Moved from Media
-        //ofir - should udid, LocaleLanguage be passed as a param?
         public List<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
         {
             List<string> retVal = null;
@@ -43,69 +38,55 @@ namespace RestfulTVPApi.ServiceInterface
             return retVal;
         }
 
-        //Ofir - Moved from Media
-        public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
+        public EPGChannel[] GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] sRet = null;
-
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGChannels", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
-                sRet = new ApiApiService(groupId, initObj.Platform).GetEPGChannel(sPicSize);
+                ApiApiService _service = new ApiApiService(groupId, initObj.Platform);
+
+                return _service.GetEPGChannel(sPicSize);
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return sRet;
         }
 
-        //Ofir - Moved from Media
-        //ofir - should LocaleLanguage be passed as a param?
         public List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(InitializationObject initObj, int epgProgramID, int pageSize, int pageIndex)
         {
-            List<TVPPro.SiteManager.Objects.EPGComment> retVal = null;
-
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGCommentsList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
-                retVal = CommentHelper.GetEPGCommentsList(groupId, initObj.Platform, initObj.Locale.LocaleLanguage, epgProgramID, pageSize, pageIndex);
+                return CommentHelper.GetEPGCommentsList(groupId, initObj.Platform, initObj.Locale.LocaleLanguage, epgProgramID, pageSize, pageIndex);
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return retVal;
         }
 
-        //Ofir - Moved from Media
-        public TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[] sRet = null;
-
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGMultiChannelProgram", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
-                sRet = new ApiApiService(groupId, initObj.Platform).GetEPGMultiChannelProgram(sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+                ApiApiService _service = new ApiApiService(groupId, initObj.Platform);
+
+                return _service.GetEPGMultiChannelProgram(sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return sRet;
         }
 
-        //Ofir - Moved from Media
-        //ofir - should udid,LocaleLanguage be passed as a param?
-        public List<EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
+        public List<EPGMultiChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
         {
-            List<EPGChannelProgrammeObject> retVal = null;
+            List<EPGMultiChannelProgrammeObject> retVal = null;
             List<BaseObject> loaderResult = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SearchEPGPrograms", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -127,14 +108,48 @@ namespace RestfulTVPApi.ServiceInterface
                 throw new UnknownGroupException();
             }
 
-            retVal = new List<EPGChannelProgrammeObject>();
+            retVal = new List<EPGMultiChannelProgrammeObject>();
 
-            foreach (ProgramObj p in loaderResult)
-            {
-                retVal.Add(p.m_oProgram);
-            }
+            //Ofir - uncomment after irena fixes
+            //foreach (ProgramObj p in loaderResult)
+            //{
+            //    retVal.Add(p.m_oProgram);
+            //}
 
             return retVal;
         }
+
+        public GroupRule[] GetEPGProgramRules(InitializationObject initObj, string sSiteGUID, int MediaId, int programId)
+        {
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetEPGProgramRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
+
+                return _service.GetEPGProgramRules(MediaId, programId, int.Parse(sSiteGUID), SiteHelper.GetClientIP(), initObj.UDID);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+        }
+
+        public string GetEPGLicensedLink(InitializationObject initObj, string sSiteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGLicensedLink", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
+
+                return _service.GetEPGLicensedLink(sSiteGUID, mediaFileID, EPGItemID, startTime, basicLink, SiteHelper.GetClientIP(), refferer, countryCd2, languageCode3, deviceName, formatType);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+        }
+
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using ServiceStack;
-using ServiceStack.Api.Swagger;
+﻿using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
 using TVPApi;
 
@@ -22,7 +17,7 @@ namespace RestfulTVPApi.ServiceModel
     public abstract class PagingRequest : RequestBase
     {
         private int _page_number = 0;
-        private int _page_size = 10;
+        private int _page_size = 0;
 
         [ApiMember(Name = "page_number", Description = "Page Number", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = false)]
         public int page_number

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
-using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -17,7 +18,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive);
 
-        TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);
+        MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);
 
         string MediaMark(InitializationObject initObj, action Action, int mediaType, int iMediaID, int iFileID, int iLocation);
 
@@ -27,20 +28,6 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex);
 
-        List<KeyValuePair<int, bool>> AreMediasFavorite(InitializationObject initObj, List<int> mediaIds);
-
-        string GetMediaLicenseLink(InitializationObject initObj, int mediaFileID, string baseLink);
-
-        bool IsItemPurchased(InitializationObject initObj, int iFileID, string sUserGuid);
-
-        PrePaidResponseStatus ChargeMediaWithPrepaid(InitializationObject initObj, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode);
-
-        string DummyChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);
-
-        List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes);
-
-        bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
-
         List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName);
 
         bool SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail);
@@ -48,5 +35,22 @@ namespace RestfulTVPApi.ServiceInterface
         string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes);
 
         int[] GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
+
+        TVPApiModule.Objects.Responses.MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+
+        bool IsItemPurchased(InitializationObject initObj, string sSiteGUID, int iFileID);
+
+        bool IsUserSocialActionPerformed(InitializationObject initObj, string sSiteGUID, int nMediaID, int socialPlatform, int socialAction);
+
+        string GetMediaLicenseLink(InitializationObject initObj, string sSiteGUID, int mediaFileID, string baseLink);
+
+        PrePaidResponseStatus ChargeMediaWithPrepaid(InitializationObject initObj, string sSiteGUID, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode);
+
+        TVPApiModule.Objects.Responses.BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode, string receipt);
+
+        bool ActionDone(InitializationObject initObj, string sSiteGUID, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
+
+        string[] GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize);
+
     }
 }

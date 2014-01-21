@@ -6,8 +6,7 @@ using TVPApi;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -32,7 +31,6 @@ namespace RestfulTVPApi.ServiceInterface
             return resDomain;
         }
 
-
         public DomainResponseObject AddDomain(InitializationObject initObj, string domainName, string domainDesc, int masterGuid)
         {
             DomainResponseObject domainRes = null;
@@ -49,7 +47,6 @@ namespace RestfulTVPApi.ServiceInterface
 
             return domainRes;
         }
-
 
         public TVPApiModule.Services.ApiDomainsService.DeviceDomain[] GetDeviceDomains(InitializationObject initObj, string udId)
         {

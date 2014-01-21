@@ -19,7 +19,10 @@ namespace RestfulTVPApi.ServiceInterface
             this.container.Register<IMediasRepository, MediasRepository>();
             this.container.Register<IChannelsRepository, ChannelsRepository>();
             this.container.Register<ISubscriptionsRepository, SubscriptionsRepository>();
-            this.container.Register<IEpgRepository, EpgRepository>();
+            this.container.Register<IGroupsRepository, GroupsRepository>();
+            this.container.Register<INotificationsRepository, NotificationsRepository>();
+            this.container.Register<IApiRepository, ApiRepository>();
+            this.container.Register<ISiteRepository, SiteRepository>();
             this.container.Register<IDomainRepository, DomainRepository>();
         }
 

@@ -10,21 +10,22 @@ using System.Linq;
 using TVPApi;
 using ServiceStack;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using System;
 
 namespace RestfulTVPApi.ServiceInterface
 {
 
     [RequiresAuthentication]
     [RequiresInitializationObject]
-    public class ChannelsService : Service
+    public class GroupsService : Service
     {
-        public IChannelsRepository _repository { get; set; }  //Injected by IOC
+        public IGroupsRepository _repository { get; set; }  //Injected by IOC
 
         #region GET
 
-        public HttpResult Get(GetChannelMultiFilterRequest request)
+        public HttpResult Get(GetGroupOperatorsRequest request)
         {
-            var response = _repository.GetChannelMultiFilter(request.InitObj, request.channel_id, request.pic_size, request.page_size, request.page_number, request.order_by, request.order_dir, request.tags_metas, request.cut_with);
+            var response = _repository.GetGroupOperators(request.InitObj, request.scope);
 
             if (response == null)
             {
@@ -34,9 +35,9 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetChannelsListRequest request)
+        public HttpResult Get(GetGroupRulesRequest request)
         {
-            var response = _repository.GetChannelsList(request.InitObj, request.pic_size);
+            var response = _repository.GetGroupRules(request.InitObj);
 
             if (response == null)
             {
@@ -46,9 +47,9 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetCategoryRequest request)
+        public HttpResult Get(FBConfigRequest request)
         {
-            var response = _repository.GetCategory(request.InitObj, request.category_id);
+            var response = _repository.FBConfig(request.InitObj);
 
             if (response == null)
             {
@@ -58,9 +59,9 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetFullCategoryRequest request)
+        public HttpResult Get(GetFBUserDataRequest request)
         {
-            var response = _repository.GetFullCategory(request.InitObj, request.category_id, request.pic_size);
+            var response = _repository.GetFBUserData(request.InitObj, request.token);
 
             if (response == null)
             {
@@ -73,9 +74,35 @@ namespace RestfulTVPApi.ServiceInterface
         #endregion
 
         #region PUT
+
+        public HttpResult Put(FBUserMergeRequest request)
+        {
+            var response = _repository.FBUserMerge(request.InitObj, request.token, request.facebook_id, request.user_name, request.password);
+
+            if (response == null)
+            {
+                return new HttpResult(HttpStatusCode.InternalServerError);
+            }
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+        }
+
         #endregion
 
         #region POST
+
+        public HttpResult Post(FBUserRegisterRequest request)
+        {
+            var response = _repository.FBUserRegister(request.InitObj, request.token, request.create_new_domain, request.get_newsletter);
+
+            if (response == null)
+            {
+                return new HttpResult(HttpStatusCode.InternalServerError);
+            }
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+        }
+
         #endregion
 
         #region DELETE

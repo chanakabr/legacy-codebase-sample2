@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
@@ -12,8 +9,6 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class ChannelsRepository : IChannelsRepository
     {
-
-        //Ofir - Moved from Media
         public List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
         {
             List<Media> lstMedia = null;
@@ -35,7 +30,6 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
-        //Ofir - Moved from Administration
         public List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize)
         {
             List<Channel> sRet = null;
@@ -54,7 +48,6 @@ namespace RestfulTVPApi.ServiceInterface
             return sRet;
         }
 
-        //Ofir - Moved from Media
         public Category GetCategory(InitializationObject initObj, int categoryID)
         {
             Category retCategory = null;
@@ -73,7 +66,6 @@ namespace RestfulTVPApi.ServiceInterface
             return retCategory;
         }
 
-        //Ofir - Moved from Media
         public Category GetFullCategory(InitializationObject initObj, int categoryID, string picSize)
         {
             Category retCategory = null;
@@ -91,6 +83,5 @@ namespace RestfulTVPApi.ServiceInterface
 
             return retCategory;
         }
-
     }
 }
