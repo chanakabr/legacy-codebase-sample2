@@ -2,19 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
-using TVPPro.SiteManager.TvinciPlatform.Social;
+using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public interface IGroupsRepository
     {
-        TVPApiModule.Objects.Responses.GroupOperator[] GetGroupOperators(InitializationObject initObj, string scope);
+        GroupOperator[] GetGroupOperators(InitializationObject initObj, string scope);
 
-        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj);
+        GroupRule[] GetGroupRules(InitializationObject initObj);
 
         FBConnectConfig FBConfig(InitializationObject initObj);
 

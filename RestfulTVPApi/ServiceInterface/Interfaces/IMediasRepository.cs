@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TVPApi;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
-using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
+using TVPApi;
+using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -36,7 +35,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         int[] GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
 
-        TVPApiModule.Objects.Responses.MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+        MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
 
         bool IsItemPurchased(InitializationObject initObj, string sSiteGUID, int iFileID);
 
@@ -46,7 +45,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         PrePaidResponseStatus ChargeMediaWithPrepaid(InitializationObject initObj, string sSiteGUID, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode);
 
-        TVPApiModule.Objects.Responses.BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode, string receipt);
+        BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode, string receipt);
 
         bool ActionDone(InitializationObject initObj, string sSiteGUID, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
 

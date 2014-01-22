@@ -255,7 +255,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Need to understand the method to decide on routing
     //[Route("/users/{site_guid}/charge_in_app", "POST", Summary = "Get Last Watched Medias", Notes = "Get Last Watched Medias")]
-    public class InApp_ChargeUserForMediaFileRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.BillingResponse>
+    public class InApp_ChargeUserForMediaFileRequest : RequestBase, IReturn<BillingResponse>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }

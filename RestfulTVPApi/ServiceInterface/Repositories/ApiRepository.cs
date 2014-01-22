@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Web;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Helper;
 using TVPApiModule.Objects.Responses;
@@ -111,7 +110,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public TVPApiModule.Objects.Responses.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID)
+        public UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserDataByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -127,7 +126,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public TVPApiModule.Objects.Responses.Country[] GetCountriesList(InitializationObject initObj)
+        public Country[] GetCountriesList(InitializationObject initObj)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetCountriesList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

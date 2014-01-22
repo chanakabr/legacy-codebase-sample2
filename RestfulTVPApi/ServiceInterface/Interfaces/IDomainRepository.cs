@@ -4,8 +4,7 @@ using System.Linq;
 using System.Web;
 using TVPApi;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
+using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {

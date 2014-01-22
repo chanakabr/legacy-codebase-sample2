@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
@@ -220,14 +219,14 @@ namespace RestfulTVPApi.ServiceInterface
     }
 
     [Route("/domains/{domain_id}/medias/permitted", "GET", Summary = "Gets all the items permitted for the users in a given domain", Notes = "Gets all the items permitted for the users in a given domain")]
-    public class GetDomainPermittedItemsRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PermittedMediaContainer[]>
+    public class GetDomainPermittedItemsRequest : RequestBase, IReturn<PermittedMediaContainer[]>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
     [Route("/domains/{domain_id}/subscriptions/permitted", "GET", Summary = "Gets all subscriptions permitted to the users in a given domain", Notes = "Gets all subscriptions permitted to the users in a given domain.")]
-    public class GetDomainPermittedSubscriptionsRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[]>
+    public class GetDomainPermittedSubscriptionsRequest : RequestBase, IReturn<PermittedSubscriptionContainer[]>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
@@ -255,7 +254,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -269,7 +268,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -283,7 +282,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -297,7 +296,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if ((Nullable<TVPApiModule.Services.ApiDomainsService.DeviceRegistration>)response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -311,7 +310,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -325,7 +324,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -339,7 +338,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -357,7 +356,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -371,7 +370,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -385,7 +384,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -399,7 +398,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -413,7 +412,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -427,7 +426,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -441,7 +440,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -455,7 +454,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -469,7 +468,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -483,7 +482,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -501,7 +500,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -515,7 +514,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();
@@ -529,7 +528,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             var responseDTO = response.ToDto();

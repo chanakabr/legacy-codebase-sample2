@@ -21,7 +21,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
@@ -33,7 +33,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
@@ -45,7 +45,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
@@ -57,7 +57,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
@@ -69,7 +69,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
@@ -81,7 +81,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
@@ -93,7 +93,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
@@ -105,7 +105,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
@@ -117,7 +117,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
@@ -150,7 +150,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(response, HttpStatusCode.OK);
@@ -211,7 +211,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                return new HttpResult(HttpStatusCode.InternalServerError);
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);

@@ -2,21 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Helper;
 using TVPApiModule.Objects;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
-using TVPPro.SiteManager.TvinciPlatform.Social;
+using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public class GroupsRepository : IGroupsRepository
     {
-        public TVPApiModule.Objects.Responses.GroupOperator[] GetGroupOperators(InitializationObject initObj, string scope)
+        public GroupOperator[] GetGroupOperators(InitializationObject initObj, string scope)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupOperators", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -32,7 +30,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj)
+        public GroupRule[] GetGroupRules(InitializationObject initObj)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -97,9 +95,9 @@ namespace RestfulTVPApi.ServiceInterface
             if (groupId > 0)
             {
                 ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-                
-                var oExtra = new List<KeyValuePair>() { new KeyValuePair() { key = "news", value = bGetNewsletter ? "1" : "0" }, new KeyValuePair() { key = "domain", value = bCreateNewDomain ? "1" : "0" } };
 
+                var oExtra = new List<TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair>() { new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "news", value = bGetNewsletter ? "1" : "0" }, new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "domain", value = bCreateNewDomain ? "1" : "0" } };
+                
                 //Ofir - why its was UserHostAddress in ip param?
                 return _service.FBUserRegister(sToken, "0", oExtra, SiteHelper.GetClientIP());
 

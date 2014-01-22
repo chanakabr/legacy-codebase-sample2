@@ -5,13 +5,11 @@ using System.Web;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Interfaces;
 using TVPApiModule.CatalogLoaders;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.Objects.Responses;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -66,7 +64,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public TVPApiModule.Objects.Responses.MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID)
+        public MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -236,7 +234,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public TVPApiModule.Objects.Responses.MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemsPricesWithCoupons", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -345,7 +343,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public TVPApiModule.Objects.Responses.BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode, string receipt)
+        public BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode, string receipt)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "InApp_ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -369,7 +367,7 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
 
-                return _service.GetUsersLikedMedia(int.Parse(siteGuid), mediaID, (int)TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK, onlyFriends, startIndex, pageSize);
+                return _service.GetUsersLikedMedia(siteGuid, mediaID, (int)TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK, onlyFriends, startIndex, pageSize);
             }
             else
             {

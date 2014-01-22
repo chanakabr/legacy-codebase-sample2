@@ -19,13 +19,14 @@ using ServiceStack.Common.Web;
 using ServiceStack.Api.Swagger;
 using ServiceStack.Text;
 using RestfulTVPApi.ServiceModel;
+using ServiceStack.ServiceModel.Serialization;
+using System.Diagnostics;
 
 namespace RestfulTVPApi
 {
 	public class AppHost : AppHostBase
 	{		
-		public AppHost() //Tell ServiceStack the name and where to find your web services
-            : base("StarterTemplate ASP.NET Host", new System.Reflection.Assembly[] { typeof(RequestBase).Assembly }) { }
+		public AppHost() : base("RestAPI", new System.Reflection.Assembly[] { typeof(RequestBase).Assembly }) { }
 
 		public override void Configure(Funq.Container container)
 		{
@@ -37,6 +38,11 @@ namespace RestfulTVPApi
 
             Plugins.Add(new SwaggerFeature());
 
+            SetConfig(new EndpointHostConfig
+            {
+                CustomHttpHandlers = { { HttpStatusCode.NotFound, new CustomNotFoundHttpHandler() } }
+            });
+
             //Exception outside of services
             this.ExceptionHandler = (IHttpRequest httpReq, IHttpResponse httpRes, string operationName, Exception ex) =>
             {
@@ -46,9 +52,13 @@ namespace RestfulTVPApi
                 {
                     dto = new HttpError(new ResponseStatus("HttpException", ex.Message), ((HttpError)ex).StatusCode, ((HttpError)ex).StatusCode.ToString(), string.Empty);
                 }
+                else if (ex is RequestBindingException)
+                {
+                    dto = new HttpError(new ResponseStatus("RequestBindingException", ex.InnerException.InnerException.Message), HttpStatusCode.BadRequest, HttpStatusCode.BadRequest.ToString(), string.Empty);
+                }
                 else
                 {
-                    dto = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), ex.Message), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
+                    dto = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), "Unexpected Error."), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
                 }
 
                 ServiceStack.WebHost.Endpoints.Extensions.HttpResponseExtensions.WriteToResponse‌(httpRes, httpReq, dto);
@@ -61,11 +71,11 @@ namespace RestfulTVPApi
 
                 if (ex is UnknownGroupException)
                 {
-                    dto = new HttpError(new ResponseStatus("UnknownGroupException", ex.Message), HttpStatusCode.Unauthorized, HttpStatusCode.Unauthorized.ToString(), string.Empty);
+                    dto = new HttpError(new ResponseStatus("UnknownGroupException", "Please check you init Object."), HttpStatusCode.Unauthorized, HttpStatusCode.Unauthorized.ToString(), string.Empty);
                 }
                 else
                 {
-                    dto = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), ex.Message), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
+                    dto = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), "Unexpected Error."), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
                 }
 
                 return dto;

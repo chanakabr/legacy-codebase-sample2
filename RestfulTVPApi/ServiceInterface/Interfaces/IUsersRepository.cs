@@ -1,33 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.Billing;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
-using TVPPro.SiteManager.TvinciPlatform.Social;
+
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public interface IUsersRepository
     {
-        TVPApiModule.Objects.Responses.UserResponseObject[] GetUsersData(InitializationObject initObj, string siteGuids);
+        UserResponseObject[] GetUsersData(InitializationObject initObj, string siteGuids);
 
-        TVPApiModule.Objects.Responses.UserResponseObject SetUserData(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData);
+        UserResponseObject SetUserData(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData);
 
-        TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid);
+        PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid);
 
-        TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int iTotalItems);
+        PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int iTotalItems);
 
-        TVPApiModule.Objects.Responses.PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj, string siteGuid);
+        PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj, string siteGuid);
 
-        TVPApiModule.Objects.Responses.PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, string siteGuid, int iTotalItems);
+        PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, string siteGuid, int iTotalItems);
 
-        TVPApiModule.Objects.Responses.UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode);
+        UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode);
 
-        TVPApiModule.Objects.Responses.FavoriteObject[] GetUserFavorites(InitializationObject initObj, string siteGuid);
+        FavoriteObject[] GetUserFavorites(InitializationObject initObj, string siteGuid);
 
         GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid);
 
@@ -35,31 +32,29 @@ namespace RestfulTVPApi.ServiceInterface
 
         bool CheckGroupRule(InitializationObject initObj, string siteGuid, int ruleID, string PIN);
 
-        TVPApiModule.Objects.Responses.UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass);
+        UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass);
 
-        TVPApiModule.Objects.Responses.UserResponseObject RenewUserPassword(InitializationObject initObj, string sUN, string sPass);
+        UserResponseObject RenewUserPassword(InitializationObject initObj, string sUN, string sPass);
 
-        TVPApiModule.Objects.Responses.UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken);
+        UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken);
 
         bool ResendActivationMail(InitializationObject initObj, string sUserName, string sNewPassword);
 
-        TVPApiModule.Objects.Responses.UserType[] GetGroupUserTypes(InitializationObject initObj);
+        ResponseStatus RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID);
 
-        TVPApiModule.Objects.Responses.ResponseStatus RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID);
+        ResponseStatus SetUserTypeByUserID(InitializationObject initObj, string sSiteGUID, int nUserTypeID);
 
-        TVPApiModule.Objects.Responses.ResponseStatus SetUserTypeByUserID(InitializationObject initObj, string sSiteGUID, int nUserTypeID);
+        UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token);
 
-        TVPApiModule.Objects.Responses.UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token);
+        bool AddItemToList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
 
-        bool AddItemToList(InitializationObject initObj, string sSiteGUID, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+        UserItemList[] GetItemFromList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
 
-        UserItemList[] GetItemFromList(InitializationObject initObj, string sSiteGUID, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+        KeyValuePair[] IsItemExistsInList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
 
-        TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair[] IsItemExistsInList(InitializationObject initObj, string sSiteGUID, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+        bool RemoveItemFromList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
 
-        bool RemoveItemFromList(InitializationObject initObj, string sSiteGUID, ItemObj[] itemObjects, ItemType itemType, ListType listType);
-
-        bool UpdateItemInList(InitializationObject initObj, string sSiteGUID, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+        bool UpdateItemInList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
 
         string[] GetPrepaidBalance(InitializationObject initObj, string sSiteGUID, string currencyCode);
 
@@ -67,15 +62,15 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<Media> GetUserSocialMedias(InitializationObject initObj, string sSiteGUID, int socialPlatform, int socialAction, string picSize, int pageSize, int pageIndex);
 
-        TVPApiModule.Objects.Responses.BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, string sSiteGUID, int start_index, int pageSize);
+        BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, string sSiteGUID, int start_index, int pageSize);
 
-        TVPApiModule.Objects.Responses.BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode);
+        BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode);
 
-        TVPApiModule.Objects.Responses.UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate);
+        UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate);
 
         List<Media> GetUserItems(InitializationObject initObj, string sSiteGUID, UserItemType itemType, string picSize, int pageSize, int start_index);
 
-        TVPApiModule.Objects.Responses.AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, string siteGuid, int billingMethod);
+        AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, string siteGuid, int billingMethod);
 
         string GetClientMerchantSig(InitializationObject initObj, string sParamaters);
 
@@ -109,9 +104,9 @@ namespace RestfulTVPApi.ServiceInterface
 
         SocialActionResponseStatus DoUserAction(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID);
 
-        TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform);
+        UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform);
 
-        TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] GetUserActions(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform);
+        UserSocialActionObject[] GetUserActions(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform);
 
         eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid);
 
@@ -123,9 +118,9 @@ namespace RestfulTVPApi.ServiceInterface
 
         eSocialPrivacy GetUserSocialPrivacy(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction);
 
-        bool SetUserExternalActionShare(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
+        bool SetUserExternalActionShare(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eSocialActionPrivacy actionPrivacy);
 
-        bool SetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
+        bool SetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eSocialActionPrivacy actionPrivacy);
 
         int AD_GetCustomDataID(InitializationObject initObj, string siteGuid, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string countryCd2, string languageCode3, string deviceName, int assetType);
 

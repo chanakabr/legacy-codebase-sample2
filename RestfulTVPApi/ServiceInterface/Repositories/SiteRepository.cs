@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Helper;
@@ -10,8 +9,6 @@ using TVPApiModule.Interfaces;
 using TVPApiModule.Objects;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
-using TVPPro.SiteManager.TvinciPlatform.Social;
 
 namespace RestfulTVPApi.ServiceInterface
 {

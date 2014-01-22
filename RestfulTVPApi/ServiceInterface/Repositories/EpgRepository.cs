@@ -127,7 +127,7 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
 
-                return _service.GetEPGProgramRules(MediaId, programId, int.Parse(sSiteGUID), SiteHelper.GetClientIP(), initObj.UDID);
+                return _service.GetEPGProgramRules(MediaId, programId, sSiteGUID, SiteHelper.GetClientIP(), initObj.UDID);
             }
             else
             {

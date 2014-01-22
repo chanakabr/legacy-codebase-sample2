@@ -17,9 +17,9 @@ namespace RestfulTVPApi.ServiceInterface
 
         string GetSiteGuidFromSecured(InitializationObject initObj, string encSiteGuid);
 
-        TVPApiModule.Objects.Responses.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
+        UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
 
-        TVPApiModule.Objects.Responses.Country[] GetCountriesList(InitializationObject initObj);
+        Country[] GetCountriesList(InitializationObject initObj);
 
         string GetGoogleSignature(InitializationObject initObj, int customerId);
     }

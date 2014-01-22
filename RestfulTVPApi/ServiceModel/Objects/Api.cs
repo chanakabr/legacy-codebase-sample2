@@ -5,7 +5,6 @@ using System.Web;
 using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -15,14 +14,14 @@ namespace RestfulTVPApi.ServiceModel
     public class GetCountriesListRequest : RequestBase, IReturn<IEnumerable<Country>> { }
 
     [Route("/coupons/{coupon_code}", "GET", Notes = "This method returns the status of a specific coupon")]
-    public class GetCouponStatusRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.CouponData>
+    public class GetCouponStatusRequest : RequestBase, IReturn<CouponData>
     {
         [ApiMember(Name = "coupon_code", Description = "Coupon Code", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string coupon_code { get; set; }
     }
 
     [Route("/ppv_modules/{ppv_code}", "GET", Notes = "This method retrieves all information regarding a specific PPV module")]
-    public class GetPPVModuleDataRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PPVModule>
+    public class GetPPVModuleDataRequest : RequestBase, IReturn<PPVModule>
     {
         [ApiMember(Name = "ppv_code", Description = "PPV Code", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int ppv_code { get; set; }
