@@ -453,7 +453,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get liked media info")]
-        public List<Media> GetUserSocialMedias(InitializationObject initObj, string socialPlatform, string socialAction, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetUserSocialMedias(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.api.SocialAction socialAction, string picSize, int pageSize, int pageIndex)
         {
             List<Media> lstMedia = new List<Media>();
 
@@ -479,7 +479,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "check if social action performed on media by user")]
-        public bool IsUserSocialActionPerformed(InitializationObject initObj, string sMediaID, string socialPlatform, string socialAction)
+        public bool IsUserSocialActionPerformed(InitializationObject initObj, string sMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.api.SocialAction socialAction)
         {
             bool bRet = false;
 

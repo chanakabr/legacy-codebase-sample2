@@ -109,7 +109,7 @@ namespace TVPApiModule.DataLoaders
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oUserSocialMediaLoader = new TVPApiModule.CatalogLoaders.APIUserSocialMediaLoader(SiteGuid, int.Parse(SocialAction), int.Parse(SocialPlatform), SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
+                m_oUserSocialMediaLoader = new TVPApiModule.CatalogLoaders.APIUserSocialMediaLoader(SiteGuid, (int)SocialAction, (int)(SocialPlatform), SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,

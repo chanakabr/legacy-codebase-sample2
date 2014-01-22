@@ -590,7 +590,7 @@ namespace TVPApi
             return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.PeopleWhoWatched, OrderBy.None);
         }
 
-        public static List<Media> GetUserSocialMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int groupID, string socialAction, string socialPlatform)
+        public static List<Media> GetUserSocialMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int groupID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction socialAction, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
         {
             List<Media> retVal = new List<Media>();
 
@@ -895,7 +895,7 @@ namespace TVPApi
 
                 case UserItemType.Favorite:
                     {
-                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);//initObj.UDID);
+                        FavoritObject[] favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, mediaType != 0 ? mediaType.ToString() : string.Empty, initObj.DomainID, string.Empty);//initObj.UDID);
                         string[] favoritesList;// = TVPPro.SiteManager.Helper.FavoritesHelper.GetUserFavoriteMedias(mediaType, guid, true);
 
                         if (favoritesObj != null)
