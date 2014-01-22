@@ -8,6 +8,7 @@ using RestfulTVPApi.ServiceModel;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using System;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -101,6 +102,48 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
+        public HttpResult Get(GetDomainByCoGuidRequest request)
+        {
+            var response = _repository.GetDomainByCoGuid(request.InitObj, request.co_guid);
+
+            if (response == null)
+            {
+                return new HttpResult(HttpStatusCode.InternalServerError);
+            }
+
+            var responseDTO = response.ToDto();
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+        }
+
+        public HttpResult Get(GetDomainIDsByOperatorCoGuidRequest request)
+        {
+            var response = _repository.GetDomainIDsByOperatorCoGuid(request.InitObj, request.operator_co_guid);
+
+            if (response == null)
+            {
+                return new HttpResult(HttpStatusCode.InternalServerError);
+            }
+
+            var responseDTO = response.ToDto();
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+        }
+
+        public HttpResult Get(GetDomainIDByCoGuidRequest request)
+        {
+            var response = _repository.GetDomainIDByCoGuid(request.InitObj, request.co_guid);
+
+            if (response == null)
+            {
+                return new HttpResult(HttpStatusCode.InternalServerError);
+            }
+
+            var responseDTO = response.ToDto();
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+        }
+
         #endregion
 
         #region PUT
@@ -116,6 +159,21 @@ namespace RestfulTVPApi.ServiceInterface
         #endregion
 
         #region POST
+
+        public HttpResult Post(RegisterDeviceByPINRequest request)
+        {
+            var response = _repository.RegisterDeviceByPIN(request.InitObj, request.pin);
+
+            if ((Nullable<TVPApiModule.Services.ApiDomainsService.DeviceRegistration>)response == null)
+            {
+                return new HttpResult(HttpStatusCode.InternalServerError);
+            }
+
+            var responseDTO = response.ToDto();
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+        }
+
         #endregion
 
         #region DELETE

@@ -158,5 +158,85 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
+        public DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid)
+        {
+            DomainResponseObject res = null;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainByCoGuid(coGuid);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return res;
+        }
+
+        public int[] GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
+        {
+            int[] resDomains = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDsByOperatorCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                resDomains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainIDsByOperatorCoGuid(operatorCoGuid);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return resDomains;
+        }
+
+        public int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid)
+        {
+            int res = 0;
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainIDByCoGuid(coGuid);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return res;
+        }
+
+        public TVPApiModule.Services.ApiDomainsService.DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin)
+        {
+            TVPApiModule.Services.ApiDomainsService.DeviceRegistration deviceRes = new TVPApiModule.Services.ApiDomainsService.DeviceRegistration();
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RegisterDeviceByPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                TVPApiModule.Services.ApiDomainsService service = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform);
+                DeviceResponseObject device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
+
+                if (device == null || device.m_oDeviceResponseStatus == DeviceResponseStatus.Error)
+                    deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;
+                else if (device.m_oDeviceResponseStatus == DeviceResponseStatus.DuplicatePin || device.m_oDeviceResponseStatus == DeviceResponseStatus.DeviceNotExists)
+                    deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;
+                else
+                {
+                    deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
+                    deviceRes.UDID = device.m_oDevice.m_deviceUDID;
+                }
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+
+            return deviceRes;
+        }
+
     }
 }

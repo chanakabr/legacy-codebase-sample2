@@ -64,6 +64,27 @@ namespace RestfulTVPApi.ServiceModel
         public string paramaters { get; set; }
     }
 
+    [Route("/rpc/get_domain_by_co_guid", "GET", Summary = "Get a specific domain by a coguid", Notes = "Get a domain by coguid")]
+    public class GetDomainByCoGuidRequest : RequestBase, IReturn<DomainResponseObject>
+    {
+        [ApiMember(Name = "co_guid", Description = "CoGuid", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string co_guid { get; set; }
+    }
+
+    [Route("/rpc/get_domain_ids_by_operator_co_guid", "GET", Summary = "Returns all domain IDs belonging to a specific Operator by its co guid", Notes = "Returns all domain IDs belonging to a specific Operator by its co guid")]
+    public class GetDomainIDsByOperatorCoGuidRequest : RequestBase, IReturn<IEnumerable<int>>
+    {
+        [ApiMember(Name = "operator_co_guid", Description = "The operator coguid", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string operator_co_guid { get; set; }
+    }
+
+    [Route("/rpc/get_domain_id_by_co_guid", "GET", Summary = "Returns a domain ID using a 3rd party Co-GUID", Notes = "used when a device has an existing 3rd party association and identification number outside of the Tvinci system")]
+    public class GetDomainIDByCoGuidRequest : RequestBase, IReturn<int>
+    {
+        [ApiMember(Name = "co_guid", Description = "Domain Master Co-GUID", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string co_guid { get; set; }
+    }
+
     #endregion
 
     #region PUT
@@ -95,6 +116,16 @@ namespace RestfulTVPApi.ServiceModel
     #endregion
 
     #region POST
+
+    [Route("/rpc/register_device_by_pin/{udid}", "POST", Summary = "registers a new device to a domain from an input PIN code", Notes = "registers a new device to a domain from an input PIN code")]
+    public class RegisterDeviceByPINRequest : RequestBase, IReturn<TVPApiModule.Services.ApiDomainsService.DeviceRegistration>
+    {
+        [ApiMember(Name = "udid", Description = "Device ID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "pin", Description = "Pin code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string pin { get; set; }
+    }
+
     #endregion
 
     #region DELETE

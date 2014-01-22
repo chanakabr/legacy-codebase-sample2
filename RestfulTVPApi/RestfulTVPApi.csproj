@@ -172,6 +172,7 @@
     <Compile Include="ServiceInterface\Services\SubscriptionsService.cs" />
     <Compile Include="ServiceInterface\Services\InitService.cs" />
     <Compile Include="ServiceModel\Objects\Channels.cs" />
+    <Compile Include="ServiceModel\Objects\Domains.cs" />
     <Compile Include="ServiceModel\Objects\Site.cs" />
     <Compile Include="ServiceModel\Objects\Groups.cs" />
     <Compile Include="ServiceModel\Objects\Notifications.cs" />
