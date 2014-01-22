@@ -122,32 +122,31 @@ namespace TVPApiServices
         //    return retPageContext;
         //}
 
-        //// Deprecated!
-        //[WebMethod(EnableSession = true, Description = "Get site menu")]
-        //public Menu GetMenu(InitializationObject initObj, long ID)
-        //{
-        //    Menu retMenu = null;
+        [WebMethod(EnableSession = true, Description = "Get site menu")]
+        public Menu GetMenu(InitializationObject initObj, long ID)
+        {
+            Menu retMenu = null;
 
-        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMenu", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMenu", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-        //    if (groupID > 0)
-        //    {
-        //        try
-        //        {
-        //            retMenu = MenuHelper.GetMenuByID(initObj, ID, groupID);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            HttpContext.Current.Items.Add("Error", ex);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        HttpContext.Current.Items.Add("Error", "Unknown group");
-        //    }
+            if (groupID > 0)
+            {
+                try
+                {
+                    retMenu = MenuHelper.GetMenuByID(initObj.Platform, initObj.Locale, ID, groupID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
 
-        //    return retMenu;
-        //}
+            return retMenu;
+        }
 
         [WebMethod(EnableSession = true, Description = "Get site footer menu")]
         public Menu GetFooter(InitializationObject initObj, long ID)
@@ -349,32 +348,31 @@ namespace TVPApiServices
         #endregion
 
         #region User
-        //// Deprecated!
-        //[WebMethod(EnableSession = true, Description = "Get Group Rules")]
-        //public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj)
-        //{
-        //    TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
+        [WebMethod(EnableSession = true, Description = "Get Group Rules")]
+        public TVPApiModule.Objects.Responses.GroupRule[] GetGroupRules(InitializationObject initObj)
+        {
+            TVPApiModule.Objects.Responses.GroupRule[] response = null;
 
-        //    int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-        //    if (groupID > 0)
-        //    {
-        //        try
-        //        {
-        //            response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupRules();
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            HttpContext.Current.Items.Add("Error", ex);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        HttpContext.Current.Items.Add("Error", "Unknown group");
-        //    }
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetGroupRules();
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
         [WebMethod(EnableSession = true, Description = "Get User Group Rules")]
         public TVPApiModule.Objects.Responses.GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid)
@@ -1207,11 +1205,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    int siteGuid = 0;
-                    if (int.TryParse(initObj.SiteGuid, out siteGuid))
-                        response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetEPGProgramRules(MediaId, programId, siteGuid, IP, initObj.UDID);
-                    else
-                        throw new Exception("Site guid is not a valid number");
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetEPGProgramRules(MediaId, programId, initObj.SiteGuid, IP, initObj.UDID);
                 }
                 catch (Exception ex)
                 {

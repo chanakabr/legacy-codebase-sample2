@@ -1,0 +1,43 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace TVPApiModule.Objects.Responses
+{
+    public class UserItemList
+    {
+        public string siteGuid { get; set; }
+
+        public ItemObj[] itemObj { get; set; }
+
+        public ListType listType { get; set; }
+
+        public ItemType itemType { get; set; }
+    }
+
+    public class ItemObj
+    {
+        public int item { get; set; }
+
+        public int? orderNum { get; set; }
+    }
+
+    public enum ListType
+    {
+        /// <remarks/>
+        All,
+        /// <remarks/>
+        Watch,
+        /// <remarks/>
+        Purchase,
+    }
+
+    public enum ItemType
+    {
+        /// <remarks/>
+        All,
+        /// <remarks/>
+        Media,
+    }
+}

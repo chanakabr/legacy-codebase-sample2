@@ -278,7 +278,7 @@ namespace TVPApiModule.Objects.CRM
             }
         }
 
-        public UserBasicData(TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData)
+        public UserBasicData(TVPApiModule.Objects.Responses.UserBasicData userBasicData)
         {
             this.address = userBasicData.m_sAddress;
             this.affiliate_code = userBasicData.m_sAffiliateCode;

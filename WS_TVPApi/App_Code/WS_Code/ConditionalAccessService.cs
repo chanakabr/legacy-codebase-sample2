@@ -106,19 +106,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo actionInfo = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo()
-                    {
-                        m_siteGuid = int.Parse(initObj.SiteGuid),
-                        m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SocialInviteInfo() { m_hashCode = hashCode } : null,
-                        m_mediaID = mediaID,
-                        m_mediaLink = mediaLink,
-                        m_senderEmail = senderEmail,
-                        m_senderName = senderName,
-                        m_status = status,
-                        m_voucherReceipents = voucherReceipents
-                    };
-
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).ActivateCampaign(initObj.SiteGuid, campaignID, actionInfo);
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).ActivateCampaign(initObj.SiteGuid, campaignID, hashCode, mediaID, mediaLink, 
+                        senderEmail, senderName, status, voucherReceipents);
                 }
                 catch (Exception ex)
                 {

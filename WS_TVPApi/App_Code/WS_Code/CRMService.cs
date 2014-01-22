@@ -106,7 +106,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject userResponseObject = new ApiUsersService(groupId, PlatformType.Web).GetUserByUsername(request.user_name);
+                    TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = new ApiUsersService(groupId, PlatformType.Web).GetUserByUsername(request.user_name);
 
                     response.Initialize(userResponseObject);
                 }
@@ -135,13 +135,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData[] usersBasicDataTVM = CRMHelper.SearchUsers(groupId, request.text);
+                    TVPApiModule.Objects.Responses.UserBasicData[] usersBasicDataTVM = CRMHelper.SearchUsers(groupId, request.text);
 
                     if (usersBasicDataTVM != null)
                     {
                         response.result = new List<TVPApiModule.Objects.CRM.UserBasicData>();
 
-                        foreach (TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicDataTVM in usersBasicDataTVM)
+                        foreach (TVPApiModule.Objects.Responses.UserBasicData userBasicDataTVM in usersBasicDataTVM)
                         {
                             TVPApiModule.Objects.CRM.UserBasicData userResponseObject = new TVPApiModule.Objects.CRM.UserBasicData(userBasicDataTVM);
 

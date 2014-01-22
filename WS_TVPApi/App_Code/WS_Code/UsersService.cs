@@ -13,8 +13,10 @@ using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Billing;
-using TVPPro.SiteManager.TvinciPlatform.Users;
+//using TVPPro.SiteManager.TvinciPlatform.Users;
 using System.Web;
+using TVPApiModule.Objects.Responses;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiServices
 {
@@ -22,16 +24,16 @@ namespace TVPApiServices
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
     [System.Web.Script.Services.ScriptService]
-    public class UsersService : System.Web.Services.WebService, IUsersService
+    public class UsersService : System.Web.Services.WebService//, IUsersService
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(BillingService));
 
         #region public methods
 
         [WebMethod(EnableSession = true, Description = "Change user password")]
-        public UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass)
+        public TVPApiModule.Objects.Responses.UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass)
         {
-            UserResponseObject response = new UserResponseObject();
+            TVPApiModule.Objects.Responses.UserResponseObject response = new TVPApiModule.Objects.Responses.UserResponseObject();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ChangeUserPassword", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -55,9 +57,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Renew user password")]
-        public UserResponseObject RenewUserPassword(InitializationObject initObj, string sUN, string sPass)
+        public TVPApiModule.Objects.Responses.UserResponseObject RenewUserPassword(InitializationObject initObj, string sUN, string sPass)
         {
-            UserResponseObject response = new UserResponseObject();
+            TVPApiModule.Objects.Responses.UserResponseObject response = new TVPApiModule.Objects.Responses.UserResponseObject();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RenewUserPassword", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -81,9 +83,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user facebook ID")]
-        public UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId)
+        public TVPApiModule.Objects.Responses.UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId)
         {
-            UserResponseObject response = new UserResponseObject();
+            TVPApiModule.Objects.Responses.UserResponseObject response = new TVPApiModule.Objects.Responses.UserResponseObject();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserByFacebookID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -107,9 +109,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user by username")]
-        public UserResponseObject GetUserByUsername(InitializationObject initObj, string userName)
+        public TVPApiModule.Objects.Responses.UserResponseObject GetUserByUsername(InitializationObject initObj, string userName)
         {
-            UserResponseObject response = new UserResponseObject();
+            TVPApiModule.Objects.Responses.UserResponseObject response = new TVPApiModule.Objects.Responses.UserResponseObject();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserByUsername", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -155,9 +157,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Activate user account")]
-        public UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken)
+        public TVPApiModule.Objects.Responses.UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken)
         {
-            UserResponseObject response = new UserResponseObject();
+            TVPApiModule.Objects.Responses.UserResponseObject response = new TVPApiModule.Objects.Responses.UserResponseObject();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActivateAccount", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -235,9 +237,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "GetCountriesList")]
-        public Country[] GetCountriesList(InitializationObject initObj)
+        public TVPApiModule.Objects.Responses.Country[] GetCountriesList(InitializationObject initObj)
         {
-            Country[] response = null;
+            TVPApiModule.Objects.Responses.Country[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetCountriesList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -271,9 +273,9 @@ namespace TVPApiServices
             {
                 try
                 {
-                    UserResponseObject userResponseObject = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).CheckTemporaryToken(sToken);
+                    TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).CheckTemporaryToken(sToken);
 
-                    if (userResponseObject != null && userResponseObject.m_RespStatus == ResponseStatus.OK)
+                    if (userResponseObject != null && userResponseObject.m_RespStatus == TVPApiModule.Objects.Responses.ResponseStatus.OK)
                     {
                         response = userResponseObject.m_user.m_oBasicData.m_sUserName;
                     }
@@ -296,9 +298,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "GetGroupUserTypes")]
-        public UserType[] GetGroupUserTypes(InitializationObject initObj)
+        public TVPApiModule.Objects.Responses.UserType[] GetGroupUserTypes(InitializationObject initObj)
         {
-            UserType[] response = null;
+            TVPApiModule.Objects.Responses.UserType[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupUserTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -324,7 +326,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Renews user PIN")]
         public string RenewUserPIN(InitializationObject initObj, string siteGUID, int ruleID)
         {
-            ResponseStatus response = ResponseStatus.OK;
+            TVPApiModule.Objects.Responses.ResponseStatus response = TVPApiModule.Objects.Responses.ResponseStatus.OK;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RenewUserPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -348,9 +350,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Activate Account By Domain Master")]
-        public UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token)
+        public TVPApiModule.Objects.Responses.UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token)
         {
-            UserResponseObject response = null;
+            TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActivateAccountByDomainMaster", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -400,7 +402,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Adds Item To List")]
-        public bool AddItemToList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool AddItemToList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
             bool response = false;
 
@@ -426,7 +428,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Removes Item From List")]
-        public bool RemoveItemFromList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool RemoveItemFromList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
             bool response = false;
 
@@ -452,7 +454,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Updates Item In List")]
-        public bool UpdateItemInList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool UpdateItemInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
             bool response = false;
 
@@ -478,9 +480,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets Item From List")]
-        public UserItemList[] GetItemFromList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public TVPApiModule.Objects.Responses.UserItemList[] GetItemFromList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            UserItemList[] response = null;
+            TVPApiModule.Objects.Responses.UserItemList[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetItemFromList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -504,9 +506,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Is Item Exists In List")]
-        public KeyValuePair[] IsItemExistsInList(InitializationObject initObj, string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public TVPApiModule.Objects.Responses.KeyValuePair[] IsItemExistsInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            KeyValuePair[] response = null;
+            TVPApiModule.Objects.Responses.KeyValuePair[] response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsItemExistsInList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -532,7 +534,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Set UserType by UserID")]
         public string SetUserTypeByUserID(InitializationObject initObj, string siteGUID, int nUserTypeID)
         {
-            ResponseStatus response = ResponseStatus.OK;
+            TVPApiModule.Objects.Responses.ResponseStatus response = TVPApiModule.Objects.Responses.ResponseStatus.OK;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserTypeByUserID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

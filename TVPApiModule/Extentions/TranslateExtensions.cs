@@ -341,29 +341,29 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        //public static UserItemList To(this UserItemList response)
-        //{
-        //    if (response == null)
-        //        return null;
+        public static UserItemList ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.UserItemList response)
+        {
+            if (response == null)
+                return null;
 
-        //    UserItemList response = new UserItemList();
+            UserItemList retVal = new UserItemList();
 
-        //    if (response.itemObj != null)
-        //    {
-        //        response.itemObj = response.itemObj.Select(x => new ItemObj()
-        //        {
-        //            item = x.item,
-        //            orderNum = x.orderNum
-        //        }).ToArray();
-        //    }
+            if (response.itemObj != null)
+            {
+                retVal.itemObj = response.itemObj.Select(x => new ItemObj()
+                {
+                    item = x.item,
+                    orderNum = x.orderNum
+                }).ToArray();
+            }
 
-        //    response.itemType = (ItemType)response.itemType;
-        //    response.listType = (ListType)response.listType;
+            retVal.itemType = (ItemType)response.itemType;
+            retVal.listType = (ListType)response.listType;
 
-        //    return response;
-        //}
+            return retVal;
+        }
 
-        //public static KeyValuePair<string, string> To(this KeyValuePair response)
+        //public static KeyValuePair<string, string> ToApiObject(this KeyValuePair response)
         //{
         //    KeyValuePair<string, string> response = new KeyValuePair<string, string>(response.key, response.value);
 
@@ -1446,9 +1446,144 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        
 
+        public static TVPApiModule.Objects.Responses.FriendWatchedObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject response)
+        {
+            if (response == null)
+                return null;
 
+            TVPApiModule.Objects.Responses.FriendWatchedObject retVal = new TVPApiModule.Objects.Responses.FriendWatchedObject();
 
+            retVal.SiteGuid = response.SiteGuid;
+            retVal.MediaID = response.MediaID;
+            retVal.UpdateDate = response.UpdateDate;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.FacebookConfig ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.FacebookConfig response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.FacebookConfig retVal = new TVPApiModule.Objects.Responses.FacebookConfig();
+
+            retVal.sFBKey = response.sFBKey;
+            retVal.sFBSecret = response.sFBSecret;
+            retVal.sFBCallback = response.sFBCallback;
+            retVal.nFBMinFriends = response.nFBMinFriends;
+            retVal.sFBPermissions = response.sFBPermissions;
+            retVal.sFBRedirect = response.sFBRedirect;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.FBInterestData ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.FBInterestData response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.FBInterestData retVal = new TVPApiModule.Objects.Responses.FBInterestData();
+
+            retVal.name = response.name;
+            retVal.category = response.category;
+            retVal.id = response.id;
+            retVal.created_time = response.created_time;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.FBInterest ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.FBInterest response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.FBInterest retVal = new TVPApiModule.Objects.Responses.FBInterest();
+
+            retVal.data = response.data.Select(fbid => fbid.ToApiObject()).ToArray();
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.FBLoaction ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.FBLoaction response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.FBLoaction retVal = new TVPApiModule.Objects.Responses.FBLoaction();
+
+            retVal.name = response.name;
+            retVal.id = response.id;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.FBUser ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.FBUser response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.FBUser retVal = new TVPApiModule.Objects.Responses.FBUser();
+
+            retVal.m_sSiteGuid = response.m_sSiteGuid;
+            retVal.Birthday = response.Birthday;
+            retVal.Location = response.Location.ToApiObject();
+            retVal.interests = response.interests.ToApiObject();
+            retVal.name = response.name;
+            retVal.id = response.id;
+            retVal.uid = response.uid;
+            retVal.first_name = response.first_name;
+            retVal.last_name = response.last_name;
+            retVal.email = response.email;
+            retVal.gender = response.gender;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.FacebookResponseObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.FacebookResponseObject response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.FacebookResponseObject retVal = new TVPApiModule.Objects.Responses.FacebookResponseObject();
+
+            retVal.status = response.status;
+            retVal.siteGuid = response.siteGuid;
+            retVal.tvinciName = response.tvinciName;
+            retVal.facebookName = response.facebookName;
+            retVal.pic = response.pic;
+            retVal.data = response.data;
+            retVal.minFriends = response.minFriends;
+            retVal.fbUser = response.fbUser.ToApiObject();
+            retVal.token = response.token;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.KeyValuePair ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.KeyValuePair retVal = new TVPApiModule.Objects.Responses.KeyValuePair();
+
+            retVal.key = response.key;
+            retVal.value = response.value;
+
+            return retVal;
+        }
+
+        public static TVPApiModule.Objects.Responses.KeyValuePair ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair response)
+        {
+            if (response == null)
+                return null;
+
+            TVPApiModule.Objects.Responses.KeyValuePair retVal = new TVPApiModule.Objects.Responses.KeyValuePair();
+
+            retVal.key = response.key;
+            retVal.value = response.value;
+
+            return retVal;
+        }
     }
 }

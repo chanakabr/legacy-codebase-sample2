@@ -291,7 +291,7 @@ namespace TVPApiModule.Services
             return new string[] { (returnObject.m_nTotalAmount - returnObject.m_nAmountUsed).ToString(), returnObject.m_sCurrencyCode };
         }
 
-        public PrePaidResponseStatus PP_ChargeUserForMediaFile(string siteGuid, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode, string udid)
+        public TVPApiModule.Objects.Responses.PrePaidResponseStatus PP_ChargeUserForMediaFile(string siteGuid, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode, string udid)
         {
             PrePaidResponse returnObject = null;
 
@@ -304,7 +304,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : PP_ChargeUserForMediaFile, Error Message: {0}, Parameters : User: {1}", ex.Message, siteGuid);
             }
 
-            return returnObject.m_oStatus;
+            return (TVPApiModule.Objects.Responses.PrePaidResponseStatus)returnObject.m_oStatus;
         }
 
         public string GetMediaLicenseLink(string siteGuid, int mediaFileID, string baseLink, string udid)
@@ -519,11 +519,24 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool ActivateCampaign(string siteGuid, int campaignID, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo actionInfo)
+        public bool ActivateCampaign(string siteGuid, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
+                                                           TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionResult status, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.VoucherReceipentInfo[] voucherReceipents)
         {
             bool retVal = false;
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
             string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            
+            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo actionInfo = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo()
+            {
+                m_siteGuid = int.Parse(siteGuid),
+                m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SocialInviteInfo() { m_hashCode = hashCode } : null,
+                m_mediaID = mediaID,
+                m_mediaLink = mediaLink,
+                m_senderEmail = senderEmail,
+                m_senderName = senderName,
+                m_status = status,
+                m_voucherReceipents = voucherReceipents
+            };
             if (!string.IsNullOrEmpty(siteGuid))
             {
                 try

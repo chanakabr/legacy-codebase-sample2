@@ -1972,7 +1972,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Buy PPV With PP")]
         public string ChargeMediaWithPrepaid(InitializationObject initObj, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode)
         {
-            PrePaidResponseStatus oResponse = PrePaidResponseStatus.UnKnown;
+            TVPApiModule.Objects.Responses.PrePaidResponseStatus oResponse = TVPApiModule.Objects.Responses.PrePaidResponseStatus.UnKnown;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeMediaWithPrepaid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

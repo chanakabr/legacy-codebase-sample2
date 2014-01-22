@@ -73,7 +73,7 @@ namespace TVPApiServices
 
         #region Public Methods
 
-        public void Initialize(TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject userResponseObject)
+        public void Initialize(TVPApiModule.Objects.Responses.UserResponseObject userResponseObject)
         {
             //this.response_status = (TVPApiModule.Objects.CRM.ResponseStatus)userResponseObject.m_RespStatus;
             this.user_instance_id = userResponseObject.m_userInstanceID;

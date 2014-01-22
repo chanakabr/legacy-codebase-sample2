@@ -776,13 +776,13 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool AddItemToList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool AddItemToList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
             bool res = false;
 
             try
             {
-                UserItemList userItemList = new UserItemList()
+                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
                 {
                     itemObj = itemObjects,
                     itemType = itemType,
@@ -801,13 +801,13 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool RemoveItemFromList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool RemoveItemFromList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
             bool res = false;
 
             try
             {
-                UserItemList userItemList = new UserItemList()
+                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
                 {
                     itemObj = itemObjects,
                     itemType = itemType,
@@ -826,13 +826,13 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool UpdateItemInList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool UpdateItemInList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
             bool res = false;
 
             try
             {
-                UserItemList userItemList = new UserItemList()
+                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
                 {
                     itemObj = itemObjects,
                     itemType = itemType,
@@ -851,13 +851,13 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserItemList[] GetItemFromList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public TVPApiModule.Objects.Responses.UserItemList[] GetItemFromList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            UserItemList[] res = null;
+            TVPApiModule.Objects.Responses.UserItemList[] res = null;
 
             try
             {
-                UserItemList userItemList = new UserItemList()
+                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
                 {
                     itemObj = itemObjects,
                     itemType = itemType,
@@ -865,7 +865,9 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                res = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                var response = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                if (response != null)
+                    res = response.Select(i => i.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -876,13 +878,13 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public KeyValuePair[] IsItemExistsInList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public TVPApiModule.Objects.Responses.KeyValuePair[] IsItemExistsInList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            KeyValuePair[] res = null;
-
+            TVPApiModule.Objects.Responses.KeyValuePair[] res = null;
+            
             try
             {
-                UserItemList userItemList = new UserItemList()
+                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
                 {
                     itemObj = itemObjects,
                     itemType = itemType,
@@ -890,7 +892,9 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                res = m_Module.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+                var response = m_Module.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+                if (response != null)
+                    res = response.Select(kv => kv.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
