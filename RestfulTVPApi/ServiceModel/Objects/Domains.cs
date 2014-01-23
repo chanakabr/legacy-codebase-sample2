@@ -55,16 +55,6 @@ namespace RestfulTVPApi.ServiceModel
         public int domain_id { get; set; }
     }
 
-    #endregion
-
-    ////Move to api?
-    //[Route("/domains/{co_guid}", "GET", Summary = "Returns a domain ID using a 3rd party Co-GUID", Notes = "used when a device has an existing 3rd party association and identification number outside of the Tvinci system")]
-    //public class GetDomainIDByCoGuidRequest : RequestBase, IReturn<int>
-    //{
-    //    [ApiMember(Name = "co_guid", Description = "Domain Master Co-GUID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-    //    public string co_guid { get; set; }
-    //}
-
     [Route("/domains/{domain_id}/medias/permitted", "GET", Summary = "Gets all the items permitted for the users in a given domain", Notes = "Gets all the items permitted for the users in a given domain")]
     public class GetDomainPermittedItemsRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PermittedMediaContainer[]>
     {
@@ -78,6 +68,18 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
+
+    #endregion
+
+    ////Move to api?
+    //[Route("/domains/{co_guid}", "GET", Summary = "Returns a domain ID using a 3rd party Co-GUID", Notes = "used when a device has an existing 3rd party association and identification number outside of the Tvinci system")]
+    //public class GetDomainIDByCoGuidRequest : RequestBase, IReturn<int>
+    //{
+    //    [ApiMember(Name = "co_guid", Description = "Domain Master Co-GUID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+    //    public string co_guid { get; set; }
+    //}
+
+    
 
     #region POST
 
