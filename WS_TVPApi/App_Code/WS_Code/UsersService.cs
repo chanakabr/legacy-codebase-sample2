@@ -237,9 +237,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "GetCountriesList")]
-        public TVPApiModule.Objects.Responses.Country[] GetCountriesList(InitializationObject initObj)
+        public IEnumerable<TVPApiModule.Objects.Responses.Country> GetCountriesList(InitializationObject initObj)
         {
-            TVPApiModule.Objects.Responses.Country[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.Country> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetCountriesList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -275,9 +275,9 @@ namespace TVPApiServices
                 {
                     TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).CheckTemporaryToken(sToken);
 
-                    if (userResponseObject != null && userResponseObject.respStatus == TVPApiModule.Objects.Responses.ResponseStatus.OK)
+                    if (userResponseObject != null && userResponseObject.resp_status == TVPApiModule.Objects.Responses.ResponseStatus.OK)
                     {
-                        response = userResponseObject.user.basicData.userName;
+                        response = userResponseObject.user.basic_data.user_name;
                     }
                     else
                     {
@@ -298,9 +298,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "GetGroupUserTypes")]
-        public TVPApiModule.Objects.Responses.UserType[] GetGroupUserTypes(InitializationObject initObj)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserType> GetGroupUserTypes(InitializationObject initObj)
         {
-            TVPApiModule.Objects.Responses.UserType[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserType> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupUserTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -480,9 +480,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets Item From List")]
-        public TVPApiModule.Objects.Responses.UserItemList[] GetItemFromList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserItemList> GetItemFromList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            TVPApiModule.Objects.Responses.UserItemList[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserItemList> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetItemFromList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -506,9 +506,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Is Item Exists In List")]
-        public TVPApiModule.Objects.Responses.KeyValuePair[] IsItemExistsInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public IEnumerable<TVPApiModule.Objects.Responses.KeyValuePair> IsItemExistsInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            TVPApiModule.Objects.Responses.KeyValuePair[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.KeyValuePair> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsItemExistsInList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

@@ -92,14 +92,14 @@ namespace TVPApiModule.Services
             return eRes;
         }
 
-        public TVPApiModule.Objects.Responses.UserSocialActionObject[] GetUserSocialActions(string siteGuid,
+        public IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> GetUserSocialActions(string siteGuid,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                       bool onlyFriends,
                                                                                                       int startIndex,
                                                                                                       int numOfItems)
         {
-            TVPApiModule.Objects.Responses.UserSocialActionObject[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> res = null;
 
             try
             {
@@ -130,7 +130,7 @@ namespace TVPApiModule.Services
                 }
 
                 if (response != null)
-                    res = response.Where(usa => usa != null).Select(u => u.ToApiObject()).ToArray();
+                    res = response.Where(usa => usa != null).Select(u => u.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -143,16 +143,16 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.FriendWatchedObject[] GetAllFriendsWatched(string sGuid, int maxResult)
+        public IEnumerable<TVPApiModule.Objects.Responses.FriendWatchedObject> GetAllFriendsWatched(string sGuid, int maxResult)
         {
-            TVPApiModule.Objects.Responses.FriendWatchedObject[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.FriendWatchedObject> res = null;
 
             try
             {
                 var response = m_Module.GetAllFriendsWatched(m_wsUserName, m_wsPassword, int.Parse(sGuid), maxResult);
 
                 if (response != null)
-                    res = response.Where(fw => fw != null).Select(fw => fw.ToApiObject()).ToArray();
+                    res = response.Where(fw => fw != null).Select(fw => fw.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -162,15 +162,15 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.FriendWatchedObject[] GetFriendsWatchedByMedia(string sGuid, int mediaId)
+        public IEnumerable<TVPApiModule.Objects.Responses.FriendWatchedObject> GetFriendsWatchedByMedia(string sGuid, int mediaId)
         {
-            TVPApiModule.Objects.Responses.FriendWatchedObject[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.FriendWatchedObject> res = null;
 
             try
             {
                 var response = m_Module.GetFriendsWatchedByMedia(m_wsUserName, m_wsPassword, int.Parse(sGuid), mediaId);
                 if (response != null)
-                    res = response.Where(fw => fw != null).Select(fw => fw.ToApiObject()).ToArray();
+                    res = response.Where(fw => fw != null).Select(fw => fw.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -181,9 +181,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public string[] GetUsersLikedMedia(string sSiteGuid, int iMediaID, int iPlatform, bool bOnlyFriends, int iStartIndex, int iPageSize)
+        public IEnumerable<string> GetUsersLikedMedia(string sSiteGuid, int iMediaID, int iPlatform, bool bOnlyFriends, int iStartIndex, int iPageSize)
         {
-            string[] res = null;
+            IEnumerable<string> res = null;
 
             try
             {
@@ -199,9 +199,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public string[] GetUserFriends(string sGuid)
+        public IEnumerable<string> GetUserFriends(string sGuid)
         {
-            string[] res = null;
+            IEnumerable<string> res = null;
 
             try
             {
@@ -304,15 +304,15 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.eSocialPrivacy[] GetUserAllowedSocialPrivacyList(string sGuid)
+        public IEnumerable<TVPApiModule.Objects.Responses.eSocialPrivacy> GetUserAllowedSocialPrivacyList(string sGuid)
         {
-            TVPApiModule.Objects.Responses.eSocialPrivacy[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.eSocialPrivacy> res = null;
 
             try
             {
                 var response = m_Module.GetUserAllowedSocialPrivacyList(m_wsUserName, m_wsPassword, int.Parse(sGuid));
                 if (response != null)
-                    res = response.Select(sp => (TVPApiModule.Objects.Responses.eSocialPrivacy)sp).ToArray();
+                    res = response.Select(sp => (TVPApiModule.Objects.Responses.eSocialPrivacy)sp);
 
             }
             catch (Exception ex)
@@ -339,9 +339,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.UserSocialActionObject[] GetUserActions(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> GetUserActions(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
         {
-            TVPApiModule.Objects.Responses.UserSocialActionObject[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> res = null;
 
             try
             {
@@ -359,7 +359,7 @@ namespace TVPApiModule.Services
 
                 var response = m_Module.GetUserActions(m_wsUserName, m_wsPassword, request);
                 if (response != null)
-                    res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToArray();
+                    res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -369,9 +369,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.UserSocialActionObject[] GetFriendsActions(string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> GetFriendsActions(string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
         {
-            TVPApiModule.Objects.Responses.UserSocialActionObject[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> res = null;
 
             try
             {
@@ -394,7 +394,7 @@ namespace TVPApiModule.Services
 
                 var response = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, request);
                 if (response != null)
-                    res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToArray();
+                    res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject());
             }
             catch (Exception ex)
             {

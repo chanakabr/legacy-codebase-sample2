@@ -40,11 +40,11 @@ public class RSSWriter
             {
                 m_writer.WriteStartElement("item");
 
-                m_writer.WriteElementString("title", pg.GroupTitle);
+                m_writer.WriteElementString("title", pg.group_title);
 
                 m_writer.WriteElementString("description", pg.MainDescription);
 
-                m_writer.WriteElementString("link", string.Format(nextOP, pg.GalleryID, page.ID));
+                m_writer.WriteElementString("link", string.Format(nextOP, pg.gallery_id, page.ID));
 
                 m_writer.WriteEndElement();
 
@@ -61,23 +61,23 @@ public class RSSWriter
 
         m_writer.WriteStartElement("channel");
 
-        m_writer.WriteElementString("title", pg.GroupTitle);
+        m_writer.WriteElementString("title", pg.group_title);
 
         m_writer.WriteElementString("link", string.Empty);
 
         m_writer.WriteElementString("description", pg.MainDescription);
 
-        foreach (GalleryItem galleryItem in pg.GalleryItems)
+        foreach (GalleryItem galleryItem in pg.gallery_items)
         {
             m_writer.WriteStartElement("item");
-            int numOfItems = galleryItem.NumberOfItemsPerPage;
-            m_writer.WriteElementString("title", galleryItem.Title);
+            int numOfItems = galleryItem.number_of_items_per_page;
+            m_writer.WriteElementString("title", galleryItem.title);
             string fileType = ConfigManager.GetInstance().GetConfig(93, PlatformType.STB).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
-            TVMAccountType account = new PageData(93, PlatformType.STB).GetTVMAccountByUser(galleryItem.TVMUser);
-            if (galleryItem.BooleanParam)
+            TVMAccountType account = new PageData(93, PlatformType.STB).GetTVMAccountByUser(galleryItem.tvm_user);
+            if (galleryItem.boolean_param)
             {
-                UserItemType userItemType = (UserItemType)galleryItem.NumericParam;
-                string picSize = galleryItem.PictureSize;
+                UserItemType userItemType = (UserItemType)galleryItem.numeric_param;
+                string picSize = galleryItem.picture_size;
                 string[] picStr = picSize.ToLower().Split('x');
                // m_writer.WriteElementString("link", string.Concat(LinkHelper.ParseURL(ConfigurationManager.AppSettings["RSSGatewayPath"]), string.Format("PTVGateway.aspx?op=GetFavoriteItems&height={0}&width={1}&itemtype=3", picStr[0], picStr[1])));
                 
@@ -92,7 +92,7 @@ public class RSSWriter
                 HttpContext.Current.Items["Platform"] = PlatformType.STB;
                 
                 string mediaStr = GetIDsString(userItems);
-                string rssFeed = string.Concat(TVPPro.SiteManager.Helper.SiteHelper.GetRssPathWithMediaIDS(account.BaseGroupID, mediaStr, "director,Director,actors,starring", galleryItem.PictureSize, "HIGH", fileType), "&pic_resize=1", "&with_image_in_description=0", "&index=0", string.Format("&num_of_items={0}", numOfItems));
+                string rssFeed = string.Concat(TVPPro.SiteManager.Helper.SiteHelper.GetRssPathWithMediaIDS(account.BaseGroupID, mediaStr, "director,Director,actors,starring", galleryItem.picture_size, "HIGH", fileType), "&pic_resize=1", "&with_image_in_description=0", "&index=0", string.Format("&num_of_items={0}", numOfItems));
                 
                 m_writer.WriteElementString("link", rssFeed);
             }
@@ -100,9 +100,9 @@ public class RSSWriter
             else
             {
 
-                m_writer.WriteElementString("link", string.Concat(TVPPro.SiteManager.Helper.SiteHelper.GetRssPath(account.BaseGroupID, galleryItem.TVMChannelID, galleryItem.PictureSize, "HIGH", fileType), "&pic_resize=1", "&with_image_in_description=0", "&roles=director,Director,actors,starring", "&index=0", string.Format("&num_of_items={0}", numOfItems)));
+                m_writer.WriteElementString("link", string.Concat(TVPPro.SiteManager.Helper.SiteHelper.GetRssPath(account.BaseGroupID, galleryItem.tvm_channel_id, galleryItem.picture_size, "HIGH", fileType), "&pic_resize=1", "&with_image_in_description=0", "&roles=director,Director,actors,starring", "&index=0", string.Format("&num_of_items={0}", numOfItems)));
             }
-            m_writer.WriteElementString("description", galleryItem.MainDescription);
+            m_writer.WriteElementString("description", galleryItem.main_description);
             //Todo - get group ID dynamically from channel or gallery
             
            
@@ -127,7 +127,7 @@ public class RSSWriter
                     sb.Append(",");
                    
                 }
-                sb.Append(media.mediaID);
+                sb.Append(media.media_id);
                 isFirst = false;
             }
         }
@@ -153,7 +153,7 @@ public class RSSWriter
                 //Start Item
                 m_writer.WriteStartElement("item");
 
-                m_writer.WriteElementString("title", media.mediaName);
+                m_writer.WriteElementString("title", media.media_name);
 
                 m_writer.WriteElementString("link", media.url);
                 //Todo - get group ID dynamically from channel or gallery
@@ -172,13 +172,13 @@ public class RSSWriter
                 m_writer.WriteAttributeString("length", "56499232");
                 m_writer.WriteAttributeString("url", media.url);
                 m_writer.WriteAttributeString("type", "video/x-ms-wmv");
-                m_writer.WriteAttributeString("alt", media.mediaName);
+                m_writer.WriteAttributeString("alt", media.media_name);
                 //End Enclosure
                 m_writer.WriteEndElement();
 
                 //Start image
                 m_writer.WriteStartElement("image");
-                string pic = string.Format(@"http://platform-us.tvinci.com/pic_resize_tool.aspx?h={0}&w={1}&c=true&u={2}", height, width, media.picURL);
+                string pic = string.Format(@"http://platform-us.tvinci.com/pic_resize_tool.aspx?h={0}&w={1}&c=true&u={2}", height, width, media.pic_url);
                 m_writer.WriteElementString("url", XMLEncode(pic, true));
                 m_writer.WriteEndElement();
                 //End item

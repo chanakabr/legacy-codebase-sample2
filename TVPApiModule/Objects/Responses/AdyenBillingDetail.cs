@@ -7,6 +7,6 @@ namespace TVPApiModule.Objects.Responses
 {
     public class AdyenBillingDetail
     {
-        public BillingInfo billingInfo { get; set; }
+        public BillingInfo billing_info { get; set; }
     }
 }

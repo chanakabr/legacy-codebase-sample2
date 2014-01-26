@@ -9,6 +9,6 @@ namespace TVPApiModule.Objects.Responses
     {
         public int item { get; set; }
 
-        public int? orderNum { get; set; }
+        public int? order_num { get; set; }
     }
 }

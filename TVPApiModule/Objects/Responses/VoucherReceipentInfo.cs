@@ -7,9 +7,9 @@ namespace TVPApiModule.Objects.Responses
 {
     public class VoucherReceipentInfo
     {
-        public string emailAdd { get; set; }
+        public string email_add { get; set; }
 
-        public string receipentName { get; set; }
+        public string receipent_name { get; set; }
     }
 
 }

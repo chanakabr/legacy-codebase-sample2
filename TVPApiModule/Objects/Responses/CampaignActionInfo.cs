@@ -8,19 +8,19 @@ namespace TVPApiModule.Objects.Responses
     public class CampaignActionInfo
     {
 
-        public VoucherReceipentInfo[] voucherReceipents { get; set; }
+        public VoucherReceipentInfo[] voucher_receipents { get; set; }
        
-        public SocialInviteInfo socialInviteInfo { get; set; }
+        public SocialInviteInfo social_invite_info { get; set; }
         
-        public int mediaID { get; set; }
+        public int media_id { get; set; }
         
-        public int siteGuid { get; set; }
+        public int site_guid { get; set; }
        
-        public string mediaLink { get; set; }
+        public string media_link { get; set; }
         
-        public string senderName { get; set; }
+        public string sender_name { get; set; }
 
-        public string senderEmail { get; set; }
+        public string sender_email { get; set; }
         
         public CampaignActionResult status { get; set; }
     }

@@ -7,17 +7,17 @@ namespace TVPApiModule.Objects.Responses
 {
     public class MediaMarkObject
     {
-        public int groupID { get; set; }
+        public int group_id { get; set; }
 
-        public string siteGUID { get; set; }
+        public string site_guid { get; set; }
 
-        public int mediaID { get; set; }
+        public int media_id { get; set; }
 
-        public int locationSec { get; set; }
+        public int location_sec { get; set; }
 
-        public string deviceName { get; set; }
+        public string device_name { get; set; }
 
-        public string deviceID { get; set; }
+        public string device_id { get; set; }
 
         public MediaMarkObjectStatus status { get; set; }
     }

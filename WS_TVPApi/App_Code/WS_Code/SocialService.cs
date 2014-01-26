@@ -26,7 +26,7 @@ namespace TVPApiServices
         private readonly ILog logger = LogManager.GetLogger(typeof(SocialService));
 
         [WebMethod(EnableSession = true, Description = "Get all medias that user's friends watched")]
-        public TVPApiModule.Objects.Responses.FriendWatchedObject[] GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult)
+        public IEnumerable<TVPApiModule.Objects.Responses.FriendWatchedObject> GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAllFriendsWatched", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -51,7 +51,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all friends that watched the specified media")]
-        public TVPApiModule.Objects.Responses.FriendWatchedObject[] GetFriendsWatchedByMedia(InitializationObject initObj, string siteGuid, int mediaId)
+        public IEnumerable<TVPApiModule.Objects.Responses.FriendWatchedObject> GetFriendsWatchedByMedia(InitializationObject initObj, string siteGuid, int mediaId)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsWatchedByMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -77,7 +77,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all friends that liked a media")]
-        public string[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize)
+        public IEnumerable<string> GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersLikedMedia", initObj.ApiUser, initObj.ApiPass,
                                                       SiteHelper.GetClientIP());
@@ -104,7 +104,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all user's friends")]
-        public string[] GetUserFriends(InitializationObject initObj, string siteGuid)
+        public IEnumerable<string> GetUserFriends(InitializationObject initObj, string siteGuid)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFriends", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -142,8 +142,8 @@ namespace TVPApiServices
                     TVPApiModule.Objects.Responses.FacebookConfig config = service.GetFBConfig(sSTG);
                     FBConnectConfig retVal = new FBConnectConfig
                         {
-                            appId = config.fbKey,
-                            scope = config.fbPermissions,
+                            appId = config.fb_key,
+                            scope = config.fb_permissions,
                             apiUser = initObj.ApiUser,
                             apiPass = initObj.ApiPass
                         };
@@ -256,7 +256,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user allowed social privacy list")]
-        public TVPApiModule.Objects.Responses.eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid)
+        public IEnumerable<TVPApiModule.Objects.Responses.eSocialPrivacy> GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserAllowedSocialPrivacyList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -300,7 +300,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets user actions")]
-        public TVPApiModule.Objects.Responses.UserSocialActionObject[] GetUserActions(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> GetUserActions(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -320,7 +320,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets friends actions")]
-        public TVPApiModule.Objects.Responses.UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)

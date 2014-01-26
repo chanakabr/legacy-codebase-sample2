@@ -13,7 +13,7 @@ namespace TVPApi
     public class Menu
     {
         public long id { get; set; }
-        public List<MenuItem> menuItems { get; set; }
+        public List<MenuItem> menu_items { get; set; }
         public TVPApi.MenuBuilder.MenuType type { get; set; }
 
         public Menu()
@@ -25,8 +25,8 @@ namespace TVPApi
         {
             MenuItem retVal = null;
 
-            IEnumerable<MenuItem> menuItemList = from items in menuItems
-                                              where items.ID == ID
+            IEnumerable<MenuItem> menuItemList = from items in menu_items
+                                              where items.id == ID
                                               select items;
 
             if (menuItemList != null && menuItemList.Count() == 1)

@@ -9,7 +9,7 @@ namespace TVPApiModule.Objects
 {
     public class PermittedPackages
     {
-        public PermittedSubscriptionContainer permittedSubscriptions { get; set; }
+        public PermittedSubscriptionContainer permitted_subscriptions { get; set; }
 
         public Media package { get; set; }
     }

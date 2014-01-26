@@ -56,9 +56,9 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public MediaFilePPVModule[] GetPPVModuleListForMediaFiles(int[] mediaFiles, string sCountry, string sLanguage, string sDevice)
+        public IEnumerable<MediaFilePPVModule> GetPPVModuleListForMediaFiles(int[] mediaFiles, string sCountry, string sLanguage, string sDevice)
         {
-            MediaFilePPVModule[] response = null;
+            IEnumerable<MediaFilePPVModule> response = null;
             try
             {
                 response = m_Module.GetPPVModuleListForMediaFiles(m_wsUserName, m_wsPassword, mediaFiles, sCountry, sLanguage, sDevice);
@@ -75,16 +75,16 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.Subscription[] GetSubscriptionsContainingMediaFile(int iMediaID, int iMediaFileID)
+        public IEnumerable<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingMediaFile(int iMediaID, int iMediaFileID)
         {
-            TVPApiModule.Objects.Responses.Subscription[] subscriptions = null;
+            IEnumerable<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
 
             try
             {
                 var response = m_Module.GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
                 if (response != null)
                 {
-                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToArray();
+                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject());
                 }
             }
             catch (Exception ex)
@@ -147,9 +147,9 @@ namespace TVPApiModule.Services
             return couponStatus;
         }
 
-        public Campaign[] GetCampaignsByType(CampaignTrigger trigger, bool isAlsoInactive, string udid)
+        public IEnumerable<Campaign> GetCampaignsByType(CampaignTrigger trigger, bool isAlsoInactive, string udid)
         {
-            Campaign[] campaigns = null;
+            IEnumerable<Campaign> campaigns = null;
             try
             {
                 campaigns = m_Module.GetCampaignsByType(m_wsUserName, m_wsPassword, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
@@ -162,9 +162,9 @@ namespace TVPApiModule.Services
             return campaigns;
         }
 
-        public int[] GetSubscriptionIDsContainingMediaFile(int iMediaID, int iMediaFileID)
+        public IEnumerable<int> GetSubscriptionIDsContainingMediaFile(int iMediaID, int iMediaFileID)
         {
-            int[] subscriptions = null;
+            IEnumerable<int> subscriptions = null;
 
             try
             {
@@ -178,10 +178,9 @@ namespace TVPApiModule.Services
             return subscriptions;
         }
 
-
-        public List<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingUserTypes(int isActive, int[] userTypesIDs)
+        public IEnumerable<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingUserTypes(int isActive, int[] userTypesIDs)
         {
-            List<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
+            IEnumerable<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
             string sUserTypesIDs = string.Empty;
 
             try
@@ -189,7 +188,7 @@ namespace TVPApiModule.Services
                 var response = m_Module.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
                 if (response != null)
                 {
-                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
+                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject());
                 }
             }
             catch (Exception ex)
@@ -203,8 +202,6 @@ namespace TVPApiModule.Services
 
             return subscriptions;
         }
-
-
 
         #endregion
     }

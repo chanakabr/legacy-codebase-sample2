@@ -11,8 +11,8 @@ namespace TVPApiModule.Objects.Responses
 
         public string name { get; set; }
 
-        public int fullLifeCycle { get; set; }
+        public int full_life_cycle { get; set; }
 
-        public int nonRenewPeriod { get; set; }
+        public int non_renew_period { get; set; }
     }
 }

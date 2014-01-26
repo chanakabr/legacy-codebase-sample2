@@ -9,6 +9,6 @@ namespace TVPApiModule.Objects.Responses
     {
         public Device device { get; set; }
 
-        public DeviceResponseStatus deviceResponseStatus { get; set; }
+        public DeviceResponseStatus device_response_status { get; set; }
     }
 }

@@ -11,6 +11,6 @@ namespace TVPApiModule.Objects.Responses
 
         public string description { get; set; }
 
-        public bool isDefault { get; set; }
+        public bool is_default { get; set; }
     }
 }

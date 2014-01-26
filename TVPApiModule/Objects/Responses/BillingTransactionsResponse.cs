@@ -9,6 +9,6 @@ namespace TVPApiModule.Objects.Responses
     {
         public BillingTransactionContainer[] transactions { get; set; }
        
-        public int transactionsCount { get; set; }
+        public int transactions_count { get; set; }
     }
 }

@@ -7,8 +7,8 @@ namespace TVPApiModule.Objects.Responses
 {
     public class UIData
     {
-        public string colorCode { get; set; }
+        public string color_code { get; set; }
 
-        public int picID { get; set; }
+        public int pic_id { get; set; }
     }
 }

@@ -7,10 +7,10 @@ namespace TVPApiModule.Objects.Responses
 {
     public class Country
     {
-        public int objectID { get; set; }
+        public int object_id { get; set; }
 
-        public string countryName { get; set; }
+        public string country_name { get; set; }
 
-        public string countryCode { get; set; }
+        public string country_code { get; set; }
     }
 }

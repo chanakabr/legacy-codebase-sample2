@@ -11,6 +11,6 @@ namespace TVPApi
 
         public string currency { get; set; }
 
-        public string subscriptionCode { get; set; }
+        public string subscription_code { get; set; }
     }
 }

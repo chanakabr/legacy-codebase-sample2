@@ -7,12 +7,12 @@ namespace TVPApiModule.Objects.Responses
 {
     public class UserItemList
     {
-        public string siteGuid { get; set; }
+        public string site_guid { get; set; }
 
-        public ItemObj[] itemObj { get; set; }
+        public ItemObj[] item_obj { get; set; }
 
-        public ListType listType { get; set; }
+        public ListType list_type { get; set; }
 
-        public ItemType itemType { get; set; }
+        public ItemType item_type { get; set; }
     }
 }

@@ -7,24 +7,24 @@ namespace TVPApiModule.Objects.Responses
 {
     public class PermittedMediaContainer
     {
-        public int mediaID { get; set; }
+        public int media_id { get; set; }
 
-        public int mediaFileID { get; set; }
+        public int media_file_id { get; set; }
 
-        public int maxUses { get; set; }
+        public int max_uses { get; set; }
 
-        public int currentUses { get; set; }
+        public int current_uses { get; set; }
 
-        public DateTime endDate { get; set; }
+        public DateTime end_date { get; set; }
 
-        public DateTime currentDate { get; set; }
+        public DateTime current_date { get; set; }
 
-        public DateTime purchaseDate { get; set; }
+        public DateTime purchase_date { get; set; }
 
-        public PaymentMethod purchaseMethod { get; set; }
+        public PaymentMethod purchase_method { get; set; }
 
-        public string deviceUDID { get; set; }
+        public string device_udid { get; set; }
 
-        public string deviceName { get; set; }
+        public string device_name { get; set; }
     }
 }

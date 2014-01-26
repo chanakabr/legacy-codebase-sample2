@@ -106,8 +106,8 @@ namespace TVPApi
                 foreach (GalleryItem item in items)
                 {
                     ActivaGalleryItem activaItem = new ActivaGalleryItem();
-                    activaItem.functionID = item.TVMChannelID.ToString();
-                    activaItem.functionName = item.Title;
+                    activaItem.functionID = item.tvm_channel_id.ToString();
+                    activaItem.functionName = item.title;
                     if (retVal.content == null)
                     {
                         retVal.content = new List<ActivaGalleryItem>();
@@ -131,7 +131,7 @@ namespace TVPApi
             if (media != null)
             {
                 retVal = new ActivaFile();
-                string fileID = media.fileID;
+                string fileID = media.file_id;
 
             }
             return retVal;
@@ -146,15 +146,15 @@ namespace TVPApi
                 string wsUser = string.Empty;
                 GetWSUserPass(groupID, ref wsUser, ref wsPass);
                 long mediaCount = 0;
-                List<Media> mediaList = new APIChannelMediaLoader((int)item.TVMChannelID, groupID, platform, GetInitObj().UDID, SiteHelper.GetClientIP(), items, index, "full", GetInitObj().Locale.LocaleLanguage, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.OR)
+                List<Media> mediaList = new APIChannelMediaLoader((int)item.tvm_channel_id, groupID, platform, GetInitObj().UDID, SiteHelper.GetClientIP(), items, index, "full", GetInitObj().Locale.LocaleLanguage, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.OR)
                 {
                     UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
                 }.Execute() as List<Media>;
                 retVal = ParseChannelToActivaChannel(mediaList, mediaCount, groupID, platform);
-                retVal.sectionTitle = item.Title;
+                retVal.sectionTitle = item.title;
                 retVal.test = "TestVal";
                 //retVal.itemsCount = mediaCount;
-                retVal.status = string.Format("{0} - {1}" ,groupID.ToString(), item.TVMChannelID);
+                retVal.status = string.Format("{0} - {1}" ,groupID.ToString(), item.tvm_channel_id);
             }
             return retVal;
         }
@@ -172,10 +172,10 @@ namespace TVPApi
                 {
                     ActivaMedia activaMedia = new ActivaMedia();
                     AdMetaToMedia(activaMedia, media);
-                    activaMedia.assetName = media.mediaName;
+                    activaMedia.assetName = media.media_name;
                     activaMedia.midDescription = media.description;
-                    activaMedia.assetDate = media.creationDate.ToString("dd/MM/yyyy");
-                    activaMedia.unique_ID = media.mediaID;
+                    activaMedia.assetDate = media.creation_date.ToString("dd/MM/yyyy");
+                    activaMedia.unique_ID = media.media_id;
                     activaMedia.videoURL = media.url;
 
                     if (!string.IsNullOrEmpty(activaMedia.videoURL))
@@ -186,18 +186,18 @@ namespace TVPApi
                     {
                         activaMedia.assetDuration = int.Parse(media.duration);
                     }
-                    if (!string.IsNullOrEmpty(media.picURL))
+                    if (!string.IsNullOrEmpty(media.pic_url))
                     {
-                        activaMedia.assetSmallThumbnail = GetSizedImage(media.picURL, "160X90"); //old "138X90"
-                        activaMedia.assetMedThumbnail = GetSizedImage(media.picURL, "144X108"); //old "143X105"
-                        activaMedia.assetBigThumbnail = GetSizedImage(media.picURL, "400X225"); //old 824X460
+                        activaMedia.assetSmallThumbnail = GetSizedImage(media.pic_url, "160X90"); //old "138X90"
+                        activaMedia.assetMedThumbnail = GetSizedImage(media.pic_url, "144X108"); //old "143X105"
+                        activaMedia.assetBigThumbnail = GetSizedImage(media.pic_url, "400X225"); //old 824X460
                     }
 
-                    if (!string.IsNullOrEmpty(media.fileID) && media.fileID != "0")
+                    if (!string.IsNullOrEmpty(media.file_id) && media.file_id != "0")
                     {
 
-                        filesArr[counter] = int.Parse(media.fileID);
-                        string breakPoints = GetBreakPoints(int.Parse(media.fileID), ref activaMedia.preProvider, ref activaMedia.postProvider, ref activaMedia.cueProvider);
+                        filesArr[counter] = int.Parse(media.file_id);
+                        string breakPoints = GetBreakPoints(int.Parse(media.file_id), ref activaMedia.preProvider, ref activaMedia.postProvider, ref activaMedia.cueProvider);
                         if (!string.IsNullOrEmpty(breakPoints))
                         {
                             int breakCount = 1;
@@ -217,7 +217,7 @@ namespace TVPApi
                                 breakCount++;
                             }
                         }
-                        filesDict.Add(media.fileID, activaMedia);
+                        filesDict.Add(media.file_id, activaMedia);
                         counter++;
                         //Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> prices = ConditionalAccessService.Instance.GetItemsPrice(filesArr, false);
                     }
@@ -230,8 +230,8 @@ namespace TVPApi
                         retVal.content.Add(activaMedia);
                     }
                 }
-                MediaFilePPVModule[] modules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFiles(filesArr, string.Empty, string.Empty, string.Empty);
-                if (modules != null && modules.Length > 0)
+                IEnumerable<MediaFilePPVModule> modules = new ApiPricingService(groupID, platform).GetPPVModuleListForMediaFiles(filesArr, string.Empty, string.Empty, string.Empty);
+                if (modules != null && modules.Count() > 0)
                 {
                     foreach (MediaFilePPVModule module in modules)
                     {
@@ -283,28 +283,28 @@ namespace TVPApi
                         string tvmUser = string.Empty;
                         string tvmPass = string.Empty;
                         ActivaInnerCategory innerRetVal = new ActivaInnerCategory();
-                        innerRetVal.categoryName = pg.GroupTitle;
-                        innerRetVal.categoryID = pg.GalleryID.ToString();
-                        if (pg.GalleryItems != null)
+                        innerRetVal.categoryName = pg.group_title;
+                        innerRetVal.categoryID = pg.gallery_id.ToString();
+                        if (pg.gallery_items != null)
                         {
-                            string[] picsArr = new string[pg.GalleryItems.Count];
+                            string[] picsArr = new string[pg.gallery_items.Count];
                             StringBuilder sb = new StringBuilder();
                             int picsCount = 0;
                             List<ActivaCategoryChannel> picGalleries = new List<ActivaCategoryChannel>();
-                            foreach (GalleryItem gi in pg.GalleryItems)
+                            foreach (GalleryItem gi in pg.gallery_items)
                             {
                                 if (string.IsNullOrEmpty(tvmPass))
                                 {
-                                    if (!string.IsNullOrEmpty(gi.TVMPass))
+                                    if (!string.IsNullOrEmpty(gi.tvm_pass))
                                     {
-                                        tvmPass = gi.TVMPass;
+                                        tvmPass = gi.tvm_pass;
                                     }
                                 }
                                 if (string.IsNullOrEmpty(tvmUser))
                                 {
-                                    if (!string.IsNullOrEmpty(gi.TVMUser))
+                                    if (!string.IsNullOrEmpty(gi.tvm_user))
                                     {
-                                        tvmUser = gi.TVMUser;
+                                        tvmUser = gi.tvm_user;
                                     }
                                 }
                                 if (innerRetVal.categoryItems == null)
@@ -313,18 +313,18 @@ namespace TVPApi
                                 }
                                 
                                 ActivaCategoryChannel retChannel = new ActivaCategoryChannel();
-                                retChannel.SectionID = gi.TVMChannelID.ToString();
-                                retChannel.premium = gi.BooleanParam;
-                                retChannel.SectionTitle = gi.Title;
-                                if (!string.IsNullOrEmpty(gi.MainPic.ToString()) && gi.MainPic != 0)
+                                retChannel.SectionID = gi.tvm_channel_id.ToString();
+                                retChannel.premium = gi.boolean_param;
+                                retChannel.SectionTitle = gi.title;
+                                if (!string.IsNullOrEmpty(gi.main_pic.ToString()) && gi.main_pic != 0)
                                 {
-                                    picsArr[picsCount] = gi.MainPic.ToString();
+                                    picsArr[picsCount] = gi.main_pic.ToString();
                                     if (!string.IsNullOrEmpty(sb.ToString()))
                                     {
                                         sb.Append(",");
                                     }
-                                    sb.Append(gi.MainPic.ToString());
-                                    retChannel.smallThumbnail = gi.MainPic.ToString();
+                                    sb.Append(gi.main_pic.ToString());
+                                    retChannel.smallThumbnail = gi.main_pic.ToString();
                                     picGalleries.Add(retChannel);
                                     picsCount++;
                                 }
@@ -333,7 +333,7 @@ namespace TVPApi
                                     innerRetVal.categoryItems.Add(retChannel);
                                 }
                             }
-                            SerializableDictionary<string, string> picsDict = new PicLoader(picsArr, "120X90", tvmUser, tvmPass) { PicsIDStr = sb.ToString(), PageSize = pg.GalleryItems.Count }.Execute();
+                            SerializableDictionary<string, string> picsDict = new PicLoader(picsArr, "120X90", tvmUser, tvmPass) { PicsIDStr = sb.ToString(), PageSize = pg.gallery_items.Count }.Execute();
                             foreach (ActivaCategoryChannel gallItem in picGalleries)
                             {
                                 if (picsDict.ContainsKey(gallItem.smallThumbnail))
@@ -355,9 +355,9 @@ namespace TVPApi
             ActivaCategory retVal = new ActivaCategory();
             if (cat != null)
             {
-                if (cat.innerCategories != null)
+                if (cat.inner_categories != null)
                 {
-                    foreach (Category innerCat in cat.innerCategories)
+                    foreach (Category innerCat in cat.inner_categories)
                     {
                         if (retVal.content == null)
                         {
@@ -374,7 +374,7 @@ namespace TVPApi
                                     innerRetVal.categoryItems = new List<ActivaCategoryChannel>();
                                 }
                                 ActivaCategoryChannel retChannel = new ActivaCategoryChannel();
-                                retChannel.SectionID = channel.channelID.ToString();
+                                retChannel.SectionID = channel.channel_id.ToString();
                                 retChannel.SectionTitle = channel.title;
                                 innerRetVal.categoryItems.Add(retChannel);
                             }

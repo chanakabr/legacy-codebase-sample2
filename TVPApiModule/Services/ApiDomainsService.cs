@@ -178,15 +178,15 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public TVPApiModule.Objects.Responses.Domain[] GetDeviceDomains(string udid)
+        public IEnumerable<TVPApiModule.Objects.Responses.Domain> GetDeviceDomains(string udid)
         {
-            TVPApiModule.Objects.Responses.Domain[] domains = null;
+            IEnumerable<TVPApiModule.Objects.Responses.Domain> domains = null;
 
             try
             {
                 var response = m_Module.GetDeviceDomains(m_wsUserName, m_wsPassword, udid);
                 if (response != null)
-                    domains = response.Where(d => d != null).Select(d => d.ToApiObject()).ToArray();
+                    domains = response.Where(d => d != null).Select(d => d.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -370,9 +370,9 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public int[] GetDomainIDsByOperatorCoGuid(string operatorCoGuid)
+        public IEnumerable<int> GetDomainIDsByOperatorCoGuid(string operatorCoGuid)
         {
-            int[] response = null;
+            IEnumerable<int> response = null;
 
             try
             {

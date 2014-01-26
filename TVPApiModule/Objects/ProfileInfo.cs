@@ -37,7 +37,7 @@ namespace TVPApi
                 if (m_Profile != null && m_Profile.Galleries != null)
                 {
                     retVal = (from galleries in m_Profile.Galleries
-                              select galleries.GalleryID).ToList<long>();
+                              select galleries.gallery_id).ToList<long>();
                 }
                 return retVal;
             }

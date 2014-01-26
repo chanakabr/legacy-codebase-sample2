@@ -263,7 +263,7 @@
     <Compile Include="Objects\Locale.cs" />
     <Compile Include="Objects\Responses\Media.cs" />
     <Compile Include="Objects\Responses\Menu.cs" />
-    <Compile Include="Objects\MenuItem.cs" />
+    <Compile Include="Objects\Responses\MenuItem.cs" />
     <Compile Include="Objects\Responses\PageData.cs" />
     <Compile Include="Objects\PageInfo.cs" />
     <Compile Include="Objects\Responses\PermittedPackages.cs" />

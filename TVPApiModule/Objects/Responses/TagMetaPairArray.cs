@@ -7,7 +7,8 @@ namespace TVPApi
 {
     public struct TagMetaPairArray
     {
-        public string Key { get; set; }
-        public string[] Values { get; set; }
+        public string key { get; set; }
+
+        public string[] values { get; set; }
     }
 }

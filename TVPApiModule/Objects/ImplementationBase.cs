@@ -66,23 +66,23 @@ namespace TVPApiModule.Objects
         {
             bool bRet = false;
 
-            TVPApiModule.Objects.Responses.MediaFileItemPricesContainer[] prices = new ApiConditionalAccessService(_nGroupID, _initObj.Platform).GetItemsPrice(new int[] { iFileID }, sUserGuid, true);
+            IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> prices = new ApiConditionalAccessService(_nGroupID, _initObj.Platform).GetItemsPrice(new int[] { iFileID }, sUserGuid, true);
 
             TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mediaPrice = null;
             foreach (TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mp in prices)
             {
-                if (mp.mediaFileID == iFileID)
+                if (mp.media_file_id == iFileID)
                 {
                     mediaPrice = mp;
                     break;
                 }
             }
 
-            if (mediaPrice != null && mediaPrice.itemPrices != null && mediaPrice.itemPrices.Length > 0)
+            if (mediaPrice != null && mediaPrice.item_prices != null && mediaPrice.item_prices.Length > 0)
             {
-                TVPApi.PriceReason priceReason = (TVPApi.PriceReason)mediaPrice.itemPrices[0].priceReason;
+                TVPApi.PriceReason priceReason = (TVPApi.PriceReason)mediaPrice.item_prices[0].price_reason;
 
-                bRet = mediaPrice.itemPrices[0].price.price == 0 &&
+                bRet = mediaPrice.item_prices[0].price.price == 0 &&
                        (priceReason == TVPApi.PriceReason.PPVPurchased ||
                         priceReason == TVPApi.PriceReason.SubscriptionPurchased ||
                         priceReason == TVPApi.PriceReason.PrePaidPurchased ||

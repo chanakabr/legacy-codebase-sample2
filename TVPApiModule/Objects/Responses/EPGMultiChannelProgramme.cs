@@ -7,9 +7,9 @@ namespace TVPApiModule.Objects.Responses
 {
     public class EPGMultiChannelProgrammeObject
     {
-        public string epgChannelID { get; set; }
+        public string epg_channel_id { get; set; }
 
-        public EPGChannelProgrammeObject[] epgChannelProgramObject { get; set; }
+        public EPGChannelProgrammeObject[] epg_channel_program_object { get; set; }
     }
 
 }

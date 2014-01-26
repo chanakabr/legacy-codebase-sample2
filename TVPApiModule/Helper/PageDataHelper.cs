@@ -121,7 +121,7 @@ public class PageDataHelper
         //Group the galleries by family num
         Dictionary<long, List<PageGallery>> galleriesByFamilies =
             (from p in PageGalleryList
-             group p by p.FamilyID).ToDictionary(gr => gr.Key, gr => gr.ToList());
+             group p by p.family_id).ToDictionary(gr => gr.Key, gr => gr.ToList());
 
         List<PageGallery> galleryList = new List<PageGallery>();
         TVPApi.LocaleUserState localeUserState = locale.LocaleUserState;
@@ -157,16 +157,16 @@ public class PageDataHelper
     //Check if a gallery fits the locale
     private static bool IsGalleryInLocale(PageGallery pg, Locale locale, TVPApi.LocaleUserState localeUserState)
     {
-        if (pg.Locale_Langs != null && !string.IsNullOrEmpty(locale.LocaleLanguage) && !pg.Locale_Langs.Contains(locale.LocaleLanguage))
+        if (pg.locale_langs != null && !string.IsNullOrEmpty(locale.LocaleLanguage) && !pg.locale_langs.Contains(locale.LocaleLanguage))
             return false;
 
-        if (pg.Locale_Devices != null && !string.IsNullOrEmpty(locale.LocaleDevice) && !pg.Locale_Devices.Contains(locale.LocaleDevice))
+        if (pg.locale_devices != null && !string.IsNullOrEmpty(locale.LocaleDevice) && !pg.locale_devices.Contains(locale.LocaleDevice))
             return false;
 
-        if (pg.Locale_Countrys != null && !string.IsNullOrEmpty(locale.LocaleCountry) && !pg.Locale_Countrys.Contains(locale.LocaleCountry))
+        if (pg.locale_countrys != null && !string.IsNullOrEmpty(locale.LocaleCountry) && !pg.locale_countrys.Contains(locale.LocaleCountry))
             return false;
 
-        if (pg.Locale_UserStates != null && localeUserState != TVPApi.LocaleUserState.Unknown && !pg.Locale_UserStates.Contains((long)localeUserState))
+        if (pg.locale_user_states != null && localeUserState != TVPApi.LocaleUserState.Unknown && !pg.locale_user_states.Contains((long)localeUserState))
             return false;
 
         return true;
@@ -186,33 +186,33 @@ public class PageDataHelper
         foreach (PageGallery gallery in galleries)
         {
             double currentScore = 0;
-            if (gallery.Locale_UserStates != null)
+            if (gallery.locale_user_states != null)
             {
-                if (gallery.Locale_UserStates.Contains((int)localeUserState))
+                if (gallery.locale_user_states.Contains((int)localeUserState))
                     currentScore += Math.Pow(2, 0);
                 else
                     continue;
             }
 
-            if (gallery.Locale_Langs != null)
+            if (gallery.locale_langs != null)
             {
-                if (gallery.Locale_Langs.Contains(localeLanguage))
+                if (gallery.locale_langs.Contains(localeLanguage))
                     currentScore += Math.Pow(2, 1);
                 else
                     continue;
             }
 
-            if (gallery.Locale_Countrys != null)
+            if (gallery.locale_countrys != null)
             {
-                if (gallery.Locale_Countrys.Contains(localeCountry))
+                if (gallery.locale_countrys.Contains(localeCountry))
                     currentScore += Math.Pow(2, 2);
                 else
                     continue;
             }
 
-            if (gallery.Locale_Devices != null)
+            if (gallery.locale_devices != null)
             {
-                if (gallery.Locale_Devices.Contains(localeDevice))
+                if (gallery.locale_devices.Contains(localeDevice))
                     currentScore += Math.Pow(2, 3);
                 else
                     continue;

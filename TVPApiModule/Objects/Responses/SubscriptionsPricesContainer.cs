@@ -7,10 +7,10 @@ namespace TVPApiModule.Objects.Responses
 {
     public class SubscriptionsPricesContainer
     {
-        public string subscriptionCode { get; set; }
+        public string subscription_code { get; set; }
 
         public Price price { get; set; }
        
-        public PriceReason priceReason { get; set; }
+        public PriceReason price_reason { get; set; }
     }
 }

@@ -9,8 +9,8 @@ namespace TVPApiModule.Objects.Responses
     {
         public string name { get; set; }
 
-        public string loginUrl { get; set; }
+        public string login_url { get; set; }
 
-        public string logoutUrl { get; set; }
+        public string logout_url { get; set; }
     }
 }

@@ -10,10 +10,10 @@ namespace TVPApiModule.Objects.Responses
 
         public BillingResponseStatus status { get; set; }
 
-        public string recieptCode { get; set; }
+        public string reciept_code { get; set; }
 
-        public string statusDescription { get; set; }
+        public string status_description { get; set; }
 
-        public string externalReceiptCode { get; set; }
+        public string external_receipt_code { get; set; }
     }
 }

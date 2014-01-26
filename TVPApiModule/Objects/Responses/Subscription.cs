@@ -9,38 +9,38 @@ namespace TVPApiModule.Objects.Responses
     {
         public SubscriptionCodeContainer[] codes { get; set; }
 
-        public System.DateTime startDate { get; set; }
+        public System.DateTime start_date { get; set; }
 
-        public System.DateTime endDate { get; set; }
+        public System.DateTime end_date { get; set; }
 
-        public int[] fileTypes { get; set; }
+        public int[] file_types { get; set; }
 
-        public bool isRecurring { get; set; }
+        public bool is_recurring { get; set; }
 
-        public int numberOfRecPeriods { get; set; }
+        public int number_of_rec_periods { get; set; }
 
-        public PriceCode subscriptionPriceCode { get; set; }
+        public PriceCode subscription_price_code { get; set; }
 
-        public DiscountModule extDisountModule { get; set; }
+        public DiscountModule ext_disount_module { get; set; }
 
         public LanguageContainer[] name { get; set; }
 
-        public UsageModule subscriptionUsageModule { get; set; }
+        public UsageModule subscription_usage_module { get; set; }
 
-        public int fictivicMediaID { get; set; }
+        public int fictivic_media_id { get; set; }
 
         public long priority { get; set; }
 
-        public string productCode { get; set; }
+        public string subscription_product_code { get; set; }
 
-        public string subscriptionCode { get; set; }
+        public string subscription_code { get; set; }
 
-        public UsageModule[] multiSubscriptionUsageModule { get; set; }
+        public UsageModule[] multi_subscription_usage_module { get; set; }
 
-        public int geoCommerceID { get; set; }
+        public int geo_commerce_id { get; set; }
 
-        public bool isInfiniteRecurring { get; set; }
+        public bool is_infinite_recurring { get; set; }
 
-        public PreviewModule previewModule { get; set; }
+        public PreviewModule preview_module { get; set; }
     }
 }

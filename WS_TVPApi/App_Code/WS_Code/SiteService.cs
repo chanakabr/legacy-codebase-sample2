@@ -349,9 +349,9 @@ namespace TVPApiServices
 
         #region User
         [WebMethod(EnableSession = true, Description = "Get Group Rules")]
-        public TVPApiModule.Objects.Responses.GroupRule[] GetGroupRules(InitializationObject initObj)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetGroupRules(InitializationObject initObj)
         {
-            TVPApiModule.Objects.Responses.GroupRule[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupRule> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -375,9 +375,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get User Group Rules")]
-        public TVPApiModule.Objects.Responses.GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetUserGroupRules(InitializationObject initObj, string siteGuid)
         {
-            TVPApiModule.Objects.Responses.GroupRule[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupRule> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -482,9 +482,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Group Operators")]
-        public TVPApiModule.Objects.Responses.GroupOperator[] GetGroupOperators(InitializationObject initObj, string scope)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupOperator> GetGroupOperators(InitializationObject initObj, string scope)
         {
-            TVPApiModule.Objects.Responses.GroupOperator[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupOperator> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupOperators", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -508,9 +508,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Operators")]
-        public TVPApiModule.Objects.Responses.GroupOperator[] GetOperators(InitializationObject initObj, int[] operators)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupOperator> GetOperators(InitializationObject initObj, int[] operators)
         {
-            TVPApiModule.Objects.Responses.GroupOperator[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupOperator> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupOperators", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -663,7 +663,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
-            return sRet != null ? sRet.siteGUID : string.Empty;
+            return sRet != null ? sRet.site_guid : string.Empty;
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]        
@@ -706,7 +706,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Objects.Responses.UserResponseObject userObj = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(siteGuid);
-                    bRes = !string.IsNullOrEmpty(userObj.user.basicData.facebookID);
+                    bRes = !string.IsNullOrEmpty(userObj.user.basic_data.facebook_id);
                 }
                 catch (Exception ex)
                 {
@@ -855,9 +855,9 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get users details info")]
-        public TVPApiModule.Objects.Responses.UserResponseObject[] GetUsersData(InitializationObject initObj, string siteGuid)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserResponseObject> GetUsersData(InitializationObject initObj, string siteGuid)
         {
-            TVPApiModule.Objects.Responses.UserResponseObject[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserResponseObject> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUsersData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1013,9 +1013,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user social actions")]
-        public TVPApiModule.Objects.Responses.UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, string siteGuid, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> GetUserSocialActions(InitializationObject initObj, string siteGuid, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
         {
-            TVPApiModule.Objects.Responses.UserSocialActionObject[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> res = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1088,9 +1088,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Domain Group Rules")]
-        public TVPApiModule.Objects.Responses.GroupRule[] GetDomainGroupRules(InitializationObject initObj)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetDomainGroupRules(InitializationObject initObj)
         {
-            TVPApiModule.Objects.Responses.GroupRule[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupRule> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1195,9 +1195,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get EPG program rules")]
-        public TVPApiModule.Objects.Responses.GroupRule[] GetEPGProgramRules(InitializationObject initObj, int MediaId, int programId, string IP)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetEPGProgramRules(InitializationObject initObj, int MediaId, int programId, string IP)
         {
-            TVPApiModule.Objects.Responses.GroupRule[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupRule> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetEPGProgramRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1221,9 +1221,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user started watching medias")]
-        public string[] GetUserStartedWatchingMedias(InitializationObject initObj, string siteGuid, int numOfItems)
+        public IEnumerable<string> GetUserStartedWatchingMedias(InitializationObject initObj, string siteGuid, int numOfItems)
         {
-            string[] response = null;
+            IEnumerable<string> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserStartedWatchingMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

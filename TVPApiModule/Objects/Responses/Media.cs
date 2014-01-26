@@ -27,22 +27,22 @@ namespace TVPApi
 
     public class File
     {
-        public string fileID { get; set; }
+        public string file_id { get; set; }
         public string url { get; set; }
         public string duration { get; set; }
         public string format { get; set; }
-        public AdvertisingProvider preProvider { get; set; }
-        public AdvertisingProvider postProvider { get; set; }
-        public AdvertisingProvider breakProvider { get; set; }
-        public AdvertisingProvider overlayProvider { get; set; }
-        public string[] breakPoints { get; set; }
-        public string[] overlayPoints { get; set; }
-        public string coGuid { get; set; }
+        public AdvertisingProvider pre_provider { get; set; }
+        public AdvertisingProvider post_provider { get; set; }
+        public AdvertisingProvider break_provider { get; set; }
+        public AdvertisingProvider overlay_provider { get; set; }
+        public string[] break_points { get; set; }
+        public string[] overlay_points { get; set; }
+        public string co_guid { get; set; }
     }
 
     public class Picture
     {
-        public string picSize { get; set; }
+        public string pic_size { get; set; }
         public string url { get; set; }
     }
 
@@ -53,8 +53,8 @@ namespace TVPApi
 
         public TagMetaPair(string key, string value)
         {
-            key = key;
-            value = value;
+            this.key = key;
+            this.value = value;
         }
     }
 
@@ -64,22 +64,22 @@ namespace TVPApi
 
         private readonly ILog logger = LogManager.GetLogger(typeof(Media));
 
-        public string mediaID;
-        public string mediaName;
-        public string mediaTypeID;
-        public string mediaTypeName;
+        public string media_id;
+        public string media_name;
+        public string media_type_id;
+        public string media_type_name;
         public double rating;
-        public int viewCounter;
+        public int view_counter;
         public string description;
-        public DateTime creationDate;
-        public DateTime? lastWatchDate;
-        public DateTime startDate;
-        public DateTime catalogStartDate;
-        public string picURL;
+        public DateTime creation_date;
+        public DateTime? last_watch_date;
+        public DateTime start_date;
+        public DateTime catalog_start_date;
+        public string pic_url;
         public string url;
-        public string mediaWebLink;
+        public string mediaWeb_link;
         public string duration;
-        public string fileID;
+        public string file_id;
         private List<TagMetaPair> m_tags;
         private List<TagMetaPair> m_metas;
         private List<File> m_files;
@@ -90,13 +90,13 @@ namespace TVPApi
         private List<ExtIDPair> m_externalIDs;
 
         //public DynamicData mediaDynamicData;
-        public string subDuration;
-        public string subFileFormat;
-        public string subFileID;
-        public string subURL;
-        public string GeoBlock;
-        public long totalItems;
-        public int? likeCounter;
+        public string sub_duration;
+        public string sub_file_format;
+        public string sub_file_id;
+        public string sub_url;
+        public string geo_block;
+        public long total_items;
+        public int? like_counter;
 
         public List<TagMetaPair> tags
         {
@@ -122,7 +122,7 @@ namespace TVPApi
             }
         }
 
-        public List<TagMetaPair> advertisingParameters
+        public List<TagMetaPair> advertising_parameters
         {
             get
             {
@@ -158,7 +158,7 @@ namespace TVPApi
             }
         }
 
-        public List<ExtIDPair> externalIDs
+        public List<ExtIDPair> external_ids
         {
             get
             {
@@ -205,17 +205,17 @@ namespace TVPApi
             {
                 if (ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FriendlyURL.SupportFeature)
                 {
-                    string sMediaName = mediaName.Replace("/", "");
+                    string sMediaName = media_name.Replace("/", "");
 
                     sMediaName = sMediaName.Replace(" ", "-");
 
                     sMediaName = HttpUtility.UrlEncode(sMediaName);
 
-                    retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, mediaTypeName, sMediaName, mediaID);
+                    retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, media_type_name, sMediaName, media_id);
                 }
                 else
                 {
-                    retVal = string.Format("{0}/MediaPage.aspx?MediaID={1}&MediaType={2}", baseUrl, mediaID, mediaTypeID);
+                    retVal = string.Format("{0}/MediaPage.aspx?MediaID={1}&MediaType={2}", baseUrl, media_id, media_type_id);
                 }
             }
             return retVal;
@@ -225,23 +225,23 @@ namespace TVPApi
         {
             if (mediaObj != null)
             {
-                mediaID = mediaObj.m_nID.ToString();
-                mediaName = mediaObj.m_sName;
-                mediaTypeID = mediaObj.m_oMediaType.m_nTypeID.ToString();
-                mediaTypeName = mediaObj.m_oMediaType.m_sTypeName;
+                media_id = mediaObj.m_nID.ToString();
+                media_name = mediaObj.m_sName;
+                media_type_id = mediaObj.m_oMediaType.m_nTypeID.ToString();
+                media_type_name = mediaObj.m_oMediaType.m_sTypeName;
                 rating = mediaObj.m_oRatingMedia.m_nRatingAvg;
-                viewCounter = mediaObj.m_oRatingMedia.m_nViwes;
+                view_counter = mediaObj.m_oRatingMedia.m_nViwes;
                 description = mediaObj.m_sDescription;
-                creationDate = mediaObj.m_dCreationDate;
-                lastWatchDate = mediaObj.m_dLastWatchedDate;
-                startDate = mediaObj.m_dStartDate;
-                catalogStartDate = mediaObj.m_dCatalogStartDate;
-                likeCounter = mediaObj.m_nLikeCounter;
+                creation_date = mediaObj.m_dCreationDate;
+                last_watch_date = mediaObj.m_dLastWatchedDate;
+                start_date = mediaObj.m_dStartDate;
+                catalog_start_date = mediaObj.m_dCatalogStartDate;
+                like_counter = mediaObj.m_nLikeCounter;
 
                 totalItems = totalItems;
 
                 if (!string.IsNullOrEmpty(picSize))
-                    picURL = (from pic in mediaObj.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
+                    pic_url = (from pic in mediaObj.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
 
 
                 //media.GeoBlock = No data... 
@@ -250,7 +250,7 @@ namespace TVPApi
                 //media.MediaDynamicData;
 
                 //MediaWebLink
-                mediaWebLink = GetMediaWebLink(groupID, platform);
+                mediaWeb_link = GetMediaWebLink(groupID, platform);
 
                 //Files
                 buildFiles(mediaObj.m_lFiles, mediaObj.m_lBranding, groupID, platform);
@@ -261,7 +261,7 @@ namespace TVPApi
 
                 //ExternalIDs
                 if (!string.IsNullOrEmpty(mediaObj.m_ExternalIDs))
-                    externalIDs.Add(new ExtIDPair() { key = "epg_id", value = mediaObj.m_ExternalIDs });
+                    external_ids.Add(new ExtIDPair() { key = "epg_id", value = mediaObj.m_ExternalIDs });
 
                 //Pictures
                 buildPictures(mediaObj.m_lPicture);
@@ -414,7 +414,7 @@ namespace TVPApi
             string fileFormat = techConfigFlashVars.FileFormat;
             string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
 
-            fileID = "0"; // default value
+            file_id = "0"; // default value
 
             if (mediaFiles != null && mediaFiles.Count > 0)
             {
@@ -423,44 +423,44 @@ namespace TVPApi
                 {
                     mediaFile = new File();
 
-                    mediaFile.fileID = file.m_nFileId.ToString();
+                    mediaFile.file_id = file.m_nFileId.ToString();
                     mediaFile.url = file.m_sUrl;
                     mediaFile.duration = file.m_nDuration.ToString();
                     mediaFile.format = file.m_sFileFormat;
-                    mediaFile.coGuid = file.m_sCoGUID;
+                    mediaFile.co_guid = file.m_sCoGUID;
 
                     if (file.m_sFileFormat.ToLower() == fileFormat.ToLower())
                     {
                         url = file.m_sUrl;
                         duration = file.m_nDuration.ToString();
-                        fileID = file.m_nFileId.ToString();
+                        file_id = file.m_nFileId.ToString();
                     }
                     if (file.m_sFileFormat.ToLower() == subFileFormat.ToLower())
                     {
-                        subDuration = file.m_nDuration.ToString();
+                        sub_duration = file.m_nDuration.ToString();
                         subFileFormat = file.m_sFileFormat;
-                        subFileID = file.m_nFileId.ToString();
-                        subURL = file.m_sUrl;
+                        sub_file_id = file.m_nFileId.ToString();
+                        sub_url = file.m_sUrl;
                     }
 
                     if (file.m_oPreProvider != null)
-                        mediaFile.preProvider = new AdvertisingProvider(file.m_oPreProvider.ProviderID, file.m_oPreProvider.ProviderName);
+                        mediaFile.pre_provider = new AdvertisingProvider(file.m_oPreProvider.ProviderID, file.m_oPreProvider.ProviderName);
 
                     if (file.m_oPostProvider != null)
-                        mediaFile.postProvider = new AdvertisingProvider(file.m_oPostProvider.ProviderID, file.m_oPostProvider.ProviderName);
+                        mediaFile.post_provider = new AdvertisingProvider(file.m_oPostProvider.ProviderID, file.m_oPostProvider.ProviderName);
 
                     if (file.m_oBreakProvider != null)
                     {
-                        mediaFile.breakProvider = new AdvertisingProvider(file.m_oBreakProvider.ProviderID, file.m_oBreakProvider.ProviderName);
+                        mediaFile.break_provider = new AdvertisingProvider(file.m_oBreakProvider.ProviderID, file.m_oBreakProvider.ProviderName);
                         if (!string.IsNullOrEmpty(file.m_sBreakpoints))
-                            mediaFile.breakPoints = file.m_sBreakpoints.ToString().Split(';');
+                            mediaFile.break_points = file.m_sBreakpoints.ToString().Split(';');
                     }
 
                     if (file.m_oOverlayProvider != null)
                     {
-                        mediaFile.overlayProvider = new AdvertisingProvider(file.m_oOverlayProvider.ProviderID, file.m_oOverlayProvider.ProviderName);
+                        mediaFile.overlay_provider = new AdvertisingProvider(file.m_oOverlayProvider.ProviderID, file.m_oOverlayProvider.ProviderName);
                         if (!string.IsNullOrEmpty(file.m_sOverlaypoints))
-                            mediaFile.overlayPoints = file.m_sOverlaypoints.ToString().Split(';');
+                            mediaFile.overlay_points = file.m_sOverlaypoints.ToString().Split(';');
                     }
 
                     files.Add(mediaFile);
@@ -474,11 +474,11 @@ namespace TVPApi
                 {
                     mediaFile = new File();
 
-                    mediaFile.fileID = branding.m_nFileId.ToString();
+                    mediaFile.file_id = branding.m_nFileId.ToString();
                     mediaFile.url = branding.m_sUrl;
                     mediaFile.duration = branding.m_nDuration.ToString();
                     mediaFile.format = branding.m_sFileFormat;
-                    mediaFile.coGuid = branding.m_sCoGUID;
+                    mediaFile.co_guid = branding.m_sCoGUID;
 
                     files.Add(mediaFile);
                 }
@@ -541,7 +541,7 @@ namespace TVPApi
                 foreach (Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture pic in mediaPictures)
                 {
                     picture = new TVPApi.Picture();
-                    picture.picSize = pic.m_sSize;
+                    picture.pic_size = pic.m_sSize;
                     picture.url = pic.m_sURL;
                     pictures.Add(picture);
                 }
@@ -580,7 +580,7 @@ namespace TVPApi
                         metas.Add(pair);
 
                         if (adMetas.Contains(pair.key))
-                            advertisingParameters.Add(pair);
+                            advertising_parameters.Add(pair);
                     }
                 }
             }
@@ -611,7 +611,7 @@ namespace TVPApi
                     foreach (TagMetaPair mediaTag in tags)
                     {
                         if (adTags.Contains(mediaTag.key))
-                            advertisingParameters.Add(mediaTag);
+                            advertising_parameters.Add(mediaTag);
                     }
                 }
             }
@@ -660,7 +660,7 @@ namespace TVPApi
         private long GetMediaMark()
         {
             long retVal = 0;
-            int groupID = WSUtils.GetGroupIDByMediaType(int.Parse(mediaTypeID));
+            int groupID = WSUtils.GetGroupIDByMediaType(int.Parse(media_type_id));
 
             return retVal;
         }
@@ -740,15 +740,15 @@ namespace TVPApi
             //string MediaPrice = string.Empty;
             price = "Free";
             reason = PriceReason.Free;
-            if (!string.IsNullOrEmpty(fileID))
+            if (!string.IsNullOrEmpty(file_id))
             {
-                int MediaFileID = int.Parse(fileID);
+                int MediaFileID = int.Parse(file_id);
 
                 int[] MediasArray = new int[1];
                 MediasArray[0] = MediaFileID;
 
                 //Get media price from conditional access.
-                TVPApiModule.Objects.Responses.MediaFileItemPricesContainer[] MediasPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(MediasArray, userGuid, true);
+                IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> MediasPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(MediasArray, userGuid, true);
 
                 if (MediasPrices != null)
                 {
@@ -756,16 +756,16 @@ namespace TVPApi
                     TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mediaPriceCont = null;
                     foreach (TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mp in MediasPrices)
                     {
-                        if (mp.mediaFileID == MediaFileID)
+                        if (mp.media_file_id == MediaFileID)
                             mediaPriceCont = mp;
                     }
 
                     if (mediaPriceCont != null)
                     {
-                        if (mediaPriceCont.itemPrices != null)
+                        if (mediaPriceCont.item_prices != null)
                         {
-                            price = mediaPriceCont.itemPrices[0].price.price.ToString();
-                            switch (mediaPriceCont.itemPrices[0].priceReason)
+                            price = mediaPriceCont.item_prices[0].price.price.ToString();
+                            switch (mediaPriceCont.item_prices[0].price_reason)
                             {
                                 case TVPApiModule.Objects.Responses.PriceReason.ForPurchase:
                                     {
@@ -818,9 +818,9 @@ namespace TVPApi
         private PriceReason GetMediaPriceReason(PermittedMediaContainer[] MediaItems)
         {
             PriceReason retVal = PriceReason.UnKnown;
-            if (!string.IsNullOrEmpty(fileID))
+            if (!string.IsNullOrEmpty(file_id))
             {
-                int MediaFileID = int.Parse(fileID);
+                int MediaFileID = int.Parse(file_id);
                 if (MediaFileID > 0)
                 {
                     string Reason = PriceHelper.GetItemPriceReason(MediaFileID);

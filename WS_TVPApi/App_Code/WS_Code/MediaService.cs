@@ -216,9 +216,9 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Check if media array has been added to favorites")]
-        public List<KeyValuePair<int, bool>> AreMediasFavorite(InitializationObject initObj, List<int> mediaIds)
+        public IEnumerable<KeyValuePair<int, bool>> AreMediasFavorite(InitializationObject initObj, List<int> mediaIds)
         {
-            List<KeyValuePair<int, bool>> result = new List<KeyValuePair<int, bool>>();
+            IEnumerable<KeyValuePair<int, bool>> result = new List<KeyValuePair<int, bool>>();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "AreMediasFavorite", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -226,10 +226,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    FavoriteObject[] favoriteObjects = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
+                    IEnumerable<FavoriteObject> favoriteObjects = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
 
                     if (favoriteObjects != null)
-                        result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.itemCode == y.ToString()).Count() > 0)).ToList();
+                        result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.item_code == y.ToString()).Count() > 0));
                 }
                 catch (Exception ex)
                 {
@@ -273,9 +273,9 @@ namespace TVPApiServices
 
         //Get User Items (Favorites, Rentals etc..)
         [WebMethod(EnableSession = true, Description = "Get User Items (Favorites, Rentals etc..)")]
-        public FavoriteObject[] GetUserFavorites(InitializationObject initObj, string siteGuid)
+        public IEnumerable<FavoriteObject> GetUserFavorites(InitializationObject initObj, string siteGuid)
         {
-            FavoriteObject[] favoritesObj = null;
+            IEnumerable<FavoriteObject> favoritesObj = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserFavorites", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -284,7 +284,7 @@ namespace TVPApiServices
                 try
                 {
                     favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
-                    favoritesObj = favoritesObj.OrderByDescending(r => r.updateDate.Date).ThenByDescending(r => r.updateDate.TimeOfDay).ToArray();
+                    favoritesObj = favoritesObj.OrderByDescending(r => r.update_date.Date).ThenByDescending(r => r.update_date.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -490,7 +490,7 @@ namespace TVPApiServices
                     }.Execute() as List<Media>;
  
 
-                    bRet = (from r in lstMedia where r.mediaID.Equals(sMediaID) select true).FirstOrDefault();
+                    bRet = (from r in lstMedia where r.media_id.Equals(sMediaID) select true).FirstOrDefault();
                 }
                 catch (Exception ex)
                 {
@@ -549,8 +549,8 @@ namespace TVPApiServices
 
                     lstMedia = (from media in lstAllMedias
                                  where
-                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.lastWatchDate).TotalDays >= 0 &&
-                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.lastWatchDate).TotalDays <= (periodBefore + 1) * (int)byPeriod
+                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.last_watch_date).TotalDays >= 0 &&
+                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.last_watch_date).TotalDays <= (periodBefore + 1) * (int)byPeriod
                                  select media).ToList<Media>();
                 }
                 catch (Exception ex)
@@ -967,9 +967,9 @@ namespace TVPApiServices
 
         //Search media by free text
         [WebMethod(EnableSession = true, Description = "Search EPG by free text")]
-        public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
+        public IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
-            TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] programs = { };
+            IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> programs = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchEPG", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1411,7 +1411,7 @@ namespace TVPApiServices
                     var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(siteGuid);
 
                     if (permitted != null)
-                        permittedMediaContainer = permitted.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
+                        permittedMediaContainer = permitted.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -1500,7 +1500,7 @@ namespace TVPApiServices
                     var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);
 
                     if (permitted != null)
-                        permitedSubscriptions = permitted.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
+                        permitedSubscriptions = permitted.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -1525,20 +1525,20 @@ namespace TVPApiServices
             {
                 try
                 {
-                    TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);
+                    IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> permitedSubscriptions = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);
 
                     if (permitedSubscriptions == null || permitedSubscriptions.Count() == 0)
                         return permittedPackages;
 
-                    permitedSubscriptions = permitedSubscriptions.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
+                    permitedSubscriptions = permitedSubscriptions.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToArray();
 
                     foreach (TVPApiModule.Objects.Responses.PermittedSubscriptionContainer psc in permitedSubscriptions)
                     {
                         PermittedPackages pp = new PermittedPackages();
-                        pp.permittedSubscriptions = psc;
+                        pp.permitted_subscriptions = psc;
 
 
-                        List<KeyValue> orList = new List<KeyValue>() { new KeyValue() { m_sKey = "Base ID", m_sValue = psc.subscriptionCode } };
+                        List<KeyValue> orList = new List<KeyValue>() { new KeyValue() { m_sKey = "Base ID", m_sValue = psc.subscription_code } };
                         List<Media> medias = new APISearchMediaLoader(groupId, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 0, 0, picSize, true, orList, null, null)
                             {
                                 UseFinalDate = true
@@ -1770,7 +1770,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).productCode;
+                    res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).subscription_product_code;
                 }
                 catch (Exception ex)
                 {
@@ -1802,9 +1802,9 @@ namespace TVPApiServices
 
                         res.Add(new SubscriptionPrice
                         {
-                            subscriptionCode = priceObj.objectCode,
-                            price = priceObj.subscriptionPriceCode.prise.price,
-                            currency = priceObj.subscriptionPriceCode.prise.currency.currencySign
+                            subscription_code = priceObj.object_code,
+                            price = priceObj.subscription_price_code.prise.price,
+                            currency = priceObj.subscription_price_code.prise.currency.currencySign
                         });
                     }
                 }
@@ -1848,9 +1848,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user expired items")]
-        public TVPApiModule.Objects.Responses.PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, string siteGuid, int iTotalItems)
+        public IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetUserExpiredItems(InitializationObject initObj, string siteGuid, int iTotalItems)
         {
-            TVPApiModule.Objects.Responses.PermittedMediaContainer[] items = null;
+            IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> items = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
@@ -1860,7 +1860,7 @@ namespace TVPApiServices
                     items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredItems(siteGuid, iTotalItems);
                     if (items != null)
                     {
-                        items = items.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
+                        items = items.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay);
                     }
                 }
                 catch (Exception ex)
@@ -1882,9 +1882,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user expired subscription")]
-        public TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int iTotalItems)
+        public IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int iTotalItems)
         {
-            TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] items = null;
+            IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> items = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1894,7 +1894,7 @@ namespace TVPApiServices
                 {
                     items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredSubscriptions(siteGuid, iTotalItems);
                     if (items != null)
-                        items = items.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
+                        items = items.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -1944,9 +1944,9 @@ namespace TVPApiServices
         #endregion
 
         [WebMethod(EnableSession = true, Description = "Get Prepaid balance")]
-        public string[] GetPrepaidBalance(InitializationObject initObj, string currencyCode)
+        public IEnumerable<string> GetPrepaidBalance(InitializationObject initObj, string currencyCode)
         {
-            string[] fResponse = null;
+            IEnumerable<string> fResponse = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetPrepaidBalance", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2297,9 +2297,9 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get EPG Channels")]
-        public EPGChannel[] GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
+        public IEnumerable<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
         {
-            EPGChannel[] sRet = null;
+            IEnumerable<EPGChannel> sRet = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGChannels", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2402,9 +2402,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Group Media Rules")]
-        public GroupRule[] GetGroupMediaRules(InitializationObject initObj, int mediaID)
+        public IEnumerable<GroupRule> GetGroupMediaRules(InitializationObject initObj, int mediaID)
         {
-            GroupRule[] response = null;
+            IEnumerable<GroupRule> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupMediaRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

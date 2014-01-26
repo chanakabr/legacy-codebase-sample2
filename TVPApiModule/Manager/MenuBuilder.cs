@@ -190,7 +190,7 @@ namespace TVPApi
             else
             {
                 // Get parent's children
-                rows = sourceData.Where(row => !row.IsParentItemIDNull() && row.ParentItemID != 0 && row.ParentItemID == parentMenuItem.ID);
+                rows = sourceData.Where(row => !row.IsParentItemIDNull() && row.ParentItemID != 0 && row.ParentItemID == parentMenuItem.id);
             }
 
             // Run on items
@@ -198,33 +198,33 @@ namespace TVPApi
             {
                 // Create menu item
                 MenuItem item = new MenuItem();
-                item.ID = row.ItemID;
+                item.id = row.ItemID;
 
                 if (!row.IsTitleNull())
-                    item.Name = row.Title;
+                    item.name = row.Title;
 
                 if (!row.IsCultureNull())
                 {
                     Tvinci.Localization.LanguageContext lc;
                     if (TVPPro.SiteManager.Manager.TextLocalization.Instance.TryGetLanguageByCulture(row.Culture, out lc))
-                        item.Culture = lc.CultureInfo.DisplayName;
+                        item.culture = lc.CultureInfo.DisplayName;
                     else
-                        item.Culture = row.Culture;
+                        item.culture = row.Culture;
                 }
                 if (!row.IsURLNull())
                 {
-                    item.URL = row.URL;
+                    item.url = row.URL;
 
                     // set SitePageID from URL
-                    long? pageID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetPageIDFromURL(row.URL, item.Culture);
+                    long? pageID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetPageIDFromURL(row.URL, item.culture);
                     if (pageID.HasValue)
                     {
-                        item.PageID = pageID.Value;
+                        item.page_id = pageID.Value;
                     }
                 }
                 if (!row.IsMenuTypeNull())
                 {
-                    item.MenuType = (MenuType)(row.MenuType);
+                    item.menu_type = (MenuType)(row.MenuType);
                 }
 
                 // Add menu item to list
@@ -243,14 +243,14 @@ namespace TVPApi
                 }
                 else
                 {
-                    if (item.Culture.Equals(parentMenuItem.Culture))
+                    if (item.culture.Equals(parentMenuItem.culture))
                     {
-                        if (parentMenuItem.Children == null)
+                        if (parentMenuItem.children == null)
                         {
-                            parentMenuItem.Children = new List<MenuItem>();
+                            parentMenuItem.children = new List<MenuItem>();
                         }
 
-                        parentMenuItem.Children.Add(item);
+                        parentMenuItem.children.Add(item);
                     }
                 }
 
@@ -266,17 +266,17 @@ namespace TVPApi
                 dict = new Dictionary<string, Dictionary<long, List<MenuItem>>>();
             }
 
-            if (!dict.ContainsKey(item.Culture))
+            if (!dict.ContainsKey(item.culture))
             {
-                dict.Add(item.Culture, new Dictionary<long, List<MenuItem>>());
+                dict.Add(item.culture, new Dictionary<long, List<MenuItem>>());
             }
             // add MenuID key if not exsist 
-            if (!dict[item.Culture].ContainsKey(row.MenuID))
+            if (!dict[item.culture].ContainsKey(row.MenuID))
             {
-                dict[item.Culture].Add(row.MenuID, new List<MenuItem>());
+                dict[item.culture].Add(row.MenuID, new List<MenuItem>());
             }
 
-            dict[item.Culture][row.MenuID].Add(item);
+            dict[item.culture][row.MenuID].Add(item);
         }
 
         #endregion

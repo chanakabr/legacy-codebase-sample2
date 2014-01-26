@@ -7,11 +7,11 @@ namespace TVPApiModule.Objects.Responses
 {
     public class UserResponseObject
     {
-        public ResponseStatus respStatus { get; set; }
+        public ResponseStatus resp_status { get; set; }
 
         public User user { get; set; }
 
-        public string userInstanceID { get; set; }
+        public string user_instance_id { get; set; }
 
     }
 }

@@ -41,14 +41,14 @@ namespace TVPApiModule.Services
         #endregion C'tor
 
         #region Public methods
-        public TVPApiModule.Objects.Responses.GroupOperator[] GetGroupOperators(string scope)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupOperator> GetGroupOperators(string scope)
         {
-            TVPApiModule.Objects.Responses.GroupOperator[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupOperator> response = null;
             try
             {
                 var res = m_Module.GetGroupOperators(m_wsUserName, m_wsPassword, scope);
                 if (res != null)
-                    response = res.Where(go => go != null).Select(o => o.ToApiObject()).ToArray();
+                    response = res.Where(go => go != null).Select(o => o.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -58,14 +58,14 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.GroupOperator[] GetOperators(int[] operatorIds)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupOperator> GetOperators(int[] operatorIds)
         {
-            TVPApiModule.Objects.Responses.GroupOperator[] operators = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupOperator> operators = null;
             try
             {
                 var response = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
                 if (response != null)
-                    operators = response.Where(go => go != null).Select(o => o.ToApiObject()).ToArray();
+                    operators = response.Where(go => go != null).Select(o => o.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -137,14 +137,14 @@ namespace TVPApiModule.Services
             return geo;
         }
 
-        public EPGChannel[] GetEPGChannel(string sPicSize)
+        public IEnumerable<EPGChannel> GetEPGChannel(string sPicSize)
         {
-            EPGChannel[] objEPGRes = null;
+            IEnumerable<EPGChannel> objEPGRes = null;
             try
             {
                 var response = m_Module.GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
                 if (response != null)
-                    objEPGRes = response.Where(c => c != null).Select(c => c.ToApiObject()).ToArray();
+                    objEPGRes = response.Where(c => c != null).Select(c => c.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -153,14 +153,14 @@ namespace TVPApiModule.Services
             return objEPGRes;
         }
 
-        public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(string sChannelID, string sPicSize, DateTime fromDate, DateTime toDate, int utcOffset)
+        public IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannelProgrammeByDates(string sChannelID, string sPicSize, DateTime fromDate, DateTime toDate, int utcOffset)
         {
-            TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] objEPGRes = null;
+            IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> objEPGRes = null;
             try
             {
                 var response = m_Module.GetEPGChannelProgrammeByDates(m_wsUserName, m_wsPassword, sChannelID, sPicSize, fromDate, toDate, utcOffset);
                 if (response != null)
-                    objEPGRes = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToArray();
+                    objEPGRes = response.Where(cp => cp != null).Select(p => p.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -169,14 +169,14 @@ namespace TVPApiModule.Services
             return objEPGRes;
         }
 
-        public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] GetEPGChannel(string sChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannel(string sChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
-            TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] objEPGProgramRes = null;
+            IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> objEPGProgramRes = null;
             try
             {
                 var response = m_Module.GetEPGChannelProgramme(m_wsUserName, m_wsPassword, sChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
                 if (response != null)
-                    objEPGProgramRes = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToArray();
+                    objEPGProgramRes = response.Where(cp => cp != null).Select(p => p.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -185,14 +185,14 @@ namespace TVPApiModule.Services
             return objEPGProgramRes;
         }
 
-        public TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public IEnumerable<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
-            TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject[] objEPGProgramRes = null;
+            IEnumerable<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> objEPGProgramRes = null;
             try
             {
                 var response = m_Module.GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
                 if (response != null)
-                    objEPGProgramRes = response.Where(mcp => mcp != null).Select(p => p.ToApiObject()).ToArray();
+                    objEPGProgramRes = response.Where(mcp => mcp != null).Select(p => p.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -201,14 +201,14 @@ namespace TVPApiModule.Services
             return objEPGProgramRes;
         }
 
-        public TVPApiModule.Objects.Responses.GroupRule[] GetGroupMediaRules(int MediaId, int siteGuid, string udid)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetGroupMediaRules(int MediaId, int siteGuid, string udid)
         {
-            TVPApiModule.Objects.Responses.GroupRule[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupRule> res = null;
             try
             {
                 var response = m_Module.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
                 if (response != null)
-                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToArray();
+                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -217,14 +217,14 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.GroupRule[] GetGroupRules()
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetGroupRules()
         {
-            TVPApiModule.Objects.Responses.GroupRule[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupRule> res = null;
             try
             {
                 var response = m_Module.GetGroupRules(m_wsUserName, m_wsPassword);
                 if (response != null)
-                    res = response.Where(gr => gr != null).Select(gr => gr.ToApiObject()).ToArray();
+                    res = response.Where(gr => gr != null).Select(gr => gr.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -233,14 +233,14 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.GroupRule[] GetUserGroupRules(string siteGuid)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetUserGroupRules(string siteGuid)
         {
-            TVPApiModule.Objects.Responses.GroupRule[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupRule> res = null;
             try
             {
                 var response = m_Module.GetUserGroupRules(m_wsUserName, m_wsPassword, siteGuid);
                 if (response != null)
-                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToArray();
+                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -277,9 +277,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public string[] GetAutoCompleteList(int[] mediaTypes, string[] metas, string[] tags, string prefix, string lang, int pageIdx, int pageSize)
+        public IEnumerable<string> GetAutoCompleteList(int[] mediaTypes, string[] metas, string[] tags, string prefix, string lang, int pageIdx, int pageSize)
         {
-            string[] res = null;
+            IEnumerable<string> res = null;
             try
             {
                 res = m_Module.GetAutoCompleteList(m_wsUserName, m_wsPassword, new TVPPro.SiteManager.TvinciPlatform.api.RequestObj()
@@ -319,14 +319,14 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.GroupRule[] GetDomainGroupRules(int domainID)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetDomainGroupRules(int domainID)
         {
-            TVPApiModule.Objects.Responses.GroupRule[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupRule> res = null;
             try
             {
                 var response = m_Module.GetDomainGroupRules(m_wsUserName, m_wsPassword, domainID);
                 if (response != null)
-                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToArray();
+                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -350,14 +350,14 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.GroupRule[] GetEPGProgramRules(int MediaId, int programId, string siteGuid, string IP, string udid)
+        public IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetEPGProgramRules(int MediaId, int programId, string siteGuid, string IP, string udid)
         {
-            TVPApiModule.Objects.Responses.GroupRule[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.GroupRule> res = null;
             try
             {
                 var response = m_Module.GetEPGProgramRules(m_wsUserName, m_wsPassword, MediaId, programId, int.Parse(siteGuid), IP, udid);
                 if (response != null)
-                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToArray();
+                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -366,9 +366,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public string[] GetUserStartedWatchingMedias(string siteGuid, int numOfItems)
+        public IEnumerable<string> GetUserStartedWatchingMedias(string siteGuid, int numOfItems)
         {
-            string[] res = null;
+            IEnumerable<string> res = null;
             try
             {
                 res = m_Module.GetUserStartedWatchingMedias(m_wsUserName, m_wsPassword, siteGuid, numOfItems);
@@ -394,14 +394,14 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] GetEPGProgramsByScids(string siteGuid, string[] scids, Language language, int duration)
+        public IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGProgramsByScids(string siteGuid, string[] scids, Language language, int duration)
         {
-            TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> res = null;
             try
             {
                 var response  = m_Module.GetEPGProgramsByScids(m_wsUserName, m_wsPassword, scids, language, duration);
                 if (response != null)
-                    res = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToArray();
+                    res = response.Where(cp => cp != null).Select(p => p.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -424,23 +424,23 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] SearchEPGContent(string searchValue, int nPageIndex, int nPageSize)
+        public IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGContent(string searchValue, int nPageIndex, int nPageSize)
         {
-            TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> res = null;
 
             string sKey = string.Format("{0}_{1}_{2}", searchValue, nPageIndex, nPageSize);
 
             // return object from cache if exist
             object oFromCache = DataHelper.GetCacheObject(sKey);
-            if (oFromCache != null && oFromCache is TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[]) 
-                return (oFromCache as TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[]);
+            if (oFromCache != null && oFromCache is IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>)
+                return (oFromCache as IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>);
 
             try
             {
-                TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] response = m_Module.SearchEPGContent(m_wsUserName, m_wsPassword, searchValue, nPageIndex, nPageSize);
+                var response = m_Module.SearchEPGContent(m_wsUserName, m_wsPassword, searchValue, nPageIndex, nPageSize);
                 if (response != null && response.Length > 0)
                 {
-                    res = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToArray();
+                    res = response.Where(cp => cp != null).Select(p => p.ToApiObject());
                     DataHelper.SetCacheObject(sKey, res);
                 }
             }

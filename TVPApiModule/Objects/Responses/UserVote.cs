@@ -7,9 +7,9 @@ namespace TVPApiModule.Objects
 {
     public class UserVote
     {
-        public string mediaID { get; set; }
+        public string media_id { get; set; }
 
-        public string siteGUID { get; set; }
+        public string site_guid { get; set; }
 
         public int score { get; set; }
 

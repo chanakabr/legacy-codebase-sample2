@@ -7,22 +7,22 @@ namespace TVPApiModule.Objects.Responses
 {
     public class GroupRule
     {
-        public int ruleID { get; set; }
+        public int rule_id { get; set; }
 
         public string name { get; set; }
 
-        public int tagTypeID { get; set; }
+        public int tag_type_id { get; set; }
 
-        public string dynamicDataKey { get; set; }
+        public string dynamic_data_key { get; set; }
 
-        public string tagValue { get; set; }
+        public string tag_value { get; set; }
 
-        public string[] allTagValues { get; set; }
+        public string[] all_tag_values { get; set; }
 
-        public bool isActive { get; set; }
+        public bool is_active { get; set; }
 
-        public eBlockType blockType { get; set; }
+        public eBlockType block_type { get; set; }
 
-        public eGroupRuleType groupRuleType { get; set; }
+        public eGroupRuleType group_rule_type { get; set; }
     }
 }

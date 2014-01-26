@@ -281,27 +281,27 @@ namespace TVPApiModule.Objects.CRM
         public UserBasicData(TVPApiModule.Objects.Responses.UserBasicData userBasicData)
         {
             this.address = userBasicData.address;
-            this.affiliate_code = userBasicData.affiliateCode;
+            this.affiliate_code = userBasicData.affiliate_code;
             this.city = userBasicData.city;
-            this.co_guid = userBasicData.coGuid;
+            this.co_guid = userBasicData.co_guid;
 
             if (userBasicData.country != null)
             {
                 this.country = new TVPApiModule.Objects.CRM.Country();
 
-                this.country.country_code = userBasicData.country.countryCode;
-                this.country.country_name = userBasicData.country.countryName;
-                this.country.object_id = userBasicData.country.objectID;
+                this.country.country_code = userBasicData.country.country_code;
+                this.country.country_name = userBasicData.country.country_name;
+                this.country.object_id = userBasicData.country.object_id;
             }
 
             this.email = userBasicData.email;
-            this.external_token = userBasicData.externalToken;
-            this.facebook_id = userBasicData.facebookID;
-            this.facebook_image = userBasicData.facebookImage;
-            this.facebook_token = userBasicData.facebookToken;
-            this.first_name = userBasicData.firstName;
-            this.is_facebook_image_permitted = userBasicData.isFacebookImagePermitted;
-            this.last_name = userBasicData.lastName;
+            this.external_token = userBasicData.external_token;
+            this.facebook_id = userBasicData.facebook_id;
+            this.facebook_image = userBasicData.facebook_image;
+            this.facebook_token = userBasicData.facebook_token;
+            this.first_name = userBasicData.first_name;
+            this.is_facebook_image_permitted = userBasicData.is_facebook_image_permitted;
+            this.last_name = userBasicData.last_name;
             this.phone = userBasicData.phone;
 
             if (userBasicData.state != null)
@@ -312,25 +312,25 @@ namespace TVPApiModule.Objects.CRM
                 {
                     this.state.country = new TVPApiModule.Objects.CRM.Country();
 
-                    this.state.country.country_code = userBasicData.state.country.countryCode;
-                    this.state.country.country_name = userBasicData.state.country.countryName;
-                    this.state.country.object_id = userBasicData.state.country.objectID;
+                    this.state.country.country_code = userBasicData.state.country.country_code;
+                    this.state.country.country_name = userBasicData.state.country.country_name;
+                    this.state.country.object_id = userBasicData.state.country.object_id;
                 }
 
-                this.state.object_id = userBasicData.state.objectID;
-                this.state.state_code = userBasicData.state.stateCode;
-                this.state.state_name = userBasicData.state.stateName;
+                this.state.object_id = userBasicData.state.object_id;
+                this.state.state_code = userBasicData.state.state_code;
+                this.state.state_name = userBasicData.state.state_name;
             }
 
-            this.user_name = userBasicData.userName;
+            this.user_name = userBasicData.user_name;
 
-            if (userBasicData.userType != null)
+            if (userBasicData.user_type != null)
             {
                 this.user_type = new TVPApiModule.Objects.CRM.UserType();
 
-                this.user_type.description = userBasicData.userType.description;
-                this.user_type.id = userBasicData.userType.id;
-                this.user_type.is_default = userBasicData.userType.isDefault;
+                this.user_type.description = userBasicData.user_type.description;
+                this.user_type.id = userBasicData.user_type.id;
+                this.user_type.is_default = userBasicData.user_type.is_default;
             }
 
             this.zip = userBasicData.zip;

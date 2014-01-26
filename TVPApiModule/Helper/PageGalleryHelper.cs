@@ -67,7 +67,7 @@ namespace TVPApi
                 if (page != null)
                 {
                     retVal = (from galleries in page.GetGalleries()
-                              where galleries.GalleryID == ID
+                              where galleries.gallery_id == ID
                               select galleries).FirstOrDefault() as PageGallery;
                 }
             }
@@ -82,7 +82,7 @@ namespace TVPApi
             PageGallery gallery = GetGalleryByID(platform, locale, PageID, ID, groupID);
             if (gallery != null)
             {
-                retVal = gallery.GalleryItems;
+                retVal = gallery.gallery_items;
             }
             return retVal;
         }
@@ -93,12 +93,12 @@ namespace TVPApi
             PageGallery gallery = GetGalleryByID(platform, locale, GalleryID, PageID, groupID);
             if (gallery != null)
             {
-                GalleryItem item = (from items in gallery.GalleryItems
-                                    where items.ItemID == ItemID
+                GalleryItem item = (from items in gallery.gallery_items
+                                    where items.item_id == ItemID
                                     select items).FirstOrDefault();
                 if (item != null)
                 {
-                    retVal = new APIChannelMediaLoader((int)item.TVMChannelID, groupID, platform, udid, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, locale.LocaleLanguage, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.WCF_ONLY_DEFAULT_VALUE)
+                    retVal = new APIChannelMediaLoader((int)item.tvm_channel_id, groupID, platform, udid, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, locale.LocaleLanguage, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.WCF_ONLY_DEFAULT_VALUE)
                     {
                         UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
                     }.Execute() as List<Media>;

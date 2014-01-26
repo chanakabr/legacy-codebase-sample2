@@ -122,9 +122,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get items prices with coupon")]
-        public TVPApiModule.Objects.Responses.MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> GetItemsPricesWithCoupons(InitializationObject initObj, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            TVPApiModule.Objects.Responses.MediaFileItemPricesContainer[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemsPricesWithCoupons", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
@@ -145,9 +145,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get subscriptions prices with coupon")]
-        public TVPApiModule.Objects.Responses.SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public IEnumerable<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            TVPApiModule.Objects.Responses.SubscriptionsPricesContainer[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsPricesWithCoupon", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
@@ -299,9 +299,9 @@ namespace TVPApiServices
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserBillingTransactionsResponse> GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate)
         {
-            TVPApiModule.Objects.Responses.UserBillingTransactionsResponse[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserBillingTransactionsResponse> res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
@@ -319,9 +319,9 @@ namespace TVPApiServices
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse[] GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate)
+        public IEnumerable<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate)
         {
-            TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainsBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
@@ -339,9 +339,9 @@ namespace TVPApiServices
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.PermittedMediaContainer[] GetDomainPermittedItems(InitializationObject initObj)
+        public IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetDomainPermittedItems(InitializationObject initObj)
         {
-            TVPApiModule.Objects.Responses.PermittedMediaContainer[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
@@ -359,9 +359,9 @@ namespace TVPApiServices
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(InitializationObject initObj)
+        public IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(InitializationObject initObj)
         {
-            TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] res = null;
+            IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {

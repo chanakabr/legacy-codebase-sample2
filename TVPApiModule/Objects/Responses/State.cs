@@ -7,11 +7,11 @@ namespace TVPApiModule.Objects.Responses
 {
     public class State
     {
-        public int objectID { get; set; }
+        public int object_id { get; set; }
 
-        public string stateName { get; set; }
+        public string state_name { get; set; }
 
-        public string stateCode { get; set; }
+        public string state_code { get; set; }
 
         public Country country { get; set; }
     }

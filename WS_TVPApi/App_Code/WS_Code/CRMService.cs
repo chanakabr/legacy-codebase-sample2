@@ -135,7 +135,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    TVPApiModule.Objects.Responses.UserBasicData[] usersBasicDataTVM = CRMHelper.SearchUsers(groupId, request.text);
+                    IEnumerable<TVPApiModule.Objects.Responses.UserBasicData> usersBasicDataTVM = CRMHelper.SearchUsers(groupId, request.text);
 
                     if (usersBasicDataTVM != null)
                     {

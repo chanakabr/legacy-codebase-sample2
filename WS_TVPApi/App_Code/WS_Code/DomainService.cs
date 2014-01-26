@@ -241,7 +241,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get device domains")]
         public TVPApiModule.Services.ApiDomainsService.DeviceDomain[] GetDeviceDomains(InitializationObject initObj)
         {
-            TVPApiModule.Objects.Responses.Domain[] domains = null;
+            IEnumerable<TVPApiModule.Objects.Responses.Domain> domains = null;
             TVPApiModule.Services.ApiDomainsService.DeviceDomain[] devDomains = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -258,7 +258,7 @@ namespace TVPApiServices
                     devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
 
                     for (int i = 0; i < domains.Count(); i++)
-                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = domains[i].domainID, DomainName = domains[i].name, SiteGuid = domains[i].masterGUIDs[0].ToString() };
+                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].domain_id, DomainName = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].name, SiteGuid = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].master_guids[0].ToString() };
                 }
                 catch (Exception ex)
                 {
@@ -268,7 +268,7 @@ namespace TVPApiServices
 
             return devDomains;
         }
-
+ 
         [WebMethod(EnableSession = true, Description = "Get PIN Code for a new device")]
         public string GetPINForDevice(InitializationObject initObj, int devBrandID)
         {
@@ -303,14 +303,14 @@ namespace TVPApiServices
                     TVPApiModule.Services.ApiDomainsService service = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform);
                     TVPApiModule.Objects.Responses.DeviceResponseObject device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
 
-                    if (device == null || device.deviceResponseStatus == TVPApiModule.Objects.Responses.DeviceResponseStatus.Error)
+                    if (device == null || device.device_response_status == TVPApiModule.Objects.Responses.DeviceResponseStatus.Error)
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;
-                    else if (device.deviceResponseStatus == TVPApiModule.Objects.Responses.DeviceResponseStatus.DuplicatePin || device.deviceResponseStatus == TVPApiModule.Objects.Responses.DeviceResponseStatus.DeviceNotExists)
+                    else if (device.device_response_status == TVPApiModule.Objects.Responses.DeviceResponseStatus.DuplicatePin || device.device_response_status == TVPApiModule.Objects.Responses.DeviceResponseStatus.DeviceNotExists)
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;
                     else
                     {
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
-                        deviceRes.UDID = device.device.deviceUDID;
+                        deviceRes.UDID = device.device.device_udid;
                     }
                 }
                 catch (Exception ex)
@@ -484,9 +484,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get DomainIDs By Operator CoGuid")]
-        public int[] GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
+        public IEnumerable<int> GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
         {
-            int[] resDomains = null;
+            IEnumerable<int> resDomains = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDsByOperatorCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

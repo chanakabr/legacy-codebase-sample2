@@ -84,9 +84,9 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get all subscriptions ID's contains media file")]
-        public int[] GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
+        public IEnumerable<int> GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
         {
-            int[] subIds = null;
+            IEnumerable<int> subIds = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionIDsContainingMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -219,9 +219,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get subscriptions by user types")]
-        public List<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingUserTypes(InitializationObject initObj, int isActive, int[] userTypesIDs)
+        public IEnumerable<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingUserTypes(InitializationObject initObj, int isActive, int[] userTypesIDs)
         {
-            List<TVPApiModule.Objects.Responses.Subscription> res = new List<TVPApiModule.Objects.Responses.Subscription>();
+            IEnumerable<TVPApiModule.Objects.Responses.Subscription> res = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsContainingUserTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

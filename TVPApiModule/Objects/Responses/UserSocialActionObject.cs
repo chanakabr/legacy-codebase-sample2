@@ -7,18 +7,18 @@ namespace TVPApiModule.Objects.Responses
 {
     public class UserSocialActionObject
     {
-        public string siteGuid { get; set; }
+        public string site_guid { get; set; }
 
-        public eUserAction socialAction { get; set; }
+        public eUserAction social_action { get; set; }
 
-        public SocialPlatform socialPlatform { get; set; }
+        public SocialPlatform social_platform { get; set; }
 
-        public int mediaID { get; set; }
+        public int media_id { get; set; }
 
-        public int programID { get; set; }
+        public int program_id { get; set; }
 
-        public eAssetType assetType { get; set; }
+        public eAssetType asset_type { get; set; }
 
-        public System.DateTime actionDate { get; set; }
+        public System.DateTime action_date { get; set; }
     }
 }

@@ -13,6 +13,6 @@ namespace TVPApiModule.Objects.Responses
 
         public string id { get; set; }
 
-        public string createdTime { get; set; }
+        public string created_time { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace TVPApiModule.Objects.Responses
 {
     public class UserDynamicDataContainer
     {
-        public string dataType { get; set; }
+        public string data_type { get; set; }
 
         public string value { get; set; }
     }

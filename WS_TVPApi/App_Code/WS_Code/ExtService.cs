@@ -10,6 +10,8 @@ using TVPApi;
 //using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.Helper;
 using log4net;
+using System.Collections;
+using System.Linq;
 
 namespace TVPApiServices
 {
@@ -61,16 +63,16 @@ namespace TVPApiServices
                     domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDomainInfo(iDomainID);
                 }
                 catch (Exception ex) { logger.Error(ex.ToString()); }
-                if (domain != null && domain.deviceFamilies.Length > 0)
+                if (domain != null && domain.device_families.Length > 0)
                 {
-                    foreach (TVPApiModule.Objects.Responses.DeviceContainer dc in domain.deviceFamilies)
+                    foreach (TVPApiModule.Objects.Responses.DeviceContainer dc in domain.device_families)
                     {
-                        foreach (TVPApiModule.Objects.Responses.Device device in dc.deviceInstances)
+                        foreach (TVPApiModule.Objects.Responses.Device device in dc.device_instances)
                         {
                             DeviceInfo deviceInfo = new DeviceInfo();
-                            deviceInfo.Name = device.deviceName;
-                            deviceInfo.Type = dc.deviceFamilyName;
-                            deviceInfo.UDID = device.deviceUDID;
+                            deviceInfo.Name = device.device_name;
+                            deviceInfo.Type = dc.device_family_name;
+                            deviceInfo.UDID = device.device_udid;
                             deviceInfo.Active = !(device.state != TVPApiModule.Objects.Responses.DeviceState.Activated && device.state == TVPApiModule.Objects.Responses.DeviceState.UnActivated);
                             retDevices.Add(deviceInfo);
                         }
@@ -91,16 +93,16 @@ namespace TVPApiServices
                 bool bDeviceName = false;
                 if (!string.IsNullOrEmpty(sDeviceName))
                     bDeviceName = new ApiDomainsService(groupId, PlatformType.iPad).SetDeviceInfo(sUDID, sDeviceName);
-                
-                TVPApiModule.Objects.Responses.Domain[] domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
+
+                IEnumerable<TVPApiModule.Objects.Responses.Domain> domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
                 
                 TVPApiModule.Objects.Responses.DomainResponseObject res = new TVPApiModule.Objects.Responses.DomainResponseObject();
-                if (domain != null && domain.Length > 0)
+                if (domain != null && domain.Count() > 0)
                 {
-                    res = new ApiDomainsService(groupId, PlatformType.iPad).ChangeDeviceDomainStatus(domain[0].domainID, sUDID, bIsActive);
+                    res = new ApiDomainsService(groupId, PlatformType.iPad).ChangeDeviceDomainStatus(domain.First().domain_id, sUDID, bIsActive);
 
-                    retStat.Code = res.domainResponseStatus.ToString();
-                    retStat.Description = res.domainResponseStatus.ToString();
+                    retStat.Code = res.domain_response_status.ToString();
+                    retStat.Description = res.domain_response_status.ToString();
                 }
                 else
                 {
@@ -125,14 +127,14 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "RemoveDeviceFromAccount", sUsername, sPassword, SiteHelper.GetClientIP());
             if (groupId != 0)
             {
-                TVPApiModule.Objects.Responses.Domain[] domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
+                IEnumerable<TVPApiModule.Objects.Responses.Domain> domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
                 
                 TVPApiModule.Objects.Responses.DomainResponseObject res = new TVPApiModule.Objects.Responses.DomainResponseObject();
-                if (domain != null && domain.Length > 0)
+                if (domain != null && domain.Count() > 0)
                 {
-                    res = new ApiDomainsService(groupId, PlatformType.iPad).RemoveDeviceToDomain(domain[0].domainID, sUDID);
-                    retStat.Code = (res.domainResponseStatus.ToString().ToLower().Equals("ok")? "0" : res.domainResponseStatus.ToString());
-                    retStat.Description = res.domainResponseStatus.ToString();
+                    res = new ApiDomainsService(groupId, PlatformType.iPad).RemoveDeviceToDomain(domain.First().domain_id, sUDID);
+                    retStat.Code = (res.domain_response_status.ToString().ToLower().Equals("ok")? "0" : res.domain_response_status.ToString());
+                    retStat.Description = res.domain_response_status.ToString();
                 }
                 else
                 {

@@ -7,32 +7,32 @@ namespace TVPApiModule.Objects.Responses
 {
     public class UsageModule
     {
-        public int objectID { get; set; }
+        public int object_id { get; set; }
 
-        public string virtualName { get; set; }
+        public string virtual_name { get; set; }
 
-        public int maxNumberOfViews { get; set; }
+        public int max_number_of_views { get; set; }
 
-        public int viewLifeCycle { get; set; }
+        public int view_life_cycle { get; set; }
 
-        public int maxUsageModuleLifeCycle { get; set; }
+        public int max_usage_module_life_cycle { get; set; }
 
-        public int extDiscountId { get; set; }
+        public int ext_discount_id { get; set; }
 
-        public int internalDiscountID { get; set; }
+        public int internal_discount_id { get; set; }
 
-        public int pricingID { get; set; }
+        public int pricing_id { get; set; }
 
-        public int couponID { get; set; }
+        public int coupon_id { get; set; }
 
         public int type { get; set; }
 
-        public int subscriptionOnly { get; set; }
+        public int subscription_only { get; set; }
 
-        public int isRenew { get; set; }
+        public int is_renew { get; set; }
 
-        public int numOfRecPeriods { get; set; }
+        public int num_of_rec_periods { get; set; }
 
-        public int deviceLimitID { get; set; }
+        public int device_limit_id { get; set; }
     }
 }

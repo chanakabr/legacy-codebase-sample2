@@ -7,7 +7,7 @@ namespace TVPApiModule.Objects.Responses
 {
     public class FBUser
     {
-        public string siteGuid { get; set; }
+        public string site_guid { get; set; }
 
         public string birthday { get; set; }
 
@@ -21,9 +21,9 @@ namespace TVPApiModule.Objects.Responses
 
         public string uid { get; set; }
 
-        public string firstName { get; set; }
+        public string first_name { get; set; }
 
-        public string lastName { get; set; }
+        public string last_name { get; set; }
 
         public string email { get; set; }
 

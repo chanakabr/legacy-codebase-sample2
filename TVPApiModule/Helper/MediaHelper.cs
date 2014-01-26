@@ -721,11 +721,11 @@ namespace TVPApi
             {
                 case UserItemType.Favorite:
                     {
-                        FavoriteObject[] favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(siteGuid, string.Empty, domainID, string.Empty);
+                        var favoritesObj = new ApiUsersService(groupID, platform).GetUserFavorites(siteGuid, string.Empty, domainID, string.Empty);
 
                         if (favoritesObj != null)
                         {
-                            mediaIDsList = favoritesObj.Select(f => int.Parse(f.itemCode)).ToList();
+                            mediaIDsList = favoritesObj.Select(f => int.Parse(f.item_code)).ToList();
                             retVal = new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDsList, groupID, platform, udid, SiteHelper.GetClientIP(), picSize, language).Execute() as List<Media>;
                         }
 
@@ -733,30 +733,30 @@ namespace TVPApi
                     }
                 case UserItemType.Rental:
                     {
-                        TVPApiModule.Objects.Responses.PermittedMediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(guid);
-                        mediaIDsList = MediaPermitedItems.Select(mp => mp.mediaID).ToList();
+                        var MediaPermitedItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(guid);
+                        mediaIDsList = MediaPermitedItems.Select(mp => mp.media_id).ToList();
                         retVal = new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDsList, groupID, platform, udid, SiteHelper.GetClientIP(), picSize, language).Execute() as List<Media>;
                         break;
                     }
                 case UserItemType.Package:
                     {
-                        TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[] PermitedPackages = new ApiConditionalAccessService(groupID, platform).GetUserPermitedSubscriptions(guid);
-                        if (PermitedPackages != null && PermitedPackages.Length > 0)
+                        var PermitedPackages = new ApiConditionalAccessService(groupID, platform).GetUserPermitedSubscriptions(guid);
+                        if (PermitedPackages != null && PermitedPackages.Count() > 0)
                         {
                             List<KeyValue> BaseIdsDict = new List<KeyValue>();
                             StringBuilder sb = new StringBuilder();
 
                             foreach (TVPApiModule.Objects.Responses.PermittedSubscriptionContainer sub in PermitedPackages)
                             {
-                                sb.AppendFormat("{0}{1}", sub.subscriptionCode, ";");
+                                sb.AppendFormat("{0}{1}", sub.subscription_code, ";");
                                 var pair = BaseIdsDict.Where(bid => bid.m_sKey == "Base ID").FirstOrDefault();
                                 if (pair == null)
                                 {
-                                    BaseIdsDict.Add(new KeyValue() { m_sKey = "Base ID", m_sValue = sub.subscriptionCode});
+                                    BaseIdsDict.Add(new KeyValue() { m_sKey = "Base ID", m_sValue = sub.subscription_code});
                                 }
                                 else
                                 {
-                                    pair.m_sValue = string.Concat(pair.m_sValue, ";", sub.subscriptionCode);
+                                    pair.m_sValue = string.Concat(pair.m_sValue, ";", sub.subscription_code);
                                 }
                             }
                             if (BaseIdsDict != null && BaseIdsDict.Count > 0)

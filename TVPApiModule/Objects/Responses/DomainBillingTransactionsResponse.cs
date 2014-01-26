@@ -7,8 +7,8 @@ namespace TVPApiModule.Objects.Responses
 {
     public class DomainBillingTransactionsResponse
     {
-        public int domainID { get; set; }
+        public int domain_id { get; set; }
 
-        public UserBillingTransactionsResponse[] billingTransactionResponses { get; set; }
+        public UserBillingTransactionsResponse[] billing_transaction_responses { get; set; }
     }
 }

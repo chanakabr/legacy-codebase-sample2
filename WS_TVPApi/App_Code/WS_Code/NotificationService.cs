@@ -21,12 +21,12 @@ namespace TVPApiServices
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
     [System.Web.Script.Services.ScriptService]
-    public class NotificationService : System.Web.Services.WebService, INotificationService
+    public class NotificationService : System.Web.Services.WebService//, INotificationService
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(NotificationService));
 
         [WebMethod(EnableSession = true, Description = "Gets device notifications")]
-        public List<Notification> GetDeviceNotifications(InitializationObject initObj, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
+        public IEnumerable<Notification> GetDeviceNotifications(InitializationObject initObj, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceNotifications", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             logger.InfoFormat("GetDeviceNotifications-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
@@ -124,7 +124,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets the user status subscription")]
-        public List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj)
+        public IEnumerable<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserStatusSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             logger.InfoFormat("GetUserStatusSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);

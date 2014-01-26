@@ -7,6 +7,6 @@ namespace TVPApiModule.Objects.Responses
 {
     public class SocialInviteInfo
     {
-        public string hashCode { get; set; }
+        public string hash_code { get; set; }
     }
 }

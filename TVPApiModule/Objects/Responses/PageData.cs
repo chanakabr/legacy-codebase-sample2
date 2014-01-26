@@ -78,36 +78,36 @@ namespace TVPApi
                 {
                     if (!localeRow.IsCountryNull())
                     {
-                        if (pg.Locale_Countrys == null)
+                        if (pg.locale_countrys == null)
                         {
-                            pg.Locale_Countrys = new List<string>();
+                            pg.locale_countrys = new List<string>();
                         }
-                        pg.Locale_Countrys.Add(localeRow.Country);
+                        pg.locale_countrys.Add(localeRow.Country);
                     }
                     if (!localeRow.IsDeviceNull())
                     {
-                        if (pg.Locale_Devices == null)
+                        if (pg.locale_devices == null)
                         {
-                            pg.Locale_Devices = new List<string>();
+                            pg.locale_devices = new List<string>();
                         }
 
-                        pg.Locale_Devices.Add(localeRow.Device);
+                        pg.locale_devices.Add(localeRow.Device);
                     }
                     if (!localeRow.IsLanguageNull())
                     {
-                        if (pg.Locale_Langs == null)
+                        if (pg.locale_langs == null)
                         {
-                            pg.Locale_Langs = new List<string>();
+                            pg.locale_langs = new List<string>();
                         }
-                        pg.Locale_Langs.Add(localeRow.Language);
+                        pg.locale_langs.Add(localeRow.Language);
                     }
                     if (!localeRow.IsUserStateNull())
                     {
-                        if (pg.Locale_UserStates == null)
+                        if (pg.locale_user_states == null)
                         {
-                            pg.Locale_UserStates = new List<long>();
+                            pg.locale_user_states = new List<long>();
                         }
-                        pg.Locale_UserStates.Add(localeRow.UserState);
+                        pg.locale_user_states.Add(localeRow.UserState);
                     }
                 }
             }
@@ -119,7 +119,7 @@ namespace TVPApi
             //Group the galleries by family num
             Dictionary<long, List<PageGallery>> galleriesByFamilies =
                 (from p in PageGalleryList
-                 group p by p.FamilyID).ToDictionary(gr => gr.Key, gr => gr.ToList());
+                 group p by p.family_id).ToDictionary(gr => gr.Key, gr => gr.ToList());
 
             List<PageGallery> galleryList = new List<PageGallery>();
             LocaleUserState localeUserState = locale.LocaleUserState;
@@ -155,16 +155,16 @@ namespace TVPApi
         //Check if a gallery fits the locale
         private bool IsGalleryInLocale(PageGallery pg, Locale locale, LocaleUserState localeUserState)
         {
-            if (pg.Locale_Langs != null && !string.IsNullOrEmpty(locale.LocaleLanguage) && !pg.Locale_Langs.Contains(locale.LocaleLanguage))
+            if (pg.locale_langs != null && !string.IsNullOrEmpty(locale.LocaleLanguage) && !pg.locale_langs.Contains(locale.LocaleLanguage))
                 return false;
 
-            if (pg.Locale_Devices != null && !string.IsNullOrEmpty(locale.LocaleDevice) && !pg.Locale_Devices.Contains(locale.LocaleDevice))
+            if (pg.locale_devices != null && !string.IsNullOrEmpty(locale.LocaleDevice) && !pg.locale_devices.Contains(locale.LocaleDevice))
                 return false;
 
-            if (pg.Locale_Countrys != null && !string.IsNullOrEmpty(locale.LocaleCountry) && !pg.Locale_Countrys.Contains(locale.LocaleCountry))
+            if (pg.locale_countrys != null && !string.IsNullOrEmpty(locale.LocaleCountry) && !pg.locale_countrys.Contains(locale.LocaleCountry))
                 return false;
 
-            if (pg.Locale_UserStates != null && localeUserState != LocaleUserState.Unknown && !pg.Locale_UserStates.Contains((long)localeUserState))
+            if (pg.locale_user_states != null && localeUserState != LocaleUserState.Unknown && !pg.locale_user_states.Contains((long)localeUserState))
                 return false;
 
             return true;
@@ -184,33 +184,33 @@ namespace TVPApi
             foreach (PageGallery gallery in galleries)
             {
                 double currentScore = 0;
-                if (gallery.Locale_UserStates != null)
+                if (gallery.locale_user_states != null)
                 {
-                    if (gallery.Locale_UserStates.Contains((int)localeUserState))
+                    if (gallery.locale_user_states.Contains((int)localeUserState))
                         currentScore += Math.Pow(2, 0);
                     else
                         continue;
                 }
 
-                if (gallery.Locale_Langs != null)
+                if (gallery.locale_langs != null)
                 {
-                    if (gallery.Locale_Langs.Contains(localeLanguage))
+                    if (gallery.locale_langs.Contains(localeLanguage))
                         currentScore += Math.Pow(2, 1);
                     else
                         continue;
                 }
 
-                if (gallery.Locale_Countrys != null)
+                if (gallery.locale_countrys != null)
                 {
-                    if (gallery.Locale_Countrys.Contains(localeCountry))
+                    if (gallery.locale_countrys.Contains(localeCountry))
                         currentScore += Math.Pow(2, 2);
                     else
                         continue;
                 }
 
-                if (gallery.Locale_Devices != null)
+                if (gallery.locale_devices != null)
                 {
-                    if (gallery.Locale_Devices.Contains(localeDevice))
+                    if (gallery.locale_devices.Contains(localeDevice))
                         currentScore += Math.Pow(2, 3);
                     else
                         continue;
@@ -237,8 +237,8 @@ namespace TVPApi
 
             IEnumerable<PageGallery> PageGalleryList =
                 from galleries in page.GetGalleries()
-                where galleries.GalleryLocation != null && galleries.GalleryLocation.Equals(location.ToString()) &&
-                (galleries.MainCulture == null || galleries.MainCulture.Equals(languageCode))
+                where galleries.gallery_location != null && galleries.gallery_location.Equals(location.ToString()) &&
+                (galleries.main_culture == null || galleries.main_culture.Equals(languageCode))
                 select galleries;
 
             if (PageGalleryList != null && PageGalleryList.Count() > 0)
@@ -378,7 +378,7 @@ namespace TVPApi
                 {
                     PageContext pageContext = m_LanguageIDPages[culture][PageID];
                     retVal = (from galleries in pageContext.GetGalleries()
-                              where galleries.GalleryID == ID
+                              where galleries.gallery_id == ID
                               select galleries).FirstOrDefault();
                 }
 
@@ -471,55 +471,55 @@ namespace TVPApi
         private GalleryItem CreateGalleryItem(dsPageData.PageGalleriesRow galleryRow)
         {
             GalleryItem retVal = new GalleryItem();
-            retVal.GalleryID = galleryRow.ID;
-            retVal.ViewType = galleryRow.ViewType;
-            retVal.NumberOfItemsPerPage = galleryRow.NumberOfItemsPerPage;
+            retVal.gallery_id = galleryRow.ID;
+            retVal.view_type = galleryRow.ViewType;
+            retVal.number_of_items_per_page = galleryRow.NumberOfItemsPerPage;
             if (!galleryRow.IsTitleNull())
-                retVal.Title = galleryRow.Title;
+                retVal.title = galleryRow.Title;
 
             if (!galleryRow.IsTVMChannelIDNull())
-                retVal.TVMChannelID = galleryRow.TVMChannelID;
+                retVal.tvm_channel_id = galleryRow.TVMChannelID;
 
             if (!galleryRow.IsMainPlayerUNNull() && !string.IsNullOrEmpty(galleryRow.MainPlayerUN))
             {
-                retVal.TVMUser = galleryRow.MainPlayerUN;
-                retVal.TVMPass = galleryRow.MainPlayerPass;
+                retVal.tvm_user = galleryRow.MainPlayerUN;
+                retVal.tvm_pass = galleryRow.MainPlayerPass;
             }
             else if (!galleryRow.IsTvmAccountUNNull())
             {
-                retVal.TVMUser = galleryRow.TvmAccountUN;
-                retVal.TVMPass = galleryRow.TvmAccountPass;
+                retVal.tvm_user = galleryRow.TvmAccountUN;
+                retVal.tvm_pass = galleryRow.TvmAccountPass;
             }
             if (!galleryRow.IsPIC_MAINNull())
-                retVal.MainPic = galleryRow.PIC_MAIN;
+                retVal.main_pic = galleryRow.PIC_MAIN;
 
             if (!galleryRow.IsCULTURENull())
             {
                 string culture = GetLanguageString(galleryRow.CULTURE);
-                retVal.Culture = culture;
+                retVal.culture = culture;
             }
 
             if (!galleryRow.IsMAIN_DESCRIPTIONNull())
             {
-                retVal.MainDescription = galleryRow.MAIN_DESCRIPTION;
+                retVal.main_description = galleryRow.MAIN_DESCRIPTION;
             }
 
             if (!galleryRow.IsPictureSizeNull())
-                retVal.PictureSize = galleryRow.PictureSize;
+                retVal.picture_size = galleryRow.PictureSize;
 
             if (!galleryRow.IsBooleanParamNull())
-                retVal.BooleanParam = Convert.ToBoolean(galleryRow.BooleanParam);
+                retVal.boolean_param = Convert.ToBoolean(galleryRow.BooleanParam);
 
             if (!galleryRow.IsNumericParamNull())
-                retVal.NumericParam = galleryRow.NumericParam;
+                retVal.numeric_param = galleryRow.NumericParam;
 
             //pgallery.IsPoster = galleryRow.IsPoster;
 
             if (!galleryRow.IsNumOfItemsNull())
-                retVal.NumOfItems = galleryRow.NumOfItems;
+                retVal.num_of_items = galleryRow.NumOfItems;
 
             if (!galleryRow.Isitem_linkNull())
-                retVal.Link = galleryRow.item_link;
+                retVal.link = galleryRow.item_link;
 
 
             return retVal;
@@ -527,7 +527,7 @@ namespace TVPApi
 
         private void AddButtonLinksToGallery(PageGallery pg)
         {
-            IEnumerable<dsPageData.GalleryButtonsRow> buttonRows = GetGalleryButtons(pg.GalleryID);
+            IEnumerable<dsPageData.GalleryButtonsRow> buttonRows = GetGalleryButtons(pg.gallery_id);
             if (buttonRows != null && buttonRows.Count() > 0)
             {
                 foreach (dsPageData.GalleryButtonsRow buttonRow in buttonRows)
@@ -535,30 +535,30 @@ namespace TVPApi
                     if (!buttonRow.IsMainCultureNull())
                     {
                         string cultureStr = GetLanguageString(buttonRow.MainCulture);
-                        if (cultureStr == pg.MainCulture)
+                        if (cultureStr == pg.main_culture)
                         {
                             GalleryButtonLink newObj = new GalleryButtonLink();
                             if (!buttonRow.IsTextNull())
                             {
-                                newObj.Text = buttonRow.Text;
+                                newObj.text = buttonRow.Text;
                             }
                             if (!buttonRow.IsLinkNull())
                             {
-                                newObj.Link = buttonRow.Link;
+                                newObj.link = buttonRow.Link;
                             }
                             if (!buttonRow.IsTypeNull())
                             {
-                                newObj.Type = (GalleryButtonType)buttonRow.Type;
+                                newObj.type = (GalleryButtonType)buttonRow.Type;
                             }
-                            if (newObj.Type == GalleryButtonType.Button)
+                            if (newObj.type == GalleryButtonType.Button)
                             {
-                                pg.GalleryButtons.Add(newObj);
+                                pg.gallery_buttons.Add(newObj);
                             }
                             else
                             {
-                                if (newObj.Type == GalleryButtonType.Link)
+                                if (newObj.type == GalleryButtonType.Link)
                                 {
-                                    pg.GalleryLinks.Add(newObj);
+                                    pg.gallery_links.Add(newObj);
                                 }
                             }
                         }
@@ -603,40 +603,40 @@ namespace TVPApi
                 bool isChildGallery = false;
                 PageGallery pgallery = new PageGallery();
 
-                pgallery.GalleryID = galleryRow.ID;
-                pgallery.UIGalleryType = (UIGalleryType)galleryRow.UiComponentType;
+                pgallery.gallery_id = galleryRow.ID;
+                pgallery.ui_gallery_type = (UIGalleryType)galleryRow.UiComponentType;
 
                 if (!galleryRow.IsMainPlayerUNNull() && !string.IsNullOrEmpty(galleryRow.MainPlayerUN))
                 {
-                    pgallery.TVMUser = galleryRow.MainPlayerUN;
+                    pgallery.tvm_user = galleryRow.MainPlayerUN;
                     pgallery.TVMPass = galleryRow.MainPlayerPass;
                 }
                 else if (!galleryRow.IsTvmAccountUNNull())
                 {
-                    pgallery.TVMUser = galleryRow.TvmAccountUN;
+                    pgallery.tvm_user = galleryRow.TvmAccountUN;
                     pgallery.TVMPass = galleryRow.TvmAccountPass;
                 }
 
                 if (!galleryRow.IslocationNull())
-                    pgallery.GalleryLocation = galleryRow.location;
+                    pgallery.gallery_location = galleryRow.location;
 
                 if (!galleryRow.Ismain_locationNull())
-                    pgallery.GalleryOrder = galleryRow.main_location;
+                    pgallery.gallery_order = galleryRow.main_location;
 
 
                 if (!galleryRow.IsMAIN_CULTURENull())
                 {
                     string culture = GetLanguageString(galleryRow.MAIN_CULTURE);
-                    pgallery.MainCulture = culture;
+                    pgallery.main_culture = culture;
                 }
 
 
                 if (!galleryRow.IsLinkHeaderNull())
-                    pgallery.LinksHeader = galleryRow.LinkHeader;
+                    pgallery.links_header = galleryRow.LinkHeader;
 
 
                 if (!galleryRow.IsGroupTitleNull())
-                    pgallery.GroupTitle = galleryRow.GroupTitle;
+                    pgallery.group_title = galleryRow.GroupTitle;
 
                 if (!galleryRow.IsGroupDescriptionNull())
                     pgallery.MainDescription = galleryRow.GroupDescription;
@@ -644,13 +644,13 @@ namespace TVPApi
                 GalleryItem galleryItem = CreateGalleryItem(galleryRow);
                 AddLocalesToGallery(pgallery, galleryRow.GetGalleryLocalesRows());
                 //AddButtonLinksToGallery(pgallery);
-                if (pgallery.MainCulture != null)
+                if (pgallery.main_culture != null)
                 {
                     //Check if gallery language already exists in dictionary
-                    if (galleryDict.ContainsKey(pgallery.MainCulture))
+                    if (galleryDict.ContainsKey(pgallery.main_culture))
                     {
                         //Check if gallery already exists 
-                        if (galleryDict[pgallery.MainCulture].ContainsKey(pgallery.GalleryID))
+                        if (galleryDict[pgallery.main_culture].ContainsKey(pgallery.gallery_id))
                         {
                             //This means that the new gallery is a child gallery - add it to the gallery children list later on
                             isChildGallery = true;
@@ -658,34 +658,34 @@ namespace TVPApi
                         else
                         {
                             //New gallery - add it to existing galleris dictionary
-                            galleryDict[pgallery.MainCulture].Add(pgallery.GalleryID, pgallery);
+                            galleryDict[pgallery.main_culture].Add(pgallery.gallery_id, pgallery);
                         }
                     }
                     else
                     {
                         //New language - add it as a key to the dictionary
-                        galleryDict.Add(pgallery.MainCulture, new Dictionary<long, PageGallery>());
+                        galleryDict.Add(pgallery.main_culture, new Dictionary<long, PageGallery>());
                         //Add the new page gallery to the new language distionary
-                        galleryDict[pgallery.MainCulture].Add(pgallery.GalleryID, pgallery);
+                        galleryDict[pgallery.main_culture].Add(pgallery.gallery_id, pgallery);
                     }
                 }
 
                 if (!isChildGallery)
                 {
                     //Regular gallery - add it to the page
-                    string newIDStr = string.Concat(pgallery.GalleryID.ToString(), "0");
-                    galleryItem.ItemID = Convert.ToInt32(newIDStr);
+                    string newIDStr = string.Concat(pgallery.gallery_id.ToString(), "0");
+                    galleryItem.item_id = Convert.ToInt32(newIDStr);
                     page.AddGallery(pgallery);
-                    pgallery.GalleryItems.Add(galleryItem);
+                    pgallery.gallery_items.Add(galleryItem);
                 }
                 else
                 {
                     //Child gallery - add it to the parent's children list
-                    if (pgallery.MainCulture != null && pgallery.MainCulture == galleryItem.Culture)
+                    if (pgallery.main_culture != null && pgallery.main_culture == galleryItem.culture)
                     {
-                        string newIDStr = string.Concat(pgallery.GalleryID.ToString(), galleryDict[pgallery.MainCulture][pgallery.GalleryID].GalleryItems.Count.ToString());
-                        galleryItem.ItemID = Convert.ToInt32(newIDStr);
-                        galleryDict[pgallery.MainCulture][pgallery.GalleryID].GalleryItems.Add(galleryItem);
+                        string newIDStr = string.Concat(pgallery.gallery_id.ToString(), galleryDict[pgallery.main_culture][pgallery.gallery_id].gallery_items.Count.ToString());
+                        galleryItem.item_id = Convert.ToInt32(newIDStr);
+                        galleryDict[pgallery.main_culture][pgallery.gallery_id].gallery_items.Add(galleryItem);
 
                     }
                 }
@@ -890,7 +890,7 @@ namespace TVPApi
             {
                 IEnumerable<PageGallery> MainGalleryList =
                 from galleries in GetLocaleGalleries()
-                where galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Main.ToString())
+                where galleries.gallery_location.Equals(TVPApi.GalleryLocation.Main.ToString())
                 select galleries;
 
                 if (MainGalleryList != null && MainGalleryList.Count() > 0)
@@ -907,7 +907,7 @@ namespace TVPApi
             {
                 IEnumerable<PageGallery> TopGalleryList =
                 from galleries in GetLocaleGalleries()
-                where galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Top.ToString())
+                where galleries.gallery_location.Equals(TVPApi.GalleryLocation.Top.ToString())
                 select galleries;
 
                 if (TopGalleryList != null && TopGalleryList.Count() > 0)
@@ -971,30 +971,30 @@ namespace TVPApi
     #region PageGallery
     public class PageGallery
     {
-        public long GalleryID { get; set; }
-        public TVPApi.UIGalleryType UIGalleryType { get; set; }
-        public string TVMUser { get; set; }
+        public long gallery_id { get; set; }
+        public TVPApi.UIGalleryType ui_gallery_type { get; set; }
+        public string tvm_user { get; set; }
         public string TVMPass { get; set; }
-        public string GalleryLocation { get; set; }
-        public int GalleryOrder { get; set; }
-        public string MainCulture { get; set; }
-        public string LinksHeader { get; set; }
-        public string GroupTitle { get; set; }
+        public string gallery_location { get; set; }
+        public int gallery_order { get; set; }
+        public string main_culture { get; set; }
+        public string links_header { get; set; }
+        public string group_title { get; set; }
         public string MainDescription { get; set; }
-        public long FamilyID { get; set; }
+        public long family_id { get; set; }
 
         protected List<GalleryButtonLink> m_galleryButtons;
         protected List<GalleryButtonLink> m_galleryLinks;
         protected List<GalleryItem> m_GalleryItems;
 
 
-        public List<string> Locale_Langs { get; set; }
-        public List<string> Locale_Countrys { get; set; }
-        public List<long> Locale_UserStates { get; set; }
-        public List<string> Locale_Devices { get; set; }
+        public List<string> locale_langs { get; set; }
+        public List<string> locale_countrys { get; set; }
+        public List<long> locale_user_states { get; set; }
+        public List<string> locale_devices { get; set; }
 
 
-        public List<GalleryItem> GalleryItems
+        public List<GalleryItem> gallery_items
         {
             get
             {
@@ -1010,7 +1010,7 @@ namespace TVPApi
             }
         }
 
-        public List<GalleryButtonLink> GalleryButtons
+        public List<GalleryButtonLink> gallery_buttons
         {
             get
             {
@@ -1022,7 +1022,7 @@ namespace TVPApi
             }
         }
 
-        public List<GalleryButtonLink> GalleryLinks
+        public List<GalleryButtonLink> gallery_links
         {
             get
             {
@@ -1044,10 +1044,10 @@ namespace TVPApi
 
     public struct GalleryButtonLink
     {
-        public long ButtonID;
-        public string Link;
-        public string Text;
-        public TVPApi.GalleryButtonType Type;
+        public long button_id;
+        public string link;
+        public string text;
+        public TVPApi.GalleryButtonType type;
     }
 
     #endregion
@@ -1056,23 +1056,23 @@ namespace TVPApi
 
     public class GalleryItem
     {
-        public long GalleryID { get; set; }
-        public long ItemID { get; set; }
-        public string ViewType { get; set; }
-        public string Title { get; set; }
-        public long TVMChannelID { get; set; }
-        public int NumberOfItemsPerPage { get; set; }
-        public string PictureSize { get; set; }
-        public bool IsPoster { get; set; }
-        public int NumOfItems { get; set; }
-        public bool BooleanParam { get; set; }
-        public long NumericParam { get; set; }
-        public long MainPic { get; set; }
-        public string TVMUser { get; set; }
-        public string TVMPass { get; set; }
-        public string Link { get; set; }
-        public string MainDescription { get; set; }
-        public string Culture { get; set; }
+        public long gallery_id { get; set; }
+        public long item_id { get; set; }
+        public string view_type { get; set; }
+        public string title { get; set; }
+        public long tvm_channel_id { get; set; }
+        public int number_of_items_per_page { get; set; }
+        public string picture_size { get; set; }
+        public bool is_poster { get; set; }
+        public int num_of_items { get; set; }
+        public bool boolean_param { get; set; }
+        public long numeric_param { get; set; }
+        public long main_pic { get; set; }
+        public string tvm_user { get; set; }
+        public string tvm_pass { get; set; }
+        public string link { get; set; }
+        public string main_description { get; set; }
+        public string culture { get; set; }
 
     }
 

@@ -7,16 +7,16 @@ namespace TVPApiModule.Objects.Responses
 {
     public class FacebookConfig
     {
-        public string fbKey { get; set; }
+        public string fb_key { get; set; }
 
-        public string fbSecret { get; set; }
+        public string fb_secret { get; set; }
 
-        public string fbCallback { get; set; }
+        public string fb_callback { get; set; }
 
-        public int fbMinFriends { get; set; }
+        public int fb_min_friends { get; set; }
 
-        public string fbPermissions { get; set; }
+        public string fb_permissions { get; set; }
 
-        public string fbRedirect { get; set; }
+        public string fb_redirect { get; set; }
     }
 }

@@ -80,14 +80,14 @@ namespace TVPApiModule.Services
 
                 if (response != null && response.user != null)
                 {
-                    loginData.SiteGuid = response.user.siteGUID;
-                    loginData.DomainID = response.user.domianID;
-                    loginData.LoginStatus = response.respStatus;
+                    loginData.SiteGuid = response.user.site_guid;
+                    loginData.DomainID = response.user.domian_id;
+                    loginData.LoginStatus = response.resp_status;
                     loginData.UserData = response.user;
                 }
                 else if (response != null)
                 {
-                    loginData.LoginStatus = response.respStatus;
+                    loginData.LoginStatus = response.resp_status;
                 }
             }
             catch (Exception ex)
@@ -164,16 +164,16 @@ namespace TVPApiModule.Services
             return IsRemoved;
         }
 
-        public FavoriteObject[] GetUserFavorites(string sSiteGuid, string sItemType, int iDomainID, string sUDID)
+        public IEnumerable<FavoriteObject> GetUserFavorites(string sSiteGuid, string sItemType, int iDomainID, string sUDID)
         {
-            FavoriteObject[] retVal = null;
+            IEnumerable<FavoriteObject> retVal = null;
 
             try
             {
 
-                FavoritObject[] response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+                var response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
                 if (response != null && response.Length > 0)
-                    retVal = response.Where(f => f != null).Select(f => f.ToApiObject()).ToArray();
+                    retVal = response.Where(f => f != null).Select(f => f.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -283,15 +283,15 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.UserResponseObject[] GetUsersData(string sSiteGuids)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserResponseObject> GetUsersData(string sSiteGuids)
         {
-            TVPApiModule.Objects.Responses.UserResponseObject[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserResponseObject> response = null;
 
             try
             {
                 var res = m_Module.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(';'));
                 if (res != null)
-                    response = res.Where(ur => ur != null).Select(u => u.ToApiObject()).ToArray();
+                    response = res.Where(ur => ur != null).Select(u => u.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -424,7 +424,7 @@ namespace TVPApiModule.Services
             try
             {
                 TVPApiModule.Objects.Responses.UserResponseObject uro = m_Module.ForgotPassword(m_wsUserName, m_wsPassword, UserName).ToApiObject();
-                if (uro.respStatus == TVPApiModule.Objects.Responses.ResponseStatus.OK)
+                if (uro.resp_status == TVPApiModule.Objects.Responses.ResponseStatus.OK)
                 {
                     logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", UserName);
                     return true;
@@ -461,7 +461,7 @@ namespace TVPApiModule.Services
 
         public bool IsOfflineModeEnabled(string siteGuid)
         {
-            var offlineMode = GetUserData(siteGuid).user.dynamicData.userData.Where(x => x.dataType == "IsOfflineMode" && x.value == "true").FirstOrDefault();
+            var offlineMode = GetUserData(siteGuid).user.dynamic_data.user_data.Where(x => x.data_type == "IsOfflineMode" && x.value == "true").FirstOrDefault();
 
             if (offlineMode == null)
                 return false;
@@ -476,13 +476,13 @@ namespace TVPApiModule.Services
         {
             TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData newDynamicData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData();
             TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dData;
-            newDynamicData.m_sUserData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer[curDynamicData.userData.Count() + (isAddNew ? 1 : 0)];
+            newDynamicData.m_sUserData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer[curDynamicData.user_data.Count() + (isAddNew ? 1 : 0)];
             int idx = 0;
 
-            foreach (var UserData in curDynamicData.userData)
+            foreach (var UserData in curDynamicData.user_data)
             {
                 dData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer();
-                dData.m_sDataType = UserData.dataType;
+                dData.m_sDataType = UserData.data_type;
                 dData.m_sValue = UserData.value;
                 newDynamicData.m_sUserData[idx] = dData;
                 idx++;
@@ -501,8 +501,8 @@ namespace TVPApiModule.Services
             {
                 
                 userData = GetUserData(siteGUID);
-                curDynamicData = userData.user.dynamicData;
-                var isOfflineMode = curDynamicData.userData.Where(x => x != null && x.dataType == "IsOfflineMode").Count() > 0;
+                curDynamicData = userData.user.dynamic_data;
+                var isOfflineMode = curDynamicData.user_data.Where(x => x != null && x.data_type == "IsOfflineMode").Count() > 0;
                 newDynamicData = cloneDynamicData(curDynamicData, !isOfflineMode);
 
                 if (!isOfflineMode)
@@ -520,7 +520,7 @@ namespace TVPApiModule.Services
             else
             {
                 userData = GetUserData(siteGUID);
-                curDynamicData = userData.user.dynamicData;
+                curDynamicData = userData.user.dynamic_data;
                 newDynamicData = cloneDynamicData(curDynamicData, false);
 
                 newDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode").First().m_sValue = "false";
@@ -528,44 +528,44 @@ namespace TVPApiModule.Services
 
             TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData = new TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData()
             {
-                m_bIsFacebookImagePermitted = userData.user.basicData.isFacebookImagePermitted,
-                m_CoGuid = userData.user.basicData.coGuid,
+                m_bIsFacebookImagePermitted = userData.user.basic_data.is_facebook_image_permitted,
+                m_CoGuid = userData.user.basic_data.co_guid,
                 m_Country = new TVPPro.SiteManager.TvinciPlatform.Users.Country()
                 {
-                    m_nObjecrtID = userData.user.basicData.country.objectID,
-                    m_sCountryCode = userData.user.basicData.country.countryCode,
-                    m_sCountryName = userData.user.basicData.country.countryName
+                    m_nObjecrtID = userData.user.basic_data.country.object_id,
+                    m_sCountryCode = userData.user.basic_data.country.country_code,
+                    m_sCountryName = userData.user.basic_data.country.country_name
                 },
-                m_ExternalToken = userData.user.basicData.externalToken,
-                m_sAddress = userData.user.basicData.address,
-                m_sAffiliateCode = userData.user.basicData.affiliateCode,
-                m_sCity = userData.user.basicData.city,
-                m_sEmail = userData.user.basicData.email,
-                m_sFacebookID = userData.user.basicData.facebookID,
-                m_sFacebookImage = userData.user.basicData.facebookImage,
-                m_sFacebookToken = userData.user.basicData.facebookToken,
-                m_sFirstName = userData.user.basicData.firstName,
-                m_sLastName = userData.user.basicData.lastName,
-                m_sPhone = userData.user.basicData.phone,
+                m_ExternalToken = userData.user.basic_data.external_token,
+                m_sAddress = userData.user.basic_data.address,
+                m_sAffiliateCode = userData.user.basic_data.affiliate_code,
+                m_sCity = userData.user.basic_data.city,
+                m_sEmail = userData.user.basic_data.email,
+                m_sFacebookID = userData.user.basic_data.facebook_id,
+                m_sFacebookImage = userData.user.basic_data.facebook_image,
+                m_sFacebookToken = userData.user.basic_data.facebook_token,
+                m_sFirstName = userData.user.basic_data.first_name,
+                m_sLastName = userData.user.basic_data.last_name,
+                m_sPhone = userData.user.basic_data.phone,
                 m_State = new TVPPro.SiteManager.TvinciPlatform.Users.State()
                 {
                     m_Country = new TVPPro.SiteManager.TvinciPlatform.Users.Country()
                     {
-                        m_nObjecrtID = userData.user.basicData.state.country.objectID,
-                        m_sCountryCode = userData.user.basicData.state.country.countryCode,
-                        m_sCountryName = userData.user.basicData.state.country.countryName
+                        m_nObjecrtID = userData.user.basic_data.state.country.object_id,
+                        m_sCountryCode = userData.user.basic_data.state.country.country_code,
+                        m_sCountryName = userData.user.basic_data.state.country.country_name
                     },
-                    m_nObjecrtID = userData.user.basicData.state.objectID,
-                    m_sStateCode = userData.user.basicData.state.stateCode,
-                    m_sStateName = userData.user.basicData.state.stateName
+                    m_nObjecrtID = userData.user.basic_data.state.object_id,
+                    m_sStateCode = userData.user.basic_data.state.state_code,
+                    m_sStateName = userData.user.basic_data.state.state_name
                 },
-                m_sUserName = userData.user.basicData.userName,
-                m_sZip = userData.user.basicData.zip,
+                m_sUserName = userData.user.basic_data.user_name,
+                m_sZip = userData.user.basic_data.zip,
                 m_UserType = new TVPPro.SiteManager.TvinciPlatform.Users.UserType()
                 {
-                    Description = userData.user.basicData.userType.description,
-                    ID = userData.user.basicData.userType.id,
-                    IsDefault = userData.user.basicData.userType.isDefault
+                    Description = userData.user.basic_data.user_type.description,
+                    ID = userData.user.basic_data.user_type.id,
+                    IsDefault = userData.user.basic_data.user_type.is_default
                 }
             };
 
@@ -656,15 +656,15 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.UserBasicData[] SearchUsers(string[] sTerms, string[] sFields, bool bIsExact)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserBasicData> SearchUsers(string[] sTerms, string[] sFields, bool bIsExact)
         {
-            TVPApiModule.Objects.Responses.UserBasicData[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserBasicData> response = null;
 
             try
             {
                 var res = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
                 if (res != null)
-                    response = res.Where(ubd => ubd != null).Select(u => u.ToApiObject()).ToArray();
+                    response = res.Where(ubd => ubd != null).Select(u => u.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -686,14 +686,14 @@ namespace TVPApiModule.Services
             }
         }
 
-        public TVPApiModule.Objects.Responses.Country[] GetCountriesList()
+        public IEnumerable<TVPApiModule.Objects.Responses.Country> GetCountriesList()
         {
-            TVPApiModule.Objects.Responses.Country[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.Country> response = null;
             try
             {
                 var res = m_Module.GetCountryList(m_wsUserName, m_wsPassword);
                 if (res != null)
-                    response = res.Where(c => c != null).Select(c => c.ToApiObject()).ToArray();
+                    response = res.Where(c => c != null).Select(c => c.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -720,15 +720,14 @@ namespace TVPApiModule.Services
             return response;
         }
 
-
-        public TVPApiModule.Objects.Responses.UserType[] GetGroupUserTypes()
+        public IEnumerable<TVPApiModule.Objects.Responses.UserType> GetGroupUserTypes()
         {
-            TVPApiModule.Objects.Responses.UserType[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserType> response = null;
             try
             {
                 var res = m_Module.GetGroupUserTypes(m_wsUserName, m_wsPassword);
                 if (res != null)
-                    response = res.Where(ut => ut != null).Select(u => u.ToApiObject()).ToArray();
+                    response = res.Where(ut => ut != null).Select(u => u.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -884,9 +883,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.UserItemList[] GetItemFromList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserItemList> GetItemFromList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            TVPApiModule.Objects.Responses.UserItemList[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.UserItemList> response = null;
 
             try
             {
@@ -900,7 +899,7 @@ namespace TVPApiModule.Services
                 };
                 var res = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
                 if (res != null)
-                    response = res.Where(uil => uil != null).Select(u => u.ToApiObject()).ToArray();
+                    response = res.Where(uil => uil != null).Select(u => u.ToApiObject());
             }
             catch (Exception ex)
             {
@@ -911,9 +910,9 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.KeyValuePair[] IsItemExistsInList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public IEnumerable<TVPApiModule.Objects.Responses.KeyValuePair> IsItemExistsInList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            TVPApiModule.Objects.Responses.KeyValuePair[] response = null;
+            IEnumerable<TVPApiModule.Objects.Responses.KeyValuePair> response = null;
             
             try
             {
@@ -927,7 +926,7 @@ namespace TVPApiModule.Services
                 };
                 var res = m_Module.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
                 if (res != null)
-                    response = res.Where(kv => kv != null).Select(kv => kv.ToApiObject()).ToArray();
+                    response = res.Where(kv => kv != null).Select(kv => kv.ToApiObject());
             }
             catch (Exception ex)
             {

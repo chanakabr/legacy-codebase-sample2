@@ -373,7 +373,7 @@ namespace TVPApi
                     {
                         Menu menu = new Menu();
                         menu.id = menuPair.Key;
-                        menu.menuItems = menuPair.Value;
+                        menu.menu_items = menuPair.Value;
                         menu.type = MenuBuilder.MenuType.Menu;
 
                         AddMenu(keyStr, menu, ref siteMap);
@@ -398,7 +398,7 @@ namespace TVPApi
                     {
                         Menu menu = new Menu();
                         menu.id = menuPair.Key;
-                        menu.menuItems = menuPair.Value;
+                        menu.menu_items = menuPair.Value;
 
                         menu.type = MenuBuilder.MenuType.Footer;
                         AddFooter(keyStr, menu, ref siteMap);

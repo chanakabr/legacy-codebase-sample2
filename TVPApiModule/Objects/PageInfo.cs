@@ -69,7 +69,7 @@ namespace TVPApi
                 if (m_Page != null && m_Page.MainGalleries != null)
                 {
                     IEnumerable<long> galleryList = from galleries in m_Page.MainGalleries
-                                                    select galleries.GalleryID;
+                                                    select galleries.gallery_id;
                     if (galleryList != null && galleryList.Count() > 0)
                     {
                         retVal = galleryList.ToList<long>();
@@ -92,7 +92,7 @@ namespace TVPApi
                 if (m_Page != null && m_Page.TopGalleries != null)
                 {
                     IEnumerable<long> galleryList = from galleries in m_Page.TopGalleries
-                                                    select galleries.GalleryID;
+                                                    select galleries.gallery_id;
                     if (galleryList != null && galleryList.Count() > 0)
                     {
                         retVal = galleryList.ToList<long>();

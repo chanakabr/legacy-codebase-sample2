@@ -36,7 +36,7 @@ namespace TVPApiModule.Services
             m_platform = platform;
         }
 
-        public List<Notification> GetDeviceNotifications(string sGuid, string sDeviceUDID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
+        public IEnumerable<Notification> GetDeviceNotifications(string sGuid, string sDeviceUDID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
         {
             List<Notification> res = new List<Notification>();
             try
@@ -48,29 +48,29 @@ namespace TVPApiModule.Services
                     {
                         res.Add(new Notification()
                         {
-                            Actions = message.Actions != null ? message.Actions : null,
-                            AppName = message.AppName,
+                            actions = message.Actions != null ? message.Actions : null,
+                            app_name = message.AppName,
                             DeviceID = message.DeviceID,
-                            ID = message.ID,
-                            MessageText = message.MessageText,
+                            id = message.ID,
+                            message_text = message.MessageText,
                             nGroupID = message.nGroupID,
-                            NotificationID = message.NotificationID,
-                            NotificationMessageID = message.NotificationMessageID,
-                            Status = message.Status,
-                            Title = message.Title,
-                            Type = message.Type,
-                            UdID = message.UdID,
-                            UserID = message.UserID,
-                            TagNotificationParams = message.TagNotificationParams != null ? new ExtraParameters()
+                            notification_id = message.NotificationID,
+                            notification_message_id = message.NotificationMessageID,
+                            status = message.Status,
+                            title = message.Title,
+                            type = message.Type,
+                            udid = message.UdID,
+                            user_id = message.UserID,
+                            tag_notification_params = message.TagNotificationParams != null ? new ExtraParameters()
                             {
                                 mediaID = message.TagNotificationParams.mediaIDk__BackingField,
                                 mediaPicURL = message.TagNotificationParams.mediaPicURLk__BackingField,
                                 TagDict = message.TagNotificationParams.TagDictk__BackingField != null ? message.TagNotificationParams.TagDictk__BackingField.Select(x => new TagMetaIntPairArray() { Key = x.Key, Values = x.Value }).ToList() : null,
                                 templateEmail = message.TagNotificationParams.templateEmailk__BackingField
                             } : null,
-                            PublishDate = message.PublishDate,
-                            ViewStatus = message.ViewStatus,
-                            NotificationRequestID = message.NotificationRequestID
+                            publish_date = message.PublishDate,
+                            view_status = message.ViewStatus,
+                            notification_request_id = message.NotificationRequestID
                         });
                     }
                 }
@@ -118,7 +118,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values);
+                Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.key, (valueItem) => valueItem.values);
                 res = m_Client.SubscribeByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
             }
             catch (Exception e)
@@ -134,7 +134,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values);
+                Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.key, (valueItem) => valueItem.values);
                 res = m_Client.UnsubscribeFollowUpByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
             }
             catch (Exception e)
@@ -145,7 +145,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(string sGuid)
+        public IEnumerable<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(string sGuid)
         {
             Dictionary<string, string[]> clientRes = new Dictionary<string, string[]>();
             List<TVPApi.TagMetaPairArray> finalRes = new List<TagMetaPairArray>();
@@ -157,7 +157,7 @@ namespace TVPApiModule.Services
                 if (clientRes != null)
                 {
                     foreach (var entry in clientRes)
-                        finalRes.Add(new TagMetaPairArray() { Key = entry.Key, Values = entry.Value });
+                        finalRes.Add(new TagMetaPairArray() { key = entry.Key, values = entry.Value });
 
                     return finalRes;
                 }

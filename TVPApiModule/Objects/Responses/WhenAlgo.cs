@@ -7,8 +7,8 @@ namespace TVPApiModule.Objects.Responses
 {
     public class WhenAlgo
     {
-        public WhenAlgoType algoType { get; set; }
+        public WhenAlgoType algo_type { get; set; }
 
-        public int nTimes { get; set; }
+        public int n_times { get; set; }
     }
 }

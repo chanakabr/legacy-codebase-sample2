@@ -7,11 +7,11 @@ namespace TVPApiModule.Objects.Responses
 {
     public class UserBasicData
     {
-        public string userName { get; set; }
+        public string user_name { get; set; }
 
-        public string firstName { get; set; }
+        public string first_name { get; set; }
 
-        public string lastName { get; set; }
+        public string last_name { get; set; }
 
         public string email { get; set; }
 
@@ -27,20 +27,20 @@ namespace TVPApiModule.Objects.Responses
 
         public string phone { get; set; }
 
-        public string facebookID { get; set; }
+        public string facebook_id { get; set; }
 
-        public string facebookImage { get; set; }
+        public string facebook_image { get; set; }
 
-        public bool isFacebookImagePermitted { get; set; }
+        public bool is_facebook_image_permitted { get; set; }
 
-        public string affiliateCode { get; set; }
+        public string affiliate_code { get; set; }
 
-        public string coGuid { get; set; }
+        public string co_guid { get; set; }
 
-        public string externalToken { get; set; }
+        public string external_token { get; set; }
 
-        public string facebookToken { get; set; }
+        public string facebook_token { get; set; }
 
-        public UserType userType { get; set; }
+        public UserType user_type { get; set; }
     }
 }

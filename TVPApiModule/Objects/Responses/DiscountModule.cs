@@ -9,12 +9,12 @@ namespace TVPApiModule.Objects.Responses
     {
         public double percent { get; set; }
 
-        public RelationTypes theRelationType { get; set; }
+        public RelationTypes the_relation_type { get; set; }
 
-        public System.DateTime startDate { get; set; }
+        public System.DateTime start_date { get; set; }
 
-        public System.DateTime endDate { get; set; }
+        public System.DateTime end_date { get; set; }
 
-        public WhenAlgo whenAlgo { get; set; }
+        public WhenAlgo when_algo { get; set; }
     }
 }

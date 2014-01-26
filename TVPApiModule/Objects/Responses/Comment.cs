@@ -15,7 +15,7 @@ namespace TVPApi
 
         public string header { get; set; }
 
-        public string addedDate { get; set; }
+        public string added_date { get; set; }
 
         public string content { get; set; }
 
@@ -23,7 +23,7 @@ namespace TVPApi
         {
             this.author = author;
             this.header = header;
-            this.addedDate = addedDate;
+            this.added_date = addedDate;
             this.content = content;
         }
     }

@@ -7,42 +7,42 @@ namespace TVPApiModule.Objects.Responses
 {
     public class EPGChannelProgrammeObject
     {
-        public long epgID { get; set; }
+        public long epg_id { get; set; }
 
-        public string epgChannelID { get; set; }
+        public string epg_channel_id { get; set; }
 
-        public string epgIdentifier { get; set; }
+        public string epg_identifier { get; set; }
 
         public string name { get; set; }
 
         public string description { get; set; }
 
-        public string startDate { get; set; }
+        public string start_date { get; set; }
 
-        public string endDate { get; set; }
+        public string end_date { get; set; }
 
-        public string picUrl { get; set; }
+        public string pic_url { get; set; }
 
         public string status { get; set; }
 
-        public string isActive { get; set; }
+        public string is_active { get; set; }
 
-        public string groupID { get; set; }
+        public string group_id { get; set; }
 
-        public string updaterID { get; set; }
+        public string updater_id { get; set; }
 
-        public string updateDate { get; set; }
+        public string update_date { get; set; }
 
-        public string publishDate { get; set; }
+        public string publish_date { get; set; }
 
-        public string createDate { get; set; }
+        public string create_date { get; set; }
 
-        public int likeCounter { get; set; }
+        public int like_counter { get; set; }
 
-        public EPGDictionary[] epgTags { get; set; }
+        public EPGDictionary[] epg_tags { get; set; }
 
-        public EPGDictionary[] epgMeta { get; set; }
+        public EPGDictionary[] epg_meta { get; set; }
 
-        public string mediaID { get; set; }
+        public string media_id { get; set; }
     }
 }

@@ -76,32 +76,32 @@ namespace TVPApiServices
         public void Initialize(TVPApiModule.Objects.Responses.UserResponseObject userResponseObject)
         {
             //this.response_status = (TVPApiModule.Objects.CRM.ResponseStatus)userResponseObject.m_RespStatus;
-            this.user_instance_id = userResponseObject.userInstanceID;
+            this.user_instance_id = userResponseObject.user_instance_id;
 
             if (userResponseObject.user != null)
             {
                 this.user = new TVPApiModule.Objects.CRM.User();
 
-                if (userResponseObject.user.basicData != null)
+                if (userResponseObject.user.basic_data != null)
                 {
-                    this.user.basic_data = new TVPApiModule.Objects.CRM.UserBasicData(userResponseObject.user.basicData);  
+                    this.user.basic_data = new TVPApiModule.Objects.CRM.UserBasicData(userResponseObject.user.basic_data);  
                 }
 
-                this.user.domain_id = userResponseObject.user.domianID;
+                this.user.domain_id = userResponseObject.user.domian_id;
 
-                if (userResponseObject.user.dynamicData != null)
+                if (userResponseObject.user.dynamic_data != null)
                 {
                     this.user.dynamic_data = new TVPApiModule.Objects.CRM.UserDynamicData();
 
-                    if (userResponseObject.user.dynamicData.userData != null)
+                    if (userResponseObject.user.dynamic_data.user_data != null)
                     {
                         List<TVPApiModule.Objects.CRM.UserDynamicDataContainer> temp = new List<TVPApiModule.Objects.CRM.UserDynamicDataContainer>();
 
-                        foreach (var user_data in userResponseObject.user.dynamicData.userData)
+                        foreach (var user_data in userResponseObject.user.dynamic_data.user_data)
                         {
                             TVPApiModule.Objects.CRM.UserDynamicDataContainer userDynamicDataContainer = new TVPApiModule.Objects.CRM.UserDynamicDataContainer();
 
-                            userDynamicDataContainer.data_type = user_data.dataType;
+                            userDynamicDataContainer.data_type = user_data.data_type;
                             userDynamicDataContainer.value = user_data.value;
 
                             temp.Add(userDynamicDataContainer);
@@ -111,10 +111,10 @@ namespace TVPApiServices
                     }
                 }
 
-                this.user.is_domain_master = userResponseObject.user.domainMaster;
-                this.user.sso_opertaor_id = userResponseObject.user.ssoOperatorID;
-                this.user.user_State = (TVPApiModule.Objects.CRM.UserState)userResponseObject.user.userState;
-                this.user.site_guid = userResponseObject.user.siteGUID;
+                this.user.is_domain_master = userResponseObject.user.domain_master;
+                this.user.sso_opertaor_id = userResponseObject.user.sso_operator_id;
+                this.user.user_State = (TVPApiModule.Objects.CRM.UserState)userResponseObject.user.user_state;
+                this.user.site_guid = userResponseObject.user.site_guid;
             }
         }
 

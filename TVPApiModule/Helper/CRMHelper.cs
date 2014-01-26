@@ -13,7 +13,7 @@ namespace TVPApi
 {
     public class CRMHelper
     {
-        public static UserBasicData[] SearchUsers(int groupId, string text)
+        public static IEnumerable<UserBasicData> SearchUsers(int groupId, string text)
         {
             string[] sTerms = null;
             string[] sFields = null;

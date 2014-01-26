@@ -7,33 +7,33 @@ namespace TVPApiModule.Objects.Responses
 {
     public class PermittedSubscriptionContainer
     {
-        public string subscriptionCode { get; set; }
+        public string subscription_code { get; set; }
 
-        public int maxUses { get; set; }
+        public int max_uses { get; set; }
 
-        public int currentUses { get; set; }
+        public int current_uses { get; set; }
 
-        public DateTime endDate { get; set; }
+        public DateTime end_date { get; set; }
 
-        public DateTime currentDate { get; set; }
+        public DateTime current_date { get; set; }
 
-        public DateTime lastViewDate { get; set; }
+        public DateTime last_view_date { get; set; }
 
-        public DateTime purchaseDate { get; set; }
+        public DateTime purchase_date { get; set; }
 
-        public DateTime nextRenewalDate { get; set; }
+        public DateTime next_renewal_date { get; set; }
 
-        public bool recurringStatus { get; set; }
+        public bool recurring_status { get; set; }
 
-        public bool isSubRenewable { get; set; }
+        public bool is_sub_renewable { get; set; }
 
-        public int subscriptionPurchaseID { get; set; }
+        public int subscription_purchase_id { get; set; }
 
-        public PaymentMethod paymentMethod { get; set; }
+        public PaymentMethod payment_method { get; set; }
 
-        public string deviceUDID { get; set; }
+        public string device_udid { get; set; }
 
-        public string deviceName { get; set; }
+        public string device_name { get; set; }
     }
 
 }

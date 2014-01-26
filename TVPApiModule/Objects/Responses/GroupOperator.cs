@@ -7,7 +7,7 @@ namespace TVPApiModule.Objects.Responses
 {
     public class GroupOperator
     {
-        public UIData uiData { get; set; }
+        public UIData ui_data { get; set; }
         
         public int id { get; set; }
         
@@ -15,16 +15,16 @@ namespace TVPApiModule.Objects.Responses
         
         public eOperatorType type { get; set; }
 
-        public string loginUrl { get; set; }
+        public string login_url { get; set; }
 
-        public int subGroupID { get; set; }
+        public int sub_group_id { get; set; }
 
         public Scope[] scopes { get; set; }
 
-        public string groupUserName { get; set; }
+        public string group_user_name { get; set; }
 
-        public string groupPassword { get; set; }
+        public string group_password { get; set; }
 
-        public string logoutURL { get; set; }
+        public string logout_url { get; set; }
     }
 }

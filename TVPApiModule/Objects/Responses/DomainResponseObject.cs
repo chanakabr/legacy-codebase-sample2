@@ -9,6 +9,6 @@ namespace TVPApiModule.Objects.Responses
     {
         public Domain domain { get; set; }
         
-        public DomainResponseStatus domainResponseStatus { get; set; }
+        public DomainResponseStatus domain_response_status { get; set; }
     }
 }

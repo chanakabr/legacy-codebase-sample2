@@ -11,7 +11,7 @@ namespace TVPApiModule.Objects.Responses
 
         public Price prise { get; set; }
 
-        public int objectID { get; set; }
+        public int object_id { get; set; }
 
         public LanguageContainer[] description { get; set; }
     }

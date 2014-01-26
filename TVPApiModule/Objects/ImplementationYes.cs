@@ -35,17 +35,17 @@ namespace TVPApiModule.Objects
 
             try
             {
-                if (response.UserData != null && response.UserData.dynamicData != null)
+                if (response.UserData != null && response.UserData.dynamic_data != null)
                 {
-                    string sUserType = response.UserData.dynamicData.userData.Where(x => x.dataType == "Type").FirstOrDefault().value;
+                    string sUserType = response.UserData.dynamic_data.user_data.Where(x => x.data_type == "Type").FirstOrDefault().value;
                     using (yes.tvinci.ITProxy.Service service = new yes.tvinci.ITProxy.Service())
                     {
                         string perm = service.GetUserPermission(sUsername, sUserType);
                         new ApiUsersService(_nGroupID, _initObj.Platform).SetUserDynamicData(response.SiteGuid, "USER_PERMISSIONS", perm);
                         TVPApiModule.Objects.Responses.UserResponseObject userData = new ApiUsersService(_nGroupID, _initObj.Platform).GetUserData(response.SiteGuid);
-                        if (userData != null && userData.user != null && userData.user.dynamicData != null)
+                        if (userData != null && userData.user != null && userData.user.dynamic_data != null)
                         {
-                            response.UserData.dynamicData = userData.user.dynamicData;
+                            response.UserData.dynamic_data = userData.user.dynamic_data;
                         }
                     }
                 }
@@ -62,24 +62,24 @@ namespace TVPApiModule.Objects
         public override TVPApiModule.Objects.Responses.DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject resp = base.AddDeviceToDomain(sDeviceName, nDeviceBrandID);
-            if (resp.domainResponseStatus == TVPApiModule.Objects.Responses.DomainResponseStatus.OK)
+            if (resp.domain_response_status == TVPApiModule.Objects.Responses.DomainResponseStatus.OK)
             {
                 ApiDomainsService domainsService = new ApiDomainsService(_nGroupID, _initObj.Platform);
                 ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
 
                 TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
-                if (userResponseObject.respStatus == TVPApiModule.Objects.Responses.ResponseStatus.OK && resp != null && resp.domain != null)
+                if (userResponseObject.resp_status == TVPApiModule.Objects.Responses.ResponseStatus.OK && resp != null && resp.domain != null)
                 {
-                    string sAccountNumber = resp.domain.coGuid;
-                    if (!string.IsNullOrEmpty(sAccountNumber) && userResponseObject != null && userResponseObject.user != null && userResponseObject.user.basicData != null)
+                    string sAccountNumber = resp.domain.co_guid;
+                    if (!string.IsNullOrEmpty(sAccountNumber) && userResponseObject != null && userResponseObject.user != null && userResponseObject.user.basic_data != null)
                     {
                         YesObject yesObj = new YesObject()
                         {
-                            AccountNumber = userResponseObject.user.dynamicData.userData.Where(x => x.dataType == "accNum").FirstOrDefault().value,
+                            AccountNumber = userResponseObject.user.dynamic_data.user_data.Where(x => x.data_type == "accNum").FirstOrDefault().value,
                             BrandID = 2,
                             DeviceName = sDeviceName,
                             UDID = _initObj.UDID,
-                            Username = userResponseObject.user.basicData.userName
+                            Username = userResponseObject.user.basic_data.user_name
                         };
 
                         try
@@ -90,7 +90,7 @@ namespace TVPApiModule.Objects
                         {
                             TVPApiModule.Objects.Responses.DomainResponseObject statusRemove = base.RemoveDeviceToDomain();
 
-                            resp = new TVPApiModule.Objects.Responses.DomainResponseObject() { domainResponseStatus = TVPApiModule.Objects.Responses.DomainResponseStatus.Error, domain = statusRemove.domain };
+                            resp = new TVPApiModule.Objects.Responses.DomainResponseObject() { domain_response_status = TVPApiModule.Objects.Responses.DomainResponseStatus.Error, domain = statusRemove.domain };
 
                             logger.ErrorFormat("ITProxy->AddDevice Error. Params: AccountNumber={0}, UDID={1}, Username={2}, Exception: {3}", yesObj.AccountNumber, yesObj.UDID, yesObj.Username, (ex != null && ex.InnerException != null)? ex.InnerException.ToString() : ex.ToString()); 
                         }
@@ -143,7 +143,7 @@ namespace TVPApiModule.Objects
                 using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
                 {
                     string sBundleID = mediaInfo[0].metas.Where(m => m.key == "BundleID").FirstOrDefault().value;
-                    string sComponentID = mediaInfo[0].files[0].coGuid;
+                    string sComponentID = mediaInfo[0].files[0].co_guid;
                     
                     // Error no file component ID
                     if(string.IsNullOrEmpty(sComponentID)) {
@@ -304,9 +304,9 @@ namespace TVPApiModule.Objects
             {
                 ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
                 TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
-                if (userResponseObject != null && userResponseObject.user != null && userResponseObject.user.dynamicData != null)
+                if (userResponseObject != null && userResponseObject.user != null && userResponseObject.user.dynamic_data != null)
                 {
-                    TVPApiModule.Objects.Responses.UserDynamicDataContainer dynamicData = userResponseObject.user.dynamicData.userData.Where(x => x.dataType == "AccountUuid").FirstOrDefault();
+                    TVPApiModule.Objects.Responses.UserDynamicDataContainer dynamicData = userResponseObject.user.dynamic_data.user_data.Where(x => x.data_type == "AccountUuid").FirstOrDefault();
                     if (dynamicData != null)
                     {
                         string sAccountUuid = dynamicData.value;

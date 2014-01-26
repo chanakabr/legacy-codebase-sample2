@@ -7,18 +7,18 @@ namespace TVPApiModule.Objects.Responses
 {
     public class User
     {
-        public UserBasicData basicData { get; set; }
+        public UserBasicData basic_data { get; set; }
 
-        public UserDynamicData dynamicData { get; set; }
+        public UserDynamicData dynamic_data { get; set; }
 
-        public string siteGUID { get; set; }
+        public string site_guid { get; set; }
 
-        public int domianID { get; set; }
+        public int domian_id { get; set; }
 
-        public bool domainMaster { get; set; }
+        public bool domain_master { get; set; }
 
-        public UserState userState { get; set; }
+        public UserState user_state { get; set; }
 
-        public int ssoOperatorID { get; set; }
+        public int sso_operator_id { get; set; }
     }
 }

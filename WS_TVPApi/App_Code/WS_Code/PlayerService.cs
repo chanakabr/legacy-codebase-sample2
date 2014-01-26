@@ -93,7 +93,7 @@ namespace TVPApiServices
                         retMedia.Media.files.Insert(0, trickPlayFile);
                     }
 
-                    retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid), initObj.UDID);
+                    retMedia.Rules = (TVPApiModule.Objects.Responses.GroupRule[])new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid), initObj.UDID);
 
                     // for debug
                     //retMedia.Rules = new TVPPro.SiteManager.TvinciPlatform.api.GroupRule[]{};
@@ -204,7 +204,7 @@ namespace TVPApiServices
                 }
 
                 if (mediaMark != null)
-                    sLastPosition = mediaMark.locationSec.ToString();
+                    sLastPosition = mediaMark.location_sec.ToString();
             }
             return sLastPosition;
         }

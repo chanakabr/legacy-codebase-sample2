@@ -7,10 +7,10 @@ namespace TVPApiModule.Objects.Responses
 {
     public class MediaFileItemPricesContainer
     {
-        public int mediaFileID { get; set; }
+        public int media_file_id { get; set; }
        
-        public ItemPriceContainer[] itemPrices { get; set; }
+        public ItemPriceContainer[] item_prices { get; set; }
        
-        public string productCode { get; set; }
+        public string product_code { get; set; }
     }
 }
