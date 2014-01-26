@@ -12,9 +12,9 @@ namespace TVPApi
 {
     public class Menu
     {
-        public long ID { get; set; }
-        public List<MenuItem> MenuItems { get; set; }
-        public TVPApi.MenuBuilder.MenuType Type { get; set; }
+        public long id { get; set; }
+        public List<MenuItem> menuItems { get; set; }
+        public TVPApi.MenuBuilder.MenuType type { get; set; }
 
         public Menu()
         {
@@ -25,13 +25,13 @@ namespace TVPApi
         {
             MenuItem retVal = null;
 
-            IEnumerable<MenuItem> menuItems = from items in MenuItems
+            IEnumerable<MenuItem> menuItemList = from items in menuItems
                                               where items.ID == ID
                                               select items;
 
-            if (menuItems != null && menuItems.Count() == 1)
+            if (menuItemList != null && menuItemList.Count() == 1)
             {
-                retVal = menuItems.FirstOrDefault();
+                retVal = menuItemList.FirstOrDefault();
             }
             return retVal;
         }

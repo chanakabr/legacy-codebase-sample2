@@ -7,10 +7,10 @@ namespace TVPApiModule.Objects.Responses
 {
     public class FriendWatchedObject
     {
-        public int SiteGuid { get; set; }
+        public int siteGuid { get; set; }
 
-        public int MediaID { get; set; }
+        public int mediaID { get; set; }
 
-        public System.DateTime UpdateDate { get; set; }
+        public System.DateTime updateDate { get; set; }
     }
 }

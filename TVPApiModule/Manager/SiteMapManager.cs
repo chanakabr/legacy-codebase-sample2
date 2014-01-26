@@ -372,9 +372,9 @@ namespace TVPApi
                     foreach (KeyValuePair<long, List<MenuItem>> menuPair in menuLangPair.Value)
                     {
                         Menu menu = new Menu();
-                        menu.ID = menuPair.Key;
-                        menu.MenuItems = menuPair.Value;
-                        menu.Type = MenuBuilder.MenuType.Menu;
+                        menu.id = menuPair.Key;
+                        menu.menuItems = menuPair.Value;
+                        menu.type = MenuBuilder.MenuType.Menu;
 
                         AddMenu(keyStr, menu, ref siteMap);
                     }
@@ -397,10 +397,10 @@ namespace TVPApi
                     foreach (KeyValuePair<long, List<MenuItem>> menuPair in menuLangPair.Value)
                     {
                         Menu menu = new Menu();
-                        menu.ID = menuPair.Key;
-                        menu.MenuItems = menuPair.Value;
+                        menu.id = menuPair.Key;
+                        menu.menuItems = menuPair.Value;
 
-                        menu.Type = MenuBuilder.MenuType.Footer;
+                        menu.type = MenuBuilder.MenuType.Footer;
                         AddFooter(keyStr, menu, ref siteMap);
 
 

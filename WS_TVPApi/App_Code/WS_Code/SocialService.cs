@@ -142,8 +142,8 @@ namespace TVPApiServices
                     TVPApiModule.Objects.Responses.FacebookConfig config = service.GetFBConfig(sSTG);
                     FBConnectConfig retVal = new FBConnectConfig
                         {
-                            appId = config.sFBKey,
-                            scope = config.sFBPermissions,
+                            appId = config.fbKey,
+                            scope = config.fbPermissions,
                             apiUser = initObj.ApiUser,
                             apiPass = initObj.ApiPass
                         };

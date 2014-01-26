@@ -61,7 +61,7 @@ namespace RestfulTVPApi.ServiceInterface
                 var permitted = _service.GetUserPermitedSubscriptions(siteGuid);
 
                 if (permitted != null)
-                    permitedSubscriptions = permitted.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    permitedSubscriptions = permitted.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
             }
             else
             {
@@ -105,7 +105,7 @@ namespace RestfulTVPApi.ServiceInterface
                 var permitted = _service.GetUserPermittedItems(siteGuid);
 
                 if (permitted != null)
-                    res = permitted.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    res = permitted.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
             }
             else
             {
@@ -128,7 +128,7 @@ namespace RestfulTVPApi.ServiceInterface
                 var expired = _service.GetUserExpiredItems(siteGuid, totalItems);
 
                 if (expired != null)
-                    res = expired.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    res = expired.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.m_purchaseDate.TimeOfDay).ToArray();
             }
             else
             {

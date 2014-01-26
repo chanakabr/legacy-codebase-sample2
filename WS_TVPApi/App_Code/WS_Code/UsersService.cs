@@ -275,9 +275,9 @@ namespace TVPApiServices
                 {
                     TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).CheckTemporaryToken(sToken);
 
-                    if (userResponseObject != null && userResponseObject.m_RespStatus == TVPApiModule.Objects.Responses.ResponseStatus.OK)
+                    if (userResponseObject != null && userResponseObject.respStatus == TVPApiModule.Objects.Responses.ResponseStatus.OK)
                     {
-                        response = userResponseObject.m_user.m_oBasicData.m_sUserName;
+                        response = userResponseObject.user.basicData.userName;
                     }
                     else
                     {

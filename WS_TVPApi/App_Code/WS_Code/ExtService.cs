@@ -61,17 +61,17 @@ namespace TVPApiServices
                     domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDomainInfo(iDomainID);
                 }
                 catch (Exception ex) { logger.Error(ex.ToString()); }
-                if (domain != null && domain.m_deviceFamilies.Length > 0)
+                if (domain != null && domain.deviceFamilies.Length > 0)
                 {
-                    foreach (TVPApiModule.Objects.Responses.DeviceContainer dc in domain.m_deviceFamilies)
+                    foreach (TVPApiModule.Objects.Responses.DeviceContainer dc in domain.deviceFamilies)
                     {
-                        foreach (TVPApiModule.Objects.Responses.Device device in dc.DeviceInstances)
+                        foreach (TVPApiModule.Objects.Responses.Device device in dc.deviceInstances)
                         {
                             DeviceInfo deviceInfo = new DeviceInfo();
-                            deviceInfo.Name = device.m_deviceName;
-                            deviceInfo.Type = dc.m_deviceFamilyName;
-                            deviceInfo.UDID = device.m_deviceUDID;
-                            deviceInfo.Active = !(device.m_state != TVPApiModule.Objects.Responses.DeviceState.Activated && device.m_state == TVPApiModule.Objects.Responses.DeviceState.UnActivated);
+                            deviceInfo.Name = device.deviceName;
+                            deviceInfo.Type = dc.deviceFamilyName;
+                            deviceInfo.UDID = device.deviceUDID;
+                            deviceInfo.Active = !(device.state != TVPApiModule.Objects.Responses.DeviceState.Activated && device.state == TVPApiModule.Objects.Responses.DeviceState.UnActivated);
                             retDevices.Add(deviceInfo);
                         }
                     }
@@ -97,10 +97,10 @@ namespace TVPApiServices
                 TVPApiModule.Objects.Responses.DomainResponseObject res = new TVPApiModule.Objects.Responses.DomainResponseObject();
                 if (domain != null && domain.Length > 0)
                 {
-                    res = new ApiDomainsService(groupId, PlatformType.iPad).ChangeDeviceDomainStatus(domain[0].m_nDomainID, sUDID, bIsActive);
+                    res = new ApiDomainsService(groupId, PlatformType.iPad).ChangeDeviceDomainStatus(domain[0].domainID, sUDID, bIsActive);
 
-                    retStat.Code = res.m_oDomainResponseStatus.ToString();
-                    retStat.Description = res.m_oDomainResponseStatus.ToString();
+                    retStat.Code = res.domainResponseStatus.ToString();
+                    retStat.Description = res.domainResponseStatus.ToString();
                 }
                 else
                 {
@@ -130,9 +130,9 @@ namespace TVPApiServices
                 TVPApiModule.Objects.Responses.DomainResponseObject res = new TVPApiModule.Objects.Responses.DomainResponseObject();
                 if (domain != null && domain.Length > 0)
                 {
-                    res = new ApiDomainsService(groupId, PlatformType.iPad).RemoveDeviceToDomain(domain[0].m_nDomainID, sUDID);
-                    retStat.Code = (res.m_oDomainResponseStatus.ToString().ToLower().Equals("ok")? "0" : res.m_oDomainResponseStatus.ToString());
-                    retStat.Description = res.m_oDomainResponseStatus.ToString();
+                    res = new ApiDomainsService(groupId, PlatformType.iPad).RemoveDeviceToDomain(domain[0].domainID, sUDID);
+                    retStat.Code = (res.domainResponseStatus.ToString().ToLower().Equals("ok")? "0" : res.domainResponseStatus.ToString());
+                    retStat.Description = res.domainResponseStatus.ToString();
                 }
                 else
                 {

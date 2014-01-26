@@ -280,60 +280,60 @@ namespace TVPApiModule.Objects.CRM
 
         public UserBasicData(TVPApiModule.Objects.Responses.UserBasicData userBasicData)
         {
-            this.address = userBasicData.m_sAddress;
-            this.affiliate_code = userBasicData.m_sAffiliateCode;
-            this.city = userBasicData.m_sCity;
-            this.co_guid = userBasicData.m_CoGuid;
+            this.address = userBasicData.address;
+            this.affiliate_code = userBasicData.affiliateCode;
+            this.city = userBasicData.city;
+            this.co_guid = userBasicData.coGuid;
 
-            if (userBasicData.m_Country != null)
+            if (userBasicData.country != null)
             {
                 this.country = new TVPApiModule.Objects.CRM.Country();
 
-                this.country.country_code = userBasicData.m_Country.m_sCountryCode;
-                this.country.country_name = userBasicData.m_Country.m_sCountryName;
-                this.country.object_id = userBasicData.m_Country.m_nObjecrtID;
+                this.country.country_code = userBasicData.country.countryCode;
+                this.country.country_name = userBasicData.country.countryName;
+                this.country.object_id = userBasicData.country.objectID;
             }
 
-            this.email = userBasicData.m_sEmail;
-            this.external_token = userBasicData.m_ExternalToken;
-            this.facebook_id = userBasicData.m_sFacebookID;
-            this.facebook_image = userBasicData.m_sFacebookImage;
-            this.facebook_token = userBasicData.m_sFacebookToken;
-            this.first_name = userBasicData.m_sFirstName;
-            this.is_facebook_image_permitted = userBasicData.m_bIsFacebookImagePermitted;
-            this.last_name = userBasicData.m_sLastName;
-            this.phone = userBasicData.m_sPhone;
+            this.email = userBasicData.email;
+            this.external_token = userBasicData.externalToken;
+            this.facebook_id = userBasicData.facebookID;
+            this.facebook_image = userBasicData.facebookImage;
+            this.facebook_token = userBasicData.facebookToken;
+            this.first_name = userBasicData.firstName;
+            this.is_facebook_image_permitted = userBasicData.isFacebookImagePermitted;
+            this.last_name = userBasicData.lastName;
+            this.phone = userBasicData.phone;
 
-            if (userBasicData.m_State != null)
+            if (userBasicData.state != null)
             {
                 this.state = new TVPApiModule.Objects.CRM.State();
 
-                if (userBasicData.m_State.m_Country != null)
+                if (userBasicData.state.country != null)
                 {
                     this.state.country = new TVPApiModule.Objects.CRM.Country();
 
-                    this.state.country.country_code = userBasicData.m_State.m_Country.m_sCountryCode;
-                    this.state.country.country_name = userBasicData.m_State.m_Country.m_sCountryName;
-                    this.state.country.object_id = userBasicData.m_State.m_Country.m_nObjecrtID;
+                    this.state.country.country_code = userBasicData.state.country.countryCode;
+                    this.state.country.country_name = userBasicData.state.country.countryName;
+                    this.state.country.object_id = userBasicData.state.country.objectID;
                 }
 
-                this.state.object_id = userBasicData.m_State.m_nObjecrtID;
-                this.state.state_code = userBasicData.m_State.m_sStateCode;
-                this.state.state_name = userBasicData.m_State.m_sStateName;
+                this.state.object_id = userBasicData.state.objectID;
+                this.state.state_code = userBasicData.state.stateCode;
+                this.state.state_name = userBasicData.state.stateName;
             }
 
-            this.user_name = userBasicData.m_sUserName;
+            this.user_name = userBasicData.userName;
 
-            if (userBasicData.m_UserType != null)
+            if (userBasicData.userType != null)
             {
                 this.user_type = new TVPApiModule.Objects.CRM.UserType();
 
-                this.user_type.description = userBasicData.m_UserType.Description;
-                this.user_type.id = userBasicData.m_UserType.ID;
-                this.user_type.is_default = userBasicData.m_UserType.IsDefault;
+                this.user_type.description = userBasicData.userType.description;
+                this.user_type.id = userBasicData.userType.id;
+                this.user_type.is_default = userBasicData.userType.isDefault;
             }
 
-            this.zip = userBasicData.m_sZip;
+            this.zip = userBasicData.zip;
         }
     }
 }

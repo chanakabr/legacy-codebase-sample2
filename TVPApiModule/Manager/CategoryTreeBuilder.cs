@@ -45,11 +45,11 @@ namespace TVPApi
                 foreach (dsCategory.CategoriesRow catRow in innerCategories)
                 {
                     Category innerCat = CreateCategory(catRow);
-                    if (retVal.InnerCategories == null)
+                    if (retVal.innerCategories == null)
                     {
-                        retVal.InnerCategories = new List<Category>();
+                        retVal.innerCategories = new List<Category>();
                     }
-                    retVal.InnerCategories.Add(innerCat);
+                    retVal.innerCategories.Add(innerCat);
                 }
             }
             return retVal;
@@ -60,9 +60,9 @@ namespace TVPApi
             Category retVal = null;
             retVal = new Category(catRow);
             dsCategory.ChannelsRow[] channels = catRow.GetChannelsRows();
-            retVal.Channels = new List<Channel>();
+            retVal.channels = new List<Channel>();
             foreach (dsCategory.ChannelsRow channel in channels)                            
-                retVal.Channels.Add(new Channel(channel));
+                retVal.channels.Add(new Channel(channel));
             
             return retVal;
         }
@@ -87,10 +87,10 @@ namespace TVPApi
 
             Category currentCat = CreateCategory(row);
 
-            currentCat.InnerCategories = new List<Category>();
+            currentCat.innerCategories = new List<Category>();
 
             foreach (dsCategory.CategoriesRow child in row.GetChildRows("CategoryToParent"))
-                currentCat.InnerCategories.Add(BuildRecursive(child));
+                currentCat.innerCategories.Add(BuildRecursive(child));
 
             return currentCat;
         }

@@ -229,7 +229,7 @@ namespace TVPApiServices
                     FavoriteObject[] favoriteObjects = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(initObj.SiteGuid, string.Empty, initObj.DomainID, string.Empty);
 
                     if (favoriteObjects != null)
-                        result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.m_sItemCode == y.ToString()).Count() > 0)).ToList();
+                        result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.itemCode == y.ToString()).Count() > 0)).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -284,7 +284,7 @@ namespace TVPApiServices
                 try
                 {
                     favoritesObj = new ApiUsersService(groupID, initObj.Platform).GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
-                    favoritesObj = favoritesObj.OrderByDescending(r => r.m_dUpdateDate.Date).ThenByDescending(r => r.m_dUpdateDate.TimeOfDay).ToArray();
+                    favoritesObj = favoritesObj.OrderByDescending(r => r.updateDate.Date).ThenByDescending(r => r.updateDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -490,7 +490,7 @@ namespace TVPApiServices
                     }.Execute() as List<Media>;
  
 
-                    bRet = (from r in lstMedia where r.MediaID.Equals(sMediaID) select true).FirstOrDefault();
+                    bRet = (from r in lstMedia where r.mediaID.Equals(sMediaID) select true).FirstOrDefault();
                 }
                 catch (Exception ex)
                 {
@@ -549,8 +549,8 @@ namespace TVPApiServices
 
                     lstMedia = (from media in lstAllMedias
                                  where
-                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays >= 0 &&
-                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays <= (periodBefore + 1) * (int)byPeriod
+                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.lastWatchDate).TotalDays >= 0 &&
+                                     (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.lastWatchDate).TotalDays <= (periodBefore + 1) * (int)byPeriod
                                  select media).ToList<Media>();
                 }
                 catch (Exception ex)
@@ -1411,7 +1411,7 @@ namespace TVPApiServices
                     var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedItems(siteGuid);
 
                     if (permitted != null)
-                        permittedMediaContainer = permitted.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                        permittedMediaContainer = permitted.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -1500,7 +1500,7 @@ namespace TVPApiServices
                     var permitted = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);
 
                     if (permitted != null)
-                        permitedSubscriptions = permitted.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                        permitedSubscriptions = permitted.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -1530,22 +1530,22 @@ namespace TVPApiServices
                     if (permitedSubscriptions == null || permitedSubscriptions.Count() == 0)
                         return permittedPackages;
 
-                    permitedSubscriptions = permitedSubscriptions.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    permitedSubscriptions = permitedSubscriptions.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
 
                     foreach (TVPApiModule.Objects.Responses.PermittedSubscriptionContainer psc in permitedSubscriptions)
                     {
                         PermittedPackages pp = new PermittedPackages();
-                        pp.PermittedSubscriptions = psc;
+                        pp.permittedSubscriptions = psc;
 
 
-                        List<KeyValue> orList = new List<KeyValue>() { new KeyValue() { m_sKey = "Base ID", m_sValue = psc.m_sSubscriptionCode } };
+                        List<KeyValue> orList = new List<KeyValue>() { new KeyValue() { m_sKey = "Base ID", m_sValue = psc.subscriptionCode } };
                         List<Media> medias = new APISearchMediaLoader(groupId, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 0, 0, picSize, true, orList, null, null)
                             {
                                 UseFinalDate = true
                             }.Execute() as List<Media>;
 
                         if (medias != null && medias.Count > 0)
-                            pp.Package = medias[0];
+                            pp.package = medias[0];
 
                         permittedPackages.Add(pp);
                     }
@@ -1770,7 +1770,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).m_ProductCode;
+                    res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).productCode;
                 }
                 catch (Exception ex)
                 {
@@ -1802,9 +1802,9 @@ namespace TVPApiServices
 
                         res.Add(new SubscriptionPrice
                         {
-                            SubscriptionCode = priceObj.m_sObjectCode,
-                            Price = priceObj.m_oSubscriptionPriceCode.m_oPrise.m_dPrice,
-                            Currency = priceObj.m_oSubscriptionPriceCode.m_oPrise.m_oCurrency.m_sCurrencySign
+                            subscriptionCode = priceObj.objectCode,
+                            price = priceObj.subscriptionPriceCode.prise.price,
+                            currency = priceObj.subscriptionPriceCode.prise.currency.currencySign
                         });
                     }
                 }
@@ -1860,7 +1860,7 @@ namespace TVPApiServices
                     items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredItems(siteGuid, iTotalItems);
                     if (items != null)
                     {
-                        items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                        items = items.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
                     }
                 }
                 catch (Exception ex)
@@ -1894,7 +1894,7 @@ namespace TVPApiServices
                 {
                     items = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredSubscriptions(siteGuid, iTotalItems);
                     if (items != null)
-                        items = items.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                        items = items.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -2635,7 +2635,6 @@ namespace TVPApiServices
         public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
         {
             List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> retVal = null;
-            List<BaseObject> loaderResult = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SearchEPGPrograms", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2648,10 +2647,10 @@ namespace TVPApiServices
                     _startTime = DateTime.UtcNow.AddDays(-int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
                     _endTime = DateTime.UtcNow.AddDays(int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
 
-                    loaderResult = new APIEPGSearchLoader(groupId, initObj.Platform, initObj.UDID ,SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, searchText, _startTime , _endTime)
+                    retVal = new APIEPGSearchLoader(groupId, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, searchText, _startTime, _endTime)
                         {
                             Culture = initObj.Locale.LocaleLanguage
-                        }.Execute() as List<BaseObject>;
+                        }.Execute() as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
                 }
                 catch (Exception ex)
                 {
@@ -2662,12 +2661,7 @@ namespace TVPApiServices
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
             }
-            retVal = new List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>();
-            foreach(ProgramObj p in loaderResult)
-            {
-                retVal.Add(p.m_oProgram.ToApiObject());
-            }
-
+            
             return retVal;
         }
 

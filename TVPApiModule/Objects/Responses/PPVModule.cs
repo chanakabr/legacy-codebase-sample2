@@ -8,24 +8,24 @@ namespace TVPApiModule.Objects.Responses
     public class PPVModule
     {
         /// <remarks/>
-        public PriceCode m_oPriceCode { get; set; }
+        public PriceCode priceCode { get; set; }
 
-        public UsageModule m_oUsageModule { get; set; }
+        public UsageModule usageModule { get; set; }
 
-        public DiscountModule m_oDiscountModule { get; set; }
+        public DiscountModule discountModule { get; set; }
 
-        public CouponsGroup m_oCouponsGroup { get; set; }
+        public CouponsGroup couponsGroup { get; set; }
 
-        public LanguageContainer[] m_sDescription { get; set; }
+        public LanguageContainer[] description { get; set; }
 
-        public string m_sObjectCode { get; set; }
+        public string objectCode { get; set; }
 
-        public string m_sObjectVirtualName { get; set; }
+        public string objectVirtualName { get; set; }
 
-        public bool m_bSubscriptionOnly { get; set; }
+        public bool subscriptionOnly { get; set; }
 
-        public int[] m_relatedFileTypes { get; set; }
+        public int[] relatedFileTypes { get; set; }
 
-        public string m_Product_Code{ get; set; }
+        public string productCode{ get; set; }
     }
 }

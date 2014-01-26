@@ -14,70 +14,70 @@ namespace TVPApi
     public class Channel
     {
 
-        public string Title { get; set; }
-        public long ChannelID { get; set; }
-        public int MediaCount { get; set; }
-        public string PicURL { get; set; }
+        public string title { get; set; }
+        public long channelID { get; set; }
+        public int mediaCount { get; set; }
+        public string picURL { get; set; }
 
         public Channel(dsCategory.ChannelsRow channelRow)
         {
-            Title = string.Empty;
-            ChannelID = 0;
-            MediaCount = 0;
+            title = string.Empty;
+            channelID = 0;
+            mediaCount = 0;
             if (!channelRow.IsTitleNull())
             {
-                Title = channelRow.Title;
+                title = channelRow.Title;
             }
-            ChannelID = channelRow.ID;
+            channelID = channelRow.ID;
 
             if (!channelRow.IsPicURLNull())
             {
-                PicURL = channelRow.PicURL;
+                picURL = channelRow.PicURL;
             }
             
             if (!channelRow.IsNumOfItemsNull())
             {
-                MediaCount = channelRow.NumOfItems;
+                mediaCount = channelRow.NumOfItems;
             }
         }
 
         public Channel(dsItemInfo.ChannelRow channelRow)
         {
-            Title = string.Empty;
-            ChannelID = 0;
-            MediaCount = 0;
+            title = string.Empty;
+            this.channelID = 0;
+            mediaCount = 0;
 
             if (!channelRow.IsTitleNull())
             {
-                Title = channelRow.Title;
+                title = channelRow.Title;
             }
 
             long channelID;
 
             if (long.TryParse(channelRow.ChannelId, out channelID))
             {
-                ChannelID = channelID;
+                this.channelID = channelID;
             }
         }
 
         public Channel(channelObj channel, string picSize)
         {
-            Title = channel.m_sTitle;
-            ChannelID = channel.m_nChannelID;
-            MediaCount = 0;
+            title = channel.m_sTitle;
+            channelID = channel.m_nChannelID;
+            mediaCount = 0;
             if (!string.IsNullOrEmpty(picSize) && channel.m_lPic != null)
             {
                 var pic = channel.m_lPic.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
-                PicURL = pic == null ? string.Empty : pic.m_sURL;
+                picURL = pic == null ? string.Empty : pic.m_sURL;
             }
         }
 
         public Channel()
         {
-            ChannelID = 0;
-            Title = string.Empty;
-            MediaCount = 0;
-            PicURL = string.Empty;
+            channelID = 0;
+            title = string.Empty;
+            mediaCount = 0;
+            picURL = string.Empty;
         }
 
 

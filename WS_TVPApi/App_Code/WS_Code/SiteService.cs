@@ -651,7 +651,7 @@ namespace TVPApiServices
                 try
                 {
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                    sRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ValidateUser(userName, password, isSingleLogin).m_user;
+                    sRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ValidateUser(userName, password, isSingleLogin).user;
                 }
                 catch (Exception ex)
                 {
@@ -663,7 +663,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items.Add("Error", "Unknown group");
             }
 
-            return sRet != null ? sRet.m_sSiteGUID : string.Empty;
+            return sRet != null ? sRet.siteGUID : string.Empty;
         }
 
         [WebMethod(EnableSession = true, Description = "Sign-In a user")]        
@@ -706,7 +706,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Objects.Responses.UserResponseObject userObj = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).GetUserData(siteGuid);
-                    bRes = !string.IsNullOrEmpty(userObj.m_user.m_oBasicData.m_sFacebookID);
+                    bRes = !string.IsNullOrEmpty(userObj.user.basicData.facebookID);
                 }
                 catch (Exception ex)
                 {
@@ -1000,7 +1000,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupID, initObj.Platform);
-                    SocialActionResponseStatus response = service.DoSocialAction(mediaID, siteGuid, initObj.UDID, socialAction, socialPlatform, actionParam);
+                    TVPApiModule.Objects.Responses.SocialActionResponseStatus response = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)service.DoSocialAction(mediaID, siteGuid, initObj.UDID, socialAction, socialPlatform, actionParam);
                     sRes = response.ToString();
                 }
                 catch (Exception ex)

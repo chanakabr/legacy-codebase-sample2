@@ -15,29 +15,4 @@ namespace TVPApiModule.Objects.Responses
 
         public ItemType itemType { get; set; }
     }
-
-    public class ItemObj
-    {
-        public int item { get; set; }
-
-        public int? orderNum { get; set; }
-    }
-
-    public enum ListType
-    {
-        /// <remarks/>
-        All,
-        /// <remarks/>
-        Watch,
-        /// <remarks/>
-        Purchase,
-    }
-
-    public enum ItemType
-    {
-        /// <remarks/>
-        All,
-        /// <remarks/>
-        Media,
-    }
 }

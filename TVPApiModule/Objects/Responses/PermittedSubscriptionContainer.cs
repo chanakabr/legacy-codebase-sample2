@@ -7,69 +7,33 @@ namespace TVPApiModule.Objects.Responses
 {
     public class PermittedSubscriptionContainer
     {
-        public string m_sSubscriptionCode { get; set; }
+        public string subscriptionCode { get; set; }
 
-        public int m_nMaxUses { get; set; }
+        public int maxUses { get; set; }
 
-        public int m_nCurrentUses { get; set; }
+        public int currentUses { get; set; }
 
-        public DateTime m_dEndDate { get; set; }
+        public DateTime endDate { get; set; }
 
-        public DateTime m_dCurrentDate { get; set; }
+        public DateTime currentDate { get; set; }
 
-        public DateTime m_dLastViewDate { get; set; }
+        public DateTime lastViewDate { get; set; }
 
-        public DateTime m_dPurchaseDate { get; set; }
+        public DateTime purchaseDate { get; set; }
 
-        public DateTime m_dNextRenewalDate { get; set; }
+        public DateTime nextRenewalDate { get; set; }
 
-        public bool m_bRecurringStatus { get; set; }
+        public bool recurringStatus { get; set; }
 
-        public bool m_bIsSubRenewable { get; set; }
+        public bool isSubRenewable { get; set; }
 
-        public int m_nSubscriptionPurchaseID { get; set; }
+        public int subscriptionPurchaseID { get; set; }
 
-        public PaymentMethod m_paymentMethod { get; set; }
+        public PaymentMethod paymentMethod { get; set; }
 
-        public string m_sDeviceUDID { get; set; }
+        public string deviceUDID { get; set; }
 
-        public string m_sDeviceName { get; set; }
+        public string deviceName { get; set; }
     }
 
-    public enum PaymentMethod
-    {
-
-        /// <remarks/>
-        Unknown,
-
-        /// <remarks/>
-        CreditCard,
-
-        /// <remarks/>
-        SMS,
-
-        /// <remarks/>
-        PayPal,
-
-        /// <remarks/>
-        DebitCard,
-
-        /// <remarks/>
-        Ideal,
-
-        /// <remarks/>
-        Incaso,
-
-        /// <remarks/>
-        Gift,
-
-        /// <remarks/>
-        Visa,
-
-        /// <remarks/>
-        MasterCard,
-
-        /// <remarks/>
-        InApp,
-    }
 }

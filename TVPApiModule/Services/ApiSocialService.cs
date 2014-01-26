@@ -49,14 +49,14 @@ namespace TVPApiModule.Services
 
         #endregion
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus DoSocialAction(int mediaID,
+        public TVPApiModule.Objects.Responses.SocialActionResponseStatus DoSocialAction(int mediaID,
                                                                                                   string siteGuid,
                                                                                                   string udid,
                                                                                                   TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
                                                                                                   TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                   string actionParam)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus eRes = TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus.UNKNOWN;
+            TVPApiModule.Objects.Responses.SocialActionResponseStatus eRes = TVPApiModule.Objects.Responses.SocialActionResponseStatus.UNKNOWN;
 
             try
             {
@@ -79,7 +79,7 @@ namespace TVPApiModule.Services
                     m_sDeviceUDID = udid,
                     m_sSiteGuid = siteGuid
                 };
-                eRes = m_Module.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                eRes = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)m_Module.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
             }
             catch (Exception ex)
             {
@@ -130,7 +130,7 @@ namespace TVPApiModule.Services
                 }
 
                 if (response != null)
-                    res = response.Select(s => s.ToApiObject()).ToArray();
+                    res = response.Where(usa => usa != null).Select(u => u.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -152,7 +152,7 @@ namespace TVPApiModule.Services
                 var response = m_Module.GetAllFriendsWatched(m_wsUserName, m_wsPassword, int.Parse(sGuid), maxResult);
 
                 if (response != null)
-                    res = response.Select(fw => fw.ToApiObject()).ToArray();
+                    res = response.Where(fw => fw != null).Select(fw => fw.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -170,7 +170,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.GetFriendsWatchedByMedia(m_wsUserName, m_wsPassword, int.Parse(sGuid), mediaId);
                 if (response != null)
-                    res = response.Select(fw => fw.ToApiObject()).ToArray();
+                    res = response.Where(fw => fw != null).Select(fw => fw.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -221,7 +221,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBConfig(m_wsUserName, m_wsPassword, sStg).ToApiObject();
+                var response = m_Module.FBConfig(m_wsUserName, m_wsPassword, sStg);
+                if (response != null)
+                    res = response.ToApiObject();
+
             }
             catch (Exception ex)
             {
@@ -237,7 +240,9 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken, sSTG).ToApiObject();
+                var response = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken, sSTG);
+                if (response != null)
+                    res = response.ToApiObject();
             }
             catch (Exception ex)
             {
@@ -253,7 +258,9 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, sSTG, oExtra.ToArray(), sIP).ToApiObject();
+                var response = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, sSTG, oExtra.ToArray(), sIP);
+                if (response != null)
+                    res = response.ToApiObject();
             }
             catch (Exception ex)
             {
@@ -269,7 +276,9 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.FBUserMerage(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword).ToApiObject();
+                var response = m_Module.FBUserMerage(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword);
+                if (response != null)
+                    res = response.ToApiObject();
             }
             catch (Exception ex)
             {
@@ -350,7 +359,7 @@ namespace TVPApiModule.Services
 
                 var response = m_Module.GetUserActions(m_wsUserName, m_wsPassword, request);
                 if (response != null)
-                    res = response.Select(usa => usa.ToApiObject()).ToArray();
+                    res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -385,7 +394,7 @@ namespace TVPApiModule.Services
 
                 var response = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, request);
                 if (response != null)
-                    res = response.Select(usa => usa.ToApiObject()).ToArray();
+                    res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -430,11 +439,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                int iSiteGuid = 0;
-                if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = (TVPApiModule.Objects.Responses.eSocialActionPrivacy)m_Module.GetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
-                else 
-                    throw new Exception("siteGuid not in the right format");
+                res = (TVPApiModule.Objects.Responses.eSocialActionPrivacy)m_Module.GetUserExternalActionShare(m_wsUserName, m_wsPassword, int.Parse(siteGuid), socialPlatform, userAction);
             }
             catch (Exception ex)
             {
@@ -450,11 +455,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                int iSiteGuid = 0;
-                if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = (TVPApiModule.Objects.Responses.eSocialActionPrivacy)m_Module.GetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
-                else 
-                    throw new Exception("siteGuid not in the right format");
+                res = (TVPApiModule.Objects.Responses.eSocialActionPrivacy)m_Module.GetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, int.Parse(siteGuid), socialPlatform, userAction);
             }
             catch (Exception ex)
             {

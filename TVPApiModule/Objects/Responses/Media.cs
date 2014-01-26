@@ -21,40 +21,40 @@ namespace TVPApi
 {
     public class ExtIDPair
     {
-        public string Key { get; set; }
-        public string Value { get; set; }
+        public string key { get; set; }
+        public string value { get; set; }
     }
 
     public class File
     {
-        public string FileID { get; set; }
-        public string URL { get; set; }
-        public string Duration { get; set; }
-        public string Format { get; set; }
-        public AdvertisingProvider PreProvider { get; set; }
-        public AdvertisingProvider PostProvider { get; set; }
-        public AdvertisingProvider BreakProvider { get; set; }
-        public AdvertisingProvider OverlayProvider { get; set; }
-        public string[] BreakPoints { get; set; }
-        public string[] OverlayPoints { get; set; }
-        public string CoGuid { get; set; }
+        public string fileID { get; set; }
+        public string url { get; set; }
+        public string duration { get; set; }
+        public string format { get; set; }
+        public AdvertisingProvider preProvider { get; set; }
+        public AdvertisingProvider postProvider { get; set; }
+        public AdvertisingProvider breakProvider { get; set; }
+        public AdvertisingProvider overlayProvider { get; set; }
+        public string[] breakPoints { get; set; }
+        public string[] overlayPoints { get; set; }
+        public string coGuid { get; set; }
     }
 
     public class Picture
     {
-        public string PicSize { get; set; }
-        public string URL { get; set; }
+        public string picSize { get; set; }
+        public string url { get; set; }
     }
 
     public class TagMetaPair
     {
-        public string Key { get; set; }
-        public string Value { get; set; }
+        public string key { get; set; }
+        public string value { get; set; }
 
         public TagMetaPair(string key, string value)
         {
-            Key = key;
-            Value = value;
+            key = key;
+            value = value;
         }
     }
 
@@ -64,22 +64,22 @@ namespace TVPApi
 
         private readonly ILog logger = LogManager.GetLogger(typeof(Media));
 
-        public string MediaID;
-        public string MediaName;
-        public string MediaTypeID;
-        public string MediaTypeName;
-        public double Rating;
-        public int ViewCounter;
-        public string Description;
-        public DateTime CreationDate;
-        public DateTime? LastWatchDate;
-        public DateTime StartDate;
-        public DateTime CatalogStartDate;
-        public string PicURL;
-        public string URL;
-        public string MediaWebLink;
-        public string Duration;
-        public string FileID;
+        public string mediaID;
+        public string mediaName;
+        public string mediaTypeID;
+        public string mediaTypeName;
+        public double rating;
+        public int viewCounter;
+        public string description;
+        public DateTime creationDate;
+        public DateTime? lastWatchDate;
+        public DateTime startDate;
+        public DateTime catalogStartDate;
+        public string picURL;
+        public string url;
+        public string mediaWebLink;
+        public string duration;
+        public string fileID;
         private List<TagMetaPair> m_tags;
         private List<TagMetaPair> m_metas;
         private List<File> m_files;
@@ -89,16 +89,16 @@ namespace TVPApi
 
         private List<ExtIDPair> m_externalIDs;
 
-        public DynamicData MediaDynamicData;
-        public string SubDuration;
-        public string SubFileFormat;
-        public string SubFileID;
-        public string SubURL;
+        //public DynamicData mediaDynamicData;
+        public string subDuration;
+        public string subFileFormat;
+        public string subFileID;
+        public string subURL;
         public string GeoBlock;
-        public long TotalItems;
-        public int? like_counter;
+        public long totalItems;
+        public int? likeCounter;
 
-        public List<TagMetaPair> Tags
+        public List<TagMetaPair> tags
         {
             get
             {
@@ -110,7 +110,7 @@ namespace TVPApi
             }
         }
 
-        public List<TagMetaPair> Metas
+        public List<TagMetaPair> metas
         {
             get
             {
@@ -122,7 +122,7 @@ namespace TVPApi
             }
         }
 
-        public List<TagMetaPair> AdvertisingParameters
+        public List<TagMetaPair> advertisingParameters
         {
             get
             {
@@ -134,7 +134,7 @@ namespace TVPApi
             }
         }
 
-        public List<File> Files
+        public List<File> files
         {
             get
             {
@@ -146,7 +146,7 @@ namespace TVPApi
             }
         }
 
-        public List<Picture> Pictures
+        public List<Picture> pictures
         {
             get
             {
@@ -158,7 +158,7 @@ namespace TVPApi
             }
         }
 
-        public List<ExtIDPair> ExternalIDs
+        public List<ExtIDPair> externalIDs
         {
             get
             {
@@ -205,17 +205,17 @@ namespace TVPApi
             {
                 if (ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FriendlyURL.SupportFeature)
                 {
-                    string sMediaName = MediaName.Replace("/", "");
+                    string sMediaName = mediaName.Replace("/", "");
 
                     sMediaName = sMediaName.Replace(" ", "-");
 
                     sMediaName = HttpUtility.UrlEncode(sMediaName);
 
-                    retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, sMediaName, MediaID);
+                    retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, mediaTypeName, sMediaName, mediaID);
                 }
                 else
                 {
-                    retVal = string.Format("{0}/MediaPage.aspx?MediaID={1}&MediaType={2}", baseUrl, MediaID, MediaTypeID);
+                    retVal = string.Format("{0}/MediaPage.aspx?MediaID={1}&MediaType={2}", baseUrl, mediaID, mediaTypeID);
                 }
             }
             return retVal;
@@ -225,23 +225,23 @@ namespace TVPApi
         {
             if (mediaObj != null)
             {
-                MediaID = mediaObj.m_nID.ToString();
-                MediaName = mediaObj.m_sName;
-                MediaTypeID = mediaObj.m_oMediaType.m_nTypeID.ToString();
-                MediaTypeName = mediaObj.m_oMediaType.m_sTypeName;
-                Rating = mediaObj.m_oRatingMedia.m_nRatingAvg;
-                ViewCounter = mediaObj.m_oRatingMedia.m_nViwes;
-                Description = mediaObj.m_sDescription;
-                CreationDate = mediaObj.m_dCreationDate;
-                LastWatchDate = mediaObj.m_dLastWatchedDate;
-                StartDate = mediaObj.m_dStartDate;
-                CatalogStartDate = mediaObj.m_dCatalogStartDate;
-                like_counter = mediaObj.m_nLikeCounter;
+                mediaID = mediaObj.m_nID.ToString();
+                mediaName = mediaObj.m_sName;
+                mediaTypeID = mediaObj.m_oMediaType.m_nTypeID.ToString();
+                mediaTypeName = mediaObj.m_oMediaType.m_sTypeName;
+                rating = mediaObj.m_oRatingMedia.m_nRatingAvg;
+                viewCounter = mediaObj.m_oRatingMedia.m_nViwes;
+                description = mediaObj.m_sDescription;
+                creationDate = mediaObj.m_dCreationDate;
+                lastWatchDate = mediaObj.m_dLastWatchedDate;
+                startDate = mediaObj.m_dStartDate;
+                catalogStartDate = mediaObj.m_dCatalogStartDate;
+                likeCounter = mediaObj.m_nLikeCounter;
 
-                TotalItems = totalItems;
+                totalItems = totalItems;
 
                 if (!string.IsNullOrEmpty(picSize))
-                    PicURL = (from pic in mediaObj.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
+                    picURL = (from pic in mediaObj.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
 
 
                 //media.GeoBlock = No data... 
@@ -250,7 +250,7 @@ namespace TVPApi
                 //media.MediaDynamicData;
 
                 //MediaWebLink
-                MediaWebLink = GetMediaWebLink(groupID, platform);
+                mediaWebLink = GetMediaWebLink(groupID, platform);
 
                 //Files
                 buildFiles(mediaObj.m_lFiles, mediaObj.m_lBranding, groupID, platform);
@@ -261,7 +261,7 @@ namespace TVPApi
 
                 //ExternalIDs
                 if (!string.IsNullOrEmpty(mediaObj.m_ExternalIDs))
-                    ExternalIDs.Add(new ExtIDPair() { Key = "epg_id", Value = mediaObj.m_ExternalIDs });
+                    externalIDs.Add(new ExtIDPair() { key = "epg_id", value = mediaObj.m_ExternalIDs });
 
                 //Pictures
                 buildPictures(mediaObj.m_lPicture);
@@ -407,63 +407,63 @@ namespace TVPApi
 
 
 
-        private void buildFiles(List<FileMedia> files, List<Branding> brandings, int groupID, PlatformType platform)
+        private void buildFiles(List<FileMedia> mediaFiles, List<Branding> brandings, int groupID, PlatformType platform)
         {
             // Get file formats from configuration
             var techConfigFlashVars = ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.FlashVars;
             string fileFormat = techConfigFlashVars.FileFormat;
             string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
 
-            FileID = "0"; // default value
+            fileID = "0"; // default value
 
-            if (files != null && files.Count > 0)
+            if (mediaFiles != null && mediaFiles.Count > 0)
             {
                 File mediaFile;
-                foreach (FileMedia file in files)
+                foreach (FileMedia file in mediaFiles)
                 {
                     mediaFile = new File();
 
-                    mediaFile.FileID = file.m_nFileId.ToString();
-                    mediaFile.URL = file.m_sUrl;
-                    mediaFile.Duration = file.m_nDuration.ToString();
-                    mediaFile.Format = file.m_sFileFormat;
-                    mediaFile.CoGuid = file.m_sCoGUID;
+                    mediaFile.fileID = file.m_nFileId.ToString();
+                    mediaFile.url = file.m_sUrl;
+                    mediaFile.duration = file.m_nDuration.ToString();
+                    mediaFile.format = file.m_sFileFormat;
+                    mediaFile.coGuid = file.m_sCoGUID;
 
                     if (file.m_sFileFormat.ToLower() == fileFormat.ToLower())
                     {
-                        URL = file.m_sUrl;
-                        Duration = file.m_nDuration.ToString();
-                        FileID = file.m_nFileId.ToString();
+                        url = file.m_sUrl;
+                        duration = file.m_nDuration.ToString();
+                        fileID = file.m_nFileId.ToString();
                     }
                     if (file.m_sFileFormat.ToLower() == subFileFormat.ToLower())
                     {
-                        SubDuration = file.m_nDuration.ToString();
-                        SubFileFormat = file.m_sFileFormat;
-                        SubFileID = file.m_nFileId.ToString();
-                        SubURL = file.m_sUrl;
+                        subDuration = file.m_nDuration.ToString();
+                        subFileFormat = file.m_sFileFormat;
+                        subFileID = file.m_nFileId.ToString();
+                        subURL = file.m_sUrl;
                     }
 
                     if (file.m_oPreProvider != null)
-                        mediaFile.PreProvider = new AdvertisingProvider(file.m_oPreProvider.ProviderID, file.m_oPreProvider.ProviderName);
+                        mediaFile.preProvider = new AdvertisingProvider(file.m_oPreProvider.ProviderID, file.m_oPreProvider.ProviderName);
 
                     if (file.m_oPostProvider != null)
-                        mediaFile.PostProvider = new AdvertisingProvider(file.m_oPostProvider.ProviderID, file.m_oPostProvider.ProviderName);
+                        mediaFile.postProvider = new AdvertisingProvider(file.m_oPostProvider.ProviderID, file.m_oPostProvider.ProviderName);
 
                     if (file.m_oBreakProvider != null)
                     {
-                        mediaFile.BreakProvider = new AdvertisingProvider(file.m_oBreakProvider.ProviderID, file.m_oBreakProvider.ProviderName);
+                        mediaFile.breakProvider = new AdvertisingProvider(file.m_oBreakProvider.ProviderID, file.m_oBreakProvider.ProviderName);
                         if (!string.IsNullOrEmpty(file.m_sBreakpoints))
-                            mediaFile.BreakPoints = file.m_sBreakpoints.ToString().Split(';');
+                            mediaFile.breakPoints = file.m_sBreakpoints.ToString().Split(';');
                     }
 
                     if (file.m_oOverlayProvider != null)
                     {
-                        mediaFile.OverlayProvider = new AdvertisingProvider(file.m_oOverlayProvider.ProviderID, file.m_oOverlayProvider.ProviderName);
+                        mediaFile.overlayProvider = new AdvertisingProvider(file.m_oOverlayProvider.ProviderID, file.m_oOverlayProvider.ProviderName);
                         if (!string.IsNullOrEmpty(file.m_sOverlaypoints))
-                            mediaFile.OverlayPoints = file.m_sOverlaypoints.ToString().Split(';');
+                            mediaFile.overlayPoints = file.m_sOverlaypoints.ToString().Split(';');
                     }
 
-                    Files.Add(mediaFile);
+                    files.Add(mediaFile);
                 }
             }
 
@@ -474,13 +474,13 @@ namespace TVPApi
                 {
                     mediaFile = new File();
 
-                    mediaFile.FileID = branding.m_nFileId.ToString();
-                    mediaFile.URL = branding.m_sUrl;
-                    mediaFile.Duration = branding.m_nDuration.ToString();
-                    mediaFile.Format = branding.m_sFileFormat;
-                    mediaFile.CoGuid = branding.m_sCoGUID;
+                    mediaFile.fileID = branding.m_nFileId.ToString();
+                    mediaFile.url = branding.m_sUrl;
+                    mediaFile.duration = branding.m_nDuration.ToString();
+                    mediaFile.format = branding.m_sFileFormat;
+                    mediaFile.coGuid = branding.m_sCoGUID;
 
-                    Files.Add(mediaFile);
+                    files.Add(mediaFile);
                 }
             }
         }
@@ -533,17 +533,17 @@ namespace TVPApi
         //    }
         //}
 
-        private void buildPictures(List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture> pictures)
+        private void buildPictures(List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture> mediaPictures)
         {
-            if (pictures != null)
+            if (mediaPictures != null)
             {
                 TVPApi.Picture picture;
-                foreach (Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture pic in pictures)
+                foreach (Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture pic in mediaPictures)
                 {
                     picture = new TVPApi.Picture();
-                    picture.PicSize = pic.m_sSize;
-                    picture.URL = pic.m_sURL;
-                    Pictures.Add(picture);
+                    picture.picSize = pic.m_sSize;
+                    picture.url = pic.m_sURL;
+                    pictures.Add(picture);
                 }
             }
         }
@@ -564,50 +564,55 @@ namespace TVPApi
         //    }
         //}
 
-        private void BuildTagMetas(List<Metas> metas, List<Tags> tags, int groupID, PlatformType platform)
+        private void BuildTagMetas(List<Metas> mediaMetas, List<Tags> mediaTags, int groupID, PlatformType platform)
         {
             TagMetaPair pair;
 
             string[] adMetas = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Metas.Split(';');
 
-            foreach (Metas meta in metas)
+            if (mediaMetas != null)
             {
-                if (meta.m_oTagMeta.m_sName != "ID")
+                foreach (Metas meta in mediaMetas)
                 {
-                    pair = new TagMetaPair(meta.m_oTagMeta.m_sName, meta.m_sValue);
-                    Metas.Add(pair);
-
-                    if (adMetas.Contains(pair.Key))
-                        AdvertisingParameters.Add(pair);
-                }
-            }
-
-            //Copy Tags
-
-            foreach (Tags tag in tags)
-            {
-                if (tag.m_oTagMeta.m_sName != "ID")
-                {
-                    foreach (string tagValue in tag.m_lValues)
+                    if (meta.m_oTagMeta.m_sName != "ID")
                     {
-                        TagMetaPair mediaTag = Tags.Where(t => t.Key == tag.m_oTagMeta.m_sName).FirstOrDefault();
-                        if (mediaTag.Key == null && mediaTag.Value == null) // Change this!!!
-                        {
-                            pair = new TagMetaPair(tag.m_oTagMeta.m_sName, tagValue);
-                            Tags.Add(pair);
-                        }
-                        else
-                        {
-                            mediaTag.Value = (!String.IsNullOrEmpty(mediaTag.Value.ToString())) ? string.Concat(mediaTag.Value.ToString(), "|", tagValue) : tagValue;
-                        }
+                        pair = new TagMetaPair(meta.m_oTagMeta.m_sName, meta.m_sValue);
+                        metas.Add(pair);
+
+                        if (adMetas.Contains(pair.key))
+                            advertisingParameters.Add(pair);
                     }
                 }
-                string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
+            }
+            //Copy Tags
 
-                foreach (TagMetaPair mediaTag in Tags)
+            if (mediaTags != null)
+            {
+                foreach (Tags tag in mediaTags)
                 {
-                    if (adTags.Contains(mediaTag.Key))
-                        AdvertisingParameters.Add(mediaTag);
+                    if (tag.m_oTagMeta.m_sName != "ID")
+                    {
+                        foreach (string tagValue in tag.m_lValues)
+                        {
+                            TagMetaPair mediaTag = tags.Where(t => t.key == tag.m_oTagMeta.m_sName).FirstOrDefault();
+                            if (mediaTag.key == null && mediaTag.value == null) // Change this!!!
+                            {
+                                pair = new TagMetaPair(tag.m_oTagMeta.m_sName, tagValue);
+                                tags.Add(pair);
+                            }
+                            else
+                            {
+                                mediaTag.value = (!String.IsNullOrEmpty(mediaTag.value.ToString())) ? string.Concat(mediaTag.value.ToString(), "|", tagValue) : tagValue;
+                            }
+                        }
+                    }
+                    string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
+
+                    foreach (TagMetaPair mediaTag in tags)
+                    {
+                        if (adTags.Contains(mediaTag.key))
+                            advertisingParameters.Add(mediaTag);
+                    }
                 }
             }
         }
@@ -655,7 +660,7 @@ namespace TVPApi
         private long GetMediaMark()
         {
             long retVal = 0;
-            int groupID = WSUtils.GetGroupIDByMediaType(int.Parse(MediaTypeID));
+            int groupID = WSUtils.GetGroupIDByMediaType(int.Parse(mediaTypeID));
 
             return retVal;
         }
@@ -735,9 +740,9 @@ namespace TVPApi
             //string MediaPrice = string.Empty;
             price = "Free";
             reason = PriceReason.Free;
-            if (!string.IsNullOrEmpty(FileID))
+            if (!string.IsNullOrEmpty(fileID))
             {
-                int MediaFileID = int.Parse(FileID);
+                int MediaFileID = int.Parse(fileID);
 
                 int[] MediasArray = new int[1];
                 MediasArray[0] = MediaFileID;
@@ -751,16 +756,16 @@ namespace TVPApi
                     TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mediaPriceCont = null;
                     foreach (TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mp in MediasPrices)
                     {
-                        if (mp.m_nMediaFileID == MediaFileID)
+                        if (mp.mediaFileID == MediaFileID)
                             mediaPriceCont = mp;
                     }
 
                     if (mediaPriceCont != null)
                     {
-                        if (mediaPriceCont.m_oItemPrices != null)
+                        if (mediaPriceCont.itemPrices != null)
                         {
-                            price = mediaPriceCont.m_oItemPrices[0].m_oPrice.m_dPrice.ToString();
-                            switch (mediaPriceCont.m_oItemPrices[0].m_PriceReason)
+                            price = mediaPriceCont.itemPrices[0].price.price.ToString();
+                            switch (mediaPriceCont.itemPrices[0].priceReason)
                             {
                                 case TVPApiModule.Objects.Responses.PriceReason.ForPurchase:
                                     {
@@ -813,9 +818,9 @@ namespace TVPApi
         private PriceReason GetMediaPriceReason(PermittedMediaContainer[] MediaItems)
         {
             PriceReason retVal = PriceReason.UnKnown;
-            if (!string.IsNullOrEmpty(FileID))
+            if (!string.IsNullOrEmpty(fileID))
             {
-                int MediaFileID = int.Parse(FileID);
+                int MediaFileID = int.Parse(fileID);
                 if (MediaFileID > 0)
                 {
                     string Reason = PriceHelper.GetItemPriceReason(MediaFileID);

@@ -71,26 +71,26 @@ namespace TVPApiServices
                     retMedia.Media = (new TVPApiModule.CatalogLoaders.APIMediaLoader(MediaID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), picSize, initObj.Locale.LocaleLanguage)
                         .Execute() as List<Media>)[0];
 
-                    File trailerFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat.ToLower()).SingleOrDefault();
+                    File trailerFile = retMedia.Media.files.Where(x => x.format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat.ToLower()).SingleOrDefault();
 
                     if (!trailerFile.Equals(default(File)))
                     {
-                        retMedia.Media.Files.Remove(trailerFile);
+                        retMedia.Media.files.Remove(trailerFile);
 
-                        trailerFile.Format = "Trailer";
+                        trailerFile.format = "Trailer";
 
-                        retMedia.Media.Files.Insert(0, trailerFile);
+                        retMedia.Media.files.Insert(0, trailerFile);
                     }
 
-                    File trickPlayFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrickPlayFileFormat.ToLower()).SingleOrDefault();
+                    File trickPlayFile = retMedia.Media.files.Where(x => x.format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrickPlayFileFormat.ToLower()).SingleOrDefault();
 
                     if (!trickPlayFile.Equals(default(File)))
                     {
-                        retMedia.Media.Files.Remove(trickPlayFile);
+                        retMedia.Media.files.Remove(trickPlayFile);
 
-                        trickPlayFile.Format = "TrickPlay";
+                        trickPlayFile.format = "TrickPlay";
 
-                        retMedia.Media.Files.Insert(0, trickPlayFile);
+                        retMedia.Media.files.Insert(0, trickPlayFile);
                     }
 
                     retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid), initObj.UDID);
@@ -204,7 +204,7 @@ namespace TVPApiServices
                 }
 
                 if (mediaMark != null)
-                    sLastPosition = mediaMark.nLocationSec.ToString();
+                    sLastPosition = mediaMark.locationSec.ToString();
             }
             return sLastPosition;
         }

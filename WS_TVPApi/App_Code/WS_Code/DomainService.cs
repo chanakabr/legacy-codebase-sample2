@@ -258,7 +258,7 @@ namespace TVPApiServices
                     devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
 
                     for (int i = 0; i < domains.Count(); i++)
-                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = domains[i].m_nDomainID, DomainName = domains[i].m_sName, SiteGuid = domains[i].m_masterGUIDs[0].ToString() };
+                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = domains[i].domainID, DomainName = domains[i].name, SiteGuid = domains[i].masterGUIDs[0].ToString() };
                 }
                 catch (Exception ex)
                 {
@@ -303,14 +303,14 @@ namespace TVPApiServices
                     TVPApiModule.Services.ApiDomainsService service = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform);
                     TVPApiModule.Objects.Responses.DeviceResponseObject device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
 
-                    if (device == null || device.m_oDeviceResponseStatus == TVPApiModule.Objects.Responses.DeviceResponseStatus.Error)
+                    if (device == null || device.deviceResponseStatus == TVPApiModule.Objects.Responses.DeviceResponseStatus.Error)
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;
-                    else if (device.m_oDeviceResponseStatus == TVPApiModule.Objects.Responses.DeviceResponseStatus.DuplicatePin || device.m_oDeviceResponseStatus == TVPApiModule.Objects.Responses.DeviceResponseStatus.DeviceNotExists)
+                    else if (device.deviceResponseStatus == TVPApiModule.Objects.Responses.DeviceResponseStatus.DuplicatePin || device.deviceResponseStatus == TVPApiModule.Objects.Responses.DeviceResponseStatus.DeviceNotExists)
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;
                     else
                     {
                         deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
-                        deviceRes.UDID = device.m_oDevice.m_deviceUDID;
+                        deviceRes.UDID = device.device.deviceUDID;
                     }
                 }
                 catch (Exception ex)

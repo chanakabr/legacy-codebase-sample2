@@ -15,30 +15,30 @@ namespace TVPApi
     {
         private List<Category> m_innerCategories;
         private List<Channel> m_channels;
-        public string Title { get; set; }
-        public string ID { get; set; }
-        public string PicURL { get; set; }
+        public string title { get; set; }
+        public string id { get; set; }
+        public string picURL { get; set; }
 
         public Category(dsCategory.CategoriesRow catRow)
         {
-            Title = catRow.Title;
-            ID = catRow.ID;
+            title = catRow.Title;
+            id = catRow.ID;
             if (!catRow.IsPicURLNull())
             {
-                PicURL = catRow.PicURL;
+                picURL = catRow.PicURL;
             }
         }
 
         public Category()
         {
-            Title = string.Empty;
-            ID = string.Empty;
-            PicURL = string.Empty;
+            title = string.Empty;
+            id = string.Empty;
+            picURL = string.Empty;
         }
 
 
 
-        public List<Channel> Channels
+        public List<Channel> channels
         {
             get
             {
@@ -50,7 +50,7 @@ namespace TVPApi
             }
         }
 
-        public List<Category> InnerCategories
+        public List<Category> innerCategories
         {
             get
             {

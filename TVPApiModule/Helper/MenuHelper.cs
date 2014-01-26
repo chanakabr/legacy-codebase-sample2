@@ -27,7 +27,7 @@ namespace TVPApi
             {
                 List<Menu> menues = siteMap.Menues;
                 retVal = (from menu in menues
-                          where menu.ID == ID
+                          where menu.id == ID
                           select menu).FirstOrDefault();
             }
             return retVal;
@@ -42,7 +42,7 @@ namespace TVPApi
             {
                 List<Menu> footers = siteMap.Footers;
                 retVal = (from menu in footers
-                          where menu.ID == ID
+                          where menu.id == ID
                           select menu).FirstOrDefault();
             }
             return retVal;

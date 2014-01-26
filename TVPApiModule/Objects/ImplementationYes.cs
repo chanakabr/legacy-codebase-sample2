@@ -35,17 +35,17 @@ namespace TVPApiModule.Objects
 
             try
             {
-                if (response.UserData != null && response.UserData.m_oDynamicData != null)
+                if (response.UserData != null && response.UserData.dynamicData != null)
                 {
-                    string sUserType = response.UserData.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "Type").FirstOrDefault().m_sValue;
+                    string sUserType = response.UserData.dynamicData.userData.Where(x => x.dataType == "Type").FirstOrDefault().value;
                     using (yes.tvinci.ITProxy.Service service = new yes.tvinci.ITProxy.Service())
                     {
                         string perm = service.GetUserPermission(sUsername, sUserType);
                         new ApiUsersService(_nGroupID, _initObj.Platform).SetUserDynamicData(response.SiteGuid, "USER_PERMISSIONS", perm);
                         TVPApiModule.Objects.Responses.UserResponseObject userData = new ApiUsersService(_nGroupID, _initObj.Platform).GetUserData(response.SiteGuid);
-                        if (userData != null && userData.m_user != null && userData.m_user.m_oDynamicData != null)
+                        if (userData != null && userData.user != null && userData.user.dynamicData != null)
                         {
-                            response.UserData.m_oDynamicData = userData.m_user.m_oDynamicData;
+                            response.UserData.dynamicData = userData.user.dynamicData;
                         }
                     }
                 }
@@ -62,24 +62,24 @@ namespace TVPApiModule.Objects
         public override TVPApiModule.Objects.Responses.DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject resp = base.AddDeviceToDomain(sDeviceName, nDeviceBrandID);
-            if (resp.m_oDomainResponseStatus == TVPApiModule.Objects.Responses.DomainResponseStatus.OK)
+            if (resp.domainResponseStatus == TVPApiModule.Objects.Responses.DomainResponseStatus.OK)
             {
                 ApiDomainsService domainsService = new ApiDomainsService(_nGroupID, _initObj.Platform);
                 ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
 
                 TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
-                if (userResponseObject.m_RespStatus == TVPApiModule.Objects.Responses.ResponseStatus.OK && resp != null && resp.m_oDomain != null)
+                if (userResponseObject.respStatus == TVPApiModule.Objects.Responses.ResponseStatus.OK && resp != null && resp.domain != null)
                 {
-                    string sAccountNumber = resp.m_oDomain.m_sCoGuid;
-                    if (!string.IsNullOrEmpty(sAccountNumber) && userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
+                    string sAccountNumber = resp.domain.coGuid;
+                    if (!string.IsNullOrEmpty(sAccountNumber) && userResponseObject != null && userResponseObject.user != null && userResponseObject.user.basicData != null)
                     {
                         YesObject yesObj = new YesObject()
                         {
-                            AccountNumber = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "accNum").FirstOrDefault().m_sValue,
+                            AccountNumber = userResponseObject.user.dynamicData.userData.Where(x => x.dataType == "accNum").FirstOrDefault().value,
                             BrandID = 2,
                             DeviceName = sDeviceName,
                             UDID = _initObj.UDID,
-                            Username = userResponseObject.m_user.m_oBasicData.m_sUserName
+                            Username = userResponseObject.user.basicData.userName
                         };
 
                         try
@@ -90,7 +90,7 @@ namespace TVPApiModule.Objects
                         {
                             TVPApiModule.Objects.Responses.DomainResponseObject statusRemove = base.RemoveDeviceToDomain();
 
-                            resp = new TVPApiModule.Objects.Responses.DomainResponseObject() { m_oDomainResponseStatus = TVPApiModule.Objects.Responses.DomainResponseStatus.Error, m_oDomain = statusRemove.m_oDomain };
+                            resp = new TVPApiModule.Objects.Responses.DomainResponseObject() { domainResponseStatus = TVPApiModule.Objects.Responses.DomainResponseStatus.Error, domain = statusRemove.domain };
 
                             logger.ErrorFormat("ITProxy->AddDevice Error. Params: AccountNumber={0}, UDID={1}, Username={2}, Exception: {3}", yesObj.AccountNumber, yesObj.UDID, yesObj.Username, (ex != null && ex.InnerException != null)? ex.InnerException.ToString() : ex.ToString()); 
                         }
@@ -132,18 +132,18 @@ namespace TVPApiModule.Objects
 
                 return sRet;
             }
-            else if (mediaInfo[0].Metas != null && mediaInfo[0].Metas.Count > 0 && mediaInfo[0].Metas.Where(m => m.Key == "BundleID").FirstOrDefault() == null)
+            else if (mediaInfo[0].metas != null && mediaInfo[0].metas.Count > 0 && mediaInfo[0].metas.Where(m => m.key == "BundleID").FirstOrDefault() == null)
             {
                 sRet += string.Format(sError, 1001, "No 'BundleID' field for MediaID " + iMediaID);
                 return sRet;
             }
 
-            if (mediaInfo[0].Metas != null && mediaInfo[0].Metas.Count > 0 && mediaInfo[0].Metas.Where(m => m.Key == "BundleID").FirstOrDefault() != null)
+            if (mediaInfo[0].metas != null && mediaInfo[0].metas.Count > 0 && mediaInfo[0].metas.Where(m => m.key == "BundleID").FirstOrDefault() != null)
             {
                 using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
                 {
-                    string sBundleID = mediaInfo[0].Metas.Where(m => m.Key == "BundleID").FirstOrDefault().Value;
-                    string sComponentID = mediaInfo[0].Files[0].CoGuid;
+                    string sBundleID = mediaInfo[0].metas.Where(m => m.key == "BundleID").FirstOrDefault().value;
+                    string sComponentID = mediaInfo[0].files[0].coGuid;
                     
                     // Error no file component ID
                     if(string.IsNullOrEmpty(sComponentID)) {
@@ -304,12 +304,12 @@ namespace TVPApiModule.Objects
             {
                 ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
                 TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
-                if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oDynamicData != null)
+                if (userResponseObject != null && userResponseObject.user != null && userResponseObject.user.dynamicData != null)
                 {
-                    TVPApiModule.Objects.Responses.UserDynamicDataContainer dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
+                    TVPApiModule.Objects.Responses.UserDynamicDataContainer dynamicData = userResponseObject.user.dynamicData.userData.Where(x => x.dataType == "AccountUuid").FirstOrDefault();
                     if (dynamicData != null)
                     {
-                        string sAccountUuid = dynamicData.m_sValue;
+                        string sAccountUuid = dynamicData.value;
 
                         //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(_nGroupID, _initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
                         //dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, iMediaID.ToString()) { GroupID = _nGroupID, Platform = _initObj.Platform, DeviceUDID = _initObj.UDID, Language = _initObj.Locale.LocaleLanguage }.Execute());
@@ -318,11 +318,11 @@ namespace TVPApiModule.Objects
                             .Execute() as List<Media>; 
 
                         //if (mediaInfo.Item.Count > 0 && mediaInfo.Item[0].GetChildRows("Item_Tags").Length > 0)
-                        if (mediaInfo != null && mediaInfo.Count > 0 && mediaInfo[0].Tags != null && mediaInfo[0].Tags.Count > 0)
+                        if (mediaInfo != null && mediaInfo.Count > 0 && mediaInfo[0].tags != null && mediaInfo[0].tags.Count > 0)
                         {
-                            if (mediaInfo[0].Tags.Where(t=> t.Key == "Product key").FirstOrDefault() != null)
+                            if (mediaInfo[0].tags.Where(t=> t.key == "Product key").FirstOrDefault() != null)
                             {
-                                string[] sProductPKs = mediaInfo[0].Tags.Where(t => t.Key == "Product key").FirstOrDefault().Value.Split('|');
+                                string[] sProductPKs = mediaInfo[0].tags.Where(t => t.key == "Product key").FirstOrDefault().value.Split('|');
                                 int[] iProductPKs = sProductPKs.Select(x => int.Parse(x)).ToArray();
                                 ent = proxy.GetEntitlements(sAccountUuid, iProductPKs);
                             }

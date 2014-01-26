@@ -7,56 +7,24 @@ namespace TVPApiModule.Objects.Responses
 {
     public class GroupOperator
     {
-        public UIData UIData { get; set; }
+        public UIData uiData { get; set; }
         
-        public int ID { get; set; }
+        public int id { get; set; }
         
-        public string Name { get; set; }
+        public string name { get; set; }
         
-        public eOperatorType Type { get; set; }
+        public eOperatorType type { get; set; }
 
-        public string LoginUrl { get; set; }
+        public string loginUrl { get; set; }
 
-        public int SubGroupID { get; set; }
+        public int subGroupID { get; set; }
 
-        public Scope[] Scopes { get; set; }
+        public Scope[] scopes { get; set; }
 
-        public string GroupUserName { get; set; }
+        public string groupUserName { get; set; }
 
-        public string GroupPassword { get; set; }
+        public string groupPassword { get; set; }
 
-        public string LogoutURL { get; set; }
-    }
-
-    public class UIData
-    {
-        public string ColorCode { get; set; }
-        
-        public int picID { get; set; }
-    }
-
-    public class Scope
-    {
-        public string Name { get; set; }
-
-        public string LoginUrl { get; set; }
-
-        public string LogoutUrl { get; set; }
-    }
-
-    public enum eOperatorType
-    {
-
-        /// <remarks/>
-        OAuth,
-
-        /// <remarks/>
-        API,
-
-        /// <remarks/>
-        TVinci,
-
-        /// <remarks/>
-        SAML,
+        public string logoutURL { get; set; }
     }
 }

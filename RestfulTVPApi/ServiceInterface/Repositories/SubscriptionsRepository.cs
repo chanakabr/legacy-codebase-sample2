@@ -45,9 +45,9 @@ namespace RestfulTVPApi.ServiceInterface
 
                     res.Add(new SubscriptionPrice
                     {
-                        SubscriptionCode = priceObj.m_sObjectCode,
-                        Price = priceObj.m_oSubscriptionPriceCode.m_oPrise.m_dPrice,
-                        Currency = priceObj.m_oSubscriptionPriceCode.m_oPrise.m_oCurrency.m_sCurrencySign
+                        subscriptionCode = priceObj.objectCode,
+                        price = priceObj.subscriptionPriceCode.prise.price,
+                        currency = priceObj.subscriptionPriceCode.prise.currency.currencySign
                     });
                 }
             }
@@ -67,7 +67,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).m_ProductCode;
+                res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).productCode;
             }
             else
             {

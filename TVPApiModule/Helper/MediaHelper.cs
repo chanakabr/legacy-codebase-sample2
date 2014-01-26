@@ -725,7 +725,7 @@ namespace TVPApi
 
                         if (favoritesObj != null)
                         {
-                            mediaIDsList = favoritesObj.Select(f => int.Parse(f.m_sItemCode)).ToList();
+                            mediaIDsList = favoritesObj.Select(f => int.Parse(f.itemCode)).ToList();
                             retVal = new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDsList, groupID, platform, udid, SiteHelper.GetClientIP(), picSize, language).Execute() as List<Media>;
                         }
 
@@ -734,7 +734,7 @@ namespace TVPApi
                 case UserItemType.Rental:
                     {
                         TVPApiModule.Objects.Responses.PermittedMediaContainer[] MediaPermitedItems = new ApiConditionalAccessService(groupID, platform).GetUserPermittedItems(guid);
-                        mediaIDsList = MediaPermitedItems.Select(mp => mp.m_nMediaID).ToList();
+                        mediaIDsList = MediaPermitedItems.Select(mp => mp.mediaID).ToList();
                         retVal = new TVPApiModule.CatalogLoaders.APIMediaLoader(mediaIDsList, groupID, platform, udid, SiteHelper.GetClientIP(), picSize, language).Execute() as List<Media>;
                         break;
                     }
@@ -748,15 +748,15 @@ namespace TVPApi
 
                             foreach (TVPApiModule.Objects.Responses.PermittedSubscriptionContainer sub in PermitedPackages)
                             {
-                                sb.AppendFormat("{0}{1}", sub.m_sSubscriptionCode, ";");
+                                sb.AppendFormat("{0}{1}", sub.subscriptionCode, ";");
                                 var pair = BaseIdsDict.Where(bid => bid.m_sKey == "Base ID").FirstOrDefault();
                                 if (pair == null)
                                 {
-                                    BaseIdsDict.Add(new KeyValue() { m_sKey = "Base ID", m_sValue = sub.m_sSubscriptionCode});
+                                    BaseIdsDict.Add(new KeyValue() { m_sKey = "Base ID", m_sValue = sub.subscriptionCode});
                                 }
                                 else
                                 {
-                                    pair.m_sValue = string.Concat(pair.m_sValue, ";", sub.m_sSubscriptionCode);
+                                    pair.m_sValue = string.Concat(pair.m_sValue, ";", sub.subscriptionCode);
                                 }
                             }
                             if (BaseIdsDict != null && BaseIdsDict.Count > 0)

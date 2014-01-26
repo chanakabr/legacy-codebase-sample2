@@ -26,6 +26,17 @@ namespace TVPApiModule.CatalogLoaders
             }
         }
 
+
+        protected override Object ExecuteEPGAdapter(List<BaseObject> programs)
+        {
+            List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> retVal = new List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>();
+            foreach (ProgramObj p in programs)
+            {
+                retVal.Add(p.m_oProgram.ToApiObject());
+            }
+            return retVal;
+        }
+
         #region Constructors
 
         public APIEPGSearchLoader(int groupID, PlatformType platform, string udid, string userIP, string language, int pageSize, int pageIndex, string searchText, DateTime startTime, DateTime endTime)

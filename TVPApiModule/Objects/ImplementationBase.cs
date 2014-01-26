@@ -71,18 +71,18 @@ namespace TVPApiModule.Objects
             TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mediaPrice = null;
             foreach (TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mp in prices)
             {
-                if (mp.m_nMediaFileID == iFileID)
+                if (mp.mediaFileID == iFileID)
                 {
                     mediaPrice = mp;
                     break;
                 }
             }
 
-            if (mediaPrice != null && mediaPrice.m_oItemPrices != null && mediaPrice.m_oItemPrices.Length > 0)
+            if (mediaPrice != null && mediaPrice.itemPrices != null && mediaPrice.itemPrices.Length > 0)
             {
-                TVPApi.PriceReason priceReason = (TVPApi.PriceReason)mediaPrice.m_oItemPrices[0].m_PriceReason;
+                TVPApi.PriceReason priceReason = (TVPApi.PriceReason)mediaPrice.itemPrices[0].priceReason;
 
-                bRet = mediaPrice.m_oItemPrices[0].m_oPrice.m_dPrice == 0 &&
+                bRet = mediaPrice.itemPrices[0].price.price == 0 &&
                        (priceReason == TVPApi.PriceReason.PPVPurchased ||
                         priceReason == TVPApi.PriceReason.SubscriptionPurchased ||
                         priceReason == TVPApi.PriceReason.PrePaidPurchased ||

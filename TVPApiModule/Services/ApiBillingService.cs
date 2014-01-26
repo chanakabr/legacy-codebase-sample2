@@ -45,7 +45,9 @@ namespace TVPApiModule.Services
             AdyenBillingDetail response = null;
             try
             {
-                response = m_Module.GetLastBillingUserInfo(m_wsUserName, m_wsPassword, siteGuid, billingMethod).ToApiObject();
+                var res = m_Module.GetLastBillingUserInfo(m_wsUserName, m_wsPassword, siteGuid, billingMethod);
+                if (res != null)
+                    response = res.ToApiObject();
             }
             catch (Exception ex)
             {

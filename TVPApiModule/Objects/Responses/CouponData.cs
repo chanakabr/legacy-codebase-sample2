@@ -7,30 +7,16 @@ namespace TVPApiModule.Objects.Responses
 {
     public class CouponData
     {
-        public CouponsStatus m_CouponStatus { get; set; }
+        public CouponsStatus couponStatus { get; set; }
 
-        public CouponsGroup m_oCouponGroup { get; set; }
+        public CouponsGroup couponGroup { get; set; }
 
-        public CouponType m_CouponType { get; set; }
+        public CouponType couponType { get; set; }
 
-        public long m_campID { get; set; }
+        public long campID { get; set; }
 
-        public long m_ownerGUID { get; set; }
+        public long ownerGUID { get; set; }
 
-        public long m_ownerMedia { get; set; }
-
-    }
-
-    public enum CouponType
-    {
-
-        /// <remarks/>
-        Unknown,
-
-        /// <remarks/>
-        Coupon,
-
-        /// <remarks/>
-        Voucher,
+        public long ownerMedia { get; set; }
     }
 }

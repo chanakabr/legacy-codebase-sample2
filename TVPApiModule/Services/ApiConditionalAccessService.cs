@@ -126,7 +126,9 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt).ToApiObject();
+                var res = m_Module.InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
+                if (res != null)
+                    response = res.ToApiObject();
             }
             catch (Exception ex)
             {
@@ -142,10 +144,9 @@ namespace TVPApiModule.Services
 
             try
             {
-
                 var response = m_Module.GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
                 if (response != null)
-                    retVal = response.Select(m => m.ToApiObject()).ToArray(); 
+                    retVal = response.Where(pmc => pmc != null).Select(m => m.ToApiObject()).ToArray(); 
             }
             catch (Exception ex)
             {
@@ -163,7 +164,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
                 if (response != null)
-                    retVal = response.Select(mf => mf.ToApiObject()).ToArray();
+                    retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -181,7 +182,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
                 if (response != null)
-                    retVal = response.Select(s => s.ToApiObject()).ToArray();
+                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -197,8 +198,9 @@ namespace TVPApiModule.Services
 
             try
             {
-                retVal = m_Module.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count).ToApiObject();
-
+                var res = m_Module.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
+                if (res != null)
+                    retVal = res.ToApiObject();
             }
             catch (Exception ex)
             {
@@ -215,7 +217,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
                 if (response != null)
-                    retVal = response.Select(m => m.ToApiObject()).ToArray();
+                    retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToArray();
 
             }
             catch (Exception ex)
@@ -233,7 +235,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
                 if (response != null)
-                    retVal = response.Select(s => s.ToApiObject()).ToArray();
+                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToArray();
 
             }
             catch (Exception ex)
@@ -251,7 +253,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
                 if (response != null)
-                    returnObject = response.Select(sp => sp.ToApiObject()).ToArray();
+                    returnObject = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -363,7 +365,10 @@ namespace TVPApiModule.Services
                     m_status = status,
                     m_voucherReceipents = voucherReceipents
                 };
-                campaignActionInfo = m_Module.ActivateCampaignWithInfo(m_wsUserName, m_wsPassword, (int)campID,  campaignActionInfoParam).ToApiObject();
+                var res = m_Module.ActivateCampaignWithInfo(m_wsUserName, m_wsPassword, (int)campID,  campaignActionInfoParam);
+                if (res != null)
+                    campaignActionInfo = res.ToApiObject();
+
                 logger.InfoFormat("Protocol: ActivateCampaignWithInfo, Parameters : campID : {0}", campID);
             }
             catch (Exception ex)
@@ -564,7 +569,7 @@ namespace TVPApiModule.Services
                     logger.InfoFormat("GetItemsPricesWithCoupons, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
                     var response = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
                     if (response != null)
-                        retVal = response.Select(mf => mf.ToApiObject()).ToArray();
+                        retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -586,7 +591,7 @@ namespace TVPApiModule.Services
                     logger.InfoFormat("GetSubscriptionsPricesWithCoupon, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
                     var response = m_Module.GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, siteGuid, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
                     if (response != null)
-                        retVal = response.Select(sp => sp.ToApiObject()).ToArray();
+                        retVal = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -669,7 +674,9 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                    retVal = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData).ToApiObject();
+                    var res = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
+                    if (res != null)
+                        retVal = res.ToApiObject();
                 }
                 catch (Exception ex)
                 {
@@ -689,7 +696,9 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("CC_ChargeUserForPrePaid, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                    retVal = m_Module.CC_ChargeUserForPrePaid(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName).ToApiObject();
+                    var res = m_Module.CC_ChargeUserForPrePaid(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
+                    if (res != null)
+                        retVal = res.ToApiObject();
                 }
                 catch (Exception ex)
                 {
@@ -724,7 +733,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.GetUsersBillingHistory(m_wsUserName, m_wsPassword, siteGuids, startDate, endDate);
                 if (response != null)
-                    retVal = response.Select(ubh => ubh.ToApiObject()).ToArray();
+                    retVal = response.Where(ubt => ubt != null).Select(ubt => ubt.ToApiObject()).ToArray();
 
             }
             catch (Exception ex)
@@ -742,7 +751,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.GetDomainsBillingHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
                 if (response != null)
-                    retVal = response.Select(dbh => dbh.ToApiObject()).ToArray();
+                    retVal = response.Where(dbt => dbt != null).Select(dbt => dbt.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -759,7 +768,7 @@ namespace TVPApiModule.Services
             {
                 var response = m_Module.GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
                 if (response != null)
-                    retVal = response.Select(m => m.ToApiObject()).ToArray();
+                    retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {
@@ -777,7 +786,7 @@ namespace TVPApiModule.Services
                 var response = m_Module.GetDomainPermittedSubscriptions(m_wsUserName, m_wsPassword, domainID);
 
                 if (response != null)
-                    retVal = response.Select(s => s.ToApiObject()).ToArray();
+                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToArray();
             }
             catch (Exception ex)
             {

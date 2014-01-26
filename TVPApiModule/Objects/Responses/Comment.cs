@@ -11,17 +11,20 @@ namespace TVPApi
 {
     public class Comment
     {
-        public string Author { get; set; }
-        public string Header { get; set; }
-        public string AddedDate { get; set; }
-        public string Content { get; set; }
+        public string author { get; set; }
+
+        public string header { get; set; }
+
+        public string addedDate { get; set; }
+
+        public string content { get; set; }
 
         public Comment(string author, string header, string addedDate, string content)
         {
-            Author = author;
-            Header = header;
-            AddedDate = addedDate;
-            Content = content;
+            this.author = author;
+            this.header = header;
+            this.addedDate = addedDate;
+            this.content = content;
         }
     }
 }

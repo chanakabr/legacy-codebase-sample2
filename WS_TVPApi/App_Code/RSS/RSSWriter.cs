@@ -127,7 +127,7 @@ public class RSSWriter
                     sb.Append(",");
                    
                 }
-                sb.Append(media.MediaID);
+                sb.Append(media.mediaID);
                 isFirst = false;
             }
         }
@@ -153,32 +153,32 @@ public class RSSWriter
                 //Start Item
                 m_writer.WriteStartElement("item");
 
-                m_writer.WriteElementString("title", media.MediaName);
+                m_writer.WriteElementString("title", media.mediaName);
 
-                m_writer.WriteElementString("link", media.URL);
+                m_writer.WriteElementString("link", media.url);
                 //Todo - get group ID dynamically from channel or gallery
                 // TVMAccountType account = PageData.GetInstance(93).GetTVMAccountByUser(galleryItem.TVMUser);
                 //string fileType = ConfigManager.GetInstance(93).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
                 // m_writer.WriteElementString("link", string.Concat(TVPPro.SiteManager.Helper.SiteHelper.GetRssPath(account.BaseGroupID, galleryItem.TVMChannelID, galleryItem.PictureSize, "HIGH", fileType), "&pic_resize=1", "&with_image_in_description=0"));
                 string description = string.Empty;
-                if (!string.IsNullOrEmpty(media.Description))
+                if (!string.IsNullOrEmpty(media.description))
                 {
-                    description = media.Description;
+                    description = media.description;
 
                 }
                 m_writer.WriteElementString("description", description);
                 //Start Enclosure
                 m_writer.WriteStartElement("enclosure");
                 m_writer.WriteAttributeString("length", "56499232");
-                m_writer.WriteAttributeString("url", media.URL);
+                m_writer.WriteAttributeString("url", media.url);
                 m_writer.WriteAttributeString("type", "video/x-ms-wmv");
-                m_writer.WriteAttributeString("alt", media.MediaName);
+                m_writer.WriteAttributeString("alt", media.mediaName);
                 //End Enclosure
                 m_writer.WriteEndElement();
 
                 //Start image
                 m_writer.WriteStartElement("image");
-                string pic = string.Format(@"http://platform-us.tvinci.com/pic_resize_tool.aspx?h={0}&w={1}&c=true&u={2}", height, width, media.PicURL);
+                string pic = string.Format(@"http://platform-us.tvinci.com/pic_resize_tool.aspx?h={0}&w={1}&c=true&u={2}", height, width, media.picURL);
                 m_writer.WriteElementString("url", XMLEncode(pic, true));
                 m_writer.WriteEndElement();
                 //End item

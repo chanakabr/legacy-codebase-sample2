@@ -7,8 +7,10 @@ namespace TVPApi
 {
     public class SubscriptionPrice
     {
-        public double Price { get; set; }
-        public string Currency { get; set; }
-        public string SubscriptionCode { get; set; }
+        public double price { get; set; }
+
+        public string currency { get; set; }
+
+        public string subscriptionCode { get; set; }
     }
 }

@@ -8,30 +8,12 @@ namespace TVPApiModule.Objects.Responses
     public class BillingResponse
     {
 
-        public BillingResponseStatus m_oStatus { get; set; }
-        public string m_sRecieptCode { get; set; }
-        public string m_sStatusDescription { get; set; }
-        public string m_sExternalReceiptCode { get; set; }
-    }
+        public BillingResponseStatus status { get; set; }
 
-    public enum BillingResponseStatus
-    {
-        /// <remarks/>
-        Success,
+        public string recieptCode { get; set; }
 
-        /// <remarks/>
-        Fail,
+        public string statusDescription { get; set; }
 
-        /// <remarks/>
-        UnKnown,
-
-        /// <remarks/>
-        PriceNotCorrect,
-
-        /// <remarks/>
-        UnKnownUser,
-
-        /// <remarks/>
-        UnKnownPPVModule,
+        public string externalReceiptCode { get; set; }
     }
 }

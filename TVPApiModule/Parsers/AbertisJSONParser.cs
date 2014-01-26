@@ -50,48 +50,48 @@ namespace TVPApi
         private void AdMetaToMedia(ActivaMedia activaMedia, Media media)
         {
             activaMedia.aspectRatio16_9 = true;
-            if (media.Metas != null)
+            if (media.metas != null)
             {
-                foreach (TagMetaPair metaPair in media.Metas)
+                foreach (TagMetaPair metaPair in media.metas)
                 {
-                    if (metaPair.Key.Equals("short description"))
+                    if (metaPair.key.Equals("short description"))
                     {
-                        activaMedia.shortDescription = metaPair.Value;
+                        activaMedia.shortDescription = metaPair.value;
                     }
-                    if (metaPair.Key.Equals("medium description"))
+                    if (metaPair.key.Equals("medium description"))
                     {
-                        activaMedia.midDescription = metaPair.Value;
+                        activaMedia.midDescription = metaPair.value;
                     }
-                    if (metaPair.Key.Equals("Duration"))
+                    if (metaPair.key.Equals("Duration"))
                     {
-                        activaMedia.assetDuration = int.Parse(metaPair.Value);
+                        activaMedia.assetDuration = int.Parse(metaPair.value);
                     }
-                    if (metaPair.Key.Equals("is premium"))
+                    if (metaPair.key.Equals("is premium"))
                     {
-                        Boolean.TryParse(metaPair.Value, out activaMedia.premium);
+                        Boolean.TryParse(metaPair.value, out activaMedia.premium);
                     }
-                    if (metaPair.Key.Equals("Hour"))
+                    if (metaPair.key.Equals("Hour"))
                     {
-                        activaMedia.assetHour = metaPair.Value;
+                        activaMedia.assetHour = metaPair.value;
                     }
                     
                 }
             }
-            if (media.Tags != null)
+            if (media.tags != null)
             {
-                foreach (TagMetaPair tagPair in media.Tags)
+                foreach (TagMetaPair tagPair in media.tags)
                 {
-                    if (tagPair.Key.Equals("Channel"))
+                    if (tagPair.key.Equals("Channel"))
                     {
-                        activaMedia.channelName = tagPair.Value;
+                        activaMedia.channelName = tagPair.value;
                     }
-                    if (tagPair.Key.Equals("Parental"))
+                    if (tagPair.key.Equals("Parental"))
                     {
-                        activaMedia.tvParental = tagPair.Value;
+                        activaMedia.tvParental = tagPair.value;
                     }
-                    if (tagPair.Key.Equals("Genre"))
+                    if (tagPair.key.Equals("Genre"))
                     {
-                        activaMedia.genre = tagPair.Value;
+                        activaMedia.genre = tagPair.value;
                     }
 
                 }
@@ -131,7 +131,7 @@ namespace TVPApi
             if (media != null)
             {
                 retVal = new ActivaFile();
-                string fileID = media.FileID;
+                string fileID = media.fileID;
 
             }
             return retVal;
@@ -172,32 +172,32 @@ namespace TVPApi
                 {
                     ActivaMedia activaMedia = new ActivaMedia();
                     AdMetaToMedia(activaMedia, media);
-                    activaMedia.assetName = media.MediaName;
-                    activaMedia.midDescription = media.Description;
-                    activaMedia.assetDate = media.CreationDate.ToString("dd/MM/yyyy");
-                    activaMedia.unique_ID = media.MediaID;
-                    activaMedia.videoURL = media.URL;
+                    activaMedia.assetName = media.mediaName;
+                    activaMedia.midDescription = media.description;
+                    activaMedia.assetDate = media.creationDate.ToString("dd/MM/yyyy");
+                    activaMedia.unique_ID = media.mediaID;
+                    activaMedia.videoURL = media.url;
 
                     if (!string.IsNullOrEmpty(activaMedia.videoURL))
                     {
                         activaMedia.videoHD = IsHD(activaMedia.videoURL);
                     }
-                    if (!string.IsNullOrEmpty(media.Duration))
+                    if (!string.IsNullOrEmpty(media.duration))
                     {
-                        activaMedia.assetDuration = int.Parse(media.Duration);
+                        activaMedia.assetDuration = int.Parse(media.duration);
                     }
-                    if (!string.IsNullOrEmpty(media.PicURL))
+                    if (!string.IsNullOrEmpty(media.picURL))
                     {
-                        activaMedia.assetSmallThumbnail = GetSizedImage(media.PicURL, "160X90"); //old "138X90"
-                        activaMedia.assetMedThumbnail = GetSizedImage(media.PicURL, "144X108"); //old "143X105"
-                        activaMedia.assetBigThumbnail = GetSizedImage(media.PicURL, "400X225"); //old 824X460
+                        activaMedia.assetSmallThumbnail = GetSizedImage(media.picURL, "160X90"); //old "138X90"
+                        activaMedia.assetMedThumbnail = GetSizedImage(media.picURL, "144X108"); //old "143X105"
+                        activaMedia.assetBigThumbnail = GetSizedImage(media.picURL, "400X225"); //old 824X460
                     }
 
-                    if (!string.IsNullOrEmpty(media.FileID) && media.FileID != "0")
+                    if (!string.IsNullOrEmpty(media.fileID) && media.fileID != "0")
                     {
 
-                        filesArr[counter] = int.Parse(media.FileID);
-                        string breakPoints = GetBreakPoints(int.Parse(media.FileID), ref activaMedia.preProvider, ref activaMedia.postProvider, ref activaMedia.cueProvider);
+                        filesArr[counter] = int.Parse(media.fileID);
+                        string breakPoints = GetBreakPoints(int.Parse(media.fileID), ref activaMedia.preProvider, ref activaMedia.postProvider, ref activaMedia.cueProvider);
                         if (!string.IsNullOrEmpty(breakPoints))
                         {
                             int breakCount = 1;
@@ -217,7 +217,7 @@ namespace TVPApi
                                 breakCount++;
                             }
                         }
-                        filesDict.Add(media.FileID, activaMedia);
+                        filesDict.Add(media.fileID, activaMedia);
                         counter++;
                         //Dictionary<int, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.MediaFileItemPricesContainer> prices = ConditionalAccessService.Instance.GetItemsPrice(filesArr, false);
                     }
@@ -355,27 +355,27 @@ namespace TVPApi
             ActivaCategory retVal = new ActivaCategory();
             if (cat != null)
             {
-                if (cat.InnerCategories != null)
+                if (cat.innerCategories != null)
                 {
-                    foreach (Category innerCat in cat.InnerCategories)
+                    foreach (Category innerCat in cat.innerCategories)
                     {
                         if (retVal.content == null)
                         {
                             retVal.content = new List<ActivaInnerCategory>();
                         }
                         ActivaInnerCategory innerRetVal = new ActivaInnerCategory();
-                        innerRetVal.categoryName = innerCat.Title;
-                        if (innerCat.Channels != null)
+                        innerRetVal.categoryName = innerCat.title;
+                        if (innerCat.channels != null)
                         {
-                            foreach (Channel channel in innerCat.Channels)
+                            foreach (Channel channel in innerCat.channels)
                             {
                                 if (innerRetVal.categoryItems == null)
                                 {
                                     innerRetVal.categoryItems = new List<ActivaCategoryChannel>();
                                 }
                                 ActivaCategoryChannel retChannel = new ActivaCategoryChannel();
-                                retChannel.SectionID = channel.ChannelID.ToString();
-                                retChannel.SectionTitle = channel.Title;
+                                retChannel.SectionID = channel.channelID.ToString();
+                                retChannel.SectionTitle = channel.title;
                                 innerRetVal.categoryItems.Add(retChannel);
                             }
                         }

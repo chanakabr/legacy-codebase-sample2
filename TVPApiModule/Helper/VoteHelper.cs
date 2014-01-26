@@ -166,11 +166,11 @@ namespace TVPApiModule.Helper
                     from DataRow row in dt.Rows
                     select new UserVote()
                                     {
-                                        MediaID = row["MEDIA"].ToString(),
-                                        Platform = row["PLATFORM"].ToString(),
-                                        Score = int.Parse(row["SCORE"].ToString()),
-                                        SiteGUID = row["SITE_GUID"].ToString(),
-                                        Time = (DateTime)row["VOTE_DATE"]
+                                        mediaID = row["MEDIA"].ToString(),
+                                        platform = row["PLATFORM"].ToString(),
+                                        score = int.Parse(row["SCORE"].ToString()),
+                                        siteGUID = row["SITE_GUID"].ToString(),
+                                        time = (DateTime)row["VOTE_DATE"]
                                     });
             }
 

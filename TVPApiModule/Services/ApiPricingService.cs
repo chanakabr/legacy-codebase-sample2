@@ -44,7 +44,9 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.PPVModule response = null;
             try
             {
-                response = m_Module.GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice).ToApiObject(); ;
+                var res = m_Module.GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice);
+                if (res != null)
+                    response = res.ToApiObject();
             }
             catch (Exception ex)
             {
@@ -82,7 +84,7 @@ namespace TVPApiModule.Services
                 var response = m_Module.GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
                 if (response != null)
                 {
-                    subscriptions = response.Select(s => s.ToApiObject()).ToArray();
+                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToArray();
                 }
             }
             catch (Exception ex)
@@ -99,7 +101,9 @@ namespace TVPApiModule.Services
 
             try
             {
-                sub = m_Module.GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive).ToApiObject();
+                var res = m_Module.GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
+                if (res != null)
+                    sub = res.ToApiObject();
             }
             catch (Exception ex)
             {
@@ -115,7 +119,9 @@ namespace TVPApiModule.Services
 
             try
             {
-                couponData  = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode).ToApiObject();
+                var res = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
+                if (res != null)
+                    couponData = res.ToApiObject();
             }
             catch (Exception ex)
             {
@@ -183,7 +189,7 @@ namespace TVPApiModule.Services
                 var response = m_Module.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
                 if (response != null)
                 {
-                    subscriptions = response.Select(s => s.ToApiObject()).ToList();
+                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
                 }
             }
             catch (Exception ex)

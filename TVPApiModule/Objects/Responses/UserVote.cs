@@ -7,10 +7,14 @@ namespace TVPApiModule.Objects
 {
     public class UserVote
     {
-        public string MediaID { get; set; }
-        public string SiteGUID { get; set; }
-        public int Score { get; set; }
-        public DateTime Time { get; set; }
-        public string Platform { get; set; }
+        public string mediaID { get; set; }
+
+        public string siteGUID { get; set; }
+
+        public int score { get; set; }
+
+        public DateTime time { get; set; }
+
+        public string platform { get; set; }
     }
 }
