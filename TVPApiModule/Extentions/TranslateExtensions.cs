@@ -570,10 +570,10 @@ namespace TVPApiModule.Extentions
         {
             TVPApiModule.Objects.Responses.Currency retVal = new TVPApiModule.Objects.Responses.Currency();
 
-            retVal.currencyID = response.m_nCurrencyID;
-            retVal.currencyCD2 = response.m_sCurrencyCD2;
-            retVal.currencyCD3 = response.m_sCurrencyCD3;
-            retVal.currencySign = response.m_sCurrencySign;
+            retVal.currency_id = response.m_nCurrencyID;
+            retVal.currency_cd2 = response.m_sCurrencyCD2;
+            retVal.currency_cd3 = response.m_sCurrencyCD3;
+            retVal.currency_sign = response.m_sCurrencySign;
 
             return retVal;
         }
@@ -1188,10 +1188,10 @@ namespace TVPApiModule.Extentions
         {
             TVPApiModule.Objects.Responses.Currency retVal = new TVPApiModule.Objects.Responses.Currency();
 
-            retVal.currencyID = response.m_nCurrencyID;
-            retVal.currencyCD2 = response.m_sCurrencyCD2;
-            retVal.currencyCD3 = response.m_sCurrencyCD3;
-            retVal.currencySign = response.m_sCurrencySign;
+            retVal.currency_id = response.m_nCurrencyID;
+            retVal.currency_cd2 = response.m_sCurrencyCD2;
+            retVal.currency_cd3 = response.m_sCurrencyCD3;
+            retVal.currency_sign = response.m_sCurrencySign;
 
             return retVal;
         }

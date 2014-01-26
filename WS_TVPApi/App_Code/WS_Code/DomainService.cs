@@ -12,7 +12,6 @@ using log4net;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
 using System.Web;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects.Responses;
@@ -239,10 +238,10 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get device domains")]
-        public TVPApiModule.Services.ApiDomainsService.DeviceDomain[] GetDeviceDomains(InitializationObject initObj)
+        public DeviceDomain[] GetDeviceDomains(InitializationObject initObj)
         {
             IEnumerable<TVPApiModule.Objects.Responses.Domain> domains = null;
-            TVPApiModule.Services.ApiDomainsService.DeviceDomain[] devDomains = null;
+            DeviceDomain[] devDomains = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -255,10 +254,10 @@ namespace TVPApiServices
                     if (domains == null || domains.Count() == 0)
                         return devDomains;
 
-                    devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
+                    devDomains = new DeviceDomain[domains.Count()];
 
                     for (int i = 0; i < domains.Count(); i++)
-                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].domain_id, DomainName = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].name, SiteGuid = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].master_guids[0].ToString() };
+                        devDomains[i] = new DeviceDomain() { domain_id = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].domain_id, domain_name = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].name, site_guid = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].master_guids[0].ToString() };
                 }
                 catch (Exception ex)
                 {
@@ -291,9 +290,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Register a device to domain by PIN code")]
-        public TVPApiModule.Services.ApiDomainsService.DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin)
+        public DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin)
         {
-            TVPApiModule.Services.ApiDomainsService.DeviceRegistration deviceRes = new TVPApiModule.Services.ApiDomainsService.DeviceRegistration();
+            DeviceRegistration deviceRes = new DeviceRegistration();
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RegisterDeviceByPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
@@ -304,13 +303,13 @@ namespace TVPApiServices
                     TVPApiModule.Objects.Responses.DeviceResponseObject device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
 
                     if (device == null || device.device_response_status == TVPApiModule.Objects.Responses.DeviceResponseStatus.Error)
-                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;
-                    else if (device.device_response_status == TVPApiModule.Objects.Responses.DeviceResponseStatus.DuplicatePin || device.device_response_status == TVPApiModule.Objects.Responses.DeviceResponseStatus.DeviceNotExists)
-                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;
+                        deviceRes.reg_status = eDeviceRegistrationStatus.Error;
+                    else if (device.device_response_status == DeviceResponseStatus.DuplicatePin || device.device_response_status == TVPApiModule.Objects.Responses.DeviceResponseStatus.DeviceNotExists)
+                        deviceRes.reg_status = eDeviceRegistrationStatus.Invalid;
                     else
                     {
-                        deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
-                        deviceRes.UDID = device.device.device_udid;
+                        deviceRes.reg_status = eDeviceRegistrationStatus.Success;
+                        deviceRes.udid = device.device.device_udid;
                     }
                 }
                 catch (Exception ex)
@@ -445,11 +444,7 @@ namespace TVPApiServices
 
                 try
                 {
-                    int siteGuid = 0;
-                    if (int.TryParse(initObj.SiteGuid, out siteGuid))
-                        resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SubmitAddUserToDomainRequest(siteGuid, masterUsername);
-                    else
-                        throw new Exception("Site guid is not a valid number");
+                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SubmitAddUserToDomainRequest(initObj.SiteGuid, masterUsername);
                 }
                 catch (Exception ex)
                 {

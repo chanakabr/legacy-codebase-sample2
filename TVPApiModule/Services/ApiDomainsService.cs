@@ -23,23 +23,6 @@ namespace TVPApiModule.Services
         private int m_groupID;
         private PlatformType m_platform;
 
-        [Serializable]
-        public struct DeviceDomain
-        {
-            public string SiteGuid;
-            public int DomainID;
-            public string DomainName;
-        }
-
-        [Serializable]
-        public enum eDeviceRegistrationStatus { Success = 0, Invalid = 1, Error = 2 }
-
-        [Serializable]
-        public struct DeviceRegistration
-        {
-            public string UDID;
-            public eDeviceRegistrationStatus RegStatus;
-        }
         #endregion
 
         public ApiDomainsService(int groupID, PlatformType platform)
@@ -338,18 +321,18 @@ namespace TVPApiModule.Services
             return domainID;
         }
 
-        public TVPApiModule.Objects.Responses.DomainResponseObject SubmitAddUserToDomainRequest(int userID, string masterUsername)
+        public TVPApiModule.Objects.Responses.DomainResponseObject SubmitAddUserToDomainRequest(string siteGuid, string masterUsername)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject res = null;
             try
             {
-                var response = m_Module.SubmitAddUserToDomainRequest(m_wsUserName, m_wsPassword, userID, masterUsername);
+                var response = m_Module.SubmitAddUserToDomainRequest(m_wsUserName, m_wsPassword, int.Parse(siteGuid), masterUsername);
                 if (response != null)
                     res = response.ToApiObject();
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : SubmitAddUserToDomainRequest, Error Message: {0} Parameters: UserID: {1}", ex.Message, userID);
+                logger.ErrorFormat("Error calling webservice protocol : SubmitAddUserToDomainRequest, Error Message: {0} Parameters: siteGuid: {1}", ex.Message, siteGuid);
             }
             return res;
         }

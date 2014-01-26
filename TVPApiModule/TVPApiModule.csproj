@@ -157,6 +157,8 @@
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\External.cs" />
     <Compile Include="Objects\Responses\AdyenBillingDetail.cs" />
+    <Compile Include="Objects\Responses\DeviceDomain.cs" />
+    <Compile Include="Objects\Responses\DeviceRegistration.cs" />
     <Compile Include="Objects\Responses\Enums\BillingAction.cs" />
     <Compile Include="Objects\Responses\BillingInfo.cs" />
     <Compile Include="Objects\Responses\Enums\BillingItemsType.cs" />
@@ -171,7 +173,7 @@
     <Compile Include="Objects\Responses\CouponsGroup.cs" />
     <Compile Include="Objects\Responses\Enums\CouponsStatus.cs" />
     <Compile Include="Objects\Responses\Enums\CouponType.cs" />
-    <Compile Include="Objects\Responses\Enums\Currency.cs" />
+    <Compile Include="Objects\Responses\Currency.cs" />
     <Compile Include="Objects\Responses\Device.cs" />
     <Compile Include="Objects\Responses\DeviceContainer.cs" />
     <Compile Include="Objects\Responses\DeviceResponseObject.cs" />
@@ -185,6 +187,7 @@
     <Compile Include="Objects\Responses\Enums\DomainStatus.cs" />
     <Compile Include="Objects\Responses\Enums\eAssetType.cs" />
     <Compile Include="Objects\Responses\Enums\eBlockType.cs" />
+    <Compile Include="Objects\Responses\Enums\eDeviceRegistrationStatus.cs" />
     <Compile Include="Objects\Responses\Enums\eGroupRuleType.cs" />
     <Compile Include="Objects\Responses\Enums\eOperatorType.cs" />
     <Compile Include="Objects\Responses\EPGChannel.cs" />
