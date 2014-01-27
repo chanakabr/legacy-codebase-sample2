@@ -75,7 +75,7 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get list media info")]
-        [System.Xml.Serialization.XmlInclude(typeof(DynamicData))]
+        //[System.Xml.Serialization.XmlInclude(typeof(DynamicData))]
         public List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaIDs, string picSize)
         {
             List<Media> retMedia = null;

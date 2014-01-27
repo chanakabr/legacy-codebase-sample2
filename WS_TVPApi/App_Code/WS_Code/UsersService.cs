@@ -275,7 +275,7 @@ namespace TVPApiServices
                 {
                     TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).CheckTemporaryToken(sToken);
 
-                    if (userResponseObject != null && userResponseObject.resp_status == TVPApiModule.Objects.Responses.ResponseStatus.OK)
+                    if (userResponseObject != null && userResponseObject.resp_status == TVPApiModule.Objects.Responses.eResponseStatus.OK)
                     {
                         response = userResponseObject.user.basic_data.user_name;
                     }
@@ -326,7 +326,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Renews user PIN")]
         public string RenewUserPIN(InitializationObject initObj, string siteGUID, int ruleID)
         {
-            TVPApiModule.Objects.Responses.ResponseStatus response = TVPApiModule.Objects.Responses.ResponseStatus.OK;
+            TVPApiModule.Objects.Responses.eResponseStatus response = TVPApiModule.Objects.Responses.eResponseStatus.OK;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RenewUserPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -534,7 +534,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Set UserType by UserID")]
         public string SetUserTypeByUserID(InitializationObject initObj, string siteGUID, int nUserTypeID)
         {
-            TVPApiModule.Objects.Responses.ResponseStatus response = TVPApiModule.Objects.Responses.ResponseStatus.OK;
+            TVPApiModule.Objects.Responses.eResponseStatus response = TVPApiModule.Objects.Responses.eResponseStatus.OK;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserTypeByUserID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

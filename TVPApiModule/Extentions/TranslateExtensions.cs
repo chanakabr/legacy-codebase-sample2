@@ -11,7 +11,7 @@ namespace TVPApiModule.Extentions
         {
             TVPApiModule.Objects.Responses.UserResponseObject retVal = new TVPApiModule.Objects.Responses.UserResponseObject();
 
-            retVal.resp_status = (TVPApiModule.Objects.Responses.ResponseStatus)response.m_RespStatus;
+            retVal.resp_status = (TVPApiModule.Objects.Responses.eResponseStatus)response.m_RespStatus;
 
             if (response.m_user != null)
             {

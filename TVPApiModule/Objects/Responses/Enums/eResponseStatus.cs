@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
-    public enum ResponseStatus
+    public enum eResponseStatus
     {
 
         /// <remarks/>

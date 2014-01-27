@@ -26,7 +26,7 @@ namespace TVPApi
             this.m_Name = name;
         }
 
-        public int ID
+        public int id
         {
             get
             {
@@ -38,7 +38,7 @@ namespace TVPApi
             }
         }
 
-        public string Name
+        public string nam
         {
             get
             {

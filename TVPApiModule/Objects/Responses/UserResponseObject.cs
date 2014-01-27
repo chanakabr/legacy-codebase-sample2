@@ -7,7 +7,7 @@ namespace TVPApiModule.Objects.Responses
 {
     public class UserResponseObject
     {
-        public ResponseStatus resp_status { get; set; }
+        public eResponseStatus resp_status { get; set; }
 
         public User user { get; set; }
 

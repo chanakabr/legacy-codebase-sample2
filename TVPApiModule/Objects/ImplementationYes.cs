@@ -68,7 +68,7 @@ namespace TVPApiModule.Objects
                 ApiUsersService usersService = new ApiUsersService(_nGroupID, _initObj.Platform);
 
                 TVPApiModule.Objects.Responses.UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
-                if (userResponseObject.resp_status == TVPApiModule.Objects.Responses.ResponseStatus.OK && resp != null && resp.domain != null)
+                if (userResponseObject.resp_status == TVPApiModule.Objects.Responses.eResponseStatus.OK && resp != null && resp.domain != null)
                 {
                     string sAccountNumber = resp.domain.co_guid;
                     if (!string.IsNullOrEmpty(sAccountNumber) && userResponseObject != null && userResponseObject.user != null && userResponseObject.user.basic_data != null)

@@ -32,7 +32,7 @@ namespace TVPApiModule.Services
         {
             public string SiteGuid;
             public int DomainID;
-            public TVPApiModule.Objects.Responses.ResponseStatus LoginStatus;
+            public TVPApiModule.Objects.Responses.eResponseStatus LoginStatus;
             public TVPApiModule.Objects.Responses.User UserData;
         }
         #endregion
@@ -424,7 +424,7 @@ namespace TVPApiModule.Services
             try
             {
                 TVPApiModule.Objects.Responses.UserResponseObject uro = m_Module.ForgotPassword(m_wsUserName, m_wsPassword, UserName).ToApiObject();
-                if (uro.resp_status == TVPApiModule.Objects.Responses.ResponseStatus.OK)
+                if (uro.resp_status == TVPApiModule.Objects.Responses.eResponseStatus.OK)
                 {
                     logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", UserName);
                     return true;
@@ -754,19 +754,19 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.ResponseStatus RenewUserPIN(string sSiteGuid, int ruleID)
+        public TVPApiModule.Objects.Responses.eResponseStatus RenewUserPIN(string sSiteGuid, int ruleID)
         {
-            TVPApiModule.Objects.Responses.ResponseStatus response = TVPApiModule.Objects.Responses.ResponseStatus.OK;
+            TVPApiModule.Objects.Responses.eResponseStatus response = TVPApiModule.Objects.Responses.eResponseStatus.OK;
 
             try
             {
-                response = (TVPApiModule.Objects.Responses.ResponseStatus)m_Module.SendChangedPinMail(m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
+                response = (TVPApiModule.Objects.Responses.eResponseStatus)m_Module.SendChangedPinMail(m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error receive user data Protocol RenewUserPIN, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, ruleID: {4}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
 
-                response = TVPApiModule.Objects.Responses.ResponseStatus.ErrorOnSendingMail;
+                response = TVPApiModule.Objects.Responses.eResponseStatus.ErrorOnSendingMail;
             }
 
             return response;
@@ -937,17 +937,17 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.ResponseStatus SetUserTypeByUserID(string sSiteGuid, int userTypeID)
+        public TVPApiModule.Objects.Responses.eResponseStatus SetUserTypeByUserID(string sSiteGuid, int userTypeID)
         {
-            TVPApiModule.Objects.Responses.ResponseStatus response = TVPApiModule.Objects.Responses.ResponseStatus.OK;
+            TVPApiModule.Objects.Responses.eResponseStatus response = TVPApiModule.Objects.Responses.eResponseStatus.OK;
             try
             {
-                response = (TVPApiModule.Objects.Responses.ResponseStatus)m_Module.SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
+                response = (TVPApiModule.Objects.Responses.eResponseStatus)m_Module.SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error receive user data Protocol SetUserTypeByUserID, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, userTypeID: {4}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
-                response = TVPApiModule.Objects.Responses.ResponseStatus.ErrorOnUpdatingUserType;
+                response = TVPApiModule.Objects.Responses.eResponseStatus.ErrorOnUpdatingUserType;
             }
             return response;
         }

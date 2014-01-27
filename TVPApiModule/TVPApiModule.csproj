@@ -158,6 +158,7 @@
     <Compile Include="Objects\External.cs" />
     <Compile Include="Objects\Responses\AdyenBillingDetail.cs" />
     <Compile Include="Objects\Responses\DeviceDomain.cs" />
+    <Compile Include="Objects\Responses\DeviceInfo.cs" />
     <Compile Include="Objects\Responses\DeviceRegistration.cs" />
     <Compile Include="Objects\Responses\Enums\BillingAction.cs" />
     <Compile Include="Objects\Responses\BillingInfo.cs" />
@@ -190,6 +191,7 @@
     <Compile Include="Objects\Responses\Enums\eDeviceRegistrationStatus.cs" />
     <Compile Include="Objects\Responses\Enums\eGroupRuleType.cs" />
     <Compile Include="Objects\Responses\Enums\eOperatorType.cs" />
+    <Compile Include="Objects\Responses\ResponseStatus.cs" />
     <Compile Include="Objects\Responses\EPGChannel.cs" />
     <Compile Include="Objects\Responses\EPGChannelProgrammeObject.cs" />
     <Compile Include="Objects\Responses\EPGDictionary.cs" />
@@ -227,7 +229,7 @@
     <Compile Include="Objects\Responses\PriceCode.cs" />
     <Compile Include="Objects\Responses\Enums\PriceReason.cs" />
     <Compile Include="Objects\Responses\Enums\RelationTypes.cs" />
-    <Compile Include="Objects\Responses\Enums\ResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\eResponseStatus.cs" />
     <Compile Include="Objects\Responses\Scope.cs" />
     <Compile Include="Objects\Responses\Enums\SocialActionResponseStatus.cs" />
     <Compile Include="Objects\Responses\SocialInviteInfo.cs" />
@@ -255,7 +257,7 @@
     <Compile Include="Objects\ExtraParameters.cs" />
     <Compile Include="Objects\Responses\Notification.cs" />
     <Compile Include="Objects\Responses\TagMetaPairArray.cs" />
-    <Compile Include="Objects\AdvertisingProvider.cs" />
+    <Compile Include="Objects\Responses\AdvertisingProvider.cs" />
     <Compile Include="Objects\ImplementationBase.cs" />
     <Compile Include="Objects\Responses\Category.cs" />
     <Compile Include="Objects\Responses\Channel.cs" />

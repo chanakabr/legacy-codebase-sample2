@@ -3,7 +3,6 @@ using System.Web;
 using System.Web.Services;
 using System.Web.Services.Protocols;
 using System.Collections.Generic;
-using TVPApi.External;
 using System.Configuration;
 using TVPApiModule.Services;
 using TVPApi;
@@ -12,6 +11,7 @@ using TVPPro.SiteManager.Helper;
 using log4net;
 using System.Collections;
 using System.Linq;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -70,10 +70,10 @@ namespace TVPApiServices
                         foreach (TVPApiModule.Objects.Responses.Device device in dc.device_instances)
                         {
                             DeviceInfo deviceInfo = new DeviceInfo();
-                            deviceInfo.Name = device.device_name;
-                            deviceInfo.Type = dc.device_family_name;
-                            deviceInfo.UDID = device.device_udid;
-                            deviceInfo.Active = !(device.state != TVPApiModule.Objects.Responses.DeviceState.Activated && device.state == TVPApiModule.Objects.Responses.DeviceState.UnActivated);
+                            deviceInfo.name = device.device_name;
+                            deviceInfo.type = dc.device_family_name;
+                            deviceInfo.udid = device.device_udid;
+                            deviceInfo.active = !(device.state != TVPApiModule.Objects.Responses.DeviceState.Activated && device.state == TVPApiModule.Objects.Responses.DeviceState.UnActivated);
                             retDevices.Add(deviceInfo);
                         }
                     }
