@@ -105,7 +105,7 @@ namespace TVPApiModule.Objects
             return sRet;
         }
 
-        public virtual Object GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)
+        public virtual TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)
         {
             return null;
         }
@@ -115,5 +115,10 @@ namespace TVPApiModule.Objects
         {
             return new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
         }
+
+        public virtual TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId)
+        {
+            return null;
+        }       
     }
 }

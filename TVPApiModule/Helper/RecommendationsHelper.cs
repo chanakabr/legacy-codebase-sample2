@@ -18,6 +18,12 @@ using TVPPro.SiteManager.TvinciPlatform.api;
 
 namespace TVPApiModule.Helper
 {
+    public class OrcaResponse
+    {
+        public eContentType ContentType { get; set; }
+        public Object Content { get; set; }
+    }
+    
     public class RecommendationsHelper
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(RecommendationsHelper));
@@ -69,13 +75,35 @@ namespace TVPApiModule.Helper
 
             foreach (Match m in Regex.Matches(xml, @"(?<=LiveRecommendation)[\S\s]*?(?=\<\/LiveRecommendation)"))
             {
-                recommendation = new LiveRecommendation();
-                Match externalContentId = Regex.Match(m.Value, "(?<programId>(?<=\\bprogramId=\")[^\"]*)");
-                if (externalContentId.Success)
+                //    recommendation = new LiveRecommendation();
+                //    Match externalContentId = Regex.Match(m.Value, "(?<programId>(?<=\\bprogramId=\")[^\"]*)");
+                //    if (externalContentId.Success)
+                //    {
+                //        recommendation.ProgramID = externalContentId.Value;
+                //    }
+                //    retVal.Add(recommendation);
+                foreach (Match cp in Regex.Matches(m.Value, @"(?<=CustomProperty)[\S\s]*?(?=\<\/CustomProperty)"))
                 {
-                    recommendation.ProgramID = externalContentId.Value;
+                    Match name = Regex.Match(cp.Value, "(?<name>(?<=\\bname=\")[^\"]*)");
+                    if (name.Success && name.Value == "CISCO_SCHEDULE_ID")
+                    {
+                        Match program = Regex.Match(cp.Value, "(?<value>(?<=\\bvalue=\")[^\"]*)");
+                        if (program.Success)
+                        {
+                            recommendation = new LiveRecommendation();
+                            recommendation.ProgramID = program.Value;
+                            retVal.Add(recommendation);
+                            //Match id = Regex.Match(program.Value, "(?<=-)(.*?)(?=-)");
+                            //if (id.Success)
+                            //{
+                            //    recommendation.ProgramID = id.Value;
+                            //    retVal.Add(recommendation);
+                            //    break;
+                            //}
+                        }
+                    }
+      
                 }
-                retVal.Add(recommendation);
             }
             return retVal;
         }

@@ -184,11 +184,11 @@ namespace TVPApiModule.Objects
         }
 
 
-        public override Object GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)//TVPApiModule.Objects.Enums.eGalleryType galleryType)
+        public override OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)//TVPApiModule.Objects.Enums.eGalleryType galleryType)
         {
             logger.DebugFormat("ImplementationYes::GetRecommendedMediasByGallery -> gallery type : {0}", galleryType);
 
-            Object retVal = null;
+            OrcaResponse retVal = new OrcaResponse();
 
             // get ORCA response
             object orcaResponse = GetOrcaResponse(groupID, initObj.Platform, mediaID, maxParentalLevel, galleryType);
@@ -209,11 +209,12 @@ namespace TVPApiModule.Objects
                 else
                     channelID = orcaConfiguration.Data.VODFailOverChannelID;
 
-                retVal = RecommendationsHelper.GetFailOverChannel(initObj, groupID, channelID, picSize, maxResults);
+                retVal.ContentType = eContentType.VOD;
+                retVal.Content = RecommendationsHelper.GetFailOverChannel(initObj, groupID, channelID, picSize, maxResults);
+
                 return retVal;
             }
             
-
             switch (orcaResponse.GetType().ToString())
             {
                 case "System.Collections.Generic.List`1[TVPApiModule.Objects.ORCARecommendations.VideoRecommendation]":
@@ -238,13 +239,17 @@ namespace TVPApiModule.Objects
                             if (index != -1)
                                 orderedMedias[index] = media;
                         }
-                        retVal = orderedMedias.Where(m => m != null).ToList();
+
+                        retVal.ContentType = eContentType.VOD;
+                        retVal.Content = orderedMedias.Where(m => m != null).ToList();
                     }
 
                     break;
                 case "System.Collections.Generic.List`1[TVPApiModule.Objects.ORCARecommendations.LiveRecommendation]":
                     // Live recommendations = return programme objects
-                    retVal = RecommendationsHelper.GetLiveRecommendedMedias(initObj.SiteGuid, groupID, initObj.Platform, initObj.Locale.LocaleLanguage, picSize, orcaResponse as List<LiveRecommendation>);
+
+                    retVal.ContentType = eContentType.Live;
+                    retVal.Content = RecommendationsHelper.GetLiveRecommendedMedias(initObj.SiteGuid, groupID, initObj.Platform, initObj.Locale.LocaleLanguage, picSize, orcaResponse as List<LiveRecommendation>);
 
                     break;
                 default:
@@ -563,6 +568,16 @@ namespace TVPApiModule.Objects
         private yes.tvinci.ITProxy.Entitlement[] GetValidEntitlements(yes.tvinci.ITProxy.Entitlement[] ent)
         {
             return ent.Where(e => e.status != EntitlementStatus.DELETED && e.status != EntitlementStatus.REVOKED).ToArray();
+        }
+
+        public override RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId)
+        {
+            RecordAllResult retVal = null;
+            using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
+            {
+                retVal = proxy.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId);
+            }
+            return retVal;
         }
     }
 }

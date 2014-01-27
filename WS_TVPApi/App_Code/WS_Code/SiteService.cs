@@ -690,6 +690,33 @@ namespace TVPApiServices
             return responseData;
         }
 
+        [WebMethod(EnableSession = true, Description = "Sign-In a user")]
+        public TVPApiModule.Services.ApiUsersService.LogInResponseData SignInWithToken(InitializationObject initObj, string token)
+        {
+            TVPApiModule.Services.ApiUsersService.LogInResponseData responseData = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;                                                            
+                    responseData = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithToken(token, HttpContext.Current.Session.SessionID, SiteHelper.GetClientIP(), initObj.UDID, isSingleLogin);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return responseData;
+        }
+
         [WebMethod(EnableSession = true, Description = "Has user connected to FB")]
         public bool IsFacebookUser(InitializationObject initObj)
         {
@@ -1231,6 +1258,34 @@ namespace TVPApiServices
                 try
                 {
                     response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetUserStartedWatchingMedias(initObj.SiteGuid, numOfItems);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+
+        [WebMethod(EnableSession = true, Description = "Record All")]
+        public TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(InitializationObject initObj, string accountNumber, string channelCode, string recordDate, string recordTime, string versionId)
+        {
+            TVPApiModule.yes.tvinci.ITProxy.RecordAllResult response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserStartedWatchingMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
+                    response = impl.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId);
                 }
                 catch (Exception ex)
                 {

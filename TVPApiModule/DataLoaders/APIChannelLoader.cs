@@ -120,7 +120,7 @@ namespace TVPApi
                     DeviceId = DeviceUDID,
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
-                    UseStartDate = bool.Parse(GetFutureStartDate)
+                    UseStartDate = bool.Parse(GetFutureStartDate),
                 };
 
                 return m_oCatalogChannelLoader.Execute() as dsItemInfo;

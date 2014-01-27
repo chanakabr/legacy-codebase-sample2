@@ -51,6 +51,8 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         private System.Threading.SendOrPostCallback GetMediaLicenseLinkOperationCompleted;
         
+        private System.Threading.SendOrPostCallback RecordAllOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -121,6 +123,9 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
         
         /// <remarks/>
         public event GetMediaLicenseLinkCompletedEventHandler GetMediaLicenseLinkCompleted;
+        
+        /// <remarks/>
+        public event RecordAllCompletedEventHandler RecordAllCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/AddDevice", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -545,6 +550,43 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
             if ((this.GetMediaLicenseLinkCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetMediaLicenseLinkCompleted(this, new GetMediaLicenseLinkCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/RecordAll", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public RecordAllResult RecordAll(string AccountNumber, string ChannelCode, string RecordDate, string RecordTime, string VersionId) {
+            object[] results = this.Invoke("RecordAll", new object[] {
+                        AccountNumber,
+                        ChannelCode,
+                        RecordDate,
+                        RecordTime,
+                        VersionId});
+            return ((RecordAllResult)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void RecordAllAsync(string AccountNumber, string ChannelCode, string RecordDate, string RecordTime, string VersionId) {
+            this.RecordAllAsync(AccountNumber, ChannelCode, RecordDate, RecordTime, VersionId, null);
+        }
+        
+        /// <remarks/>
+        public void RecordAllAsync(string AccountNumber, string ChannelCode, string RecordDate, string RecordTime, string VersionId, object userState) {
+            if ((this.RecordAllOperationCompleted == null)) {
+                this.RecordAllOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRecordAllOperationCompleted);
+            }
+            this.InvokeAsync("RecordAll", new object[] {
+                        AccountNumber,
+                        ChannelCode,
+                        RecordDate,
+                        RecordTime,
+                        VersionId}, this.RecordAllOperationCompleted, userState);
+        }
+        
+        private void OnRecordAllOperationCompleted(object arg) {
+            if ((this.RecordAllCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.RecordAllCompleted(this, new RecordAllCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -1134,6 +1176,39 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
             }
             set {
                 this.uuidField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18034")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/")]
+    public partial class RecordAllResult {
+        
+        private string messageField;
+        
+        private string messageCodeField;
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string MessageCode {
+            get {
+                return this.messageCodeField;
+            }
+            set {
+                this.messageCodeField = value;
             }
         }
     }
@@ -2396,6 +2471,32 @@ namespace TVPApiModule.yes.tvinci.ITProxy {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    public delegate void RecordAllCompletedEventHandler(object sender, RecordAllCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RecordAllCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RecordAllCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public RecordAllResult Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((RecordAllResult)(this.results[0]));
             }
         }
     }

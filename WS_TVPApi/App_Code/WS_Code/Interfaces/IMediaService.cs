@@ -230,5 +230,11 @@ namespace TVPApiServices
 
         [OperationContract]
         List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMeta);
+
+        [OperationContract]
+        List<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
+
+        [OperationContract]
+        List<EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
     }
 }

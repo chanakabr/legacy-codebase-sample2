@@ -853,5 +853,31 @@ namespace TVPApiModule.Services
             }
             return bRet;
         }
+
+        public LogInResponseData SignInWithToken(string sToken, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins)
+        {
+            LogInResponseData loginData = new LogInResponseData();
+            try
+            {
+                UserResponseObject response = m_Module.SignInWithToken(m_wsUserName, m_wsPassword, sToken, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);
+
+                if (response != null && response.m_user != null)
+                {
+                    loginData.SiteGuid = response.m_user.m_sSiteGUID;
+                    loginData.DomainID = response.m_user.m_domianID;
+                    loginData.LoginStatus = response.m_RespStatus;
+                    loginData.UserData = response.m_user;
+                }
+                else if (response != null)
+                {
+                    loginData.LoginStatus = response.m_RespStatus;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SignInWithToken, Error Message: {0}, Parameters : ws User name : {1}, ws Password: {2}, token: {3}", ex.Message, m_wsUserName, m_wsPassword, sToken);
+            }
+            return loginData;
+        }       
     }
 }

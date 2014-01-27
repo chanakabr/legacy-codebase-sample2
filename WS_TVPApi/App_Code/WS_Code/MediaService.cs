@@ -617,11 +617,11 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get (ORCA) recommended medias by gallery")]
-        public Object GetRecommendationsByGallery(InitializationObject initObj, int mediaID, string picSize, int parentalLevel, eGalleryType galleryType)
+        public OrcaResponse GetRecommendationsByGallery(InitializationObject initObj, int mediaID, string picSize, int parentalLevel, eGalleryType galleryType)
         {
             logger.DebugFormat("MediaService::GetRecommendedMediasByGallery -> gallery type : {0}", galleryType);
 
-            Object retVal = null;
+            OrcaResponse retVal = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

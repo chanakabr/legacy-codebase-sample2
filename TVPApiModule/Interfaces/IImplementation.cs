@@ -8,6 +8,7 @@ using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApi;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.Configuration.OrcaRecommendations;
+using TVPApiModule.yes.tvinci.ITProxy;
 
 namespace TVPApiModule.Interfaces
 {
@@ -25,8 +26,10 @@ namespace TVPApiModule.Interfaces
 
         string GetMediaLicenseData(int iMediaFileID, int iMediaID);
 
-        Object GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType);
+        TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType);
 
         string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink);
+
+        RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId);        
     }
 }
