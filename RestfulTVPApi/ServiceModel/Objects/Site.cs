@@ -18,6 +18,17 @@ namespace RestfulTVPApi.ServiceModel
         public long footer_id { get; set; }
     }
 
+    [Route("/site/pages/{page_id}", "GET", Notes = "This method returns a specific page from the site map.")]
+    public class GetPageRequest : RequestBase, IReturn<PageContext>
+    {
+        [ApiMember(Name = "page_id", Description = "Page ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
+        public long page_id { get; set; }
+        [ApiMember(Name = "with_menu", Description = "With Menu?", ParameterType = "path", DataType = SwaggerType.Boolean, IsRequired = true)]
+        public bool with_menu { get; set; }
+        [ApiMember(Name = "with_footer", Description = "With Footer?", ParameterType = "path", DataType = SwaggerType.Boolean, IsRequired = true)]
+        public bool with_footer { get; set; }
+    }
+
     [Route("/site/pages/{page_id}/galleries/{gallery_id}", "GET", Notes = "This method returns a specific gallery from the site map.")]
     public class GetGalleryRequest : RequestBase, IReturn<PageGallery>
     {
@@ -53,7 +64,7 @@ namespace RestfulTVPApi.ServiceModel
         [ApiAllowableValues("order_by", typeof(TVPApi.OrderBy))]
         public TVPApi.OrderBy order_by { get; set; }
     }
-
+    
     [Route("/site/menus/{menu_id}", "GET", Notes = "This method returns the site menu.")]
     public class GetMenuRequest : RequestBase, IReturn<Menu>
     {
@@ -61,30 +72,15 @@ namespace RestfulTVPApi.ServiceModel
         public long menu_id { get; set; }
     }
 
-    [Route("/site/pages/{page_id}", "GET", Notes = "This method returns a specific page from the site map.")]
-    public class GetPageRequest : RequestBase, IReturn<PageContext>
-    {
-        [ApiMember(Name = "page_id", Description = "Page ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
-        public long page_id { get; set; }
-        [ApiMember(Name = "with_menu", Description = "With Menu?", ParameterType = "path", DataType = SwaggerType.Boolean, IsRequired = true)]
-        public bool with_menu { get; set; }
-        [ApiMember(Name = "with_footer", Description = "With Footer?", ParameterType = "path", DataType = SwaggerType.Boolean, IsRequired = true)]
-        public bool with_footer { get; set; }
-    }
-
     #endregion
 
     #region PUT
-
-
     #endregion
 
     #region POST
     #endregion
 
     #region DELETE
-
-
     #endregion
 
 }

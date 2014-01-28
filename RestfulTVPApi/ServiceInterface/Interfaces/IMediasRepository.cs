@@ -11,9 +11,9 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public interface IMediasRepository
     {
-        List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaID, string picSize);
+        IEnumerable<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaID, string picSize);
 
-        List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
+        IEnumerable<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
 
         bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive);
 
@@ -23,19 +23,19 @@ namespace RestfulTVPApi.ServiceInterface
 
         string MediaHit(InitializationObject initObj, int mediaType, int iMediaID, int iFileID, int iLocation);
 
-        List<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, List<int> reqMediaTypes);
+        IEnumerable<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, List<int> reqMediaTypes);
 
-        List<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex);
+        IEnumerable<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex);
 
-        List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName);
+        IEnumerable<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName);
 
         bool SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail);
 
-        string[] GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes);
+        IEnumerable<string> GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes);
 
-        int[] GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
+        IEnumerable<int> GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
 
-        MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+        IEnumerable<MediaFileItemPricesContainer> GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
 
         bool IsItemPurchased(InitializationObject initObj, string sSiteGUID, int iFileID);
 
@@ -45,11 +45,8 @@ namespace RestfulTVPApi.ServiceInterface
 
         PrePaidResponseStatus ChargeMediaWithPrepaid(InitializationObject initObj, string sSiteGUID, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode);
 
-        BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode, string receipt);
-
         bool ActionDone(InitializationObject initObj, string sSiteGUID, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
 
-        string[] GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize);
-
+        IEnumerable<string> GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize);
     }
 }

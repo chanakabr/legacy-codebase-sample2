@@ -26,8 +26,7 @@ namespace RestfulTVPApi.ServiceInterface
             this.Priority = (int) RequestFilterPriority.Authenticate;
         }
 
-        public RequiresAuthenticationAttribute()
-            : this(ApplyTo.All) {}
+        public RequiresAuthenticationAttribute() : this(ApplyTo.All) {}
 
         public override void Execute(IHttpRequest httpReq, IHttpResponse httpRes, object reqDto)
         {

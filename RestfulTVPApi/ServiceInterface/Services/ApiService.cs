@@ -102,6 +102,29 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
+        public HttpResult Get(FBConfigRequest request)
+        {
+            var response = _repository.FBConfig(request.InitObj);
+
+            if (response == null)
+            {
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
+            }
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+        }
+
+        public HttpResult Get(GetFBUserDataRequest request)
+        {
+            var response = _repository.GetFBUserData(request.InitObj, request.token);
+
+            if (response == null)
+            {
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
+            }
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+        }
         public HttpResult Get(GetDomainByCoGuidRequest request)
         {
             var response = _repository.GetDomainByCoGuid(request.InitObj, request.co_guid);
@@ -111,9 +134,7 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            var responseDTO = response.ToDto();
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
         public HttpResult Get(GetDomainIDsByOperatorCoGuidRequest request)
@@ -125,9 +146,7 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            var responseDTO = response.ToDto();
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+            return new HttpResult(response, HttpStatusCode.OK);
         }
 
         public HttpResult Get(GetDomainIDByCoGuidRequest request)
@@ -139,9 +158,7 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            var responseDTO = response.ToDto();
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+            return new HttpResult(response, HttpStatusCode.OK);
         }
 
         #endregion
@@ -156,9 +173,33 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
+        public HttpResult Put(FBUserMergeRequest request)
+        {
+            var response = _repository.FBUserMerge(request.InitObj, request.token, request.facebook_id, request.user_name, request.password);
+
+            if (response == null)
+            {
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
+            }
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+        }
+
         #endregion
 
         #region POST
+
+        public HttpResult Post(FBUserRegisterRequest request)
+        {
+            var response = _repository.FBUserRegister(request.InitObj, request.token, request.create_new_domain, request.get_newsletter);
+
+            if (response == null)
+            {
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
+            }
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+        }
 
         public HttpResult Post(RegisterDeviceByPINRequest request)
         {

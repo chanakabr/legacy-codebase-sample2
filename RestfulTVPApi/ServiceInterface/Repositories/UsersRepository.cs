@@ -16,7 +16,7 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class UsersRepository : IUsersRepository
     {
-        public UserResponseObject[] GetUsersData(InitializationObject initObj, string siteGuids)
+        public IEnumerable<UserResponseObject> GetUsersData(InitializationObject initObj, string siteGuids)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -48,7 +48,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid)
+        public IEnumerable<PermittedSubscriptionContainer> GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid)
         {
             PermittedSubscriptionContainer[] permitedSubscriptions = null;
 
@@ -61,7 +61,7 @@ namespace RestfulTVPApi.ServiceInterface
                 var permitted = _service.GetUserPermitedSubscriptions(siteGuid);
 
                 if (permitted != null)
-                    permitedSubscriptions = permitted.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
+                    permitedSubscriptions = permitted.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToArray();
             }
             else
             {
@@ -71,7 +71,7 @@ namespace RestfulTVPApi.ServiceInterface
             return permitedSubscriptions;
         }
 
-        public PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int totalItems)
+        public IEnumerable<PermittedSubscriptionContainer> GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int totalItems)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -79,10 +79,10 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
 
-                PermittedSubscriptionContainer[] res = _service.GetUserExpiredSubscriptions(siteGuid, totalItems);
+                IEnumerable<PermittedSubscriptionContainer> res = _service.GetUserExpiredSubscriptions(siteGuid, totalItems);
 
                 if (res != null)
-                    res = res.OrderByDescending(r => r.m_dPurchaseDate.Date).ThenByDescending(r => r.m_dPurchaseDate.TimeOfDay).ToArray();
+                    res = res.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToArray();
 
                 return res;
             }
@@ -92,7 +92,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public PermittedMediaContainer[] GetUserPermittedItems(InitializationObject initObj, string siteGuid)
+        public IEnumerable<PermittedMediaContainer> GetUserPermittedItems(InitializationObject initObj, string siteGuid)
         {
             PermittedMediaContainer[] res = null;
 
@@ -105,7 +105,7 @@ namespace RestfulTVPApi.ServiceInterface
                 var permitted = _service.GetUserPermittedItems(siteGuid);
 
                 if (permitted != null)
-                    res = permitted.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.purchaseDate.TimeOfDay).ToArray();
+                    res = permitted.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToArray();
             }
             else
             {
@@ -115,7 +115,7 @@ namespace RestfulTVPApi.ServiceInterface
             return res;
         }
 
-        public PermittedMediaContainer[] GetUserExpiredItems(InitializationObject initObj, string siteGuid, int totalItems)
+        public IEnumerable<PermittedMediaContainer> GetUserExpiredItems(InitializationObject initObj, string siteGuid, int totalItems)
         {
             PermittedMediaContainer[] res = null;
 
@@ -128,7 +128,7 @@ namespace RestfulTVPApi.ServiceInterface
                 var expired = _service.GetUserExpiredItems(siteGuid, totalItems);
 
                 if (expired != null)
-                    res = expired.OrderByDescending(r => r.purchaseDate.Date).ThenByDescending(r => r.m_purchaseDate.TimeOfDay).ToArray();
+                    res = expired.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToArray();
             }
             else
             {
@@ -155,7 +155,7 @@ namespace RestfulTVPApi.ServiceInterface
         }
 
         //Ofir - Should DomainID passed as param?
-        public FavoriteObject[] GetUserFavorites(InitializationObject initObj, string siteGuid)
+        public IEnumerable<FavoriteObject> GetUserFavorites(InitializationObject initObj, string siteGuid)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserFavorites", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -163,10 +163,10 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
 
-                FavoriteObject[] favoritesObj = _service.GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
+                IEnumerable<FavoriteObject> favoritesObj = _service.GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
 
-                if (favoritesObj !=null)
-                    favoritesObj = favoritesObj.OrderByDescending(r => r.m_dUpdateDate.Date).ThenByDescending(r => r.m_dUpdateDate.TimeOfDay).ToArray();
+                if (favoritesObj != null)
+                    favoritesObj = favoritesObj.OrderByDescending(r => r.update_date.Date).ThenByDescending(r => r.update_date.TimeOfDay);
 
                 return favoritesObj;
             }
@@ -176,7 +176,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public GroupRule[] GetUserGroupRules(InitializationObject initObj, string siteGuid)
+        public IEnumerable<GroupRule> GetUserGroupRules(InitializationObject initObj, string siteGuid)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -352,7 +352,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public UserItemList[] GetItemFromList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public IEnumerable<UserItemList> GetItemFromList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemFromList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -368,7 +368,7 @@ namespace RestfulTVPApi.ServiceInterface
             };
         }
 
-        public KeyValuePair[] IsItemExistsInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public IEnumerable<KeyValuePair> IsItemExistsInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsItemExistsInList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -416,7 +416,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public string[] GetPrepaidBalance(InitializationObject initObj, string siteGuid, string currencyCode)
+        public IEnumerable<string> GetPrepaidBalance(InitializationObject initObj, string siteGuid, string currencyCode)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetPrepaidBalance", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -432,7 +432,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public List<Media> GetLastWatchedMediasByPeriod(InitializationObject initObj, string siteGuid, string picSize, int periodBefore, MediaHelper.ePeriod byPeriod)
+        public IEnumerable<Media> GetLastWatchedMediasByPeriod(InitializationObject initObj, string siteGuid, string picSize, int periodBefore, MediaHelper.ePeriod byPeriod)
         {
             List<Media> lstMedia = null;
 
@@ -446,8 +446,8 @@ namespace RestfulTVPApi.ServiceInterface
                 {
                     lstMedia = (from media in lstAllMedias
                                 where
-                                    (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays >= 0 &&
-                                    (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.LastWatchDate).TotalDays <= (periodBefore + 1) * (int)byPeriod
+                                    (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.last_watch_date).TotalDays >= 0 &&
+                                    (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.last_watch_date).TotalDays <= (periodBefore + 1) * (int)byPeriod
                                 select media).ToList<Media>();
                 }
             }
@@ -459,7 +459,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
-        public List<Media> GetUserSocialMedias(InitializationObject initObj, string siteGuid, int socialPlatform, int socialAction, string picSize, int pageSize, int pageIndex)
+        public IEnumerable<Media> GetUserSocialMedias(InitializationObject initObj, string siteGuid, int socialPlatform, int socialAction, string picSize, int pageSize, int pageIndex)
         {
             List<Media> lstMedia = null;
 
@@ -512,7 +512,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate)
+        public IEnumerable<UserBillingTransactionsResponse> GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUsersBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -528,7 +528,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public List<Media> GetUserItems(InitializationObject initObj, string siteGuid, UserItemType itemType, string picSize, int pageSize, int start_index)
+        public IEnumerable<Media> GetUserItems(InitializationObject initObj, string siteGuid, UserItemType itemType, string picSize, int pageSize, int start_index)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -574,7 +574,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public List<KeyValuePair<int, bool>> AreMediasFavorite(InitializationObject initObj, string siteGuid, List<int> mediaIds)
+        public IEnumerable<KeyValuePair<int, bool>> AreMediasFavorite(InitializationObject initObj, string siteGuid, List<int> mediaIds)
         {
             List<KeyValuePair<int, bool>> result = null;
 
@@ -584,10 +584,10 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
 
-                FavoriteObject[] favoriteObjects = _service.GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
+                IEnumerable<FavoriteObject> favoriteObjects = _service.GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
 
                 if (favoriteObjects != null)
-                    result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.m_sItemCode == y.ToString()).Count() > 0)).ToList();
+                    result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.item_code == y.ToString()).Count() > 0)).ToList();
             }
             else
             {
@@ -597,7 +597,7 @@ namespace RestfulTVPApi.ServiceInterface
             return result;
         }
 
-        public List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string siteGuid, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
+        public IEnumerable<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string siteGuid, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
         {
             List<Media> lstMedia = null;
 
@@ -634,7 +634,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public List<Notification> GetDeviceNotifications(InitializationObject initObj, string siteGuid, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
+        public IEnumerable<Notification> GetDeviceNotifications(InitializationObject initObj, string siteGuid, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceNotifications", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -666,7 +666,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj, string siteGuid)
+        public IEnumerable<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj, string siteGuid)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserStatusSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -696,7 +696,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public string[] GetUserStartedWatchingMedias(InitializationObject initObj, string siteGuid, int numOfItems)
+        public IEnumerable<string> GetUserStartedWatchingMedias(InitializationObject initObj, string siteGuid, int numOfItems)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserStartedWatchingMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -786,7 +786,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public FriendWatchedObject[] GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult)
+        public IEnumerable<FriendWatchedObject> GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAllFriendsWatched", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -818,7 +818,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public IEnumerable<UserSocialActionObject> GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
@@ -834,7 +834,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public UserSocialActionObject[] GetUserActions(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public IEnumerable<UserSocialActionObject> GetUserActions(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
@@ -850,7 +850,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid)
+        public IEnumerable<eSocialPrivacy> GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserAllowedSocialPrivacyList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             
@@ -882,7 +882,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public string[] GetUserFriends(InitializationObject initObj, string siteGuid)
+        public IEnumerable<string> GetUserFriends(InitializationObject initObj, string siteGuid)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFriends", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -994,5 +994,20 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
+        public BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode, string receipt)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "InApp_ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
+
+                return _service.InApp_ChargeUserForMediaFile(sSiteGUID, price, currency, productCode, ppvModuleCode, initObj.UDID, receipt);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+        }
     }
 }

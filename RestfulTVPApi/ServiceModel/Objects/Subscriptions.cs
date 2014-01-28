@@ -47,7 +47,6 @@ namespace RestfulTVPApi.ServiceModel
         public string device_name { get; set; }
     }
 
-
     #endregion
 
     #region PUT

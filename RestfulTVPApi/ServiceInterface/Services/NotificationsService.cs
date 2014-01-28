@@ -22,16 +22,9 @@ namespace RestfulTVPApi.ServiceInterface
         public INotificationsRepository _repository { get; set; }  //Injected by IOC
 
         #region GET
-
-        
-
         #endregion
 
         #region PUT
-
-        
-
-
         #endregion
 
         #region POST
@@ -49,7 +42,6 @@ namespace RestfulTVPApi.ServiceInterface
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
-
 
         #endregion
 

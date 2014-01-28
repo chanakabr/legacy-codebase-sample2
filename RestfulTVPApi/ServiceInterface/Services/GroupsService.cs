@@ -47,62 +47,12 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(FBConfigRequest request)
-        {
-            var response = _repository.FBConfig(request.InitObj);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
-        }
-
-        public HttpResult Get(GetFBUserDataRequest request)
-        {
-            var response = _repository.GetFBUserData(request.InitObj, request.token);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
-        }
-
         #endregion
 
         #region PUT
-
-        public HttpResult Put(FBUserMergeRequest request)
-        {
-            var response = _repository.FBUserMerge(request.InitObj, request.token, request.facebook_id, request.user_name, request.password);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
-        }
-
         #endregion
 
         #region POST
-
-        public HttpResult Post(FBUserRegisterRequest request)
-        {
-            var response = _repository.FBUserRegister(request.InitObj, request.token, request.create_new_domain, request.get_newsletter);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
-        }
-
         #endregion
 
         #region DELETE

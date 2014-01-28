@@ -79,6 +79,7 @@ namespace RestfulTVPApi.ServiceModel
         public List<int> media_types { get; set; }
     }
 
+    //Ofir - need to change routing
     [Route("/medias/{media_id}/people_who_watched", "GET", Notes = "This method returns media assets that were watched by other users who have also watched this item")]
     public class GetPeopleWhoWatchedRequest : PagingRequest, IReturn<IEnumerable<Media>>
     {
@@ -89,6 +90,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     //Problematic routing
+    //Ofir - move to subscriptions? /subscriptios/{media_id} - combine with GetSubscriptionData
     //[Route("/medias/{media_id}/containing_subscriptions", "GET", Notes = "This method returns all subscriptions ID's containing a posted media and file ID")]
     [Route("/medias/{media_id}/subscriptions", "GET", Notes = "This method returns all subscriptions ID's containing a posted media and file ID")]
     public class GetSubscriptionIDsContainingMediaFileRequest : RequestBase, IReturn<IEnumerable<int>>
@@ -223,6 +225,7 @@ namespace RestfulTVPApi.ServiceModel
         public int location { get; set; }
     }
 
+    //Ofir - change route? Not RESTful
     [Route("/medias/{media_id}/send_to_friend", "POST", Notes = "This method shares a media asset with a friend via mail")]
     public class SendToFriendRequest : RequestBase, IReturn<bool>
     {
@@ -236,11 +239,10 @@ namespace RestfulTVPApi.ServiceModel
         public string to_email { get; set; }
     }
 
+    //Ofir - change route? Not RESTful
     [Route("/medias/{media_id}/files/{media_file_id}/charge_with_pre_paid", "POST", Notes = "This method buys pay-per-view (PPV) with prepaid. This processing is done by Tvinci not by a third party processor")]
     public class ChargeMediaWithPrepaidRequest : RequestBase, IReturn<PrePaidResponseStatus>
     {
-        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public string site_guid { get; set; }
         [ApiMember(Name = "media_file_id", Description = "Media File ID", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_file_id { get; set; }
         [ApiMember(Name = "price", Description = "Price", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
@@ -253,30 +255,9 @@ namespace RestfulTVPApi.ServiceModel
         public string coupon_code { get; set; }
     }
 
-    //Need to understand the method to decide on routing
-    //[Route("/users/{site_guid}/charge_in_app", "POST", Summary = "Get Last Watched Medias", Notes = "Get Last Watched Medias")]
-    public class InApp_ChargeUserForMediaFileRequest : RequestBase, IReturn<BillingResponse>
-    {
-        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public string site_guid { get; set; }
-        [ApiMember(Name = "price", Description = "Price", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
-        public double price { get; set; }
-        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public string currency { get; set; }
-        [ApiMember(Name = "product_code", Description = "Product Code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public string product_code { get; set; }
-        [ApiMember(Name = "ppv_module_code", Description = "PPV Module Code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public string ppv_module_code { get; set; }
-        [ApiMember(Name = "receipt", Description = "Receipt", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public string receipt { get; set; }
-    }
-    
-    //should it be in users?
     [Route("/medias/{media_id}/actions", "POST", Notes = "Performs any of these following actions on the media (AddFavorite, Comment, Like, Rate, Recommend, Record, Reminder, RemoveFavorite, Share, Watch). See also: AddUserSocialAction")]
     public class ActionDoneRequest : RequestBase, IReturn<bool>
     {
-        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public string site_guid { get; set; }
         [ApiMember(Name = "media_id", Description = "Media ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_id { get; set; }
         [ApiMember(Name = "media_type", Description = "Media Type", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]

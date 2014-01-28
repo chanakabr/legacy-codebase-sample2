@@ -4,8 +4,7 @@ using ServiceStack.Common.Web;
 using ServiceStack.PartialResponse.ServiceModel;
 using RestfulTVPApi.ServiceModel;
 using System;
-using System.Configuration;
-using TVPPro.SiteManager.Helper;
+using System.Linq;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -27,7 +26,7 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
-            if (response.Length == 0)
+            if (response.Count() == 0)
             {
                 return new HttpResult("", HttpStatusCode.NotFound);
             }
@@ -44,7 +43,7 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
-            if (response.Length == 0)
+            if (response.Count() == 0)
             {
                 return new HttpResult("", HttpStatusCode.NotFound);
             }
@@ -279,7 +278,6 @@ namespace RestfulTVPApi.ServiceInterface
 
         public HttpResult Get(GetDeviceNotificationsRequest request)
         {
-            //Ofir
             int? message_count = request.page_size > 0 ? new Nullable<int>(request.page_size) : null;
 
             var response = _repository.GetDeviceNotifications(request.InitObj, request.site_guid, request.notification_type, request.view_status, message_count);
@@ -385,7 +383,6 @@ namespace RestfulTVPApi.ServiceInterface
             }
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
-
         }
 
         public HttpResult Get(AD_GetCustomDataIDRequest request)
@@ -398,6 +395,13 @@ namespace RestfulTVPApi.ServiceInterface
         public HttpResult Get(GetCustomDataIDRequest request)
         {
             var response = _repository.GetCustomDataID(request.InitObj, request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, request.country_code, request.language_code, request.device_name, request.asset_type, request.override_end_date);
+
+            return new HttpResult(response, HttpStatusCode.OK);
+        }
+
+        public HttpResult Get(SendNewPasswordRequest request)
+        {
+            var response = _repository.SendNewPassword(request.InitObj, request.user_name);
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
@@ -543,13 +547,6 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Post(SendNewPasswordRequest request)
-        {
-            var response = _repository.SendNewPassword(request.InitObj, request.user_name);
-
-            return new HttpResult(response, HttpStatusCode.OK);
-        }
-
         public HttpResult Post(SignInRequest request)
         {
             var response = _repository.SignIn(request.InitObj, request.user_name, request.password);
@@ -562,6 +559,18 @@ namespace RestfulTVPApi.ServiceInterface
             var response = _repository.DoUserAction(request.InitObj, request.site_guid, request.user_action, request.extra_params, request.social_platform, request.asset_type, request.asset_id);
 
             return new HttpResult(response, HttpStatusCode.OK);
+        }
+
+        public HttpResult Post(InApp_ChargeUserForMediaFileRequest request)
+        {
+            var response = _repository.InApp_ChargeUserForMediaFile(request.InitObj, request.site_guid, request.price, request.currency, request.product_code, request.ppv_module_code, request.receipt);
+
+            if (response == null)
+            {
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
+            }
+
+            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
         #endregion

@@ -12,21 +12,21 @@ namespace RestfulTVPApi.ServiceModel
 
     #region GET
 
-    [Route("/users/{site_guids}", "GET", Summary = "Get User", Notes = "Get User")]
+    [Route("/users/{site_guids}", "GET", Notes = "This method returns the user details, as an array, for each user ID entered. When entering user IDs, enter them in a single string, separated by a semicolon.")]
     public class GetUsersDataRequest : RequestBase, IReturn<UserResponseObject[]>
     {
         [ApiMember(Name = "site_guids", Description = "Users Identifiers", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guids { get; set; }
     }
 
-    [Route("/users/{site_guid}/subscriptions/permitted", "GET", Summary = "Get User Permitted Subscriptions", Notes = "Get User Permitted Subscriptions")]
+    [Route("/users/{site_guid}/subscriptions/permitted", "GET", Notes = "This method returns an array of media subscriptions that were purchased by the user including time, date, viewing and purchase details. ")]
     public class GetUserPermitedSubscriptionsRequest : RequestBase, IReturn<IEnumerable<PermittedSubscriptionContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
     }
 
-    [Route("/users/{site_guid}/subscriptions/expired", "GET", Summary = "Get User Expired Subscriptions", Notes = "Get User Expired Subscriptions")]
+    [Route("/users/{site_guid}/subscriptions/expired", "GET", Notes = "This method returns an array of subscriptions that the user has purchased and which are now expired. Example: Can display the expired subscriptions items in the user’s personal zone.")]
     public class GetUserExpiredSubscriptionsRequest : PagingRequest, IReturn<IEnumerable<PermittedSubscriptionContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -45,14 +45,14 @@ namespace RestfulTVPApi.ServiceModel
         public UserItemType item_type { get; set; }
     }
 
-    [Route("/users/{site_guid}/medias/permitted", "GET", Summary = "Get User Permitted Items", Notes = "Get User Permitted Items")]
+    [Route("/users/{site_guid}/medias/permitted", "GET", Notes = "This method returns an array of media file items that were purchased by the user including time, date, viewing and purchase details. ")]
     public class GetUserPermittedItemsRequest : RequestBase, IReturn<IEnumerable<PermittedMediaContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
     }
 
-    [Route("/users/{site_guid}/medias/expired", "GET", Summary = "Get User Expired Items", Notes = "Get User Expired Items")]
+    [Route("/users/{site_guid}/medias/expired", "GET", Notes = "This method returns an array of media items that the user has purchased and which are now expired. Example: Can display the expired items in the user’s personal zone.")]
     public class GetUserExpiredItemsRequest : PagingRequest, IReturn<IEnumerable<PermittedMediaContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -83,7 +83,8 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pin", Description = "PIN", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pin { get; set; }
     }
-
+    
+    //Ofir - change route - PUT?
     [Route("/users/{site_guid}/rules/{rule_id}/renew", "GET", Notes = "This method sends the user a \"renew user PIN\" email with a temporary access token. Example: Adult content on TV, etc. Sends user an email with info.")]
     public class RenewUserPINRequest : RequestBase, IReturn<UserResponseObject>
     {
@@ -120,7 +121,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/pre_paid_balance", "GET", Summary = "Get User", Notes = "Get User")]
-    public class GetPrepaidBalanceRequest : RequestBase, IReturn<string[]>
+    public class GetPrepaidBalanceRequest : RequestBase, IReturn<IEnumerable<string>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -128,7 +129,7 @@ namespace RestfulTVPApi.ServiceModel
         public string currency_code { get; set; }
     }
 
-    //Should it be POST? - creates new email..
+    //Ofir - Should it be POST? - creates new email..
     //Change route, not in users...
     [Route("/users/{user_name}/activation_mail", "GET", Notes = "This method resend activation mail to a user who has not activated his/her account within a specified amount of time")]
     public class ResendActivationMailRequest : RequestBase, IReturn<UserResponseObject>
@@ -173,7 +174,7 @@ namespace RestfulTVPApi.ServiceModel
         public string site_guid { get; set; }
     }
 
-    //Change route, not in users?
+    //Ofir - Change route, not in users?
     [Route("/users/{site_guid}/google_signature", "GET", Summary = "Get User Transaction History", Notes = "Get User Transaction History")]
     public class GetGoogleSignatureRequest : RequestBase, IReturn<string>
     {
@@ -212,6 +213,7 @@ namespace RestfulTVPApi.ServiceModel
         public List<int> media_ids { get; set; }
     }
 
+    //Ofir - expose with_dynamic? Should be in Media?
     [Route("/users/{site_guid}/medias/recommended", "GET", Notes = "This method returns an array of recommended media filtered by media type")]
     public class GetRecommendedMediasByTypesRequest : PagingRequest, IReturn<IEnumerable<Media>>
     {
@@ -245,7 +247,7 @@ namespace RestfulTVPApi.ServiceModel
         public string site_guid { get; set; }
     }
 
-    //Change route?
+    //Ofir - Change route?
     [Route("/users/{site_guid}/medias/unfinished", "GET", Notes = "This method returns an array containing the media object IDs of media that the user started watching, but did not finish watching.")]
     public class GetUserStartedWatchingMediasRequest : PagingRequest, IReturn<IEnumerable<string>>
     {
@@ -309,7 +311,7 @@ namespace RestfulTVPApi.ServiceModel
         public string site_guid { get; set; }
     }
 
-    //??? ask avi
+    //Ofir -  ask avi
     [Route("/users/{site_guid}/social_platforms/{social_platform}/actions/{user_action}/privacy_settings", "GET", Notes = "This method returns the user’s external privacy level settings for a specific social action. Note: These settings determine whether the action can be viewed by the user’s social-network friends on the social network.")]
     public class GetUserExternalActionShareRequest : RequestBase, IReturn<eSocialActionPrivacy>
     {
@@ -328,7 +330,7 @@ namespace RestfulTVPApi.ServiceModel
     public class GetUserInternalActionPrivacyRequest : GetUserExternalActionShareRequest { }
 
     //??? ask avi
-    [Route("/users/{site_guid}/facebook/friends", "GET", Notes = "This method returns a list containing all of the user's friends.")]
+    [Route("/users/{site_guid}/social_platforms/facebook/friends", "GET", Notes = "This method returns a list containing all of the user's friends.")]
     public class GetUserFriendsRequest : PagingRequest, IReturn<IEnumerable<string>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -350,7 +352,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     //Maybe POST?
-    [Route("/users/{site_guid}/custom_data_id", "GET", Notes = "This method returns customer data. This is the first step in the purchase flow. Insert the method’s parameters (price, payment method, etc.,). Returns an integer.")]
+    [Route("/users/{site_guid}/ad_custom_data_id", "GET", Notes = "This method returns customer data. This is the first step in the purchase flow. Insert the method’s parameters (price, payment method, etc.,). Returns an integer.")]
     public class AD_GetCustomDataIDRequest : RequestBase, IReturn<int>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -380,11 +382,18 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     //Maybe POST?
-    [Route("/users/{site_guid}/ad_custom_data_id", "GET", Notes = "This method is used as part of purchase flow process. The site indicates the item to purchase and passes required information (item ID, user information, purchase method, etc.) to the Tvinci system.")]
+    [Route("/users/{site_guid}/custom_data_id", "GET", Notes = "This method is used as part of purchase flow process. The site indicates the item to purchase and passes required information (item ID, user information, purchase method, etc.) to the Tvinci system.")]
     public class GetCustomDataIDRequest : AD_GetCustomDataIDRequest
     {
         [ApiMember(Name = "override_end_date", Description = "Override end date?", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string override_end_date { get; set; }
+    }
+
+    [Route("/users/{user_name}/password", "GET", Notes = "This method is used when the user has forgotten his/her password. A new password is emailed to the user")]
+    public class SendNewPasswordRequest : RequestBase, IReturn<bool>
+    {
+        [ApiMember(Name = "user_name", Description = "User name", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string user_name { get; set; }
     }
 
     #endregion
@@ -426,7 +435,7 @@ namespace RestfulTVPApi.ServiceModel
         public int is_active { get; set; }
     }
 
-    [Route("/users/{user_name}/password/change", "PUT", Summary = "Change user password", Notes = "Change user password")]
+    [Route("/users/{user_name}/password", "PUT", Notes = "User wants to change password. Must enter Old and new passwords.")]
     public class ChangeUserPasswordRequest : RequestBase, IReturn<UserResponseObject>
     {
         [ApiMember(Name = "user_name", Description = "User name", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -437,16 +446,7 @@ namespace RestfulTVPApi.ServiceModel
         public string new_password { get; set; }
     }
 
-    [Route("/users/{user_name}/password/renew", "PUT", Summary = "Renew user password", Notes = "Change user password")]
-    public class RenewUserPasswordRequest : RequestBase, IReturn<UserResponseObject>
-    {
-        [ApiMember(Name = "user_name", Description = "Username", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public string user_name { get; set; }
-        [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public string password { get; set; }
-    }
-
-    [Route("/users/{user_name}/activate", "PUT", Notes = "This method activates a user account. User registers with email. An email is sent to the user‟s email address. It includes link and a token. The link sends users email an activation link. When user clicks the link a method is invoked. The method takes the token from the URI and sends event to Tvinci backend.")]
+    [Route("/users/{user_name}/activate_status", "PUT", Notes = "This method activates a user account. User registers with email. An email is sent to the user‟s email address. It includes link and a token. The link sends users email an activation link. When user clicks the link a method is invoked. The method takes the token from the URI and sends event to Tvinci backend.")]
     public class ActivateAccountRequest : RequestBase, IReturn<UserResponseObject>
     {
         [ApiMember(Name = "user_name", Description = "User name", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
@@ -455,6 +455,7 @@ namespace RestfulTVPApi.ServiceModel
         public string token { get; set; }
     }
 
+    //Ofir - problematic route, combine with ActivateAccount?
     [Route("/users/{user_name}/activate_by_domain_master", "PUT", Notes = "This method approves adding a user to a domain by the domain master.")]
     public class ActivateAccountByDomainMasterRequest : RequestBase, IReturn<UserResponseObject>
     {
@@ -494,7 +495,6 @@ namespace RestfulTVPApi.ServiceModel
         public string ppv_module_code { get; set; }
     }
 
-    //Should users/{site_guid} be part of the routing? or /notifications/view_status?=siteguid=123456
     [Route("/users/{site_guid}/notifications/view_status", "PUT", Notes = "This method sets notification view status.")]
     public class SetNotificationMessageViewStatusRequest : RequestBase, IReturn<bool>
     {
@@ -558,14 +558,6 @@ namespace RestfulTVPApi.ServiceModel
         public TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] item_objects { get; set; }
     }
 
-    //Problematic route
-    [Route("/users/{user_name}/forgot_password", "POST", Notes = "This method is used when the user has forgotten his/her password. A new password is emailed to the user")]
-    public class SendNewPasswordRequest : RequestBase, IReturn<bool>
-    {
-        [ApiMember(Name = "user_name", Description = "User name", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public string user_name { get; set; }
-    }
-
     [Route("/users/{user_name}/session", "POST", Notes = "This method signs-in a user.")]
     public class SignInRequest : RequestBase, IReturn<TVPApiModule.Services.ApiUsersService.LogInResponseData>
     {
@@ -595,6 +587,33 @@ namespace RestfulTVPApi.ServiceModel
         public int asset_id { get; set; }
     }
 
+    //Ofir - Need to understand the method to decide on routing
+    [Route("/users/{site_guid}/charge_in_app", "POST", Summary = "Get Last Watched Medias", Notes = "Get Last Watched Medias")]
+    public class InApp_ChargeUserForMediaFileRequest : RequestBase, IReturn<BillingResponse>
+    {
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "price", Description = "Price", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }
+        [ApiMember(Name = "product_code", Description = "Product Code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string product_code { get; set; }
+        [ApiMember(Name = "ppv_module_code", Description = "PPV Module Code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string ppv_module_code { get; set; }
+        [ApiMember(Name = "receipt", Description = "Receipt", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string receipt { get; set; }
+    }
+
+    [Route("/users/{user_name}/password", "POST", Notes = "This method sets a new password when user has forgotten password. Admin uses to set a new password.")]
+    public class RenewUserPasswordRequest : RequestBase, IReturn<UserResponseObject>
+    {
+        [ApiMember(Name = "user_name", Description = "Username", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string user_name { get; set; }
+        [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string password { get; set; }
+    }
+
     #endregion
 
     #region DELETE
@@ -612,7 +631,7 @@ namespace RestfulTVPApi.ServiceModel
         public TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] item_objects { get; set; }
     }
 
-    [Route("/users/{site_guid}/medias/history", "DELETE", Notes = "This method clears the user watch history (in the user’s personal zone) by individual media IDs. Note: The parameter “0” erases all entries.")]
+    [Route("/users/{site_guid}/medias/watch_history", "DELETE", Notes = "This method clears the user watch history (in the user’s personal zone) by individual media IDs. Note: The parameter “0” erases all entries.")]
     public class ClearUserHistoryRequest : RequestBase, IReturn<string>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]

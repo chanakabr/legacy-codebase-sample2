@@ -9,7 +9,7 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class ChannelsRepository : IChannelsRepository
     {
-        public List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
+        public IEnumerable<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
         {
             List<Media> lstMedia = null;
 
@@ -30,7 +30,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
-        public List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize)
+        public IEnumerable<Channel> GetChannelsList(InitializationObject initObj, string sPicSize)
         {
             List<Channel> sRet = null;
 

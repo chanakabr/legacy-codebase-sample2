@@ -10,13 +10,9 @@ namespace RestfulTVPApi.ServiceModel
 {
 
     #region GET
-
-
     #endregion
 
     #region PUT
-
-
     #endregion
 
     #region POST
@@ -36,8 +32,6 @@ namespace RestfulTVPApi.ServiceModel
     #endregion
 
     #region DELETE
-
-
     #endregion
 
 }

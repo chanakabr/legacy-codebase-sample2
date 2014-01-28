@@ -40,6 +40,9 @@ namespace RestfulTVPApi
 
             SetConfig(new EndpointHostConfig
             {
+                //EnableFeatures = Feature.Json | Feature.Xml,
+                //WriteErrorsToResponse = false,
+                DefaultContentType = ContentType.Json,
                 CustomHttpHandlers = { { HttpStatusCode.NotFound, new CustomNotFoundHttpHandler() } }
             });
 
@@ -81,6 +84,11 @@ namespace RestfulTVPApi
                 return dto;
             };
 		}
+
+        public override IServiceRunner<TRequest> CreateServiceRunner<TRequest>(ActionContext actionContext)
+        {
+            return new CustomServiceRunner<TRequest>(this, actionContext);
+        }
 
 		public static void Start()
 		{

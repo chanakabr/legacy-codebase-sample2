@@ -145,6 +145,7 @@
     <Compile Include="ServiceInterface\Adapters\ServiceExtensions.cs" />
     <Compile Include="ServiceInterface\Adapters\SimpleInjectorAdapter.cs" />
     <Compile Include="ServiceInterface\Filters\CustomNotFoundHttpHandler.cs" />
+    <Compile Include="ServiceInterface\Filters\CustomServiceRunner.cs" />
     <Compile Include="ServiceInterface\Filters\RequiresAuthenticationAttribute.cs" />
     <Compile Include="ServiceInterface\Interfaces\IApiRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\IDomainRepository.cs" />

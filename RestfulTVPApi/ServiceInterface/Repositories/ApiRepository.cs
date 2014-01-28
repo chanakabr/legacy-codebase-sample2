@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using TVPApi;
 using TVPApiModule.Helper;
+using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
@@ -14,7 +15,7 @@ namespace RestfulTVPApi.ServiceInterface
     public class ApiRepository : IApiRepository
     {
         public bool ActivateCampaign(InitializationObject initObj, string siteGuid, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
-                                                   CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
+                                                   TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionResult status, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.VoucherReceipentInfo[] voucherReceipents)
         {
             bool res = false;
 
@@ -22,20 +23,9 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                CampaignActionInfo actionInfo = new CampaignActionInfo()
-                {
-                    m_siteGuid = int.Parse(initObj.SiteGuid),
-                    m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new SocialInviteInfo() { m_hashCode = hashCode } : null,
-                    m_mediaID = mediaID,
-                    m_mediaLink = mediaLink,
-                    m_senderEmail = senderEmail,
-                    m_senderName = senderName,
-                    m_status = status,
-                    m_voucherReceipents = voucherReceipents
-                };
+                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
 
-                //Ofir - talk To irena
-                //res = new ApiConditionalAccessService(groupId, initObj.Platform).ActivateCampaign(siteGuid, campaignID, actionInfo);
+                return _service.ActivateCampaign(siteGuid, campaignID, hashCode, mediaID, mediaLink, senderEmail, senderName, status, voucherReceipents);
             }
             else
             {
@@ -126,7 +116,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public Country[] GetCountriesList(InitializationObject initObj)
+        public IEnumerable<Country> GetCountriesList(InitializationObject initObj)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetCountriesList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -158,61 +148,136 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
+        public FBConnectConfig FBConfig(InitializationObject initObj)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBConfig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
+
+                FacebookConfig fbConfig = _service.GetFBConfig("0");
+
+                FBConnectConfig retVal = new FBConnectConfig
+                {
+                    appId = fbConfig.fb_key,
+                    scope = fbConfig.fb_permissions,
+                    apiUser = initObj.ApiUser,
+                    apiPass = initObj.ApiPass
+                };
+
+                return retVal;
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+        }
+
+        public FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserMerge", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
+
+                return _service.FBUserMerge(sToken, sFBID, sUsername, sPassword);
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+        }
+
+        public FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserRegister", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
+
+                var oExtra = new List<TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair>() { new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "news", value = bGetNewsletter ? "1" : "0" }, new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "domain", value = bCreateNewDomain ? "1" : "0" } };
+
+                //Ofir - why its was UserHostAddress in ip param?
+                return _service.FBUserRegister(sToken, "0", oExtra, SiteHelper.GetClientIP());
+
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+        }
+
+        public FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFBUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
+
+                return _service.GetFBUserData(sToken, "0");
+            }
+            else
+            {
+                throw new UnknownGroupException();
+            }
+        }
+
         public DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid)
         {
-            DomainResponseObject res = null;
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainByCoGuid(coGuid);
+                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
+
+                return _service.GetDomainByCoGuid(coGuid);
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return res;
         }
 
-        public int[] GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
+        public IEnumerable<int> GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
         {
-            int[] resDomains = null;
-
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDsByOperatorCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                resDomains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainIDsByOperatorCoGuid(operatorCoGuid);
+                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
+
+                return _service.GetDomainIDsByOperatorCoGuid(operatorCoGuid);
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return resDomains;
         }
 
         public int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid)
         {
-            int res = 0;
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainIDByCoGuid(coGuid);
+                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
+
+                return _service.GetDomainIDByCoGuid(coGuid);
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return res;
         }
 
         public TVPApiModule.Services.ApiDomainsService.DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin)
         {
             TVPApiModule.Services.ApiDomainsService.DeviceRegistration deviceRes = new TVPApiModule.Services.ApiDomainsService.DeviceRegistration();
+            
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RegisterDeviceByPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
@@ -220,14 +285,14 @@ namespace RestfulTVPApi.ServiceInterface
                 TVPApiModule.Services.ApiDomainsService service = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform);
                 DeviceResponseObject device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
 
-                if (device == null || device.m_oDeviceResponseStatus == DeviceResponseStatus.Error)
+                if (device == null || device.device_response_status == DeviceResponseStatus.Error)
                     deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;
-                else if (device.m_oDeviceResponseStatus == DeviceResponseStatus.DuplicatePin || device.m_oDeviceResponseStatus == DeviceResponseStatus.DeviceNotExists)
+                else if (device.device_response_status == DeviceResponseStatus.DuplicatePin || device.device_response_status == DeviceResponseStatus.DeviceNotExists)
                     deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;
                 else
                 {
                     deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
-                    deviceRes.UDID = device.m_oDevice.m_deviceUDID;
+                    deviceRes.UDID = device.device.device_udid;
                 }
             }
             else

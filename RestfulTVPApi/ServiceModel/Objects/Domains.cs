@@ -49,21 +49,21 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/domains/{domain_id}/rules", "GET", Summary = "returns the rules for the domain", Notes = "returns the rules for the domain")]
-    public class GetDomainGroupRulesRequest : RequestBase, IReturn<GroupRule[]>
+    public class GetDomainGroupRulesRequest : RequestBase, IReturn<IEnumerable<GroupRule>>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
     [Route("/domains/{domain_id}/medias/permitted", "GET", Summary = "Gets all the items permitted for the users in a given domain", Notes = "Gets all the items permitted for the users in a given domain")]
-    public class GetDomainPermittedItemsRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PermittedMediaContainer[]>
+    public class GetDomainPermittedItemsRequest : RequestBase, IReturn<IEnumerable<PermittedMediaContainer>>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
     [Route("/domains/{domain_id}/subscriptions/permitted", "GET", Summary = "Gets all subscriptions permitted to the users in a given domain", Notes = "Gets all subscriptions permitted to the users in a given domain.")]
-    public class GetDomainPermittedSubscriptionsRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer[]>
+    public class GetDomainPermittedSubscriptionsRequest : RequestBase, IReturn<IEnumerable<PermittedSubscriptionContainer>>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
@@ -78,8 +78,6 @@ namespace RestfulTVPApi.ServiceModel
     //    [ApiMember(Name = "co_guid", Description = "Domain Master Co-GUID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
     //    public string co_guid { get; set; }
     //}
-
-    
 
     #region POST
 
@@ -111,15 +109,17 @@ namespace RestfulTVPApi.ServiceModel
     {
         [ApiMember(Name = "domain_id", Description = "Is active", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
         [ApiMember(Name = "master_user_name", Description = "Master user name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string master_user_name { get; set; }
     }
 
-    [Route("/domains/{domain_id}/users/{added_user_guid}", "POST", Summary = "Adds a user to a domain", Notes = "Adds a user to a domain")]
+    [Route("/domains/{domain_id}/users/{site_guid}", "POST", Summary = "Adds a user to a domain", Notes = "Adds a user to a domain")]
     public class AddUserToDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
-        [ApiMember(Name = "added_user_guid", Description = "The new user to add to domain", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
-        public int added_user_guid { get; set; }
+        [ApiMember(Name = "site_guid", Description = "The new user to add to domain", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
         [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
@@ -134,9 +134,8 @@ namespace RestfulTVPApi.ServiceModel
     //    public string pin { get; set; }
     //}
 
-    //ofir - /domains/{domain_ids}/billing_history
-    [Route("/domains/{domain_ids}/billings", "POST", Summary = "Returns the billing history for an array of domains in a given time range", Notes = "Returns the billing history for an array of domains in a given time range")]
-    public class GetDomainsBillingHistoryRequest : RequestBase, IReturn<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.DomainBillingTransactionsResponse[]>
+    [Route("/domains/{domain_ids}/billing_history", "POST", Summary = "Returns the billing history for an array of domains in a given time range", Notes = "Returns the billing history for an array of domains in a given time range")]
+    public class GetDomainsBillingHistoryRequest : RequestBase, IReturn<IEnumerable<DomainBillingTransactionsResponse>>
     {
         [ApiMember(Name = "domain_ids", Description = "Domain ids", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public int[] domain_ids { get; set; }
@@ -173,7 +172,6 @@ namespace RestfulTVPApi.ServiceModel
         public bool is_active { get; set; }
     }
 
-    //Ofir - /devices/{udid}
     [Route("/devices/{udid}", "PUT", Summary = "Sets device name", Notes = "Sets device name")]
     public class SetDeviceInfoRequest : RequestBase, IReturn<bool>
     {
@@ -194,12 +192,12 @@ namespace RestfulTVPApi.ServiceModel
         public string domain_description { get; set; }
     }
 
-    [Route("/domains/{domain_id}/rules", "PUT", Summary = "returns the rules for the domain", Notes = "returns the rules for the domain")]
+    [Route("/domains/{domain_id}/rules/{rule_id}", "PUT", Summary = "returns the rules for the domain", Notes = "returns the rules for the domain")]
     public class SetDomainGroupRuleRequest : RequestBase, IReturn<bool>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
-        [ApiMember(Name = "rule_id", Description = "Rule Id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
+        [ApiMember(Name = "rule_id", Description = "Rule Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int rule_id { get; set; }
         [ApiMember(Name = "pin", Description = "pin code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string pin { get; set; }
@@ -208,12 +206,12 @@ namespace RestfulTVPApi.ServiceModel
     }
     
     //Gilad: Method description might be changed - check
-    [Route("/domains/{domain_id}/rules", "PUT", Summary = "This method sets a rule state for a domain", Notes = "This method sets a rule state for a domain")]
+    [Route("/domains/{domain_id}/rules/{rule_id}/state", "PUT", Summary = "This method sets a rule state for a domain", Notes = "This method sets a rule state for a domain")]
     public class SetRuleStateRequest : RequestBase, IReturn<bool>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
-        [ApiMember(Name = "rule_id", Description = "Rule Id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
+        [ApiMember(Name = "rule_id", Description = "Rule Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int rule_id { get; set; }        
         [ApiMember(Name = "is_active", Description = "Is active", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int is_active { get; set; }
@@ -237,18 +235,17 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/domains/{domain_id}", "DELETE", Summary = "Remove Domain", Notes = "Remove domain")]
-    public class RemoveDomainRequest : RequestBase, IReturn<string>
+    public class RemoveDomainRequest : RequestBase, IReturn<DomainResponseStatus>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
-    //Ofir - /domains/{domain_id}/users/{removed_user_guid}
-    [Route("/domains/{domain_id}/users/{removed_user_guid}", "DELETE", Summary = "Removes a user from a domain", Notes = "Removes a user from a domain")]
+    [Route("/domains/{domain_id}/users/{site_guid}", "DELETE", Summary = "Removes a user from a domain", Notes = "Removes a user from a domain")]
     public class RemoveUserFromDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
-        [ApiMember(Name = "removed_user_guid", Description = "The user to remove from domain", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public string removed_user_guid { get; set; }
+        [ApiMember(Name = "site_guid", Description = "The user to remove from domain", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
         [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }

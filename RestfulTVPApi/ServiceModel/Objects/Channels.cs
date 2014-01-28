@@ -6,7 +6,6 @@ using TVPApi;
 
 namespace RestfulTVPApi.ServiceModel
 {
-
     #region GET
 
     [Route("/channels/{ChannelID}/medias", "GET", Notes = "This method returns an array of the media inside the channel")]
@@ -43,6 +42,7 @@ namespace RestfulTVPApi.ServiceModel
         public int category_id { get; set; }
     }
 
+    //Ofir combine with GetCategory
     [Route("/categories/{category_id}/full", "GET", Notes = "Category is an ordered hierarchical list of channels that belong to a similar theme or type. This method searches for a category and its dependences. When the category contains inner categories, the categories and the inner categories are returned")]
     public class GetFullCategoryRequest : RequestBase, IReturn<Category>
     {

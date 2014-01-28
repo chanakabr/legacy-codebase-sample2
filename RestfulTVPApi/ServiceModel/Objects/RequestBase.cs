@@ -10,7 +10,7 @@ namespace RestfulTVPApi.ServiceModel
         //[ApiMember(Name = "fields", Description = "Fields", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
         //public string fields { get; set; }
 
-        [ApiMember(Name = "X-InitObj", Description = "Initialization Object", ParameterType = "header", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "X-Init-Object", Description = "Initialization Object", ParameterType = "header", DataType = SwaggerType.String, IsRequired = true)]
         public InitializationObject InitObj { get; set; }
     }
 

@@ -193,28 +193,16 @@ namespace RestfulTVPApi.ServiceInterface
 
         public HttpResult Post(ChargeMediaWithPrepaidRequest request)
         {
-            var response = _repository.ChargeMediaWithPrepaid(request.InitObj, request.site_guid, request.price, request.currency, request.media_file_id, request.ppv_module_code, request.coupon_code);
+            var response = _repository.ChargeMediaWithPrepaid(request.InitObj, request.InitObj.SiteGuid, request.price, request.currency, request.media_file_id, request.ppv_module_code, request.coupon_code);
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
         public HttpResult Post(ActionDoneRequest request)
         {
-            var response = _repository.ActionDone(request.InitObj, request.site_guid, request.action_type, request.media_id, request.media_type, request.extra_val);
+            var response = _repository.ActionDone(request.InitObj, request.InitObj.SiteGuid, request.action_type, request.media_id, request.media_type, request.extra_val);
 
             return new HttpResult(response, HttpStatusCode.OK);
-        }
-
-        public HttpResult Post(InApp_ChargeUserForMediaFileRequest request)
-        {
-            var response = _repository.InApp_ChargeUserForMediaFile(request.InitObj, request.site_guid, request.price, request.currency, request.product_code, request.ppv_module_code, request.receipt);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
         #endregion

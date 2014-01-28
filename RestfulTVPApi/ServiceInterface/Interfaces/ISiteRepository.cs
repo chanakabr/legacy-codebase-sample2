@@ -13,9 +13,9 @@ namespace RestfulTVPApi.ServiceInterface
 
         PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);
 
-        List<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index);
+        IEnumerable<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index);
 
-        List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
+        IEnumerable<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
 
         Menu GetMenu(InitializationObject initObj, long ID);
 

@@ -52,25 +52,21 @@ namespace RestfulTVPApi.ServiceInterface
             return retPageGallery;
         }
 
-        public List<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index)
+        public IEnumerable<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index)
         {
-            List<GalleryItem> lstGalleryItem = null;
-
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                lstGalleryItem = PageGalleryHelper.GetGalleryContent(initObj.Platform, initObj.Locale, ID, PageID, picSize, groupID);
+                return PageGalleryHelper.GetGalleryContent(initObj.Platform, initObj.Locale, ID, PageID, picSize, groupID);
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return lstGalleryItem;
         }
 
-        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
+        public IEnumerable<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -78,7 +74,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                //What??????
+                //Ofir = What??????
                 //XXX: Patch for ximon
                 if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)
                     pageIndex = pageIndex / pageSize;
