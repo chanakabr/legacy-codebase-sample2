@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
+using System.Web.Script.Serialization;
+using Tvinci.Data.TVMDataLoader.Protocols.ChannelsMedia;
 using TVPApi;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.Helper;
@@ -472,6 +476,40 @@ namespace TVPApiServices
             }
             HttpContext.Current.Items.Add("Error", "Unknown group");
             return false;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
+        public string GetSocialFeed(InitializationObject initObj, int mediaId)
+        {
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    int siteGuid;
+                    if (mediaId == 0)
+                        return "No mediaId";
+
+                    if (!int.TryParse(initObj.SiteGuid, out siteGuid))
+                        return "No siteGuid";
+
+                    WebClient webClient = new WebClient();
+
+                    webClient.QueryString.Add("mediaId", mediaId.ToString());
+                    webClient.QueryString.Add("groupId", groupId.ToString());
+                    webClient.QueryString.Add("siteGuid", initObj.SiteGuid);
+                    StreamReader streamReader = new StreamReader(webClient.OpenRead(ConfigurationManager.AppSettings["SocialFeedProxy"]));
+                    string socialFeedStr = streamReader.ReadToEnd();
+
+                    return socialFeedStr;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            HttpContext.Current.Items.Add("Error", "Unknown group");
+            return "Unknown group";
         }
     }
 }
