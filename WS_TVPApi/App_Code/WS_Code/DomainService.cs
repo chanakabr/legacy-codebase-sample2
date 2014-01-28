@@ -116,7 +116,7 @@ namespace TVPApiServices
 
                 try
                 {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, Convert.ToInt32(initObj.SiteGuid), AddedUserGuid);
+                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, initObj.SiteGuid, AddedUserGuid);
                 }
                 catch (Exception ex)
                 {
@@ -238,10 +238,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get device domains")]
-        public DeviceDomain[] GetDeviceDomains(InitializationObject initObj)
+        public IEnumerable<DeviceDomain> GetDeviceDomains(InitializationObject initObj)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.Domain> domains = null;
-            DeviceDomain[] devDomains = null;
+            IEnumerable<DeviceDomain> domains = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -250,14 +249,6 @@ namespace TVPApiServices
                 try
                 {
                     domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
-
-                    if (domains == null || domains.Count() == 0)
-                        return devDomains;
-
-                    devDomains = new DeviceDomain[domains.Count()];
-
-                    for (int i = 0; i < domains.Count(); i++)
-                        devDomains[i] = new DeviceDomain() { domain_id = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].domain_id, domain_name = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].name, site_guid = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].master_guids[0].ToString() };
                 }
                 catch (Exception ex)
                 {
@@ -265,7 +256,7 @@ namespace TVPApiServices
                 }
             }
 
-            return devDomains;
+            return domains;
         }
  
         [WebMethod(EnableSession = true, Description = "Get PIN Code for a new device")]

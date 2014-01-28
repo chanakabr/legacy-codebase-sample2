@@ -36,12 +36,12 @@ namespace TVPApiModule.Services
             m_platform = platform;
         }
 
-        public TVPApiModule.Objects.Responses.DomainResponseObject AddUserToDomain(int domainID, int masterSiteGuid, int AddedUserGuid)
+        public TVPApiModule.Objects.Responses.DomainResponseObject AddUserToDomain(int domainID, string masterSiteGuid, int AddedUserGuid)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
             try
             {
-                var res = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, masterSiteGuid, false);
+                var res = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, int.Parse(masterSiteGuid), false);
                 if (res != null)
                     domain = res.ToApiObject();
             }
@@ -161,22 +161,32 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.Domain> GetDeviceDomains(string udid)
+        public IEnumerable<DeviceDomain> GetDeviceDomains(string udid)
         {
             IEnumerable<TVPApiModule.Objects.Responses.Domain> domains = null;
+            DeviceDomain[] devDomains = null;
+
 
             try
             {
                 var response = m_Module.GetDeviceDomains(m_wsUserName, m_wsPassword, udid);
                 if (response != null)
                     domains = response.Where(d => d != null).Select(d => d.ToApiObject());
+
+                if (domains == null || domains.Count() == 0)
+                    return devDomains;
+
+                devDomains = new DeviceDomain[domains.Count()];
+
+                for (int i = 0; i < domains.Count(); i++)
+                    devDomains[i] = new DeviceDomain() { domain_id = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].domain_id, domain_name = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].name, site_guid = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].master_guids[0].ToString() };
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : GetDeviceDomains, Error Message: {0} Parameters: udid: {1}", ex.Message, udid);
             }
 
-            return domains;
+            return devDomains;
         }
 
         public string GetPINForDevice(string udid, int devBrandID)

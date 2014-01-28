@@ -263,7 +263,7 @@
     <Compile Include="Objects\Responses\Channel.cs" />
     <Compile Include="Objects\Responses\Comment.cs" />
     <Compile Include="Objects\DynamicData.cs" />
-    <Compile Include="Objects\FBConnectObjects.cs" />
+    <Compile Include="Objects\Responses\FBConnectObjects.cs" />
     <Compile Include="Objects\InitializationObject.cs" />
     <Compile Include="Objects\Locale.cs" />
     <Compile Include="Objects\Responses\Media.cs" />

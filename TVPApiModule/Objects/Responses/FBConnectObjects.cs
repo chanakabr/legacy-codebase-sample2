@@ -7,9 +7,9 @@ namespace TVPApiModule.Objects
 {
     public class FBConnectObj
     {
-        public string RegStatus { get; set; }
-        public string LoginStatus { get; set; }
-        public string SiteGuid { get; set; }
+        public string reg_status { get; set; }
+        public string login_status { get; set; }
+        public string site_guid { get; set; }
 
         public FBConnectObj()
         {
@@ -18,8 +18,8 @@ namespace TVPApiModule.Objects
 
         public FBConnectObj(eRegResp regStatus, eLoginResp loginStatus, string sSiteguid)
         {
-            RegStatus = regStatus.ToString();
-            LoginStatus = loginStatus.ToString();
+            reg_status = regStatus.ToString();
+            login_status = loginStatus.ToString();
         }
 
         public enum eLoginResp
@@ -37,10 +37,10 @@ namespace TVPApiModule.Objects
 
     public class FBConnectConfig
     {
-        public string appId { get; set; }
+        public string app_id { get; set; }
         public string scope { get; set; }
-        public string apiUser { get; set; }
-        public string apiPass { get; set; }
+        public string api_user { get; set; }
+        public string api_pass { get; set; }
     }
 
     public enum eLoginResp

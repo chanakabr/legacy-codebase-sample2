@@ -58,10 +58,10 @@ namespace RestfulTVPApi.ServiceInterface
 
                 FBConnectConfig retVal = new FBConnectConfig
                 {
-                    appId = fbConfig.sFBKey,
+                    app_id = fbConfig.sFBKey,
                     scope = fbConfig.sFBPermissions,
-                    apiUser = initObj.ApiUser,
-                    apiPass = initObj.ApiPass
+                    api_user = initObj.ApiUser,
+                    api_pass = initObj.ApiPass
                 };
 
                 return retVal;

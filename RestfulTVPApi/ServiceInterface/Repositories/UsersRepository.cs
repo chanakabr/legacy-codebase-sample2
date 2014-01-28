@@ -288,7 +288,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public ResponseStatus RenewUserPIN(InitializationObject initObj, string siteGuid, int ruleID)
+        public eResponseStatus RenewUserPIN(InitializationObject initObj, string siteGuid, int ruleID)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RenewUserPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -304,7 +304,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public ResponseStatus SetUserTypeByUserID(InitializationObject initObj, string siteGuid, int nUserTypeID)
+        public eResponseStatus SetUserTypeByUserID(InitializationObject initObj, string siteGuid, int nUserTypeID)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserTypeByUserID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
