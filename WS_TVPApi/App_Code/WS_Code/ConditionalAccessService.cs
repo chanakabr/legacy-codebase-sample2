@@ -452,5 +452,111 @@ namespace TVPApiServices
 
             return response;
         }
+
+        [WebMethod(EnableSession = true, Description = "Charge User For Media File using Cellular")]
+        public BillingResponse Cellular_ChargeUserForMediaFile(InitializationObject initObj, double price, string currencyCode3, int mediaFileID, string ppvModuleCode, string couponCode, string extraParameters, string deviceName)
+        {
+            BillingResponse response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "Cellular_ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).Cellular_ChargeUserForMediaFile(initObj.SiteGuid, price, currencyCode3, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), extraParameters, string.Empty, string.Empty, deviceName);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Charge User For Subscription using Cellular")]
+        public BillingResponse Cellular_ChargeUserForSubscription(InitializationObject initObj, double price, string currencyCode3, string subscriptionCode, string couponCode, string extraParameters, string deviceName)
+        {
+            BillingResponse response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "Cellular_ChargeUserForSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).Cellular_ChargeUserForSubscription(initObj.SiteGuid, price, currencyCode3, subscriptionCode, couponCode, SiteHelper.GetClientIP(), extraParameters, string.Empty, string.Empty, deviceName);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Perform a user purchase for file")]
+        public string ChargeUserForMediaFileByPaymentMethod(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sCoupon, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV)
+        {
+            string response = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, sExtraParams, sPaymentMethodID, sEncryptedCVV);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
+        public string ChargeUserForSubscriptionByPaymentMethod(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sExtraParameters, string sPaymentMethodID, string sEncryptedCVV)
+        {
+            string response = string.Empty;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForMediaSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, SiteHelper.GetClientIP(), initObj.SiteGuid, sExtraParameters, initObj.UDID, sPaymentMethodID, sEncryptedCVV);
+
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
     }
 }

@@ -195,7 +195,17 @@ namespace TVPApi
                     string sMediaName = MediaName.Replace("/", "");
                     sMediaName = SiteHelper.ReplaceSpecialChars(sMediaName);
 
-                    retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, sMediaName, MediaID);
+                    if (groupID != 153)
+                        retVal = string.Format("{0}/{1}/{2}/{3}", baseUrl, MediaTypeName, sMediaName, MediaID);
+                    else
+                    {
+                        if (MediaTypeName == "Series")
+                            retVal = string.Format("{0}/ShowPage/{2}/{3}", baseUrl, sMediaName, MediaID);
+                        else if (MediaTypeName == "Linear")
+                            retVal = string.Format("{0}/ChannelPage/{2}/{3}", baseUrl, sMediaName, MediaID); 
+                        else
+                            retVal = string.Format("{0}/MediaPage/{2}/{3}", baseUrl, sMediaName, MediaID);
+                    }
                 }
                 else
                 {

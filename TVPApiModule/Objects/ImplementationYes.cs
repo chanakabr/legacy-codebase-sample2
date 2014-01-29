@@ -77,13 +77,17 @@ namespace TVPApiModule.Objects
                     string sAccountNumber = resp.m_oDomain.m_sCoGuid;
                     if (!string.IsNullOrEmpty(sAccountNumber) && userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
                     {
+                        Domain domain = domainsService.GetDomainInfo(userResponseObject.m_user.m_domianID);
+                        var deviceFamilyID = domain.m_deviceFamilies.Where(f => f.DeviceInstances != null && f.DeviceInstances.Length > 0).Select(f => f.DeviceInstances.Where(dev => dev.m_deviceName == sDeviceName).FirstOrDefault()).FirstOrDefault().m_deviceFamilyID;
+                        
                         YesObject yesObj = new YesObject()
                         {
                             AccountNumber = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "accNum").FirstOrDefault().m_sValue,
                             BrandID = 2,
                             DeviceName = sDeviceName,
                             UDID = _initObj.UDID,
-                            Username = userResponseObject.m_user.m_oBasicData.m_sUserName
+                            Username = userResponseObject.m_user.m_oBasicData.m_sUserName,
+                            DeviceFamilyID = deviceFamilyID
                         };
 
                         try
@@ -459,7 +463,26 @@ namespace TVPApiModule.Objects
             YesObject yObj = obj as YesObject;
             using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
             {
-                proxy.AddDevice(yObj.AccountNumber, HttpUtility.UrlEncode(yObj.DeviceName), yObj.UDID, "2", yObj.Username);
+                string yesFamilyId = string.Empty;
+                switch(yObj.DeviceFamilyID)
+                {
+                    case 1: 
+                        yesFamilyId = "3"; 
+                        break;
+                    case 2:
+                    case 3:
+                    case 6:
+                        yesFamilyId = "4";
+                        break;
+                    case 4:
+                        yesFamilyId = "2";
+                        break;
+                    case 5:
+                        yesFamilyId = "1";
+                        break;
+                }
+
+                proxy.AddDevice(yObj.AccountNumber, HttpUtility.UrlEncode(yObj.DeviceName), yObj.UDID, yesFamilyId, yObj.Username);
             }
         }
 
@@ -552,6 +575,8 @@ namespace TVPApiModule.Objects
             public string UDID { get; set; }
             public string DeviceName { get; set; }
             public int BrandID { get; set; }
+            public int DeviceFamilyID { get; set; }
+
 
         }
 

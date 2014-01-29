@@ -54,13 +54,13 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
-        public string ChargeUserForMediaFile(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sUserGuid, string sUDID)
+        public string ChargeUserForMediaFile(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sUserGuid, string sUDID, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV)
         {
             BillingResponse response = null;
 
             try
             {
-                response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID, string.Empty, string.Empty);
+                response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, string.Empty, sUserIP, sExtraParams, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
             }
             catch (Exception ex)
             {
@@ -102,13 +102,13 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
-        public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
+        public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV)
         {
             BillingResponse response = null;
 
             try
             {
-                response = m_Module.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, string.Empty, string.Empty);
+                response = m_Module.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
             }
             catch (Exception ex)
             {
@@ -777,6 +777,37 @@ namespace TVPApiModule.Services
             }
             return retVal;
         }
+
+        public BillingResponse Cellular_ChargeUserForMediaFile(string siteGUID, double price, string currencyCode3, int mediaFileID, string ppvModuleCode, string couponCode, string userIP, string extraParameters, string countryCd2, string languageCode3, string deviceName)
+        {
+            BillingResponse retVal = null;
+
+            try
+            {
+                retVal = m_Module.Cellular_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGUID, price, currencyCode3, mediaFileID, ppvModuleCode, couponCode, userIP, extraParameters, countryCd2, languageCode3, deviceName);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : Cellular_ChargeUserForMediaFile, Error Message: {0}, Parameters :  siteGuid: {1}, mediaFileID: {2}", ex.Message, siteGUID, mediaFileID);
+            }
+            return retVal;
+        }
+
+        public BillingResponse Cellular_ChargeUserForSubscription(string siteGUID, double price, string currencyCode3, string subscriptionCode, string couponCode, string userIP, string extraParameters, string countryCd2, string languageCode3, string deviceName)
+        {
+            BillingResponse retVal = null;
+
+            try
+            {
+                retVal = m_Module.Cellular_ChargeUserForSubscription(m_wsUserName, m_wsPassword, siteGUID, price, currencyCode3, subscriptionCode, couponCode, userIP, extraParameters, countryCd2, languageCode3, deviceName);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : Cellular_ChargeUserForSubscription, Error Message: {0}, Parameters :  siteGuid: {1}, subscriptionCode: {2}", ex.Message, siteGUID, subscriptionCode);
+            }
+            return retVal;
+        }
+        
 
 
         #endregion

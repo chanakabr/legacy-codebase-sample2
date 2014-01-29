@@ -17,8 +17,7 @@ namespace TVPApiModule.Interfaces
         ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword);
         DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID);
         string MediaHit(int nMediaID, int nFileID, int nLocationID);
-        string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode,
-                                            string sIP, string sExtraParams);
+        string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sIP, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV);
 
         string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, int nLocationID);
 
