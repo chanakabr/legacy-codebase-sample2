@@ -58,5 +58,10 @@ namespace TVPApiServices
         [OperationContract]
         PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(InitializationObject initObj);
 
+        [OperationContract]
+        string ChargeUserForMediaFileUsingCC(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon, string sPaymentMethodID, string sEncryptedCVV);
+
+        [OperationContract]
+        string ChargeUserForMediaSubscriptionUsingCC(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV);
     }
 }
