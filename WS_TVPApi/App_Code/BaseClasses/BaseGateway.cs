@@ -189,16 +189,16 @@ public abstract class BaseGateway : System.Web.UI.Page
                     if (HttpContext.Current.Cache[mac] != null)
                         break;
 
-                    TVPApiModule.Objects.Responses.DeviceDomain[] retSiteGuid = m_DomainService.GetDeviceDomains(new InitializationObject()
+                    IEnumerable<TVPApiModule.Objects.Responses.DeviceDomain> retSiteGuid = m_DomainService.GetDeviceDomains(new InitializationObject()
                     {
                         UDID = mac,
                         Platform = PlatformType.STB,
                         ApiUser = m_WsUsername,
                         ApiPass = m_WsPassword
                     });
-                    if (retSiteGuid != null && retSiteGuid.Length > 0 && retSiteGuid[0].domain_id != 0)
+                    if (retSiteGuid != null && retSiteGuid.Count() > 0 && (retSiteGuid as TVPApiModule.Objects.Responses.DeviceDomain[])[0].domain_id != 0)
                     {
-                        SiteGuid = retSiteGuid[0].site_guid;
+                        SiteGuid = (retSiteGuid as TVPApiModule.Objects.Responses.DeviceDomain[])[0].site_guid;
                         HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
                             System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
                     }

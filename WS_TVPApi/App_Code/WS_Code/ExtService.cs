@@ -94,7 +94,7 @@ namespace TVPApiServices
                 if (!string.IsNullOrEmpty(sDeviceName))
                     bDeviceName = new ApiDomainsService(groupId, PlatformType.iPad).SetDeviceInfo(sUDID, sDeviceName);
 
-                IEnumerable<TVPApiModule.Objects.Responses.Domain> domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
+                IEnumerable<TVPApiModule.Objects.Responses.DeviceDomain> domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
                 
                 TVPApiModule.Objects.Responses.DomainResponseObject res = new TVPApiModule.Objects.Responses.DomainResponseObject();
                 if (domain != null && domain.Count() > 0)
@@ -127,7 +127,7 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "RemoveDeviceFromAccount", sUsername, sPassword, SiteHelper.GetClientIP());
             if (groupId != 0)
             {
-                IEnumerable<TVPApiModule.Objects.Responses.Domain> domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
+                IEnumerable<TVPApiModule.Objects.Responses.DeviceDomain> domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
                 
                 TVPApiModule.Objects.Responses.DomainResponseObject res = new TVPApiModule.Objects.Responses.DomainResponseObject();
                 if (domain != null && domain.Count() > 0)
