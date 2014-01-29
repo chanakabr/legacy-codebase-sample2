@@ -70,6 +70,22 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
+        public string ChargeUserForMediaFileUsingCC(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sUserGuid, string sUDID, string paymentMethodID, string encryptedCVV)
+        {
+            BillingResponse response = null;
+
+            try
+            {
+                response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ChargeUserForMediaFileUsingCC, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
+            }
+
+            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+        }
+
         public string DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
         {
             BillingResponse response = null;
@@ -97,6 +113,22 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : ChargeUserForSubscription, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
+            }
+
+            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+        }
+
+        public string ChargeUserForSubscriptionUsingCC(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string paymentMethodID, string encryptedCVV)
+        {
+            BillingResponse response = null;
+
+            try
+            {
+                response = m_Module.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ChargeUserForSubscriptionUsingCC, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
             }
 
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
