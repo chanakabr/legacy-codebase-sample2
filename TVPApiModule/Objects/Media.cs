@@ -200,11 +200,11 @@ namespace TVPApi
                     else
                     {
                         if (MediaTypeName == "Series")
-                            retVal = string.Format("{0}/ShowPage/{2}/{3}", baseUrl, sMediaName, MediaID);
+                            retVal = string.Format("{0}/ShowPage/{1}/{2}", baseUrl, sMediaName, MediaID);
                         else if (MediaTypeName == "Linear")
-                            retVal = string.Format("{0}/ChannelPage/{2}/{3}", baseUrl, sMediaName, MediaID); 
+                            retVal = string.Format("{0}/ChannelPage/{1}/{2}", baseUrl, sMediaName, MediaID); 
                         else
-                            retVal = string.Format("{0}/MediaPage/{2}/{3}", baseUrl, sMediaName, MediaID);
+                            retVal = string.Format("{0}/MediaPage/{1}/{2}", baseUrl, sMediaName, MediaID);
                     }
                 }
                 else
