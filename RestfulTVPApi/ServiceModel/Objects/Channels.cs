@@ -9,7 +9,7 @@ namespace RestfulTVPApi.ServiceModel
     #region GET
 
     [Route("/channels/{ChannelID}/medias", "GET", Notes = "This method returns an array of the media inside the channel")]
-    public class GetChannelMultiFilterRequest : PagingRequest, IReturn<IEnumerable<Media>>
+    public class GetChannelMultiFilterRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "channel_id", Description = "Channel ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int channel_id { get; set; }
@@ -29,7 +29,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/channels/{ChannelID}", "GET", Notes = "This method returns an array of all channels that exist for this customer site")]
-    public class GetChannelsListRequest : RequestBase, IReturn<IEnumerable<Channel>>
+    public class GetChannelsListRequest : RequestBase, IReturn<List<Channel>>
     {
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }

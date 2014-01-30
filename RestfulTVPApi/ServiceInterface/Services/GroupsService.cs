@@ -23,7 +23,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region GET
 
-        public HttpResult Get(GetGroupOperatorsRequest request)
+        public object Get(GetGroupOperatorsRequest request)
         {
             var response = _repository.GetGroupOperators(request.InitObj, request.scope);
 
@@ -35,7 +35,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetGroupRulesRequest request)
+        public object Get(GetGroupRulesRequest request)
         {
             var response = _repository.GetGroupRules(request.InitObj);
 

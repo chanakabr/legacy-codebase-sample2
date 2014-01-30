@@ -12,7 +12,7 @@ namespace RestfulTVPApi.ServiceModel
     #region GET
 
     [Route("/countries", "GET", Notes = "This method returns a list of all countries, an ID and a symbol for each. Used to enable a user to select his/her country. Example: During user registration, the method returns an array of country codes, #ID, country name.")]
-    public class GetCountriesListRequest : RequestBase, IReturn<IEnumerable<Country>> { }
+    public class GetCountriesListRequest : RequestBase, IReturn<List<Country>> { }
 
     [Route("/countries/{ip}", "GET", Notes = "This method receives an IP address and returns the corresponding country.")]
     public class GetIPToCountryRequest : RequestBase, IReturn<string>
@@ -84,7 +84,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/rpc/get_domain_ids_by_operator_co_guid", "GET", Summary = "Returns all domain IDs belonging to a specific Operator by its co guid", Notes = "Returns all domain IDs belonging to a specific Operator by its co guid")]
-    public class GetDomainIDsByOperatorCoGuidRequest : RequestBase, IReturn<IEnumerable<int>>
+    public class GetDomainIDsByOperatorCoGuidRequest : RequestBase, IReturn<List<int>>
     {
         [ApiMember(Name = "operator_co_guid", Description = "The operator coguid", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string operator_co_guid { get; set; }

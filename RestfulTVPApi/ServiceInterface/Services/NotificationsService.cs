@@ -29,14 +29,14 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region POST
 
-        public HttpResult Post(SubscribeByTagRequest request)
+        public object Post(SubscribeByTagRequest request)
         {
             var response = _repository.SubscribeByTag(request.InitObj, request.site_guid, request.tags);
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Post(UnSubscribeByTagRequest request)
+        public object Post(UnSubscribeByTagRequest request)
         {
             var response = _repository.UnsubscribeFollowUpByTag(request.InitObj, request.site_guid, request.tags);
 

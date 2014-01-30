@@ -29,7 +29,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region POST
 
-        public HttpResult Post(AddDeviceToDomainRequest request)
+        public object Post(AddDeviceToDomainRequest request)
         {
             var response = _repository.AddDeviceToDomain(request.InitObj, request.device_name, request.device_brand_id);
 
@@ -41,7 +41,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Post(AddDomainRequest request)
+        public object Post(AddDomainRequest request)
         {
             var response = _repository.AddDomain(request.InitObj, request.device_name, request.domain_desc, request.master_guid_id);
 
@@ -53,7 +53,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Post(AddUserToDomainRequest request)
+        public object Post(AddUserToDomainRequest request)
         {
             var response = _repository.AddUserToDomain(request.InitObj, request.site_guid, request.domain_id);
 
@@ -65,7 +65,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        //public HttpResult Post(RegisterDeviceByPINRequest request)
+        //public object Post(RegisterDeviceByPINRequest request)
         //{
         //    var response = _repository.RegisterDeviceByPIN(request.InitObj, request.pin);
 
@@ -79,7 +79,7 @@ namespace RestfulTVPApi.ServiceInterface
         //    return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
         //}
 
-        public HttpResult Post(SubmitAddUserToDomainRequest request)
+        public object Post(SubmitAddUserToDomainRequest request)
         {
             var response = _repository.SubmitAddUserToDomainRequest(request.InitObj, request.site_guid, request.master_user_name);
 
@@ -91,14 +91,14 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Post(SetDomainGroupRuleRequest request)
+        public object Post(SetDomainGroupRuleRequest request)
         {
             var response = _repository.SetDomainGroupRule(request.InitObj, request.domain_id, request.rule_id, request.pin, request.is_active);
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Post(AddDomainWithCoGuidRequest request)
+        public object Post(AddDomainWithCoGuidRequest request)
         {
             var response = _repository.AddDomainWithCoGuid(request.InitObj, request.domain_name, request.domain_description, request.master_guid, request.co_guid);
 
@@ -114,7 +114,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region GET
 
-        public HttpResult Get(GetDeviceDomainsRequest request)
+        public object Get(GetDeviceDomainsRequest request)
         {
             var response = _repository.GetDeviceDomains(request.InitObj, request.udid);
 
@@ -126,7 +126,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        //public HttpResult Get(GetDomainByCoGuidRequest request)
+        //public object Get(GetDomainByCoGuidRequest request)
         //{
         //    var response = _repository.GetDomainByCoGuid(request.InitObj, request.co_guid);
 
@@ -140,7 +140,7 @@ namespace RestfulTVPApi.ServiceInterface
         //    return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
         //}
 
-        public HttpResult Get(GetDomainInfoRequest request)
+        public object Get(GetDomainInfoRequest request)
         {
             var response = _repository.GetDomainInfo(request.InitObj, request.domain_id);
 
@@ -152,7 +152,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        //public HttpResult Get(GetDomainIDsByOperatorCoGuidRequest request)
+        //public object Get(GetDomainIDsByOperatorCoGuidRequest request)
         //{
         //    var response = _repository.GetDomainIDsByOperatorCoGuid(request.InitObj, request.operator_co_guid);
 
@@ -166,14 +166,14 @@ namespace RestfulTVPApi.ServiceInterface
         //    return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
         //}
 
-        public HttpResult Get(GetPINForDeviceRequest request)
+        public object Get(GetPINForDeviceRequest request)
         {
             var response = _repository.GetPINForDevice(request.InitObj, request.dev_brand_id);
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetDomainGroupRulesRequest request)
+        public object Get(GetDomainGroupRulesRequest request)
         {
             var response = _repository.GetDomainGroupRules(request.InitObj, request.domain_id);
 
@@ -185,7 +185,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetDomainsBillingHistoryRequest request)
+        public object Get(GetDomainsBillingHistoryRequest request)
         {
             var response = _repository.GetDomainsBillingHistory(request.InitObj, request.domain_ids, request.start_date, request.end_date);
 
@@ -197,7 +197,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        //public HttpResult Get(GetDomainIDByCoGuidRequest request)
+        //public object Get(GetDomainIDByCoGuidRequest request)
         //{
         //    var response = _repository.GetDomainIDByCoGuid(request.InitObj, request.co_guid);
 
@@ -211,7 +211,7 @@ namespace RestfulTVPApi.ServiceInterface
         //    return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
         //}
 
-        public HttpResult Get(GetDomainPermittedItemsRequest request)
+        public object Get(GetDomainPermittedItemsRequest request)
         {
             var response = _repository.GetDomainPermittedItems(request.InitObj, request.domain_id);
 
@@ -223,7 +223,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetDomainPermittedSubscriptionsRequest request)
+        public object Get(GetDomainPermittedSubscriptionsRequest request)
         {
             var response = _repository.GetDomainPermittedSubscriptions(request.InitObj, request.domain_id);
 
@@ -239,7 +239,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region PUT
 
-        public HttpResult Put(ChangeDeviceDomainStatusRequest request)
+        public object Put(ChangeDeviceDomainStatusRequest request)
         {
             var response = _repository.ChangeDeviceDomainStatus(request.InitObj, request.is_active);
 
@@ -251,21 +251,21 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Put(SetDeviceInfoRequest request)
+        public object Put(SetDeviceInfoRequest request)
         {
             var response = _repository.SetDeviceInfo(request.InitObj, request.udid, request.device_name);
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Put(SetDomainInfoRequest request)
+        public object Put(SetDomainInfoRequest request)
         {
             var response = _repository.SetDomainInfo(request.InitObj, request.domain_id, request.domain_name, request.domain_description);
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Put(SetRuleStateRequest request)
+        public object Put(SetRuleStateRequest request)
         {
             var response = _repository.SetRuleState(request.InitObj,request.rule_id, request.is_active);
 
@@ -276,7 +276,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region DELETE
 
-        public HttpResult Delete(RemoveDeviceFromDomainRequest request)
+        public object Delete(RemoveDeviceFromDomainRequest request)
         {
             var response = _repository.RemoveDeviceFromDomain(request.InitObj, request.domain_id, request.udid, request.device_name, request.device_brand_id);
 
@@ -288,7 +288,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Delete(RemoveDomainRequest request)
+        public object Delete(RemoveDomainRequest request)
         {
             var response = _repository.RemoveDomain(request.InitObj, request.domain_id);
 
@@ -300,7 +300,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Delete(RemoveUserFromDomainRequest request)
+        public object Delete(RemoveUserFromDomainRequest request)
         {
             var response = _repository.RemoveUserFromDomain(request.InitObj, request.site_guid, request.domain_id);
 

@@ -40,9 +40,9 @@ namespace RestfulTVPApi.ServiceInterface
 
         bool ResendActivationMail(InitializationObject initObj, string sUserName, string sNewPassword);
 
-        eResponseStatus RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID);
+        ResponseStatus RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID);
 
-        eResponseStatus SetUserTypeByUserID(InitializationObject initObj, string sSiteGUID, int nUserTypeID);
+        ResponseStatus SetUserTypeByUserID(InitializationObject initObj, string sSiteGUID, int nUserTypeID);
 
         UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token);
 

@@ -30,7 +30,7 @@ namespace RestfulTVPApi.ServiceInterface
     [RequiresAuthentication]
     public class InitService : Service
     {
-        public HttpResult Post(SecuredInitObjRequest request)
+        public object Post(SecuredInitObjRequest request)
         {
             if (request.init_obj == null)
             {

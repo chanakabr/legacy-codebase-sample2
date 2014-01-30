@@ -14,7 +14,7 @@ namespace RestfulTVPApi.ServiceModel
     #region GET
 
     [Route("/medias", "GET", Notes = "Search media asset by specific tags and metas")]
-    public class SearchMediaByAndOrListRequest : PagingRequest, IReturn<IEnumerable<Media>>
+    public class SearchMediaByAndOrListRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "or_list", Description = "OR list", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
         public List<KeyValue> or_list { get; set; }
@@ -37,7 +37,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/medias/auto_complete/{prefix_text}", "GET", Notes = "This method auto-completes the entered text and returns the resulting media title strings as an array")]
-    public class GetAutoCompleteSearchListRequest : RequestBase, IReturn<IEnumerable<string>>
+    public class GetAutoCompleteSearchListRequest : RequestBase, IReturn<List<string>>
     {
         [ApiMember(Name = "prefix_text", Description = "Prefix Text", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string prefix_text { get; set; }
@@ -46,7 +46,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/medias/{media_ids}", "GET", Notes = "This method returns all of the stored information regarding a media asset")]
-    public class GetMediasInfoRequest : RequestBase, IReturn<IEnumerable<Media>>
+    public class GetMediasInfoRequest : RequestBase, IReturn<List<Media>>
     {
         [ApiMember(Name = "media_ids", Description = "Medias IDs", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public List<int> media_ids { get; set; }
@@ -55,7 +55,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/medias/{media_id}/comments", "GET", Notes = "This method returns an array of user's comments about the media specified")]
-    public class GetMediaCommentsRequest : PagingRequest, IReturn<IEnumerable<Comment>>
+    public class GetMediaCommentsRequest : PagingRequest, IReturn<List<Comment>>
     {
         [ApiMember(Name = "media_id", Description = "Media ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_id { get; set; }
@@ -69,7 +69,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/medias/{media_id}/related", "GET", Notes = "This method returns an array of media assets related to a given media asset; it is limited to a specific media type. The related relationships are backend configurable; they are determined by tags")]
-    public class GetRelatedMediasByTypesRequest : PagingRequest, IReturn<IEnumerable<Media>>
+    public class GetRelatedMediasByTypesRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "media_id", Description = "Media ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_id { get; set; }
@@ -81,7 +81,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Ofir - need to change routing
     [Route("/medias/{media_id}/people_who_watched", "GET", Notes = "This method returns media assets that were watched by other users who have also watched this item")]
-    public class GetPeopleWhoWatchedRequest : PagingRequest, IReturn<IEnumerable<Media>>
+    public class GetPeopleWhoWatchedRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "media_id", Description = "Media ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_id { get; set; }
@@ -93,7 +93,7 @@ namespace RestfulTVPApi.ServiceModel
     //Ofir - move to subscriptions? /subscriptios/{media_id} - combine with GetSubscriptionData
     //[Route("/medias/{media_id}/containing_subscriptions", "GET", Notes = "This method returns all subscriptions ID's containing a posted media and file ID")]
     [Route("/medias/{media_id}/subscriptions", "GET", Notes = "This method returns all subscriptions ID's containing a posted media and file ID")]
-    public class GetSubscriptionIDsContainingMediaFileRequest : RequestBase, IReturn<IEnumerable<int>>
+    public class GetSubscriptionIDsContainingMediaFileRequest : RequestBase, IReturn<List<int>>
     {
         [ApiMember(Name = "media_id", Description = "Media ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_id { get; set; }
@@ -103,7 +103,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Problematic routing - cant add media id bcoz it accepts multiple files
     [Route("/medias/files/{media_file_ids}/prices", "GET", Summary = "Get AutoComplete Search List", Notes = "Get AutoComplete Search List")]
-    public class GetItemsPricesWithCouponsRequest : RequestBase, IReturn<IEnumerable<MediaFileItemPricesContainer>>
+    public class GetItemsPricesWithCouponsRequest : RequestBase, IReturn<List<MediaFileItemPricesContainer>>
     {
         [ApiMember(Name = "media_file_ids", Description = "Media File ID", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public int[] media_file_ids { get; set; }
@@ -160,7 +160,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/medias/{media_id}/people_who_liked", "GET", Notes = "This method returns a list of a user’s friends that liked a specified media.")]
-    public class GetUsersLikedMediaRequest : PagingRequest, IReturn<IEnumerable<string>>
+    public class GetUsersLikedMediaRequest : PagingRequest, IReturn<List<string>>
     {
         [ApiMember(Name = "media_id", Description = "Media ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_id { get; set; }

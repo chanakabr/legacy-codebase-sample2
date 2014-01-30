@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Web;
 using ServiceStack.Common.Web;
@@ -23,7 +24,7 @@ namespace RestfulTVPApi.ServiceInterface
         public override object OnAfterExecute(IRequestContext requestContext, object response)
         {
             if ((response != null) && !(response is CompressedResult))
-                response = requestContext.ToOptimizedResult(response);
+                response = requestContext.ToOptimizedResult(response);  
 
             return base.OnAfterExecute(requestContext, response);
         }

@@ -108,6 +108,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Branch\Libs\TVPPro.Configuration\bin\Debug\TVPPro.Configuration.dll</HintPath>
     </Reference>
+    <Reference Include="TVPPro.SiteManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\ode\Projects\Branch\Libs\TVPPro.SiteManager\bin\Debug\TVPPro.SiteManager.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
@@ -587,10 +591,6 @@
     <ProjectReference Include="..\..\..\Libs\Localization\Localization.csproj">
       <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
       <Name>Localization</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Branch\Libs\TVPPro.SiteManager\TVPPro.SiteManager.csproj">
-      <Project>{1df66db2-d5d1-4b31-a7a0-5beb650da85f}</Project>
-      <Name>TVPPro.SiteManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Branch\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj">
       <Project>{209ee212-3a89-4966-951e-0173dcc76bb0}</Project>

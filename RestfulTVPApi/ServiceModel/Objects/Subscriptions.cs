@@ -9,14 +9,14 @@ namespace RestfulTVPApi.ServiceModel
     #region GET
 
     [Route("/subscriptions/{subscription_ids}", "GET", Notes = "This method returns an array containing the data of subscription IDs (array) posted to the system")]
-    public class GetSubscriptionDataRequest : RequestBase, IReturn<IEnumerable<SubscriptionPrice>>
+    public class GetSubscriptionDataRequest : RequestBase, IReturn<List<SubscriptionPrice>>
     {
         [ApiMember(Name = "subscription_ids", Description = "Subscriptions Identifiers", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public int[] subscription_ids { get; set; }
     }
 
     [Route("/subscriptions/{subscription_ids}/prices", "GET", Notes = "This method returns an array of the subscription data prices")]
-    public class GetSubscriptionDataPricesRequest : RequestBase, IReturn<IEnumerable<SubscriptionPrice>>
+    public class GetSubscriptionDataPricesRequest : RequestBase, IReturn<List<SubscriptionPrice>>
     {
         [ApiMember(Name = "subscription_ids", Description = "Subscriptions Identifiers", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public int[] subscription_ids { get; set; }
@@ -31,7 +31,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Problematic routing - same as GetSubscriptionDataPricesRequest
     [Route("/subscriptions/{subscription_ids}/prices", "GET", Summary = "Get Subscription Prices With Coupon", Notes = "Get Subscription Prices With Coupon")]
-    public class GetSubscriptionsPricesWithCouponRequest : RequestBase, IReturn<IEnumerable<SubscriptionsPricesContainer>>
+    public class GetSubscriptionsPricesWithCouponRequest : RequestBase, IReturn<List<SubscriptionsPricesContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User ID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -55,7 +55,7 @@ namespace RestfulTVPApi.ServiceModel
     #region POST
 
     [Route("/subscriptions/{subscription_id}/medias", "POST", Notes = "This method returns an array of media assets belonging to a specific package (subscription)")]
-    public class GetMediasInPackageRequest : PagingRequest, IReturn<IEnumerable<Media>>
+    public class GetMediasInPackageRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "subscription_id", Description = "Subscription Identifier", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int subscription_id { get; set; }

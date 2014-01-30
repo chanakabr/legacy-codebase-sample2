@@ -23,7 +23,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region GET
 
-        public HttpResult Get(GetFooterRequest request)
+        public object Get(GetFooterRequest request)
         {
             var response = _repository.GetFooter(request.InitObj, request.footer_id);
 
@@ -35,7 +35,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetGalleryRequest request)
+        public object Get(GetGalleryRequest request)
         {
             var response = _repository.GetGallery(request.InitObj, request.gallery_id, request.page_id);
 
@@ -47,7 +47,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetGalleryContentRequest request)
+        public object Get(GetGalleryContentRequest request)
         {
             var response = _repository.GetGalleryContent(request.InitObj, request.gallery_id, request.page_id, request.pic_size, request.page_size, request.page_number);
 
@@ -59,7 +59,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetGalleryItemContentRequest request)
+        public object Get(GetGalleryItemContentRequest request)
         {
             var response = _repository.GetGalleryItemContent(request.InitObj, request.item_id, request.gallery_id, request.page_id, request.pic_size, request.page_size, request.page_number, request.order_by);
 
@@ -71,7 +71,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetMenuRequest request)
+        public object Get(GetMenuRequest request)
         {
             var response = _repository.GetMenu(request.InitObj, request.menu_id);
 
@@ -83,7 +83,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetPageRequest request)
+        public object Get(GetPageRequest request)
         {
             var response = _repository.GetPage(request.InitObj, request.page_id, request.with_menu, request.with_footer);
 

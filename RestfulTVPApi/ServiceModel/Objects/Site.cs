@@ -39,7 +39,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/site/pages/{page_id}/galleries/{gallery_id}/items", "GET", Notes = "This method returns all gallery items for a specific gallery.")]
-    public class GetGalleryContentRequest : PagingRequest, IReturn<IEnumerable<GalleryItem>>
+    public class GetGalleryContentRequest : PagingRequest, IReturn<List<GalleryItem>>
     {
         [ApiMember(Name = "page_id", Description = "Page ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
         public long page_id { get; set; }
@@ -50,7 +50,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/site/pages/{page_id}/galleries/{gallery_id}/items/{item_id}", "GET", Notes = "This method returns content from specific gallery items.")]
-    public class GetGalleryItemContentRequest : PagingRequest, IReturn<IEnumerable<Media>>
+    public class GetGalleryItemContentRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "page_id", Description = "Page ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
         public long page_id { get; set; }

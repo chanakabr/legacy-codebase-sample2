@@ -10,14 +10,14 @@ namespace RestfulTVPApi.ServiceModel
     #region GET
 
     [Route("/epg/auto_complete/{search_text}", "GET", Notes = "This method returns a string array of EPG program names that starts with the given search text")]
-    public class GetEPGAutoCompleteRequest : PagingRequest, IReturn<IEnumerable<string>>
+    public class GetEPGAutoCompleteRequest : PagingRequest, IReturn<List<string>>
     {
         [ApiMember(Name = "search_text", Description = "Search Text", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string search_text { get; set; }
     }
 
     [Route("/epg/channels", "GET", Notes = "This method returns an array of EPG Channels for a specific account")]
-    public class GetEPGChannelsRequest : PagingRequest, IReturn<IEnumerable<EPGChannelObject>>
+    public class GetEPGChannelsRequest : PagingRequest, IReturn<List<EPGChannelObject>>
     {
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
@@ -27,14 +27,14 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/programs/{program_id}/comments", "GET", Notes = "This method returns a list of EPG comments created by users")]
-    public class GetEPGCommentsListRequest : PagingRequest, IReturn<IEnumerable<EPGComment>>
+    public class GetEPGCommentsListRequest : PagingRequest, IReturn<List<EPGComment>>
     {
         [ApiMember(Name = "program_id", Description = "Program ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int program_id { get; set; }
     }
 
     [Route("/epg/channels/{channel_ids}", "GET", Notes = "This method returns an array of EPG channel programs, for each EPG channel entered, and which is available for the time range entered. This method is usually followed by GetEPGChannels")]
-    public class GetEPGMultiChannelProgramRequest : PagingRequest, IReturn<IEnumerable<EPGMultiChannelProgrammeObject>>
+    public class GetEPGMultiChannelProgramRequest : PagingRequest, IReturn<List<EPGMultiChannelProgrammeObject>>
     {
         [ApiMember(Name = "channel_ids", Description = "Channels IDs", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public string[] channel_ids { get; set; }
@@ -52,7 +52,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/programs", "GET", Notes = "This method searches the EPG programs by search text")]
-    public class SearchEPGProgramsRequest : PagingRequest, IReturn<IEnumerable<EPGChannelProgrammeObject>>
+    public class SearchEPGProgramsRequest : PagingRequest, IReturn<List<EPGChannelProgrammeObject>>
     {
         [ApiMember(Name = "search_text", Description = "Search Text", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string search_text { get; set; }
@@ -86,7 +86,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/programs/{program_id}/rules", "GET", Notes = "This method returns an array containing the EPG program’s rules. These are the same rules as GetGroupRules.")]
-    public class GetEPGProgramRulesRequest : RequestBase, IReturn<IEnumerable<GroupRule>>
+    public class GetEPGProgramRulesRequest : RequestBase, IReturn<List<GroupRule>>
     {
         [ApiMember(Name = "program_id", Description = "Program ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int program_id { get; set; }

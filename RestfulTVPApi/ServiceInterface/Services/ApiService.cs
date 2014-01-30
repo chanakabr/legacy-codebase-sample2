@@ -21,7 +21,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region GET
 
-        public HttpResult Get(GetCouponStatusRequest request)
+        public object Get(GetCouponStatusRequest request)
         {
             var response = _repository.GetCouponStatus(request.InitObj, request.coupon_code);
 
@@ -33,7 +33,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetPPVModuleDataRequest request)
+        public object Get(GetPPVModuleDataRequest request)
         {
             var response = _repository.GetPPVModuleData(request.InitObj, request.ppv_code);
 
@@ -45,14 +45,14 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetIPToCountryRequest request)
+        public object Get(GetIPToCountryRequest request)
         {
             var response = _repository.GetIPToCountry(request.InitObj, request.ip);
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetSecuredSiteGuidRequest request)
+        public object Get(GetSecuredSiteGuidRequest request)
         {
             string response = string.Empty;
 
@@ -64,21 +64,21 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetSiteGuidFromSecuredRequest request)
+        public object Get(GetSiteGuidFromSecuredRequest request)
         {
             var response = _repository.GetSiteGuidFromSecured(request.InitObj, request.encrypted_site_guid);
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetUserDataByCoGuidRequest request)
+        public object Get(GetUserDataByCoGuidRequest request)
         {
             var response = _repository.GetUserDataByCoGuid(request.InitObj, request.co_guid, request.operator_id);
 
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetCountriesListRequest request)
+        public object Get(GetCountriesListRequest request)
         {
             var response = _repository.GetCountriesList(request.InitObj);
 
@@ -90,7 +90,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetGoogleSignatureRequest request)
+        public object Get(GetGoogleSignatureRequest request)
         {
             var response = _repository.GetGoogleSignature(request.InitObj, request.customer_id);
 
@@ -102,7 +102,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Get(FBConfigRequest request)
+        public object Get(FBConfigRequest request)
         {
             var response = _repository.FBConfig(request.InitObj);
 
@@ -114,7 +114,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetFBUserDataRequest request)
+        public object Get(GetFBUserDataRequest request)
         {
             var response = _repository.GetFBUserData(request.InitObj, request.token);
 
@@ -125,7 +125,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
-        public HttpResult Get(GetDomainByCoGuidRequest request)
+        public object Get(GetDomainByCoGuidRequest request)
         {
             var response = _repository.GetDomainByCoGuid(request.InitObj, request.co_guid);
 
@@ -137,7 +137,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetDomainIDsByOperatorCoGuidRequest request)
+        public object Get(GetDomainIDsByOperatorCoGuidRequest request)
         {
             var response = _repository.GetDomainIDsByOperatorCoGuid(request.InitObj, request.operator_co_guid);
 
@@ -149,7 +149,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetDomainIDByCoGuidRequest request)
+        public object Get(GetDomainIDByCoGuidRequest request)
         {
             var response = _repository.GetDomainIDByCoGuid(request.InitObj, request.co_guid);
 
@@ -165,7 +165,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region PUT
 
-        public HttpResult Put(ActivateCampaignRequest request)
+        public object Put(ActivateCampaignRequest request)
         {
             var response = _repository.ActivateCampaign(request.InitObj, request.site_guid, request.campaign_id, request.hash_code, request.media_id, request.media_link, request.sender_email, request.sender_name,
                                                         request.status, request.voucher_receipents);
@@ -173,7 +173,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(response, HttpStatusCode.OK);
         }
 
-        public HttpResult Put(FBUserMergeRequest request)
+        public object Put(FBUserMergeRequest request)
         {
             var response = _repository.FBUserMerge(request.InitObj, request.token, request.facebook_id, request.user_name, request.password);
 
@@ -189,7 +189,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region POST
 
-        public HttpResult Post(FBUserRegisterRequest request)
+        public object Post(FBUserRegisterRequest request)
         {
             var response = _repository.FBUserRegister(request.InitObj, request.token, request.create_new_domain, request.get_newsletter);
 
@@ -201,7 +201,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Post(RegisterDeviceByPINRequest request)
+        public object Post(RegisterDeviceByPINRequest request)
         {
             var response = _repository.RegisterDeviceByPIN(request.InitObj, request.pin);
 

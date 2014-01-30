@@ -22,7 +22,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         #region GET
 
-        public HttpResult Get(GetChannelMultiFilterRequest request)
+        public object Get(GetChannelMultiFilterRequest request)
         {
             var response = _repository.GetChannelMultiFilter(request.InitObj, request.channel_id, request.pic_size, request.page_size, request.page_number, request.order_by, request.order_dir, request.tags_metas, request.cut_with);
 
@@ -34,7 +34,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetChannelsListRequest request)
+        public object Get(GetChannelsListRequest request)
         {
             var response = _repository.GetChannelsList(request.InitObj, request.pic_size);
 
@@ -46,7 +46,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetCategoryRequest request)
+        public object Get(GetCategoryRequest request)
         {
             var response = _repository.GetCategory(request.InitObj, request.category_id);
 
@@ -58,7 +58,7 @@ namespace RestfulTVPApi.ServiceInterface
             return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
         }
 
-        public HttpResult Get(GetFullCategoryRequest request)
+        public object Get(GetFullCategoryRequest request)
         {
             var response = _repository.GetFullCategory(request.InitObj, request.category_id, request.pic_size);
 

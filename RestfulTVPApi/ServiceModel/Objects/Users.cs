@@ -13,28 +13,28 @@ namespace RestfulTVPApi.ServiceModel
     #region GET
 
     [Route("/users/{site_guids}", "GET", Notes = "This method returns the user details, as an array, for each user ID entered. When entering user IDs, enter them in a single string, separated by a semicolon.")]
-    public class GetUsersDataRequest : RequestBase, IReturn<UserResponseObject[]>
+    public class GetUsersDataRequest : RequestBase, IReturn<List<UserResponseObject>>
     {
         [ApiMember(Name = "site_guids", Description = "Users Identifiers", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guids { get; set; }
     }
 
     [Route("/users/{site_guid}/subscriptions/permitted", "GET", Notes = "This method returns an array of media subscriptions that were purchased by the user including time, date, viewing and purchase details. ")]
-    public class GetUserPermitedSubscriptionsRequest : RequestBase, IReturn<IEnumerable<PermittedSubscriptionContainer>>
+    public class GetUserPermitedSubscriptionsRequest : RequestBase, IReturn<List<PermittedSubscriptionContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
     }
 
     [Route("/users/{site_guid}/subscriptions/expired", "GET", Notes = "This method returns an array of subscriptions that the user has purchased and which are now expired. Example: Can display the expired subscriptions items in the user’s personal zone.")]
-    public class GetUserExpiredSubscriptionsRequest : PagingRequest, IReturn<IEnumerable<PermittedSubscriptionContainer>>
+    public class GetUserExpiredSubscriptionsRequest : PagingRequest, IReturn<List<PermittedSubscriptionContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
     }
 
     [Route("/users/{site_guid}/items", "GET", Notes = "This method returns an array of user items (favorites, rentals etc.,). The media type returns within the media object. Use this method to obtain all personal information for user‟s personal zone")]
-    public class GetUserItemsRequest : PagingRequest, IReturn<IEnumerable<PermittedMediaContainer>>
+    public class GetUserItemsRequest : PagingRequest, IReturn<List<PermittedMediaContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -46,28 +46,28 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/medias/permitted", "GET", Notes = "This method returns an array of media file items that were purchased by the user including time, date, viewing and purchase details. ")]
-    public class GetUserPermittedItemsRequest : RequestBase, IReturn<IEnumerable<PermittedMediaContainer>>
+    public class GetUserPermittedItemsRequest : RequestBase, IReturn<List<PermittedMediaContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
     }
 
     [Route("/users/{site_guid}/medias/expired", "GET", Notes = "This method returns an array of media items that the user has purchased and which are now expired. Example: Can display the expired items in the user’s personal zone.")]
-    public class GetUserExpiredItemsRequest : PagingRequest, IReturn<IEnumerable<PermittedMediaContainer>>
+    public class GetUserExpiredItemsRequest : PagingRequest, IReturn<List<PermittedMediaContainer>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
     }
 
     [Route("/users/{site_guid}/medias/favorites", "GET", Summary = "Get User Favorites", Notes = "Get User Favorites")]
-    public class GetUserFavoritesRequest : RequestBase, IReturn<IEnumerable<FavoriteObject>>
+    public class GetUserFavoritesRequest : RequestBase, IReturn<List<FavoriteObject>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
     }
 
     [Route("/users/{site_guid}/rules", "GET", Summary = "Get User Group Rules", Notes = "Get User Group Rules")]
-    public class GetUserGroupRulesRequest : RequestBase, IReturn<IEnumerable<GroupRule>>
+    public class GetUserGroupRulesRequest : RequestBase, IReturn<List<GroupRule>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -95,7 +95,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/lists/{list_type}", "GET", Summary = "Get Item From List", Notes = "Get Item From List")]
-    public class GetItemFromListRequest : RequestBase, IReturn<IEnumerable<UserItemList>>
+    public class GetItemFromListRequest : RequestBase, IReturn<List<UserItemList>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -108,7 +108,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/lists/{list_type}/exists", "GET", Notes = "This method checks whether an item exists or does not exist in a list. It queries the list for an array of specific item. Return is an array of Booleans for each item.")]
-    public class IsItemExistsInListRequest : RequestBase, IReturn<IEnumerable<KeyValuePair<string, string>>>
+    public class IsItemExistsInListRequest : RequestBase, IReturn<List<KeyValuePair<string, string>>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -121,7 +121,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/pre_paid_balance", "GET", Summary = "Get User", Notes = "Get User")]
-    public class GetPrepaidBalanceRequest : RequestBase, IReturn<IEnumerable<string>>
+    public class GetPrepaidBalanceRequest : RequestBase, IReturn<List<string>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -141,7 +141,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/medias/last_watched", "GET", Notes = "This method returns an array listing the last watched media (without reference to time period).")]
-    public class GetLastWatchedMediasByPeriodRequest : RequestBase, IReturn<IEnumerable<Media>>
+    public class GetLastWatchedMediasByPeriodRequest : RequestBase, IReturn<List<Media>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -155,7 +155,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/medias/social", "GET", Summary = "Get Last Watched Medias", Notes = "Get Last Watched Medias")]
-    public class GetUserSocialMediasRequest : PagingRequest, IReturn<IEnumerable<Media>>
+    public class GetUserSocialMediasRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -185,7 +185,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guids}/billing_history", "GET", Notes = "This method returns a user‟s billing history for a given time range.")]
-    public class GetUsersBillingHistoryRequest : RequestBase, IReturn<IEnumerable<UserBillingTransactionsResponse>>
+    public class GetUsersBillingHistoryRequest : RequestBase, IReturn<List<UserBillingTransactionsResponse>>
     {
         [ApiMember(Name = "site_guids", Description = "User's Identifiers", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public string[] site_guids { get; set; }
@@ -196,7 +196,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guids}/last_billing_info", "GET", Notes = "Returns last billing information of the user. This is used when sending previous billing information to the payment server (e.g., VISA). Presented to user for OK. Goal is for user to verify and approve")]
-    public class GetLastBillingUserInfoRequest : RequestBase, IReturn<IEnumerable<AdyenBillingDetail>>
+    public class GetLastBillingUserInfoRequest : RequestBase, IReturn<List<AdyenBillingDetail>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -205,7 +205,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/medias/{media_ids}/are_favorites", "GET", Notes = "Send list of mediaIDs, returns is an array of key value pairs (the media asset ID, 'True' = Is user favorite; 'False' = Is not user favorite)")]
-    public class AreMediasFavoriteRequest : RequestBase, IReturn<IEnumerable<KeyValuePair<long, bool>>>
+    public class AreMediasFavoriteRequest : RequestBase, IReturn<List<KeyValuePair<long, bool>>>
     {
         [ApiMember(Name = "site_guid", Description = "User ID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -215,7 +215,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Ofir - expose with_dynamic? Should be in Media?
     [Route("/users/{site_guid}/medias/recommended", "GET", Notes = "This method returns an array of recommended media filtered by media type")]
-    public class GetRecommendedMediasByTypesRequest : PagingRequest, IReturn<IEnumerable<Media>>
+    public class GetRecommendedMediasByTypesRequest : PagingRequest, IReturn<List<Media>>
     {
         [ApiMember(Name = "site_guid", Description = "User ID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -228,7 +228,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/notifications", "GET", Notes = "This method gets device notifications.")]
-    public class GetDeviceNotificationsRequest : PagingRequest, IReturn<IEnumerable<Notification>>
+    public class GetDeviceNotificationsRequest : PagingRequest, IReturn<List<Notification>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -241,7 +241,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/notifications/tags", "GET", Notes = "This method returns the tags the user is currently subscribed to for followup notifications. Related to FollowUpByTag.")]
-    public class GetUserStatusSubscriptionsRequest : RequestBase, IReturn<IEnumerable<Notification>>
+    public class GetUserStatusSubscriptionsRequest : RequestBase, IReturn<List<Notification>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -249,7 +249,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Ofir - Change route?
     [Route("/users/{site_guid}/medias/unfinished", "GET", Notes = "This method returns an array containing the media object IDs of media that the user started watching, but did not finish watching.")]
-    public class GetUserStartedWatchingMediasRequest : PagingRequest, IReturn<IEnumerable<string>>
+    public class GetUserStartedWatchingMediasRequest : PagingRequest, IReturn<List<string>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -263,14 +263,14 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/friends/medias/watched", "GET", Notes = "This method returns records listing user friend, media watched, and last date media was last watched by the user’s friends.")]
-    public class GetAllFriendsWatchedRequest : PagingRequest, IReturn<IEnumerable<FriendWatchedObject>>
+    public class GetAllFriendsWatchedRequest : PagingRequest, IReturn<List<FriendWatchedObject>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
     }
 
     [Route("/users/{site_guid}/friends/social_platforms/{social_platform}/actions", "GET", Notes = "This method returns all social actions carried out by friends. Note: The result is filtered according to the input parameters.")]
-    public class GetFriendsActionsRequest : PagingRequest, IReturn<IEnumerable<UserSocialActionObject>>
+    public class GetFriendsActionsRequest : PagingRequest, IReturn<List<UserSocialActionObject>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -287,7 +287,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/social_platforms/{social_platform}/actions", "GET", Notes = "This method returns all the social actions carried out by the user. Note: the results are filtered according to the specified parameters.")]
-    public class GetUserActionsRequest : PagingRequest, IReturn<IEnumerable<UserSocialActionObject>>
+    public class GetUserActionsRequest : PagingRequest, IReturn<List<UserSocialActionObject>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -305,7 +305,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/users/{site_guid}/social_platforms/facebook/privacy_settings", "GET", Notes = "This method returns the user’s social privacy-level options as listed/configured on the based upon the privacy configured at his the user’s social network. Note: These are the social network privacy settings, not the Tvinci privacy settings.")]
-    public class GetUserAllowedSocialPrivacyListRequest : PagingRequest, IReturn<IEnumerable<eSocialPrivacy>>
+    public class GetUserAllowedSocialPrivacyListRequest : PagingRequest, IReturn<List<eSocialPrivacy>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -331,7 +331,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //??? ask avi
     [Route("/users/{site_guid}/social_platforms/facebook/friends", "GET", Notes = "This method returns a list containing all of the user's friends.")]
-    public class GetUserFriendsRequest : PagingRequest, IReturn<IEnumerable<string>>
+    public class GetUserFriendsRequest : PagingRequest, IReturn<List<string>>
     {
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }

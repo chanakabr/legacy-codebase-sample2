@@ -42,46 +42,47 @@ namespace RestfulTVPApi
             {
                 //EnableFeatures = Feature.Json | Feature.Xml,
                 //WriteErrorsToResponse = false,
-                DefaultContentType = ContentType.Json,
-                CustomHttpHandlers = { { HttpStatusCode.NotFound, new CustomNotFoundHttpHandler() } }
+                //DefaultContentType = ContentType.Json,
+                CustomHttpHandlers = { { HttpStatusCode.NotFound, new CustomNotFoundHttpHandler() } },
             });
 
             //Exception outside of services
             this.ExceptionHandler = (IHttpRequest httpReq, IHttpResponse httpRes, string operationName, Exception ex) =>
             {
-                HttpError dto = null;
+                HttpError httpError = null;
 
                 if (ex is HttpError)
                 {
-                    dto = new HttpError(new ResponseStatus("HttpException", ex.Message), ((HttpError)ex).StatusCode, ((HttpError)ex).StatusCode.ToString(), string.Empty);
+                    httpError = new HttpError(new ResponseStatus("HttpException", ex.Message), ((HttpError)ex).StatusCode, ((HttpError)ex).StatusCode.ToString(), string.Empty);
                 }
                 else if (ex is RequestBindingException)
                 {
-                    dto = new HttpError(new ResponseStatus("RequestBindingException", ex.InnerException.InnerException.Message), HttpStatusCode.BadRequest, HttpStatusCode.BadRequest.ToString(), string.Empty);
+                    httpError = new HttpError(new ResponseStatus("RequestBindingException", ex.InnerException.InnerException.Message), HttpStatusCode.BadRequest, HttpStatusCode.BadRequest.ToString(), string.Empty);
                 }
                 else
                 {
-                    dto = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), "Unexpected Error."), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
+                    httpError = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), "Unexpected Error."), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
                 }
 
-                ServiceStack.WebHost.Endpoints.Extensions.HttpResponseExtensions.WriteToResponse‌(httpRes, httpReq, dto);
+                ServiceStack.WebHost.Endpoints.Extensions.HttpResponseExtensions.WriteToResponse‌(httpRes, httpReq, httpError);
             };
 
             //Exception inside of services
-            this.ServiceExceptionHandler = (httpReq, request, ex) => {
+            this.ServiceExceptionHandler = (httpReq, request, ex) =>
+            {
 
-                HttpError dto = null;
+                HttpError httpError = null;
 
                 if (ex is UnknownGroupException)
                 {
-                    dto = new HttpError(new ResponseStatus("UnknownGroupException", "Please check you init Object."), HttpStatusCode.Unauthorized, HttpStatusCode.Unauthorized.ToString(), string.Empty);
+                    httpError = new HttpError(new ResponseStatus("UnknownGroupException", "Please check X-Init-Object."), HttpStatusCode.Unauthorized, HttpStatusCode.Unauthorized.ToString(), string.Empty);
                 }
                 else
                 {
-                    dto = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), "Unexpected Error."), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
+                    httpError = new HttpError(new ResponseStatus(ex.GetType().ToTypeString(), "Unexpected Error."), HttpStatusCode.InternalServerError, HttpStatusCode.InternalServerError.ToString(), string.Empty);
                 }
 
-                return dto;
+                return httpError;
             };
 		}
 

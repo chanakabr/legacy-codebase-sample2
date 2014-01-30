@@ -27,7 +27,7 @@ namespace RestfulTVPApi.ServiceModel
 
     ////Move to api?
     //[Route("/domains/{operator_co_guid}", "GET", Summary = "Returns all domain IDs belonging to a specific Operator by its co guid", Notes = "Returns all domain IDs belonging to a specific Operator by its co guid")]
-    //public class GetDomainIDsByOperatorCoGuidRequest : RequestBase, IReturn<IEnumerable<int>>
+    //public class GetDomainIDsByOperatorCoGuidRequest : RequestBase, IReturn<List<int>>
     //{
     //    [ApiMember(Name = "operator_co_guid", Description = "The operator coguid", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
     //    public string operator_co_guid { get; set; }
@@ -42,28 +42,28 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/devices/{udid}/domains", "GET", Summary = "Get the domains to which a device is associated", Notes = "Get a device's domains")]
-    public class GetDeviceDomainsRequest : RequestBase, IReturn<IEnumerable<DomainResponseObject>>
+    public class GetDeviceDomainsRequest : RequestBase, IReturn<List<DomainResponseObject>>
     {
         [ApiMember(Name = "udid", Description = "Device id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string udid { get; set; }
     }
 
     [Route("/domains/{domain_id}/rules", "GET", Summary = "returns the rules for the domain", Notes = "returns the rules for the domain")]
-    public class GetDomainGroupRulesRequest : RequestBase, IReturn<IEnumerable<GroupRule>>
+    public class GetDomainGroupRulesRequest : RequestBase, IReturn<List<GroupRule>>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
     [Route("/domains/{domain_id}/medias/permitted", "GET", Summary = "Gets all the items permitted for the users in a given domain", Notes = "Gets all the items permitted for the users in a given domain")]
-    public class GetDomainPermittedItemsRequest : RequestBase, IReturn<IEnumerable<PermittedMediaContainer>>
+    public class GetDomainPermittedItemsRequest : RequestBase, IReturn<List<PermittedMediaContainer>>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
     }
 
     [Route("/domains/{domain_id}/subscriptions/permitted", "GET", Summary = "Gets all subscriptions permitted to the users in a given domain", Notes = "Gets all subscriptions permitted to the users in a given domain.")]
-    public class GetDomainPermittedSubscriptionsRequest : RequestBase, IReturn<IEnumerable<PermittedSubscriptionContainer>>
+    public class GetDomainPermittedSubscriptionsRequest : RequestBase, IReturn<List<PermittedSubscriptionContainer>>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
@@ -135,7 +135,7 @@ namespace RestfulTVPApi.ServiceModel
     //}
 
     [Route("/domains/{domain_ids}/billing_history", "POST", Summary = "Returns the billing history for an array of domains in a given time range", Notes = "Returns the billing history for an array of domains in a given time range")]
-    public class GetDomainsBillingHistoryRequest : RequestBase, IReturn<IEnumerable<DomainBillingTransactionsResponse>>
+    public class GetDomainsBillingHistoryRequest : RequestBase, IReturn<List<DomainBillingTransactionsResponse>>
     {
         [ApiMember(Name = "domain_ids", Description = "Domain ids", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public int[] domain_ids { get; set; }
