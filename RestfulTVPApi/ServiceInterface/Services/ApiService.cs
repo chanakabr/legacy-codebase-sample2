@@ -9,6 +9,7 @@ using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using System;
+using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -205,7 +206,7 @@ namespace RestfulTVPApi.ServiceInterface
         {
             var response = _repository.RegisterDeviceByPIN(request.InitObj, request.pin);
 
-            if ((Nullable<TVPApiModule.Services.ApiDomainsService.DeviceRegistration>)response == null)
+            if (response == null)
             {
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }

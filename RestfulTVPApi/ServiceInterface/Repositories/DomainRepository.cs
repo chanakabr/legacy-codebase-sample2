@@ -49,27 +49,15 @@ namespace RestfulTVPApi.ServiceInterface
             return domainRes;
         }
 
-        public IEnumerable<TVPApiModule.Services.ApiDomainsService.DeviceDomain> GetDeviceDomains(InitializationObject initObj, string udId)
+        public IEnumerable<DeviceDomain> GetDeviceDomains(InitializationObject initObj, string udId)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                IEnumerable<TVPApiModule.Services.ApiDomainsService.DeviceDomain> devDomains = null;
+                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
 
-                IEnumerable<Domain> domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
-
-                if (domains != null && domains.Any())
-                {
-                    devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
-
-                    //for (int i = 0; i < domains.Count(); i++)
-                    //{
-                    //    devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain() { DomainID = domains[i].domain_id, DomainName = domains[i].name, SiteGuid = domains[i].master_guids[0].ToString() };
-                    //}
-                }     
-                
-                return devDomains;
+                return _service.GetDeviceDomains(initObj.UDID);
             }
             else
             {
@@ -157,8 +145,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                //Ofir - need to make sure irena changes site_guid to string
-                resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, Convert.ToInt32(initObj.SiteGuid), int.Parse(addedUserGuid));
+                resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, initObj.SiteGuid, int.Parse(addedUserGuid));
             }
             else
             {
@@ -328,7 +315,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SubmitAddUserToDomainRequest(int.Parse(siteGuid), masterUsername);
+                resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).SubmitAddUserToDomainRequest(siteGuid, masterUsername);
             }
             else
             {

@@ -18,7 +18,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         TVPApiModule.Objects.Responses.DomainResponseObject AddUserToDomain(InitializationObject initObj, string addedUserGuid, int domainId);
 
-        IEnumerable<ApiDomainsService.DeviceDomain> GetDeviceDomains(InitializationObject initObj, string udId);
+        IEnumerable<DeviceDomain> GetDeviceDomains(InitializationObject initObj, string udId);
 
         //TVPApiModule.Objects.Responses.DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid);
 

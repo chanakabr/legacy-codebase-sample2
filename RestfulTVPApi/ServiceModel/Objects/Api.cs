@@ -155,7 +155,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Ofir - response object needs to be changed from struct
     [Route("/rpc/register_device_by_pin/{udid}", "POST", Summary = "registers a new device to a domain from an input PIN code", Notes = "registers a new device to a domain from an input PIN code")]
-    public class RegisterDeviceByPINRequest : RequestBase, IReturn<TVPApiModule.Services.ApiDomainsService.DeviceRegistration>
+    public class RegisterDeviceByPINRequest : RequestBase, IReturn<DeviceRegistration>
     {
         [ApiMember(Name = "udid", Description = "Device ID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string udid { get; set; }

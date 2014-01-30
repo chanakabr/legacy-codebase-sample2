@@ -27,6 +27,11 @@ namespace RestfulTVPApi.ServiceInterface
                 throw new HttpError(HttpStatusCode.InternalServerError, "Unexpected Error.");
             }
 
+            if (response.Count() == 0)
+            {
+                return new HttpResult(response, HttpStatusCode.NotFound);
+            }
+
             return base.RequestContext.ToPartialResponse(response);
         }
 
@@ -41,10 +46,10 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response.Count() == 0)
             {
-                return new HttpResult("", HttpStatusCode.NotFound);
+                return new HttpResult(response, HttpStatusCode.NotFound);
             }
 
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return base.RequestContext.ToPartialResponse(response);
         }
 
         public object Get(GetUserExpiredSubscriptionsRequest request)
@@ -56,7 +61,12 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            if (response.Count() == 0)
+            {
+                return new HttpResult(response, HttpStatusCode.NotFound);
+            }
+
+            return base.RequestContext.ToPartialResponse(response);
         }
 
         public object Get(GetUserPermittedItemsRequest request)
@@ -68,7 +78,12 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            if (response.Count() == 0)
+            {
+                return new HttpResult(response, HttpStatusCode.NotFound);
+            }
+
+            return base.RequestContext.ToPartialResponse(response);
         }
 
         public object Get(GetUserExpiredItemsRequest request)
@@ -80,7 +95,12 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            if (response.Count() == 0)
+            {
+                return new HttpResult(response, HttpStatusCode.NotFound);
+            }
+
+            return base.RequestContext.ToPartialResponse(response);
         }
 
         public object Get(GetUserFavoritesRequest request)
@@ -89,10 +109,15 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (response == null)
             {
-                throw new HttpError(HttpStatusCode.InternalServerError, "Unexpected Error.");
+                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
-            return base.RequestContext.ToPartialResponse(response);
+            if (response.Count() == 0)
+            {
+                return new HttpResult(response, HttpStatusCode.NotFound);
+            }
+
+            return base.RequestContext.ToPartialResponse(response.ToList());
         }
 
         public object Get(GetUserGroupRulesRequest request)
@@ -104,21 +129,26 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
             }
 
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            if (response.Count() == 0)
+            {
+                return new HttpResult(response, HttpStatusCode.NotFound);
+            }
+
+            return base.RequestContext.ToPartialResponse(response);
         }
 
         public object Get(CheckGroupRuleRequest request)
         {
             var response = _repository.CheckGroupRule(request.InitObj, request.site_guid, request.rule_id, request.pin);
 
-            return new HttpResult(response, HttpStatusCode.OK);
+            return response;
         }
 
         public object Get(RenewUserPINRequest request)
         {
             var response = _repository.RenewUserPIN(request.InitObj, request.site_guid, request.rule_id);
 
-            return new HttpResult(response, HttpStatusCode.OK);
+            return response;
         }
 
         public object Get(GetItemFromListRequest request)

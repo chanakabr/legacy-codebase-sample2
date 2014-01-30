@@ -39,6 +39,6 @@ namespace RestfulTVPApi.ServiceInterface
 
         int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid);
 
-        TVPApiModule.Services.ApiDomainsService.DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin);
+        DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin);
     }
 }

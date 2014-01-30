@@ -1,16 +1,11 @@
-﻿using ServiceStack.PartialResponse.ServiceModel;
-using RestfulTVPApi.ServiceModel;
-using ServiceStack.Api.Swagger;
-using ServiceStack.Common.Web;
-using ServiceStack.ServiceHost;
+﻿using System.Net;
 using ServiceStack.ServiceInterface;
+using ServiceStack.Common.Web;
+using ServiceStack.PartialResponse.ServiceModel;
+using RestfulTVPApi.ServiceModel;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Web;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPApiModule.Objects.Responses;
+using ServiceStack.ServiceHost;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -123,7 +118,7 @@ namespace RestfulTVPApi.ServiceInterface
                 return new HttpResult(HttpStatusCode.InternalServerError);
             }
 
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return base.RequestContext.ToPartialResponse(response);
         }
 
         //public object Get(GetDomainByCoGuidRequest request)

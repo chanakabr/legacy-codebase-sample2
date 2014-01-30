@@ -160,10 +160,10 @@ namespace RestfulTVPApi.ServiceInterface
 
                 FBConnectConfig retVal = new FBConnectConfig
                 {
-                    appId = fbConfig.fb_key,
+                    app_id = fbConfig.fb_key,
                     scope = fbConfig.fb_permissions,
-                    apiUser = initObj.ApiUser,
-                    apiPass = initObj.ApiPass
+                    api_user = initObj.ApiUser,
+                    api_pass = initObj.ApiPass
                 };
 
                 return retVal;
@@ -274,33 +274,37 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public TVPApiModule.Services.ApiDomainsService.DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin)
+        public DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin)
         {
-            TVPApiModule.Services.ApiDomainsService.DeviceRegistration deviceRes = new TVPApiModule.Services.ApiDomainsService.DeviceRegistration();
-            
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "RegisterDeviceByPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                TVPApiModule.Services.ApiDomainsService service = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform);
-                DeviceResponseObject device = service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
+                DeviceRegistration deviceRegistration = null;
 
-                if (device == null || device.device_response_status == DeviceResponseStatus.Error)
-                    deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Error;
-                else if (device.device_response_status == DeviceResponseStatus.DuplicatePin || device.device_response_status == DeviceResponseStatus.DeviceNotExists)
-                    deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Invalid;
-                else
+                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
+
+                DeviceResponseObject device = _service.RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
+
+                if (device != null)
                 {
-                    deviceRes.RegStatus = TVPApiModule.Services.ApiDomainsService.eDeviceRegistrationStatus.Success;
-                    deviceRes.UDID = device.device.device_udid;
+                    if (device.device_response_status == DeviceResponseStatus.Error)
+                        deviceRegistration.reg_status = eDeviceRegistrationStatus.Error;
+                    else if (device.device_response_status == DeviceResponseStatus.DuplicatePin || device.device_response_status == DeviceResponseStatus.DeviceNotExists)
+                        deviceRegistration.reg_status = eDeviceRegistrationStatus.Invalid;
+                    else
+                    {
+                        deviceRegistration.reg_status = eDeviceRegistrationStatus.Success;
+                        deviceRegistration.udid = device.device.device_udid;
+                    }
                 }
+                
+                return deviceRegistration;
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return deviceRes;
         }
 
     }
