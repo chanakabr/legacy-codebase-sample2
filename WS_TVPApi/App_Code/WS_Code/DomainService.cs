@@ -505,6 +505,30 @@ namespace TVPApiServices
             return resDomains;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get Device Info")]
+        public DeviceResponseObject GetDeviceInfo(InitializationObject initObj, string sId, bool bIsUDID)
+        {
+            DeviceResponseObject deviceInfo = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    deviceInfo = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).GetDeviceInfo(sId, bIsUDID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+
+            return deviceInfo;
+
+        }
+          
+
         
     }
 }
