@@ -359,5 +359,21 @@ namespace TVPApiModule.Services
             return response;
         }
 
+
+        public DeviceResponseObject GetDeviceInfo(string sId, bool bIsUDID)
+        {
+            DeviceResponseObject deviceInfo = null;
+
+            try
+            {
+                deviceInfo = m_Module.GetDeviceInfo(m_wsUserName, m_wsPassword, sId, bIsUDID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error in GetDeviceInfo, Error : {0} Parameters : Id: {1} : isUDID : {2}", ex.Message, sId, bIsUDID);
+            }
+
+            return deviceInfo;
+        }
     }
 }
