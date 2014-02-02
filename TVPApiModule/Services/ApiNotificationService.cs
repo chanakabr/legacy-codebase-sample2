@@ -36,9 +36,10 @@ namespace TVPApiModule.Services
             m_platform = platform;
         }
 
-        public IEnumerable<Notification> GetDeviceNotifications(string sGuid, string sDeviceUDID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
+        public List<Notification> GetDeviceNotifications(string sGuid, string sDeviceUDID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
         {
             List<Notification> res = new List<Notification>();
+
             try
             {
                 var notificationMessages = m_Client.GetDeviceNotifications(m_wsUserName, m_wsPassword, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
@@ -145,7 +146,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public IEnumerable<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(string sGuid)
+        public List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(string sGuid)
         {
             Dictionary<string, string[]> clientRes = new Dictionary<string, string[]>();
             List<TVPApi.TagMetaPairArray> finalRes = new List<TagMetaPairArray>();

@@ -56,12 +56,16 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public IEnumerable<MediaFilePPVModule> GetPPVModuleListForMediaFiles(int[] mediaFiles, string sCountry, string sLanguage, string sDevice)
+        public List<MediaFilePPVModule> GetPPVModuleListForMediaFiles(int[] mediaFiles, string sCountry, string sLanguage, string sDevice)
         {
-            IEnumerable<MediaFilePPVModule> response = null;
+            List<MediaFilePPVModule> retVal = null;
+
             try
             {
-                response = m_Module.GetPPVModuleListForMediaFiles(m_wsUserName, m_wsPassword, mediaFiles, sCountry, sLanguage, sDevice);
+                var response = m_Module.GetPPVModuleListForMediaFiles(m_wsUserName, m_wsPassword, mediaFiles, sCountry, sLanguage, sDevice);
+
+                if (response != null)
+                    retVal = response.ToList();
             }
             catch (Exception ex)
             {
@@ -72,20 +76,19 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : GetPPVModuleListForMediaFiles, Error Message: {0} Parameters: Medias: {1}", ex.Message, sb.ToString());
             }
 
-            return response;
+            return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingMediaFile(int iMediaID, int iMediaFileID)
+        public List<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingMediaFile(int iMediaID, int iMediaFileID)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
+            List<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
 
             try
             {
                 var response = m_Module.GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+
                 if (response != null)
-                {
-                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject());
-                }
+                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -147,48 +150,56 @@ namespace TVPApiModule.Services
             return couponStatus;
         }
 
-        public IEnumerable<Campaign> GetCampaignsByType(CampaignTrigger trigger, bool isAlsoInactive, string udid)
+        public List<Campaign> GetCampaignsByType(CampaignTrigger trigger, bool isAlsoInactive, string udid)
         {
-            IEnumerable<Campaign> campaigns = null;
+            List<Campaign> retVal = null;
+
             try
             {
-                campaigns = m_Module.GetCampaignsByType(m_wsUserName, m_wsPassword, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
+                var response = m_Module.GetCampaignsByType(m_wsUserName, m_wsPassword, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
+
+                if (response != null)
+                    retVal = response.ToList();
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : GetCampaignsByType, Error Message: {0}", ex.Message);
             }
 
-            return campaigns;
+            return retVal;
         }
 
-        public IEnumerable<int> GetSubscriptionIDsContainingMediaFile(int iMediaID, int iMediaFileID)
+        public List<int> GetSubscriptionIDsContainingMediaFile(int iMediaID, int iMediaFileID)
         {
-            IEnumerable<int> subscriptions = null;
+            List<int> retVal = null;
 
             try
             {
-                subscriptions = m_Module.GetSubscriptionIDsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+                var response = m_Module.GetSubscriptionIDsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+
+                if (response != null)
+                    retVal = response.ToList();
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionIDsContainingMediaFile, Error Message: {0}, Parameters :  iMediaID: {1}, iMediaFileID : {2}", ex.Message, iMediaID, iMediaFileID);
             }
 
-            return subscriptions;
+            return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingUserTypes(int isActive, int[] userTypesIDs)
+        public List<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingUserTypes(int isActive, int[] userTypesIDs)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
+            List<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
             string sUserTypesIDs = string.Empty;
 
             try
             {                
                 var response = m_Module.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
+                
                 if (response != null)
                 {
-                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject());
+                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
                 }
             }
             catch (Exception ex)

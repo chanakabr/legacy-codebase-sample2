@@ -52,7 +52,7 @@ namespace RestfulTVPApi.ServiceInterface
             return retPageGallery;
         }
 
-        public IEnumerable<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index)
+        public List<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -66,7 +66,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
+        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 

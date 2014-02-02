@@ -11,9 +11,9 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public interface IMediasRepository
     {
-        IEnumerable<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaID, string picSize);
+        List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaID, string picSize);
 
-        IEnumerable<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
+        List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
 
         bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive);
 
@@ -23,19 +23,19 @@ namespace RestfulTVPApi.ServiceInterface
 
         string MediaHit(InitializationObject initObj, int mediaType, int iMediaID, int iFileID, int iLocation);
 
-        IEnumerable<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, List<int> reqMediaTypes);
+        List<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, List<int> reqMediaTypes);
 
-        IEnumerable<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex);
+        List<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex);
 
-        IEnumerable<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName);
+        List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName);
 
         bool SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail);
 
-        IEnumerable<string> GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes);
+        List<string> GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes);
 
-        IEnumerable<int> GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
+        List<int> GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
 
-        IEnumerable<MediaFileItemPricesContainer> GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+        List<MediaFileItemPricesContainer> GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
 
         bool IsItemPurchased(InitializationObject initObj, string sSiteGUID, int iFileID);
 
@@ -47,6 +47,6 @@ namespace RestfulTVPApi.ServiceInterface
 
         bool ActionDone(InitializationObject initObj, string sSiteGUID, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
 
-        IEnumerable<string> GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize);
+        List<string> GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize);
     }
 }

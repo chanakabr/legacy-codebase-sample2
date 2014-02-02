@@ -9,7 +9,7 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class SubscriptionsRepository : ISubscriptionsRepository
     {
-        public IEnumerable<Media> GetMediasInPackage(InitializationObject initObj, int baseID, int mediaType, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetMediasInPackage(InitializationObject initObj, int baseID, int mediaType, string picSize, int pageSize, int pageIndex)
         {
             List<Media> lstMedia = null;
 
@@ -31,7 +31,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
-        public IEnumerable<SubscriptionPrice> GetSubscriptionDataPrices(InitializationObject initObj, int[] subIDs)
+        public List<SubscriptionPrice> GetSubscriptionDataPrices(InitializationObject initObj, int[] subIDs)
         {
             List<SubscriptionPrice> res = new List<SubscriptionPrice>();
 
@@ -77,7 +77,7 @@ namespace RestfulTVPApi.ServiceInterface
             return res;
         }
 
-        public IEnumerable<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs)
+        public List<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs)
         {
             List<Subscription> res = new List<Subscription>();
 
@@ -100,7 +100,7 @@ namespace RestfulTVPApi.ServiceInterface
             return res;
         }
 
-        public IEnumerable<SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string sSiteGUID, string[] sSubscriptions, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public List<SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string sSiteGUID, string[] sSubscriptions, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsPricesWithCoupon", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

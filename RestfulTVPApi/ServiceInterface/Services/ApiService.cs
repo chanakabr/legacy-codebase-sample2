@@ -24,142 +24,70 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetCouponStatusRequest request)
         {
-            var response = _repository.GetCouponStatus(request.InitObj, request.coupon_code);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetCouponStatus(request.InitObj, request.coupon_code);
         }
 
         public object Get(GetPPVModuleDataRequest request)
         {
-            var response = _repository.GetPPVModuleData(request.InitObj, request.ppv_code);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetPPVModuleData(request.InitObj, request.ppv_code);
         }
 
         public object Get(GetIPToCountryRequest request)
         {
-            var response = _repository.GetIPToCountry(request.InitObj, request.ip);
-
-            return new HttpResult(response, HttpStatusCode.OK);
+            return _repository.GetIPToCountry(request.InitObj, request.ip);
         }
 
         public object Get(GetSecuredSiteGuidRequest request)
         {
-            string response = string.Empty;
-
             string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
             string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
 
-            response = SecurityHelper.EncryptSiteGuid(privateKey, IV, request.site_guid);
-
-            return new HttpResult(response, HttpStatusCode.OK);
+            return SecurityHelper.EncryptSiteGuid(privateKey, IV, request.site_guid);
         }
 
         public object Get(GetSiteGuidFromSecuredRequest request)
         {
-            var response = _repository.GetSiteGuidFromSecured(request.InitObj, request.encrypted_site_guid);
-
-            return new HttpResult(response, HttpStatusCode.OK);
+            return _repository.GetSiteGuidFromSecured(request.InitObj, request.encrypted_site_guid);
         }
 
         public object Get(GetUserDataByCoGuidRequest request)
         {
-            var response = _repository.GetUserDataByCoGuid(request.InitObj, request.co_guid, request.operator_id);
-
-            return new HttpResult(response, HttpStatusCode.OK);
+            return _repository.GetUserDataByCoGuid(request.InitObj, request.co_guid, request.operator_id);
         }
 
         public object Get(GetCountriesListRequest request)
         {
-            var response = _repository.GetCountriesList(request.InitObj);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetCountriesList(request.InitObj);
         }
 
         public object Get(GetGoogleSignatureRequest request)
         {
-            var response = _repository.GetGoogleSignature(request.InitObj, request.customer_id);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(response, HttpStatusCode.OK);
+            return _repository.GetGoogleSignature(request.InitObj, request.customer_id);
         }
 
         public object Get(FBConfigRequest request)
         {
-            var response = _repository.FBConfig(request.InitObj);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.FBConfig(request.InitObj);
         }
 
         public object Get(GetFBUserDataRequest request)
         {
-            var response = _repository.GetFBUserData(request.InitObj, request.token);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetFBUserData(request.InitObj, request.token);
         }
+
         public object Get(GetDomainByCoGuidRequest request)
         {
-            var response = _repository.GetDomainByCoGuid(request.InitObj, request.co_guid);
-
-            if (response == null)
-            {
-                return new HttpResult(HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetDomainByCoGuid(request.InitObj, request.co_guid);
         }
 
         public object Get(GetDomainIDsByOperatorCoGuidRequest request)
         {
-            var response = _repository.GetDomainIDsByOperatorCoGuid(request.InitObj, request.operator_co_guid);
-
-            if (response == null)
-            {
-                return new HttpResult(HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(response, HttpStatusCode.OK);
+            return _repository.GetDomainIDsByOperatorCoGuid(request.InitObj, request.operator_co_guid);
         }
 
         public object Get(GetDomainIDByCoGuidRequest request)
         {
-            var response = _repository.GetDomainIDByCoGuid(request.InitObj, request.co_guid);
-
-            if (response == null)
-            {
-                return new HttpResult(HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(response, HttpStatusCode.OK);
+            return _repository.GetDomainIDByCoGuid(request.InitObj, request.co_guid);
         }
 
         #endregion
@@ -168,22 +96,13 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Put(ActivateCampaignRequest request)
         {
-            var response = _repository.ActivateCampaign(request.InitObj, request.site_guid, request.campaign_id, request.hash_code, request.media_id, request.media_link, request.sender_email, request.sender_name,
+            return _repository.ActivateCampaign(request.InitObj, request.site_guid, request.campaign_id, request.hash_code, request.media_id, request.media_link, request.sender_email, request.sender_name,
                                                         request.status, request.voucher_receipents);
-
-            return new HttpResult(response, HttpStatusCode.OK);
         }
 
         public object Put(FBUserMergeRequest request)
         {
-            var response = _repository.FBUserMerge(request.InitObj, request.token, request.facebook_id, request.user_name, request.password);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.FBUserMerge(request.InitObj, request.token, request.facebook_id, request.user_name, request.password);
         }
 
         #endregion
@@ -192,28 +111,12 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Post(FBUserRegisterRequest request)
         {
-            var response = _repository.FBUserRegister(request.InitObj, request.token, request.create_new_domain, request.get_newsletter);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.FBUserRegister(request.InitObj, request.token, request.create_new_domain, request.get_newsletter);
         }
 
         public object Post(RegisterDeviceByPINRequest request)
         {
-            var response = _repository.RegisterDeviceByPIN(request.InitObj, request.pin);
-
-            if (response == null)
-            {
-                return new HttpResult(HttpStatusCode.InternalServerError);
-            }
-
-            var responseDTO = response.ToDto();
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(responseDTO), HttpStatusCode.OK);
+            return _repository.RegisterDeviceByPIN(request.InitObj, request.pin);
         }
 
         #endregion

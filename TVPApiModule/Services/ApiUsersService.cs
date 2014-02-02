@@ -51,6 +51,7 @@ namespace TVPApiModule.Services
         #endregion C'tor
 
         #region Public methods
+
         public TVPApiModule.Objects.Responses.UserResponseObject ValidateUser(string userName, string password, bool isDoubleLogin)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
@@ -164,16 +165,16 @@ namespace TVPApiModule.Services
             return IsRemoved;
         }
 
-        public IEnumerable<FavoriteObject> GetUserFavorites(string sSiteGuid, string sItemType, int iDomainID, string sUDID)
+        public List<FavoriteObject> GetUserFavorites(string sSiteGuid, string sItemType, int iDomainID, string sUDID)
         {
-            IEnumerable<FavoriteObject> retVal = null;
+            List<FavoriteObject> retVal = null;
 
             try
             {
-
                 var response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+
                 if (response != null && response.Length > 0)
-                    retVal = response.Where(f => f != null).Select(f => f.ToApiObject());
+                    retVal = response.Where(f => f != null).Select(f => f.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -283,15 +284,16 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.UserResponseObject> GetUsersData(string sSiteGuids)
+        public List<TVPApiModule.Objects.Responses.UserResponseObject> GetUsersData(string sSiteGuids)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.UserResponseObject> response = null;
+            List<TVPApiModule.Objects.Responses.UserResponseObject> response = null;
 
             try
             {
                 var res = m_Module.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(';'));
+
                 if (res != null)
-                    response = res.Where(ur => ur != null).Select(u => u.ToApiObject());
+                    response = res.Where(ur => ur != null).Select(u => u.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -656,15 +658,16 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.UserBasicData> SearchUsers(string[] sTerms, string[] sFields, bool bIsExact)
+        public List<TVPApiModule.Objects.Responses.UserBasicData> SearchUsers(string[] sTerms, string[] sFields, bool bIsExact)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.UserBasicData> response = null;
+            List<TVPApiModule.Objects.Responses.UserBasicData> response = null;
 
             try
             {
                 var res = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+
                 if (res != null)
-                    response = res.Where(ubd => ubd != null).Select(u => u.ToApiObject());
+                    response = res.Where(ubd => ubd != null).Select(u => u.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -686,14 +689,16 @@ namespace TVPApiModule.Services
             }
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.Country> GetCountriesList()
+        public List<TVPApiModule.Objects.Responses.Country> GetCountriesList()
         {
-            IEnumerable<TVPApiModule.Objects.Responses.Country> response = null;
+            List<TVPApiModule.Objects.Responses.Country> response = null;
+
             try
             {
                 var res = m_Module.GetCountryList(m_wsUserName, m_wsPassword);
+
                 if (res != null)
-                    response = res.Where(c => c != null).Select(c => c.ToApiObject());
+                    response = res.Where(c => c != null).Select(c => c.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -720,14 +725,15 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.UserType> GetGroupUserTypes()
+        public List<TVPApiModule.Objects.Responses.UserType> GetGroupUserTypes()
         {
-            IEnumerable<TVPApiModule.Objects.Responses.UserType> response = null;
+            List<TVPApiModule.Objects.Responses.UserType> response = null;
+
             try
             {
                 var res = m_Module.GetGroupUserTypes(m_wsUserName, m_wsPassword);
                 if (res != null)
-                    response = res.Where(ut => ut != null).Select(u => u.ToApiObject());
+                    response = res.Where(ut => ut != null).Select(u => u.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -883,9 +889,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.UserItemList> GetItemFromList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public List<TVPApiModule.Objects.Responses.UserItemList> GetItemFromList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.UserItemList> response = null;
+            List<TVPApiModule.Objects.Responses.UserItemList> response = null;
 
             try
             {
@@ -897,9 +903,11 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
+
                 var res = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+
                 if (res != null)
-                    response = res.Where(uil => uil != null).Select(u => u.ToApiObject());
+                    response = res.Where(uil => uil != null).Select(u => u.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -910,9 +918,9 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.KeyValuePair> IsItemExistsInList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public List<TVPApiModule.Objects.Responses.KeyValuePair> IsItemExistsInList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.KeyValuePair> response = null;
+            List<TVPApiModule.Objects.Responses.KeyValuePair> response = null;
             
             try
             {
@@ -925,8 +933,9 @@ namespace TVPApiModule.Services
 
                 };
                 var res = m_Module.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+
                 if (res != null)
-                    response = res.Where(kv => kv != null).Select(kv => kv.ToApiObject());
+                    response = res.Where(kv => kv != null).Select(kv => kv.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {

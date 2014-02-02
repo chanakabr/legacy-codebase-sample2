@@ -10,9 +10,9 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public interface IChannelsRepository
     {
-        IEnumerable<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith);
+        List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith);
 
-        IEnumerable<Channel> GetChannelsList(InitializationObject initObj, string sPicSize);
+        List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize);
 
         Category GetCategory(InitializationObject initObj, int categoryID);
 

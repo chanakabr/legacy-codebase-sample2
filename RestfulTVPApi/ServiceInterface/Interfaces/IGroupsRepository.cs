@@ -10,8 +10,8 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public interface IGroupsRepository
     {
-        IEnumerable<GroupOperator> GetGroupOperators(InitializationObject initObj, string scope);
+        List<GroupOperator> GetGroupOperators(InitializationObject initObj, string scope);
 
-        IEnumerable<GroupRule> GetGroupRules(InitializationObject initObj);
+        List<GroupRule> GetGroupRules(InitializationObject initObj);
     }
 }

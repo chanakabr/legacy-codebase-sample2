@@ -12,7 +12,7 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class EpgRepository : IEpgRepository
     {
-        public IEnumerable<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
+        public List<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
         {
             List<string> retVal = null;
 
@@ -38,7 +38,7 @@ namespace RestfulTVPApi.ServiceInterface
             return retVal;
         }
 
-        public IEnumerable<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
+        public List<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGChannels", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -54,7 +54,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(InitializationObject initObj, int epgProgramID, int pageSize, int pageIndex)
+        public List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(InitializationObject initObj, int epgProgramID, int pageSize, int pageIndex)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGCommentsList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -68,7 +68,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public List<EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGMultiChannelProgram", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -84,7 +84,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
+        public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
         {
             List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> retVal = null;
 
@@ -110,7 +110,7 @@ namespace RestfulTVPApi.ServiceInterface
             return retVal;
         }
 
-        public IEnumerable<GroupRule> GetEPGProgramRules(InitializationObject initObj, string sSiteGUID, int MediaId, int programId)
+        public List<GroupRule> GetEPGProgramRules(InitializationObject initObj, string sSiteGUID, int MediaId, int programId)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetEPGProgramRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

@@ -161,32 +161,32 @@ namespace TVPApiModule.Services
             return domain;
         }
 
-        public IEnumerable<DeviceDomain> GetDeviceDomains(string udid)
+        public List<DeviceDomain> GetDeviceDomains(string udid)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.Domain> domains = null;
-            DeviceDomain[] devDomains = null;
-
+            List<DeviceDomain> retVal = null;
 
             try
             {
                 var response = m_Module.GetDeviceDomains(m_wsUserName, m_wsPassword, udid);
+
                 if (response != null)
-                    domains = response.Where(d => d != null).Select(d => d.ToApiObject());
+                {
+                    IEnumerable<TVPApiModule.Objects.Responses.Domain> domains = response.Where(d => d != null).Select(d => d.ToApiObject());
 
-                if (domains == null || domains.Count() == 0)
-                    return devDomains;
-
-                devDomains = new DeviceDomain[domains.Count()];
-
-                for (int i = 0; i < domains.Count(); i++)
-                    devDomains[i] = new DeviceDomain() { domain_id = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].domain_id, domain_name = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].name, site_guid = ((TVPApiModule.Objects.Responses.Domain[])domains)[i].master_guids[0].ToString() };
+                    retVal = domains.Select(m => new DeviceDomain()
+                    {
+                        domain_id = m.domain_id,
+                        domain_name = m.name,
+                        site_guid = m.master_guids[0].ToString()
+                    }).ToList();
+                }
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : GetDeviceDomains, Error Message: {0} Parameters: udid: {1}", ex.Message, udid);
             }
 
-            return devDomains;
+            return retVal;
         }
 
         public string GetPINForDevice(string udid, int devBrandID)
@@ -363,20 +363,23 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public IEnumerable<int> GetDomainIDsByOperatorCoGuid(string operatorCoGuid)
+        public List<int> GetDomainIDsByOperatorCoGuid(string operatorCoGuid)
         {
-            IEnumerable<int> response = null;
+            List<int> retVal = null;
 
             try
             {
-                response = m_Module.GetDomainIDsByOperatorCoGuid(m_wsUserName, m_wsPassword, operatorCoGuid);
+                var response = m_Module.GetDomainIDsByOperatorCoGuid(m_wsUserName, m_wsPassword, operatorCoGuid);
+                
+                if (response != null)
+                    retVal = response.ToList();
             }
             catch (Exception e)
             {
                 logger.ErrorFormat("Error in GetDomainIDsByOperatorCoGuid, Error : {0} Parameters : operatorCoGuid: {1}", e.Message, operatorCoGuid);
             }
 
-            return response;
+            return retVal;
         }
 
     }

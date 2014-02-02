@@ -14,7 +14,7 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class GroupsRepository : IGroupsRepository
     {
-        public IEnumerable<GroupOperator> GetGroupOperators(InitializationObject initObj, string scope)
+        public List<GroupOperator> GetGroupOperators(InitializationObject initObj, string scope)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupOperators", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -30,7 +30,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<GroupRule> GetGroupRules(InitializationObject initObj)
+        public List<GroupRule> GetGroupRules(InitializationObject initObj)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

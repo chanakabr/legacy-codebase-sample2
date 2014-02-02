@@ -25,89 +25,40 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetFooterRequest request)
         {
-            var response = _repository.GetFooter(request.InitObj, request.footer_id);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetFooter(request.InitObj, request.footer_id);
         }
 
         public object Get(GetGalleryRequest request)
         {
-            var response = _repository.GetGallery(request.InitObj, request.gallery_id, request.page_id);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetGallery(request.InitObj, request.gallery_id, request.page_id);
         }
 
         public object Get(GetGalleryContentRequest request)
         {
-            var response = _repository.GetGalleryContent(request.InitObj, request.gallery_id, request.page_id, request.pic_size, request.page_size, request.page_number);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetGalleryContent(request.InitObj, request.gallery_id, request.page_id, request.pic_size, request.page_size, request.page_number);
         }
 
         public object Get(GetGalleryItemContentRequest request)
         {
-            var response = _repository.GetGalleryItemContent(request.InitObj, request.item_id, request.gallery_id, request.page_id, request.pic_size, request.page_size, request.page_number, request.order_by);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetGalleryItemContent(request.InitObj, request.item_id, request.gallery_id, request.page_id, request.pic_size, request.page_size, request.page_number, request.order_by);
         }
 
         public object Get(GetMenuRequest request)
         {
-            var response = _repository.GetMenu(request.InitObj, request.menu_id);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetMenu(request.InitObj, request.menu_id);
         }
 
         public object Get(GetPageRequest request)
         {
-            var response = _repository.GetPage(request.InitObj, request.page_id, request.with_menu, request.with_footer);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetPage(request.InitObj, request.page_id, request.with_menu, request.with_footer);
         }
 
         #endregion
 
         #region PUT
-
-        
-
-
         #endregion
 
         #region POST
-
-        
-
         #endregion
 
         #region DELETE

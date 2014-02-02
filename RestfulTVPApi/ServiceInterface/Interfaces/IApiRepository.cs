@@ -21,7 +21,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
 
-        IEnumerable<Country> GetCountriesList(InitializationObject initObj);
+        List<Country> GetCountriesList(InitializationObject initObj);
 
         string GetGoogleSignature(InitializationObject initObj, int customerId);
 
@@ -35,7 +35,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         TVPApiModule.Objects.Responses.DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid);
 
-        IEnumerable<int> GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid);
+        List<int> GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid);
 
         int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid);
 

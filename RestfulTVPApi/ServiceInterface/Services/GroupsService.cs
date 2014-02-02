@@ -25,26 +25,12 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetGroupOperatorsRequest request)
         {
-            var response = _repository.GetGroupOperators(request.InitObj, request.scope);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetGroupOperators(request.InitObj, request.scope);
         }
 
         public object Get(GetGroupRulesRequest request)
         {
-            var response = _repository.GetGroupRules(request.InitObj);
-
-            if (response == null)
-            {
-                return new HttpResult(string.Empty, HttpStatusCode.InternalServerError);
-            }
-
-            return new HttpResult(base.RequestContext.ToPartialResponse(response), HttpStatusCode.OK);
+            return _repository.GetGroupRules(request.InitObj);
         }
 
         #endregion

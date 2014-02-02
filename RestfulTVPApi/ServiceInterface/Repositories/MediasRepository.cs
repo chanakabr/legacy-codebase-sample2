@@ -15,7 +15,7 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class MediasRepository : IMediasRepository
     {
-        public IEnumerable<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaIDs, string picSize)
+        public List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaIDs, string picSize)
         {
             List<Media> retMedia = null;
 
@@ -36,7 +36,7 @@ namespace RestfulTVPApi.ServiceInterface
             return retMedia;
         }
 
-        public IEnumerable<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex)
+        public List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaComments", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -108,7 +108,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, List<int> reqMediaTypes)
+        public List<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, List<int> reqMediaTypes)
         {
             List<Media> lstMedia = null;
 
@@ -129,7 +129,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
-        public IEnumerable<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex)
         {
             List<Media> lstMedia = null;
 
@@ -150,7 +150,7 @@ namespace RestfulTVPApi.ServiceInterface
             return lstMedia;
         }
 
-        public IEnumerable<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName)
+        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName)
         {
             List<Media> lstMedia = null;
 
@@ -188,7 +188,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<string> GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes)
+        public List<string> GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetAutoCompleteSearchList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -220,7 +220,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<int> GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
+        public List<int> GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionIDsContainingMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -236,7 +236,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<MediaFileItemPricesContainer> GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public List<MediaFileItemPricesContainer> GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemsPricesWithCoupons", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -345,7 +345,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<string> GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize)
+        public List<string> GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersLikedMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             

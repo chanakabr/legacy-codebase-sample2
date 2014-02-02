@@ -40,9 +40,8 @@ namespace RestfulTVPApi
 
             SetConfig(new EndpointHostConfig
             {
-                //EnableFeatures = Feature.Json | Feature.Xml,
-                //WriteErrorsToResponse = false,
-                //DefaultContentType = ContentType.Json,
+                EnableFeatures = Feature.Json | Feature.Xml,
+                DefaultContentType = ContentType.Json,
                 CustomHttpHandlers = { { HttpStatusCode.NotFound, new CustomNotFoundHttpHandler() } },
             });
 
@@ -70,7 +69,6 @@ namespace RestfulTVPApi
             //Exception inside of services
             this.ServiceExceptionHandler = (httpReq, request, ex) =>
             {
-
                 HttpError httpError = null;
 
                 if (ex is UnknownGroupException)

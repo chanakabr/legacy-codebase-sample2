@@ -18,7 +18,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         TVPApiModule.Objects.Responses.DomainResponseObject AddUserToDomain(InitializationObject initObj, string addedUserGuid, int domainId);
 
-        IEnumerable<DeviceDomain> GetDeviceDomains(InitializationObject initObj, string udId);
+        List<DeviceDomain> GetDeviceDomains(InitializationObject initObj, string udId);
 
         //TVPApiModule.Objects.Responses.DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid);
 
@@ -44,19 +44,19 @@ namespace RestfulTVPApi.ServiceInterface
 
         TVPApiModule.Objects.Responses.DomainResponseObject SubmitAddUserToDomainRequest(InitializationObject initObj, string siteGuid, string masterUsername);
 
-        IEnumerable<TVPApiModule.Objects.Responses.GroupRule> GetDomainGroupRules(InitializationObject initObj, int domainId);
+        List<TVPApiModule.Objects.Responses.GroupRule> GetDomainGroupRules(InitializationObject initObj, int domainId);
 
         bool SetDomainGroupRule(InitializationObject initObj, int domainId, int ruleID, string PIN, int isActive);
 
-        IEnumerable<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate);
+        List<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate);
 
         TVPApiModule.Objects.Responses.DomainResponseObject AddDomainWithCoGuid(InitializationObject initObj, string domainName, string domainDesc, int masterGuid, string coGuid);
 
         //int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid);
 
-        IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetDomainPermittedItems(InitializationObject initObj, int domainId);
+        List<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetDomainPermittedItems(InitializationObject initObj, int domainId);
 
-        IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(InitializationObject initObj, int domainId);
+        List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(InitializationObject initObj, int domainId);
 
         bool SetRuleState(InitializationObject initObj, int ruleID, int isActive);
     }

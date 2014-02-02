@@ -6,6 +6,8 @@ using System.Web;
 using ServiceStack.Common.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.WebHost.Endpoints;
+using ServiceStack.PartialResponse.ServiceModel;
+using System.Collections;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -23,8 +25,8 @@ namespace RestfulTVPApi.ServiceInterface
 
         public override object OnAfterExecute(IRequestContext requestContext, object response)
         {
-            if ((response != null) && !(response is CompressedResult))
-                response = requestContext.ToOptimizedResult(response);  
+            if (response != null)
+                response = requestContext.ToOptimizedResult(requestContext.ToPartialResponse(response));
 
             return base.OnAfterExecute(requestContext, response);
         }

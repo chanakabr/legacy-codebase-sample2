@@ -17,8 +17,6 @@ namespace RestfulTVPApi.ServiceInterface
         public bool ActivateCampaign(InitializationObject initObj, string siteGuid, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
                                                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionResult status, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.VoucherReceipentInfo[] voucherReceipents)
         {
-            bool res = false;
-
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ActivateCampaign", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
@@ -31,8 +29,6 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 throw new UnknownGroupException();
             }
-
-            return res;
         }
 
         public CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode)
@@ -116,7 +112,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<Country> GetCountriesList(InitializationObject initObj)
+        public List<Country> GetCountriesList(InitializationObject initObj)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetCountriesList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -242,7 +238,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public IEnumerable<int> GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
+        public List<int> GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDsByOperatorCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

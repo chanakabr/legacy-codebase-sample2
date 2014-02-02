@@ -138,15 +138,16 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetUserPermittedItems(string sSiteGuid)
+        public List<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetUserPermittedItems(string sSiteGuid)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> retVal = null;
+            List<TVPApiModule.Objects.Responses.PermittedMediaContainer> retVal = null;
 
             try
             {
                 var response = m_Module.GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
+                
                 if (response != null)
-                    retVal = response.Where(pmc => pmc != null).Select(m => m.ToApiObject()); 
+                    retVal = response.Where(pmc => pmc != null).Select(m => m.ToApiObject()).ToList(); 
             }
             catch (Exception ex)
             {
@@ -156,15 +157,16 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> GetItemsPrice(int[] fileArray, string sSiteGuid, bool bOnlyLowest)
+        public List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> GetItemsPrice(int[] fileArray, string sSiteGuid, bool bOnlyLowest)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> retVal = null;
+            List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> retVal = null;
 
             try
             {
                 var response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+
                 if (response != null)
-                    retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject());
+                    retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -174,15 +176,16 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetUserPermitedSubscriptions(string sSiteGuid)
+        public List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetUserPermitedSubscriptions(string sSiteGuid)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> retVal = null;
+            List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> retVal = null;
 
             try
             {
                 var response = m_Module.GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
+
                 if (response != null)
-                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject());
+                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -209,15 +212,16 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetUserExpiredItems(string sSiteGuid, int numOfItems)
+        public List<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetUserExpiredItems(string sSiteGuid, int numOfItems)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> retVal = null;
+            List<TVPApiModule.Objects.Responses.PermittedMediaContainer> retVal = null;
 
             try
             {
                 var response = m_Module.GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
+
                 if (response != null)
-                    retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject());
+                    retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToList();
 
             }
             catch (Exception ex)
@@ -227,15 +231,16 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetUserExpiredSubscriptions(string sSiteGuid, int numOfItems)
+        public List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetUserExpiredSubscriptions(string sSiteGuid, int numOfItems)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> retVal = null;
+            List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> retVal = null;
 
             try
             {
                 var response = m_Module.GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
+
                 if (response != null)
-                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject());
+                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
 
             }
             catch (Exception ex)
@@ -245,15 +250,16 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> GetSubscriptionsPrices(string sSiteGuid, string[] sSubscriptions, bool LowerPrice)
+        public List<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> GetSubscriptionsPrices(string sSiteGuid, string[] sSubscriptions, bool LowerPrice)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> returnObject = null;
+            List<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> returnObject = null;
 
             try
             {
                 var response = m_Module.GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+
                 if (response != null)
-                    returnObject = response.Where(sp => sp != null).Select(sp => sp.ToApiObject());
+                    returnObject = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -277,20 +283,28 @@ namespace TVPApiModule.Services
         //    return returnObject;
         //}
 
-        public IEnumerable<string> GetPrepaidBalance(string siteGuid, string currencyCode)
+        public List<string> GetPrepaidBalance(string siteGuid, string currencyCode)
         {
-            UserPrePaidContainer returnObject = null;
+            List<string> retVal = null;
 
             try
             {
-                returnObject = m_Module.GetUserPrePaidStatus(m_wsUserName, m_wsPassword, siteGuid, currencyCode);
+                var response = m_Module.GetUserPrePaidStatus(m_wsUserName, m_wsPassword, siteGuid, currencyCode);
+
+                if (response != null)
+                {
+                    retVal = new List<string>();
+
+                    retVal.Add((response.m_nTotalAmount - response.m_nAmountUsed).ToString());
+                    retVal.Add(response.m_sCurrencyCode);
+                }
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : GetPrepaidBalance, Error Message: {0}, Parameters : User: {1}", ex.Message, siteGuid);
             }
 
-            return new string[] { (returnObject.m_nTotalAmount - returnObject.m_nAmountUsed).ToString(), returnObject.m_sCurrencyCode };
+            return retVal;
         }
 
         public TVPApiModule.Objects.Responses.PrePaidResponseStatus PP_ChargeUserForMediaFile(string siteGuid, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode, string udid)
@@ -557,19 +571,23 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> GetItemsPricesWithCoupons(string siteGuid, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> GetItemsPricesWithCoupons(string siteGuid, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> retVal = null;
+            List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> retVal = null;
+
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
             string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            
             if (!string.IsNullOrEmpty(siteGuid))
             {
                 try
                 {
                     logger.InfoFormat("GetItemsPricesWithCoupons, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
+                    
                     var response = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+                    
                     if (response != null)
-                        retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject());
+                        retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -579,19 +597,23 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(string[] sSubscriptions, string siteGuid, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public List<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(string[] sSubscriptions, string siteGuid, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> retVal = null;
+            List<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> retVal = null;
+
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
             string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+
             if (!string.IsNullOrEmpty(siteGuid))
             {
                 try
                 {
                     logger.InfoFormat("GetSubscriptionsPricesWithCoupon, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
+                    
                     var response = m_Module.GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, siteGuid, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+                    
                     if (response != null)
-                        retVal = response.Where(sp => sp != null).Select(sp => sp.ToApiObject());
+                        retVal = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -604,13 +626,16 @@ namespace TVPApiModule.Services
         public bool IsPermittedItem(string siteGuid, int mediaId)
         {
             bool retVal = false;
+            
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
             string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            
             if (!string.IsNullOrEmpty(siteGuid))
             {
                 try
                 {
                     logger.InfoFormat("IsPermittedItem, Parameters : SiteGuid : {0} mediaId : {1}", siteGuid, mediaId);
+
                     retVal = m_Module.IsPermittedItem(wsUser, wsPass, siteGuid, mediaId);
                 }
                 catch (Exception ex)
@@ -725,15 +750,15 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.UserBillingTransactionsResponse> GetUsersBillingHistory(string[] siteGuids, DateTime startDate, DateTime endDate)
+        public List<TVPApiModule.Objects.Responses.UserBillingTransactionsResponse> GetUsersBillingHistory(string[] siteGuids, DateTime startDate, DateTime endDate)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.UserBillingTransactionsResponse> retVal = null;
+            List<TVPApiModule.Objects.Responses.UserBillingTransactionsResponse> retVal = null;
 
             try
             {
                 var response = m_Module.GetUsersBillingHistory(m_wsUserName, m_wsPassword, siteGuids, startDate, endDate);
                 if (response != null)
-                    retVal = response.Where(ubt => ubt != null).Select(ubt => ubt.ToApiObject());
+                    retVal = response.Where(ubt => ubt != null).Select(ubt => ubt.ToApiObject()).ToList();
 
             }
             catch (Exception ex)
@@ -743,15 +768,15 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> GetDomainsBillingHistory(int[] domainIDs, DateTime startDate, DateTime endDate)
+        public List<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> GetDomainsBillingHistory(int[] domainIDs, DateTime startDate, DateTime endDate)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> retVal = null;
+            List<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> retVal = null;
 
             try
             {
                 var response = m_Module.GetDomainsBillingHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
                 if (response != null)
-                    retVal = response.Where(dbt => dbt != null).Select(dbt => dbt.ToApiObject());
+                    retVal = response.Where(dbt => dbt != null).Select(dbt => dbt.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -760,15 +785,15 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetDomainPermittedItems(int domainID)
+        public List<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetDomainPermittedItems(int domainID)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.PermittedMediaContainer> retVal = null;
+            List<TVPApiModule.Objects.Responses.PermittedMediaContainer> retVal = null;
 
             try
             {
                 var response = m_Module.GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
                 if (response != null)
-                    retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject());
+                    retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
@@ -777,25 +802,25 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(int domainID)
+        public List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(int domainID)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> retVal = null;
+            List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> retVal = null;
 
             try
             {
                 var response = m_Module.GetDomainPermittedSubscriptions(m_wsUserName, m_wsPassword, domainID);
 
                 if (response != null)
-                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject());
+                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : GetDomainPermittedSubscriptions, Error Message: {0}, Parameters :  domainID: {1}", ex.Message, domainID);
             }
+
             return retVal;
         }
         
-
         #endregion
     }
 }
