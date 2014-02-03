@@ -7,6 +7,7 @@ using TVPApi;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.CatalogLoaders;
 
 namespace TVPApiModule.Services
 {
@@ -142,47 +143,48 @@ namespace TVPApiModule.Services
             return objEPGRes;
         }
 
-        public EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(string sChannelID, string sPicSize, DateTime fromDate, DateTime toDate, int utcOffset)
-        {
-            EPGChannelProgrammeObject[] objEPGRes = null;
-            try
-            {
-                objEPGRes = m_Module.GetEPGChannelProgrammeByDates(m_wsUserName, m_wsPassword, sChannelID, sPicSize, fromDate, toDate, utcOffset);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling web service protocol : GetEPGChannelProgrammeByDates, Error Message: {0}, IP: {1}", ex.Message, SiteHelper.GetClientIP());
-            }
-            return objEPGRes;
-        }
+        //public EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(string sChannelID, string sPicSize, DateTime fromDate, DateTime toDate, int utcOffset)
+        //{
+        //    EPGChannelProgrammeObject[] objEPGRes = null;
+        //    try
+        //    {
+        //        objEPGRes = m_Module.GetEPGChannelProgrammeByDates(m_wsUserName, m_wsPassword, sChannelID, sPicSize, fromDate, toDate, utcOffset);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.ErrorFormat("Error calling web service protocol : GetEPGChannelProgrammeByDates, Error Message: {0}, IP: {1}", ex.Message, SiteHelper.GetClientIP());
+        //    }
+        //    return objEPGRes;
+        //}
 
-        public EPGChannelProgrammeObject[] GetEPGChannel(string sChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
-        {
-            EPGChannelProgrammeObject[] objEPGProgramRes = null;
-            try
-            {
-                objEPGProgramRes = m_Module.GetEPGChannelProgramme(m_wsUserName, m_wsPassword, sChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, sChannelID, SiteHelper.GetClientIP());
-            }
-            return objEPGProgramRes;
-        }
+        //public EPGChannelProgrammeObject[] GetEPGChannel(string sChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        //{
+        //    EPGChannelProgrammeObject[] objEPGProgramRes = null;
+        //    try
+        //    {
+        //        objEPGProgramRes = m_Module.GetEPGChannelProgramme(m_wsUserName, m_wsPassword, sChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, sChannelID, SiteHelper.GetClientIP());
+        //    }
+        //    return objEPGProgramRes;
+        //}
 
-        public EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
-        {
-            EPGMultiChannelProgrammeObject[] objEPGProgramRes = null;
-            try
-            {
-                objEPGProgramRes = m_Module.GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGMultiChannelProgram, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, string.Join(",", sEPGChannelID), SiteHelper.GetClientIP());
-            }
-            return objEPGProgramRes;
-        }
+        //public EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        //{
+        //    EPGMultiChannelProgrammeObject[] objEPGProgramRes = null;
+        //    try
+        //    {
+        //        objEPGProgramRes = m_Module.GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+                
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGMultiChannelProgram, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, string.Join(",", sEPGChannelID), SiteHelper.GetClientIP());
+        //    }
+        //    return objEPGProgramRes;
+        //}
 
         public GroupRule[] GetGroupMediaRules(int MediaId, int siteGuid, string udid)
         {
