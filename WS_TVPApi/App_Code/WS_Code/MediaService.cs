@@ -2309,7 +2309,7 @@ namespace TVPApiServices
                            
 
                     loader.DeviceId = initObj.UDID;
-                    var loaderRes = loader.Execute() as TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[];
+                    var loaderRes = loader.Execute() as List<TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject>;
                     if (loaderRes != null && loaderRes.Count() > 0)
                         sRet = loaderRes[0].EPGChannelProgrammeObject;
                 }
@@ -2355,7 +2355,7 @@ namespace TVPApiServices
                     }
 
                     loader.DeviceId = initObj.UDID;
-                    var loaderRes = loader.Execute() as TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[];
+                    var loaderRes = loader.Execute() as List<TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject>;
                     if (loaderRes != null && loaderRes.Count() > 0)
                         sRet = loaderRes[0].EPGChannelProgrammeObject;
                 }
@@ -2402,7 +2402,7 @@ namespace TVPApiServices
                     }
 
                     loader.DeviceId = initObj.UDID;
-                    sRet = loader.Execute() as TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[];
+                    sRet = (loader.Execute() as List<TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject>).ToArray();
                 }
                 catch (Exception ex)
                 {
