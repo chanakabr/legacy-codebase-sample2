@@ -24,6 +24,7 @@ using TVPPro.SiteManager.DataEntities;
 using TVPApiModule.CatalogLoaders;
 using System.Configuration;
 using TVPPro.Configuration.OrcaRecommendations;
+using TVPPro.SiteManager.CatalogLoaders;
 
 namespace TVPApiServices
 {
@@ -2301,7 +2302,16 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = new ApiApiService(groupId, initObj.Platform).GetEPGChannelProgrammeByDates(channelID, picSize, fromDate, toDate, utcOffset);
+                    
+                    List<int> channelIDs = new List<int>() { int.Parse(channelID) };
+
+                    EPGLoader loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, fromDate, toDate, 0, 0);
+                           
+
+                    loader.DeviceId = initObj.UDID;
+                    var loaderRes = loader.Execute() as TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[];
+                    if (loaderRes != null && loaderRes.Count() > 0)
+                        sRet = loaderRes[0].EPGChannelProgrammeObject;
                 }
                 catch (Exception ex)
                 {
@@ -2326,7 +2336,28 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = new ApiApiService(groupId, initObj.Platform).GetEPGChannel(sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+                    EPGLoader loader;
+                    List<int> channelIDs = new List<int>() { int.Parse(sEPGChannelID) };
+                    switch (oUnit)
+                    {
+                        case TVPPro.SiteManager.TvinciPlatform.api.EPGUnit.Days:
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddDays(iFromOffset).DateTime, DateTimeOffset.UtcNow.AddDays(iToOffset).DateTime, 0, 0);
+                            break;
+                        case TVPPro.SiteManager.TvinciPlatform.api.EPGUnit.Hours:
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddHours(iFromOffset).DateTime, DateTimeOffset.UtcNow.AddHours(iToOffset).DateTime, 0, 0);
+                            break;
+                        case TVPPro.SiteManager.TvinciPlatform.api.EPGUnit.Current:
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, iFromOffset, iToOffset);
+                            break;
+                        default:
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, iFromOffset, iToOffset);
+                            break;
+                    }
+
+                    loader.DeviceId = initObj.UDID;
+                    var loaderRes = loader.Execute() as TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[];
+                    if (loaderRes != null && loaderRes.Count() > 0)
+                        sRet = loaderRes[0].EPGChannelProgrammeObject;
                 }
                 catch (Exception ex)
                 {
@@ -2352,7 +2383,26 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = new ApiApiService(groupId, initObj.Platform).GetEPGMultiChannelProgram(sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+                    EPGLoader loader;
+                    List<int> channelIDs = sEPGChannelID.Select(c => int.Parse(c)).ToList();
+                    switch (oUnit)
+                    {
+                        case TVPPro.SiteManager.TvinciPlatform.api.EPGUnit.Days:
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddDays(iFromOffset).DateTime, DateTimeOffset.UtcNow.AddDays(iToOffset).DateTime, 0, 0);
+                            break;
+                        case TVPPro.SiteManager.TvinciPlatform.api.EPGUnit.Hours:
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddHours(iFromOffset).DateTime, DateTimeOffset.UtcNow.AddHours(iToOffset).DateTime, 0, 0);
+                            break;
+                        case TVPPro.SiteManager.TvinciPlatform.api.EPGUnit.Current:
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, iFromOffset, iToOffset);
+                            break;
+                        default:
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, iFromOffset, iToOffset);
+                            break;
+                    }
+
+                    loader.DeviceId = initObj.UDID;
+                    sRet = loader.Execute() as TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject[];
                 }
                 catch (Exception ex)
                 {
