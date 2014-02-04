@@ -83,7 +83,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : ChargeUserForMediaFileUsingCC, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
             }
 
-            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            return string.Format("{0}|{1}|{2}", response.m_oStatus.ToString(), response.m_sStatusDescription, response.m_sStatusDescription);
         }
 
         public string DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
@@ -131,7 +131,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : ChargeUserForSubscriptionUsingCC, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
             }
 
-            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            return string.Format("{0}|{1}|{2}", response.m_oStatus.ToString(), response.m_sStatusDescription, response.m_sStatusDescription);
         }
 
         public bool CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
@@ -496,7 +496,7 @@ namespace TVPApiModule.Services
                                                   deviceName,
                                                   assetType,
                                                   overrideEndDate,
-                                                  string.Empty);
+                                                  string.Empty,);
 
                 logger.InfoFormat("Protocol: GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}, overrideEndDate - {13}",
                                   siteGuid,
