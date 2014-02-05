@@ -1359,7 +1359,7 @@ namespace TVPApiServices
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items.Add("Error", "Unknown group");                
             }
 
             return bRet;
@@ -1717,7 +1717,7 @@ namespace TVPApiServices
                     System.Collections.ArrayList al = new System.Collections.ArrayList();
                     foreach (int fileID in fileIds)
                     {
-                        MediaFileItemPricesContainer[] tmpRes = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(new int[] { fileID }, initObj.SiteGuid, bOnlyLowest);
+                        MediaFileItemPricesContainer[] tmpRes = new ApiConditionalAccessService(groupId, initObj.Platform).GetItemsPrice(new int[] { fileID }, initObj.SiteGuid, initObj.UDID, bOnlyLowest);
                         if (tmpRes != null)
                             al.AddRange(tmpRes);
                     }

@@ -182,13 +182,13 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid, bool bOnlyLowest)
+        public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid,string sUDID, bool bOnlyLowest)
         {
             MediaFileItemPricesContainer[] response = null;
 
             try
             {
-                response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, sUDID, SiteHelper.GetClientIP());
             }
             catch (Exception ex)
             {
@@ -196,6 +196,11 @@ namespace TVPApiModule.Services
             }
 
             return response;
+        }
+
+        public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid, bool bOnlyLowest)
+        {
+            return GetItemsPrice(fileArray, sSiteGuid, string.Empty, bOnlyLowest);
         }
 
         public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(string sSiteGuid)
