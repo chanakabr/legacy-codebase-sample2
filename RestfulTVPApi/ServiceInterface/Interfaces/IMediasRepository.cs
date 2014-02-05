@@ -5,6 +5,8 @@ using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApi;
+using TVPApiModule.Context;
+using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceInterface
@@ -45,7 +47,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         PrePaidResponseStatus ChargeMediaWithPrepaid(InitializationObject initObj, string sSiteGUID, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode);
 
-        bool ActionDone(InitializationObject initObj, string sSiteGUID, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
+        bool ActionDone(InitializationObject initObj, string sSiteGUID, ActionType action, int mediaID, int mediaType, int extraVal);
 
         List<string> GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize);
     }

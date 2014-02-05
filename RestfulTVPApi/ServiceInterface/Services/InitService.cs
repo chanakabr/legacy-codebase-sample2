@@ -12,6 +12,7 @@ using ServiceStack;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System;
+using TVPApiModule.Objects;
 
 namespace RestfulTVPApi.ServiceInterface
 {

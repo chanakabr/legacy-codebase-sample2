@@ -11,6 +11,9 @@ using TVPApiModule.Objects.Responses;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
+using TVPApiModule.Manager;
+using TVPApiModule.Context;
+using TVPApiModule.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -58,10 +61,11 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
 
-                var response = _service.GetUserPermitedSubscriptions(siteGuid);
+                retVal = _service.GetUserPermitedSubscriptions(siteGuid);
+                //var response = _service.GetUserPermitedSubscriptions(siteGuid);
 
-                if (response != null)
-                    retVal = response.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                //if (response != null)
+                //    retVal = response.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
             }
             else
             {
@@ -81,10 +85,11 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
 
-                var response = _service.GetUserExpiredSubscriptions(siteGuid, totalItems);
+                retVal = _service.GetUserExpiredSubscriptions(siteGuid, totalItems);
+                //var response = _service.GetUserExpiredSubscriptions(siteGuid, totalItems);
 
-                if (response != null)
-                    retVal = response.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                //if (response != null)
+                //    retVal = response.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
             }
             else
             {
@@ -104,10 +109,11 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
 
-                var permitted = _service.GetUserPermittedItems(siteGuid);
+                res = _service.GetUserPermittedItems(siteGuid);
+                //var permitted = _service.GetUserPermittedItems(siteGuid);
 
-                if (permitted != null)
-                    res = permitted.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                //if (permitted != null)
+                //    res = permitted.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
             }
             else
             {
@@ -127,10 +133,11 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
 
-                var expired = _service.GetUserExpiredItems(siteGuid, totalItems);
+                res = _service.GetUserExpiredItems(siteGuid, totalItems);
+                //var expired = _service.GetUserExpiredItems(siteGuid, totalItems);
 
-                if (expired != null)
-                    res = expired.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                //if (expired != null)
+                //    res = expired.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
             }
             else
             {
@@ -167,8 +174,8 @@ namespace RestfulTVPApi.ServiceInterface
 
                 List<FavoriteObject> favoritesObj = _service.GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
 
-                if (favoritesObj != null)
-                    favoritesObj = favoritesObj.OrderByDescending(r => r.update_date.Date).ThenByDescending(r => r.update_date.TimeOfDay).ToList();
+                //if (favoritesObj != null)
+                //    favoritesObj = favoritesObj.OrderByDescending(r => r.update_date.Date).ThenByDescending(r => r.update_date.TimeOfDay).ToList();
 
                 return favoritesObj;
             }
@@ -668,7 +675,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj, string siteGuid)
+        public List<TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj, string siteGuid)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserStatusSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -732,7 +739,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                 
                 return new ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(siteGuid, initObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);
             }
@@ -778,7 +785,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                 
                 new ApiUsersService(groupID, initObj.Platform).SignOut(siteGuid, initObj.UDID, string.Empty, isSingleLogin);
             }

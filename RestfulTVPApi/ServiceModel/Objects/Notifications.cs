@@ -23,7 +23,7 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
         [ApiMember(Name = "tags", Description = "Tags", ParameterType = "body", DataType = SwaggerType.Array, IsRequired = true)]
-        public List<TVPApi.TagMetaPairArray> tags { get; set; }
+        public List<TagMetaPairArray> tags { get; set; }
     }
 
     [Route("/notifications/unsubscribe", "POST", Notes = "This method in the opposite of FollowByTag. It unsubscibes the user from receiving notification using meta tags.")]

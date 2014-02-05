@@ -8,6 +8,8 @@ using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Context;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -103,7 +105,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Problematic routing - cant add media id bcoz it accepts multiple files
     [Route("/medias/files/{media_file_ids}/prices", "GET", Summary = "Get AutoComplete Search List", Notes = "Get AutoComplete Search List")]
-    public class GetItemsPricesWithCouponsRequest : RequestBase, IReturn<List<MediaFileItemPricesContainer>>
+    public class GetItemsPricesWithCouponsRequest : RequestBase, IReturn<List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer>>
     {
         [ApiMember(Name = "media_file_ids", Description = "Media File ID", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public int[] media_file_ids { get; set; }
@@ -241,7 +243,7 @@ namespace RestfulTVPApi.ServiceModel
 
     //Ofir - change route? Not RESTful
     [Route("/medias/{media_id}/files/{media_file_id}/charge_with_pre_paid", "POST", Notes = "This method buys pay-per-view (PPV) with prepaid. This processing is done by Tvinci not by a third party processor")]
-    public class ChargeMediaWithPrepaidRequest : RequestBase, IReturn<PrePaidResponseStatus>
+    public class ChargeMediaWithPrepaidRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.PrePaidResponseStatus>
     {
         [ApiMember(Name = "media_file_id", Description = "Media File ID", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_file_id { get; set; }
@@ -262,9 +264,9 @@ namespace RestfulTVPApi.ServiceModel
         public int media_id { get; set; }
         [ApiMember(Name = "media_type", Description = "Media Type", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int media_type { get; set; }
-        [ApiAllowableValues("action", typeof(TVPApi.ActionType))]
+        [ApiAllowableValues("action", typeof(ActionType))]
         [ApiMember(Name = "action", Description = "Action", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
-        public TVPApi.ActionType action_type { get; set; }
+        public ActionType action_type { get; set; }
         [ApiMember(Name = "extra_val", Description = "Extra Variable", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
         public int extra_val { get; set; }
     }

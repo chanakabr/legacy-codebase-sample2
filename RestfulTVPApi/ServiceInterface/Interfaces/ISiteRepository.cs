@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using TVPApi;
 using TVPApiModule.Objects;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Context;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -15,7 +17,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index);
 
-        List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
+        List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, OrderBy orderBy);
 
         Menu GetMenu(InitializationObject initObj, long ID);
 

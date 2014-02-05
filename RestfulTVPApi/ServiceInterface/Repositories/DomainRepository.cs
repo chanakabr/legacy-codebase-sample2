@@ -7,6 +7,8 @@ using TVPApiModule.Interfaces;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Objects.Responses;
+using TVPApiModule.Objects;
+using TVPApiModule.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {

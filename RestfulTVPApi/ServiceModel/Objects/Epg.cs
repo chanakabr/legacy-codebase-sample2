@@ -4,6 +4,7 @@ using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
 using TVPPro.SiteManager.Objects;
 using TVPPro.SiteManager.TvinciPlatform.api;
+using TVPApiModule.Context;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -22,8 +23,8 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "order_by", Description = "Order By", ParameterType = "query", DataType = "OrderBy", IsRequired = false)]
-        [ApiAllowableValues("order_by", typeof(TVPApi.OrderBy))]
-        public TVPApi.OrderBy order_by { get; set; }
+        [ApiAllowableValues("order_by", typeof(TVPApiModule.Context.OrderBy))]
+        public TVPApiModule.Context.OrderBy order_by { get; set; }
     }
 
     [Route("/epg/programs/{program_id}/comments", "GET", Notes = "This method returns a list of EPG comments created by users")]

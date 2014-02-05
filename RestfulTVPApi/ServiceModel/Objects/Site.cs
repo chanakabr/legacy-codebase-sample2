@@ -5,6 +5,7 @@ using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
+using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -61,8 +62,8 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "order_by", Description = "Order By", ParameterType = "query", DataType = "OrderBy", IsRequired = false)]
-        [ApiAllowableValues("order_by", typeof(TVPApi.OrderBy))]
-        public TVPApi.OrderBy order_by { get; set; }
+        [ApiAllowableValues("order_by", typeof(TVPApiModule.Context.OrderBy))]
+        public TVPApiModule.Context.OrderBy order_by { get; set; }
     }
     
     [Route("/site/menus/{menu_id}", "GET", Notes = "This method returns the site menu.")]

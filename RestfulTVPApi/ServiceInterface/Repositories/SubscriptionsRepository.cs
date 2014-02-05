@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
+using TVPApiModule.Helper;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;

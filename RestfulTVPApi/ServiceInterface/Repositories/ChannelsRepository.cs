@@ -1,15 +1,19 @@
-﻿    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
+using TVPApiModule.Context;
 using TVPApiModule.Helper;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects;
+using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public class ChannelsRepository : IChannelsRepository
     {
-        public List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
+        public List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApiModule.Context.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetChannelMultiFilter", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

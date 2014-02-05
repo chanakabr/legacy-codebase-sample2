@@ -4,9 +4,11 @@ using System.Linq;
 using System.Web;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
+using TVPApiModule.Context;
 using TVPApiModule.Helper;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects;
+using TVPApiModule.Objects.Responses;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 
@@ -66,7 +68,7 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
+        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 

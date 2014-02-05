@@ -9,8 +9,8 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public interface INotificationsRepository
     {
-        bool SubscribeByTag(InitializationObject initObj, string sSiteGUID, List<TVPApi.TagMetaPairArray> tags);
+        bool SubscribeByTag(InitializationObject initObj, string sSiteGUID, List<TagMetaPairArray> tags);
 
-        bool UnsubscribeFollowUpByTag(InitializationObject initObj, string sSiteGUID, List<TVPApi.TagMetaPairArray> tags);
+        bool UnsubscribeFollowUpByTag(InitializationObject initObj, string sSiteGUID, List<TagMetaPairArray> tags);
     }
 }

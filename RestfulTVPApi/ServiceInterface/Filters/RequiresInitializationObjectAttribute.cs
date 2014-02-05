@@ -15,6 +15,7 @@ using ServiceStack.ServiceInterface;
 using TVPApi;
 using RestfulTVPApi.ServiceInterface;
 using RestfulTVPApi.ServiceModel;
+using TVPApiModule.Objects;
 
 namespace RestfulTVPApi.ServiceInterface
 {

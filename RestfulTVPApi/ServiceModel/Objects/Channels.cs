@@ -3,6 +3,8 @@ using ServiceStack.Api.Swagger;
 using ServiceStack.ServiceHost;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
+using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -16,8 +18,8 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "order_by", Description = "Order By", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
-        [ApiAllowableValues("order_by", typeof(TVPApi.OrderBy))]
-        public TVPApi.OrderBy order_by { get; set; }
+        [ApiAllowableValues("order_by", typeof(TVPApiModule.Context.OrderBy))]
+        public TVPApiModule.Context.OrderBy order_by { get; set; }
         [ApiMember(Name = "order_dir", Description = "Order Direction", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
         [ApiAllowableValues("order_dir", typeof(eOrderDirection))]
         public eOrderDirection order_dir { get; set; }

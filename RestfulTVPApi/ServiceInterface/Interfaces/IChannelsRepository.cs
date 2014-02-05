@@ -4,13 +4,15 @@ using System.Linq;
 using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
+using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
+using TVPApiModule.Context;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public interface IChannelsRepository
     {
-        List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith);
+        List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApiModule.Context.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith);
 
         List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize);
 

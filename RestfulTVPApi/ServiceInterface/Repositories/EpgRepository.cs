@@ -4,8 +4,11 @@ using System.Configuration;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
+using TVPApiModule.Helper;
+using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Services;
+using TVPApiModule.Context;
 using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
@@ -38,7 +41,7 @@ namespace RestfulTVPApi.ServiceInterface
             return retVal;
         }
 
-        public List<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
+        public List<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApiModule.Context.OrderBy orderBy)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGChannels", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

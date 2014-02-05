@@ -4,6 +4,8 @@ using TVPApi;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
+using TVPApiModule.Helper;
+using TVPApiModule.Context;
 
 
 namespace RestfulTVPApi.ServiceInterface
@@ -84,7 +86,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         bool SetNotificationMessageViewStatus(InitializationObject initObj, string sSiteGUID, Nullable<long> notificationRequestID, Nullable<long> notificationMessageID, NotificationMessageViewStatus viewStatus);
 
-        List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj, string sSiteGUID);
+        List<TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj, string sSiteGUID);
 
         bool CleanUserHistory(InitializationObject initObj, string siteGuid, int[] mediaIDs);
 

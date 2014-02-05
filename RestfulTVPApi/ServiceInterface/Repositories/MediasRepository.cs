@@ -10,6 +10,10 @@ using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Objects.Responses;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using TVPApiModule.Objects;
+using TVPApiModule.Manager;
+using TVPApiModule.Helper;
+using TVPApiModule.Context;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -331,7 +335,7 @@ namespace RestfulTVPApi.ServiceInterface
         }
 
         //Ofir - Should DomainID be a param?
-        public bool ActionDone(InitializationObject initObj, string sSiteGUID, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal)
+        public bool ActionDone(InitializationObject initObj, string sSiteGUID, ActionType action, int mediaID, int mediaType, int extraVal)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActionDone", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

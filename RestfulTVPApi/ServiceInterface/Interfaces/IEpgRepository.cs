@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
+using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
+using TVPApiModule.Context;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -11,7 +13,7 @@ namespace RestfulTVPApi.ServiceInterface
     {
         List<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
 
-        List<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy);
+        List<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, OrderBy orderBy);
 
         List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(InitializationObject initObj, int epgProgramID, int pageSize, int pageIndex);
 

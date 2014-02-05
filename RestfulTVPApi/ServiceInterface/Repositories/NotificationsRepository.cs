@@ -13,7 +13,7 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class NotificationsRepository : INotificationsRepository
     {
-        public bool SubscribeByTag(InitializationObject initObj, string sSiteGUID, List<TVPApi.TagMetaPairArray> tags)
+        public bool SubscribeByTag(InitializationObject initObj, string sSiteGUID, List<TagMetaPairArray> tags)
         {
             bool bRes = false;
 
@@ -33,7 +33,7 @@ namespace RestfulTVPApi.ServiceInterface
             return bRes;
         }
 
-        public bool UnsubscribeFollowUpByTag(InitializationObject initObj, string sSiteGUID, List<TVPApi.TagMetaPairArray> tags)
+        public bool UnsubscribeFollowUpByTag(InitializationObject initObj, string sSiteGUID, List<TagMetaPairArray> tags)
         {
             bool bRes = false;
 
