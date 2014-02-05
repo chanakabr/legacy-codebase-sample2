@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
 
-namespace TVPApiModule.Objects
+namespace TVPApiModule.Objects.Responses
 {
     public class Notification
     {

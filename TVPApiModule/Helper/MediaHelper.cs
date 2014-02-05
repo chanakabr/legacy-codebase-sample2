@@ -15,13 +15,15 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Objects.Responses;
+using TVPApiModule.Context;
+using TVPApiModule.Parsers;
 
 /// <summary>
 /// Summary description for MediaHelper
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Helper
 {
     public class MediaHelper
     {

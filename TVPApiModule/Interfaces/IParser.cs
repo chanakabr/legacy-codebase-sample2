@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TVPApiModule.Context;
 
-namespace TVPApi
+namespace TVPApiModule.Interfaces
 {
     public interface IParser
     {

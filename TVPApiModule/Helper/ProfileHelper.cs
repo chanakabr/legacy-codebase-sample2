@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects;
 /// <summary>
 /// Summary description for ProfileHelper
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Helper
 {
     public class ProfileHelper
     {
@@ -19,7 +21,7 @@ namespace TVPApi
         public static List<Profile> GetSideProfiles(InitializationObject initObj, int groupID)
         {
             List<Profile> retVal = null;
-            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+            TVPApiModule.Objects.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
             if (siteMap != null)
             {
                 retVal = siteMap.GetSideProfiles();
@@ -30,7 +32,7 @@ namespace TVPApi
         public static List<Profile> GetBottomProfiles(InitializationObject initObj, int groupID)
         {
             List<Profile> retVal = null;
-            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+            TVPApiModule.Objects.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
             if (siteMap != null)
             {
                 retVal = siteMap.GetBottomProfiles();
@@ -54,7 +56,7 @@ namespace TVPApi
         public static Profile GetSideProfile(InitializationObject initObj, long ID, int groupID)
         {
             Profile retVal = null;
-            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
+            TVPApiModule.Objects.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
             if (siteMap != null)
             {
                 List<Profile> sideProfiles = siteMap.GetSideProfiles();

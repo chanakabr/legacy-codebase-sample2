@@ -11,6 +11,7 @@ using TVPApi;
 using TVPPro.Configuration.Technical;
 using TVPApiModule.Manager;
 using TVPApiModule.Helper;
+using TVPApiModule.Context;
 
 namespace TVPApiModule.CatalogLoaders
 {

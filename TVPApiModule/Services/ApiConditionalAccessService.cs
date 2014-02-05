@@ -9,6 +9,8 @@ using TVPPro.Configuration.Site;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
+using TVPApiModule.Context;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.Services
 {
@@ -145,9 +147,15 @@ namespace TVPApiModule.Services
             try
             {
                 var response = m_Module.GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
-                
+
                 if (response != null)
-                    retVal = response.Where(pmc => pmc != null).Select(m => m.ToApiObject()).ToList(); 
+                {
+                    retVal = response.Where(pmc => pmc != null).Select(m => m.ToApiObject()).ToList();
+                    if (retVal != null)
+                    {
+                        retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -185,7 +193,13 @@ namespace TVPApiModule.Services
                 var response = m_Module.GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
 
                 if (response != null)
+                {
                     retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
+                    if (retVal != null)
+                    {
+                        retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -221,7 +235,13 @@ namespace TVPApiModule.Services
                 var response = m_Module.GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
 
                 if (response != null)
+                {
                     retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToList();
+                    if (retVal != null)
+                    {
+                        retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                    }
+                }
 
             }
             catch (Exception ex)
@@ -240,7 +260,13 @@ namespace TVPApiModule.Services
                 var response = m_Module.GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
 
                 if (response != null)
+                {
                     retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
+                    if (retVal != null)
+                    {
+                        retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                    }
+                }
 
             }
             catch (Exception ex)

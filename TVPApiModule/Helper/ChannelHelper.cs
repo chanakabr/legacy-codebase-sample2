@@ -6,6 +6,8 @@ using TVPApiModule.CatalogLoaders;
 using TVPApi;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Objects;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Helper
 {

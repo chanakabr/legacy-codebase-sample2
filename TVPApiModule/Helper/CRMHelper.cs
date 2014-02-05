@@ -4,12 +4,13 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using TVPApiModule.Context;
 using TVPApiModule.Objects.Responses;
 //using TVPApiModule.Objects.CRM;
 using TVPApiModule.Services;
 //using TVPPro.SiteManager.TvinciPlatform.Users;
 
-namespace TVPApi
+namespace TVPApiModule.Helper
 {
     public class CRMHelper
     {

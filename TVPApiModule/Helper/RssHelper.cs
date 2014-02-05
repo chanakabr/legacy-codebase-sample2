@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using TVPApi;
 using System.Web;
+using TVPApiModule.Manager;
+using TVPApiModule.Context;
 
 namespace TVPApiModule.Helper
 {
@@ -77,26 +79,26 @@ namespace TVPApiModule.Helper
             return RssPath;
         }
 
-        /// <summary>
-        /// Returns  the RSS Path to the relevent GroupID  and ChannelID by user name
-        /// </summary>
+        ///// <summary>
+        ///// Returns  the RSS Path to the relevent GroupID  and ChannelID by user name
+        ///// </summary>
 
-        public static string GetRssPathByUser(object tvmUser, object ChannelId, object Pic, int groupID, PlatformType platform)
-        {
-            string RssPath = string.Empty;
+        //public static string GetRssPathByUser(object tvmUser, object ChannelId, object Pic, int groupID, PlatformType platform)
+        //{
+        //    string RssPath = string.Empty;
 
-            if (!string.IsNullOrEmpty( ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.TVMRssURL))
-            {
-                TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByUser((string)tvmUser);
-                RssPath = string.Format("{0}?group_id={1}&type=rss&channel_id={2}&base_url={3}&pic={4}",
-                        ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.TVMRssURL,
-                        account.GroupID.ToString(),
-                        ChannelId.ToString(),
-                        GetSiteBaseURL(false, groupID, platform),
-                        Pic.ToString());
-            }
-            return RssPath;
-        }
+        //    if (!string.IsNullOrEmpty( ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.TVMRssURL))
+        //    {
+        //        TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByUser((string)tvmUser);
+        //        RssPath = string.Format("{0}?group_id={1}&type=rss&channel_id={2}&base_url={3}&pic={4}",
+        //                ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.TVM.TVMRssURL,
+        //                account.GroupID.ToString(),
+        //                ChannelId.ToString(),
+        //                GetSiteBaseURL(false, groupID, platform),
+        //                Pic.ToString());
+        //    }
+        //    return RssPath;
+        //}
     }
 
 

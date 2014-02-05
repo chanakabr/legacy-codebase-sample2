@@ -8,7 +8,7 @@ using System.Text;
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Objects.Responses
 {
     public class AdvertisingProvider
     {

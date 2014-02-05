@@ -7,8 +7,10 @@ using Tvinci.Helpers;
 using TVPPro.SiteManager.DataEntities;
 using Tvinci.Data.DataLoader;
 using log4net;
+using TVPApiModule.Context;
+using TVPApiModule.Manager;
 
-namespace TVPApi
+namespace TVPApiModule.DataLoaders
 {
     public class APIPageDataLoader : TVPPro.SiteManager.DataLoaders.PageDataLoader
     {

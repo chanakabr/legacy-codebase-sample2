@@ -8,7 +8,7 @@ using TVPPro.SiteManager.Context;
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Context
 {
     public enum ActionType
     {
@@ -48,6 +48,7 @@ namespace TVPApi
 
     public enum AccountType
     {
+        None = 0,
         Parent = 5,
         Regular = 1,
         Fictivic = 3,

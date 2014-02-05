@@ -9,7 +9,7 @@ using TVPPro.SiteManager.DataEntities;
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Objects.Responses
 {
     public class Category
     {

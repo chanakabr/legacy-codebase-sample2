@@ -11,13 +11,16 @@ using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using TVPApiModule.Manager;
+using TVPApiModule.Context;
+using TVPApiModule.Helper;
 
 /// <summary>
 /// Summary description for Media
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Objects.Responses
 {
     public class ExtIDPair
     {
@@ -537,10 +540,10 @@ namespace TVPApi
         {
             if (mediaPictures != null)
             {
-                TVPApi.Picture picture;
+                Picture picture;
                 foreach (Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture pic in mediaPictures)
                 {
-                    picture = new TVPApi.Picture();
+                    picture = new Picture();
                     picture.pic_size = pic.m_sSize;
                     picture.url = pic.m_sURL;
                     pictures.Add(picture);
@@ -735,125 +738,125 @@ namespace TVPApi
         ////    return retVal;
         ////}
 
-        private void GetPrice(out string price, out PriceReason reason, int groupID, string userGuid, PlatformType platform)
-        {
-            //string MediaPrice = string.Empty;
-            price = "Free";
-            reason = PriceReason.Free;
-            if (!string.IsNullOrEmpty(file_id))
-            {
-                int MediaFileID = int.Parse(file_id);
+        //private void GetPrice(out string price, out PriceReason reason, int groupID, string userGuid, PlatformType platform)
+        //{
+        //    //string MediaPrice = string.Empty;
+        //    price = "Free";
+        //    reason = PriceReason.Free;
+        //    if (!string.IsNullOrEmpty(file_id))
+        //    {
+        //        int MediaFileID = int.Parse(file_id);
 
-                int[] MediasArray = new int[1];
-                MediasArray[0] = MediaFileID;
+        //        int[] MediasArray = new int[1];
+        //        MediasArray[0] = MediaFileID;
 
-                //Get media price from conditional access.
-                IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> MediasPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(MediasArray, userGuid, true);
+        //        //Get media price from conditional access.
+        //        IEnumerable<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> MediasPrices = new ApiConditionalAccessService(groupID, platform).GetItemsPrice(MediasArray, userGuid, true);
 
-                if (MediasPrices != null)
-                {
-                    //Locating the media inside the array
-                    TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mediaPriceCont = null;
-                    foreach (TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mp in MediasPrices)
-                    {
-                        if (mp.media_file_id == MediaFileID)
-                            mediaPriceCont = mp;
-                    }
+        //        if (MediasPrices != null)
+        //        {
+        //            //Locating the media inside the array
+        //            TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mediaPriceCont = null;
+        //            foreach (TVPApiModule.Objects.Responses.MediaFileItemPricesContainer mp in MediasPrices)
+        //            {
+        //                if (mp.media_file_id == MediaFileID)
+        //                    mediaPriceCont = mp;
+        //            }
 
-                    if (mediaPriceCont != null)
-                    {
-                        if (mediaPriceCont.item_prices != null)
-                        {
-                            price = mediaPriceCont.item_prices[0].price.price.ToString();
-                            switch (mediaPriceCont.item_prices[0].price_reason)
-                            {
-                                case TVPApiModule.Objects.Responses.PriceReason.ForPurchase:
-                                    {
-                                        reason = PriceReason.ForPurchase;
-                                        break;
-                                    }
-                                case TVPApiModule.Objects.Responses.PriceReason.Free:
-                                    {
-                                        reason = PriceReason.Free;
-                                        break;
-                                    }
-                                case TVPApiModule.Objects.Responses.PriceReason.PPVPurchased:
-                                case TVPApiModule.Objects.Responses.PriceReason.SubscriptionPurchased:
-                                    {
-                                        reason = PriceReason.PPVPurchased;
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        reason = PriceReason.Free;
-                                        break;
-                                    }
-                            }
-                        }
-                        else
-                        {
-                            price = "Free";
-                            reason = PriceReason.Free;
-                        }
-                    }
-                    else
-                    {
-                        price = "Free";
-                        reason = PriceReason.Free;
-                    }
-                }
-                else
-                {
-                    price = "Free";
-                    reason = PriceReason.Free;
-                }
-                //Extract price from response.
-                //MediaPrice = PriceHelper.GetSingleFullMediaPrice(MediaFileID, MediasPrices);
+        //            if (mediaPriceCont != null)
+        //            {
+        //                if (mediaPriceCont.item_prices != null)
+        //                {
+        //                    price = mediaPriceCont.item_prices[0].price.price.ToString();
+        //                    switch (mediaPriceCont.item_prices[0].price_reason)
+        //                    {
+        //                        case TVPApiModule.Objects.Responses.PriceReason.ForPurchase:
+        //                            {
+        //                                reason = PriceReason.ForPurchase;
+        //                                break;
+        //                            }
+        //                        case TVPApiModule.Objects.Responses.PriceReason.Free:
+        //                            {
+        //                                reason = PriceReason.Free;
+        //                                break;
+        //                            }
+        //                        case TVPApiModule.Objects.Responses.PriceReason.PPVPurchased:
+        //                        case TVPApiModule.Objects.Responses.PriceReason.SubscriptionPurchased:
+        //                            {
+        //                                reason = PriceReason.PPVPurchased;
+        //                                break;
+        //                            }
+        //                        default:
+        //                            {
+        //                                reason = PriceReason.Free;
+        //                                break;
+        //                            }
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    price = "Free";
+        //                    reason = PriceReason.Free;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                price = "Free";
+        //                reason = PriceReason.Free;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            price = "Free";
+        //            reason = PriceReason.Free;
+        //        }
+        //        //Extract price from response.
+        //        //MediaPrice = PriceHelper.GetSingleFullMediaPrice(MediaFileID, MediasPrices);
 
-            }
+        //    }
 
-            //return MediaPrice;
-        }
+        //    //return MediaPrice;
+        //}
 
-        private PriceReason GetMediaPriceReason(PermittedMediaContainer[] MediaItems)
-        {
-            PriceReason retVal = PriceReason.UnKnown;
-            if (!string.IsNullOrEmpty(file_id))
-            {
-                int MediaFileID = int.Parse(file_id);
-                if (MediaFileID > 0)
-                {
-                    string Reason = PriceHelper.GetItemPriceReason(MediaFileID);
+        //private PriceReason GetMediaPriceReason(PermittedMediaContainer[] MediaItems)
+        //{
+        //    PriceReason retVal = PriceReason.UnKnown;
+        //    if (!string.IsNullOrEmpty(file_id))
+        //    {
+        //        int MediaFileID = int.Parse(file_id);
+        //        if (MediaFileID > 0)
+        //        {
+        //            string Reason = PriceHelper.GetItemPriceReason(MediaFileID);
 
-                    switch (Reason)
-                    {
-                        case "PPVPurchased":
-                            retVal = PriceReason.PPVPurchased;
-                            break;
-                        case "Free":
-                            retVal = PriceReason.Free;
-                            break;
-                        case "ForPurchaseSubscriptionOnly":
-                            retVal = PriceReason.ForPurchaseSubscriptionOnly;
-                            break;
-                        case "SubscriptionPurchased":
-                            retVal = PriceReason.SubscriptionPurchased;
-                            break;
-                        case "ForPurchase":
-                            retVal = PriceReason.ForPurchase;
-                            break;
-                        case "UnKnown":
-                            retVal = PriceReason.UnKnown;
-                            break;
-                        case "SubscriptionPurchasedWrongCurrency":
-                            retVal = PriceReason.SubscriptionPurchasedWrongCurrency;
-                            break;
-                    }
-                }
-            }
+        //            switch (Reason)
+        //            {
+        //                case "PPVPurchased":
+        //                    retVal = PriceReason.PPVPurchased;
+        //                    break;
+        //                case "Free":
+        //                    retVal = PriceReason.Free;
+        //                    break;
+        //                case "ForPurchaseSubscriptionOnly":
+        //                    retVal = PriceReason.ForPurchaseSubscriptionOnly;
+        //                    break;
+        //                case "SubscriptionPurchased":
+        //                    retVal = PriceReason.SubscriptionPurchased;
+        //                    break;
+        //                case "ForPurchase":
+        //                    retVal = PriceReason.ForPurchase;
+        //                    break;
+        //                case "UnKnown":
+        //                    retVal = PriceReason.UnKnown;
+        //                    break;
+        //                case "SubscriptionPurchasedWrongCurrency":
+        //                    retVal = PriceReason.SubscriptionPurchasedWrongCurrency;
+        //                    break;
+        //            }
+        //        }
+        //    }
 
-            return retVal;
-        }
+        //    return retVal;
+        //}
 
         #endregion
     }

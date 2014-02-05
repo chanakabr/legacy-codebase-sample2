@@ -5,8 +5,10 @@ using System.Text;
 using ODBCWrapper;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects;
+using TVPApiModule.Manager;
+using TVPApiModule.Context;
 
-namespace TVPApi
+namespace TVPApiModule.Helper
 {
     public class WSUtils
     {

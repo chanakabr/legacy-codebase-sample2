@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Script.Serialization;
+using TVPApiModule.Context;
 
 /// <summary>
 /// Summary description for InitializationObject
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Objects
 {
     [Serializable]
     public class InitializationObject
@@ -38,7 +39,7 @@ namespace TVPApi
         public string LocaleLanguage { get; set; }
         public string LocaleCountry { get; set; }
         public string LocaleDevice { get; set; }
-        public TVPApi.LocaleUserState LocaleUserState { get; set; }
+        public LocaleUserState LocaleUserState { get; set; }
 
         public Locale()
         {

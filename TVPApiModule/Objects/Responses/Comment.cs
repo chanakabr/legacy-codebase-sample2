@@ -7,7 +7,7 @@ using System.Web;
 /// Summary description for Comment
 /// </summary>
 /// 
-namespace TVPApi
+namespace TVPApiModule.Objects.Responses
 {
     public class Comment
     {

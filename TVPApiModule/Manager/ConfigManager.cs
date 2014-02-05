@@ -12,6 +12,7 @@ using TVPApi.Configuration.Media;
 
 using TVPPro.Configuration.PlatformServices;
 using log4net;
+using TVPApiModule.Context;
 
 
 /// <summary>
@@ -19,7 +20,7 @@ using log4net;
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Manager
 {
     public class ConfigManager
     {

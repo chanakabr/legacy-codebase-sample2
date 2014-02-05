@@ -8,13 +8,16 @@ using System.Collections;
 using log4net;
 using System.Configuration;
 using System.Reflection;
+using TVPApiModule.DBConfiguration;
+using TVPApiModule.Context;
+using TVPApiModule.Manager;
 
 /// <summary>
 /// Summary description for ConnectionHelper
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Helper
 {
     public class ConnectionHelper
     {

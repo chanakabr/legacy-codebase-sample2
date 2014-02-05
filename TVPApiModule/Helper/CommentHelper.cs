@@ -9,13 +9,15 @@ using TVPPro.SiteManager.Helper;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Manager;
 using TVPPro.SiteManager.Objects;
+using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
 
 /// <summary>
 /// Summary description for CommentHelper
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Helper
 {
     public class CommentHelper
     {

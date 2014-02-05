@@ -5,12 +5,15 @@ using System.Web;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using TVPApi;
+using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.DataLoaders;
 
 
 /// <summary>
 /// Summary description for MenuBuilder
 /// </summary>
-namespace TVPApi
+namespace TVPApiModule.Manager
 {
     public class MenuBuilder
     {

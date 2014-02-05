@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.DataLoader;
+using TVPApiModule.Context;
+using TVPApiModule.Manager;
 
-namespace TVPApi
+namespace TVPApiModule.DataLoaders
 {
     public class APIMenuLoader : MenuLoader
     {

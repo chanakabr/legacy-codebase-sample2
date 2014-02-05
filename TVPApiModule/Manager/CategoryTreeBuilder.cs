@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.DataEntities;
 
 /// <summary>
 /// Summary description for CategoryTreeBuilder
 /// </summary>
 /// 
-namespace TVPApi
+namespace TVPApiModule.Manager
 {
     public class CategoryTreeBuilder
     {

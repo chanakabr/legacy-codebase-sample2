@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TVPApiModule.Context;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects;
+using TVPApiModule.Objects.Responses;
 /// <summary>
 /// Summary description for MenuHelper
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Helper
 {
     public class MenuHelper
     {
@@ -22,7 +26,7 @@ namespace TVPApi
         public static Menu GetMenuByID(PlatformType platform, Locale locale, long ID, int groupID)
         {
             Menu retVal = null;
-            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
+            TVPApiModule.Objects.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
             if (siteMap != null)
             {
                 List<Menu> menues = siteMap.Menues;
@@ -37,7 +41,7 @@ namespace TVPApi
         public static Menu GetFooterByID(PlatformType platform, Locale locale, long ID, int groupID)
         {
             Menu retVal = null;
-            SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
+            TVPApiModule.Objects.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
             if (siteMap != null)
             {
                 List<Menu> footers = siteMap.Footers;

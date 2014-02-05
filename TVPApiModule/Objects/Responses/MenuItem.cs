@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
+using TVPApiModule.Manager;
 
 /// <summary>
 /// Summary description for Menu
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Objects.Responses
 {
     public class MenuItem
     {

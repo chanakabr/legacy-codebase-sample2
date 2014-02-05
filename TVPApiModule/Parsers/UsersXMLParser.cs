@@ -9,7 +9,7 @@ using System.Xml;
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Parsers
 {
     public class UsersXMLParser
     {

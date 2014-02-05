@@ -6,19 +6,23 @@ using TVPApi;
 using Tvinci.Data.DataLoader;
 using System.Threading;
 using log4net;
+using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Helper;
+using TVPApiModule.Objects;
 
 /// <summary>
 /// Summary description for SiteMapManager
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Manager
 {
     public class SiteMapManager
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(SiteMapManager));
 
-        private Dictionary<string, SiteMap> m_siteMapInstances = null;
+        private Dictionary<string, TVPApiModule.Objects.SiteMap> m_siteMapInstances = null;
         private Dictionary<long, Profile> m_Profiles = new Dictionary<long, Profile>();
         private Dictionary<string, PageData> m_pageData = new Dictionary<string, PageData>();
 
@@ -28,7 +32,7 @@ namespace TVPApi
 
         private static string m_currentGroupID;
         
-        private SiteMap m_UnifiedSiteMap;
+        private TVPApiModule.Objects.SiteMap m_UnifiedSiteMap;
         private static SiteMapManager m_siteMapManager = null;
 
         static ILoaderCache m_dataCaching = LoaderCacheLite.Current;
@@ -104,14 +108,14 @@ namespace TVPApi
             return retPageData;
         }
 
-        public Dictionary<string, SiteMap> GetSiteMaps()
+        public Dictionary<string, TVPApiModule.Objects.SiteMap> GetSiteMaps()
         {
             return m_siteMapInstances;
         }
 
-        public SiteMap GetSiteMapInstance(int groupID, PlatformType platform, Locale locale)
+        public TVPApiModule.Objects.SiteMap GetSiteMapInstance(int groupID, PlatformType platform, Locale locale)
         {
-            SiteMap tempMap = null;
+            TVPApiModule.Objects.SiteMap tempMap = null;
             
             logger.InfoFormat("Start Site Map : {0} {1}", groupID, platform);
 
@@ -132,7 +136,7 @@ namespace TVPApi
             {
                 logger.InfoFormat("New Site Map :", "Key Str {0}", keyStr);
 
-                m_siteMapInstances = new Dictionary<string, SiteMap>();
+                m_siteMapInstances = new Dictionary<string, TVPApiModule.Objects.SiteMap>();
             }
 
             //If this is the first time a group ID is used - initialize a new manager and all relevent objects
@@ -289,16 +293,16 @@ namespace TVPApi
             return m_currentGroupID;
         }
 
-        private SiteMap CreateSiteMap(int groupID, PlatformType platform)
+        private TVPApiModule.Objects.SiteMap CreateSiteMap(int groupID, PlatformType platform)
         {
-            SiteMap siteMap = null;
+            TVPApiModule.Objects.SiteMap siteMap = null;
 
             PageData pageData = GetPageData(groupID, platform);
             
             Dictionary<string, Dictionary<long, PageContext>> pages = pageData.GetPageContextsIDDict();
             if (pages != null)
             {
-                siteMap = new SiteMap();
+                siteMap = new TVPApiModule.Objects.SiteMap();
                 //for each page language - create a site map
                 foreach (KeyValuePair<string, Dictionary<long, PageContext>> langPagePair in pages)
                 {
@@ -316,7 +320,7 @@ namespace TVPApi
 
                         if (!m_Profiles.ContainsKey(pagePair.Value.SideProfileID) && pagePair.Value.SideProfileID > 0)
                         {
-                            Profile profile = CreateProfile(pagePair.Value, pagePair.Value.SideProfileID, TVPApi.GalleryLocation.Side, langPagePair.Key, groupID, platform);
+                            Profile profile = CreateProfile(pagePair.Value, pagePair.Value.SideProfileID, GalleryLocation.Side, langPagePair.Key, groupID, platform);
                             m_Profiles.Add(profile.ProfileID, profile);
 
                             siteMap.GetSideProfiles().Add(profile);
@@ -331,7 +335,7 @@ namespace TVPApi
                         //Create profile objects
                         if (!m_Profiles.ContainsKey(pagePair.Value.BottomProfileID) && pagePair.Value.BottomProfileID > 0)
                         {
-                            Profile profile = CreateProfile(pagePair.Value, pagePair.Value.BottomProfileID, TVPApi.GalleryLocation.Bottom, langPagePair.Key, groupID, platform);
+                            Profile profile = CreateProfile(pagePair.Value, pagePair.Value.BottomProfileID, GalleryLocation.Bottom, langPagePair.Key, groupID, platform);
                             m_Profiles.Add(profile.ProfileID, profile);
 
                             siteMap.GetBottomProfiles().Add(profile);
@@ -465,7 +469,7 @@ namespace TVPApi
 
 
         //A unified site map for all Languages (easier to search with empty locale
-        private void CreateUnifiedSiteMap(SiteMap siteMap)
+        private void CreateUnifiedSiteMap(TVPApiModule.Objects.SiteMap siteMap)
         {
             m_UnifiedSiteMap.GetPages().AddRange(siteMap.GetPages());
 
@@ -600,7 +604,7 @@ namespace TVPApi
         //    }
         //}
 
-        private void AddMenu(string keyStr, Menu menu, ref SiteMap siteMap)
+        private void AddMenu(string keyStr, Menu menu, ref TVPApiModule.Objects.SiteMap siteMap)
         {
             if (siteMap.Menues == null)
             {
@@ -610,7 +614,7 @@ namespace TVPApi
             siteMap.Menues.Add(menu);
         }
 
-        private void AddFooter(string keyStr, Menu menu, ref SiteMap siteMap)
+        private void AddFooter(string keyStr, Menu menu, ref TVPApiModule.Objects.SiteMap siteMap)
         {
             if (siteMap.Footers == null)
             {

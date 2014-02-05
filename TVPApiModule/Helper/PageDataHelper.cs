@@ -4,6 +4,11 @@ using System.Linq;
 using System.Web;
 using TVPApi;
 using log4net;
+using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Helper;
+using TVPApiModule.Objects;
+using TVPApiModule.Manager;
 
 /// <summary>
 /// Summary description for PageDataHelper
@@ -21,7 +26,7 @@ public class PageDataHelper
     }
 
     //Get specific page from site map by ID
-    public static TVPApi.PageContext GetPageContextByID(PlatformType platform, int groupID, Locale locale, long ID, bool withMenu, bool withFooter)
+    public static PageContext GetPageContextByID(PlatformType platform, int groupID, Locale locale, long ID, bool withMenu, bool withFooter)
     {
         PageContext retVal = null;
         List<PageContext> pages = GetPages(platform, groupID, locale);
@@ -38,7 +43,7 @@ public class PageDataHelper
 
 
     //Get specific page from site map by token
-    public static TVPApi.PageContext GetPageContextByToken(PlatformType platform, int groupID, Locale locale, TVPApi.Pages token, bool withMenu, bool withFooter)
+    public static PageContext GetPageContextByToken(PlatformType platform, int groupID, Locale locale, Pages token, bool withMenu, bool withFooter)
     {
         PageContext retVal = null;
         List<PageContext> pages = GetPages(platform, groupID, locale);
@@ -61,7 +66,7 @@ public class PageDataHelper
 
         logger.InfoFormat("GetPages-> [{0}, {1}]", groupID, platform);
 
-        TVPApi.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
+        TVPApiModule.Objects.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
         if (siteMap != null)
         {
             retVal = siteMap.GetPages();
@@ -124,7 +129,7 @@ public class PageDataHelper
              group p by p.family_id).ToDictionary(gr => gr.Key, gr => gr.ToList());
 
         List<PageGallery> galleryList = new List<PageGallery>();
-        TVPApi.LocaleUserState localeUserState = locale.LocaleUserState;
+        LocaleUserState localeUserState = locale.LocaleUserState;
 
         //All the galleries with default family id
         if (galleriesByFamilies.ContainsKey(0))
@@ -155,7 +160,7 @@ public class PageDataHelper
     }
 
     //Check if a gallery fits the locale
-    private static bool IsGalleryInLocale(PageGallery pg, Locale locale, TVPApi.LocaleUserState localeUserState)
+    private static bool IsGalleryInLocale(PageGallery pg, Locale locale, LocaleUserState localeUserState)
     {
         if (pg.locale_langs != null && !string.IsNullOrEmpty(locale.LocaleLanguage) && !pg.locale_langs.Contains(locale.LocaleLanguage))
             return false;
@@ -166,7 +171,7 @@ public class PageDataHelper
         if (pg.locale_countrys != null && !string.IsNullOrEmpty(locale.LocaleCountry) && !pg.locale_countrys.Contains(locale.LocaleCountry))
             return false;
 
-        if (pg.locale_user_states != null && localeUserState != TVPApi.LocaleUserState.Unknown && !pg.locale_user_states.Contains((long)localeUserState))
+        if (pg.locale_user_states != null && localeUserState != LocaleUserState.Unknown && !pg.locale_user_states.Contains((long)localeUserState))
             return false;
 
         return true;
@@ -174,7 +179,7 @@ public class PageDataHelper
 
     //Get the gallery that most matches the user's locale. The locale attributes are prioreterized 
     //From high to low : Device -> Country -> Language -> User State
-    private static PageGallery GetPageGalleryByLocaleScore(List<PageGallery> galleries, Locale locale, TVPApi.LocaleUserState localeUserState)
+    private static PageGallery GetPageGalleryByLocaleScore(List<PageGallery> galleries, Locale locale, LocaleUserState localeUserState)
     {
         PageGallery retVal = null;
         double prevScore = 0;

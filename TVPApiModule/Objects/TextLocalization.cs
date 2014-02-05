@@ -6,6 +6,8 @@ using Tvinci.Localization;
 using log4net;
 using System.Data;
 using TVPApi;
+using TVPApiModule.Context;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.Objects
 {

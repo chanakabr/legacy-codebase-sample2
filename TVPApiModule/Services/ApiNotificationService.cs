@@ -5,6 +5,9 @@ using System.Linq;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Objects;
+using TVPApiModule.Manager;
+using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Services
 {
@@ -114,7 +117,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool SubscribeByTag(string sGuid, List<TVPApi.TagMetaPairArray> tags)
+        public bool SubscribeByTag(string sGuid, List<TagMetaPairArray> tags)
         {
             bool res = false;
             try
@@ -130,7 +133,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool UnsubscribeFollowUpByTag(string sGuid, List<TVPApi.TagMetaPairArray> tags)
+        public bool UnsubscribeFollowUpByTag(string sGuid, List<TagMetaPairArray> tags)
         {
             bool res = false;
             try
@@ -146,10 +149,10 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(string sGuid)
+        public List<TagMetaPairArray> GetUserStatusSubscriptions(string sGuid)
         {
             Dictionary<string, string[]> clientRes = new Dictionary<string, string[]>();
-            List<TVPApi.TagMetaPairArray> finalRes = new List<TagMetaPairArray>();
+            List<TagMetaPairArray> finalRes = new List<TagMetaPairArray>();
             try
             {
                 clientRes = m_Client.GetUserStatusSubscriptions(m_wsUserName, m_wsPassword, sGuid);

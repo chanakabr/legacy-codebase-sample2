@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TVPApiModule.Context;
+using TVPApiModule.DBConfiguration;
+using TVPApiModule.Manager;
 
-namespace TVPApi
+namespace TVPApiModule.Manager
 {
     public class ConnectionManager
     {

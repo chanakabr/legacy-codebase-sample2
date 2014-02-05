@@ -8,13 +8,17 @@ using TVPPro.SiteManager.DataLoaders;
 using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.CatalogLoaders;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Context;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects;
 
 /// <summary>
 /// Summary description for PageGalleryHelper
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Helper
 {
     public class PageGalleryHelper
     {
@@ -24,10 +28,10 @@ namespace TVPApi
         }
 
         //Get all page's galleries
-        public static List<TVPApi.PageGallery> GetPageGallerisByPageID(InitializationObject initObj, long ID, int groupID, int pageSize, int startIndex)
+        public static List<PageGallery> GetPageGallerisByPageID(InitializationObject initObj, long ID, int groupID, int pageSize, int startIndex)
         {
-            List<TVPApi.PageGallery> retVal = null;
-            TVPApi.PageContext page = PageDataHelper.GetPageContextByID(initObj.Platform, groupID, initObj.Locale, ID, false, false);
+            List<PageGallery> retVal = null;
+            PageContext page = PageDataHelper.GetPageContextByID(initObj.Platform, groupID, initObj.Locale, ID, false, false);
             if (page != null)
             {
                 retVal = page.GetGalleries();
@@ -41,23 +45,23 @@ namespace TVPApi
 
 
         //Get all page galleries by page token
-        public static List<TVPApi.PageGallery> GetPageGallerisByPageToken(InitializationObject initObj, TVPApi.Pages token, int groupID)
-        {
-            List<TVPApi.PageGallery> retVal = null;
-            TVPApi.PageContext page = PageDataHelper.GetPageContextByToken(initObj.Platform, groupID, initObj.Locale, token, false, false);
-            if (page != null)
-            {
-                retVal = page.GetGalleries();
-            }
-            return retVal;
-        }
+        //public static List<TVPApi.PageGallery> GetPageGallerisByPageToken(InitializationObject initObj, TVPApi.Pages token, int groupID)
+        //{
+        //    List<TVPApi.PageGallery> retVal = null;
+        //    TVPApi.PageContext page = PageDataHelper.GetPageContextByToken(initObj.Platform, groupID, initObj.Locale, token, false, false);
+        //    if (page != null)
+        //    {
+        //        retVal = page.GetGalleries();
+        //    }
+        //    return retVal;
+        //}
 
 
         //Get specific gallery ID
-        public static TVPApi.PageGallery GetGalleryByID(PlatformType platform, Locale locale, long ID, long PageID, int groupID)
+        public static PageGallery GetGalleryByID(PlatformType platform, Locale locale, long ID, long PageID, int groupID)
         {
             PageGallery retVal = null;
-            TVPApi.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
+            TVPApiModule.Objects.SiteMap siteMap = SiteMapManager.GetInstance.GetSiteMapInstance(groupID, platform, locale);
             if (siteMap != null)
             {
                 PageContext page = (from pages in siteMap.GetPages()

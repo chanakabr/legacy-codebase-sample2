@@ -9,7 +9,7 @@ using System.Configuration;
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.DBConfiguration
 {
     //Wraps the web.config TVinciDBConfig section (holding attributes regarding main TVinci DB)
     public class TVinciDBConfiguration : ConfigurationSection

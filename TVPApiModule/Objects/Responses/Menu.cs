@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TVPApiModule.Manager;
 
 /// <summary>
 /// Summary description for Menu
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Objects.Responses
 {
     public class Menu
     {
         public long id { get; set; }
         public List<MenuItem> menu_items { get; set; }
-        public TVPApi.MenuBuilder.MenuType type { get; set; }
+        public MenuBuilder.MenuType type { get; set; }
 
         public Menu()
         {

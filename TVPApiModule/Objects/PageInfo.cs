@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPApi;
+using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
 
 /// <summary>
 /// Summary description for PageInfo
@@ -23,7 +25,7 @@ namespace TVPApi
         public bool HasCarousel { get; set; }
         public bool HasMiddleFooter { get; set; }
         public bool PlayerAutoPlay { get; set; }
-        public TVPApi.Pages PageToken { get; set; }
+        public Pages PageToken { get; set; }
 
         public bool IsActive { get; set; }
         public string Name { get; set; }

@@ -6,6 +6,9 @@ using System.Text;
 using System.Web;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
+using TVPApiModule.Context;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Helper
 {
@@ -59,27 +62,27 @@ namespace TVPApiModule.Helper
             return retVal;
         }
 
-        public static Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy GetCatalogOrderBy(TVPApi.OrderBy orderBy)
+        public static Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy GetCatalogOrderBy(TVPApiModule.Context.OrderBy orderBy)
         {
             Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy retVal;
             switch (orderBy)
             {
-                case TVPApi.OrderBy.None:
+                case TVPApiModule.Context.OrderBy.None:
                     retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
                     break;
-                case TVPApi.OrderBy.Added:
+                case TVPApiModule.Context.OrderBy.Added:
                     retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE;
                     break;
-                case TVPApi.OrderBy.Views:
+                case TVPApiModule.Context.OrderBy.Views:
                     retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VIEWS;
                     break;
-                case TVPApi.OrderBy.Rating:
+                case TVPApiModule.Context.OrderBy.Rating:
                     retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RATING;
                     break;
-                case TVPApi.OrderBy.ABC:
+                case TVPApiModule.Context.OrderBy.ABC:
                     retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
                     break;
-                case TVPApi.OrderBy.Meta:
+                case TVPApiModule.Context.OrderBy.Meta:
                     retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.META;
                     break;
                 default:

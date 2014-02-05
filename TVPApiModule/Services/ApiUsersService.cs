@@ -12,6 +12,8 @@ using System.Web;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
+using TVPApiModule.Manager;
+using TVPApiModule.Context;
 
 namespace TVPApiModule.Services
 {
@@ -174,7 +176,13 @@ namespace TVPApiModule.Services
                 var response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
 
                 if (response != null && response.Length > 0)
+                {
                     retVal = response.Where(f => f != null).Select(f => f.ToApiObject()).ToList();
+                    if (retVal != null)
+                    {
+                        retVal = retVal.OrderByDescending(r => r.update_date.Date).ThenByDescending(r => r.update_date.TimeOfDay).ToList();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -918,9 +926,9 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public List<TVPApiModule.Objects.Responses.KeyValuePair> IsItemExistsInList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public List<TVPApiModule.Objects.KeyValuePair> IsItemExistsInList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            List<TVPApiModule.Objects.Responses.KeyValuePair> response = null;
+            List<TVPApiModule.Objects.KeyValuePair> response = null;
             
             try
             {

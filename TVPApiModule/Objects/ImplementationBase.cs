@@ -4,8 +4,11 @@ using System.Linq;
 using System.Text;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApi;
+using TVPApiModule.Helper;
 using TVPApiModule.Interfaces;
+using TVPApiModule.Manager;
 using TVPApiModule.Services;
+using TVPApiModule.Context;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 
@@ -26,7 +29,7 @@ namespace TVPApiModule.Objects
 
         public virtual Services.ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword)
         {
-            bool isSingleLogin = TVPApi.ConfigManager.GetInstance()
+            bool isSingleLogin = ConfigManager.GetInstance()
                                        .GetConfig(_nGroupID, _initObj.Platform)
                                        .SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
 
@@ -80,13 +83,13 @@ namespace TVPApiModule.Objects
 
             if (mediaPrice != null && mediaPrice.item_prices != null && mediaPrice.item_prices.Length > 0)
             {
-                TVPApi.PriceReason priceReason = (TVPApi.PriceReason)mediaPrice.item_prices[0].price_reason;
+                TVPApiModule.Context.PriceReason priceReason = (TVPApiModule.Context.PriceReason)mediaPrice.item_prices[0].price_reason;
 
                 bRet = mediaPrice.item_prices[0].price.price == 0 &&
-                       (priceReason == TVPApi.PriceReason.PPVPurchased ||
-                        priceReason == TVPApi.PriceReason.SubscriptionPurchased ||
-                        priceReason == TVPApi.PriceReason.PrePaidPurchased ||
-                        priceReason == TVPApi.PriceReason.Free);
+                       (priceReason == TVPApiModule.Context.PriceReason.PPVPurchased ||
+                        priceReason == TVPApiModule.Context.PriceReason.SubscriptionPurchased ||
+                        priceReason == TVPApiModule.Context.PriceReason.PrePaidPurchased ||
+                        priceReason == TVPApiModule.Context.PriceReason.Free);
             }
             else
             {

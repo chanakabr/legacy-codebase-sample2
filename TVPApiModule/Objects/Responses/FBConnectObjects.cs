@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TVPApiModule.Objects
+namespace TVPApiModule.Objects.Responses
 {
     public class FBConnectObj
     {

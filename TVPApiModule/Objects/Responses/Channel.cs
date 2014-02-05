@@ -9,7 +9,7 @@ using TVPPro.SiteManager.DataEntities;
 /// Summary description for Channel
 /// </summary>
 /// 
-namespace TVPApi
+namespace TVPApiModule.Objects.Responses
 {
     public class Channel
     {

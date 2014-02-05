@@ -14,8 +14,10 @@ using TVPPro.SiteManager.DataLoaders;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Manager;
 using log4net;
+using TVPApiModule.Context;
+using TVPApiModule.DataLoaders;
 
-namespace TVPApi
+namespace TVPApiModule.Objects.Responses
 {
     public class PageData
     {
@@ -28,7 +30,7 @@ namespace TVPApi
 
        
 
-        public PageData(int groupID, PlatformType platform)
+        public PageData(int groupID, TVPApiModule.Context.PlatformType platform)
         {
             Init(groupID, platform);
         }
@@ -852,7 +854,7 @@ namespace TVPApi
         public bool HasCarousel { get; set; }
         public bool HasMiddleFooter { get; set; }
         public bool PlayerAutoPlay { get; set; }
-        public TVPApi.Pages PageToken { get; set; }
+        public Pages PageToken { get; set; }
         //public TVPPro.SiteManager.DataLoaders.CustomLayoutLoader.CustomLayout CustomLayout { get; internal set; }
 
         public bool IsActive { get; set; }
@@ -890,7 +892,7 @@ namespace TVPApi
             {
                 IEnumerable<PageGallery> MainGalleryList =
                 from galleries in GetLocaleGalleries()
-                where galleries.gallery_location.Equals(TVPApi.GalleryLocation.Main.ToString())
+                where galleries.gallery_location.Equals(GalleryLocation.Main.ToString())
                 select galleries;
 
                 if (MainGalleryList != null && MainGalleryList.Count() > 0)
@@ -907,7 +909,7 @@ namespace TVPApi
             {
                 IEnumerable<PageGallery> TopGalleryList =
                 from galleries in GetLocaleGalleries()
-                where galleries.gallery_location.Equals(TVPApi.GalleryLocation.Top.ToString())
+                where galleries.gallery_location.Equals(GalleryLocation.Top.ToString())
                 select galleries;
 
                 if (TopGalleryList != null && TopGalleryList.Count() > 0)
@@ -972,7 +974,7 @@ namespace TVPApi
     public class PageGallery
     {
         public long gallery_id { get; set; }
-        public TVPApi.UIGalleryType ui_gallery_type { get; set; }
+        public UIGalleryType ui_gallery_type { get; set; }
         public string tvm_user { get; set; }
         public string TVMPass { get; set; }
         public string gallery_location { get; set; }
@@ -1047,7 +1049,7 @@ namespace TVPApi
         public long button_id;
         public string link;
         public string text;
-        public TVPApi.GalleryButtonType type;
+        public GalleryButtonType type;
     }
 
     #endregion

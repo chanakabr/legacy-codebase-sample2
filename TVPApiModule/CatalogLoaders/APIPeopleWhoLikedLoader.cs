@@ -10,6 +10,7 @@ using TVPPro.SiteManager.Helper;
 using TVPApi;
 using TVPApiModule.Manager;
 using TVPApiModule.Helper;
+using TVPApiModule.Context;
 
 namespace TVPApiModule.CatalogLoaders
 {

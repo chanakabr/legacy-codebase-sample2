@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TVPApiModule.Objects;
 
 namespace TVPApiModule.Extentions
 {
@@ -1325,7 +1326,7 @@ namespace TVPApiModule.Extentions
             TVPApiModule.Objects.Responses.UserSocialActionObject retVal = new TVPApiModule.Objects.Responses.UserSocialActionObject();
 
             retVal.site_guid = response.m_sSiteGuid;
-            retVal.social_action = (TVPApiModule.Objects.Responses.eUserAction)response.m_eSocialAction;
+            retVal.social_action = (TVPApiModule.Objects.eUserAction)response.m_eSocialAction;
             retVal.social_platform = (TVPApiModule.Objects.Responses.SocialPlatform)response.m_eSocialPlatform;
             retVal.media_id = response.nMediaID;
             retVal.program_id = response.nProgramID;
@@ -1471,9 +1472,9 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static TVPApiModule.Objects.Responses.KeyValuePair ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair response)
+        public static KeyValuePair ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair response)
         {
-            TVPApiModule.Objects.Responses.KeyValuePair retVal = new TVPApiModule.Objects.Responses.KeyValuePair();
+            KeyValuePair retVal = new KeyValuePair();
 
             retVal.key = response.key;
             retVal.value = response.value;
@@ -1481,9 +1482,9 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static TVPApiModule.Objects.Responses.KeyValuePair ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair response)
+        public static KeyValuePair ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair response)
         {
-            TVPApiModule.Objects.Responses.KeyValuePair retVal = new TVPApiModule.Objects.Responses.KeyValuePair();
+            KeyValuePair retVal = new KeyValuePair();
 
             retVal.key = response.key;
             retVal.value = response.value;

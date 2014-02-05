@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TVPApiModule.Objects;
 
 /// <summary>
 /// Summary description for ProfileInfo
 /// </summary>
 /// 
-namespace TVPApi
+namespace TVPApiModule.Objects
 {
     //A shallow profile object to return in site map (holds gallery ids instead of galleries)
     public class ProfileInfo

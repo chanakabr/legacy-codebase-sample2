@@ -7,12 +7,13 @@ using TVPApiModule.Manager;
 using Tvinci.Localization;
 using System.Data;
 using System.Web.UI;
+using TVPApiModule.Context;
 
 namespace TVPApiModule.Helper
 {
     public class TranslationHelper
     {
-        public static Pair[] GetTranslations(int groupID, TVPApi.PlatformType platform)
+        public static Pair[] GetTranslations(int groupID, PlatformType platform)
         {
             
             List<LanguageContext> languages = TextLocalizationManager.Instance.GetTextLocalization(groupID, platform).GetLanguages();

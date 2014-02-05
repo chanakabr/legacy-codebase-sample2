@@ -5,13 +5,16 @@ using System.Web;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.DataLoader;
+using TVPApiModule.Context;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects.Responses;
 
 /// <summary>
 /// Summary description for CategoryTreeHelper
 /// </summary>
 /// 
 
-namespace TVPApi
+namespace TVPApiModule.Helper
 {
     public class CategoryTreeHelper
     {
