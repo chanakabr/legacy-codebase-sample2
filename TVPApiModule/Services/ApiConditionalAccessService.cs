@@ -83,7 +83,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : ChargeUserForMediaFileUsingCC, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
             }
 
-            return string.Format("{0}|{1}|{2}", response.m_oStatus.ToString(), response.m_sStatusDescription, response.m_sStatusDescription);
+            return string.Format("{0}|{1}|{2}", response.m_oStatus.ToString(), response.m_sRecieptCode, response.m_sStatusDescription);
         }
 
         public string DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
@@ -131,7 +131,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : ChargeUserForSubscriptionUsingCC, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
             }
 
-            return string.Format("{0}|{1}|{2}", response.m_oStatus.ToString(), response.m_sStatusDescription, response.m_sStatusDescription);
+            return string.Format("{0}|{1}|{2}", response.m_oStatus.ToString(), response.m_sRecieptCode, response.m_sStatusDescription);
         }
 
         public bool CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
