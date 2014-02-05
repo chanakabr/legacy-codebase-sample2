@@ -95,6 +95,31 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Create Purchase Token")]
+        public int CreatePurchaseToken(InitializationObject initObj, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string userIp, string countryCd2, string languageCode3, string deviceName, int assetType, string overrideEndDate, string previewModuleID)
+        {
+            int res = 0;
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CreatePurchaseToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).CreatePurchaseToken(initObj.SiteGuid, price, currencyCode3, assetId, ppvModuleCode, campaignCode, couponCode, paymentMethod, userIp, countryCd2, languageCode3, deviceName, assetType, overrideEndDate, previewModuleID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+            return res;
+        }
+
+
         [WebMethod(EnableSession = true, Description = "Activate Campaign")]
         public bool ActivateCampaign(InitializationObject initObj, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
                                                            CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
