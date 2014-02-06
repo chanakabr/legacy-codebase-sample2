@@ -1,0 +1,372 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2DA122E7-8C17-49BC-8F28-108A4ED741E4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TVPApiModule</RootNamespace>
+    <AssemblyName>TVPApiModule</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>http://localhost/TVPApiModule/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIChannelsListsLoader.cs" />
+    <Compile Include="CatalogLoaders\APIEPGAutoCompleteLoader.cs" />
+    <Compile Include="CatalogLoaders\APIEPGSearchLoader.cs" />
+    <Compile Include="CatalogLoaders\APIMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIPeopleWhoLikedLoader.cs" />
+    <Compile Include="CatalogLoaders\APIPeopleWhoWatchedLoader.cs" />
+    <Compile Include="CatalogLoaders\APIPersonalLastWatchedLoader.cs" />
+    <Compile Include="CatalogLoaders\APIPersonalRecommendedLoader.cs" />
+    <Compile Include="CatalogLoaders\APIRelatedMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APISearchMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APISubscriptionMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIUserSocialMediaLoader.cs" />
+    <Compile Include="Configuration\ApiOrcaRecommendationsConfiguration.cs" />
+    <Compile Include="Configuration\ApiPlatformServicesConfiguration.cs" />
+    <Compile Include="Configuration\ApiSiteConfiguration.cs" />
+    <Compile Include="Configuration\ApiMediaConfiguration.cs" />
+    <Compile Include="Context\EnumManager.cs" />
+    <Compile Include="DataLoaders\APIAutoCompleteLoader.cs" />
+    <Compile Include="DataLoaders\APIChannelLoader.cs" />
+    <Compile Include="DataLoaders\APICustomAutoCompleteLoader.cs" />
+    <Compile Include="DataLoaders\ApiLastWatchedLoader.cs" />
+    <Compile Include="DataLoaders\APIMediaHit.cs" />
+    <Compile Include="DataLoaders\APIMediaLoader.cs" />
+    <Compile Include="DataLoaders\APIMediaMark.cs" />
+    <Compile Include="DataLoaders\APIMenuLoader.cs" />
+    <Compile Include="DataLoaders\APIMultiMediaLoader.cs" />
+    <Compile Include="DataLoaders\APIPageDataLoader.cs" />
+    <Compile Include="DataLoaders\APIPeopleWhoWatchedLoader.cs" />
+    <Compile Include="DataLoaders\APIPersonalRecommendedLoader.cs" />
+    <Compile Include="DataLoaders\APIRelatedMediaLoader.cs" />
+    <Compile Include="DataLoaders\APISearchLoader.cs" />
+    <Compile Include="DataLoaders\APITVMRentalMultiMediaLoader.cs" />
+    <Compile Include="DataLoaders\APITVMSubscriptionMediaLoader.cs" />
+    <Compile Include="DataLoaders\APIUserSocialMediasLoader.cs" />
+    <Compile Include="DataLoaders\APISendToFriendLoader.cs" />
+    <Compile Include="DataLoaders\APIChannelsListLoader.cs" />
+    <Compile Include="DBConfiguration\TVinciDBConfiguration.cs" />
+    <Compile Include="Helper\ActionHelper.cs" />
+    <Compile Include="Helper\APICatalogHelper.cs" />
+    <Compile Include="Helper\CategoryTreeHelper.cs" />
+    <Compile Include="Helper\ChannelHelper.cs" />
+    <Compile Include="Helper\CommentHelper.cs" />
+    <Compile Include="Helper\ConnectionHelper.cs" />
+    <Compile Include="Helper\MediaHelper.cs" />
+    <Compile Include="Helper\MenuHelper.cs" />
+    <Compile Include="Helper\PageDataHelper.cs" />
+    <Compile Include="Helper\PageGalleryHelper.cs" />
+    <Compile Include="Helper\PagingHelper.cs" />
+    <Compile Include="Helper\ParserHelper.cs" />
+    <Compile Include="Helper\ProfileHelper.cs" />
+    <Compile Include="Helper\RecommendationsHelper.cs" />
+    <Compile Include="Helper\ResponseTimeHelper.cs" />
+    <Compile Include="Helper\RssHelper.cs" />
+    <Compile Include="Helper\SessionHelper.cs" />
+    <Compile Include="Helper\TranslationHelper.cs" />
+    <Compile Include="Helper\CRMHelper.cs" />
+    <Compile Include="Helper\VoteHelper.cs" />
+    <Compile Include="Helper\WSUtils.cs" />
+    <Compile Include="HttpHandlers\CrossOriginHandler.cs" />
+    <Compile Include="Interfaces\IParser.cs" />
+    <Compile Include="Interfaces\IImplementation.cs" />
+    <Compile Include="Manager\CategoryTreeBuilder.cs" />
+    <Compile Include="Manager\ConfigManager.cs" />
+    <Compile Include="Manager\ConnectionManager.cs" />
+    <Compile Include="Manager\MenuBuilder.cs" />
+    <Compile Include="Manager\SiteMapManager.cs" />
+    <Compile Include="Configuration\ApiTechnicalConfiguration.cs" />
+    <Compile Include="Manager\TextLocalizationManager.cs" />
+    <Compile Include="Objects\CRM\Country.cs" />
+    <Compile Include="Objects\CRM\enums.cs" />
+    <Compile Include="Objects\CRM\State.cs" />
+    <Compile Include="Objects\CRM\User.cs" />
+    <Compile Include="Objects\CRM\UserBasicData.cs" />
+    <Compile Include="Objects\CRM\UserDynamicData.cs" />
+    <Compile Include="Objects\CRM\UserDynamicDataContainer.cs" />
+    <Compile Include="Objects\CRM\UserResponseObject.cs" />
+    <Compile Include="Objects\CRM\UserType.cs" />
+    <Compile Include="Objects\Enums.cs" />
+    <Compile Include="Objects\External.cs" />
+    <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
+    <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
+    <Compile Include="Objects\TagMetaIntPairArray.cs" />
+    <Compile Include="Objects\ExtraParameters.cs" />
+    <Compile Include="Objects\Notification.cs" />
+    <Compile Include="Objects\TagMetaPairArray.cs" />
+    <Compile Include="Objects\AdvertisingProvider.cs" />
+    <Compile Include="Objects\ImplementationBase.cs" />
+    <Compile Include="Objects\Category.cs" />
+    <Compile Include="Objects\Channel.cs" />
+    <Compile Include="Objects\Comment.cs" />
+    <Compile Include="Objects\DynamicData.cs" />
+    <Compile Include="Objects\FBConnectObjects.cs" />
+    <Compile Include="Objects\InitializationObject.cs" />
+    <Compile Include="Objects\Locale.cs" />
+    <Compile Include="Objects\Media.cs" />
+    <Compile Include="Objects\Menu.cs" />
+    <Compile Include="Objects\MenuItem.cs" />
+    <Compile Include="Objects\PageData.cs" />
+    <Compile Include="Objects\PageInfo.cs" />
+    <Compile Include="Objects\PermittedPackages.cs" />
+    <Compile Include="Objects\Profile.cs" />
+    <Compile Include="Objects\ProfileInfo.cs" />
+    <Compile Include="Objects\SafeDictionary.cs" />
+    <Compile Include="Objects\SiteMap.cs" />
+    <Compile Include="Objects\SubscriptionPrice.cs" />
+    <Compile Include="Objects\TagMetaPair.cs" />
+    <Compile Include="Objects\ImplementationYes.cs" />
+    <Compile Include="Objects\TextLocalization.cs" />
+    <Compile Include="Objects\Translation.cs" />
+    <Compile Include="Objects\UserVote.cs" />
+    <Compile Include="Parsers\AbertisJSONParser.cs" />
+    <Compile Include="Parsers\UsersXMLParser.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Services\ApiConditionalAccessService.cs" />
+    <Compile Include="Services\ApiDomainsService.cs" />
+    <Compile Include="Services\ApiNotificationService.cs" />
+    <Compile Include="Services\ApiPricingService.cs" />
+    <Compile Include="Services\ApiApiService.cs" />
+    <Compile Include="Services\ApiSocialService.cs" />
+    <Compile Include="Services\ApiUsersService.cs" />
+    <Compile Include="Services\ApiBillingService.cs" />
+    <Compile Include="Web References\tvapi\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\yes.tvinci.ITProxy\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\TVP.Libs.Common\DataLoader\Tvinci.Data.DataLoader.csproj">
+      <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
+      <Name>Tvinci.Data.DataLoader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVP.Libs.Common\Localization\Localization.csproj">
+      <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
+      <Name>Localization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVP.Libs.Common\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVP.Libs.Common\Tvinci.Configuration\Tvinci.Configuration.csproj">
+      <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
+      <Name>Tvinci.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVP.Libs.Common\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj">
+      <Project>{209ee212-3a89-4966-951e-0173dcc76bb0}</Project>
+      <Name>Tvinci.Data.Loaders</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVP.Libs.Common\Tvinci.Helpers\Tvinci.Helpers.csproj">
+      <Project>{b76f07e3-91c2-44a7-b80b-eb60bfb07825}</Project>
+      <Name>Tvinci.Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVP.Libs.Common\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj">
+      <Project>{bead66e3-143b-4c83-9352-50afb0aa62fa}</Project>
+      <Name>Tvinci.Data.TVMDataLoader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVP.Libs.Common\TVPPro.Configuration\TVPPro.Configuration.csproj">
+      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
+      <Name>TVPPro.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVP.Libs.Common\TVPPro.SiteManager\TVPPro.SiteManager.csproj">
+      <Project>{1df66db2-d5d1-4b31-a7a0-5beb650da85f}</Project>
+      <Name>TVPPro.SiteManager</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://itproxy.tvinci.yes/service.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\yes.tvinci.ITProxy\</RelPath>
+      <UpdateFromURL>http://itproxy.tvinci.yes/service.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>TVPApiModule_yes_tvinci_ITProxy_Service</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://platform-us.tvinci.com/tvapi.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\tvapi\</RelPath>
+      <UpdateFromURL>http://platform-us.tvinci.com/tvapi.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>TVPApiModule_tvapi_tvapi</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\yes.tvinci.ITProxy\Entitlement.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\yes.tvinci.ITProxy\OfferListTypeOffer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\yes.tvinci.ITProxy\RecordAllResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\yes.tvinci.ITProxy\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\yes.tvinci.ITProxy\service.wsdl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\tvapi\CategoryObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tvapi\ChannelObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tvapi\GenericWriteResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tvapi\MediaInfoStructObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tvapi\OneTimeObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tvapi\RateResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tvapi\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\tvapi\TagResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tvapi\tvapi.wsdl" />
+    <None Include="Web References\tvapi\UserComment.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tvapi\UserIMRequestObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\tvapi\tvapi.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\yes.tvinci.ITProxy\service.disco" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
