@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by Someone (Somewhere) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="File">
+		<xs:attribute name="Type" type="xs:string"/>
+		<xs:attribute name="ID" type="xs:int"/>
+		<xs:attribute name="URL" type="xs:string"/>
+		<xs:attribute name="BillingTypeID" type="xs:int"/>
+		<xs:attribute name="BillingTypeName" type="xs:string"/>
+		<xs:attribute name="is_active" type="xs:int"/>
+		<xs:attribute name="TypeID" type="xs:int"/>
+	</xs:complexType>
+	<xs:element name="Basic">
+		<xs:complexType>
+			<xs:attribute name="ID" type="xs:int"/>
+			<xs:attribute name="MediaType" type="xs:int"/>
+			<xs:attribute name="Name" type="xs:string"/>
+			<xs:attribute name="Description" type="xs:string"/>
+			<xs:attribute name="StartDate" type="xs:dateTime"/>
+			<xs:attribute name="EndDate" type="xs:dateTime"/>
+			<xs:attribute name="FinalEndDate" type="xs:dateTime"/>
+			<xs:attribute name="PicURL" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Tag">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Item" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="ID" type="xs:int"/>
+						<xs:attribute name="Value" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="TypeID" type="xs:int"/>
+			<xs:attribute name="TypeName"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Meta">
+		<xs:complexType>
+			<xs:attribute name="Name"/>
+			<xs:attribute name="Value"/>
+			<xs:attribute name="Type"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="MediaDetails">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="params">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="MediaId" type="xs:int" maxOccurs="unbounded"/>
+												</xs:sequence>
+												<xs:attribute name="GroupId" type="xs:int"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="Media" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Media">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Basic"/>
+				<xs:element ref="Meta" maxOccurs="unbounded"/>
+				<xs:element ref="Tag" maxOccurs="unbounded"/>
+				<xs:element name="File" type="File" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

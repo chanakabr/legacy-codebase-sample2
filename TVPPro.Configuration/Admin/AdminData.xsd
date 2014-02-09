@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by ori (EMBRACE) -->
+<!--Created with Liquid XML Studio - 30 Day Trial Edition (http://www.liquid-technologies.com)-->
+<xs:schema xmlns:mstns="http://tempuri.org/Admin.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" id="Admin">
+	<xs:element name="AdminData">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="DBConfiguration">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="User" type="xs:string"/>
+							<xs:element name="Pass" type="xs:string"/>
+							<xs:element name="IP" type="xs:string"/>
+							<xs:element name="DatabaseInstance" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Sites">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SiteBaseURL" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="ShowFlashCarousel" type="xs:boolean" default="false"/>
+						</xs:sequence>
+						<xs:attribute name="BrowseToSiteBaseURL" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="TVM">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Password" type="xs:string"/>
+							<xs:element name="User" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

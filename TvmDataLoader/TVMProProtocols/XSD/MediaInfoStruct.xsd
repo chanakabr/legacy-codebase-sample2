@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by Someone (Somewhere) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="MediaInfoStruct">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="params">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="GroupID" type="xs:int"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Metas">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="Metas"/>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Tags" type="Tags"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="ObjType"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="Metas">
+		<xs:sequence>
+			<xs:element name="Strings" type="Strings"/>
+			<xs:element name="Doubles" type="Doubles"/>
+			<xs:element name="Bools" type="Bools"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TagType">
+		<xs:sequence>
+			<xs:element name="ID" type="xs:int"/>
+			<xs:element name="Name" type="xs:string"/>
+			<xs:element name="Tag" type="Tag" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Strings">
+		<xs:sequence>
+			<xs:element name="Meta" type="Meta" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Doubles">
+		<xs:sequence>
+			<xs:element name="Meta" type="Meta" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Bools">
+		<xs:sequence>
+			<xs:element name="Meta" type="Meta" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Tag">
+		<xs:sequence>
+			<xs:element name="ID" type="xs:int"/>
+			<xs:element name="Value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Tags">
+		<xs:sequence>
+			<xs:element name="TagType" type="TagType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Meta">
+		<xs:sequence>
+			<xs:element name="ID" type="xs:int"/>
+			<xs:element name="Value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

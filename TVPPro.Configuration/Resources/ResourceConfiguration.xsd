@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by TeaM DJiNN (TeaM DJiNN) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:altova="http://www.altova.com/xml-schema-extensions" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="ResourceConfiguration">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="TVP">
+					<xs:complexType>
+						<xs:sequence maxOccurs="unbounded">
+							<xs:element name="Page" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element ref="Resources" minOccurs="0" maxOccurs="unbounded"/>
+									</xs:sequence>
+									<xs:attribute name="token" type="xs:string"/>
+									<xs:attribute name="media_type" type="xs:string" default="None"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Common" minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element ref="Resources" minOccurs="0" maxOccurs="unbounded"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Resources">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Resource" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="file" type="xs:string"/>
+						<xs:attribute name="version" type="xs:float" default="1"/>
+						<xs:attribute name="debug" type="xs:boolean" default="false"/>
+						<xs:attribute name="is_local" type="xs:boolean" default="true"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="type">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="JavaScript"/>
+						<xs:enumeration value="CSS"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

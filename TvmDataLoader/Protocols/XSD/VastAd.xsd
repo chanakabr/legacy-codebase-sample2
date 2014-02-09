@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by TeaM DJiNN (TeaM DJiNN) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="VastProtocol">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="params">
+											<xs:complexType>
+												<xs:attribute name="id"/>
+												<xs:attribute name="width"/>
+												<xs:attribute name="height"/>
+												<xs:attribute name="type" use="required">
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:enumeration value="media"/>
+															<xs:enumeration value="page"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="type" fixed="vast_companion_ad">
+										<xs:simpleType>
+											<xs:restriction base="xs:string"/>
+										</xs:simpleType>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="flashvars">
+								<xs:complexType>
+									<xs:attribute name="player_un"/>
+									<xs:attribute name="player_pass"/>
+									<xs:attribute name="pic_size1"/>
+									<xs:attribute name="lang"/>
+									<xs:attribute name="no_cache"/>
+									<xs:attribute name="file_format"/>
+									<xs:attribute name="file_quality"/>
+									<xs:attribute name="zip"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="companionAd">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="width"/>
+											<xs:attribute name="height"/>
+											<xs:attribute name="clickthrough"/>
+											<xs:attribute name="creativeView"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="type"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

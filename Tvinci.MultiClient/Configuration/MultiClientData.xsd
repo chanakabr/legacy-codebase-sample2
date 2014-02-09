@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--Created with Liquid XML Studio - FREE Community Edition (http://www.liquid-technologies.com)-->
+<xs:schema xmlns:mstns="http://tempuri.org/MultiClientConfiguration.xsd" elementFormDefault="qualified"  id="MultiClientConfiguration" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="MultiClientData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Clients">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="Client">
+                <xs:complexType>
+                  <xs:attribute name="ClientID" type="xs:string" use="required" />
+                  <xs:attribute name="ConfigurationID" type="xs:string" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Definitions">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Defaults">
+                <xs:complexType>
+                  <xs:attribute name="ClientID" type="xs:string" />
+                  <xs:attribute name="ConfigurationID" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Sources">
+                <xs:complexType>
+                  <xs:attribute default="false" name="Database" type="xs:boolean" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute default="Prohibited" name="Mode" use="optional">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="Prohibited" />
+                  <xs:enumeration value="Required" />
+                  <xs:enumeration value="ForceDefault" />
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute default="true" name="ClientPersistByCookie" type="xs:boolean" />
+            <xs:attribute default="true" name="ShowExitButton" type="xs:boolean" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Pages">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" name="NoClientURL" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="1" name="IgnoredPages">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="IgnoredPage" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

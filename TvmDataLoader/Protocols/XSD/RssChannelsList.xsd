@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by ori (EMBRACE) -->
+<!--Created with Liquid XML Studio (http://www.liquid-technologies.com)-->
+<xs:schema xmlns:ns0="SharedElements" xmlns:mstns="http://tempuri.org/Orange" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="RssChannelsList">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="params">
+											<xs:complexType>
+												<xs:attribute name="start_index" type="xs:string"/>
+												<xs:attribute name="number_of_items" type="xs:string"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="type" fixed="rss_channels_list"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="flashvars">
+								<xs:complexType>
+									<xs:attribute name="player_un"/>
+									<xs:attribute name="player_pass"/>
+									<xs:attribute name="pic_size1"/>
+									<xs:attribute name="pic_size2"/>
+									<xs:attribute name="pic_size3" type="xs:string"/>
+									<xs:attribute name="lang"/>
+									<xs:attribute name="no_cache"/>
+									<xs:attribute name="use_final_end_date"/>
+									<xs:attribute name="file_format"/>
+									<xs:attribute name="file_quality">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="low"/>
+												<xs:enumeration value="medium"/>
+												<xs:enumeration value="high"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="zip" type="xs:string" use="optional" default="0"/>
+									<xs:attribute name="pic_size1_format" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size1_quality" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size2_format" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size2_quality" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size3_format" type="xs:string"/>
+									<xs:attribute name="pic_size3_quality" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="playlist_schema"/>
+							<xs:element name="channels">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="channel" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:attribute name="id"/>
+												<xs:attribute name="title"/>
+												<xs:attribute name="description"/>
+												<xs:attribute name="media_count"/>
+												<xs:attribute name="pic_size1"/>
+												<xs:attribute name="linear_start_time"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="count"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="rss_channels_list"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

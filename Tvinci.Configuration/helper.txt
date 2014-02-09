@@ -1,0 +1,2 @@
+﻿cd \Program Files\XSDObjectGenerator\
+XSDObjectGen.exe "C:\ode\Libs\Tvinci.Configuration\ProviderConfiguration\ProvideConfiguration.xsd" /n:"Tvinci.Configuration.ProvideConfiguration" /f:"C:\ode\Libs\Tvinci.Configuration\ProviderConfiguration\ProvideConfiguration.cs" /c /d /p 

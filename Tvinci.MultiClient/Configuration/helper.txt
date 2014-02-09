@@ -1,0 +1,2 @@
+﻿cd \Program Files\XSDObjectGenerator\
+XSDObjectGen.exe "C:\ode\Libs\Tvinci.MultiClient\Configuration\MultiClientData.xsd" /n:"Tvinci.MultiClient.Configuration" /f:"C:\ode\Libs\Tvinci.MultiClient\Configuration\MultiClientData.cs" /c /d /p 

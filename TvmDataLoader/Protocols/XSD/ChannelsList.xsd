@@ -1,0 +1,84 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="ChannelsList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="root">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="request">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="category">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="id"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute fixed="channels_list" name="type"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="flashvars">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:boolean" name="auto_play"/>
+					  <xs:attribute type="xs:string" name="zip"/>
+                      <xs:attribute type="xs:string" name="file_format"/>
+                      <xs:attribute name="file_quality">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="low"/>
+								<xs:enumeration value="medium"/>
+								<xs:enumeration value="high"/>
+							</xs:restriction>
+						</xs:simpleType>
+					 </xs:attribute>
+                      <xs:attribute type="xs:string" name="no_cache"/>
+                      <xs:attribute type="xs:string" name="pic_size1"/>
+                      <xs:attribute type="xs:string" name="tvinci_guid"/>
+                      <xs:attribute type="xs:boolean" name="with_channels"/>
+                      <xs:attribute type="xs:string" name="player_un"/>
+                      <xs:attribute type="xs:string" name="player_pass"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+          <xs:element name="response">
+              <xs:complexType>
+                  <xs:sequence>
+                      <xs:element name="category">
+                          <xs:complexType>
+                              <xs:sequence>
+                                  <xs:element name="channel" maxOccurs="unbounded" minOccurs="0">
+                                      <xs:complexType>
+                                          <xs:simpleContent>
+                                              <xs:extension base="xs:string">
+                                                  <xs:attribute type="xs:int" name="id" use="optional"/>
+                                                  <xs:attribute type="xs:anyURI" name="pic_size1" use="optional"/>
+                                                  <xs:attribute type="xs:string" name="title" use="optional"/>
+                                                  <xs:attribute type="xs:string" name="media_count" use="optional"/>
+                                                  <xs:attribute type="xs:string" name="description" use="optional"/>
+                                                  <xs:attribute type="xs:string" name="linear_start_time" use="optional"/>
+                                              </xs:extension>
+                                          </xs:simpleContent>
+                                      </xs:complexType>
+                                  </xs:element>
+                              </xs:sequence>
+                              <xs:attribute type="xs:string" name="id"/>
+                          </xs:complexType>
+                      </xs:element>
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="type"/>
+              </xs:complexType>
+          </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

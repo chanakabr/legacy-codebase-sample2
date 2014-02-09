@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2009 (http://www.altova.com) by daniel (daniel) -->
+<!--Created with Liquid XML Studio - FREE Community Edition (http://www.liquid-technologies.com)-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="TVCProtocol">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:attribute name="type" use="required" fixed="TVC"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="flashvars">
+								<xs:complexType>
+									<xs:attribute name="player_un" use="required"/>
+									<xs:attribute name="player_pass" use="required"/>
+									<xs:attribute name="no_cache" use="optional" default="0"/>
+									<xs:attribute name="zip" type="xs:string" use="optional" default="0"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="definitions" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="general">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="headers">
+														<xs:complexType>
+															<xs:attribute name="video_page_header" type="xs:string" default="Video Page"/>
+															<xs:attribute name="catalog_page_header" type="xs:string" default="Catalog Page"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="layout">
+														<xs:complexType>
+															<xs:attribute name="player_bg_color" type="xs:string" use="required"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="comments">
+														<xs:complexType>
+															<xs:attribute name="enabled" type="xs:boolean" default="true"/>
+															<xs:attribute name="auto_show" type="xs:boolean" default="false"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="metadata" minOccurs="0">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="item" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:attribute name="name" type="xs:string" use="required"/>
+																		<xs:attribute name="content" type="xs:string" use="required"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="header_html" type="xs:string" minOccurs="0"/>
+												</xs:sequence>
+												<xs:attribute name="comments_enabled" type="xs:boolean" default="false"/>
+												<xs:attribute name="page_title" type="xs:string" default="TVC - Tvinci"/>
+												<xs:attribute name="page_key_words" type="xs:string" use="optional"/>
+												<xs:attribute name="base_site_add" type="xs:string" use="optional"/>
+												<xs:attribute name="page_description" type="xs:string" use="optional"/>
+												<xs:attribute name="start_page" use="optional" default="Player">
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:enumeration value="Player"/>
+															<xs:enumeration value="PlayerOnly"/>
+															<xs:enumeration value="Catalog"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="footer">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="powered_item" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:attribute name="name" type="xs:string" use="required"/>
+															<xs:attribute name="url" type="xs:string" use="optional"/>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="copyright" type="xs:string" use="optional"/>
+												<xs:attribute name="url" type="xs:string" use="optional"/>
+												<xs:attribute name="category_id" type="xs:long" use="optional"/>
+												<xs:attribute name="channel_line_items" type="xs:long"/>
+												<xs:attribute name="max_channel_line_items" type="xs:long"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="statistics" type="xs:string"/>
+										<xs:element name="main_page">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="player">
+														<xs:complexType>
+															<xs:attribute name="skin" type="xs:string"/>
+															<xs:attribute name="menu_category_id" type="xs:long" use="required"/>
+															<xs:attribute name="tree_category_id" type="xs:long" use="required"/>
+															<xs:attribute name="start_channel_id" type="xs:long" use="required"/>
+															<xs:attribute name="auto_play" type="xs:boolean" use="optional" default="true"/>
+															<xs:attribute name="file_format" use="optional" default="FLV">
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:enumeration value="WMV"/>
+																		<xs:enumeration value="FLV"/>
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+															<xs:attribute name="xml_config_url" type="xs:string" use="required"/>
+															<xs:attribute name="language_xml_config_url" type="xs:string" use="required"/>
+															<xs:attribute name="extras_url" type="xs:string" use="required"/>
+															<xs:attribute name="mini_skin" type="xs:string" use="required"/>
+															<xs:attribute name="translation_config_url" type="xs:string" use="required"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="channel_flooding">
+														<xs:complexType>
+															<xs:attribute name="channel_id" type="xs:long" use="required"/>
+															<xs:attribute name="max_items" type="xs:int" use="optional" default="10"/>
+															<xs:attribute name="custom_title" type="xs:string" use="optional"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="info">
+														<xs:complexType>
+															<xs:attribute name="extran_info_code" type="xs:string" use="optional"/>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="header">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="iframe" minOccurs="0">
+														<xs:complexType>
+															<xs:attribute name="url" type="xs:string" use="required"/>
+															<xs:attribute name="height" type="xs:int" use="optional"/>
+															<xs:attribute name="width" type="xs:int" use="optional"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="company_logo" type="Logo" minOccurs="0"/>
+													<xs:element name="sponser_logo" type="Logo" id="SponserLogo" minOccurs="0"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="catalog_page">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="filter_by">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="item" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:attribute name="tag_name" type="xs:string" use="required"/>
+																		<xs:attribute name="title" type="xs:string" use="required"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="media">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="type" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:attribute name="title" type="xs:string" use="required"/>
+																		<xs:attribute name="id" type="xs:long" use="required"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="page_size" type="xs:int" use="optional" default="30"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="advertise">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="header" type="Advertise" minOccurs="0"/>
+													<xs:element name="side" type="Advertise" minOccurs="0"/>
+													<xs:element name="buttom" type="Advertise" minOccurs="0"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="lang" type="xs:string" use="required"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="type" use="required" fixed="tvc"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="Logo">
+		<xs:attribute name="link_url" type="xs:string" use="optional"/>
+		<xs:attribute name="image_url" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="Advertise">
+		<xs:sequence>
+			<xs:element name="image" type="Logo" minOccurs="0"/>
+			<xs:element name="html_code" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

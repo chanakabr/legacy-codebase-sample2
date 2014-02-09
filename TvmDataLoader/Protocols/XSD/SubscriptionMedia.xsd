@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by TeaM DJiNN (TeaM DJiNN) -->
+<!--Created with Liquid XML Studio (http://www.liquid-technologies.com)-->
+<xs:schema xmlns:ns0="SharedElements" xmlns:mstns="http://tempuri.org/Orange" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:complexType name="MetaType">
+		<xs:attribute name="name" type="xs:string"/>
+		<xs:attribute name="value"/>
+	</xs:complexType>
+	<xs:element name="SubscriptionMedia">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="params">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="info_struct" minOccurs="0">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="name" minOccurs="0"/>
+																<xs:element name="description" minOccurs="0"/>
+																<xs:element name="type" minOccurs="0"/>
+																<xs:element name="meta" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:attribute name="name" type="xs:string" use="required"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="tags" minOccurs="0">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="tag_type" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:attribute name="name" type="xs:string" use="required"/>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute name="statistics" type="xs:boolean" default="false"/>
+															<xs:attribute name="personal" type="xs:boolean" default="false"/>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="with_info" default="false"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="subscription">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="order_values">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="name" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="order_dir"/>
+																		<xs:attribute name="order_num"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="date" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="order_dir"/>
+																		<xs:attribute name="order_num"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="views" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="order_dir"/>
+																		<xs:attribute name="order_num"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="rate" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="order_dir"/>
+																		<xs:attribute name="order_num"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="random" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="value"/>
+																		<xs:attribute name="order_num"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="meta" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="name"/>
+																		<xs:attribute name="order_dir"/>
+																		<xs:attribute name="order_num"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="cut_values">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="type" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="value"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="meta" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:attribute name="name"/>
+																		<xs:attribute name="value"/>
+																		<xs:attribute name="min_value" type="xs:string"/>
+																		<xs:attribute name="max_value" type="xs:string"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="tags" minOccurs="0">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="tag_type" minOccurs="0" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:attribute name="name"/>
+																					<xs:attribute name="value"/>
+																					<xs:attribute name="cut_with"/>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="name" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="value"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="description" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="value"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="date" minOccurs="0">
+																	<xs:complexType>
+																		<xs:attribute name="min_value" type="xs:string" use="required"/>
+																		<xs:attribute name="max_value" type="xs:string" use="required"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute name="exact" type="xs:boolean" default="false"/>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="id" type="xs:long"/>
+												<xs:attribute name="start_index" type="xs:string"/>
+												<xs:attribute name="number_of_items" type="xs:string"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="type" fixed="subscription_media"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="flashvars">
+								<xs:complexType>
+									<xs:attribute name="user_ip" type="xs:string"/>
+									<xs:attribute name="admin_token" type="xs:string"/>
+									<xs:attribute name="player_un"/>
+									<xs:attribute name="player_pass"/>
+									<xs:attribute name="pic_size1"/>
+									<xs:attribute name="pic_size2"/>
+									<xs:attribute name="pic_size3" type="xs:string"/>
+									<xs:attribute name="lang"/>
+									<xs:attribute name="no_cache"/>
+									<xs:attribute name="use_final_end_date"/>
+									<xs:attribute name="file_format"/>
+									<xs:attribute name="file_quality">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="low"/>
+												<xs:enumeration value="medium"/>
+												<xs:enumeration value="high"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="zip" type="xs:string" use="optional" default="0"/>
+									<xs:attribute name="pic_size1_format" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size1_quality" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size2_format" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size2_quality" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size3_format" type="xs:string"/>
+									<xs:attribute name="pic_size3_quality" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="playlist_schema"/>
+							<xs:element name="subscription">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="channel" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="media" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="description">
+																	<xs:complexType>
+																		<xs:attribute name="value"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="rating">
+																	<xs:complexType>
+																		<xs:attribute name="sum"/>
+																		<xs:attribute name="count"/>
+																		<xs:attribute name="avg"/>
+																		<xs:attribute name="user_voted"/>
+																		<xs:attribute name="user_voted_val"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="tags_collections">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="tag_type" minOccurs="0" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:sequence>
+																						<xs:element name="tag" minOccurs="0" maxOccurs="unbounded">
+																							<xs:complexType>
+																								<xs:attribute name="id"/>
+																								<xs:attribute name="name"/>
+																							</xs:complexType>
+																						</xs:element>
+																					</xs:sequence>
+																					<xs:attribute name="id"/>
+																					<xs:attribute name="name"/>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="type">
+																	<xs:complexType>
+																		<xs:attribute name="id"/>
+																		<xs:attribute name="value"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="views">
+																	<xs:complexType>
+																		<xs:attribute name="count"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="name">
+																	<xs:complexType>
+																		<xs:attribute name="value"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META1_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META2_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META3_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META4_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META5_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META6_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META7_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META8_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META9_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META10_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META11_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META12_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META13_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META14_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META15_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META16_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META17_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META18_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META19_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META20_BOOL_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META1_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META2_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META3_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META4_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META5_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META6_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META7_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META8_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META9_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META10_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META11_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META12_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META13_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META14_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META15_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META16_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META17_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META18_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META19_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META20_DOUBLE_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META1_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META2_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META3_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META4_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META5_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META6_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META7_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META8_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META9_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META10_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META11_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META12_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META13_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META14_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META15_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META16_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META17_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META18_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META19_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="META20_STR_NAME">
+																	<xs:complexType mixed="false">
+																		<xs:complexContent mixed="false">
+																			<xs:extension base="MetaType"/>
+																		</xs:complexContent>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute name="id"/>
+															<xs:attribute name="title"/>
+															<xs:attribute name="url"/>
+															<xs:attribute name="block"/>
+															<xs:attribute name="date"/>
+															<xs:attribute name="duration" type="xs:string"/>
+															<xs:attribute name="file_id"/>
+															<xs:attribute name="file_format"/>
+															<xs:attribute name="pic_size1"/>
+															<xs:attribute name="cdn_id"/>
+															<xs:attribute name="cdn_impl_type"/>
+															<xs:attribute name="like_counter" type="xs:int"/>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="id" type="xs:string"/>
+												<xs:attribute name="title"/>
+												<xs:attribute name="description"/>
+												<xs:attribute name="media_count"/>
+												<xs:attribute name="rss" type="xs:boolean" default="false"/>
+												<xs:attribute name="linear_start_time"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="name"/>
+									<xs:attribute name="subscription_id"/>
+									<xs:attribute name="num_of_channels"/>
+									<xs:attribute name="media_count"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="type"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

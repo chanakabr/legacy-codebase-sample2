@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by Eyal (Tvinci) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="Omniture">
+		<xs:annotation>
+			<xs:documentation>Omniture SiteCatalyst</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence minOccurs="0">
+				<xs:element name="OmniturePages">
+					<xs:complexType>
+						<xs:sequence minOccurs="0">
+							<xs:element name="OmniturePage" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="OmnitureVar" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:attribute name="Value"/>
+												<xs:attribute name="Name"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="ID"/>
+									<xs:attribute name="Name"/>
+									<xs:attribute name="Url"/>
+                  <xs:attribute name="IsAllDataInXml" type="xs:boolean"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="account"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

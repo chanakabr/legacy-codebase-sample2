@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by Chipopo (EMBRACE) -->
+<xs:schema xmlns:ns0="SharedElements" xmlns:mstns="http://tempuri.org/Orange" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="TVMMenu">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="params">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="GroupID" type="xs:int"/>
+													<xs:element name="ID" type="xs:int"/>
+													<xs:element name="ParentID" type="xs:int"/>
+													<xs:element name="AccountID" type="xs:int"/>
+													<xs:element name="PageURL" type="xs:string"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence maxOccurs="unbounded">
+							<xs:element name="MenuItem">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="MenuType"/>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="ObjType" type="xs:string" fixed="TVMMenu"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="MenuType">
+		<xs:sequence>
+			<xs:element name="ID" type="xs:int"/>
+			<xs:element name="Text" type="xs:string"/>
+			<xs:element name="Href" type="xs:string"/>
+			<xs:element name="MenuItem" type="MenuType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

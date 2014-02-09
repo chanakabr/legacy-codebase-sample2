@@ -1,0 +1,5 @@
+﻿cd \Program Files\XSDObjectGenerator\
+XSDObjectGen.exe "C:\Documents\ode\Libs\Tvinci.Helpers.Link\Configuration\Configuration.xsd" /n:"Tvinci.Helpers.Link.Configuration" /f:"C:\Documents\ode\Libs\Tvinci.Helpers.Link\Configuration\Configuration.cs" /c /d /p 
+
+cd \Program Files\XSDObjectGenerator\
+XSDObjectGen.exe "C:\ode\Libs\Tvinci.Helpers.Link\Configuration\Configuration.xsd" /n:"Tvinci.Helpers.Link.Configuration" /f:"C:\ode\Libs\Tvinci.Helpers.Link\Configuration\Configuration.cs" /c /d /p 
