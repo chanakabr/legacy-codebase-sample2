@@ -379,7 +379,7 @@ namespace TVPApiServices
         //            {
         //              res = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainCoGuid(userResponseObject.m_user.m_domianID);  
         //            }
-                    
+
         //        }
         //        catch (Exception ex)
         //        {
@@ -527,8 +527,72 @@ namespace TVPApiServices
             return deviceInfo;
 
         }
-          
 
-        
+        [WebMethod(EnableSession = true, Description = "Sets Domain Restriction")]
+        public bool SetDomainRestriction(InitializationObject initObj, int restriction)
+        {
+            bool passed = false;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    passed = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SetDomainRestriction(initObj.DomainID, restriction);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return passed;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Adds a device to a domain")]
+        public DomainResponseObject SubmitAddDeviceToDomainRequest(InitializationObject initObj, string deviceName, int brandId)
+        {
+            DomainResponseObject domain = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    int siteGuid = 0;
+                    if (int.TryParse(initObj.SiteGuid, out siteGuid))
+                        domain = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).SubmitAddDeviceToDomainRequest(initObj.UDID, initObj.DomainID, siteGuid, deviceName, brandId);
+                    else
+                        logger.WarnFormat("Illegal site-guid for device name: {0}, barndId: {1}", deviceName, brandId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return domain;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Confirms a device by master")]
+        public DomainResponseObject ConfirmDeviceByDomainMaster(InitializationObject initObj, string udid, string masterUn, string token)
+        {
+            DomainResponseObject domain = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).ConfirmDeviceByDomainMaster(udid, masterUn, token);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return domain;
+        }
     }
 }
