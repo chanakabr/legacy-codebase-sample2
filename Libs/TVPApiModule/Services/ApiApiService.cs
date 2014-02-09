@@ -388,7 +388,7 @@ namespace TVPApiModule.Services
             EPGChannelProgrammeObject[] res = null;
             try
             {
-               // res = m_Module.GetEPGProgramsByProgramsIdentefier(m_wsUserName, m_wsPassword, pids, language, duration);
+                res = m_Module.GetEPGProgramsByProgramsIdentefier(m_wsUserName, m_wsPassword, pids, language, duration);
             }
             catch (Exception ex)
             {

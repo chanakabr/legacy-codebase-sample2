@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="PTVGateway.aspx.cs" Inherits="Gateways_RSSGateway" %>

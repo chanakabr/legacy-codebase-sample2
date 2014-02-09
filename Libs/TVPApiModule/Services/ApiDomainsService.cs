@@ -100,6 +100,54 @@ namespace TVPApiModule.Services
             return domain;
         }
 
+        public bool SetDomainRestriction(int iDomainID, int nRestriction)
+        {
+            bool passed = false;
+
+            try
+            {
+                passed = m_Module.SetDomainRestriction(m_wsUserName, m_wsPassword, iDomainID, nRestriction);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : RemoveDeviceToDomain, Error Message: {0} Parameters: iDomainID: {1}, nRestriction: {2}, sDeviceName: {3}, iDeviceBrandID: {4}", ex.Message, iDomainID, nRestriction);
+            }
+
+            return passed;
+        }
+
+        public DomainResponseObject SubmitAddDeviceToDomainRequest(string sUDID, int domainId, int userId, string deviceName, int brandId)
+        {
+            DomainResponseObject domain = null;
+
+            try
+            {
+                domain = m_Module.SubmitAddDeviceToDomainRequest(m_wsUserName, m_wsPassword, domainId, userId, sUDID, deviceName, brandId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SubmitAddDeviceToDomainRequest, Error Message: {0} Parameters: domainId: {1}, userId: {2}, deviceName: {3}, brandId: {4}", ex.Message, domainId, userId, deviceName, brandId);
+            }
+
+            return domain;
+        }
+
+        public DomainResponseObject ConfirmDeviceByDomainMaster(string udid, string masterUn, string token)
+        {
+            DomainResponseObject domain = null;
+
+            try
+            {
+                domain = m_Module.ConfirmDeviceByDomainMaster(m_wsUserName, m_wsPassword, masterUn, udid, token);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ConfirmDeviceByDomainMaster, Error Message: {0} Parameters: masterUn: {1}, udid: {2}, token: {3}", ex.Message, masterUn, udid, token);
+            }
+
+            return domain;
+        }
+
         public DomainResponseObject RemoveDeviceToDomain(int iDomainID, string sUDID)
         {
             DomainResponseObject domain = null;

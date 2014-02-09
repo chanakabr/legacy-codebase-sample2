@@ -83,7 +83,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : ChargeUserForMediaFileUsingCC, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
             }
 
-            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            return string.Format("{0}|{1}|{2}", response.m_oStatus.ToString(), response.m_sRecieptCode, response.m_sStatusDescription);
         }
 
         public string DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
@@ -131,7 +131,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error calling webservice protocol : ChargeUserForSubscriptionUsingCC, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
             }
 
-            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            return string.Format("{0}|{1}|{2}", response.m_oStatus.ToString(), response.m_sRecieptCode, response.m_sStatusDescription);
         }
 
         public bool CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
@@ -182,13 +182,13 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid, bool bOnlyLowest)
+        public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid,string sUDID, bool bOnlyLowest)
         {
             MediaFileItemPricesContainer[] response = null;
 
             try
             {
-                response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, sUDID, SiteHelper.GetClientIP());
             }
             catch (Exception ex)
             {
@@ -196,6 +196,11 @@ namespace TVPApiModule.Services
             }
 
             return response;
+        }
+
+        public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid, bool bOnlyLowest)
+        {
+            return GetItemsPrice(fileArray, sSiteGuid, string.Empty, bOnlyLowest);
         }
 
         public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(string sSiteGuid)
@@ -536,6 +541,84 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public int CreatePurchaseToken(string siteGuid,
+                           double price,
+                           string currencyCode3,
+                           int assetId,
+                           string ppvModuleCode,
+                           string campaignCode,
+                           string couponCode,
+                           string paymentMethod,
+                           string userIp,
+                           string countryCd2,
+                           string languageCode3,
+                           string deviceName,
+                           int assetType,
+                           string overrideEndDate,
+                            string sPreviewModuleID)
+        {
+            int res = 0;
+
+            try
+            {
+                res = m_Module.GetCustomDataID(m_wsUserName,
+                                                  m_wsPassword,
+                                                  siteGuid,
+                                                  price,
+                                                  currencyCode3,
+                                                  assetId,
+                                                  ppvModuleCode,
+                                                  campaignCode,
+                                                  couponCode,
+                                                  paymentMethod,
+                                                  userIp,
+                                                  countryCd2,
+                                                  languageCode3,
+                                                  deviceName,
+                                                  assetType,
+                                                  overrideEndDate,
+                                                  sPreviewModuleID);
+
+                logger.InfoFormat("Protocol: GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}, overrideEndDate - {13}, sPreviewModuleID - {14}",
+                                  siteGuid,
+                                  price,
+                                  currencyCode3,
+                                  assetId,
+                                  ppvModuleCode,
+                                  campaignCode,
+                                  couponCode,
+                                  paymentMethod,
+                                  userIp,
+                                  countryCd2,
+                                  languageCode3,
+                                  deviceName,
+                                  assetType,
+                                  overrideEndDate,
+                                  sPreviewModuleID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetCustomDataID, Error Message: {0}, Parameters : siteGuid - {1}, price - {2}, currencyCode3 - {3}, assetId - {4}, ppvModuleCode - {5}, campaignCode - {6}, couponCode - {7}, paymentMethod - {8}, userIp - {9}, countryCd2 - {10}, languageCode3 - {11}, deviceName - {12}, assetType - {13}, overrideEndDate - {14}, sPreviewModuleID - {15}",
+                                    ex.Message,
+                                    siteGuid,
+                                    price,
+                                    currencyCode3,
+                                    assetId,
+                                    ppvModuleCode,
+                                    campaignCode,
+                                    couponCode,
+                                    paymentMethod,
+                                    userIp,
+                                    countryCd2,
+                                    languageCode3,
+                                    deviceName,
+                                    assetType,
+                                    overrideEndDate,
+                                    sPreviewModuleID);
+            }
+            return res;
+        }
+
         public bool ActivateCampaign(string siteGuid, int campaignID, CampaignActionInfo actionInfo)
         {
             bool retVal = false;
@@ -807,7 +890,7 @@ namespace TVPApiModule.Services
             }
             return retVal;
         }
-        
+
 
 
         #endregion
