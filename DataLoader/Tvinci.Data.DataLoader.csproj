@@ -103,9 +103,6 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Tvinci.Performance">
-      <HintPath>..\Tvinci.Performance\bin\Debug\Tvinci.Performance.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
@@ -151,6 +148,10 @@
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Performance\Tvinci.Performance.csproj">
+      <Project>{d9c9d8fa-3215-4e73-8765-d573da24d6be}</Project>
+      <Name>Tvinci.Performance</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
