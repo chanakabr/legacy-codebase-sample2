@@ -6,9 +6,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TVPApi", "TVPApi", "{173647D2-B5B7-46DC-80FB-0326B428418A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "z -Tvinci.Libs", "z -Tvinci.Libs", "{75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\Libs\Tvinci.Configuration\DbConfigManager.cs = ..\..\Libs\Tvinci.Configuration\DbConfigManager.cs
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TVPApi.Libs", "TVPApi.Libs", "{2B6AD0A5-EDED-4C75-B92E-86D0C03D2A1E}"
 EndProject
@@ -16,8 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0CB482
 	ProjectSection(SolutionItems) = preProject
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPApiTests", "Libs\TVPApiTests\TVPApiTests.csproj", "{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPApiModule", "Libs\TVPApiModule\TVPApiModule.csproj", "{2DA122E7-8C17-49BC-8F28-108A4ED741E4}"
 EndProject
@@ -86,18 +81,6 @@ Global
 		Yes|Any CPU = Yes|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.AllClients|Any CPU.Build.0 = Release|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.debug32|Any CPU.Build.0 = Debug|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.test|Any CPU.ActiveCfg = Release|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.test|Any CPU.Build.0 = Release|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.Yes|Any CPU.ActiveCfg = Release|Any CPU
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.Yes|Any CPU.Build.0 = Release|Any CPU
 		{2DA122E7-8C17-49BC-8F28-108A4ED741E4}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
 		{2DA122E7-8C17-49BC-8F28-108A4ED741E4}.AllClients|Any CPU.Build.0 = Release|Any CPU
 		{2DA122E7-8C17-49BC-8F28-108A4ED741E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -333,7 +316,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C} = {83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}
 		{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F} = {83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}
-		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E} = {173647D2-B5B7-46DC-80FB-0326B428418A}
 		{A23A04F3-7BDF-4AE4-9911-42BFA1232F54} = {173647D2-B5B7-46DC-80FB-0326B428418A}
 		{5D400DB4-C756-4B5C-8359-FE55084043F4} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
 		{E53BAE81-A07C-4112-A42D-4E899D6A52FC} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
