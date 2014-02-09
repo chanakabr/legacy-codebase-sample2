@@ -60,5 +60,14 @@ namespace TVPApiServices
 
         [OperationContract]
         int[] GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid);
+
+        [OperationContract]
+        bool SetDomainRestriction(InitializationObject initObj, int restriction);
+
+        [OperationContract]
+        DomainResponseObject SubmitAddDeviceToDomainRequest(InitializationObject initObj, string deviceName, int brandId);
+
+        [OperationContract]
+        DomainResponseObject ConfirmDeviceByDomainMaster(InitializationObject initObj, string udid, string masterUn, string token);
     }
 }
