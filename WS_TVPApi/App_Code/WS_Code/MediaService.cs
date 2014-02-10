@@ -2720,5 +2720,66 @@ namespace TVPApiServices
         }
 
         #endregion
+
+        [WebMethod(EnableSession = true, Description = "Get Assets Stats")]
+        public List<AssetStatsResult> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime)
+        {
+            List<AssetStatsResult> retVal = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAssetsStats", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    retVal = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, startTime, endTime)
+                    {
+                        Platform = initObj.Platform.ToString(),
+                        DeviceId = initObj.UDID
+                    }.Execute() as List<AssetStatsResult>;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return retVal;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get Assets Stats")]
+        public List<AssetStatsResult> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType)
+        {
+            List<AssetStatsResult> retVal = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAssetsStats", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    retVal = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, DateTime.MinValue, DateTime.MaxValue)
+                    {
+                        Platform = initObj.Platform.ToString(),
+                        DeviceId = initObj.UDID
+                    }.Execute() as List<AssetStatsResult>;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return retVal;
+        }
+
     }
 }
