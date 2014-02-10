@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseClass\BaseUrlShortenHelper.cs" />
+    <Compile Include="CatalogLoaders\AssetStatsLoader.cs" />
     <Compile Include="CatalogLoaders\ChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\ChannelsListsLoader.cs" />
     <Compile Include="CatalogLoaders\EPGAutoCompleteLoader.cs" />
