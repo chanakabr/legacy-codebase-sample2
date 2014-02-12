@@ -106,9 +106,20 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
+                //ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
+                //ApiDomainsService _service = ApiDomainsService.Instance(groupID, initObj.Platform);
+                try
+                {
+                    ApiDomainsService _service = ServicesManager.Instance.GetService(groupID, initObj.Platform, eService.DomainsService) as ApiDomainsService;
 
-                return _service.GetDomainInfo(initObj.DomainID);
+                    return ((ApiDomainsService)_service).GetDomainInfo(initObj.DomainID);
+                }
+                catch (Exception ex)
+                {
+                    // Implement FailOver Mechanism
+                    GetDomainInfo(initObj, domainId);
+                    throw ex;
+                }
             }
             else
             {

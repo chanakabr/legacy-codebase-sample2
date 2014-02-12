@@ -10,7 +10,7 @@ using ServiceStack.ServiceHost;
 namespace RestfulTVPApi.ServiceInterface
 {
 
-    //[RequiresAuthentication]
+    [RequiresAuthentication]
     [RequiresInitializationObject]
     public class DomainService : Service
     {

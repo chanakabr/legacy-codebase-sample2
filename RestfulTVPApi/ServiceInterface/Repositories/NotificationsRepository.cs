@@ -41,7 +41,9 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+                //ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
+                //ApiNotificationService service = ApiNotificationService.Instance(groupId, initObj.Platform);
+                ApiNotificationService service = ServicesManager.Instance.GetService(groupId, initObj.Platform, eService.NotificationService) as ApiNotificationService;
 
                 bRes = service.UnsubscribeFollowUpByTag(initObj.SiteGuid, tags);
             }

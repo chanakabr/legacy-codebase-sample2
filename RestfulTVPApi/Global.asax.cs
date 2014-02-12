@@ -15,6 +15,7 @@ namespace RestfulTVPApi
         {
             Tvinci.Data.Loaders.CatalogRequestManager.EndPointAddress = ConfigurationManager.AppSettings["CatalogServiceURL"];
             Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ConfigurationManager.AppSettings["CatalogServiceSignatureKey"];
+            TCMClient.Settings.Instance.Init();
 
             AppHost.Start();
         }
