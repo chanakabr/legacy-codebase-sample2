@@ -10,6 +10,9 @@ using System.Text;
 using System.Runtime.Serialization.Json;
 using TVPApi;
 using log4net;
+using TVPApiModule.Helper;
+using TVPApiModule.Objects;
+using TVPApiModule.Context;
 
 public partial class Gateways_JsonGateway : BaseGateway
 {
@@ -41,7 +44,7 @@ public partial class Gateways_JsonGateway : BaseGateway
 
                 //string RawParameter = Context.Request.Form[TargetParameter.Name];
                 string RawParameter = Context.Request.QueryString[TargetParameter.Name];
-                if (TargetParameter.ParameterType == typeof(TVPApi.InitializationObject))
+                if (TargetParameter.ParameterType == typeof(InitializationObject))
                     CallParameters[i] = GetInitObj2();
                 else if (TargetParameter.ParameterType == typeof(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action))
                     CallParameters[i] = parseAction(RawParameter);
@@ -53,11 +56,11 @@ public partial class Gateways_JsonGateway : BaseGateway
                     CallParameters[i] = (TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform)Enum.Parse(typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform), RawParameter);
                 else if(TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))
                     CallParameters[i] = parseSocialPlatform(RawParameter);
-                else if (TargetParameter.ParameterType == typeof(TVPApi.ActionType))
+                else if (TargetParameter.ParameterType == typeof(ActionType))
                     CallParameters[i] = parseActionType(RawParameter);
                 else if (TargetParameter.ParameterType == typeof(MediaHelper.ePeriod))
                     CallParameters[i] = parsePeriodType(RawParameter);
-                else if (TargetParameter.ParameterType == typeof(TVPApi.OrderBy))
+                else if (TargetParameter.ParameterType == typeof(OrderBy))
                     CallParameters[i] = parseOrderByType(RawParameter);
                 else if (TargetParameter.ParameterType != typeof(String))
                 
@@ -78,10 +81,10 @@ public partial class Gateways_JsonGateway : BaseGateway
         //Response.Write(Str);
     }
 
-    private TVPApi.OrderBy parseOrderByType(string param)
+    private OrderBy parseOrderByType(string param)
     {
-        if (string.IsNullOrEmpty(param)) param = TVPApi.OrderBy.None.ToString();
-        TVPApi.OrderBy orderBy = (TVPApi.OrderBy)Enum.Parse(typeof(TVPApi.OrderBy), param);
+        if (string.IsNullOrEmpty(param)) param = OrderBy.None.ToString();
+        OrderBy orderBy = (OrderBy)Enum.Parse(typeof(OrderBy), param);
         return orderBy;
     }
 
@@ -91,9 +94,9 @@ public partial class Gateways_JsonGateway : BaseGateway
         return period;
     }
 
-    private TVPApi.ActionType parseActionType(string param)
+    private ActionType parseActionType(string param)
     {
-        TVPApi.ActionType action = (TVPApi.ActionType)Enum.Parse(typeof(TVPApi.ActionType), param);
+        ActionType action = (ActionType)Enum.Parse(typeof(ActionType), param);
         return action;
     }
 

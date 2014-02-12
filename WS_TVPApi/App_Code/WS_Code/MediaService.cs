@@ -27,6 +27,7 @@ using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.DataLoaders;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
+using TVPApiModule.Context;
 
 namespace TVPApiServices
 {
@@ -133,7 +134,7 @@ namespace TVPApiServices
 
         //Get Channel medias
         [WebMethod(EnableSession = true, Description = "Get Channel medias with multiple filters")]
-        public List<Media> GetChannelMultiFilter(InitializationObject initObj, int channelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
+        public List<Media> GetChannelMultiFilter(InitializationObject initObj, int channelID, string picSize, int pageSize, int pageIndex, TVPApiModule.Context.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
         {
             List<Media> lstMedia = null;
 
@@ -967,7 +968,7 @@ namespace TVPApiServices
 
         //Search media by free text
         [WebMethod(EnableSession = true, Description = "Search EPG by free text")]
-        public IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
+        public IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApiModule.Context.OrderBy orderBy)
         {
             IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> programs = null;
 
@@ -1176,7 +1177,7 @@ namespace TVPApiServices
 
         // Perform action on media (AddFavorite, Comment, Like, Rate, Recommend, Record, Reminder, RemoveFavorite, Share, Watch)
         [WebMethod(EnableSession = true, Description = "Perform action on media (AddFavorite, Comment, Like, Rate, Recommend, Record, Reminder, RemoveFavorite, Share, Watch)")]
-        public bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal)
+        public bool ActionDone(InitializationObject initObj, ActionType action, int mediaID, int mediaType, int extraVal)
         {
             bool retVal = false;
 
@@ -2297,7 +2298,7 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get EPG Channels")]
-        public IEnumerable<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy)
+        public IEnumerable<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApiModule.Context.OrderBy orderBy)
         {
             IEnumerable<EPGChannel> sRet = null;
 

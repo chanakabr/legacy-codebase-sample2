@@ -7,6 +7,7 @@ using TVPApi;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -14,10 +15,10 @@ namespace TVPApiServices
     public interface ISocialService
     {
         [OperationContract]
-        FriendWatchedObject[] GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult);
+        TVPApiModule.Objects.Responses.FriendWatchedObject[] GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult);
 
         [OperationContract]
-        FriendWatchedObject[] GetFriendsWatchedByMedia(InitializationObject initObj, string siteGuid, int mediaId);
+        TVPApiModule.Objects.Responses.FriendWatchedObject[] GetFriendsWatchedByMedia(InitializationObject initObj, string siteGuid, int mediaId);
 
         [OperationContract]
         string[] GetUsersLikedMedia(InitializationObject initObj, int mediaID, bool onlyFriends, int startIndex, int pageSize);
@@ -29,28 +30,28 @@ namespace TVPApiServices
         FBConnectConfig FBConfig(InitializationObject initObj, string sSTG);
 
         [OperationContract]
-        FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken, string sSTG);
+        TVPApiModule.Objects.Responses.FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken, string sSTG);
 
         [OperationContract]
-        FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter, string sSTG);
+        TVPApiModule.Objects.Responses.FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter, string sSTG);
 
         [OperationContract]
-        FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword);
+        TVPApiModule.Objects.Responses.FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword);
 
         [OperationContract]
-        string GetUserSocialPrivacy(InitializationObject initObj, string siteGuid, SocialPlatform socialPlatform, eUserAction userAction);
+        string GetUserSocialPrivacy(InitializationObject initObj, string siteGuid, SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction);
 
         [OperationContract]
-        eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid);
+        TVPApiModule.Objects.Responses.eSocialPrivacy[] GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid);
 
         [OperationContract]
         bool SetUserSocialPrivacy(InitializationObject initObj, string siteGuid, SocialPlatform socialPlatform, eUserAction userAction, eSocialPrivacy socialPrivacy);
 
         [OperationContract]
-        UserSocialActionObject[] GetUserActions(InitializationObject initObj, string siteGuid, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
+        TVPApiModule.Objects.Responses.UserSocialActionObject[] GetUserActions(InitializationObject initObj, string siteGuid, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
+        TVPApiModule.Objects.Responses.UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
         string DoUserAction(InitializationObject initObj, string siteGuid, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID);
@@ -62,7 +63,7 @@ namespace TVPApiServices
         string GetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform);
 
         [OperationContract]
-        bool SetUserExternalActionShare(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
+        bool SetUserExternalActionShare(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
 
         [OperationContract]
         bool SetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);

@@ -21,7 +21,7 @@ namespace TVPApiServices
         bool SetNotificationMessageViewStatus(InitializationObject initObj, Nullable<long> notificationRequestID, Nullable<long> notificationMessageID, NotificationMessageViewStatus viewStatus);
 
         [OperationContract]
-        bool SubscribeByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags);
+        bool SubscribeByTag(InitializationObject initObj, List<TagMetaPairArray> tags);
 
         [OperationContract]
         bool UnsubscribeFollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags);

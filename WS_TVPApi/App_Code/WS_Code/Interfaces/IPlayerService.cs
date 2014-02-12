@@ -11,6 +11,8 @@ using TVPApiModule.Objects;
 using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Helper;
 
 namespace TVPApiServices
 {
@@ -25,7 +27,7 @@ namespace TVPApiServices
         string GetMediaLicenseLink(InitializationObject initObj, int mediaFileID, string baseLink);
 
         [OperationContract]
-        string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, TVPApi.ActionHelper.FileHolder fileParam, int iLocation);
+        string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, ActionHelper.FileHolder fileParam, int iLocation);
 
         [OperationContract]
         string MediaHit(InitializationObject initObj, long iMediaID, long iFileID, int iLocation);
@@ -34,7 +36,7 @@ namespace TVPApiServices
         string MediaLastPosition(InitializationObject initObj, int MediaId);
 
         [OperationContract]
-        void MediaError(InitializationObject initObj, TVPApi.ActionHelper.FileHolder fileParam, string errorCode, string errorMessage, int location);
+        void MediaError(InitializationObject initObj, ActionHelper.FileHolder fileParam, string errorCode, string errorMessage, int location);
 
         [OperationContract]
         void Log(InitializationObject initObj, TVPApiServices.PlayerService.ErrorMessageWrapper message);

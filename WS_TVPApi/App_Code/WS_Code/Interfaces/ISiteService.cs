@@ -5,6 +5,8 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using TVPApi;
+using TVPApiModule.Objects;
+using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 
@@ -41,7 +43,7 @@ namespace TVPApiServices
         PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);        
 
         [OperationContract]
-        string DoSocialAction(InitializationObject initObj, string siteGuid, int mediaID, eUserAction socialAction, SocialPlatform socialPlatform, string actionParam);
+        string DoSocialAction(InitializationObject initObj, string siteGuid, int mediaID, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction socialAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, string actionParam);
 
         [OperationContract]
         bool IsFacebookUser(InitializationObject initObj, string siteGuid);

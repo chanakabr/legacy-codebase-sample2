@@ -12,6 +12,9 @@ using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Helper;
 
 namespace TVPApiServices
 {
@@ -25,7 +28,7 @@ namespace TVPApiServices
         //List<Media> GetChannelMediaList(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
 
         [OperationContract]
-        List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith);
+        List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApiModule.Context.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith);
 
         //[OperationContract]
         //List<Media> GetChannelMediaListWithMediaCount(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, ref long mediaCount);
@@ -55,7 +58,7 @@ namespace TVPApiServices
         //List<Media> SearchMediaByTag(InitializationObject initObj, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
+        TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApiModule.Context.OrderBy orderBy);
 
         //[OperationContract]
         //List<Media> SearchMediaByMeta(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
@@ -85,7 +88,7 @@ namespace TVPApiServices
         //string[] GetAutoCompleteSearch(InitializationObject initObj, string prefixText, int[] iMediaTypes, int pageSize, int pageIdx);
 
         [OperationContract]
-        bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
+        bool ActionDone(InitializationObject initObj, ActionType action, int mediaID, int mediaType, int extraVal);
 
         //[OperationContract]
         //TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject RateMedia(InitializationObject initObj, int mediaID, int mediaType, int extraVal);
@@ -187,7 +190,7 @@ namespace TVPApiServices
         //List<Media> SearchMediaByTypes(InitializationObject initObj, string text, int[] mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy);
+        TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApiModule.Context.OrderBy orderBy);
         
         //[OperationContract]
         //TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] GetEPGChannelProgrammeByDates(InitializationObject initObj, string channelID, string picSize, DateTime fromDate, DateTime toDate, int utcOffset);

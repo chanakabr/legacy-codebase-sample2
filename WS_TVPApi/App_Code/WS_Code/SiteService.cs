@@ -17,6 +17,9 @@ using TVPApiModule.Helper;
 using System.Web.UI;
 using System.Web;
 using TVPPro.SiteManager.TvinciPlatform.Social;
+using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Manager;
 
 
 namespace TVPApiServices
@@ -650,7 +653,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                    bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                     sRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ValidateUser(userName, password, isSingleLogin).user;
                 }
                 catch (Exception ex)
@@ -758,7 +761,7 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Do the UDID empty stuff
-                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                    bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                     new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignOut(siteGuid, initObj.UDID, string.Empty, isSingleLogin);
                 }
                 catch (Exception ex)
@@ -784,7 +787,7 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Do the UDID empty stuff
-                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                    bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                     bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(siteGuid, initObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);
                 }
                 catch (Exception ex)

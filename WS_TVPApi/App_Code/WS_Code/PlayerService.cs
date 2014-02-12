@@ -14,6 +14,10 @@ using TVPApiModule.Services;
 using System.ServiceModel;
 using TVPPro.Configuration.Technical;
 using TVPApiModule.Interfaces;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Objects;
+using TVPApiModule.Helper;
 
 namespace TVPApiServices
 {
@@ -93,7 +97,7 @@ namespace TVPApiServices
                         retMedia.Media.files.Insert(0, trickPlayFile);
                     }
 
-                    retMedia.Rules = (TVPApiModule.Objects.Responses.GroupRule[])new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid), initObj.UDID);
+                    retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid), initObj.UDID).ToArray();
 
                     // for debug
                     //retMedia.Rules = new TVPPro.SiteManager.TvinciPlatform.api.GroupRule[]{};
@@ -112,8 +116,8 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
-        [System.Xml.Serialization.XmlInclude(typeof(TVPApi.ActionHelper.FileHolder))]
-        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, TVPApi.ActionHelper.FileHolder fileParam, int iLocation)
+        [System.Xml.Serialization.XmlInclude(typeof(ActionHelper.FileHolder))]
+        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, ActionHelper.FileHolder fileParam, int iLocation)
         {
             string sRet = string.Empty;
 
@@ -210,8 +214,8 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "log player errors")]
-        [System.Xml.Serialization.XmlInclude(typeof(TVPApi.ActionHelper.FileHolder))]
-        public void MediaError(InitializationObject initObj, TVPApi.ActionHelper.FileHolder fileParam, string errorCode, string errorMessage, int location)
+        [System.Xml.Serialization.XmlInclude(typeof(ActionHelper.FileHolder))]
+        public void MediaError(InitializationObject initObj, ActionHelper.FileHolder fileParam, string errorCode, string errorMessage, int location)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

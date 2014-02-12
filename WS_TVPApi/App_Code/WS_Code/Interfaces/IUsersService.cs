@@ -6,6 +6,7 @@ using System.ServiceModel;
 using TVPApi;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPApiModule.Objects;
 
 namespace TVPApiServices
 {

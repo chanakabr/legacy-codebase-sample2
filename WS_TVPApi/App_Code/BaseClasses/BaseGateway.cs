@@ -7,6 +7,10 @@ using TVPApiServices;
 using System.Threading;
 using System.Web.Caching;
 using System.Runtime.CompilerServices;
+using TVPApiModule.Objects;
+using TVPApiModule.Interfaces;
+using TVPApiModule.Helper;
+using TVPApiModule.Context;
 
 /// <summary>
 /// Summary description for BaseGateway
@@ -71,16 +75,16 @@ public abstract class BaseGateway : System.Web.UI.Page
     protected static Object mainRequestLocker = new object();
     protected static Dictionary<String, Object> locks = new Dictionary<string, object>();
 
-    protected string ParseObject(object obj, int groupID, int items, int index, long mediaCount, PlatformType platform)
-    {
-        string retVal = string.Empty;
-        IParser parser = ParserHelper.GetParser(groupID);
-        if (parser != null)
-        {
-            retVal = parser.Parse(obj, items, index, groupID, mediaCount, platform);
-        }
-        return retVal;
-    }
+    //protected string ParseObject(object obj, int groupID, int items, int index, long mediaCount, PlatformType platform)
+    //{
+    //    string retVal = string.Empty;
+    //    IParser parser = ParserHelper.GetParser(groupID);
+    //    if (parser != null)
+    //    {
+    //        retVal = parser.Parse(obj, items, index, groupID, mediaCount, platform);
+    //    }
+    //    return retVal;
+    //}
 
     protected int GetGroupIDByBroadcasterName(string broadcasterName)
     {
@@ -158,82 +162,82 @@ public abstract class BaseGateway : System.Web.UI.Page
         return retVal;
     }
 
-    protected string GetStbUserId(int groupId)
-    {
-        string mac = Request.QueryString["identity"];
-        if (String.IsNullOrEmpty(mac)) return String.Empty;
-        string SiteGuid = String.Empty;
-        if (groupId == 125)
-        {
-            do
-            {
-                if (HttpContext.Current.Cache[mac] != null)
-                    break;
+    //protected string GetStbUserId(int groupId)
+    //{
+    //    string mac = Request.QueryString["identity"];
+    //    if (String.IsNullOrEmpty(mac)) return String.Empty;
+    //    string SiteGuid = String.Empty;
+    //    if (groupId == 125)
+    //    {
+    //        do
+    //        {
+    //            if (HttpContext.Current.Cache[mac] != null)
+    //                break;
 
-                if (!locks.ContainsKey(mac))
-                {
-                    lock (mainRequestLocker)
-                    {
-                        if (!locks.ContainsKey(mac))
-                        {
-                            locks.Add(mac, new Object());
-                        }
-                    }
-                }
+    //            if (!locks.ContainsKey(mac))
+    //            {
+    //                lock (mainRequestLocker)
+    //                {
+    //                    if (!locks.ContainsKey(mac))
+    //                    {
+    //                        locks.Add(mac, new Object());
+    //                    }
+    //                }
+    //            }
 
-                if (HttpContext.Current.Cache[mac] != null)
-                    break;
+    //            if (HttpContext.Current.Cache[mac] != null)
+    //                break;
 
-                lock (locks[mac])
-                {
-                    if (HttpContext.Current.Cache[mac] != null)
-                        break;
+    //            lock (locks[mac])
+    //            {
+    //                if (HttpContext.Current.Cache[mac] != null)
+    //                    break;
 
-                    IEnumerable<TVPApiModule.Objects.Responses.DeviceDomain> retSiteGuid = m_DomainService.GetDeviceDomains(new InitializationObject()
-                    {
-                        UDID = mac,
-                        Platform = PlatformType.STB,
-                        ApiUser = m_WsUsername,
-                        ApiPass = m_WsPassword
-                    });
-                    if (retSiteGuid != null && retSiteGuid.Count() > 0 && (retSiteGuid as TVPApiModule.Objects.Responses.DeviceDomain[])[0].domain_id != 0)
-                    {
-                        SiteGuid = (retSiteGuid as TVPApiModule.Objects.Responses.DeviceDomain[])[0].site_guid;
-                        HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
-                            System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
-                    }
-                    else
-                    {//Check Known MAC address
-                        if (s_KnownMacAddress.ContainsKey(mac))
-                        {
-                            string usr = s_KnownMacAddress[mac].UserName;
-                            string pass = s_KnownMacAddress[mac].Password;
-                            SiteGuid = m_SiteService.SignIn(GetInitObj(), usr, pass).SiteGuid;
-                            if (SiteGuid == null)
-                                SiteGuid = "0";
-                            HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
-                                System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
-                        }
-                    }
-                }
+    //                IEnumerable<TVPApiModule.Objects.Responses.DeviceDomain> retSiteGuid = m_DomainService.GetDeviceDomains(new InitializationObject()
+    //                {
+    //                    UDID = mac,
+    //                    Platform = PlatformType.STB,
+    //                    ApiUser = m_WsUsername,
+    //                    ApiPass = m_WsPassword
+    //                });
+    //                if (retSiteGuid != null && retSiteGuid.Count() > 0 && (retSiteGuid as TVPApiModule.Objects.Responses.DeviceDomain[])[0].domain_id != 0)
+    //                {
+    //                    SiteGuid = (retSiteGuid as TVPApiModule.Objects.Responses.DeviceDomain[])[0].site_guid;
+    //                    HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
+    //                        System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
+    //                }
+    //                else
+    //                {//Check Known MAC address
+    //                    if (s_KnownMacAddress.ContainsKey(mac))
+    //                    {
+    //                        string usr = s_KnownMacAddress[mac].UserName;
+    //                        string pass = s_KnownMacAddress[mac].Password;
+    //                        SiteGuid = m_SiteService.SignIn(GetInitObj(), usr, pass).SiteGuid;
+    //                        if (SiteGuid == null)
+    //                            SiteGuid = "0";
+    //                        HttpContext.Current.Cache.Add(mac, SiteGuid, null, DateTime.Now.AddMinutes(15), System.Web.Caching.Cache.NoSlidingExpiration,
+    //                            System.Web.Caching.CacheItemPriority.Normal, ItemRemovedFromCacheCallback);
+    //                    }
+    //                }
+    //            }
 
-            } while (false);
+    //        } while (false);
 
-            SiteGuid = HttpContext.Current.Cache[mac] != null ? HttpContext.Current.Cache[mac].ToString() : String.Empty;
+    //        SiteGuid = HttpContext.Current.Cache[mac] != null ? HttpContext.Current.Cache[mac].ToString() : String.Empty;
 
-            return SiteGuid;
-        }
+    //        return SiteGuid;
+    //    }
 
-        return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
-    }
+    //    return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+    //}
 
-    [MethodImpl(MethodImplOptions.Synchronized)]
-    private void ItemRemovedFromCacheCallback(String key, object value, CacheItemRemovedReason removeReason)
-    {
-        if (removeReason == CacheItemRemovedReason.Expired)
-        {
-            locks.Remove(key);
-        }
-    }
+    //[MethodImpl(MethodImplOptions.Synchronized)]
+    //private void ItemRemovedFromCacheCallback(String key, object value, CacheItemRemovedReason removeReason)
+    //{
+    //    if (removeReason == CacheItemRemovedReason.Expired)
+    //    {
+    //        locks.Remove(key);
+    //    }
+    //}
 }
 
