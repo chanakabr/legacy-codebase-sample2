@@ -479,8 +479,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
-        public string GetSocialFeed(InitializationObject initObj, int mediaId)
+        public object GetSocialFeed(InitializationObject initObj, int mediaId)
         {
+            Context.Response.ContentType = "application/json; charset=utf-8";
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
@@ -501,7 +502,7 @@ namespace TVPApiServices
                     StreamReader streamReader = new StreamReader(webClient.OpenRead(ConfigurationManager.AppSettings["SocialFeedProxy"]));
                     string socialFeedStr = streamReader.ReadToEnd();
 
-                    return socialFeedStr;
+                    return new JavaScriptSerializer().DeserializeObject(socialFeedStr);
                 }
                 catch (Exception ex)
                 {
