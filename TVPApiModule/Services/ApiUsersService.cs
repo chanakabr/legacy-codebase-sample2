@@ -14,20 +14,21 @@ using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
 using TVPApiModule.Manager;
 using TVPApiModule.Context;
+using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
-    public class ApiUsersService
+    public class ApiUsersService : BaseService
     {
         #region Variables
         private readonly ILog logger = LogManager.GetLogger(typeof(ApiUsersService));
-        private TVPPro.SiteManager.TvinciPlatform.Users.UsersService m_Module;
+        //private TVPPro.SiteManager.TvinciPlatform.Users.UsersService m_Module;
 
-        private string m_wsUserName;
-        private string m_wsPassword;
+        //private string m_wsUserName;
+        //private string m_wsPassword;
 
-        private int m_groupID;
-        private PlatformType m_platform;
+        //private int m_groupID;
+        //private PlatformType m_platform;
 
         [Serializable]
         public struct LogInResponseData
@@ -42,15 +43,29 @@ namespace TVPApiModule.Services
         #region C'tor
         public ApiUsersService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.Users.UsersService();
-            m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.URL;
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultPassword;
+            //m_Module = new TVPPro.SiteManager.TvinciPlatform.Users.UsersService();
+            //m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.URL;
+            //m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultUser;
+            //m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultPassword;
 
-            m_groupID = groupID;
-            m_platform = platform;
+            //m_groupID = groupID;
+            //m_platform = platform;
+        }
+
+        public ApiUsersService()
+        {
+            // TODO: Complete member initialization
         }
         #endregion C'tor
+
+        #region Public Static Functions
+
+        public static ApiUsersService Instance(int groupId, PlatformType platform)
+        {
+            return BaseService.Instance(groupId, platform, eService.UsersService) as ApiUsersService;
+        }
+
+        #endregion
 
         #region Public methods
 
@@ -59,7 +74,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
             try
             {
-                var res = m_Module.CheckUserPassword(m_wsUserName, m_wsPassword, userName, password, isDoubleLogin);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).CheckUserPassword(m_wsUserName, m_wsPassword, userName, password, isDoubleLogin);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -79,7 +94,7 @@ namespace TVPApiModule.Services
             {
                 sDeviceID = string.Empty;
                 sUserName = HttpUtility.UrlDecode(sUserName);
-                TVPApiModule.Objects.Responses.UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin).ToApiObject();
+                TVPApiModule.Objects.Responses.UserResponseObject response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin).ToApiObject();
 
                 if (response != null && response.user != null)
                 {
@@ -106,7 +121,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
             try
             {
-                var res = m_Module.AddNewUser(m_wsUserName, m_wsPassword, userBasicData, userDynamicData, sPassword, sAffiliateCode);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).AddNewUser(m_wsUserName, m_wsPassword, userBasicData, userDynamicData, sPassword, sAffiliateCode);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -122,7 +137,7 @@ namespace TVPApiModule.Services
         {
             try
             {
-                TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject uro = m_Module.SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
+                TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject uro = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
             }
             catch (Exception ex)
             {
@@ -135,7 +150,7 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                TVPPro.SiteManager.TvinciPlatform.Users.UserState response = m_Module.GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);
+                TVPPro.SiteManager.TvinciPlatform.Users.UserState response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);
                 if (response == TVPPro.SiteManager.TvinciPlatform.Users.UserState.Activated || (response == TVPPro.SiteManager.TvinciPlatform.Users.UserState.SingleSignIn && bPreventDoubleLogin) ||
                     (!bPreventDoubleLogin && (response == TVPPro.SiteManager.TvinciPlatform.Users.UserState.SingleSignIn || response == TVPPro.SiteManager.TvinciPlatform.Users.UserState.DoubleSignIn)))
                 {
@@ -156,7 +171,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
+                (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
                 IsRemoved = true;
             }
             catch (Exception ex)
@@ -173,7 +188,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
 
                 if (response != null && response.Length > 0)
                 {
@@ -197,7 +212,7 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                bRet = m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
+                bRet = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
             }
             catch (Exception ex)
             {
@@ -211,7 +226,7 @@ namespace TVPApiModule.Services
         {
             try
             {
-                m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, mediaID);
+                (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, mediaID);
             }
             catch (Exception ex)
             {
@@ -225,7 +240,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -243,7 +258,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -261,7 +276,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
                 if (res != null)
                     response = res.ToApiObject();
 
@@ -280,7 +295,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetUserData(m_wsUserName, m_wsPassword, sSiteGuid);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserData(m_wsUserName, m_wsPassword, sSiteGuid);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -298,7 +313,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(';'));
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(';'));
 
                 if (res != null)
                     response = res.Where(ur => ur != null).Select(u => u.ToApiObject()).ToList();
@@ -317,7 +332,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData, userDynamicData);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData, userDynamicData);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -335,7 +350,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -353,7 +368,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
             }
             catch (Exception ex)
             {
@@ -371,7 +386,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.GetAllUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetAllUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid);
             }
             catch (Exception ex)
             {
@@ -387,7 +402,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.AddUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).AddUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
             }
             catch (Exception ex)
             {
@@ -403,7 +418,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.RemoveUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RemoveUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
             }
             catch (Exception ex)
             {
@@ -419,7 +434,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.ClearUserOfflineAssets(m_wsUserName, m_wsPassword, siteGuid);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ClearUserOfflineAssets(m_wsUserName, m_wsPassword, siteGuid);
             }
             catch (Exception ex)
             {
@@ -433,7 +448,7 @@ namespace TVPApiModule.Services
         {
             try
             {
-                TVPApiModule.Objects.Responses.UserResponseObject uro = m_Module.ForgotPassword(m_wsUserName, m_wsPassword, UserName).ToApiObject();
+                TVPApiModule.Objects.Responses.UserResponseObject uro = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ForgotPassword(m_wsUserName, m_wsPassword, UserName).ToApiObject();
                 if (uro.resp_status == TVPApiModule.Objects.Responses.eResponseStatus.OK)
                 {
                     logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", UserName);
@@ -458,7 +473,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                TVPPro.SiteManager.TvinciPlatform.Users.Country response = m_Module.GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
+                TVPPro.SiteManager.TvinciPlatform.Users.Country response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
                 sRet = response.m_sCountryName;
             }
             catch (Exception ex)
@@ -587,7 +602,7 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                bRet = m_Module.SetUserDynamicData(m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
+                bRet = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SetUserDynamicData(m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
             }
             catch (Exception ex)
             {
@@ -603,7 +618,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetUserDataByCoGuid(m_wsUserName, m_wsPassword, coGuid, operatorID);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserDataByCoGuid(m_wsUserName, m_wsPassword, coGuid, operatorID);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -620,7 +635,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
             try
             {
-                var res = m_Module.ChangeUserPassword(m_wsUserName, m_wsPassword, sUN, sOldPass, sPass);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ChangeUserPassword(m_wsUserName, m_wsPassword, sUN, sOldPass, sPass);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -637,7 +652,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
             try
             {
-                var res = m_Module.GetUserByFacebookID(m_wsUserName, m_wsPassword, facebookId);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserByFacebookID(m_wsUserName, m_wsPassword, facebookId);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -654,7 +669,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
             try
             {
-                var res  = m_Module.GetUserByUsername(m_wsUserName, m_wsPassword, userName);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserByUsername(m_wsUserName, m_wsPassword, userName);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -672,7 +687,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
 
                 if (res != null)
                     response = res.Where(ubd => ubd != null).Select(u => u.ToApiObject()).ToList();
@@ -689,7 +704,7 @@ namespace TVPApiModule.Services
         {
             try
             {
-                m_Module.Logout(m_wsUserName, m_wsPassword, sSiteGuid);
+                (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).Logout(m_wsUserName, m_wsPassword, sSiteGuid);
             }
             catch (Exception ex)
             {
@@ -703,7 +718,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetCountryList(m_wsUserName, m_wsPassword);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetCountryList(m_wsUserName, m_wsPassword);
 
                 if (res != null)
                     response = res.Where(c => c != null).Select(c => c.ToApiObject()).ToList();
@@ -721,7 +736,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
             try
             {
-                var res = m_Module.CheckTemporaryToken(m_wsUserName, m_wsPassword, sToken);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).CheckTemporaryToken(m_wsUserName, m_wsPassword, sToken);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -739,7 +754,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetGroupUserTypes(m_wsUserName, m_wsPassword);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetGroupUserTypes(m_wsUserName, m_wsPassword);
                 if (res != null)
                     response = res.Where(ut => ut != null).Select(u => u.ToApiObject()).ToList();
             }
@@ -756,7 +771,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
             try
             {
-                var res = m_Module.RenewUserPassword(m_wsUserName, m_wsPassword, sUN, sPass);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RenewUserPassword(m_wsUserName, m_wsPassword, sUN, sPass);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -774,7 +789,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = (TVPApiModule.Objects.Responses.eResponseStatus)m_Module.SendChangedPinMail(m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
+                response = (TVPApiModule.Objects.Responses.eResponseStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SendChangedPinMail(m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
             }
             catch (Exception ex)
             {
@@ -792,7 +807,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -811,7 +826,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.SendPasswordMail(m_wsUserName, m_wsPassword, userName);
+                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SendPasswordMail(m_wsUserName, m_wsPassword, userName);
             }
             catch (Exception ex)
             {
@@ -836,7 +851,7 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
                     
                 };
-                res = m_Module.AddItemToList(m_wsUserName, m_wsPassword, userItemList);
+                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).AddItemToList(m_wsUserName, m_wsPassword, userItemList);
             }
             catch (Exception ex)
             {
@@ -861,7 +876,7 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                res = m_Module.RemoveItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RemoveItemFromList(m_wsUserName, m_wsPassword, userItemList);
             }
             catch (Exception ex)
             {
@@ -886,7 +901,7 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                res = m_Module.UpdateItemInList(m_wsUserName, m_wsPassword, userItemList);
+                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).UpdateItemInList(m_wsUserName, m_wsPassword, userItemList);
             }
             catch (Exception ex)
             {
@@ -912,7 +927,7 @@ namespace TVPApiModule.Services
 
                 };
 
-                var res = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
 
                 if (res != null)
                     response = res.Where(uil => uil != null).Select(u => u.ToApiObject()).ToList();
@@ -940,7 +955,7 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
 
                 };
-                var res = m_Module.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
 
                 if (res != null)
                     response = res.Where(kv => kv != null).Select(kv => kv.ToApiObject()).ToList();
@@ -959,7 +974,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.eResponseStatus response = TVPApiModule.Objects.Responses.eResponseStatus.OK;
             try
             {
-                response = (TVPApiModule.Objects.Responses.eResponseStatus)m_Module.SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
+                response = (TVPApiModule.Objects.Responses.eResponseStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
             }
             catch (Exception ex)
             {

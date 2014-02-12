@@ -9,35 +9,50 @@ using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPApiModule.Extentions;
 using TVPApiModule.Context;
 using TVPApiModule.Manager;
+using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
-    public class ApiPricingService
+    public class ApiPricingService : BaseService
     {
         #region Variables
         private static ILog logger = LogManager.GetLogger(typeof(ApiPricingService));
 
-        private TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule m_Module;
+        //private TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule m_Module;
 
-        private string m_wsUserName = string.Empty;
-        private string m_wsPassword = string.Empty;
+        //private string m_wsUserName = string.Empty;
+        //private string m_wsPassword = string.Empty;
 
-        private int m_groupID;
-        private PlatformType m_platform;
+        //private int m_groupID;
+        //private PlatformType m_platform;
         #endregion
 
         #region C'tor
         public ApiPricingService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule();
-            m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.URL;
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.DefaultPassword;
+            //m_Module = new TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule();
+            //m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.URL;
+            //m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.DefaultUser;
+            //m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.DefaultPassword;
 
-            m_groupID = groupID;
-            m_platform = platform;
+            //m_groupID = groupID;
+            //m_platform = platform;
+        }
+
+        public ApiPricingService()
+        {
+            // TODO: Complete member initialization
         }
         #endregion C'tor
+
+        #region Public Static Functions
+
+        public static ApiPricingService Instance(int groupId, PlatformType platform)
+        {
+            return BaseService.Instance(groupId, platform, eService.PricingService) as ApiPricingService;
+        }
+
+        #endregion
 
         #region Public methods
 
@@ -46,7 +61,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.PPVModule response = null;
             try
             {
-                var res = m_Module.GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -64,7 +79,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetPPVModuleListForMediaFiles(m_wsUserName, m_wsPassword, mediaFiles, sCountry, sLanguage, sDevice);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetPPVModuleListForMediaFiles(m_wsUserName, m_wsPassword, mediaFiles, sCountry, sLanguage, sDevice);
 
                 if (response != null)
                     retVal = response.ToList();
@@ -87,7 +102,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
 
                 if (response != null)
                     subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
@@ -106,7 +121,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
                 if (res != null)
                     sub = res.ToApiObject();
             }
@@ -124,7 +139,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
                 if (res != null)
                     couponData = res.ToApiObject();
             }
@@ -142,7 +157,7 @@ namespace TVPApiModule.Services
             
             try
             {
-                couponStatus = (TVPApiModule.Objects.Responses.CouponsStatus)m_Module.SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID); 
+                couponStatus = (TVPApiModule.Objects.Responses.CouponsStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID); 
             } 
             catch (Exception ex)
             {
@@ -158,7 +173,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetCampaignsByType(m_wsUserName, m_wsPassword, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetCampaignsByType(m_wsUserName, m_wsPassword, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
 
                 if (response != null)
                     retVal = response.ToList();
@@ -177,7 +192,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetSubscriptionIDsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetSubscriptionIDsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
 
                 if (response != null)
                     retVal = response.ToList();
@@ -196,8 +211,8 @@ namespace TVPApiModule.Services
             string sUserTypesIDs = string.Empty;
 
             try
-            {                
-                var response = m_Module.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
+            {
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
                 
                 if (response != null)
                 {

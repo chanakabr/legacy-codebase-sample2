@@ -11,35 +11,51 @@ using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
 using TVPApiModule.Context;
 using TVPApiModule.Manager;
+using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
-    public class ApiConditionalAccessService
+    public class ApiConditionalAccessService : BaseService
     {
         #region Variables
         private static ILog logger = log4net.LogManager.GetLogger(typeof(ApiConditionalAccessService));
 
-        private TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module m_Module;
+        //private TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module m_Module;
 
-        private string m_wsUserName = string.Empty;
-        private string m_wsPassword = string.Empty;
+        //private string m_wsUserName = string.Empty;
+        //private string m_wsPassword = string.Empty;
 
-        private int m_groupID;
-        private PlatformType m_platform;
+        //private int m_groupID;
+        //private PlatformType m_platform;
         #endregion
 
         #region C'tor
         public ApiConditionalAccessService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module();
-            m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.URL;
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            //m_Module = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module();
+            //m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.URL;
+            //m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
+            //m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
 
-            m_groupID = groupID;
-            m_platform = platform;
+            //m_groupID = groupID;
+            //m_platform = platform;
         }
+
+        public ApiConditionalAccessService()
+        {
+
+        }
+
         #endregion
+
+        //#region Public Static Functions
+
+        //public static ApiConditionalAccessService Instance(int groupId, PlatformType platform)
+        //{
+        //    return BaseService.Instance(groupId, platform, eService.ConditionalAccessService) as ApiConditionalAccessService;
+        //}
+
+        //#endregion
 
         #region Public methods
         public string DummyChargeUserForMediaFile(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sUserGuid, string sUDID)
@@ -48,7 +64,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_DummyChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_DummyChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
             }
             catch (Exception ex)
             {
@@ -64,7 +80,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
             }
             catch (Exception ex)
             {
@@ -80,7 +96,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
             }
             catch (Exception ex)
             {
@@ -96,7 +112,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
             }
             catch (Exception ex)
             {
@@ -112,7 +128,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                response = m_Module.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);
             }
             catch (Exception ex)
             {
@@ -128,7 +144,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
                 if (res != null)
                     response = res.ToApiObject();
             }
@@ -146,7 +162,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
 
                 if (response != null)
                 {
@@ -171,7 +187,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
 
                 if (response != null)
                     retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToList();
@@ -190,7 +206,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
 
                 if (response != null)
                 {
@@ -215,7 +231,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
                 if (res != null)
                     retVal = res.ToApiObject();
             }
@@ -232,7 +248,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
 
                 if (response != null)
                 {
@@ -257,7 +273,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
 
                 if (response != null)
                 {
@@ -282,7 +298,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
 
                 if (response != null)
                     returnObject = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
@@ -315,7 +331,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetUserPrePaidStatus(m_wsUserName, m_wsPassword, siteGuid, currencyCode);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserPrePaidStatus(m_wsUserName, m_wsPassword, siteGuid, currencyCode);
 
                 if (response != null)
                 {
@@ -339,7 +355,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                returnObject = m_Module.PP_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                returnObject = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).PP_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
             }
             catch (Exception ex)
             {
@@ -355,7 +371,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                returnObject = m_Module.GetLicensedLink(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                returnObject = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetLicensedLink(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
             }
             catch (Exception ex)
             {
@@ -375,7 +391,7 @@ namespace TVPApiModule.Services
             {
                 try
                 {
-                    retVal = m_Module.GetUserCAStatus(wsUser, wsPass, siteGuid);
+                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserCAStatus(wsUser, wsPass, siteGuid);
                     logger.InfoFormat("Protocol: GetUserStatus, Parameters : SiteGuid : {0}", siteGuid);
 
                 }
@@ -405,7 +421,7 @@ namespace TVPApiModule.Services
                     m_status = status,
                     m_voucherReceipents = voucherReceipents
                 };
-                var res = m_Module.ActivateCampaignWithInfo(m_wsUserName, m_wsPassword, (int)campID,  campaignActionInfoParam);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).ActivateCampaignWithInfo(m_wsUserName, m_wsPassword, (int)campID, campaignActionInfoParam);
                 if (res != null)
                     campaignActionInfo = res.ToApiObject();
 
@@ -437,7 +453,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.AD_GetCustomDataID(m_wsUserName,
+                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).AD_GetCustomDataID(m_wsUserName,
                                                   m_wsPassword,
                                                   siteGuid,
                                                   price,
@@ -508,7 +524,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.GetCustomDataID(m_wsUserName,
+                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetCustomDataID(m_wsUserName,
                                                   m_wsPassword,
                                                   siteGuid,
                                                   price,
@@ -587,7 +603,7 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("ActivateCampaign, Parameters : SiteGuid : {0} campaignID : {1} actionInfo : {2}", siteGuid, campaignID, actionInfo.ToString());
-                    retVal = m_Module.ActivateCampaign(wsUser, wsPass, campaignID, actionInfo);
+                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).ActivateCampaign(wsUser, wsPass, campaignID, actionInfo);
                 }
                 catch (Exception ex)
                 {
@@ -609,8 +625,8 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("GetItemsPricesWithCoupons, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
-                    
-                    var response = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+
+                    var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
                     
                     if (response != null)
                         retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToList();
@@ -635,8 +651,8 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("GetSubscriptionsPricesWithCoupon, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
-                    
-                    var response = m_Module.GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, siteGuid, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+
+                    var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, siteGuid, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
                     
                     if (response != null)
                         retVal = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
@@ -662,7 +678,7 @@ namespace TVPApiModule.Services
                 {
                     logger.InfoFormat("IsPermittedItem, Parameters : SiteGuid : {0} mediaId : {1}", siteGuid, mediaId);
 
-                    retVal = m_Module.IsPermittedItem(wsUser, wsPass, siteGuid, mediaId);
+                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).IsPermittedItem(wsUser, wsPass, siteGuid, mediaId);
                 }
                 catch (Exception ex)
                 {
@@ -682,7 +698,7 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("GetGoogleSignature, Parameters : SiteGuid : {0} customerId : {1}", siteGuid, customerId);
-                    retVal = m_Module.GetGoogleSignature(wsUser, wsPass, customerId);
+                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetGoogleSignature(wsUser, wsPass, customerId);
                 }
                 catch (Exception ex)
                 {
@@ -705,7 +721,7 @@ namespace TVPApiModule.Services
 
                     string reason = string.Empty;
 
-                    retVal = m_Module.IsPermittedSubscription(wsUser, wsPass, siteGuid, subId, ref reason);
+                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).IsPermittedSubscription(wsUser, wsPass, siteGuid, subId, ref reason);
                 }
                 catch (Exception ex)
                 {
@@ -725,7 +741,7 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                    var res = m_Module.InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
+                    var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
                     if (res != null)
                         retVal = res.ToApiObject();
                 }
@@ -747,7 +763,7 @@ namespace TVPApiModule.Services
                 try
                 {
                     logger.InfoFormat("CC_ChargeUserForPrePaid, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                    var res = m_Module.CC_ChargeUserForPrePaid(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
+                    var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForPrePaid(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
                     if (res != null)
                         retVal = res.ToApiObject();
                 }
@@ -767,7 +783,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                return m_Module.GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                return (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
             }
             catch (Exception ex)
             {
@@ -782,7 +798,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetUsersBillingHistory(m_wsUserName, m_wsPassword, siteGuids, startDate, endDate);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUsersBillingHistory(m_wsUserName, m_wsPassword, siteGuids, startDate, endDate);
                 if (response != null)
                     retVal = response.Where(ubt => ubt != null).Select(ubt => ubt.ToApiObject()).ToList();
 
@@ -800,7 +816,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetDomainsBillingHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetDomainsBillingHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
                 if (response != null)
                     retVal = response.Where(dbt => dbt != null).Select(dbt => dbt.ToApiObject()).ToList();
             }
@@ -817,7 +833,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
                 if (response != null)
                     retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToList();
             }
@@ -834,7 +850,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetDomainPermittedSubscriptions(m_wsUserName, m_wsPassword, domainID);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetDomainPermittedSubscriptions(m_wsUserName, m_wsPassword, domainID);
 
                 if (response != null)
                     retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();

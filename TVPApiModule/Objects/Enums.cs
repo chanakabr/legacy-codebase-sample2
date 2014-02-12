@@ -3,7 +3,20 @@
 //using System.Linq;
 //using System.Text;
 
-//namespace TVPApiModule.Objects
+namespace TVPApiModule.Objects
+{
+    public enum eService
+    {
+        ApiService,
+        BillingService,
+        ConditionalAccessService,
+        DomainsService,
+        NotificationService,
+        PricingService,
+        SocialService,
+        UsersService
+    }
+}
 //{
 //    public class Enums
 //    {

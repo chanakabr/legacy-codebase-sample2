@@ -11,33 +11,47 @@ using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Services
 {
-    public class ApiNotificationService
+    public class ApiNotificationService : BaseService
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(ApiNotificationService));
         private static object instanceLock = new object();
-        private int m_groupID;
-        private PlatformType m_platform;
-        private string m_wsUserName = string.Empty;
-        private string m_wsPassword = string.Empty;
-        private NotificationServiceClient m_Client;
+        //private int m_groupID;
+        //private PlatformType m_platform;
+        //private string m_wsUserName = string.Empty;
+        //private string m_wsPassword = string.Empty;
+        //private NotificationServiceClient m_Client;
 
         public ApiNotificationService(int groupID, PlatformType platform)
         {
-            m_Client = new NotificationServiceClient(string.Empty, ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.NotificationService.URL);
+            //m_Client = new NotificationServiceClient(string.Empty, ConfigManager.GetInstance()
+            //                 .GetConfig(groupID, platform)
+            //                 .PlatformServicesConfiguration.Data.NotificationService.URL);
 
-            m_wsUserName = ConfigManager.GetInstance()
-                           .GetConfig(groupID, platform)
-                           .PlatformServicesConfiguration.Data.NotificationService.DefaultUser;
-            m_wsPassword =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.NotificationService.DefaultPassword;
+            //m_wsUserName = ConfigManager.GetInstance()
+            //               .GetConfig(groupID, platform)
+            //               .PlatformServicesConfiguration.Data.NotificationService.DefaultUser;
+            //m_wsPassword =
+            //    ConfigManager.GetInstance()
+            //                 .GetConfig(groupID, platform)
+            //                 .PlatformServicesConfiguration.Data.NotificationService.DefaultPassword;
 
-            m_groupID = groupID;
-            m_platform = platform;
+            //m_groupID = groupID;
+            //m_platform = platform;
         }
+
+        public ApiNotificationService()
+        {
+
+        }
+
+        //#region Public Static Functions
+
+        //public static ApiNotificationService Instance(int groupId, PlatformType platform)
+        //{
+        //    return BaseService.Instance(groupId, platform, eService.NotificationService) as ApiNotificationService;
+        //}
+
+        //#endregion
 
         public List<Notification> GetDeviceNotifications(string sGuid, string sDeviceUDID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
         {
@@ -45,7 +59,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var notificationMessages = m_Client.GetDeviceNotifications(m_wsUserName, m_wsPassword, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
+                var notificationMessages = (m_Module as NotificationServiceClient).GetDeviceNotifications(m_wsUserName, m_wsPassword, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
                 if (notificationMessages != null)
                 {
                     foreach (var message in notificationMessages)
@@ -92,7 +106,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Client.SetNotificationMessageViewStatus(m_wsUserName, m_wsPassword, sGuid, notificationRequestID, notificationMessageID, viewStatus);
+                res = (m_Module as NotificationServiceClient).SetNotificationMessageViewStatus(m_wsUserName, m_wsPassword, sGuid, notificationRequestID, notificationMessageID, viewStatus);
             }
             catch (Exception e)
             {
@@ -107,7 +121,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                res = m_Client.AddNotificationRequest(m_wsUserName, m_wsPassword, sGuid, triggerType, mediaId);
+                res = (m_Module as NotificationServiceClient).AddNotificationRequest(m_wsUserName, m_wsPassword, sGuid, triggerType, mediaId);
             }
             catch (Exception e)
             {
@@ -123,7 +137,7 @@ namespace TVPApiModule.Services
             try
             {
                 Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.key, (valueItem) => valueItem.values);
-                res = m_Client.SubscribeByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
+                res = (m_Module as NotificationServiceClient).SubscribeByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
             }
             catch (Exception e)
             {
@@ -139,7 +153,7 @@ namespace TVPApiModule.Services
             try
             {
                 Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.key, (valueItem) => valueItem.values);
-                res = m_Client.UnsubscribeFollowUpByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
+                res = (m_Module as NotificationServiceClient).UnsubscribeFollowUpByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
             }
             catch (Exception e)
             {
@@ -155,7 +169,7 @@ namespace TVPApiModule.Services
             List<TagMetaPairArray> finalRes = new List<TagMetaPairArray>();
             try
             {
-                clientRes = m_Client.GetUserStatusSubscriptions(m_wsUserName, m_wsPassword, sGuid);
+                clientRes = (m_Module as NotificationServiceClient).GetUserStatusSubscriptions(m_wsUserName, m_wsPassword, sGuid);
 
                 // convert to list
                 if (clientRes != null)

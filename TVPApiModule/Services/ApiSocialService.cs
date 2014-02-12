@@ -11,20 +11,20 @@ using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
-    public class ApiSocialService
+    public class ApiSocialService : BaseService
     {
         #region Fields
 
         private readonly ILog logger = LogManager.GetLogger(typeof(ApiSocialService));
         private static object instanceLock = new object();
 
-        private int m_groupID;
-        private PlatformType m_platform;
+        //private int m_groupID;
+        //private PlatformType m_platform;
 
-        private string m_wsUserName = string.Empty;
-        private string m_wsPassword = string.Empty;
+        //private string m_wsUserName = string.Empty;
+        //private string m_wsPassword = string.Empty;
 
-        private TVPPro.SiteManager.TvinciPlatform.Social.module m_Module;
+        //private TVPPro.SiteManager.TvinciPlatform.Social.module m_Module;
 
         #endregion
 
@@ -32,22 +32,36 @@ namespace TVPApiModule.Services
 
         public ApiSocialService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.Social.module();
-            m_Module.Url =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.SocialService.URL;
-            m_wsUserName =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.SocialService.DefaultUser;
-            m_wsPassword =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.SocialService.DefaultPassword;
+            //m_Module = new TVPPro.SiteManager.TvinciPlatform.Social.module();
+            //m_Module.Url =
+            //    ConfigManager.GetInstance()
+            //                 .GetConfig(groupID, platform)
+            //                 .PlatformServicesConfiguration.Data.SocialService.URL;
+            //m_wsUserName =
+            //    ConfigManager.GetInstance()
+            //                 .GetConfig(groupID, platform)
+            //                 .PlatformServicesConfiguration.Data.SocialService.DefaultUser;
+            //m_wsPassword =
+            //    ConfigManager.GetInstance()
+            //                 .GetConfig(groupID, platform)
+            //                 .PlatformServicesConfiguration.Data.SocialService.DefaultPassword;
 
-            m_groupID = groupID;
-            m_platform = platform;
+            //m_groupID = groupID;
+            //m_platform = platform;
+        }
+
+        public ApiSocialService()
+        {
+            // TODO: Complete member initialization
+        }
+
+        #endregion
+
+        #region Public Static Functions
+
+        public static ApiSocialService Instance(int groupId, PlatformType platform)
+        {
+            return BaseService.Instance(groupId, platform, eService.SocialService) as ApiSocialService;
         }
 
         #endregion
@@ -82,7 +96,7 @@ namespace TVPApiModule.Services
                     m_sDeviceUDID = udid,
                     m_sSiteGuid = siteGuid
                 };
-                eRes = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)m_Module.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                eRes = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
             }
             catch (Exception ex)
             {
@@ -118,7 +132,7 @@ namespace TVPApiModule.Services
                         m_nStartIndex = startIndex,
                         m_sSiteGuid = siteGuid
                     };
-                    response = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
+                    response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
                 }
                 else
                 {
@@ -130,7 +144,7 @@ namespace TVPApiModule.Services
                         m_nStartIndex = startIndex,
                         m_sSiteGuid = siteGuid
                     };
-                    response = m_Module.GetUserActions(m_wsUserName, m_wsPassword, userActionRequest);
+                    response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetUserActions(m_wsUserName, m_wsPassword, userActionRequest);
                 }
 
                 if (response != null)
@@ -153,7 +167,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetAllFriendsWatched(m_wsUserName, m_wsPassword, int.Parse(sGuid), maxResult);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetAllFriendsWatched(m_wsUserName, m_wsPassword, int.Parse(sGuid), maxResult);
 
                 if (response != null)
                     res = response.Where(fw => fw != null).Select(fw => fw.ToApiObject()).ToList();
@@ -172,7 +186,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetFriendsWatchedByMedia(m_wsUserName, m_wsPassword, int.Parse(sGuid), mediaId);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetFriendsWatchedByMedia(m_wsUserName, m_wsPassword, int.Parse(sGuid), mediaId);
                 if (response != null)
                     res = response.Where(fw => fw != null).Select(fw => fw.ToApiObject()).ToList();
             }
@@ -191,7 +205,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetUsersLikedMedia(m_wsUserName, m_wsPassword, int.Parse(sSiteGuid), iMediaID, iPlatform,
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetUsersLikedMedia(m_wsUserName, m_wsPassword, int.Parse(sSiteGuid), iMediaID, iPlatform,
                                                   bOnlyFriends, iStartIndex, iPageSize);
 
                 if (res != null)
@@ -212,7 +226,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var res = m_Module.GetUserFriends(m_wsUserName, m_wsPassword, int.Parse(sGuid));
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetUserFriends(m_wsUserName, m_wsPassword, int.Parse(sGuid));
 
                 if (res != null)
                     retVal = res.ToList();
@@ -231,7 +245,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.FBConfig(m_wsUserName, m_wsPassword, sStg);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).FBConfig(m_wsUserName, m_wsPassword, sStg);
                 if (response != null)
                     res = response.ToApiObject();
 
@@ -250,7 +264,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken, sSTG);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).FBUserData(m_wsUserName, m_wsPassword, stoken, sSTG);
                 if (response != null)
                     res = response.ToApiObject();
             }
@@ -268,7 +282,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, sSTG, oExtra.ToArray(), sIP);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).FBUserRegister(m_wsUserName, m_wsPassword, stoken, sSTG, oExtra.ToArray(), sIP);
                 if (response != null)
                     res = response.ToApiObject();
             }
@@ -286,7 +300,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.FBUserMerage(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).FBUserMerage(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword);
                 if (response != null)
                     res = response.ToApiObject();
             }
@@ -304,7 +318,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = (TVPApiModule.Objects.Responses.eSocialPrivacy)m_Module.GetUserSocialPrivacy(m_wsUserName, m_wsPassword, int.Parse(sGuid), socialPlatform, userAction);
+                res = (TVPApiModule.Objects.Responses.eSocialPrivacy)(m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetUserSocialPrivacy(m_wsUserName, m_wsPassword, int.Parse(sGuid), socialPlatform, userAction);
             }
             catch (Exception ex)
             {
@@ -320,7 +334,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                var response = m_Module.GetUserAllowedSocialPrivacyList(m_wsUserName, m_wsPassword, int.Parse(sGuid));
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetUserAllowedSocialPrivacyList(m_wsUserName, m_wsPassword, int.Parse(sGuid));
                 if (response != null)
                     res = response.Select(sp => (TVPApiModule.Objects.Responses.eSocialPrivacy)sp).ToList();
 
@@ -339,7 +353,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = m_Module.SetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction, socialPrivacy);
+                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).SetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction, socialPrivacy);
             }
             catch (Exception ex)
             {
@@ -367,7 +381,7 @@ namespace TVPApiModule.Services
                     m_sSiteGuid = siteGuid
                 };
 
-                var response = m_Module.GetUserActions(m_wsUserName, m_wsPassword, request);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetUserActions(m_wsUserName, m_wsPassword, request);
 
                 if (response != null)
                     res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToList();
@@ -403,7 +417,7 @@ namespace TVPApiModule.Services
                     m_sSiteGuid = siteGuid,
                 };
 
-                var response = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, request);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetFriendsActions(m_wsUserName, m_wsPassword, request);
                 if (response != null)
                     res = response.Where(usa => usa != null).Select(usa => usa.ToApiObject()).ToList();
             }
@@ -434,7 +448,7 @@ namespace TVPApiModule.Services
 
                 };
 
-                res = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)m_Module.DoUserAction(m_wsUserName, m_wsPassword, request);
+                res = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).DoUserAction(m_wsUserName, m_wsPassword, request);
             }
             catch (Exception ex)
             {
@@ -450,7 +464,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = (TVPApiModule.Objects.Responses.eSocialActionPrivacy)m_Module.GetUserExternalActionShare(m_wsUserName, m_wsPassword, int.Parse(siteGuid), socialPlatform, userAction);
+                res = (TVPApiModule.Objects.Responses.eSocialActionPrivacy)(m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetUserExternalActionShare(m_wsUserName, m_wsPassword, int.Parse(siteGuid), socialPlatform, userAction);
             }
             catch (Exception ex)
             {
@@ -466,7 +480,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                res = (TVPApiModule.Objects.Responses.eSocialActionPrivacy)m_Module.GetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, int.Parse(siteGuid), socialPlatform, userAction);
+                res = (TVPApiModule.Objects.Responses.eSocialActionPrivacy)(m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).GetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, int.Parse(siteGuid), socialPlatform, userAction);
             }
             catch (Exception ex)
             {
@@ -484,7 +498,7 @@ namespace TVPApiModule.Services
             {
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = m_Module.SetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
+                    res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).SetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
                 else 
                     throw new Exception("siteGuid not in the right format");
             }
@@ -504,7 +518,7 @@ namespace TVPApiModule.Services
             {
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
-                    res = m_Module.SetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
+                    res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).SetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
                 else 
                     throw new Exception("siteGuid not in the right format");
             }
