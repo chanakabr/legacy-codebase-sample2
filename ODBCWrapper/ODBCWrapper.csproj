@@ -123,7 +123,7 @@
       <Name>System.XML</Name>
     </Reference>
     <Reference Include="TCMClient">
-      <HintPath>..\..\External\TVM\TCMClient.dll</HintPath>
+      <HintPath>..\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
