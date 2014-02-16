@@ -33,13 +33,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ImageResizer">
-      <HintPath>..\..\..\..\Libs\External\TVM\ImageResizer.dll</HintPath>
+      <HintPath>..\External\ImageResizer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -53,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
+      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
   </ItemGroup>
