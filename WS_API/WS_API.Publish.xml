@@ -1,0 +1,77 @@
+<publishData>
+  <publishTarget publishUrl="C:\SVN\TVM\PrecompiledWeb\ws\api\">
+    <file relUrl="bin/Notifiers.dll" publishTime="05/24/2010 14:23:33" />
+    <file relUrl="bin/log4net.dll" publishTime="01/17/2010 12:10:37" />
+    <file relUrl="bin/.svn/text-base/ApiObjects.pdb.svn-base" publishTime="04/25/2010 20:58:50" />
+    <file relUrl="bin/Logger.pdb" publishTime="05/24/2010 14:23:32" />
+    <file relUrl="api.asmx" publishTime="01/17/2010 12:08:59" />
+    <file relUrl="bin/ICSharpCode.SharpZipLib.dll" publishTime="01/17/2010 12:09:42" />
+    <file relUrl="bin/Logger.dll" publishTime="05/24/2010 14:23:32" />
+    <file relUrl="bin/ODBCWrapper.pdb" publishTime="05/24/2010 14:23:32" />
+    <file relUrl="bin/CachingManager.pdb" publishTime="05/24/2010 14:23:32" />
+    <file relUrl="bin/TVinciShared.dll" publishTime="05/24/2010 14:23:34" />
+    <file relUrl="bin/api.dll" publishTime="05/24/2010 17:06:09" />
+    <file relUrl="bin/Users.pdb" publishTime="05/24/2010 14:23:34" />
+    <file relUrl="bin/ApiObjects.dll" publishTime="05/16/2010 21:55:18" />
+    <file relUrl="bin/AkamaiTokenGenerator.pdb" publishTime="04/18/2010 17:50:14" />
+    <file relUrl="bin/.svn/text-base/ICSharpCode.SharpZipLib.dll.svn-base" publishTime="01/17/2010 12:08:59" />
+    <file relUrl="bin/CachingManager.dll" publishTime="05/24/2010 14:23:32" />
+    <file relUrl="bin/.svn/prop-base/ICSharpCode.SharpZipLib.dll.svn-base" publishTime="01/17/2010 12:08:59" />
+    <file relUrl="bin/ODBCWrapper.dll" publishTime="05/24/2010 14:23:32" />
+    <file relUrl="config/extra.config" publishTime="05/24/2010 00:47:32" />
+    <file relUrl="bin/Users.dll" publishTime="05/24/2010 14:23:34" />
+    <file relUrl="bin/TVinciShared.pdb" publishTime="05/24/2010 14:23:34" />
+    <file relUrl="bin/.svn/entries" publishTime="04/25/2010 20:58:52" />
+    <file relUrl="bin/WS_API.pdb" publishTime="05/24/2010 17:06:09" />
+    <file relUrl="bin/.svn/prop-base/ApiObjects.dll.svn-base" publishTime="01/17/2010 12:08:59" />
+    <file relUrl="bin/.svn/prop-base/log4net.dll.svn-base" publishTime="01/17/2010 12:08:59" />
+    <file relUrl="bin/.svn/text-base/log4net.dll.svn-base" publishTime="01/17/2010 12:08:59" />
+    <file relUrl="bin/ApiObjects.pdb" publishTime="05/16/2010 21:55:18" />
+    <file relUrl="bin/AkamaiTokenGenerator.dll" publishTime="04/18/2010 17:50:14" />
+    <file relUrl="bin/WS_API.dll" publishTime="05/24/2010 17:06:09" />
+    <file relUrl="bin/LLNWMediaVault.dll" publishTime="05/24/2010 14:23:32" />
+    <file relUrl="bin/.svn/prop-base/ApiObjects.pdb.svn-base" publishTime="01/17/2010 12:08:59" />
+    <file relUrl="bin/.svn/dir-prop-base" publishTime="01/17/2010 12:08:59" />
+    <file relUrl="Web.config" publishTime="05/24/2010 00:47:21" />
+    <file relUrl="bin/Interop.CUWMAuthTickets.dll" publishTime="01/17/2010 12:09:42" />
+    <file relUrl="bin/.svn/all-wcprops" publishTime="04/25/2010 20:58:52" />
+    <file relUrl="bin/LLNWMediaVault.pdb" publishTime="05/24/2010 14:23:32" />
+    <file relUrl="bin/.svn/text-base/ApiObjects.dll.svn-base" publishTime="04/25/2010 20:58:51" />
+    <file relUrl="bin/Notifiers.pdb" publishTime="05/24/2010 14:23:33" />
+    <file relUrl="bin/api.pdb" publishTime="05/24/2010 17:06:09" />
+  </publishTarget>
+  <publishTarget publishUrl="C:\Development SVN\TVM\PrecompiledWeb\ws\api\">
+    <file relUrl="bin/log4net.dll" publishTime="10/04/2009 16:52:55" />
+    <file relUrl="api.asmx" publishTime="10/04/2009 16:47:26" />
+    <file relUrl="bin/ApiObjects.dll" publishTime="12/03/2009 16:35:33" />
+    <file relUrl="bin/.svn/prop-base/ApiObjects.dll.svn-base" publishTime="01/03/2010 16:31:40" />
+    <file relUrl="bin/Interop.CUWMAuthTickets.dll" publishTime="10/26/2009 14:09:32" />
+    <file relUrl="bin/api.pdb" publishTime="12/31/2009 12:08:07" />
+    <file relUrl="Web.config" publishTime="11/10/2009 15:34:41" />
+    <file relUrl="bin/WS_API.pdb" publishTime="01/03/2010 16:39:46" />
+    <file relUrl="bin/CachingManager.pdb" publishTime="10/26/2009 14:09:21" />
+    <file relUrl="bin/LLNWMediaVault.dll" publishTime="11/13/2009 21:58:12" />
+    <file relUrl="bin/TVinciShared.pdb" publishTime="12/29/2009 15:03:11" />
+    <file relUrl="bin/ApiObjects.pdb" publishTime="12/03/2009 16:35:33" />
+    <file relUrl="bin/WS_API.dll" publishTime="01/03/2010 16:39:47" />
+    <file relUrl="bin/ICSharpCode.SharpZipLib.dll" publishTime="10/04/2009 16:49:42" />
+    <file relUrl="bin/.svn/prop-base/log4net.dll.svn-base" publishTime="10/04/2009 16:47:24" />
+    <file relUrl="bin/ODBCWrapper.dll" publishTime="11/11/2009 16:30:13" />
+    <file relUrl="bin/.svn/text-base/log4net.dll.svn-base" publishTime="10/04/2009 16:47:24" />
+    <file relUrl="bin/Logger.pdb" publishTime="10/26/2009 14:09:16" />
+    <file relUrl="bin/Logger.dll" publishTime="10/26/2009 14:09:16" />
+    <file relUrl="bin/ODBCWrapper.pdb" publishTime="11/11/2009 16:30:12" />
+    <file relUrl="bin/TVinciShared.dll" publishTime="12/29/2009 15:03:11" />
+    <file relUrl="bin/.svn/dir-prop-base" publishTime="11/03/2009 13:42:06" />
+    <file relUrl="bin/.svn/text-base/ApiObjects.pdb.svn-base" publishTime="01/03/2010 16:31:40" />
+    <file relUrl="bin/.svn/prop-base/ICSharpCode.SharpZipLib.dll.svn-base" publishTime="10/04/2009 16:47:23" />
+    <file relUrl="bin/.svn/entries" publishTime="01/03/2010 16:31:41" />
+    <file relUrl="bin/CachingManager.dll" publishTime="10/26/2009 14:09:21" />
+    <file relUrl="bin/.svn/text-base/ICSharpCode.SharpZipLib.dll.svn-base" publishTime="10/04/2009 16:47:23" />
+    <file relUrl="bin/LLNWMediaVault.pdb" publishTime="11/13/2009 21:58:11" />
+    <file relUrl="bin/.svn/all-wcprops" publishTime="01/03/2010 16:31:40" />
+    <file relUrl="bin/.svn/text-base/ApiObjects.dll.svn-base" publishTime="01/03/2010 16:31:40" />
+    <file relUrl="bin/.svn/prop-base/ApiObjects.pdb.svn-base" publishTime="01/03/2010 16:31:40" />
+    <file relUrl="bin/api.dll" publishTime="12/31/2009 12:08:07" />
+  </publishTarget>
+</publishData>
