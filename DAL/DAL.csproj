@@ -33,13 +33,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Couchbase">
-      <HintPath>..\..\External\TVM\Couchbase-Net-Client\net35\Couchbase.dll</HintPath>
+      <HintPath>..\External\Couchbase-Net-Client\net35\Couchbase.dll</HintPath>
     </Reference>
     <Reference Include="Enyim.Caching">
-      <HintPath>..\..\External\TVM\Couchbase-Net-Client\net35\Enyim.Caching.dll</HintPath>
+      <HintPath>..\External\Couchbase-Net-Client\net35\Enyim.Caching.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\External\TVM\Couchbase-Net-Client\net35\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\External\Couchbase-Net-Client\net35\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -72,10 +72,6 @@
     <Compile Include="XMLAdapterDAL.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
-      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
-      <Name>CouchbaseManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
       <Name>ODBCWrapper</Name>
