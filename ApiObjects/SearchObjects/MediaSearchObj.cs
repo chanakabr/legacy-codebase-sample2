@@ -1,0 +1,136 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+namespace ApiObjects.SearchObjects
+{
+
+    public class SearchValue
+    {
+        public string m_sKey;
+        public List<string> m_lValue;
+        public string m_sValue;
+        public CutWith m_eInnerCutWith { get; set; }
+        public string m_sKeyPrefix { get; set; }
+
+        public SearchValue()
+        {
+            m_sKey = string.Empty;
+            m_sKeyPrefix = string.Empty;
+            m_lValue = new List<string>();
+            m_sValue = string.Empty;
+            m_eInnerCutWith = CutWith.OR;
+        }
+
+        public SearchValue(string key, string val)
+        {
+            m_sKey = key;
+            m_sValue = val;
+            m_sKeyPrefix = string.Empty;
+            m_eInnerCutWith = CutWith.OR;
+        }
+
+        public SearchValue(string key, string val, string sKeyPrefix)
+        {
+            m_sKey = key;
+            m_sValue = val;
+            m_sKeyPrefix = string.Empty;
+            m_eInnerCutWith = CutWith.OR;
+            m_sKeyPrefix = sKeyPrefix;
+        }
+    }
+
+
+    public class MediaSearchObj
+    {        
+        public OrderObj m_oOrder;
+        public CutWith m_eCutWith;
+        
+        public bool m_bExact;
+        public bool m_bUseFinalEndDate;
+        public bool m_bUseStartDate;
+        
+        public string m_sName;
+        public string m_sDescription;
+        public string m_sMediaTypes;
+        public string m_sPermittedWatchRules { get; set; }
+
+        public List<SearchValue> m_dAnd;
+        public List<SearchValue> m_dOr;
+        public List<SearchValue> m_lFilterTagsAndMetas { get; set; }
+        public CutWith m_eFilterTagsAndMetasCutWith { get; set; }
+     
+        public int m_nGroupId { get; set; }
+        public int m_nIndexGroupId { get; set; }
+        public int m_nPageIndex { get; set; }
+        public int m_nPageSize { get; set; }
+        public int m_nMediaID;
+        public int m_nLangID { get; set; }
+        public int m_nUserTypeID;
+        
+        public int[] m_nDeviceRuleId;
+        public int[] m_nMediaFileTypes;
+
+        /*
+         * 1. The following two lists are used for IPNO filtering in Eutelsat.
+         * 2. In IPNO filtering the search created by the above properties must also satisfy the IPNO's channels definitions or
+         * 3. not satisfy all channels of all ipnos. 
+         * 4. This logic is because user associated with IPNO in Eutelsat can either access medias associated with his IPNO
+         * 5. or medias which are not associated with any IPNO (including his IPNO).
+         * 6. Hence, we pass to m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt the definitions of his IPNO channels
+         * 7. (The definitions are extracted from ES Percolator). m_lOrMediaNotInAnyOfTheseChannelsDefinitions receives the
+         * 8. definitions of all the channels of all ipnos.
+         */
+        public List<string> m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt;
+        public List<string> m_lOrMediaNotInAnyOfTheseChannelsDefinitions;
+
+        public MediaSearchObj()
+        {
+            m_sMediaTypes = string.Empty;
+
+            m_eCutWith = CutWith.OR;
+            m_bExact = false;
+            m_sName = string.Empty;
+            m_sDescription = string.Empty;
+
+            m_bUseFinalEndDate = false;
+
+            m_dAnd = new List<SearchValue>();
+            m_dOr = new List<SearchValue>();
+
+            m_nMediaID = 0;
+            m_bUseStartDate = true;
+
+            m_nDeviceRuleId = null;
+            m_nMediaFileTypes = null;
+
+            m_oOrder = new OrderObj();
+
+            m_nPageSize = 0;
+            m_nPageIndex = 0;
+
+            m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = new List<string>();
+            m_lOrMediaNotInAnyOfTheseChannelsDefinitions = new List<string>();
+        }
+    }
+
+    public class SearchRelated
+    {
+        public int m_nMediaID;
+        public float m_nScore;
+
+        public SearchRelated()
+        {
+            m_nMediaID = 0;
+            m_nScore = 0;
+        }
+
+        public SearchRelated(int nMediaID, float nScore)
+        {
+            m_nMediaID = nMediaID;
+            m_nScore = nScore;
+        }
+    }
+}

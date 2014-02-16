@@ -1,0 +1,6 @@
+C:\ode\TVM\Libs\Modules\ApiObjects\bin\Debug\ApiObjects.dll
+C:\ode\TVM\Libs\Modules\ApiObjects\bin\Debug\ApiObjects.pdb
+C:\ode\TVM\Libs\Modules\ApiObjects\obj\Debug\ApiObjects.dll
+C:\ode\TVM\Libs\Modules\ApiObjects\obj\Debug\ApiObjects.pdb
+C:\ode\TVM\Libs\Modules\ApiObjects\bin\Debug\Newtonsoft.Json.dll
+C:\ode\TVM\Libs\Modules\ApiObjects\obj\Debug\ApiObjects.csprojResolveAssemblyReference.cache

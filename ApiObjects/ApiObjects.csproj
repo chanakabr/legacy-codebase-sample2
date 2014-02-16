@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ApiObjects</RootNamespace>
+    <AssemblyName>ApiObjects</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>http://localhost/ApiObjects/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Basic|AnyCPU'">
+    <OutputPath>bin\Basic\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\External\TVM\net35\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddUserMailRequest.cs" />
+    <Compile Include="AdminAccountObj.cs" />
+    <Compile Include="AdminAccountUserObj.cs" />
+    <Compile Include="AdminAccountUserResponse.cs" />
+    <Compile Include="ChangedPinMailRequest.cs" />
+    <Compile Include="ChangePasswordMailRequest.cs" />
+    <Compile Include="CinepolisPurchaseMailRequest.cs" />
+    <Compile Include="CinepolisRenewalFailMailRequest.cs" />
+    <Compile Include="AddDeviceMailRequest.cs" />
+    <Compile Include="DeviceAvailabiltyRule.cs" />
+    <Compile Include="BaseCacheObject.cs" />
+    <Compile Include="CategoryObject.cs" />
+    <Compile Include="ChannelRequestObject.cs" />
+    <Compile Include="DeviceObject.cs" />
+    <Compile Include="DeviceRule.cs" />
+    <Compile Include="EmailNotificationRequest.cs" />
+    <Compile Include="Epg.cs" />
+    <Compile Include="EPGChannelProgrammeObject.cs" />
+    <Compile Include="enums.cs" />
+    <Compile Include="EPGChannelObject.cs" />
+    <Compile Include="EpgRes.cs" />
+    <Compile Include="ExtraRequestObject.cs" />
+    <Compile Include="FileRequestObject.cs" />
+    <Compile Include="FileTypeContainer.cs" />
+    <Compile Include="ForgotPasswordMailRequest.cs" />
+    <Compile Include="GenericWriteResponse.cs" />
+    <Compile Include="GroupInfo.cs" />
+    <Compile Include="GroupOperator.cs" />
+    <Compile Include="GroupRule.cs" />
+    <Compile Include="ImporterObject.cs" />
+    <Compile Include="InfoStructObj.cs" />
+    <Compile Include="InitializationObject.cs" />
+    <Compile Include="LanguageRequestObject.cs" />
+    <Compile Include="MailRequestObj.cs" />
+    <Compile Include="MCObjects.cs" />
+    <Compile Include="MCResponseObject.cs" />
+    <Compile Include="MediaAdObject.cs" />
+    <Compile Include="MediaAdSchema.cs" />
+    <Compile Include="MediaIndexingObjects\IndexingData.cs" />
+    <Compile Include="MediaIndexingObjects\QueueObject.cs" />
+    <Compile Include="MediaIndexingObjects\SocialData.cs" />
+    <Compile Include="MediaMarkObject.cs" />
+    <Compile Include="MediaFileObject.cs" />
+    <Compile Include="MediaInfoObject.cs" />
+    <Compile Include="MediaInfoStructObject.cs" />
+    <Compile Include="MediaObject.cs" />
+    <Compile Include="MediaPersonalStatistics.cs" />
+    <Compile Include="MediaStatistics.cs" />
+    <Compile Include="MeidaMaper.cs" />
+    <Compile Include="MetaObject.cs" />
+    <Compile Include="OneTimeObject.cs" />
+    <Compile Include="PageDefinition.cs" />
+    <Compile Include="PicObject.cs" />
+    <Compile Include="PlayerIMRequestObject.cs" />
+    <Compile Include="PlayListSchema.cs" />
+    <Compile Include="PreviewModuleCancelOrRefundRequest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PurchaseFailRequest.cs" />
+    <Compile Include="PurchaseMailRequest.cs" />
+    <Compile Include="PurchaseWithPreviewModuleRequest.cs" />
+    <Compile Include="RateMediaObject.cs" />
+    <Compile Include="RateResponseObject.cs" />
+    <Compile Include="RequestObj.cs" />
+    <Compile Include="Scheduling.cs" />
+    <Compile Include="SearchDefinitionObject.cs" />
+    <Compile Include="SearchObjects\ChannelContainObj.cs" />
+    <Compile Include="SearchObjects\ChannelContainSearchObj.cs" />
+    <Compile Include="SearchObjects\ChannelObj.cs" />
+    <Compile Include="SearchObjects\EpgParams.cs" />
+    <Compile Include="SearchObjects\EpgResultsObj.cs" />
+    <Compile Include="SearchObjects\EpgSearchObj.cs" />
+    <Compile Include="SearchObjects\ESOrderObj.cs" />
+    <Compile Include="SearchObjects\ISearcher.cs" />
+    <Compile Include="SearchObjects\MediaObj.cs" />
+    <Compile Include="SearchObjects\MediaSearchObj.cs" />
+    <Compile Include="SearchObjects\SearchResult.cs" />
+    <Compile Include="SearchObjects\SearchResultsObj.cs" />
+    <Compile Include="SearchOrderByObject.cs" />
+    <Compile Include="ChannelObject.cs" />
+    <Compile Include="SendAdminTokenRequest.cs" />
+    <Compile Include="SendPasswordMailRequest.cs" />
+    <Compile Include="SendToFriendMailRequest.cs" />
+    <Compile Include="SocialObjects.cs" />
+    <Compile Include="TagRequestObject.cs" />
+    <Compile Include="TagResponseObject.cs" />
+    <Compile Include="UserComment.cs" />
+    <Compile Include="UserIMRequestObject.cs" />
+    <Compile Include="UserType.cs" />
+    <Compile Include="WelcomeMailRequest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

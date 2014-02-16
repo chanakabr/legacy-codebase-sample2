@@ -1,0 +1,5 @@
+C:\ode\TVM\Libs\Modules\ApiObjects\bin\Release\ApiObjects.dll
+C:\ode\TVM\Libs\Modules\ApiObjects\bin\Release\ApiObjects.pdb
+C:\ode\TVM\Libs\Modules\ApiObjects\obj\Release\ApiObjects.csprojResolveAssemblyReference.cache
+C:\ode\TVM\Libs\Modules\ApiObjects\obj\Release\ApiObjects.dll
+C:\ode\TVM\Libs\Modules\ApiObjects\obj\Release\ApiObjects.pdb
