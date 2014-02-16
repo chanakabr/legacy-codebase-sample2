@@ -54,7 +54,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Interop.keygen4Lib">
-      <HintPath>..\..\..\..\..\Libs\External\TVM\Interop.keygen4Lib.dll</HintPath>
+      <HintPath>..\External\Interop.keygen4Lib.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="System" />
@@ -76,15 +76,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\CachingManager\CachingManager.csproj">
+    <ProjectReference Include="..\CachingManager\CachingManager.csproj">
       <Project>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</Project>
       <Name>CachingManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\Logger\Logger.csproj">
-      <Project>{72228EF8-6AFA-4C0C-9C8A-59EDDAC688FB}</Project>
+    <ProjectReference Include="..\Logger\Logger.csproj">
+      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\TVinciShared\TVinciShared.csproj">
+    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
       <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
