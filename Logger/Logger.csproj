@@ -103,10 +103,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>bin\log4net.dll</HintPath>
+      <HintPath>..\External\log4net.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client">
-      <HintPath>..\..\..\..\Libs\External\TVM\RabbitMQ.Client.dll</HintPath>
+      <HintPath>..\External\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -128,7 +128,7 @@
       <Name>System.XML</Name>
     </Reference>
     <Reference Include="TCMClient">
-      <HintPath>..\..\External\TVM\TCMClient.dll</HintPath>
+      <HintPath>..\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
