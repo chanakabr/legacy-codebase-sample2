@@ -165,16 +165,6 @@
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CachingManager\CachingManager.csproj">
-      <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
-      <Name>CachingManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
@@ -190,6 +180,16 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CachingManager\CachingManager.csproj">
+      <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
+      <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Logger\Logger.csproj">
+      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
+      <Name>Logger</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

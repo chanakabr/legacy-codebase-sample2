@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvinciImporter", "TvinciImp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageManager", "ImageManager\ImageManager.csproj", "{145E19BB-EA2E-430A-8CA6-707877D53D02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mailer", "Mailer\Mailer.csproj", "{8C082DFD-81EE-4623-8BE9-32D34DED6407}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -120,6 +122,12 @@ Global
 		{145E19BB-EA2E-430A-8CA6-707877D53D02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{145E19BB-EA2E-430A-8CA6-707877D53D02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{145E19BB-EA2E-430A-8CA6-707877D53D02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C082DFD-81EE-4623-8BE9-32D34DED6407}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{8C082DFD-81EE-4623-8BE9-32D34DED6407}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{8C082DFD-81EE-4623-8BE9-32D34DED6407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C082DFD-81EE-4623-8BE9-32D34DED6407}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C082DFD-81EE-4623-8BE9-32D34DED6407}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C082DFD-81EE-4623-8BE9-32D34DED6407}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
