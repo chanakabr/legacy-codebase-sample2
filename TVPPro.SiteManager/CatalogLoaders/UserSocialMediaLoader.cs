@@ -16,7 +16,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         public int SocialAction { get; set; }
         public int SocialPlatform { get; set; }
-        public string SiteGuid { get; set; }
 
         #region Constructors
         public UserSocialMediaLoader(string siteGuid, int socialAction, int socialPlatform, int groupID, string userIP, int pageSize, int pageIndex, string picSize)
@@ -37,7 +36,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
         {
             m_oRequest = new UserSocialMediasRequest()
             {
-                m_sSiteGuid = SiteGuid,
                 m_nSocialAction = SocialAction,
                 m_nSocialPlatform = SocialPlatform,
             };

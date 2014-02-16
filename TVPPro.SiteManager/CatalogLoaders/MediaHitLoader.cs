@@ -70,7 +70,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     m_sMediaDuration = MediaDuration,
                     m_sSiteGuid = SiteGuid,
                     m_sUDID = UDID
-                }
+                },
+                m_sSiteGuid = SiteGuid
             };
         }
 

@@ -158,6 +158,17 @@ namespace TVPPro.SiteManager.DataLoaders
 
         }
 
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
         #endregion
 
         #region Constractor
@@ -205,6 +216,7 @@ namespace TVPPro.SiteManager.DataLoaders
                 {
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
                     OnlyActiveMedia = true,
+                    SiteGuid = SiteGuid
                 }.Execute() as dsItemInfo;
             }
             else

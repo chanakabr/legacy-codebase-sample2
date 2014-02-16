@@ -87,6 +87,19 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<bool>(eParameterType.Retrieve, "WithInfo", value);
             }
         }
+
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+
+            }
+        }
         #endregion Properties
 
         public override object BCExecute(eExecuteBehaivor behaivor)
@@ -101,7 +114,8 @@ namespace TVPPro.SiteManager.DataLoaders
                 m_oPeopleWhoWatchedLoader = new TVPPro.SiteManager.CatalogLoaders.PeopleWhoWatchedLoader((int)MediaID, 0, m_tvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize)
                 {
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
-                    OnlyActiveMedia = true
+                    OnlyActiveMedia = true, 
+                    SiteGuid = SiteGuid
                 };
                 return m_oPeopleWhoWatchedLoader.Execute() as dsItemInfo;
             }
