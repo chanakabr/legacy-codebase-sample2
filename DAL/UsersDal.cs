@@ -1,0 +1,1689 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data;
+using Tvinci.Core.DAL;
+
+
+namespace DAL
+{
+    public class UsersDal : BaseDal
+    {
+        #region Private Constants
+
+        private const string SP_GET_USER_TYPE_DATA              = "Get_UserTypeData";
+        private const string SP_GET_USER_TYPE_DATA_BY_IDS       = "Get_UserTypesDataByIDs";
+        private const string SP_GET_USER_BASIC_DATA             = "Get_UserBasicData";
+        private const string SP_GET_USER_DOMAINS                = "sp_GetUserDomains";
+        private const string SP_INSERT_USER                     = "sp_InsertUser";
+        private const string SP_GET_IS_ACTIVATION_NEEDED        = "Get_IsActivationNeeded";
+        private const string SP_GET_ACTIVATION_TOKEN            = "Get_ActivationToken";
+        private const string SP_GET_USERS_BASIC_DATA            = "Get_UsersBasicData";
+        private const string SP_GET_GROUP_USERS                 = "Get_GroupUsers";
+        private const string SP_GET_GROUP_USERS_SEARCH_FIELDS   = "Get_GroupUsersSearchFields";
+        private const string SP_GET_DEVICES_TO_USERS_NON_PUSH   = "Get_DevicesToUsersNonPushAction";
+        private const string SP_GET_DEVICES_TO_USERS_PUSH       = "Get_DevicesToUsersPushAction";
+        private const string SP_GENERATE_TOKEN                  = "GenerateToken";
+
+        #endregion
+
+
+        /*
+         * IsUseModifiedSP == true calls SP: Get_DevicesToUsersPushAction
+         * IsUseModifiedSP == false calls SP: Get_DevicesToUsersNonPushAction
+         */
+        public static DataTable GetDevicesToUsers(long? lGroupID, long? lUserID, bool bIsUseModifiedSP)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetDevicesToUsers = new ODBCWrapper.StoredProcedure(bIsUseModifiedSP ? SP_GET_DEVICES_TO_USERS_PUSH : SP_GET_DEVICES_TO_USERS_NON_PUSH);
+                spGetDevicesToUsers.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                spGetDevicesToUsers.AddParameter("@groupID", lGroupID);
+                spGetDevicesToUsers.AddNullableParameter<long?>("@userID", lUserID);
+                DataSet ds = spGetDevicesToUsers.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    return ds.Tables[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return null;
+
+        }
+
+        public static DataTable GetDevicesToUsers(long? lGroupID, long? lUserID)
+        {
+            return GetDevicesToUsers(lGroupID, lUserID, false);
+        }
+
+        public static DataTable GetUserTypeData(long groupID, int? isDefault)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetUserTypeData = new ODBCWrapper.StoredProcedure(SP_GET_USER_TYPE_DATA);
+                spGetUserTypeData.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                spGetUserTypeData.AddParameter("@groupID", groupID);
+                spGetUserTypeData.AddNullableParameter<int?>("@is_default", isDefault);
+                DataSet ds = spGetUserTypeData.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    return ds.Tables[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetUserTypeDataByIDs(long groupID, List<int> userTypesIDs)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetUserTypeDataByIDs = new ODBCWrapper.StoredProcedure(SP_GET_USER_TYPE_DATA_BY_IDS);
+                spGetUserTypeDataByIDs.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                spGetUserTypeDataByIDs.AddParameter("@groupID", groupID);
+                spGetUserTypeDataByIDs.AddIDListParameter("@userTypesIDs", userTypesIDs, "id");
+                DataSet ds = spGetUserTypeDataByIDs.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    return (ds.Tables[0]);
+                }
+
+            }
+            catch(Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return null;
+        }
+
+        public static bool UpdateUserTypeByUserID(int nUserID, int nUserTypeID)
+        {
+            bool updateRes = false;
+
+            try
+            {
+                ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
+                directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                directQuery += "update users set ";
+                directQuery += "User_Type = " + nUserTypeID;
+                directQuery += " where ";
+                directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nUserID);
+                updateRes = directQuery.Execute();
+                directQuery.Finish();
+                directQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return updateRes;
+        }
+
+        public static DataTable GetUserBasicData(long userID)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetUserBasicData = new ODBCWrapper.StoredProcedure(SP_GET_USER_BASIC_DATA);
+                spGetUserBasicData.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                spGetUserBasicData.AddParameter("@userID", userID);
+                DataSet ds = spGetUserBasicData.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    return ds.Tables[0];
+                }
+            }
+            catch(Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetUsersBasicData(long[] usersIDs)
+        {
+            ODBCWrapper.StoredProcedure spGetUserBasicData = new ODBCWrapper.StoredProcedure(SP_GET_USERS_BASIC_DATA);
+            spGetUserBasicData.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            spGetUserBasicData.AddIDListParameter("@usersIDs", usersIDs.ToList(), "Id");
+
+            DataSet ds = spGetUserBasicData.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                return ds.Tables[0];
+            }
+            return null;
+        }
+
+        public static DataTable GetGroupUsers(long groupID, string[] fields)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure(SP_GET_GROUP_USERS);
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@ColumnList", string.Join(",", fields));
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                return ds.Tables[0];
+            }
+            return null;
+        }
+
+        public static DataTable GetGroupUsersSearchFields(long groupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure(SP_GET_GROUP_USERS_SEARCH_FIELDS);
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            sp.AddParameter("@groupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                return ds.Tables[0];
+            }
+
+            return null;
+        }
+
+        public static string Get_SiteGuid(string sUID)
+        {
+            string sSiteGuid = string.Empty;
+
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SiteGuid");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@UID", sUID);
+                sSiteGuid = sp.ExecuteReturnValue<string>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return sSiteGuid;
+        }
+
+        /// <summary>
+        /// This Method goes to Users Function : Get_UID
+        /// and replace the siteGuid into UID (which is the new identity for a userid)
+        /// </summary>
+        /// <param name="sSiteGuid"></param>
+        /// <returns></returns>
+        public static string Get_UID(string sSiteGuid)
+        {
+            string UID = string.Empty;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UID");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@SiteGuid", sSiteGuid);
+
+                UID = sp.ExecuteReturnValue<string>();
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return UID;
+        }
+
+        public static int InsertUser(string sUserName,
+                                    string sPassword,
+                                    string sSalt,
+                                    string sFirstName,
+                                    string sLastName,
+                                    string sFacebookID,
+                                    string sFacebookImage,
+                                    string sFacebookToken,
+                                    int nIsFacebookImagePermitted,
+                                    string sEmail,
+                                    int nActivateStatus,
+                                    string sActivationToken,
+                                    string sCoGuid,
+                                    string sExternalToken,
+                                    int? nUserTypeID,
+                                    int nGroupID)
+        {
+            int nInserted = 0;
+
+            try
+            {
+
+                ODBCWrapper.StoredProcedure spInsertUser = new ODBCWrapper.StoredProcedure(SP_INSERT_USER);
+                spInsertUser.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                spInsertUser.AddParameter("@username", sUserName);
+                spInsertUser.AddParameter("@password", sPassword);
+                spInsertUser.AddParameter("@salt", sSalt);
+                spInsertUser.AddParameter("@firstName", sFirstName);
+                spInsertUser.AddParameter("@lastName", sLastName);
+                spInsertUser.AddParameter("@facebookID", sFacebookID);
+                spInsertUser.AddParameter("@facebookImage", sFacebookImage);
+                spInsertUser.AddParameter("@facebookToken", sFacebookToken);
+                spInsertUser.AddParameter("@isFacebookImagePermitted", nIsFacebookImagePermitted);
+                spInsertUser.AddParameter("@email", sEmail);
+                spInsertUser.AddParameter("@activateStatus", nActivateStatus);
+                spInsertUser.AddParameter("@activationToken", sActivationToken);
+
+                if (!string.IsNullOrEmpty(sCoGuid))
+                {
+                    spInsertUser.AddParameter("@coGuid", sCoGuid);
+                }
+                if (!string.IsNullOrEmpty(sExternalToken))
+                {
+                    spInsertUser.AddParameter("@externalToken", sExternalToken);
+                }
+                if (nUserTypeID != null)
+                {
+                    spInsertUser.AddParameter("@userTypeID", nUserTypeID.Value);
+                }
+
+                spInsertUser.AddParameter("@groupID", nGroupID);
+
+                int retVal = spInsertUser.ExecuteReturnValue<int>();
+
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nInserted;
+        }
+
+        public static bool UpdateHitDate(int nSiteGuid, bool bLogOut = false)
+        {
+            bool res = false;
+
+            try
+            {
+                string sLastHitDate = bLogOut ? "DATEADD(minute , -1 , getdate())" : "getdate()";
+
+                ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
+                directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                directQuery += "update users set ";
+                directQuery += "LAST_HIT_DATE=" + sLastHitDate;
+                directQuery += " where ";
+                directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nSiteGuid);
+                res = directQuery.Execute();
+                directQuery.Finish();
+                directQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return res;
+        }
+
+        public static int GetUserIDByUsername(string sUsername, int nGroupID)
+        {
+            int nUserID = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += "select id from users WITH (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUsername);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nUserID;
+
+        }
+
+        public static int GetUserIDByFacebookID(string sFacebookID, int nGroupID)
+        {
+            int nUserID = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select id from users WITH (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_ID", "=", sFacebookID);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nUserID;
+        }
+
+        public static int GetUserDomainID(string sSiteGUID)
+        {
+            int nOperatorID = 0;
+            bool bIsDomainMaster = false;
+
+            int nDomainID = GetUserDomainID(sSiteGUID, ref nOperatorID, ref bIsDomainMaster);
+            return nDomainID;
+        }
+
+        public static int GetUserDomainID(string sSiteGUID, ref int nOperatorID, ref bool bIsDomainMaster)
+        {
+            int nDomainID = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID FROM USERS_DOMAINS UD WITH (NOLOCK), DOMAINS D WITH (NOLOCK) WHERE UD.DOMAIN_ID=D.ID AND UD.STATUS<>2 AND D.STATUS<>2 AND";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UD.USER_ID", "=", sSiteGUID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    int count = selectQuery.Table("query").DefaultView.Count;
+                    if (count > 0)
+                    {
+                        nDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["domain_id"].ToString());
+
+                        if (!string.IsNullOrEmpty(selectQuery.Table("query").DefaultView[0].Row["operator_id"].ToString()))
+                        {
+                            nOperatorID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["operator_id"].ToString());
+                        }
+
+                        if (selectQuery.Table("query").DefaultView[0].Row["is_master"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["is_master"] != null)
+                        {
+                            bIsDomainMaster = (selectQuery.Table("query").DefaultView[0].Row["is_master"].ToString() == "1");
+                        }
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nDomainID;
+        }
+
+        public static List<int> GetUserDomainIDs(int nGroupID, int nUserID)
+        {
+            List<int> lDomainIDs = new List<int>();
+
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetUserDomains = new ODBCWrapper.StoredProcedure(SP_GET_USER_DOMAINS);
+                spGetUserDomains.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                spGetUserDomains.AddParameter("@groupID", nGroupID);
+                spGetUserDomains.AddNullableParameter<long?>("@userID", nUserID);
+                DataSet ds = spGetUserDomains.ExecuteDataSet();
+
+                if ((ds == null) || (ds.Tables.Count == 0) || (ds.Tables[0].DefaultView.Count == 0))
+                {
+                    return lDomainIDs;
+                }
+
+                int nCount = ds.Tables[0].DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nDomainID = int.Parse(ds.Tables[0].DefaultView[i].Row["DOMAIN_ID"].ToString());
+                    lDomainIDs.Add(nDomainID);
+                }
+
+                spGetUserDomains = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return lDomainIDs;
+
+
+            #region Commented
+            //int nDomainID = 0;
+
+            //try
+            //{
+            //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //    selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            //    selectQuery += "SELECT DISTINCT UD.DOMAIN_ID FROM USERS_DOMAINS UD WITH (NOLOCK), DOMAINS D WITH (NOLOCK) WHERE UD.DOMAIN_ID=D.ID AND UD.IS_ACTIVE = 1 AND UD.STATUS = 1 AND D.IS_ACTIVE = 1 AND D.STATUS = 1 AND";
+            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", int.Parse(sSiteGUID));
+            //    if (selectQuery.Execute("query", true) != null)
+            //    {
+            //        int count = selectQuery.Table("query").DefaultView.Count;
+            //        if (count > 0)
+            //        {
+            //            nDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["DOMAIN_ID"].ToString());
+
+            //            if (!string.IsNullOrEmpty(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString()))
+            //            {
+            //                nOperatorID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString());
+            //            }
+
+            //            if (selectQuery.Table("query").DefaultView[0].Row["is_master"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"] != null)
+            //            {
+            //                bIsDomainMaster = (selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"].ToString() == "1");
+            //            }
+            //        }
+            //    }
+
+            //    selectQuery.Finish();
+            //    selectQuery = null;
+            //}
+            //catch (Exception ex)
+            //{
+            //    HandleException(ex);
+            //}
+
+            //return nDomainID;
+            #endregion
+        }
+
+        public static int GetAllowedLogins(int nGroupID)
+        {
+            int nAllowedLogins = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += " select allowed_logins from groups_parameters WITH (nolock) where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    int count = selectQuery.Table("query").DefaultView.Count;
+                    if (count > 0)
+                    {
+                        object oLimit = selectQuery.Table("query").DefaultView[0].Row["allowed_logins"];
+                        if (oLimit != System.DBNull.Value && oLimit != null)
+                        {
+                            nAllowedLogins = int.Parse(oLimit.ToString());
+                        }
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nAllowedLogins;
+        }
+
+        public static bool UpdateFailCount(int nUserID, int nAdd)
+        {
+            bool updateRes = false;
+
+            try
+            {
+                ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
+                directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                directQuery += "update users set ";
+                if (nAdd > 0)
+                {
+                    directQuery += "FAIL_COUNT=FAIL_COUNT+" + nAdd.ToString();
+                    directQuery += ",LAST_FAIL_DATE=getdate()";
+                }
+                else
+                {
+                    directQuery += "FAIL_COUNT=0 ";
+                }
+                directQuery += " where ";
+                directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nUserID);
+                updateRes = directQuery.Execute();
+                directQuery.Finish();
+                directQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return updateRes;
+        }
+
+        public static bool UpdateUserSession(int id, int statusInt)
+        {
+            bool updateRes = false;
+            ODBCWrapper.UpdateQuery updateQuery = null;
+            try
+            {
+                updateQuery = new ODBCWrapper.UpdateQuery("users_sessions");
+                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", statusInt);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", statusInt);
+                DateTime dtToWriteToDB = DateTime.UtcNow;
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", dtToWriteToDB);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("last_action_date", "=", dtToWriteToDB);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", id);
+                updateRes = updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            finally
+            {
+                if (updateQuery != null)
+                {
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+            }
+            return updateRes;
+
+        }
+
+        public static int Update_ActivenessForUserSessionByDeviceIDAndReturnID(long lSiteGuid, string sIDInDevices, bool bSetIsActive)
+        {
+            long res = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_ActivenessForUserSessionByDeviceID");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            sp.AddParameter("@DeviceID", sIDInDevices);
+            int nIsActiveAndStatus = bSetIsActive ? 1 : 0;
+            sp.AddParameter("@IsActive", nIsActiveAndStatus);
+            sp.AddParameter("@Status", nIsActiveAndStatus);
+            DateTime dtToWriteToDB = DateTime.UtcNow;
+            sp.AddParameter("@UpdateDate", dtToWriteToDB);
+            sp.AddParameter("@LastActionDate", dtToWriteToDB);
+            sp.ExecuteNonQuery();
+
+            Get_UserSessionByDeviceID(lSiteGuid, sIDInDevices, ref bSetIsActive, ref res);
+
+            return (int)res;
+
+        }
+
+        public static int Update_UserActivenessForUserSessionBySessionIDAndIPAndReturnID(long lSiteGuid, string sSessionID, string sIP, bool bSetIsActive)
+        {
+            long res = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_ActivenessForUserSessionBySessionIDAndIP");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            sp.AddParameter("@SessionID", sSessionID);
+            sp.AddParameter("@UserIP", sIP);
+            int nIsActiveAndStatus = bSetIsActive ? 1 : 0;
+            sp.AddParameter("@IsActive", nIsActiveAndStatus);
+            sp.AddParameter("@Status", nIsActiveAndStatus);
+            DateTime dtToWriteToDB = DateTime.UtcNow;
+            sp.AddParameter("@UpdateDate", dtToWriteToDB);
+            sp.AddParameter("@LastActionDate", dtToWriteToDB);
+            sp.ExecuteNonQuery();
+
+            Get_UserSessionDetailsBySessionIDAndIP(lSiteGuid, sSessionID, sIP, ref bSetIsActive, ref res);
+
+            return (int)res;
+        }
+
+
+
+        public static DateTime GetLastUserSessionDate(int nSiteGuid, ref int userSessionID, ref string userSession, ref string lastUserIP, ref DateTime dbNow)
+        {
+            DateTime retVal = DateTime.MaxValue;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += "select id,user_ip, last_action_date, session_id, getdate() as 'Now' from users_sessions WITH (nolock) where is_active = 1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("user_site_guid", "=", nSiteGuid);
+                //selectQuery += " and ";
+                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("user_ip", "=", sIP);
+                selectQuery += " order by last_action_date desc";
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    int count = selectQuery.Table("query").DefaultView.Count;
+                    if (count > 0)
+                    {
+                        userSessionID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                        userSession = selectQuery.Table("query").DefaultView[0].Row["session_id"].ToString();
+                        lastUserIP = selectQuery.Table("query").DefaultView[0].Row["user_ip"].ToString();
+                        dbNow = (DateTime)selectQuery.Table("query").DefaultView[0].Row["Now"];
+
+                        if (selectQuery.Table("query").DefaultView[0].Row["last_action_date"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["last_action_date"] != null)
+                        {
+                            retVal = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["last_action_date"]);
+                        }
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return retVal;
+        }
+
+        public static int GetUserPasswordFailHistory(string sUN, int nGroupID, ref DateTime dNow, ref int nFailCount, ref DateTime dLastFailDate, ref DateTime dLastHitDate)
+        {
+            int nID = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LoginFailCount");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@username", sUN);
+            sp.AddParameter("@groupID", nGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    dNow            = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
+                    nFailCount      = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["FAIL_COUNT"]);
+                    nID             = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
+                    dLastFailDate   = new DateTime(2020, 1, 1);
+                    dLastHitDate    = new DateTime(2020, 1, 1);
+                    dLastFailDate   = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_FAIL_DATE"]);
+                    dLastHitDate    = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_HIT_DATE"]);
+                }
+            }
+
+            return nID;
+        }
+
+        public static bool InsertUserOperator(string nSiteGuid, string sCoGuid, int nOperatorID)
+        {
+            bool res = false;
+
+            try
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("users_operators");
+                insertQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("user_site_guid", "=", nSiteGuid);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("co_guid", "=", sCoGuid);
+                //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("acess_token", "=", authenticationObj.access_token);
+                //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("refresh_token", "=", authenticationObj.refresh_token);
+                //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("expires_in", "=", DateTime.UtcNow.AddSeconds(double.Parse(authenticationObj.expires_in)));
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("operator_id", "=", nOperatorID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+
+                res = insertQuery.Execute();
+                insertQuery.Finish();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return res;
+        }
+
+        //public static DataTable GetActivationToken(int nGroupID, string sUsername)
+        //{
+        //    ODBCWrapper.StoredProcedure spGetActivationToken = new ODBCWrapper.StoredProcedure(SP_GET_ACTIVATION_TOKEN);
+        //    spGetActivationToken.SetConnectionKey("USERS_CONNECTION_STRING");
+
+        //    spGetActivationToken.AddParameter("@groupID", nGroupID);
+        //    spGetActivationToken.AddParameter("@username", sUsername);
+        //    DataSet ds = spGetActivationToken.ExecuteDataSet();
+        //    if (ds != null)
+        //        return ds.Tables[0];
+        //    return null;
+        //}
+
+        public static string GetActivationToken(int nGroupID, string sUserName)
+        {
+            string sActivationToken = string.Empty;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += "select ACTIVATION_TOKEN from users WITH (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        sActivationToken = selectQuery.Table("query").DefaultView[0].Row["ACTIVATION_TOKEN"].ToString();
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return sActivationToken;
+        }
+
+        public static string GetActivationToken(int nGroupID, int nSiteGuid)
+        {
+            string sActivationToken = string.Empty;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += "select ACTIVATION_TOKEN from users WITH (nolock) where ";     //is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nSiteGuid);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        sActivationToken = selectQuery.Table("query").DefaultView[0].Row["ACTIVATION_TOKEN"].ToString();
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return sActivationToken;
+        }
+
+        public static DataRowView GetGroupMailParameters(int m_nGroupID)
+        {
+            DataRowView dvMailParameters = null;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += "select * from groups_parameters with (nolock) where status=1 and is_active=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
+                //selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+                selectQuery += " order by id desc";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        dvMailParameters = selectQuery.Table("query").DefaultView[0];
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return dvMailParameters;
+        }
+
+        public static bool UpdateUserActivationToken(string[] arrGroupIDs, int nUserID, string sToken, string sNewToken, int nUserState)
+        {
+            bool isActivated = false;
+
+            try
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users");
+                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATE_STATUS", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken); //System.Guid.NewGuid().ToString());
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("user_state", "=", nUserState);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
+                updateQuery += " and ";
+                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
+                updateQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";    //+ TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+                updateQuery += " and status=1 and is_active=1 and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
+
+                isActivated = updateQuery.Execute();
+
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return isActivated;
+        }
+
+        public static bool SetUserSessionStatus(int nUserID, int nIsActive, int nStatus)
+        {
+            bool res = false;
+
+            try
+            {
+                ODBCWrapper.UpdateQuery sessionsUpdateQuery = new ODBCWrapper.UpdateQuery("users_sessions");
+                sessionsUpdateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                sessionsUpdateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", nIsActive);
+                sessionsUpdateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
+                sessionsUpdateQuery += " where ";
+                sessionsUpdateQuery += ODBCWrapper.Parameter.NEW_PARAM("user_site_guid", "=", nUserID);
+
+                res = sessionsUpdateQuery.Execute();
+
+                sessionsUpdateQuery.Finish();
+                sessionsUpdateQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return res;
+        }
+
+        public static int GetUserActivateStatus(int nUserID, string[] arrGroupIDs)
+        {
+            int nActivationStatus = -1;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += " select ACTIVATE_STATUS from users WITH (nolock) where status=1 and is_active=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nUserID);
+                selectQuery += " and ";
+                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
+                selectQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";  // TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+
+                        nActivationStatus = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ACTIVATE_STATUS"].ToString());
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nActivationStatus;
+        }
+
+        public static int GetUserIDByActivationToken(string sToken, string[] arrGroupIDs)
+        {
+            int nUserID = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += "select id from users WITH (nolock) where status=1 and is_active=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
+                selectQuery += " and ";
+                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                selectQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nUserID;
+        }
+
+        public static int GetUserIDByUsername(string sUserName, string[] arrGroupIDs)
+        {
+            int nUserID = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                selectQuery += "SELECT ID FROM USERS WITH (NOLOCK) WHERE STATUS=1 AND IS_ACTIVE = 1 AND ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                selectQuery += " AND ";
+                selectQuery += " GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
+                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
+                //selectQuery += " GROUP_ID " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nUserID;
+        }
+
+        public static bool GetIsActivationNeeded(int nGroupID)
+        {
+            bool bIsActivationNeeded = true;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetIsActivationNeeded = new ODBCWrapper.StoredProcedure(SP_GET_IS_ACTIVATION_NEEDED);
+                spGetIsActivationNeeded.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                spGetIsActivationNeeded.AddParameter("@groupID", nGroupID);
+                DataSet ds = spGetIsActivationNeeded.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    DataTable dt = ds.Tables[0]; //UsersDal.GetIsActivationNeeded(m_nGroupID);
+
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        bIsActivationNeeded = (ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_ACTIVATION_NEEDED") != 0);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return bIsActivationNeeded;
+        }
+
+        public static bool Insert_ItemList(int nSiteGuid, Dictionary<int, List<int>> dItems, int listType, int itemType, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_ItemList");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@userID", nSiteGuid);
+            sp.AddParameter("@listType", listType);
+            sp.AddParameter("@itemType", itemType);
+            //sp.AddParameter("@orderNum", orderNum);
+            //sp.AddIDListParameter<int>("@itemIDs", litems, "Id");
+            sp.AddKeyValueListParameter<int, int>("@itemIDs", dItems, "Id", "OrderNum");
+            sp.AddParameter("@groupID", nGroupID);
+            bool result = sp.ExecuteReturnValue<bool>();
+            return result;
+        }
+
+        public static bool Remove_ItemFromList(int nSiteGuid, Dictionary<int, List<int>> dItems, int listType, int itemType, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Remove_ItemFromList");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@userID", nSiteGuid);
+            sp.AddParameter("@listType", listType);
+            sp.AddParameter("@itemType", itemType);
+            //sp.AddParameter("@orderNum", orderNum);
+            //sp.AddIDListParameter<int>("@itemIDs", litems, "Id");
+            sp.AddKeyValueListParameter<int, int>("@itemIDs", dItems, "Id", "OrderNum");
+            sp.AddParameter("@groupID", nGroupID);
+            bool result = sp.ExecuteReturnValue<bool>();
+            return result;
+        }
+
+        public static bool Update_ItemInList(int nSiteGuid, Dictionary<int, List<int>> dItems, int listType, int itemType, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_ItemInList");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@userID", nSiteGuid);
+            sp.AddParameter("@listType", listType);
+            sp.AddParameter("@itemType", itemType);
+            //sp.AddParameter("@orderNum", orderNum);
+            //sp.AddIDListParameter<int>("@itemIDs", litems, "Id");
+            sp.AddKeyValueListParameter<int, int>("@itemIDs", dItems, "Id", "OrderNum");
+            sp.AddParameter("@groupID", nGroupID);
+            bool result = sp.ExecuteReturnValue<bool>();
+            return result;
+        }
+
+        public static DataTable GetItemFromList(int nSiteGuid, int listType, int itemType, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ItemFromList");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@userID", nSiteGuid);
+            sp.AddParameter("@listType", listType);
+            sp.AddParameter("@itemType", itemType);
+            sp.AddParameter("@groupID", nGroupID);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable IsItemExists(List<int> lItems, int nGroupID, string siteGuid)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsItemExists");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@lItems", lItems, "Id");
+            sp.AddParameter("@groupID", nGroupID);
+            sp.AddParameter("@siteGuid", siteGuid);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        /// <summary>
+        /// GetUserActivationState
+        /// </summary>
+        /// <param name="arrGroupIDs"></param>
+        /// <param name="nActivationMustHours"></param>
+        /// <param name="sUserName"></param>
+        /// <param name="nUserID"></param>
+        /// <param name="nActivateStatus"></param>
+        /// <param name="dCreateDate"></param>
+        /// <param name="dNow"></param>
+        /// <returns>
+        ///     -2 - error
+        ///     -1 - user does not exist or was removed/deactivated   
+        ///      0 - user activated 
+        ///      1 - user not activated 
+        ///      2 - user not activated by master
+        ///      3 - user removed from domain
+        ///      
+        /// </returns>
+        public static int GetUserActivationState(string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
+        {
+            int res = (-2);
+
+            try
+            {
+                // CHECK ACTIVATION STATUS IN USERS
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                selectQuery.SetCachedSec(0);
+                selectQuery += "SELECT GETDATE() AS DNOW, ID,CREATE_DATE, ACTIVATE_STATUS, USERNAME FROM USERS WITH (NOLOCK) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
+
+                if (!string.IsNullOrEmpty(sUserName))
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                }
+                else
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
+                }
+
+                selectQuery += " AND GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
+                //selectQuery += "AND GROUP_ID " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nUserID                 = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                        sUserName               = selectQuery.Table("query").DefaultView[0].Row["USERNAME"].ToString();
+
+                        nActivateStatus         = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ACTIVATE_STATUS"].ToString());
+                        DateTime dCreateDate    = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["CREATE_DATE"]);
+                        DateTime dNow           = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["DNOW"]);
+
+                        bool isActive           = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
+
+                        res                     = isActive ? 0 : 1;
+
+                        //if (!isActive) { return res; }
+                    }
+                    else
+                    {
+                        res = (-1);
+                        return res;
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+
+                if (res == 1) { return res; }
+
+
+                // If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
+                //
+                // CHECK ACTIVATION STATUS IN USERS
+
+                ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery1.SetConnectionKey("USERS_CONNECTION_STRING");
+                selectQuery1.SetCachedSec(0);
+
+                selectQuery1 += "SELECT TOP 1 GETDATE() AS DNOW, ID, IS_MASTER, CREATE_DATE, IS_ACTIVE, STATUS FROM USERS_DOMAINS WITH (NOLOCK) WHERE ";
+                selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserID);
+                selectQuery1 += " AND GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
+                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                selectQuery1 += " ORDER BY CREATE_DATE DESC";
+
+                if (selectQuery1.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery1.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        int isMaster = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["IS_MASTER"].ToString());
+                        int isActive = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["IS_ACTIVE"].ToString());
+                        int nStatus  = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["STATUS"].ToString());
+
+                        DateTime dCreateDate1 = (DateTime)(selectQuery1.Table("query").DefaultView[0].Row["CREATE_DATE"]);
+                        DateTime dNow1 = (DateTime)(selectQuery1.Table("query").DefaultView[0].Row["DNOW"]);
+
+                        bool isActive1 = ((isMaster > 0) || !(isActive == 0 && dCreateDate1.AddHours(nActivationMustHours) < dNow1));
+
+                        if (nStatus != 2)
+                        {
+                            res = isActive1 ? 0 : 2;
+                        }
+                        else
+                        {
+                            res = 3;
+                        }
+
+                    }
+                    else
+                    {
+                        res = (-1);
+                    }
+                }
+
+                selectQuery1.Finish();
+                selectQuery1 = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+
+                res = (-2);
+            }
+
+            return res;
+        }
+
+        public static bool IsUserActivated(int nGroupID, int nActivationMustHours, ref string sUserName, ref int nUserID)
+        {
+            bool bRet = false;
+
+            try
+            {
+                // Check Activation Status in Users
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                selectQuery.SetCachedSec(0);
+
+                selectQuery += "SELECT GETDATE() AS DNOW, ID, CREATE_DATE, ACTIVATE_STATUS, USERNAME FROM USERS WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
+                if (!string.IsNullOrEmpty(sUserName))
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                }
+                else
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
+                }
+
+                selectQuery += " AND ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                //selectQuery += "and group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                        sUserName = selectQuery.Table("query").DefaultView[0].Row["USERNAME"].ToString();
+
+                        Int32 nAS = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ACTIVATE_STATUS"].ToString());
+                        DateTime dCreateDate = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["CREATE_DATE"]);
+                        DateTime dNow = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["DNOW"]);
+
+                        bRet = ((nAS == 1) || !(nAS == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
+
+                        if (!bRet)
+                        {
+                            return bRet;
+                        }
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+
+
+                // If reached here, user's activation status is true, so need to check if still requires master's approval
+
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                selectQuery.SetCachedSec(0);
+
+                selectQuery += "SELECT TOP 1 GETDATE() AS DNOW, ID, IS_MASTER, CREATE_DATE, IS_ACTIVE FROM USERS_DOMAINS WITH (NOLOCK) WHERE ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserID);
+                selectQuery += " AND ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                selectQuery += " ORDER BY CREATE_DATE DESC";
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        int isMaster = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"].ToString());
+                        int isActive = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IS_ACTIVE"].ToString());
+
+                        DateTime dCreateDate = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["CREATE_DATE"]);
+                        DateTime dNow = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["DNOW"]);
+
+                        bRet = ((isMaster > 0) || !(isActive == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return bRet;
+        }
+
+
+        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, string sFacebookToken, string sUserName, string sFirstName, 
+                                        string sLastName, string sEmail, string sAddress, string sCity, int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret)
+        {
+            try
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPassword);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SALT", "=", sSalt);
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_ID", "=", sFacebookID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_IMAGE", "=", sFacebookImage);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_IMAGE_PERMITTED", "=", bIsFacebookImagePermitted);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FB_TOKEN", "=", sFacebookToken);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Twitter_Token", "=", twitterToken);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Twitter_TokenSecret", "=", twitterTokenSecret);
+                if (!string.IsNullOrEmpty(sUserName))
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                }
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FIRST_NAME", "=", sFirstName);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LAST_NAME", "=", sLastName);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EMAIL_ADD", "=", sEmail);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADDRESS", "=", sAddress);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CITY", "=", sCity);
+
+                if (nCountryID >= 0)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
+                }
+
+                if (nStateID >= 0)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATE_ID", "=", nStateID);
+                }
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ZIP", "=", sZip);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PHONE", "=", sPhone);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REG_AFF", "=", sAffiliateCode);
+                
+                updateQuery += "WHERE";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
+                
+                bool inserted = updateQuery.Execute();
+
+                updateQuery.Finish();
+                updateQuery = null;
+
+
+                return inserted;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return false;
+        }
+
+
+        private static void HandleException(Exception ex)
+        {
+            //throw new NotImplementedException();
+        }
+
+
+        public static int IsUserActivated(int m_nGroupID, int nUserID)
+        {
+            int nAS = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                selectQuery.SetCachedSec(0);
+                selectQuery += "SELECT ACTIVATE_STATUS FROM USERS WITH (NOLOCK) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
+                selectQuery += " AND ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nAS = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ACTIVATE_STATUS"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return nAS;
+        }
+
+        public static bool Get_UserSessionByDeviceID(long lSiteGuid, string sDeviceID, ref bool bIsActive, ref long lIDInUsersSessions)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserSessionDetailsByDeviceID");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            sp.AddParameter("@DeviceID", sDeviceID);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    lIDInUsersSessions = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id");
+                    bIsActive = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_active") != 0;
+                    res = true;
+                }
+            }
+
+            return res;
+        }
+
+        public static bool Get_UserSessionDetailsBySessionIDAndIP(long lSiteGuid, string sSessionID, string sIP, ref bool bIsActive, ref long lIDInUserSessions)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserSessionDetailsBySessionIDAndIP");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            sp.AddParameter("@SessionID", sSessionID);
+            sp.AddParameter("@UserIP", sIP);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    lIDInUserSessions = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id");
+                    bIsActive = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_active") != 0;
+                    res = true;
+                }
+            }
+
+            return res;
+        }
+
+        public static long Insert_NewUserSessionAndReturnID(long lSiteGuid, string sSessionID, string sIP, string sDeviceID, bool bIsActive, int nStatus)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewUserSession");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            sp.AddParameter("@SessionID", sSessionID);
+            sp.AddParameter("@UserIP", sIP);
+            sp.AddParameter("@DeviceID", sDeviceID);
+            sp.AddParameter("@IsActive", bIsActive ? 1 : 0);
+            sp.AddParameter("@Status", nStatus);
+            DateTime dtToInsertToDB = DateTime.UtcNow;
+            sp.AddParameter("@CreateDate", dtToInsertToDB);
+            sp.AddParameter("@UpdateDate", dtToInsertToDB);
+            sp.AddParameter("@LastActionDate", dtToInsertToDB);
+            sp.ExecuteNonQuery();
+            return Get_UserSessionID(lSiteGuid, sSessionID, sIP, sDeviceID, bIsActive, nStatus);
+
+        }
+
+        public static long Get_UserSessionID(long lSiteGuid, string sSessionID, string sIP, string sDeviceID, bool bIsActive, int nStatus)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserSessionID");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            sp.AddParameter("@SessionID", sSessionID);
+            sp.AddParameter("@UserIP", sIP);
+            sp.AddParameter("@DeviceID", sDeviceID);
+            sp.AddParameter("@IsActive", bIsActive ? 1 : 0);
+            sp.AddParameter("@Status", nStatus);
+            return sp.ExecuteReturnValue<long>();
+        }
+
+        public static void Update_IsActiveForAllUserSessionsOtherThan(long lOtherThanThisSiteGuid, string sDeviceID, bool bIsActive)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_IsActiveForAllUserSessionsOtherThan");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@OtherThanThisSiteGuid", lOtherThanThisSiteGuid);
+            sp.AddParameter("@DeviceID", sDeviceID);
+            sp.AddParameter("@IsActive", bIsActive ? 1 : 0);
+            DateTime dtToWriteToDB = DateTime.UtcNow;
+            sp.AddParameter("@UpdateDate", dtToWriteToDB);
+            sp.AddParameter("@LastActionDate", dtToWriteToDB);
+            sp.ExecuteNonQuery();
+
+        }
+
+        public static int Get_CountOfActiveUserSessions(long lSiteGuid)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CountOfActiveUserSessions");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static void Update_UserStateInUsers(long lSiteGuid, int nUserState)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_UserStateInUsers");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@ID", lSiteGuid);
+            sp.AddParameter("@UserState", nUserState);
+            sp.ExecuteNonQuery();
+        }
+
+        public static int Get_UserStateFromUsers(long lSiteGuid)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserStateFromUsers");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static bool Get_UserEmailBySiteGuid(long lSiteGuid, string sConnKey, ref string sEmail)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserEmailBySiteGuid");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    if (dt.Rows[0]["email_add"] != DBNull.Value && dt.Rows[0]["email_add"] != null)
+                    {
+                        sEmail = dt.Rows[0]["email_add"].ToString();
+                        res = true;
+                    }
+                }
+            }
+            return res;
+        }
+
+        public static string Get_UsernameBySiteGuid(long lSiteGuid, string sConnKey)
+        {
+            string res = string.Empty;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UsernameBySiteGuid");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["username"]);
+                }
+            }
+
+            return res;
+        }
+
+        public static string Get_FirstnameBySiteGuid(long lSiteGuid, string sConnKey)
+        {
+            string res = string.Empty;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_FirstnameBySiteGuid");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["first_name"]);
+                }
+            }
+
+            return res;
+        }
+
+        public static DataTable GenerateToken(string sUserName, int nGroupID, int nTokenValidityHours)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure(SP_GENERATE_TOKEN);
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@sUserName", sUserName);
+            sp.AddParameter("@nGroupID", nGroupID);
+            sp.AddParameter("@nTokenValidityHours", nTokenValidityHours);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+
+            return null;
+        }
+    } 
+}

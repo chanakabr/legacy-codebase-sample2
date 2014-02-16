@@ -1,0 +1,823 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data;
+using System.Configuration;
+
+namespace DAL
+{
+    public class BillingDAL
+    {
+        private const string SP_IS_DOUBLE_ADYEN_TRANSACTION = "IsDoubleAdyenTransaction";
+
+        public static DataTable Get_UserToken(int nGroupID, string sSiteGuid)
+        {
+            ODBCWrapper.StoredProcedure spUserToken = new ODBCWrapper.StoredProcedure("Get_UserToken");
+            spUserToken.SetConnectionKey("CONNECTION_STRING");
+            spUserToken.AddParameter("@GroupID", nGroupID);
+            spUserToken.AddParameter("@SiteGuid", sSiteGuid);
+
+            DataSet ds = spUserToken.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable IsUserMultiCC(int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spUserToken = new ODBCWrapper.StoredProcedure("IsUserMultiCC");
+            spUserToken.SetConnectionKey("CONNECTION_STRING");
+            spUserToken.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = spUserToken.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_UserDigits(int nGroupID, string sSiteGuid)
+        {
+            ODBCWrapper.StoredProcedure spUserToken = new ODBCWrapper.StoredProcedure("Get_UserDigits");
+            spUserToken.SetConnectionKey("CONNECTION_STRING");
+            spUserToken.AddParameter("@GroupID", nGroupID);
+            spUserToken.AddParameter("@SiteGuid", sSiteGuid);
+
+            DataSet ds = spUserToken.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static bool IsDoubleAdyenTransaction(int nGroupID, string sSiteGuid, string sPspReference, string sStatus)
+        {
+            ODBCWrapper.StoredProcedure spIsDoubleAdyenTransaction = new ODBCWrapper.StoredProcedure(SP_IS_DOUBLE_ADYEN_TRANSACTION);
+            spIsDoubleAdyenTransaction.SetConnectionKey("CONNECTION_STRING");
+            spIsDoubleAdyenTransaction.AddParameter("@GroupID", nGroupID);
+            spIsDoubleAdyenTransaction.AddParameter("@SiteGuid", sSiteGuid.Trim());
+            spIsDoubleAdyenTransaction.AddParameter("@PspReference", sPspReference.Trim());
+            spIsDoubleAdyenTransaction.AddParameter("@AdyenStatus", sStatus.Trim().ToUpper());
+            return spIsDoubleAdyenTransaction.ExecuteReturnValue<bool>();
+
+        }
+
+        public static int InsertBillingTransactionDB(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE, string sPRICE_CODE, string sCURRENCY_CODE, string sCUSTOMDATA, int nBILLING_STATUS, string sBILLING_REASON, bool bIS_RECURRING, int nMEDIA_FILE_ID, int nMEDIA_ID, string sPPVMODULE_CODE, string sSUBSCRIPTION_CODE, string sCELL_PHONE, int ngroup_id, int nBILLING_PROVIDER, int nBILLING_PROVIDER_REFFERENCE, double dPAYMENT_METHOD_ADDITION, double dTOTAL_PRICE, int nPAYMENT_NUMBER, int nNUMBER_OF_PAYMENTS, string sEXTRA_PARAMS, string sCountryCd, string sLanguageCode, string sDeviceName, int nBILLING_PROCESSOR, int nBILLING_METHOD, string sPrePaidCode, long lPreviewModuleID)
+        {
+            int ret = 0;
+
+            try
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("billing_transactions");
+                insertQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", sSITE_GUID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LAST_FOUR_DIGITS", "=", sLAST_FOUR_DIGITS);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPRICE);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE_CODE", "=", sPRICE_CODE);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CODE", "=", sCURRENCY_CODE);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCUSTOMDATA);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_STATUS", "=", nBILLING_STATUS);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_REASON", "=", sBILLING_REASON);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CELL_PHONE", "=", sCELL_PHONE);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PAYMENT_NUMBER", "=", nPAYMENT_NUMBER);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTRA_PARAMS", "=", sEXTRA_PARAMS);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUMBER_OF_PAYMENTS", "=", nNUMBER_OF_PAYMENTS);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROCESSOR", "=", nBILLING_PROCESSOR);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_METHOD", "=", nBILLING_METHOD);
+
+                Int32 nIS_RECURRING = (bIS_RECURRING == true) ? 1 : 0;
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING", "=", nIS_RECURRING);
+
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMEDIA_FILE_ID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", nMEDIA_ID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PPVMODULE_CODE", "=", sPPVMODULE_CODE);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSUBSCRIPTION_CODE);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", ngroup_id);
+                DateTime dtToWriteToDB = DateTime.UtcNow;
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", dtToWriteToDB);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", dtToWriteToDB);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER", "=", nBILLING_PROVIDER);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER_REFFERENCE", "=", nBILLING_PROVIDER_REFFERENCE);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PAYMENT_METHOD_ADDITION", "=", dPAYMENT_METHOD_ADDITION);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("TOTAL_PRICE", "=", dTOTAL_PRICE);
+
+                if (String.IsNullOrEmpty(sCountryCd) == false)
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
+                if (String.IsNullOrEmpty(sLanguageCode) == false)
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLanguageCode);
+                if (String.IsNullOrEmpty(sDeviceName) == false)
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDeviceName);
+
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("pre_paid_code", "=", sPrePaidCode);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Preview_Module_ID", "=", lPreviewModuleID);
+                bool insertRes = insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
+
+                if (!insertRes)
+                {
+                    return ret;
+                }
+
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                selectQuery += "select id from billing_transactions where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", sSITE_GUID);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LAST_FOUR_DIGITS", "=", sLAST_FOUR_DIGITS);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPRICE);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE_CODE", "=", sPRICE_CODE);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CODE", "=", sCURRENCY_CODE);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCUSTOMDATA);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_STATUS", "=", nBILLING_STATUS);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_REASON", "=", sBILLING_REASON);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING", "=", nIS_RECURRING);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMEDIA_FILE_ID);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PPVMODULE_CODE", "=", sPPVMODULE_CODE);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSUBSCRIPTION_CODE);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CELL_PHONE", "=", sCELL_PHONE);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", ngroup_id);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER", "=", nBILLING_PROVIDER);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER_REFFERENCE", "=", nBILLING_PROVIDER_REFFERENCE);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PAYMENT_METHOD_ADDITION", "=", dPAYMENT_METHOD_ADDITION);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("TOTAL_PRICE", "=", dTOTAL_PRICE);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PAYMENT_NUMBER", "=", nPAYMENT_NUMBER);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUMBER_OF_PAYMENTS", "=", nNUMBER_OF_PAYMENTS);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Preview_Module_ID", "=", lPreviewModuleID);
+                if (String.IsNullOrEmpty(sCountryCd) == false)
+                {
+                    selectQuery += "and";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
+                }
+                if (String.IsNullOrEmpty(sLanguageCode) == false)
+                {
+                    selectQuery += "and";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLanguageCode);
+                }
+                if (String.IsNullOrEmpty(sDeviceName) == false)
+                {
+                    selectQuery += "and";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDeviceName);
+                }
+                selectQuery += "order by id desc";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        ret = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return ret;
+        }
+
+        private static void HandleException(Exception ex)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public static int GetModuleImplementationID(int nGroupID, int nModuleID)
+        {
+            int nImplID = 0;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select * from groups_modules_implementations with (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", nModuleID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return nImplID;
+        }
+
+        public static DataTable Get_PurchaseMailData(string sPSPReference)
+        {
+            ODBCWrapper.StoredProcedure spGetPurchaseMailData = new ODBCWrapper.StoredProcedure("Get_PurchaseMailData");
+            spGetPurchaseMailData.SetConnectionKey("CONNECTION_STRING");
+            spGetPurchaseMailData.AddParameter("@PSPReference", sPSPReference);
+            DataSet ds = spGetPurchaseMailData.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_M1_PurchaseMailData(int nM1TransactionID)
+        {
+            ODBCWrapper.StoredProcedure spGetPurchaseMailData = new ODBCWrapper.StoredProcedure("Get_M1_PurchaseMailData");
+            spGetPurchaseMailData.SetConnectionKey("CONNECTION_STRING");
+            spGetPurchaseMailData.AddParameter("@M1TransactionID", nM1TransactionID);
+            DataSet ds = spGetPurchaseMailData.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+
+        public static void Insert_AdyenNotification(string sPSPReference, string sEventCode, string sSuccess, string sLast4Digits, string sReason)
+        {
+            ODBCWrapper.StoredProcedure spInsertAdyenNotification = new ODBCWrapper.StoredProcedure("Insert_AdyenNotification");
+            spInsertAdyenNotification.SetConnectionKey("CONNECTION_STRING");
+            spInsertAdyenNotification.AddParameter("@PSPReference", sPSPReference);
+            spInsertAdyenNotification.AddParameter("@EventCode", sEventCode);
+            spInsertAdyenNotification.AddParameter("@AdyenSuccess", sSuccess);
+            spInsertAdyenNotification.AddParameter("@Last4Digits", sLast4Digits != null && sLast4Digits.Length < 5 ? sLast4Digits : sLast4Digits.Substring(0, 4));
+            spInsertAdyenNotification.AddParameter("@Reason", sReason);
+            DateTime dtToWriteToDB = DateTime.UtcNow;
+            spInsertAdyenNotification.AddParameter("@CreateDate", dtToWriteToDB);
+            spInsertAdyenNotification.AddParameter("@UpdateDate", dtToWriteToDB);
+            spInsertAdyenNotification.ExecuteNonQuery();
+        }
+
+        public static void Update_AdyenNotification(string sPSPReference, bool bMarkToDelete)
+        {
+            ODBCWrapper.StoredProcedure spUpdateAdyenNotification = new ODBCWrapper.StoredProcedure("Update_AdyenNotification");
+            spUpdateAdyenNotification.SetConnectionKey("CONNECTION_STRING");
+            spUpdateAdyenNotification.AddParameter("@PSPReference", sPSPReference);
+            spUpdateAdyenNotification.AddParameter("@MarkToDelete", bMarkToDelete ? 1 : 0);
+            spUpdateAdyenNotification.AddParameter("@UpdateDate", DateTime.UtcNow);
+            spUpdateAdyenNotification.ExecuteNonQuery();
+        }
+
+
+        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions, ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType, ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure spGetDataForAdyenNotification = new ODBCWrapper.StoredProcedure("Get_DataForAdyenNotification");
+            spGetDataForAdyenNotification.SetConnectionKey("CONNECTION_STRING");
+            spGetDataForAdyenNotification.AddParameter("@PSPReference", sPSPReference);
+            DataSet ds = spGetDataForAdyenNotification.ExecuteDataSet();
+            if (ds != null)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    short siIsCreatedByCallback = 0;
+                    long lPreviewModuleID = 0;
+                    if (dt.Rows[0]["ID_In_Adyen_Transactions"] != DBNull.Value && dt.Rows[0]["ID_In_Adyen_Transactions"] != null)
+                        Int64.TryParse(dt.Rows[0]["ID_In_Adyen_Transactions"].ToString(), out lIDInAdyenTransactions);
+                    if (dt.Rows[0]["ID_In_Billing_Transactions"] != DBNull.Value && dt.Rows[0]["ID_In_Billing_Transactions"] != null)
+                        Int64.TryParse(dt.Rows[0]["ID_In_Billing_Transactions"].ToString(), out lIDInBillingTransactions);
+                    if (dt.Rows[0]["is_created_by_callback"] != DBNull.Value && dt.Rows[0]["is_created_by_callback"] != null && Int16.TryParse(dt.Rows[0]["is_created_by_callback"].ToString(), out siIsCreatedByCallback))
+                        bIsCreatedByAdyenCallback = siIsCreatedByCallback > 0;
+                    if (dt.Rows[0]["Purchase_Type"] != DBNull.Value && dt.Rows[0]["Purchase_Type"] != null)
+                        Int32.TryParse(dt.Rows[0]["Purchase_Type"].ToString(), out nPurchaseType);
+                    if (dt.Rows[0]["Purchase_ID"] != DBNull.Value && dt.Rows[0]["Purchase_ID"] != null)
+                        Int64.TryParse(dt.Rows[0]["Purchase_ID"].ToString(), out lIDInRelevantCATable);
+                    if (dt.Rows[0]["Preview_Module_ID"] != DBNull.Value && dt.Rows[0]["Preview_Module_ID"] != null)
+                        Int64.TryParse(dt.Rows[0]["Preview_Module_ID"].ToString(), out lPreviewModuleID);
+                    bIsPurchasedWithPreviewModule = lPreviewModuleID > 0;
+                    res = true;
+
+                }
+            }
+
+            return res;
+        }
+
+        public static void Update_AdyenTransactionStatusReasonLast4Digits(long lIDInAdyenTransactions, string sAdyenStatus, string sAdyenReason, string sLast4Digits)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_AdyenTransactionStatusReasonLast4Digits");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@ID", lIDInAdyenTransactions);
+            sp.AddParameter("@AdyenStatus", sAdyenStatus);
+            sp.AddParameter("@AdyenReason", sAdyenReason);
+            sp.AddParameter("@Last4Digits", sLast4Digits);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.ExecuteNonQuery();
+        }
+
+        public static void Update_AdyenCancelOrRefundRequestStatus(string sCancelOrRefundPSPReference, int nCancelOrRefundStatus)
+        {
+            ODBCWrapper.StoredProcedure spUpdateCancelOrRefundRequestStatus = new ODBCWrapper.StoredProcedure("Update_AdyenCancelOrRefundRequestStatus");
+            spUpdateCancelOrRefundRequestStatus.SetConnectionKey("CONNECTION_STRING");
+            spUpdateCancelOrRefundRequestStatus.AddParameter("@CancelOrRefundPSPRef", sCancelOrRefundPSPReference);
+            spUpdateCancelOrRefundRequestStatus.AddParameter("@RequestStatus", nCancelOrRefundStatus);
+            spUpdateCancelOrRefundRequestStatus.AddParameter("@UpdateDate", DateTime.UtcNow);
+            spUpdateCancelOrRefundRequestStatus.ExecuteNonQuery();
+
+        }
+
+        public static void Insert_NewAdyenCancelOrRefund(string sCancelOrRefundPSPRef, string sOriginalPSPRef, int nCancelOrRefundRequestStatus, int nRequestType, string sSiteGuid, double? price, string sCurrencyCode, int nGroupID, long lPurchaseID, int nType, string sReason, int nNumOfCancelOrRefundAttempts)
+        {
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewAdyenCancelOrRefund");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@Price", price);
+            sp.AddParameter("@CurrencyCode", sCurrencyCode);
+            sp.AddParameter("@CancelOrRefundPSPReference", sCancelOrRefundPSPRef);
+            sp.AddParameter("@OriginalPSPReference", sOriginalPSPRef);
+            sp.AddParameter("@CancelOrRefundRequestStatus", nCancelOrRefundRequestStatus);
+            sp.AddParameter("@RequestType", nRequestType);
+            sp.AddParameter("@GroupID", nGroupID);
+            DateTime dtToWriteToDB = DateTime.UtcNow;
+            sp.AddParameter("@CreateDate", dtToWriteToDB);
+            sp.AddParameter("@UpdateDate", dtToWriteToDB);
+            sp.AddParameter("@PurchaseID", lPurchaseID);
+            sp.AddParameter("@PurchaseType", nType);
+            sp.AddParameter("@AdyenReason", sReason);
+            sp.AddParameter("@NumOfCancelOrRefundAttempts", nNumOfCancelOrRefundAttempts);
+            sp.ExecuteNonQuery();
+
+        }
+
+        public static bool Get_DataForAdyenCancelOrRefund(string sCancelOrRefundPSPReference, ref string sOriginalPSPReference, ref int nNumOfCancelOrRefundAttempts, ref bool bIsCancelOrRefundResultOfPreviewModule)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DataForAdyenCancelOrRefund");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PSPReference", sCancelOrRefundPSPReference);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    long lPreviewModuleID = 0;
+                    if (dt.Rows[0]["original_psp_reference"] != DBNull.Value && dt.Rows[0]["original_psp_reference"] != null)
+                        sOriginalPSPReference = dt.Rows[0]["original_psp_reference"].ToString();
+                    if (dt.Rows[0]["num_of_cancel_or_refund_attempts"] != DBNull.Value && dt.Rows[0]["num_of_cancel_or_refund_attempts"] != null)
+                        Int32.TryParse(dt.Rows[0]["num_of_cancel_or_refund_attempts"].ToString(), out nNumOfCancelOrRefundAttempts);
+                    if (dt.Rows[0]["preview_module_id"] != DBNull.Value && dt.Rows[0]["preview_module_id"] != null)
+                        Int64.TryParse(dt.Rows[0]["preview_module_id"].ToString(), out lPreviewModuleID);
+                    bIsCancelOrRefundResultOfPreviewModule = lPreviewModuleID > 0;
+                    res = true;
+                }
+            }
+
+            return res;
+
+        }
+
+        public static bool Get_DataForResendingAdyenCancelOrRefund(string sPSPReference, ref string sSiteGuid, ref int nGroupID, ref long lPurchaseID, ref int nType, ref double dChargePrice, ref string sCurrencyCode)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DataForResendingAdyenCancelOrRefund");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PSPReference", sPSPReference);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    if (dt.Rows[0]["site_guid"] != DBNull.Value && dt.Rows[0]["site_guid"] != null)
+                        sSiteGuid = dt.Rows[0]["site_guid"].ToString();
+                    if (dt.Rows[0]["group_id"] != DBNull.Value && dt.Rows[0]["group_id"] != null)
+                        Int32.TryParse(dt.Rows[0]["group_id"].ToString(), out nGroupID);
+                    if (dt.Rows[0]["purchase_id"] != DBNull.Value && dt.Rows[0]["purchase_id"] != null)
+                        Int64.TryParse(dt.Rows[0]["purchase_id"].ToString(), out lPurchaseID);
+                    if (dt.Rows[0]["type"] != DBNull.Value && dt.Rows[0]["type"] != null)
+                        Int32.TryParse(dt.Rows[0]["type"].ToString(), out nType);
+                    if (dt.Rows[0]["price"] != DBNull.Value && dt.Rows[0]["price"] != null)
+                        Double.TryParse(dt.Rows[0]["price"].ToString(), out dChargePrice);
+                    if (dt.Rows[0]["currency_code"] != DBNull.Value && dt.Rows[0]["currency_code"] != null)
+                        sCurrencyCode = dt.Rows[0]["currency_code"].ToString();
+
+                    res = true;
+                }
+
+            }
+
+            return res;
+        }
+
+        public static bool Get_DataOfAdyenNotificationForAdyenCallback(string sPSPReference, ref string sEventCode, ref string sAdyenSuccess, ref string sLast4Digits, ref string sAdyenReason)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DataOfAdyenNotificationForAdyenCallback");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PSPReference", sPSPReference);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    if (dt.Rows[0]["Event_Code"] != DBNull.Value && dt.Rows[0]["Event_Code"] != null)
+                        sEventCode = dt.Rows[0]["Event_Code"].ToString();
+                    if (dt.Rows[0]["Adyen_Success"] != DBNull.Value && dt.Rows[0]["Adyen_Success"] != null)
+                        sAdyenSuccess = dt.Rows[0]["Adyen_Success"].ToString();
+                    if (dt.Rows[0]["Last_4_Digits"] != DBNull.Value && dt.Rows[0]["Last_4_Digits"] != null)
+                        sLast4Digits = dt.Rows[0]["Last_4_Digits"].ToString();
+                    if (dt.Rows[0]["Adyen_Reason"] != DBNull.Value && dt.Rows[0]["Adyen_Reason"] != null)
+                        sAdyenReason = dt.Rows[0]["Adyen_Reason"].ToString();
+
+                    res = true;
+
+                }
+            }
+
+            return res;
+
+        }
+
+        public static bool Get_DataForCancelingPaymentBecauseOfFraud(string sPSPReference, ref string sSiteGuid, ref int nGroupID, ref long lPurchaseID, ref int nType, ref double? dChargePrice, ref string sCurrencyCode)
+        {
+            bool res = false;
+            double dTempPrice = 0.0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DataForCancelingPaymentBecauseOfFraud");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PSPReference", sPSPReference);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    if (dt.Rows[0]["site_guid"] != DBNull.Value && dt.Rows[0]["site_guid"] != null)
+                        sSiteGuid = dt.Rows[0]["site_guid"].ToString();
+                    if (dt.Rows[0]["group_id"] != DBNull.Value && dt.Rows[0]["group_id"] != null)
+                        Int32.TryParse(dt.Rows[0]["group_id"].ToString(), out nGroupID);
+                    if (dt.Rows[0]["purchase_id"] != DBNull.Value && dt.Rows[0]["purchase_id"] != null)
+                        Int64.TryParse(dt.Rows[0]["purchase_id"].ToString(), out lPurchaseID);
+                    if (dt.Rows[0]["type"] != DBNull.Value && dt.Rows[0]["type"] != null)
+                        Int32.TryParse(dt.Rows[0]["type"].ToString(), out nType);
+                    if (dt.Rows[0]["price"] == DBNull.Value || dt.Rows[0]["price"] == null || !Double.TryParse(dt.Rows[0]["price"].ToString(), out dTempPrice))
+                        dChargePrice = null;
+                    else
+                        dChargePrice = dTempPrice;
+                    if (dt.Rows[0]["currency_code"] != DBNull.Value && dt.Rows[0]["currency_code"] != null)
+                        sCurrencyCode = dt.Rows[0]["currency_code"].ToString();
+
+                    res = true;
+
+                }
+
+            }
+
+            return res;
+        }
+
+        public static DataSet Get_M1GroupParameters(int? nGroupID, string appID)
+        {
+            ODBCWrapper.StoredProcedure spGetM1GroupParameters = new ODBCWrapper.StoredProcedure("Get_M1GroupParameters");
+            spGetM1GroupParameters.SetConnectionKey("CONNECTION_STRING");
+            spGetM1GroupParameters.AddNullableParameter<int?>("@GroupID", nGroupID);
+            spGetM1GroupParameters.AddNullableParameter<string>("@AppID", appID);
+
+            DataSet ds = spGetM1GroupParameters.ExecuteDataSet();
+            return ds;
+        }
+
+        public static DataTable Get_M1Transactions(int nGroupID, int nTransactionStatus)
+        {
+            ODBCWrapper.StoredProcedure spGetM1Transactions = new ODBCWrapper.StoredProcedure("Get_M1Transactions");
+            spGetM1Transactions.SetConnectionKey("CONNECTION_STRING");
+            spGetM1Transactions.AddParameter("@GroupID", nGroupID);
+            spGetM1Transactions.AddParameter("@Status", nTransactionStatus);
+
+            DataSet ds = spGetM1Transactions.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static int Insert_M1FileHistoryRecord(int nGroupID, int nItemType, int nFileCounter, string sFileName)  
+        {
+            ODBCWrapper.StoredProcedure spInsertM1File = new ODBCWrapper.StoredProcedure("Insert_M1FileHistoryRecord");
+            spInsertM1File.SetConnectionKey("CONNECTION_STRING");
+            spInsertM1File.AddParameter("@GroupID", nGroupID);
+            spInsertM1File.AddParameter("@ItemType", nItemType);
+            spInsertM1File.AddParameter("@FileCounter", nFileCounter);
+            spInsertM1File.AddParameter("@FileName", sFileName);
+            
+            int newFileID = spInsertM1File.ExecuteReturnValue<int>();
+            return newFileID;
+        }
+
+        public static int Insert_M1Transaction(int nGroupID, string sSiteGUID, int nItemType, string sChargedMobileNumber, string sCustomerServiceID, double dPrice, int nCustomDataID, int nStatus)                                                  
+        {
+            ODBCWrapper.StoredProcedure spInsertM1Transaction = new ODBCWrapper.StoredProcedure("Insert_M1Transaction");
+            spInsertM1Transaction.SetConnectionKey("CONNECTION_STRING");
+            spInsertM1Transaction.AddParameter("@GroupID", nGroupID);
+            spInsertM1Transaction.AddParameter("@SiteGuid", sSiteGUID);            
+            spInsertM1Transaction.AddParameter("@ItemType", nItemType);            
+            spInsertM1Transaction.AddParameter("@ChargedMobileNumber", sChargedMobileNumber);
+            spInsertM1Transaction.AddParameter("@CustomerServiceID", sCustomerServiceID);
+            spInsertM1Transaction.AddParameter("@Price", dPrice);
+            spInsertM1Transaction.AddParameter("@CustomDataID", nCustomDataID);                         
+            spInsertM1Transaction.AddParameter("@Status", nStatus);
+
+            int newM1TransactionID =  spInsertM1Transaction.ExecuteReturnValue<int>();
+            return newM1TransactionID;
+        }
+
+        public static void UpdateM1Transactions(int nGroupID, List<int> transactionIDs, int nStatus, int nFileRefID)
+        {
+            ODBCWrapper.StoredProcedure spUpdateM1Transactions = new ODBCWrapper.StoredProcedure("Update_M1Transactions");
+            spUpdateM1Transactions.SetConnectionKey("CONNECTION_STRING");
+            spUpdateM1Transactions.AddParameter("@GroupID", nGroupID);
+            spUpdateM1Transactions.AddIDListParameter<int>("@M1TransactionsIDs", transactionIDs, "Id");
+            spUpdateM1Transactions.AddParameter("@Status", nStatus);
+            spUpdateM1Transactions.AddParameter("@FileRefID", nFileRefID);
+            
+            spUpdateM1Transactions.ExecuteNonQuery();          
+        }
+
+        public static DataTable Get_M1CustomerServiceType(int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_M1CustomerServiceType");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static long Insert_NewCustomData(string sCustomData, string sConnKey)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCustomData");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@CustomData", sCustomData);
+            sp.AddParameter("@CreateDate", DateTime.UtcNow);
+            return sp.ExecuteReturnValue<long>();
+        }
+
+        public static long Insert_NewCustomData(string sCustomData)
+        {
+            return Insert_NewCustomData(sCustomData, string.Empty);
+        }
+
+        public static long Get_LatestCustomDataID(string sCustomData, string sConnKey)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestCustomDataID");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@CustomData", sCustomData);
+            return sp.ExecuteReturnValue<long>();
+        }
+
+        public static long Get_LatestCustomDataID(string sCustomData)
+        {
+            return Get_LatestCustomDataID(sCustomData, string.Empty);
+        }
+
+        public static bool Get_CustomDataByID(long lCustomDataID, ref string sCustomData)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CustomDataByID");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@CustomDataID", lCustomDataID);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    if (dt.Rows[0]["customdata"] != DBNull.Value && dt.Rows[0]["customdata"] != null)
+                    {
+                        sCustomData = dt.Rows[0]["customdata"].ToString();
+                        res = true;
+                    }
+                }
+            }
+
+            return res;
+
+
+
+
+
+        }
+
+        public static long Insert_NewCinepolisTransaction(long lSiteGuid, double dPrice, string sCurrencyCode,
+            string sBankAuthorisationID, byte bytCinepolisTransactionStatus, long lCinepolisCustomDataID, long lGroupID,
+            bool bIsActive, byte bytStatus, int? nUpdaterID, long lPurchaseID, int nBusinessModuleType, byte bytConfirmationSuccess,
+            int nInternalCode, string sConfirmationMsg, string sKlicOperationID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCinepolisTransaction");
+            sp.SetConnectionKey("CONNECTION_STRING");
+
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            sp.AddParameter("@Price", dPrice);
+            if (sCurrencyCode == null)
+                sp.AddParameter("@CurrencyCode", DBNull.Value);
+            else
+            {
+                string sCurrencyCodeToWriteToDB = string.Empty;
+                if (sCurrencyCode.Length < 4)
+                    sCurrencyCodeToWriteToDB = sCurrencyCode;
+                else
+                    sCurrencyCodeToWriteToDB = sCurrencyCode.Substring(0, 3);
+                sp.AddParameter("@CurrencyCode", sCurrencyCodeToWriteToDB);
+            }
+            sp.AddParameter("@BankAuthorisationID", sBankAuthorisationID);
+            sp.AddParameter("@TransactionStatus", bytCinepolisTransactionStatus);
+            sp.AddParameter("@CinepolisCustomDataID", lCinepolisCustomDataID);
+            sp.AddParameter("@GroupID", lGroupID);
+            sp.AddParameter("@IsActive", bIsActive);
+            sp.AddParameter("@Status", bytStatus);
+
+            DateTime dtToWriteToDB = DateTime.UtcNow;
+            sp.AddParameter("@CreateDate", dtToWriteToDB);
+            sp.AddParameter("@UpdateDate", dtToWriteToDB);
+            if (nUpdaterID.HasValue)
+                sp.AddParameter("@UpdaterID", nUpdaterID.Value);
+            else
+                sp.AddParameter("@UpdaterID", DBNull.Value);
+
+            sp.AddParameter("@PurchaseID", lPurchaseID);
+            sp.AddParameter("@BusinessModuleType", nBusinessModuleType);
+            sp.AddParameter("@ConfirmationSuccess", bytConfirmationSuccess);
+            sp.AddParameter("@ConfirmationInternalCode", nInternalCode);
+            sp.AddParameter("@ConfirmationMsg", sConfirmationMsg);
+            sp.AddParameter("@KlicOperationID", sKlicOperationID);
+
+            return sp.ExecuteReturnValue<long>();
+
+        }
+
+        public static long Get_CinepolisTransactionID(long lSiteGuid, double dPrice, string sBankAuthorisationID,
+            byte bytCinepolisTransactionStatus, long lCinepolisCustomDataID, long lGroupID, bool bIsActive,
+            byte bytStatus, int nBusinessModuleType)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CinepolisTransactionID");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+            sp.AddParameter("@Price", dPrice);
+            sp.AddParameter("@BankAuthorisationID", sBankAuthorisationID);
+            sp.AddParameter("@TransactionStatus", bytCinepolisTransactionStatus);
+            sp.AddParameter("@CustomDataID", lCinepolisCustomDataID);
+            sp.AddParameter("@GroupID", lGroupID);
+            sp.AddParameter("@IsActive", bIsActive);
+            sp.AddParameter("@Status", bytStatus);
+            sp.AddParameter("@BusinessModuleType", nBusinessModuleType);
+
+
+            return sp.ExecuteReturnValue<long>();
+
+
+
+        }
+
+        public static bool Update_PurchaseIDInCinepolisTransactions(long lCinepolisTransactionID, long lPurchaseID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PurchaseIDInCinepolisTransactions");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PurchaseID", lPurchaseID);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.AddParameter("@CinepolisTransactionID", lCinepolisTransactionID);
+
+
+
+
+
+            return sp.ExecuteReturnValue<bool>();
+
+        }
+
+        public static bool Update_CinepolisConfirmationData(long lCinepolisTransactionID, byte bytConfirmationSuccess,
+            int nInternalCode, string sMessage, long lPurchaseID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CinepolisConfirmationData");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@CinepolisTransactionID", lCinepolisTransactionID);
+            sp.AddParameter("@ConfirmationSuccess", bytConfirmationSuccess);
+            sp.AddParameter("@InternalCode", nInternalCode);
+
+
+
+            sp.AddParameter("@Msg", sMessage);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+
+
+
+
+
+            return sp.ExecuteReturnValue<bool>();
+
+        }
+
+        public static bool Update_CinepolisConfirmationDataByBillingID(long lBillingTransactionID, byte bytConfirmationSuccess,
+            int nInternalCode, string sMessage, string sConnKey)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CinepolisConfirmationDataByBillingID");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
+            sp.AddParameter("@ConfirmationSuccess", bytConfirmationSuccess);
+            sp.AddParameter("@InternalCode", nInternalCode);
+
+
+            sp.AddParameter("@Msg", sMessage);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+
+            return sp.ExecuteReturnValue<bool>();
+
+
+
+        }
+
+        public static bool Update_CinepolisTransactionStatus(byte bytTransactionStatus, long lCinepolisTransactionID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CinepolisTransactionStatus");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@TransactionStatus", bytTransactionStatus);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.AddParameter("@CinepolisTransactionID", lCinepolisTransactionID);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+
+        public static bool Get_CinepolisSecret(string sConnKey, ref string sSecret)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CinepolisSecret");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                string temp = string.Empty;
+                object o = ds.Tables[0].Rows[0]["group_secret"];
+                if (o != DBNull.Value && o != null)
+                    temp = o.ToString();
+                if (temp.Length > 0)
+                {
+                    sSecret = temp;
+                    res = true;
+                }
+            }
+
+            return res;
+
+
+
+        }
+
+        public static bool Get_IsAdyenMailSent(string sPSPReference)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IsAdyenMailSent");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PSPReference", sPSPReference);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool Update_IsAdyenMailSent(string sPSPReference, bool bIsMailSent)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_IsAdyenMailSent");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PSPReference", sPSPReference);
+            sp.AddParameter("@IsMailSent", bIsMailSent);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+        
+    }
+}
+

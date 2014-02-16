@@ -1,0 +1,1199 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data;
+using System.Configuration;
+
+namespace DAL
+{
+    public class ApiDAL
+    {
+
+        public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
+        {
+            ODBCWrapper.StoredProcedure spGeoBlockPerMedia = new ODBCWrapper.StoredProcedure("Get_GeoBlockPerMedia");
+            spGeoBlockPerMedia.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGeoBlockPerMedia.AddParameter("@GroupID", nGroupID);
+            spGeoBlockPerMedia.AddParameter("@MediaID", nMediaID);
+
+            DataSet ds = spGeoBlockPerMedia.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataSet Get_Operators_Info(int nGroupID, List<int> operatorIds)
+        {
+            ODBCWrapper.StoredProcedure spGet_Operators_Info = new ODBCWrapper.StoredProcedure("Get_Operators_Info");
+            spGet_Operators_Info.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGet_Operators_Info.AddIDListParameter<int>("@IDs", operatorIds, "Id");
+            spGet_Operators_Info.AddParameter("@ParentGroupID", nGroupID.ToString());
+
+            DataSet ds = spGet_Operators_Info.ExecuteDataSet();
+
+            if (ds != null)
+                return ds;
+            return null;
+          
+           
+        }
+
+
+        public static DataTable Get_GroupMediaRules(int nMediaID, string sSiteGuid)
+        {
+            ODBCWrapper.StoredProcedure spGroupMediaRules = new ODBCWrapper.StoredProcedure("Get_GroupMediaRules");
+            spGroupMediaRules.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGroupMediaRules.AddParameter("@SiteGuid", sSiteGuid);
+            spGroupMediaRules.AddParameter("@MediaID", nMediaID);
+
+            DataSet ds = spGroupMediaRules.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_UserSocialActionID(int nMediaID, string sSiteGuid, int nGroupID, int nSocialPlatform, int nSocialAction)
+        {
+            ODBCWrapper.StoredProcedure spUserSocialActionID = new ODBCWrapper.StoredProcedure("Get_UserSocialActionID");
+            spUserSocialActionID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUserSocialActionID.AddParameter("@SiteGuid", sSiteGuid);
+            spUserSocialActionID.AddParameter("@MediaID", nMediaID);
+            spUserSocialActionID.AddParameter("@GroupID", nGroupID);
+            spUserSocialActionID.AddParameter("@SocialPlatform", nSocialPlatform);
+            spUserSocialActionID.AddParameter("@SocialAction", nSocialAction);
+
+
+            DataSet ds = spUserSocialActionID.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_IPCountryCode(Int64 nIP)
+        {
+            ODBCWrapper.StoredProcedure spIPCountryCode = new ODBCWrapper.StoredProcedure("Get_IPCountryCode");
+            spIPCountryCode.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spIPCountryCode.AddParameter("@IPVal", nIP);
+
+            DataSet ds = spIPCountryCode.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataSet Get_MediaDetailsForEmail(int nMediaID, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spMediaDetailsForEmail = new ODBCWrapper.StoredProcedure("Get_MediaDetailsForEmail");
+            spMediaDetailsForEmail.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spMediaDetailsForEmail.AddParameter("@MediaID", nMediaID);
+            spMediaDetailsForEmail.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = spMediaDetailsForEmail.ExecuteDataSet();
+
+            if (ds != null)
+                return ds;
+            return null;
+        }
+
+        public static DataTable Get_GroupRules(int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spGroupRules = new ODBCWrapper.StoredProcedure("Get_GroupRules");
+            spGroupRules.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGroupRules.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = spGroupRules.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_LuceneUrl(int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spLuceneUr = new ODBCWrapper.StoredProcedure("Get_LuceneUrl");
+            spLuceneUr.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spLuceneUr.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = spLuceneUr.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_StartValues(int nGroupID, string sSiteGuid, int caseOption)
+        {
+            ODBCWrapper.StoredProcedure spStartValues = new ODBCWrapper.StoredProcedure("Get_StartValues");
+            spStartValues.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spStartValues.AddParameter("@GroupID", nGroupID);
+            spStartValues.AddParameter("@SiteGuid", sSiteGuid);
+            spStartValues.AddParameter("@CaseOption", caseOption);
+
+            DataSet ds = spStartValues.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_LicenseKeyMaxMind(int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spLicenseKeyMaxMind = new ODBCWrapper.StoredProcedure("Get_LicenseKeyMaxMind");
+            spLicenseKeyMaxMind.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spLicenseKeyMaxMind.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = spLicenseKeyMaxMind.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_AvailableDevices(int nMediaID, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spAvailableDevices = new ODBCWrapper.StoredProcedure("Get_AvailableDevices");
+            spAvailableDevices.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spAvailableDevices.AddParameter("@GroupID", nGroupID);
+            spAvailableDevices.AddParameter("@MediaID", nMediaID);
+
+            DataSet ds = spAvailableDevices.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_DefaultRules(int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spSetDefaultRules = new ODBCWrapper.StoredProcedure("Get_DefaultRules");
+            spSetDefaultRules.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spSetDefaultRules.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = spSetDefaultRules.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_UserGroupRule(int nGroupID, string sSiteGuid, int RuleID)
+        {
+            ODBCWrapper.StoredProcedure spUserGroupRule = new ODBCWrapper.StoredProcedure("Get_UserGroupRule");
+            spUserGroupRule.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUserGroupRule.AddParameter("@GroupID", nGroupID);
+            spUserGroupRule.AddParameter("@SiteGuid", sSiteGuid);
+            spUserGroupRule.AddParameter("@RuleID", RuleID);
+
+            DataSet ds = spUserGroupRule.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static bool UpdateDomainGroupRule(int nDomainID, int nRuleID, int nIsActive, int nStatus, bool bWithPIN, string sPIN)
+        {
+            bool ret = false;
+
+            try
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_group_rules");
+                updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", nIsActive);
+                if (bWithPIN)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("code", "=", sPIN);
+                }
+                updateQuery += "WHERE";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("domain_id", "=", nDomainID);
+                updateQuery += "AND";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("rule_id", "=", nRuleID);
+                updateQuery += "AND";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+
+                ret = updateQuery.Execute();
+                updateQuery.Finish();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return ret;
+        }
+
+        public static string[] GetDomainGroupRule(int nGroupID, int nDomainID, int nRuleID)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure spUserGroupRule = new ODBCWrapper.StoredProcedure("Get_DomainGroupRule");
+                spUserGroupRule.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spUserGroupRule.AddParameter("@GroupID", nGroupID);
+                spUserGroupRule.AddParameter("@DomainID", nDomainID);
+                spUserGroupRule.AddParameter("@RuleID", nRuleID);
+
+                using (DataSet ds = spUserGroupRule.ExecuteDataSet())
+                {
+                    if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].DefaultView.Count > 0)
+                    {
+                        using (DataTable dt = ds.Tables[0])
+                        {
+                            if (dt.DefaultView.Count > 0 && dt.Rows[0] != null)
+                            {
+                                DataRow dr = dt.Rows[0];
+
+                                string sDomainRuleID = (dr["rule_id"] != DBNull.Value) ? (dr["rule_id"].ToString()) : string.Empty;
+                                string sIsActive = (dr["is_active"] != DBNull.Value) ? (dr["is_active"].ToString()) : string.Empty;
+                                string sPIN = dr["code"].ToString();
+
+                                string[] dbDomainRule = new string[] { sDomainRuleID, sIsActive, sPIN };
+                                return dbDomainRule;
+                            }
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return null;
+        }
+
+        public static string GetDomainCodeForParentalPIN(int nDomainID, int nRuleID)
+        {
+            string sPIN = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure spCodeForParentalPIN = new ODBCWrapper.StoredProcedure("Get_DomainCodeForParentalPIN");
+                spCodeForParentalPIN.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                spCodeForParentalPIN.AddParameter("@DomainID", nDomainID);
+                spCodeForParentalPIN.AddParameter("@RuleID", nRuleID);
+
+                DataSet ds = spCodeForParentalPIN.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    DataTable dt = ds.Tables[0];
+
+                    if (dt != null && dt.DefaultView.Count > 0)
+                    {
+                        sPIN = dt.Rows[0]["code"].ToString();
+                        return sPIN;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return sPIN;
+        }
+
+        public static DataTable Get_CodeForParentalPIN(string sSiteGuid, int RuleID)
+        {
+            ODBCWrapper.StoredProcedure spCodeForParentalPIN = new ODBCWrapper.StoredProcedure("Get_CodeForParentalPIN");
+            spCodeForParentalPIN.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spCodeForParentalPIN.AddParameter("@SiteGuid", sSiteGuid);
+            spCodeForParentalPIN.AddParameter("@RuleID", RuleID);
+
+            DataSet ds = spCodeForParentalPIN.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_GroupOperatorsDetails(int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spGroupOperatorsDetails = new ODBCWrapper.StoredProcedure("Get_GroupOperatorsDetails");
+            spGroupOperatorsDetails.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGroupOperatorsDetails.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = spGroupOperatorsDetails.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_UserGroupRules(string sSiteGuid)
+        {
+            ODBCWrapper.StoredProcedure spUserGroupRules = new ODBCWrapper.StoredProcedure("Get_UserGroupRules");
+            spUserGroupRules.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUserGroupRules.AddParameter("@SiteGuid", sSiteGuid);
+
+            DataSet ds = spUserGroupRules.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable GetDomainGroupRules(int nDomainID)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure spDomainGroupRules = new ODBCWrapper.StoredProcedure("Get_DomainGroupRules");
+                spDomainGroupRules.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                spDomainGroupRules.AddParameter("@DomainID", nDomainID);
+
+                DataSet ds = spDomainGroupRules.ExecuteDataSet();
+
+                if (ds != null)
+                {
+                    return ds.Tables[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable Get_DetailsUsersDynamicData(int nUserID)
+        {
+            ODBCWrapper.StoredProcedure spDetailsUsersDynamicData = new ODBCWrapper.StoredProcedure("Get_DetailsUsersDynamicData");
+            spDetailsUsersDynamicData.SetConnectionKey("USERS_MAIN_CONNECTION_STRING");
+            spDetailsUsersDynamicData.AddParameter("@UserID", nUserID);
+
+            DataSet ds = spDetailsUsersDynamicData.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_EPGChannel(int groupID)
+        {
+            ODBCWrapper.StoredProcedure spEPGChannel = new ODBCWrapper.StoredProcedure("Get_EPGChannel");
+            spEPGChannel.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spEPGChannel.AddParameter("@GroupID", groupID);
+
+            DataSet ds = spEPGChannel.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_AdminUserAccount(string user, string pass)
+        {
+            ODBCWrapper.StoredProcedure spAdminUserAccount = new ODBCWrapper.StoredProcedure("Get_AdminUserAccount");
+            spAdminUserAccount.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spAdminUserAccount.AddParameter("@User", user);
+            spAdminUserAccount.AddParameter("@Pass", pass);
+
+            DataSet ds = spAdminUserAccount.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_MediaFileTypeID(int nMediaFileID, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spMediaFileTypeID = new ODBCWrapper.StoredProcedure("Get_MediaFileTypeID");
+            spMediaFileTypeID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spMediaFileTypeID.AddParameter("@MediaFileID", nMediaFileID);
+            spMediaFileTypeID.AddParameter("@GroupID", nGroupID);
+            DataSet ds = spMediaFileTypeID.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_AdminTokenValues(string sIp, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spAdminTokenValues = new ODBCWrapper.StoredProcedure("Get_AdminTokenValues");
+            spAdminTokenValues.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spAdminTokenValues.AddParameter("@IP", sIp);
+            spAdminTokenValues.AddParameter("@GroupID", nGroupID);
+            DataSet ds = spAdminTokenValues.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_AvailableFileTypes(int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spAvailableFileTypes = new ODBCWrapper.StoredProcedure("Get_AvailableFileTypes");
+            spAvailableFileTypes.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spAvailableFileTypes.AddParameter("@GroupID", nGroupID);
+            DataSet ds = spAvailableFileTypes.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        /*call Global stored procedure that select fileds from table by id .
+         **need to get table name and filed/s name with , between them (if more then one filed required)
+         **if @WhereFieldName is not ID - send the filed name   */
+        public static DataTable Get_DataByTableID(string sWhereFieldValue, string sTableName, string sFieldsNames)
+        {
+            return Get_DataByTableID(sWhereFieldValue, sTableName, sFieldsNames, string.Empty);
+        }
+
+        public static DataTable Get_DataByTableID(string sWhereFieldValue, string sTableName, string sFieldsNames, string sWhereFieldName)
+        {
+            ODBCWrapper.StoredProcedure spDataByTableID = new ODBCWrapper.StoredProcedure("Get_DataByTableID");
+            spDataByTableID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spDataByTableID.AddParameter("@WhereFieldValue", sWhereFieldValue);
+            if (!string.IsNullOrEmpty(sWhereFieldName))
+                spDataByTableID.AddParameter("@WhereFieldName", sWhereFieldName);
+            spDataByTableID.AddParameter("@TableName", sTableName);
+            spDataByTableID.AddParameter("@FieldsNames", sFieldsNames);
+
+            DataSet ds = spDataByTableID.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_MapMediaFiles(List<int> nMediaFileIDs)
+        {
+            ODBCWrapper.StoredProcedure spMapMediaFiles = new ODBCWrapper.StoredProcedure("Get_MapMediaFiles");
+            spMapMediaFiles.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spMapMediaFiles.AddIDListParameter("@MediaFileIdList", nMediaFileIDs, "Id");
+
+            DataSet ds = spMapMediaFiles.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_SubGroupsTree()
+        {
+            ODBCWrapper.StoredProcedure spMapMediaFiles = new ODBCWrapper.StoredProcedure("Get_SubGroupsTree");
+            spMapMediaFiles.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet ds = spMapMediaFiles.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+
+        public static DataTable Get_GroupPlayers()
+        {
+            ODBCWrapper.StoredProcedure spMapMediaFiles = new ODBCWrapper.StoredProcedure("Get_GroupPlayers");
+            spMapMediaFiles.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet ds = spMapMediaFiles.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataSet Get_GroupMediaNames(string sGroupName)
+        {
+            ODBCWrapper.StoredProcedure spGroupMediaNames = new ODBCWrapper.StoredProcedure("Get_GroupMediaNames");
+            spGroupMediaNames.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGroupMediaNames.AddParameter("@GroupName", sGroupName);
+
+            DataSet ds = spGroupMediaNames.ExecuteDataSet();
+
+            if (ds != null)
+                return ds;
+            return null;
+        }
+
+
+        public static DataSet Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spMediaMark = new ODBCWrapper.StoredProcedure("Get_MediaMark");
+            spMediaMark.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spMediaMark.AddParameter("@MediaID", nMediaID);
+            spMediaMark.AddParameter("@SiteGUID", sSiteGUID);
+            spMediaMark.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = spMediaMark.ExecuteDataSet();
+
+            if (ds != null)
+                return ds;
+            return null;
+        }
+
+        public static DataTable Get_GeoCommerceValue(int nGroupID, int SubscriptionGeoCommerceID)
+        {
+            ODBCWrapper.StoredProcedure spGeoCommerceValue = new ODBCWrapper.StoredProcedure("Get_GeoCommerceValue");
+            spGeoCommerceValue.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGeoCommerceValue.AddParameter("@SubscriptionGeoCommerceID", SubscriptionGeoCommerceID);
+            spGeoCommerceValue.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = spGeoCommerceValue.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static int Insert_NewUserGroupRule(int nGroupID, int nRuleID, string sSiteGuid, string sPIN, int nStatus)
+        {
+            ODBCWrapper.StoredProcedure spNewUserGroupRule = new ODBCWrapper.StoredProcedure("Insert_NewUserGroupRule");
+            spNewUserGroupRule.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spNewUserGroupRule.AddParameter("@GroupID", nGroupID);
+            spNewUserGroupRule.AddParameter("@RuleID", nRuleID);
+            spNewUserGroupRule.AddParameter("@SiteGuid", sSiteGuid);
+            spNewUserGroupRule.AddParameter("@PIN", sPIN);
+            spNewUserGroupRule.AddParameter("@Status", nStatus);
+
+            int retVal = spNewUserGroupRule.ExecuteReturnValue<int>();//.ExecuteDataSet();
+
+            return retVal;
+        }
+
+
+
+        public static int Update_UserGroupRule(int nIsActive, string sPIN, string sSiteGuid, int nUserRuleID)
+        {
+            ODBCWrapper.StoredProcedure spUserGroupRul = new ODBCWrapper.StoredProcedure("Update_UserGroupRule");
+            spUserGroupRul.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUserGroupRul.AddParameter("@RuleID", nUserRuleID);
+            spUserGroupRul.AddParameter("@SiteGuid", sSiteGuid);
+            spUserGroupRul.AddParameter("@PIN", sPIN);
+            spUserGroupRul.AddParameter("@IsActive", nIsActive);
+
+            int retVal = spUserGroupRul.ExecuteReturnValue<int>();//.ExecuteDataSet();
+
+            return retVal;
+        }
+
+        public static void Update_UserGroupRule_Token(int nSiteGuid, int nUserRuleID, string sChangePinToken, DateTime dChangePinTokenLastDate)
+        {
+            ODBCWrapper.StoredProcedure spUpdateUserGroupRuleToken = new ODBCWrapper.StoredProcedure("Update_UserGroupRule_Token");
+            spUpdateUserGroupRuleToken.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUpdateUserGroupRuleToken.AddParameter("@SiteGuid", nSiteGuid);
+            spUpdateUserGroupRuleToken.AddParameter("@RuleID", nUserRuleID);
+            spUpdateUserGroupRuleToken.AddNullableParameter("@ChangePinToken", sChangePinToken); //can be update with null value
+            spUpdateUserGroupRuleToken.AddParameter("@ChangePinTokenLastDate", dChangePinTokenLastDate);
+            spUpdateUserGroupRuleToken.ExecuteNonQuery();
+        }
+
+        public static void Update_UserGroupRule_Code(int nSiteGuid, int nUserRuleID, string sChangePinToken, string sCode)
+        {
+            ODBCWrapper.StoredProcedure spUpdateUserGroupRuleCode = new ODBCWrapper.StoredProcedure("Update_UserGroupRule_Code");
+            spUpdateUserGroupRuleCode.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUpdateUserGroupRuleCode.AddParameter("@SiteGuid", nSiteGuid);
+            spUpdateUserGroupRuleCode.AddParameter("@RuleID", nUserRuleID);
+            spUpdateUserGroupRuleCode.AddParameter("@ChangePinToken", sChangePinToken);
+            spUpdateUserGroupRuleCode.AddParameter("@Code", sCode);
+            spUpdateUserGroupRuleCode.ExecuteNonQuery();
+        }
+
+        public static DataTable Check_UserGroupRule_Token(string sToken)
+        {
+            ODBCWrapper.StoredProcedure spCheckUserGroupRuleToken = new ODBCWrapper.StoredProcedure("Check_UserGroupRule_Token");
+            spCheckUserGroupRuleToken.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spCheckUserGroupRuleToken.AddParameter("@Token", sToken);
+
+            DataSet ds = spCheckUserGroupRuleToken.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static int UpdateOrInsert_UsersSocialActionsLike(int nID, int nGroupID, string sSiteGUID, int nMediaID, int nSocialAction, int nSocialPlatform)
+        {
+            ODBCWrapper.StoredProcedure spUsersSocialActions = new ODBCWrapper.StoredProcedure("UpdateOrInsert_UsersSocialActionsLike");
+            spUsersSocialActions.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUsersSocialActions.AddParameter("@SocialActionID", nID);
+            spUsersSocialActions.AddParameter("@GroupID", nGroupID);
+            spUsersSocialActions.AddParameter("@SiteGUID", sSiteGUID);
+            spUsersSocialActions.AddParameter("@MediaID", nMediaID);
+            spUsersSocialActions.AddParameter("@SocialAction", nSocialAction);
+            spUsersSocialActions.AddParameter("@SocialPlatform", nSocialPlatform);
+
+            int retVal = spUsersSocialActions.ExecuteReturnValue<int>();//.ExecuteDataSet();
+
+            return retVal;
+        }
+
+        public static int Update_MediaLikeCounter(int nMediaID, int nVal)
+        {
+            ODBCWrapper.StoredProcedure spMediaLikeCounter = new ODBCWrapper.StoredProcedure("Update_MediaLikeCounter");
+            spMediaLikeCounter.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spMediaLikeCounter.AddParameter("@MediaID", nMediaID);
+            spMediaLikeCounter.AddParameter("@AddVal", nVal);
+            int retVal = spMediaLikeCounter.ExecuteReturnValue<int>();//.ExecuteDataSet();
+
+            return retVal;
+        }
+
+        public static void Update_MediaViews(int nMediaID, int nMediaFileID)
+        {
+            ODBCWrapper.StoredProcedure spUpdateMediaViews = new ODBCWrapper.StoredProcedure("UpdateMediaViews");
+            spUpdateMediaViews.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUpdateMediaViews.AddParameter("@MediaID", nMediaID);
+            spUpdateMediaViews.AddParameter("@MediaFileID", nMediaFileID);
+            spUpdateMediaViews.ExecuteNonQuery();
+        }
+
+        public static int UpdateOrInsert_UsersSocialActionsUnLike(int nID, int nGroupID, string sSiteGUID, int nMediaID, int nSocialAction, int nSocialPlatform, int nUpdateOrInsert)
+        {
+            ODBCWrapper.StoredProcedure spUsersSocialActionsUnLike = new ODBCWrapper.StoredProcedure("UpdateOrInsert_UsersSocialActionsUnLike");
+            spUsersSocialActionsUnLike.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUsersSocialActionsUnLike.AddParameter("@SocialActionID", nID);
+            spUsersSocialActionsUnLike.AddParameter("@GroupID", nGroupID);
+            spUsersSocialActionsUnLike.AddParameter("@SiteGUID", sSiteGUID);
+            spUsersSocialActionsUnLike.AddParameter("@MediaID", nMediaID);
+            spUsersSocialActionsUnLike.AddParameter("@SocialAction", nSocialAction);
+            spUsersSocialActionsUnLike.AddParameter("@SocialPlatform", nSocialPlatform);
+            spUsersSocialActionsUnLike.AddParameter("@SQLOrInsert", nUpdateOrInsert);
+
+
+            int retVal = spUsersSocialActionsUnLike.ExecuteReturnValue<int>();//.ExecuteDataSet();
+
+            return retVal;
+        }
+
+        public static DataTable Get_AllSubAccounts(int nParendGroupID)
+        {
+            ODBCWrapper.StoredProcedure spSubAccounts = new ODBCWrapper.StoredProcedure("Get_AllSubAccounts");
+            spSubAccounts.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spSubAccounts.AddParameter("@ParentGroupID", nParendGroupID);
+
+            DataSet ds = spSubAccounts.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+
+        }
+
+        public static DataTable GetGroupRulesTagsValues(List<int> nGroupRuleIDs)
+        {
+            ODBCWrapper.StoredProcedure spSubAccounts = new ODBCWrapper.StoredProcedure("GetGroupRulesTagValues");
+            spSubAccounts.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spSubAccounts.AddIDListParameter<int>("@GroupRuleIdList", nGroupRuleIDs, "Id");
+            DataSet ds = spSubAccounts.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+
+        }
+
+ 
+
+        public static DataTable Get_DeviceMediaRules(int nMediaID, int nGroupID, string deviceUdid)
+        {
+            ODBCWrapper.StoredProcedure spGroupRules = new ODBCWrapper.StoredProcedure("Get_DeviceMediaRules");
+            spGroupRules.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGroupRules.AddParameter("@MediaID", nMediaID);
+            spGroupRules.AddParameter("@GroupID", nGroupID);
+            spGroupRules.AddParameter("@DeviceID", deviceUdid);
+
+            DataSet ds = spGroupRules.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static object Get_LastTransactionFourDigits(string sSiteGuid)
+        {
+            ODBCWrapper.StoredProcedure spLastTransactionFourDigits = new ODBCWrapper.StoredProcedure("Get_LastTransactionFourDigits");
+            spLastTransactionFourDigits.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spLastTransactionFourDigits.AddParameter("@SiteGuid", sSiteGuid);
+
+            object retLastFourDigits = spLastTransactionFourDigits.ExecuteReturnValue();
+
+            return retLastFourDigits;
+        }   
+
+        public static DataTable Get_LastBillingTransactionToUser(int nGroupID, string sSiteGUID, int? nBillingProvider)
+        {
+            ODBCWrapper.StoredProcedure spGetLastBillingTransactionToUser = new ODBCWrapper.StoredProcedure("Get_LastBillingTransactionToUser");
+            spGetLastBillingTransactionToUser.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            spGetLastBillingTransactionToUser.AddParameter("@GroupID", nGroupID);
+            spGetLastBillingTransactionToUser.AddParameter("@SiteGuid", sSiteGUID);
+            spGetLastBillingTransactionToUser.AddNullableParameter<int?>("@BillingProvider", nBillingProvider);
+
+            DataSet ds = spGetLastBillingTransactionToUser.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+
+        private static void HandleException(Exception ex)
+        {
+            //throw new NotImplementedException();
+        }
+
+
+        public static bool InsertNewDomainGroupRule(string sInGroups, int nDomainID, int nRuleID, string sPIN, int nIsActive, int nStatus)
+        {
+            bool ret = false;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "SELECT ID FROM groups_rules WITH (nolock) WHERE status=1 AND is_active=1 AND";
+                selectQuery += "group_id " + sInGroups;
+                selectQuery += " AND ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nRuleID);
+
+                if ((selectQuery.Execute("query", true) != null) &&
+                    (selectQuery.Table("query").DefaultView.Count > 0))
+                {
+                    ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("users_group_rules");
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("domain_id", "=", nDomainID);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("rule_id", "=", nRuleID);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("code", "=", sPIN);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", nIsActive);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
+                    ret = insertQuery.Execute();
+                    insertQuery.Finish();
+                }
+                selectQuery.Finish();
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return ret;
+        }
+
+        //public static DataTable GetCurrentDisplayedProgram(int nMediaID, DateTime now)
+        //{
+        //    DataTable returnedDisplayedProgram = null;
+        //    ODBCWrapper.StoredProcedure spCurrentDisplayedProgram = new ODBCWrapper.StoredProcedure("TVinci..Get_CurrentDisplayedProgram");
+        //    spCurrentDisplayedProgram.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //    spCurrentDisplayedProgram.AddParameter("@MediaID", nMediaID);
+        //    spCurrentDisplayedProgram.AddParameter("@CurrentTime", now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+        //    DataSet returnedProgram = spCurrentDisplayedProgram.ExecuteDataSet();
+
+        //    if (returnedProgram != null)
+        //        returnedDisplayedProgram = returnedProgram.Tables[0];
+
+        //    return returnedDisplayedProgram;
+        //}
+
+        public static DataTable Get_EPGProgramRules(int nProgramId, string sSiteGuid)
+        {
+            DataTable returnedDataTable = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure spEpgProgramRules = new ODBCWrapper.StoredProcedure("Get_EPGProgramRules");
+                spEpgProgramRules.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spEpgProgramRules.AddParameter("@ProgramId", nProgramId);
+                spEpgProgramRules.AddParameter("@SiteGuid", sSiteGuid);
+
+                DataSet returnedRulesSet = spEpgProgramRules.ExecuteDataSet();
+
+                if (returnedRulesSet != null)
+                    returnedDataTable = returnedRulesSet.Tables[0];
+            }
+            catch
+            {
+                returnedDataTable = null;
+            }
+
+
+            return returnedDataTable;
+        }
+
+        public static DataTable GetProgramSchedule(int nProgramId)
+        {
+            DataTable returnedDataTable = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ProgramStartAndEndDates");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ProgramID", nProgramId);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                returnedDataTable = ds.Tables[0];
+
+            return returnedDataTable;
+        }
+
+        public static DataTable GetCoGuidByMediaFileId(int nMediaFileID)
+        {
+            DataTable returnedDataTable = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CoGuidByMediaFileId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileId", nMediaFileID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                returnedDataTable = ds.Tables[0];
+
+            return returnedDataTable;
+        }
+
+        public static DataTable GetUserStartedWatchingMedias(string sSiteGuid, int nNumOfItems)
+        {
+            DataTable returnedDataTable = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserStartedWatchingMedias");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@UserSiteGuid", sSiteGuid);
+            sp.AddParameter("@NumOfItems", nNumOfItems.ToString());
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                returnedDataTable = ds.Tables[0];
+
+            return returnedDataTable;
+        }
+
+        public static bool CleanUserHistory(int nGroupID, string siteGuid, List<int> lMediaIDs)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CleanUserHistory");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", nGroupID);
+                sp.AddParameter("@SiteGUID", siteGuid);
+                sp.AddIDListParameter<int>("@MediaIds", lMediaIDs, "Id");
+
+                bool retVal = sp.ExecuteReturnValue<bool>();
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool Is_MediaExistsToUserType(int nMediaID, int nUserTypeID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsMediaExistsToUserType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaID", nMediaID);
+            sp.AddParameter("@UserTypeID", nUserTypeID);
+            bool result = sp.ExecuteReturnValue<bool>();
+            return result;
+        }
+
+        public static string Get_PPVNameForPurchaseMail(string sPSPReference)
+        {
+            string res = string.Empty;
+            ODBCWrapper.StoredProcedure spPPVNameForPurchaseMail = new ODBCWrapper.StoredProcedure("Get_PPVNameForPurchaseMail");
+            spPPVNameForPurchaseMail.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spPPVNameForPurchaseMail.AddParameter("@PSPReference", sPSPReference);
+            DataSet ds = spPPVNameForPurchaseMail.ExecuteDataSet();
+            if (ds != null)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    if (dt.Rows[0]["name"] != DBNull.Value)
+                        res = dt.Rows[0]["name"].ToString();
+            }
+
+            return res;
+        }
+
+        public static string Get_M1_PPVNameForPurchaseMail(int nM1TransactionID)
+        {
+            string res = string.Empty;
+            ODBCWrapper.StoredProcedure spPPVNameForPurchaseMail = new ODBCWrapper.StoredProcedure("Get_M1_PPVNameForPurchaseMail");
+            spPPVNameForPurchaseMail.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spPPVNameForPurchaseMail.AddParameter("@M1TransactionID", nM1TransactionID);
+            DataSet ds = spPPVNameForPurchaseMail.ExecuteDataSet();
+            if (ds != null)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    if (dt.Rows[0]["name"] != DBNull.Value)
+                        res = dt.Rows[0]["name"].ToString();
+            }
+
+            return res;
+        }
+        
+
+
+        public static void Update_Last4Digits(long lID, string sLast4Digits)
+        {
+            ODBCWrapper.StoredProcedure spUpdateLast4Digits = new ODBCWrapper.StoredProcedure("Update_Last4Digits");
+            spUpdateLast4Digits.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUpdateLast4Digits.AddParameter("@ID", lID);
+            spUpdateLast4Digits.AddParameter("@Last4Digits", sLast4Digits);
+            spUpdateLast4Digits.AddParameter("@UpdateDate", DateTime.UtcNow);
+            spUpdateLast4Digits.ExecuteNonQuery();
+        }
+
+        public static string Get_Last4DigitsByBillingTransctionID(long lIDInBillingTransactions)
+        {
+            string res = string.Empty;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Last4DigitsByBillingTransctionID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@IDInBT", lIDInBillingTransactions);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    if (dt.Rows[0]["last_four_digits"] != DBNull.Value && dt.Rows[0]["last_four_digits"] != null)
+                        res = dt.Rows[0]["last_four_digits"].ToString();
+                }
+
+            }
+
+            return res;
+        }
+
+        public static bool Get_IsPurchasedWithPreviewModule(int nGroupID, string sSiteGuid, int nPurchaseID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IsPurchasedWithPreviewModule");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@PurchaseID", nPurchaseID);
+            int res = sp.ExecuteReturnValue<int>();
+            return res > 0;
+
+        }
+
+
+        public static bool Update_PurchaseIDInBillingTransactions(long lBillingTransactionID, long lPurchaseID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PurchaseIDInBillingTransactions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@PurchaseID", lPurchaseID);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
+
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static long Insert_NewBillingTransaction(string sSiteGuid, string sLastFourDigits, double dPrice,
+           string sPriceCode, string sCurrencyCode, string sCustomData, int nBillingStatus, string sBillingReason,
+           bool bIsRecurring, long lMediaFileID, long lMediaID, string sPPVModuleCode, string sSubscriptionCode,
+           string sCellPhone, long lGroupID, long lBillingProvider, long lBillingProviderReference, double dPaymentMethodAddition,
+           double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
+           string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
+           long lPreviewModuleID)
+        {
+
+            return Insert_NewBillingTransaction(sSiteGuid, sLastFourDigits, dPrice, sPriceCode, sCurrencyCode,
+                sCustomData, nBillingStatus, sBillingReason, bIsRecurring, lMediaFileID, lMediaID, sPPVModuleCode,
+                sSubscriptionCode, sCellPhone, lGroupID, lBillingProvider, lBillingProviderReference, dPaymentMethodAddition,
+                dTotalPrice, nPaymentNumber, nNumberOfPayments, sExtraParams, sCountryCode, sLanguageCode, sDeviceName,
+                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty);
+        }
+
+        public static long Insert_NewBillingTransaction(string sSiteGuid, string sLastFourDigits, double dPrice,
+            string sPriceCode, string sCurrencyCode, string sCustomData, int nBillingStatus, string sBillingReason,
+            bool bIsRecurring, long lMediaFileID, long lMediaID, string sPPVModuleCode, string sSubscriptionCode,
+            string sCellPhone, long lGroupID, long lBillingProvider, long lBillingProviderReference, double dPaymentMethodAddition,
+            double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
+            string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
+            long lPreviewModuleID, long lPurchaseID, int nFinancialProcessingStatus, int? nNewRenewableStatus, string sRemarks)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewBillingTransaction");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@LastFourDigits", sLastFourDigits);
+            sp.AddParameter("@Price", dPrice);
+            sp.AddParameter("@PaymentMethodAddition", dPaymentMethodAddition);
+            sp.AddParameter("@TotalPrice", dTotalPrice);
+            sp.AddParameter("@PriceCode", sPriceCode);
+            sp.AddParameter("@CurrencyCode", sCurrencyCode);
+            sp.AddParameter("@CustomData", sCustomData);
+            sp.AddParameter("@BillingStatus", nBillingStatus);
+            sp.AddParameter("@BillingReason", sBillingReason);
+            sp.AddParameter("@IsRecurring", bIsRecurring ? 1 : 0);
+            sp.AddParameter("@MediaFileID", lMediaFileID);
+            sp.AddParameter("@MediaID", lMediaID);
+            sp.AddParameter("@PPVModuleCode", sPPVModuleCode);
+            sp.AddParameter("@SubscriptionCode", sSubscriptionCode);
+            sp.AddParameter("@CellPhone", sCellPhone);
+            sp.AddParameter("@BillingProvider", lBillingProvider);
+            sp.AddParameter("@BillingProviderReference", lBillingProviderReference);
+            sp.AddParameter("@PurchaseID", lPurchaseID);
+            sp.AddParameter("@PaymentNumber", nPaymentNumber);
+            sp.AddParameter("@NumberOfPayments", nNumberOfPayments);
+            sp.AddParameter("@ExtraParams", sExtraParams);
+            sp.AddParameter("@CountryCode", sCountryCode);
+            sp.AddParameter("@LanguageCode", sLanguageCode);
+            sp.AddParameter("@DeviceName", sDeviceName);
+            sp.AddParameter("@IsActive", 1);
+            sp.AddParameter("@Status", 1);
+            sp.AddParameter("@GroupID", lGroupID);
+
+            DateTime dtToWriteToDB = DateTime.UtcNow;
+            sp.AddParameter("@CreateDate", dtToWriteToDB);
+            sp.AddParameter("@UpdaterID", DBNull.Value);
+            sp.AddParameter("@UpdateDate", dtToWriteToDB);
+            sp.AddParameter("@PublishDate", dtToWriteToDB);
+
+            sp.AddParameter("@FinancialProcessingStatus", nFinancialProcessingStatus);
+            if (nNewRenewableStatus.HasValue)
+                sp.AddParameter("@NewRenewableStatus", nNewRenewableStatus.Value);
+            else
+                sp.AddParameter("@NewRenewableStatus", DBNull.Value);
+            sp.AddParameter("@BillingProcessor", nBillingProcessor);
+            sp.AddParameter("@BillingMethod", nBillingMethod);
+            sp.AddParameter("@Remarks", sRemarks);
+            sp.AddParameter("@PrePaidCode", sPrePaidCode);
+            sp.AddParameter("@PreviewModuleID", lPreviewModuleID);
+
+            return sp.ExecuteReturnValue<long>();
+
+        }
+
+        public static bool Update_BillingTransactionStatus(long lBillingTransactionID, bool bIsActivate, ref long lBillingProviderTransactionID, ref long lPurchaseID)       
+        {
+            bool res = false;
+            int nNewStatusToWrite = bIsActivate ? 0 : 1;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_BillingTransactionStatus");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@NewStatus", nNewStatusToWrite);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                lBillingProviderTransactionID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0]["billing_provider_refference"]);
+                lPurchaseID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0]["purchase_id"]);
+                int nStatusInDB = -1;
+                if (dt.Rows[0]["billing_status"] != DBNull.Value && dt.Rows[0]["billing_status"] != null && Int32.TryParse(dt.Rows[0]["billing_status"].ToString(), out nStatusInDB) && nStatusInDB > -1)
+                    res = (nStatusInDB == nNewStatusToWrite);
+            }
+
+            return res;
+        }
+
+        public static DataTable Get_LastBillingTransactions(int nGroupID, List<long> nSubscriptionPurchasesIDs, List<int> mBillingProvidersList)
+        {
+            ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_LastBillingTransactions");
+            spLastBillingTransactions.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            spLastBillingTransactions.AddParameter("@GroupID", nGroupID);
+            spLastBillingTransactions.AddIDListParameter("@SubscriptionPurchasesIDs", nSubscriptionPurchasesIDs, "id");
+            spLastBillingTransactions.AddIDListParameter("@BillingProvidersIDs", mBillingProvidersList, "id");
+
+            DataSet ds = spLastBillingTransactions.ExecuteDataSet();
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static long Get_LastNonGiftBillingMethod(string sSiteGuid, long lGroupID, long lBillingProvider)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LastNonGiftBillingMethod");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@GroupID", lGroupID);
+            sp.AddParameter("@BillingProvider", lBillingProvider);
+
+            return sp.ExecuteReturnValue<long>();
+        }
+
+        public static string Get_PPVNameByMediaID(long lMediaID)
+        {
+            string res = string.Empty;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PPVNameByMediaID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaID", lMediaID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["name"]);
+                }
+            }
+
+            return res;
+        }
+
+        public static bool Update_BillingStatusAndReason(long lBillingTransactionID, bool bIsActivate, string sBillingReason)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_BillingStatusAndReason");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BillingID", lBillingTransactionID);
+            sp.AddParameter("@BillingStatus", bIsActivate ? 0 : 1);
+            sp.AddParameter("@BillingReason", sBillingReason);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static DateTime Get_PurchaseDateByBillingTransactionID(long lBillingTransactionID)
+        {
+            DateTime res = DateTime.UtcNow;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PurchaseDateByBillingTransactionID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["create_date"]);
+                }
+            }
+
+            return res;
+        }
+
+        public static string Get_CustomDataFromBillingTransactions(long lBillingTransactionID)
+        {
+            string res = string.Empty;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CustomDataFromBillingTransactions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["customdata"]);
+                }
+            }
+
+            return res;
+        }
+    }
+}
