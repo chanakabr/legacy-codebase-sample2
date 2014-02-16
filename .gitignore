@@ -1,0 +1,10 @@
+obj/
+[Bb]in
+[Dd]ebug*/
+[Rr]elease*/
+*.dll
+*.pdb
+*.[Oo]bj
+*.user
+*.log
+*.suo
