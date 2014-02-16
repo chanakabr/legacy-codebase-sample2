@@ -68,7 +68,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="TCMClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\External\TVM\TCMClient.dll</HintPath>
+      <HintPath>..\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
