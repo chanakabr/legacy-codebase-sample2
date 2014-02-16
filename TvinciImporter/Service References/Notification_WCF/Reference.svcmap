@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="5dfdbaa0-65b0-4a62-9825-f45517c8c866" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://webservices-us.tvinci.com/Notification_v1_8/NotificationService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="NotificationService.disco" MetadataType="Disco" ID="87174d8c-1e9d-453d-bf46-de9758064792" SourceId="1" SourceUrl="http://webservices-us.tvinci.com/notification_v1_8/NotificationService.svc?disco" />
+    <MetadataFile FileName="NotificationService.xsd" MetadataType="Schema" ID="7c8c8ce8-b0de-4b6d-aa9b-7d39b9ff25f3" SourceId="1" SourceUrl="http://webservices-us.tvinci.com/notification_v1_8/NotificationService.svc?xsd=xsd0" />
+    <MetadataFile FileName="NotificationService1.xsd" MetadataType="Schema" ID="6726c905-4570-4085-a4b3-b6ae30f2d10e" SourceId="1" SourceUrl="http://webservices-us.tvinci.com/notification_v1_8/NotificationService.svc?xsd=xsd3" />
+    <MetadataFile FileName="NotificationService.wsdl" MetadataType="Wsdl" ID="aea0cf34-5b6c-4941-b5fa-8053703e8727" SourceId="1" SourceUrl="http://webservices-us.tvinci.com/notification_v1_8/NotificationService.svc?wsdl" />
+    <MetadataFile FileName="NotificationService2.xsd" MetadataType="Schema" ID="d031fabd-9212-45d0-9ad0-2352139d8a38" SourceId="1" SourceUrl="http://webservices-us.tvinci.com/notification_v1_8/NotificationService.svc?xsd=xsd1" />
+    <MetadataFile FileName="NotificationService3.xsd" MetadataType="Schema" ID="53799a3e-92b7-4655-b9a7-717f29085f95" SourceId="1" SourceUrl="http://webservices-us.tvinci.com/notification_v1_8/NotificationService.svc?xsd=xsd2" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

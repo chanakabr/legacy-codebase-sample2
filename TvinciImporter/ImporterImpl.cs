@@ -1,0 +1,4256 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml;
+using TVinciShared;
+using System.Web;
+using System.IO;
+using System.Configuration;
+using System.Xml.Serialization;
+using System.Data;
+using System.Threading;
+using DAL;
+using ApiObjects;
+using Logger;
+using System.Reflection;
+
+namespace TvinciImporter
+{
+    public class ImporterImpl
+    {
+        static string m_sLocker = "";
+        static protected bool IsNodeExists(ref XmlNode theItem, string sXpath)
+        {
+            XmlNode theNodeVal = theItem.SelectSingleNode(sXpath);
+            if (theNodeVal != null)
+                return true;
+            return false;
+        }
+
+        static protected string GetNodeValue(ref XmlNode theItem, string sXpath)
+        {
+            string sNodeVal = "";
+
+            XmlNode theNodeVal = null;
+            if (sXpath != "")
+                theNodeVal = theItem.SelectSingleNode(sXpath);
+            else
+                theNodeVal = theItem;
+            if (theNodeVal != null && theNodeVal.FirstChild != null)
+                sNodeVal = theNodeVal.FirstChild.Value;
+            return sNodeVal;
+        }
+
+        static protected string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
+        {
+            string sVal = "";
+            if (theNode != null)
+            {
+                XmlAttributeCollection theAttr = theNode.Attributes;
+                if (theAttr != null)
+                {
+                    Int32 nCount = theAttr.Count;
+                    for (int i = 0; i < nCount; i++)
+                    {
+                        string sName = theAttr[i].Name.ToLower();
+                        if (sName.ToLower().Trim() == sParameterName.ToLower().Trim())
+                        {
+                            sVal = theAttr[i].Value.ToString();
+                            break;
+                        }
+                    }
+                }
+            }
+            return sVal;
+        }
+
+        static protected string GetNodeParameterVal(ref XmlNode theNode, string sXpath, string sParameterName)
+        {
+            string sVal = "";
+            XmlNode theRoot = theNode.SelectSingleNode(sXpath);
+            if (theRoot != null)
+            {
+                XmlAttributeCollection theAttr = theRoot.Attributes;
+                if (theAttr != null)
+                {
+                    Int32 nCount = theAttr.Count;
+                    for (int i = 0; i < nCount; i++)
+                    {
+                        string sName = theAttr[i].Name.ToLower();
+                        if (sName.ToLower().Trim() == sParameterName.ToLower().Trim())
+                        {
+                            sVal = theAttr[i].Value.ToString();
+                            break;
+                        }
+                    }
+                }
+            }
+            return sVal;
+        }
+
+        static protected Int32 GetMediaIDByEPGGuid(Int32 nGroupID, string sEPGGuid)
+        {
+            Int32 nMediaID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from media (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", sEPGGuid);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nMediaID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nMediaID;
+        }
+
+        protected static bool DoesRemotePicExists(string sURL)
+        {
+            //Batch Upload fix
+            if (!sURL.Contains("http"))
+            {
+                sURL = "http://" + sURL;
+            }
+
+
+            Int32 nStatus = 0;
+            string s = Notifier.SendGetHttpReq(sURL, ref nStatus);
+            if (nStatus == 200 && s.IndexOf("404") == -1)
+                return true;
+            return false;
+        }
+
+        static protected Int32 GetCategoryIDByCoGuid(Int32 nGroupID, string sCoGuid)
+        {
+            Int32 nChannelID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += "select id from categories (nolock) where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nChannelID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nChannelID;
+        }
+
+        static protected Int32 GetChannelIDByCoGuid(Int32 nGroupID, string sCoGuid)
+        {
+            Int32 nChannelID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += "select id from channels (nolock) where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nChannelID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nChannelID;
+        }
+
+        static protected Int32 GetMediaIDByCoGuid(Int32 nGroupID, string sCoGuid)
+        {
+            Int32 nMediaID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += "select id from media (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nMediaID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nMediaID;
+        }
+
+        static protected void DeleteMedia(Int32 nMediaID)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
+            updateQuery += "where";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nMediaID);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+        }
+
+        static protected void DeleteEPGSched(Int32 nEPGSchedID)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
+            updateQuery += "where";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nEPGSchedID);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+        }
+
+        static protected Int32 GetPlayersRuleByName(Int32 nGroupID, string sName)
+        {
+            Int32 nID = 0;
+            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from players_groups_types (nolock) where status=1 and is_active=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sName.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nID;
+        }
+
+        static protected Int32 GetGeoBlockRuleByName(Int32 nGroupID, string sName)
+        {
+            if (sName == "")
+                return 0;
+            Int32 nID = 0;
+            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from geo_block_types (nolock) where status=1 and is_active=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sName.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nID;
+        }
+
+        protected static int GetDeviceRuleByName(int nGroupID, string sDeviceRule)
+        {
+            int retVal = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from device_rules where IS_ACTIVE = 1 and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sDeviceRule.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    if (!Int32.TryParse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString(), out retVal))
+                        retVal = 0;
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return retVal;
+        }
+
+        static protected Int32 GetWatchPerRuleByName(Int32 nGroupID, string sName)
+        {
+            Int32 nID = 0;
+            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from watch_permissions_types (nolock) where status=1 and is_active=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sName.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nID;
+        }
+
+        static protected Int32 GetItemTypeIdByName(Int32 nGroupID, string sName)
+        {
+            Int32 nID = 0;
+            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from media_types (nolock) where status=1 and (";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sName.Trim().ToLower());
+            selectQuery += "or";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(DESCRIPTION)))", "=", sName.Trim().ToLower());
+            selectQuery += ") and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            if (nID == 0)
+            {
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select id from media_types (nolock) where status=1 and (";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sName.Trim().ToLower());
+                selectQuery += "or";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(DESCRIPTION)))", "=", sName.Trim().ToLower());
+                selectQuery += ") and GROUP_ID " + sGroups;
+                //selectQuery += //ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID " + sGroups);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+            }
+
+            return nID;
+        }
+
+        static protected void AddError(ref string sErrorMessage, string sToAdd)
+        {
+            if (sErrorMessage != "")
+                sErrorMessage += " | ";
+            sErrorMessage += sToAdd;
+        }
+
+        public static DateTime GetDateTimeFromStrUTF(string sDate, DateTime dDefault)
+        {
+            try
+            {
+                string sTime = "";
+                if (sDate == "")
+                {
+                    return dDefault;
+                }
+
+                string[] timeHour = sDate.Split(' ');
+                if (timeHour.Length == 2)
+                {
+                    sDate = timeHour[0];
+                    sTime = timeHour[1];
+                }
+                else
+                    return DateTime.Now;
+                string[] splited = sDate.Split('/');
+
+                Int32 nYear = 1;
+                Int32 nMounth = 1;
+                Int32 nDay = 1;
+                Int32 nHour = 0;
+                Int32 nMin = 0;
+                Int32 nSec = 0;
+                nYear = int.Parse(splited[2].ToString());
+                nMounth = int.Parse(splited[1].ToString());
+                nDay = int.Parse(splited[0].ToString());
+                if (timeHour.Length == 2)
+                {
+                    string[] splited1 = sTime.Split(':');
+                    nHour = int.Parse(splited1[0].ToString());
+                    nMin = int.Parse(splited1[1].ToString());
+                    nSec = int.Parse(splited1[2].ToString());
+                }
+
+                return new DateTime(nYear, nMounth, nDay, nHour, nMin, nSec);
+            }
+            catch
+            {
+                return DateTime.Now;
+            }
+        }
+
+        static protected void ClearMediaValues(Int32 nMediaID)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("name", "=", "");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("description", "=", "");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", "");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("WATCH_PERMISSION_TYPE_ID", "=", 0);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PLAYERS_RULES", "=", 0);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("BLOCK_TEMPLATE_ID", "=", 0);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_rule_id", "=", 0);
+            for (int i = 1; i < 21; i++)
+            {
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + i.ToString() + "_STR", "=", "");
+            }
+            for (int i = 1; i < 11; i++)
+            {
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + i.ToString() + "_DOUBLE", "=", DBNull.Value);
+            }
+            for (int i = 1; i < 11; i++)
+            {
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + i.ToString() + "_BOOL", "=", DBNull.Value);
+            }
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nMediaID);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+        }
+
+        static protected void ClearMediaFiles(Int32 nMediaID)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_files");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", nMediaID);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+        }
+
+        static protected void ClearMediaTranslateValues(Int32 nMediaID)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_translate");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("name", "=", "");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("description", "=", "");
+            for (int i = 1; i < 21; i++)
+            {
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + i.ToString() + "_STR", "=", "");
+            }
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", nMediaID);
+
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+
+
+        }
+
+        static protected void ClearMediaTags(Int32 nMediaID, Int32 nMediaTagType)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_tags");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 2);
+            updateQuery += " where ";
+            //if (nMediaTagType != 0)
+            //{
+            updateQuery += " tag_id in (select id from tags where TAG_TYPE_ID=" + nMediaTagType.ToString() + ") and ";
+            //}
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", nMediaID);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+        }
+
+        static protected bool ProcessEPGItem(XmlNode theItem, Int32 nEPGChannelId, ref Int32 nEPGSchedID, ref string sEPGIdentifier, ref string sErrorMessage, Int32 nGroupID)
+        {
+            bool bOK = true;
+            sErrorMessage = "";
+            sEPGIdentifier = GetItemParameterVal(ref theItem, "epg_identifier");
+            if (sEPGIdentifier == "")
+            {
+                AddError(ref sErrorMessage, "Missing epg_identifier");
+                return false;
+            }
+
+            string sAction = GetItemParameterVal(ref theItem, "action").Trim().ToLower();
+
+            if (sAction == "delete")
+            {
+                nEPGSchedID = GetEPGSchedIDByEPGIdentifier(nGroupID, sEPGIdentifier);
+                if (nEPGSchedID == 0)
+                {
+                    AddError(ref sErrorMessage, "Cant delete an unexisting item");
+                    return false;
+                }
+                DeleteEPGSched(nEPGSchedID);
+            }
+            else if (sAction == "insert" || sAction == "update")
+            {
+
+                Int32 nMediaID = GetMediaIDByEPGGuid(nGroupID, sEPGIdentifier);
+
+                string sStartDate = GetNodeValue(ref theItem, "start");
+                string sEndDate = GetNodeValue(ref theItem, "end");
+
+                DateTime dStartDate = GetDateTimeFromStrUTF(sStartDate, DateTime.UtcNow);
+                DateTime dEndDate = GetDateTimeFromStrUTF(sEndDate, new DateTime(2099, 1, 1));
+
+                string sMainLang = "";
+                Int32 nLangID = 0;
+                GetLangData(nGroupID, ref sMainLang, ref nLangID);
+
+                XmlNode theItemName = theItem.SelectSingleNode("name");
+                XmlNode theItemDesc = theItem.SelectSingleNode("description");
+
+                string sThumb = GetNodeParameterVal(ref theItem, "thumb", "url");
+
+                bOK = UpdateInsertBasicEPGMainLangData(nGroupID, nEPGChannelId, ref nEPGSchedID, sEPGIdentifier, dStartDate,
+                    dEndDate, sThumb, sMainLang, ref theItemName, ref theItemDesc);
+                if (bOK == true)
+                    bOK = UpdateInsertBasicEPGSubLangData(nGroupID, nEPGSchedID, sMainLang, ref theItemName, ref theItemDesc);
+            }
+            return bOK;
+        }
+
+        // Used for building dictionary which contain all the orderBy values depends on group
+        static private Dictionary<string, Int32> GetOrderByTypeMap(Int32 nGroupID)
+        {
+            Dictionary<string, Int32> ret = new Dictionary<string, Int32>();
+
+            ret.Add("random", -6);
+            ret.Add("a.b.c", -11);
+            ret.Add("rating", -8);
+            ret.Add("views", -7);
+            ret.Add("start date", -10);
+            ret.Add("likes", -9);
+            ret.Add("create date", -12);
+
+            string[] META_STR_NAME = new string[20];
+            string[] META_DOUBLE_NAME = new string[10];
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select META1_STR_NAME, META2_STR_NAME, META3_STR_NAME, META4_STR_NAME, META5_STR_NAME, META6_STR_NAME, META7_STR_NAME, META8_STR_NAME, META9_STR_NAME, " +
+                                   "META10_STR_NAME, META11_STR_NAME, META12_STR_NAME, META13_STR_NAME, META14_STR_NAME, META15_STR_NAME, META16_STR_NAME, META17_STR_NAME, META18_STR_NAME, " +
+                                   "META19_STR_NAME, META20_STR_NAME, " +
+                                   "META1_DOUBLE_NAME, META2_DOUBLE_NAME, META3_DOUBLE_NAME, META4_DOUBLE_NAME, META5_DOUBLE_NAME, META6_DOUBLE_NAME, META7_DOUBLE_NAME, " +
+                                   "META8_DOUBLE_NAME, META9_DOUBLE_NAME, META10_DOUBLE_NAME" +
+                                   " from groups where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                for (int i = 0; i < 20; ++i)
+                {
+                    META_STR_NAME[i] = selectQuery.Table("query").DefaultView[0].Row["META" + (i + 1).ToString() + "_STR_NAME"].ToString().ToLower();
+                    ret[META_STR_NAME[i]] = i + 1;
+                }
+
+                for (int i = 0; i < 10; ++i)
+                {
+                    META_DOUBLE_NAME[i] = selectQuery.Table("query").DefaultView[0].Row["META" + (i + 1).ToString() + "_DOUBLE_NAME"].ToString().ToLower();
+                    ret[META_DOUBLE_NAME[i].ToLower()] = i + 21;
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return ret;
+        }
+
+        enum ChannelType
+        {
+            auto = 1,
+            manual
+        };
+
+        enum OrderDirection
+        {
+            asc = 1,
+            desc
+        }
+        static public bool ProcessCategoryItems(XmlDocument theItem, ref string sCoGuid, ref Int32 nChannelID, ref string sErrorMessage, Int32 nGroupID)
+        {
+            bool bOK = true;
+
+            StringReader sr = new StringReader(theItem.OuterXml);
+            XmlReader reader = XmlReader.Create(sr);
+
+            XmlSerializer serializer = new XmlSerializer(typeof(CategoriesSchema.feed));
+            CategoriesSchema.feed deserializedCategories;
+            try
+            {
+                deserializedCategories = serializer.Deserialize(reader) as CategoriesSchema.feed;
+            }
+            catch
+            {
+                return false;
+            }
+
+            int currentGroupID = nGroupID;
+
+            // loop all over the channels in deserializedCategories object
+            for (int i = 0; i < deserializedCategories.export.Length; ++i)
+            {
+                // get parameters -> category node
+                sCoGuid = deserializedCategories.export[i].co_guid;
+                string sOrderNumber = deserializedCategories.export[i].order_number;
+                string sUrlPic = deserializedCategories.export[i].basic.thumb;
+                //nGroupID = deserializedCategories.export[i].basic.is_virtual != "" ? int.Parse(deserializedCategories.export[i].basic.is_virtual) : currentGroupID;
+
+                CategoriesSchema.value[] theName = deserializedCategories.export[i].basic.name;
+                CategoriesSchema.value[] theUniqueName = deserializedCategories.export[i].basic.unique_name;
+                CategoriesSchema.value[] theDescription = deserializedCategories.export[i].basic.description;
+
+                string sMainLang = "";
+                Int32 nLangID = 0;
+                GetLangData(nGroupID, ref sMainLang, ref nLangID);
+
+                Int32 categorylID = GetCategoryIDByCoGuid(nGroupID, sCoGuid);
+
+                CategoryUpdateInsertBasicMainLangData(nGroupID, ref categorylID, sMainLang, ref theName, ref theUniqueName, ref theDescription, sCoGuid, sUrlPic, Int32.Parse(sOrderNumber));
+
+                CategoriesSchema.channel[] cahnnels = deserializedCategories.export[i].channels;
+                UpdateCategoryChannels(nGroupID, categorylID, ref cahnnels);
+
+                CategoriesSchema.inner_category[] theInnerCategories = deserializedCategories.export[i].inner_categories;
+                ProccessCategoryChildNodes(nGroupID, categorylID, ref theInnerCategories);
+            }
+
+            return bOK;
+        }
+
+        // check if child exist if so update it's parent category id if not make one and update it's patent category id
+        static protected void ProccessCategoryChildNodes(Int32 nGroupID, Int32 parentCategoryID, ref CategoriesSchema.inner_category[] childs)
+        {
+            for (int i = 0; i < childs.Length; ++i)
+            {
+                // check if category exist
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select ID from categories where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", childs[i].co_guid);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+
+                // check if child exist if so update it's parent category id if not make one and update it's patent category id
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    if (selectQuery.Table("query").DefaultView.Count != 0)
+                    {
+                        // update child node
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("categories");
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PARENT_CATEGORY_ID", "=", parentCategoryID);
+                        updateQuery += " where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                        updateQuery += " and ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", childs[i].co_guid);
+                        updateQuery.Execute();
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                    else
+                    {
+                        // create child node
+                        ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("categories");
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", childs[i].co_guid);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PARENT_CATEGORY_ID", "=", parentCategoryID);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                        insertQuery.Execute();
+                        insertQuery.Finish();
+                        insertQuery = null;
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+        }
+
+        static protected void UpdateCategoryChannels(Int32 groupID, Int32 categoryID, ref CategoriesSchema.channel[] channels)
+        {
+            for (int i = 0; i < channels.Length; ++i)
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select ID from channels where IS_ACTIVE = 1 and STATUS = 1 and";
+
+                // find the channel if exist
+                int channelID = -1;
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+                if (channels[i].id != null && channels[i].id != "")
+                {
+                    selectQuery += " and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", int.Parse(channels[i].id));
+                }
+                if (channels[i].co_guid != null && channels[i].co_guid != "")
+                {
+                    selectQuery += " and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", channels[i].co_guid);
+                }
+                if (channels[i].name != null && channels[i].name != "")
+                {
+                    selectQuery += " and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", channels[i].name);
+                }
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    if (selectQuery.Table("query").DefaultView.Count != 0)
+                    {
+                        channelID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+
+                if (channelID != -1)
+                {
+                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += "select ID from categories_channels where ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+                    selectQuery += " and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+                    selectQuery += " and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CATEGORY_ID", "=", categoryID);
+
+                    // check if exist in categories_channels, if so update the data, otherwise insert the new channel
+                    if (selectQuery.Execute("query", true) != null)
+                    {
+                        if (selectQuery.Table("query").DefaultView.Count != 0)
+                        {
+                            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("categories_channels");
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", Int32.Parse(channels[i].position));
+                            updateQuery += " where ";
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+                            updateQuery += " and ";
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+                            updateQuery += " and ";
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CATEGORY_ID", "=", categoryID);
+                            updateQuery.Execute();
+                            updateQuery.Finish();
+                            updateQuery = null;
+                        }
+                        else
+                        {
+                            ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("categories_channels");
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", Int32.Parse(channels[i].position));
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CATEGORY_ID", "=", categoryID);
+                            insertQuery.Execute();
+                            insertQuery.Finish();
+                            insertQuery = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        static protected void CategoryUpdateInsertBasicMainLangData(Int32 nGroupID, ref Int32 categoryID, string sMainLang, ref CategoriesSchema.value[] theItemNames,
+                                                                    ref CategoriesSchema.value[] theItemUniqueNames, ref CategoriesSchema.value[] theItemDesc, string sCoGuid,
+                                                                    string sThumb, Int32 orderNumber)
+        {
+            string sName = GetValMainLanguage(theItemNames, sMainLang);
+            string sUniqueName = GetValMainLanguage(theItemUniqueNames, sMainLang);
+            string sDescription = GetValMainLanguage(theItemDesc, sMainLang);
+
+            if (categoryID == 0)
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("categories");
+                if (sName != "")
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CATEGORY_NAME", "=", sName);
+                if (sUniqueName != "")
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ADMIN_NAME", "=", sUniqueName);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PARENT_CATEGORY_ID", "=", 0);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", orderNumber);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", 0);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+
+                insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
+
+                categoryID = GetCategoryIDByCoGuid(nGroupID, sCoGuid);
+
+                int nPicID = DownloadPic(sThumb, sName, nGroupID, categoryID, sMainLang, "THUMBNAIL", true, 0);
+                Logger.Logger.Log("TespIngest", "EndDownloadPic", "TempIngest");
+                if (nPicID != 0)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("categories");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", categoryID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+            }
+            else
+            {
+                int nPicID = DownloadPic(sThumb, sName, nGroupID, categoryID, sMainLang, "THUMBNAIL", true, 0);
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("categories");
+                if (sName != "")
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CATEGORY_NAME", "=", sName);
+                if (sUniqueName != "")
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADMIN_NAME", "=", sUniqueName);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+                if (nPicID != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", orderNumber);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", categoryID);
+
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+        }
+
+        // TODO: move public to protected AC
+        static public bool ProcessChannelItems(XmlDocument theItem, ref string sCoGuid, ref Int32 nChannelID, ref string sErrorMessage, Int32 nGroupID)
+        {
+            Dictionary<string, Int32> orderByTypeMap = GetOrderByTypeMap(nGroupID);
+            bool bOK = true;
+
+            StringReader sr = new StringReader(theItem.OuterXml);
+            XmlReader reader = XmlReader.Create(sr);
+
+            XmlSerializer serializer = new XmlSerializer(typeof(ChannelsSchema.feed));
+            ChannelsSchema.feed deserializedChannels;
+            try
+            {
+                deserializedChannels = serializer.Deserialize(reader) as ChannelsSchema.feed;
+            }
+            catch
+            {
+                return false;
+            }
+
+            int currentGroupID = nGroupID;
+
+            // loop all over the channels in deserializedCategories object
+            for (int i = 0; i < deserializedChannels.export.Length; ++i)
+            {
+
+                // get parameters -> channel node
+                sCoGuid = deserializedChannels.export[i].co_guid;
+                string sType = deserializedChannels.export[i].type;
+                Int32 nType = (Int32)(sType == "auto" ? ChannelType.auto : ChannelType.manual);
+                string sAction = deserializedChannels.export[i].action;
+
+                string sOrderBy = deserializedChannels.export[i].order_by;
+                Int32 nOrderBy = 0;
+                if (orderByTypeMap.ContainsKey(sOrderBy.ToLower()))
+                {
+                    nOrderBy = orderByTypeMap[sOrderBy.ToLower()];
+                }
+                else
+                {
+                    // use defualt value
+                    nOrderBy = -12;
+                }
+
+
+                string sOrderDirection = deserializedChannels.export[i].order_direction;
+                Int32 nOrderDirection = (Int32)(sOrderDirection == "asc" ? OrderDirection.asc : OrderDirection.desc);
+
+                // get parameters -> basic node(metas)
+                bool sEnableFeed = deserializedChannels.export[i].basic.enable_feed;
+                Int32 nEnableFeed = sEnableFeed == true ? 1 : 0;
+                //nGroupID            = deserializedChannels.export[i].basic.is_virtual != "" ? int.Parse(deserializedChannels.export[i].basic.is_virtual) : currentGroupID;
+                string sPictureURL = deserializedChannels.export[i].basic.thumb;
+
+                ChannelsSchema.value[] theName = deserializedChannels.export[i].basic.name;
+                ChannelsSchema.value[] theUniqueName = deserializedChannels.export[i].basic.unique_name;
+                ChannelsSchema.value[] theDescription = deserializedChannels.export[i].basic.description;
+
+                string sMainLang = "";
+                Int32 nLangID = 0;
+                GetLangData(nGroupID, ref sMainLang, ref nLangID);
+
+                Int32 channelID = GetChannelIDByCoGuid(nGroupID, sCoGuid);
+
+                Int32 nIsAnd = 0;
+                if (sType == "auto")
+                {
+                    string sCutTagsType = deserializedChannels.export[i].structure.cut_tags_type;
+                    nIsAnd = sCutTagsType == "and" ? 1 : 0;
+                    string sMediaType = deserializedChannels.export[i].structure.media_type;
+                }
+
+                ChannelUpdateInsertBasicMainLangData(nGroupID, ref channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription, nType, sCoGuid, sPictureURL, nEnableFeed,
+                                                         nOrderBy, nOrderDirection, nIsAnd);
+
+                UpdateInsertChannelBasicSubLangData(nGroupID, channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription);
+
+                // get parameters -> structure node -- if it's an automated channel, collect all the structure data, otherwise collect all the media's
+                if (sType == "auto")
+                {
+                    ChannelsSchema.meta[] sStringsMetas = deserializedChannels.export[i].structure.strings;
+                    ChannelsSchema.meta[] sDoublesMetas = deserializedChannels.export[i].structure.doubles;
+                    ChannelsSchema.meta[] sBooleansMetas = deserializedChannels.export[i].structure.booleans;
+                    ChannelsSchema.tags_meta[] sTagsMetas = deserializedChannels.export[i].structure.tags_metas;
+
+                    UpdateStringChannelMainLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
+                    UpdateChannelStringSubLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
+
+                    UpdateChannelDoublesData(nGroupID, channelID, sMainLang, ref sDoublesMetas, ref sErrorMessage);
+                    UpdateChannelBoolsData(nGroupID, channelID, sMainLang, ref sBooleansMetas, ref sErrorMessage);
+
+                    UpdateChannelTags(nGroupID, channelID, sMainLang, ref sTagsMetas, ref sErrorMessage);
+                }
+                else if (sType == "manual")
+                {
+                    UpdateMedias(nGroupID, channelID, deserializedChannels.export[i].medias);
+                }
+            }
+
+            return bOK;
+        }
+
+        static protected void UpdateMedias(Int32 nGroupID, Int32 channelID, ChannelsSchema.media[] theMedias)
+        {
+            // move all the channels media status 4 (not active)
+            ODBCWrapper.UpdateQuery updateClearQuery = new ODBCWrapper.UpdateQuery("channels_media");
+            updateClearQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 4);
+            updateClearQuery += " where ";
+            updateClearQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+            updateClearQuery.Execute();
+            updateClearQuery.Finish();
+            updateClearQuery = null;
+
+            for (int i = 0; i < theMedias.Length; ++i)
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select ID from channels_media where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", Int32.Parse(theMedias[i].ID));
+
+                // check if media exist in channel, if so update the data, otherwise insert the new media
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    if (selectQuery.Table("query").DefaultView.Count != 0)
+                    {
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels_media");
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", int.Parse(theMedias[i].order_number));
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+                        updateQuery += " where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", Int32.Parse(theMedias[i].ID));
+                        updateQuery.Execute();
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                    else
+                    {
+                        ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("channels_media");
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", Int32.Parse(theMedias[i].ID));
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", Int32.Parse(theMedias[i].order_number));
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+                        insertQuery.Execute();
+                        insertQuery.Finish();
+                        insertQuery = null;
+                    }
+                }
+
+                // clear and null
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+        }
+
+        static protected void UpdateChannelTags(Int32 nGroupID, Int32 nChannelID, string sMainLang, ref ChannelsSchema.tags_meta[] theTags, ref string sError)
+        {
+            Int32 nCount = theTags.Length;
+            for (int i = 0; i < nCount; i++)
+            {
+                ChannelsSchema.tags_meta theItem = theTags[i];
+                string sName = theItem.name;
+
+                TranslatorStringHolder tagsHolder = new TranslatorStringHolder();
+                ChannelsSchema.container[] theContainers = theItem.container;
+                Int32 nCount1 = theContainers.Length;
+
+                for (int j = 0; j < nCount1; j++)
+                {
+                    ChannelsSchema.container theContainer = theContainers[j];
+                    string sVal = GetValMainLanguage(theContainer.value, sMainLang).Replace(",", "");
+                    if (sVal == "")
+                    {
+                        AddError(ref sError, "tag :" + sName + " - no main language value");
+                        continue;
+                    }
+                    tagsHolder.AddLanguageString(sMainLang, sVal, j.ToString(), true);  ///i->j
+
+                    GetChannelSubLangMetaData(nGroupID, sMainLang, ref tagsHolder, ref theContainer, j.ToString());  ///i->j
+                }
+                Int32 nTagTypeID = GetTagTypeID(nGroupID, sName);
+                if (nCount1 > 0)
+                {
+                    if (nTagTypeID != 0 || sName.ToLower().Trim() == "free")
+                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", nTagTypeID.ToString(), "int", "ID", "tags", "channel_tags", "channel_id", "tag_id", "true", sMainLang, tagsHolder, nGroupID, nChannelID);
+
+                }
+            }
+        }
+
+        static protected void GetChannelSubLangMetaData(Int32 nGroupID, string sMainLang, ref TranslatorStringHolder metaHolder, ref ChannelsSchema.container theContainer, string sID)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select ll.id,ll.code3 from lu_languages ll (nolock), group_extra_languages g where g.LANGUAGE_ID=ll.id and g.status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ll.code3", "<>", sMainLang);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.group_id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sLang = selectQuery.Table("query").DefaultView[i].Row["code3"].ToString();
+                    string sVal = GetValMainLanguage(theContainer.value, sLang).Replace(",", "");
+                    if (sVal != "")
+                        metaHolder.AddLanguageString(sLang, sVal, sID, false);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+
+        static protected void UpdateInsertChannelBasicSubLangData(Int32 nGroupID, Int32 channelID,
+            string sMainLang, ref ChannelsSchema.value[] theItemNames, ref ChannelsSchema.value[] theItemUniqueNames, ref ChannelsSchema.value[] theItemDesc)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            selectQuery += "select ll.id,ll.code3 from lu_languages ll (nolock), group_extra_languages g where g.LANGUAGE_ID=ll.id and g.status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(ll.code3)))", "<>", sMainLang.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.group_id", "=", nGroupID);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sLang = selectQuery.Table("query").DefaultView[i].Row["CODE3"].ToString();
+                    Int32 nLangID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+                    string sChannelName = GetValMainLanguage(theItemNames, sLang);
+                    string sChannelDesc = GetValMainLanguage(theItemDesc, sLang);
+                    Int32 nChannelTransID = 0;
+                    bool b = false;
+                    if (sChannelName.Trim() != "" || sChannelDesc.Trim() != "")
+                        nChannelTransID = GetChannelTranslateID(channelID, nLangID, ref b, true);
+                    else
+                        nChannelTransID = GetChannelTranslateID(channelID, nLangID, ref b, false);
+                    if (nChannelTransID != 0)
+                    {
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channel_translate");
+                        if (sChannelName != "")
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sChannelName);
+                        if (sChannelDesc != "")
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sChannelDesc);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", nLangID);
+                        updateQuery += "where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nChannelTransID);
+
+                        updateQuery.Execute();
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+
+        static protected void UpdateChannelStringSubLangData(Int32 nGroupID, Int32 channelID, string sMainLang, ref ChannelsSchema.meta[] theStrings)
+        {
+            if (theStrings == null)
+            {
+                return;
+            }
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            selectQuery += "select ll.id,ll.code3 from lu_languages ll (nolock), group_extra_languages g where g.LANGUAGE_ID=ll.id and g.status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(ll.code3)))", "<>", sMainLang.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.group_id", "=", nGroupID);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sLang = selectQuery.Table("query").DefaultView[i].Row["CODE3"].ToString();
+                    Int32 nLangID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+
+                    Int32 nChannelTransID = 0;
+                    bool b = false;
+                    nChannelTransID = GetChannelTranslateID(channelID, nLangID, ref b, false);
+                    if (nChannelTransID != 0)
+                    {
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channel_translate");
+                        bool bExecute = false;
+                        Int32 nCount1 = theStrings.Length;
+                        for (int j = 0; j < nCount1; j++)
+                        {
+                            ChannelsSchema.meta theItem = theStrings[j];
+                            string sName = theItem.name;
+                            string sValue = GetValMainLanguage(theItem.value, sLang);
+                            string sMainValue = GetValMainLanguage(theItem.value, sMainLang);
+
+                            Int32 nMetaID = GetStringMetaIDByMetaName(nGroupID, sName);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sValue);
+                            bExecute = true;
+                        }
+                        updateQuery += " where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nChannelTransID);
+                        if (bExecute == true)
+                        {
+                            updateQuery.Execute();
+                        }
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                }
+            }
+        }
+
+        static protected bool UpdateChannelBoolsData(Int32 nGroupID, Int32 channelID, string sMainLang, ref ChannelsSchema.meta[] theBools, ref string sError)
+        {
+            if (theBools == null)
+            {
+                return false;
+            }
+
+            Int32 nCount = theBools.Length;
+            if (nCount <= 0)
+            {
+                return false;
+            }
+
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels");
+            bool bExecute = false;
+
+            for (int i = 0; i < nCount; i++)
+            {
+                ChannelsSchema.meta theItem = theBools[i];
+                string sName = theItem.name;
+                string sMainValue = GetValMainLanguage(theItem.value, sMainLang);
+
+                Int32 nMetaID = GetBoolMetaIDByMetaName(nGroupID, sName);
+                try
+                {
+                    if (nMetaID != 0)
+                    {
+                        if (sMainValue.Trim().ToLower() == "1" || sMainValue.Trim().ToLower() == "true")
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", 1);
+                        else if (sMainValue.Trim().ToLower() == "0" || sMainValue.Trim().ToLower() == "false")
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", 0);
+                        else
+                            AddError(ref sError, "On processing boolean value: " + sName + " The values are not boolean ");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    AddError(ref sError, "On processing boolean value: " + sName + " exception: " + ex.Message);
+                }
+                bExecute = true;
+            }
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelID);
+            if (bExecute == true)
+            {
+                updateQuery.Execute();
+            }
+            updateQuery.Finish();
+            updateQuery = null;
+            return true;
+        }
+
+        static protected bool UpdateChannelDoublesData(Int32 nGroupID, Int32 channelID, string sMainLang, ref ChannelsSchema.meta[] theDoubles, ref string sError)
+        {
+            if (theDoubles == null)
+            {
+                return false;
+            }
+
+            Int32 nCount = theDoubles.Length;
+            if (nCount <= 0)
+            {
+                return false;
+            }
+
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels");
+            bool bExecute = false;
+
+            for (int i = 0; i < nCount; i++)
+            {
+                ChannelsSchema.meta theItem = theDoubles[i];
+                string sName = theItem.name;
+                string sMainValue = GetValMainLanguage(theItem.value, sMainLang);
+
+                Int32 nMetaID = GetDoubleMetaIDByMetaName(nGroupID, sName);
+                if (nMetaID != 0)
+                {
+                    try
+                    {
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_DOUBLE", "=", double.Parse(sMainValue));
+                    }
+                    catch (Exception ex)
+                    {
+                        AddError(ref sError, "On processing double value: " + sName + " exception: " + ex.Message);
+                        sError = ex.Message;
+                    }
+
+                    bExecute = true;
+                }
+            }
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelID);
+            if (bExecute == true)
+            {
+                updateQuery.Execute();
+            }
+            updateQuery.Finish();
+            updateQuery = null;
+            return true;
+        }
+
+        static protected bool UpdateStringChannelMainLangData(Int32 nGroupID, Int32 channelID, string sMainLang, ref ChannelsSchema.meta[] theStrings)
+        {
+            if (theStrings == null)
+            {
+                return false;
+            }
+
+            Int32 nCount = theStrings.Length;
+            if (nCount <= 0)
+            {
+                return false;
+            }
+
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels");
+            bool bExecute = false;
+            for (int i = 0; i < nCount; i++)
+            {
+                ChannelsSchema.meta theItem = theStrings[i];
+                string sName = theItem.name;
+                string sMainValue = GetValMainLanguage(theItem.value, sMainLang);
+
+                Int32 nMetaID = GetStringMetaIDByMetaName(nGroupID, sName);
+                if (nMetaID > 0)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_STR", "=", sMainValue);
+                    bExecute = true;
+                }
+            }
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelID);
+            if (bExecute == true)
+                updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+            return true;
+        }
+
+        static private string GetValMainLanguage(CategoriesSchema.value[] values, string sMainLang)
+        {
+            string sRet = string.Empty;
+
+            foreach (CategoriesSchema.value val in values)
+            {
+                if (val.lang == sMainLang)
+                {
+                    sRet = val.Value;
+                    break;
+                }
+            }
+            return sRet;
+        }
+
+        static private string GetValMainLanguage(ChannelsSchema.value[] values, string sMainLang)
+        {
+            string sRet = string.Empty;
+
+            foreach (ChannelsSchema.value val in values)
+            {
+                if (val.lang == sMainLang)
+                {
+                    sRet = val.Value;
+                    break;
+                }
+            }
+            return sRet;
+        }
+
+        static protected void ChannelUpdateInsertBasicMainLangData(Int32 nGroupID, ref Int32 channelID, string sMainLang, ref ChannelsSchema.value[] theItemNames,
+                                                                    ref ChannelsSchema.value[] theItemUniqueNames, ref ChannelsSchema.value[] theItemDesc, Int32 nItemType, string sCoGuid,
+                                                                    string sThumb, Int32 enableFeed, Int32 orderType, Int32 orderDirection, Int32 isAnd)
+        {
+            string sName = GetValMainLanguage(theItemNames, sMainLang);
+            string sUniqueName = GetValMainLanguage(theItemUniqueNames, sMainLang);
+            string sDescription = GetValMainLanguage(theItemDesc, sMainLang);
+
+            if (channelID == 0)
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("channels");
+                if (sName != "")
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+                if (sUniqueName != "")
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ADMIN_NAME", "=", sUniqueName);
+                if (sDescription != "")
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sDescription);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+                if (nItemType != 0)
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_TYPE", "=", nItemType);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_BY_TYPE", "=", orderType);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_BY_DIR", "=", orderDirection);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RSS", "=", enableFeed);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", 0);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_AND", "=", isAnd);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by auto importer process");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+
+                insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
+
+                channelID = GetChannelIDByCoGuid(nGroupID, sCoGuid);
+
+                int nPicID = DownloadPic(sThumb, sName, nGroupID, channelID, sMainLang, "THUMBNAIL", true, 0);
+                Logger.Logger.Log("TespIngest", "EndDownloadPic", "TempIngest");
+                if (nPicID != 0)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+            }
+            else
+            {
+                int nPicID = DownloadPic(sThumb, sName, nGroupID, channelID, sMainLang, "THUMBNAIL", true, 0);
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels");
+                if (sName != "")
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+                if (sUniqueName != "")
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADMIN_NAME", "=", sUniqueName);
+                if (sDescription != "")
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sDescription);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+                if (nItemType != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_TYPE", "=", nItemType);
+                if (nPicID != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_BY_TYPE", "=", orderType);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_BY_DIR", "=", orderDirection);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RSS", "=", enableFeed);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_AND", "=", isAnd);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by auto importer process");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelID);
+
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+
+        }
+
+        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID)
+        {
+            Logger.Logger.Log("TespIngest", "Start", "TempIngest");
+            bool bOK = true;
+            sErrorMessage = "";
+            sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
+            if (sCoGuid == "")
+            {
+                AddError(ref sErrorMessage, "Missing co_guid");
+                return false;
+            }
+            string sAction = GetItemParameterVal(ref theItem, "action").Trim().ToLower();
+            string sIsActive = GetItemParameterVal(ref theItem, "is_active").Trim().ToLower();
+            if (sAction == "delete")
+            {
+
+                nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
+                if (nMediaID == 0)
+                {
+                    AddError(ref sErrorMessage, "Cant delete an unexisting item");
+                    return false;
+                }
+                DeleteMedia(nMediaID);
+            }
+            else if (sAction == "insert" || sAction == "update")
+            {
+
+                nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
+                string sEraseFiles = GetNodeParameterVal(ref theItem, ".", "erase");
+                if (nMediaID != 0 && sEraseFiles != "false")
+                {
+                    ClearMediaValues(nMediaID);
+                    ClearMediaTranslateValues(nMediaID);
+                    //ClearMediaTags(nMediaID , 0);
+                    ClearMediaFiles(nMediaID);
+                }
+
+                string sItemType = GetNodeValue(ref theItem, "basic/media_type");
+
+                Int32 nItemType = GetItemTypeIdByName(nGroupID, sItemType);
+
+                if (nItemType == 0 && sEraseFiles != "false")
+                {
+                    bOK = false;
+                    AddError(ref sErrorMessage, "Item type not recongnized");
+                }
+                string sEpgIdentifier = GetNodeValue(ref theItem, "basic/epg_identifier");
+                string sWatchPerRule = GetNodeValue(ref theItem, "basic/rules/watch_per_rule");
+                Int32 nWatchPerRule = GetWatchPerRuleByName(nGroupID, sWatchPerRule);
+                if (nWatchPerRule == 0 && sWatchPerRule.Trim() != "")
+                {
+                    bOK = false;
+                    AddError(ref sErrorMessage, "Watch permission rule not recongnized");
+                }
+                string sGeoBlockRule = GetNodeValue(ref theItem, "basic/rules/geo_block_rule");
+                Int32 nGeoBlockRule = GetGeoBlockRuleByName(nGroupID, sGeoBlockRule);
+                if (nGeoBlockRule == 0 && sGeoBlockRule.Trim() != "")
+                {
+                    bOK = false;
+                    AddError(ref sErrorMessage, "Geo block rule not recongnized");
+                }
+                string sDeviceRule = GetNodeValue(ref theItem, "basic/rules/device_rule");
+                Int32 nDeviceRule = GetDeviceRuleByName(nGroupID, sDeviceRule);
+                if (nDeviceRule == 0 && sDeviceRule.Trim().Length > 0)
+                {
+                    bOK = false;
+                    AddError(ref sErrorMessage, "Device rule not recongnized");
+                }
+                string sPlayersRule = GetNodeValue(ref theItem, "basic/rules/players_rule");
+                Int32 nPlayersRule = GetPlayersRuleByName(nGroupID, sPlayersRule);
+                if (nPlayersRule == 0 && sPlayersRule.Trim() != "")
+                {
+                    bOK = false;
+                    AddError(ref sErrorMessage, "Players rule not recongnized");
+                }
+
+                string sCatalogStartDate = GetNodeValue(ref theItem, "basic/dates/catalog_start");
+                string sStartDate = GetNodeValue(ref theItem, "basic/dates/start");
+                string sCreateDate = GetNodeValue(ref theItem, "basic/dates/create");
+                string sCatalogEndDate = GetNodeValue(ref theItem, "basic/dates/catalog_end");
+                string sFinalEndDate = GetNodeValue(ref theItem, "basic/dates/final_end");
+
+                DateTime dStartDate = GetDateTimeFromStrUTF(sStartDate, DateTime.UtcNow);
+                DateTime dCatalogStartDate = GetDateTimeFromStrUTF(sCatalogStartDate, dStartDate);//catalog_start_date default value is start_date
+
+                DateTime dCreate = GetDateTimeFromStrUTF(sCreateDate, DateTime.UtcNow);
+                DateTime dCatalogEndDate = GetDateTimeFromStrUTF(sCatalogEndDate, new DateTime(2099, 1, 1));
+                DateTime dFinalEndDate = GetDateTimeFromStrUTF(sFinalEndDate, dCatalogEndDate);
+
+                string sThumb = GetNodeParameterVal(ref theItem, "basic/thumb", "url");
+
+                XmlNode theItemName = theItem.SelectSingleNode("basic/name");
+                XmlNode theItemDesc = theItem.SelectSingleNode("basic/description");
+                XmlNodeList thePicRatios = theItem.SelectNodes("basic/pic_ratios/ratio");
+                XmlNodeList theStrings = theItem.SelectNodes("structure/strings/meta");
+                XmlNodeList theDoubles = theItem.SelectNodes("structure/doubles/meta");
+                XmlNodeList theBools = theItem.SelectNodes("structure/booleans/meta");
+                XmlNodeList theMetas = theItem.SelectNodes("structure/metas/meta");
+                XmlNodeList theFiles = theItem.SelectNodes("files/file");
+
+
+                string sMainLang = "";
+                Int32 nLangID = 0;
+                GetLangData(nGroupID, ref sMainLang, ref nLangID);
+
+                UpdateInsertBasicMainLangData(nGroupID, ref nMediaID, nItemType, sCoGuid, sEpgIdentifier, nWatchPerRule, nGeoBlockRule,
+                    nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sThumb, sMainLang, ref theItemName,
+                    ref theItemDesc, sIsActive, dCreate);
+                Logger.Logger.Log("TespIngest", "InserRatiosStart", "TempIngest");
+                if (thePicRatios != null)
+                {
+                    int ratiosCount = thePicRatios.Count;
+                    for (int i = 0; i < ratiosCount; i++)
+                    {
+                        XmlNode theRatioItem = thePicRatios[i];
+                        string picStr = GetItemParameterVal(ref theRatioItem, "thumb");
+                        string ratioStr = GetItemParameterVal(ref theRatioItem, "ratio");
+                        int ratioID = 0;
+                        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                        selectQuery += "select id from lu_pics_ratios where is_active = 1 and status = 1 and ";
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio", "=", ratioStr);
+                        if (selectQuery.Execute("query", true) != null)
+                        {
+                            int selectCount = selectQuery.Table("query").DefaultView.Count;
+                            if (selectCount > 0)
+                            {
+                                ratioID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                            }
+                        }
+                        if (ratioID > 0)
+                        {
+                            DownloadPic(picStr, string.Empty, nGroupID, nMediaID, sMainLang, "RATIOPIC", false, ratioID);
+                        }
+                        selectQuery.Finish();
+                        selectQuery = null;
+                    }
+
+                }
+                UpdateInsertBasicSubLangData(nGroupID, nMediaID, sMainLang, ref theItemName, ref theItemDesc);
+                Logger.Logger.Log("TespIngest", "InserMetaStart", "TempIngest");
+                UpdateStringMainLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
+                UpdateStringSubLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
+
+                UpdateDoublesData(nGroupID, nMediaID, sMainLang, ref theDoubles, ref sErrorMessage);
+                UpdateBoolsData(nGroupID, nMediaID, sMainLang, ref theBools, ref sErrorMessage);
+
+                UpdateMetas(nGroupID, nMediaID, sMainLang, ref theMetas, ref sErrorMessage);
+
+                UpdateFiles(nGroupID, sMainLang, nMediaID, ref theFiles, ref sErrorMessage);
+
+                ProtocolsFuncs.SeperateMediaTexts(nMediaID);
+            }
+
+            return bOK;
+        }
+
+        static protected string GetPicBaseName(int picID, int groupID)
+        {
+            string retVal = string.Empty; ;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select base_url from pics (nolock) where STATUS=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", picID);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString();
+                }
+            }
+            if (!string.IsNullOrEmpty(retVal) && retVal.IndexOf('.') > 0)
+            {
+                int index = retVal.IndexOf('.');
+                retVal = retVal.Substring(0, index);
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return retVal;
+        }
+
+        static protected Int32 DoesPicExists(string sPicBaseName, Int32 nGroupID)
+        {
+            Int32 nRet = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from pics (nolock) where STATUS=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("description", "=", sPicBaseName);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        static protected Int32 DoesEPGPicExists(string sPicBaseName, Int32 nGroupID)
+        {
+            Int32 nRet = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from EPG_pics (nolock) where STATUS=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("description", "=", sPicBaseName);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
+        {
+            if (sThumb.Trim() == "")
+                return 0;
+
+            string sBasePath = GetBasePath(nGroupID);
+
+            char[] delim = { '/' };
+            string[] splited1 = sThumb.Split(delim);
+            string sPicBaseName1 = splited1[splited1.Length - 1];
+            if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
+            {
+                Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
+                Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
+                if (nEnd != 4)
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
+                else
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart);
+                sPicBaseName1 += ".jpg";
+            }
+
+            Int32 nPicID = 0;
+            nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicBaseName1, nGroupID);
+
+            //string sPicName = sName;
+            if (nPicID == 0)
+            {
+                string sUploadedFile = "";
+                lock (m_sLocker)
+                {
+                    sUploadedFile = TVinciShared.ImageUtils.DownloadWebImage(sThumb, sBasePath);
+                }
+                if (sUploadedFile == "")
+                    return 0;
+                string sUploadedFileExt = "";
+                int nExtractPos = sUploadedFile.LastIndexOf(".");
+                if (nExtractPos > 0)
+                    sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
+
+                string sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select * from epg_pics_sizes (nolock) where status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+
+                    TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true);
+                    FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
+
+                    TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt);
+                    FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
+
+                    for (int nI = 0; nI < nCount; nI++)
+                    {
+                        string sWidth = selectQuery.Table("query").DefaultView[nI].Row["WIDTH"].ToString();
+                        string sHeight = selectQuery.Table("query").DefaultView[nI].Row["HEIGHT"].ToString();
+                        string sEndName = sWidth + "X" + sHeight;
+
+                        string sTmpImage1 = sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+
+                        TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), true);
+                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+
+                nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sUploadedFile, sPicBaseName + sUploadedFileExt, nGroupID);
+            }
+            // Liat comment this update 02.02.2014
+            //if (nPicID != 0)
+            //{
+            //    //IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sName, nGroupID, nPicID, false);
+            //    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+            //    updateQuery += " where ";
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
+            //    updateQuery.Execute();
+            //    updateQuery.Finish();
+            //    updateQuery = null;
+            //}
+            return nPicID;
+        }
+
+        static protected Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, string sMainLang)
+        {
+            if (sThumb.Trim() == "")
+                return 0;
+
+            string sBasePath = GetBasePath(nGroupID);
+
+            char[] delim = { '/' };
+            string[] splited1 = sThumb.Split(delim);
+            string sPicBaseName1 = splited1[splited1.Length - 1];
+            if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
+            {
+                Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
+                Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
+                if (nEnd != 4)
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
+                else
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart);
+                sPicBaseName1 += ".jpg";
+            }
+
+            Int32 nPicID = 0;
+            nPicID = DoesEPGPicExists(sPicBaseName1, nGroupID);
+
+            //string sPicName = sName;
+            if (nPicID == 0)
+            {
+                string sUploadedFile = "";
+                lock (m_sLocker)
+                {
+                    sUploadedFile = TVinciShared.ImageUtils.DownloadWebImage(sThumb, sBasePath);
+                }
+                if (sUploadedFile == "")
+                    return 0;
+                string sUploadedFileExt = "";
+                int nExtractPos = sUploadedFile.LastIndexOf(".");
+                if (nExtractPos > 0)
+                    sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
+
+                string sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select * from epg_pics_sizes (nolock) where status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+
+                    TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true);
+                    FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
+
+                    TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt);
+                    FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
+
+                    for (int nI = 0; nI < nCount; nI++)
+                    {
+                        string sWidth = selectQuery.Table("query").DefaultView[nI].Row["WIDTH"].ToString();
+                        string sHeight = selectQuery.Table("query").DefaultView[nI].Row["HEIGHT"].ToString();
+                        string sEndName = sWidth + "X" + sHeight;
+
+                        string sTmpImage1 = sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+
+                        TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), true);
+                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+
+                nPicID = InsertNewEPGPic(sName, sUploadedFile, sPicBaseName + sUploadedFileExt, nGroupID);
+                //Int32 nPicTagID = InsertNewPicTag(sMediaName, sUploadedFile, sPicBaseName, nGroupID);
+            }
+            if (nPicID != 0)
+            {
+                //IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sName, nGroupID, nPicID, false);
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+            return nPicID;
+        }
+
+        static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb)
+        {
+            return DownloadPic(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, 0);
+        }
+
+        static public Int32 DownloadPic_old(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        {
+            Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
+            if (sPic.Trim() == "")
+            {
+                return 0;
+            }
+            string sBasePath = GetBasePath(nGroupID);
+
+            Logger.Logger.Log("File download", "Base Path is " + sBasePath, "DownloadFile");
+            object oPicsFTP = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP", nGroupID);
+            object oPicsFTPUN = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP_USERNAME", nGroupID);
+            object oPicsFTPPass = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP_PASSWORD", nGroupID);
+            object oPicsBasePath = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
+            string sPicsBasePath = string.Empty;
+            string sPicsFTP = "";
+            string sPicsFTPUN = "";
+            string sPicsFTPPass = "";
+            if (oPicsFTP != DBNull.Value && oPicsFTP != null)
+                sPicsFTP = oPicsFTP.ToString();
+            if (oPicsFTPUN != DBNull.Value && oPicsFTPUN != null)
+                sPicsFTPUN = oPicsFTPUN.ToString();
+            if (oPicsFTPPass != DBNull.Value && oPicsFTPPass != null)
+                sPicsFTPPass = oPicsFTPPass.ToString();
+            if (oPicsBasePath != DBNull.Value && oPicsBasePath != null)
+                sPicsBasePath = oPicsBasePath.ToString();
+            if (sPicsFTP.ToLower().Trim().StartsWith("ftp://") == true)
+                sPicsFTP = sPicsFTP.Substring(6);
+
+            char[] delim = { '/' };
+            string[] splited1 = sPic.Split(delim);
+            string sPicBaseName1 = splited1[splited1.Length - 1];
+            if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
+            {
+                Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
+                Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
+                if (nEnd != 4)
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
+                else
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart);
+                sPicBaseName1 += ".jpg";
+            }
+
+            Int32 nPicID = 0;
+
+            //////////////////////////////////2 asstes direct to 1 pic issue
+            //if (ratioID == 0)
+            //{
+            //    nPicID = DoesPicExists(sPicBaseName1, nGroupID);
+            //}
+
+            //else
+            //{
+            //    object oPic = ODBCWrapper.Utils.GetTableSingleVal("media", "media_pic_id", nMediaID);
+            //    if (oPic != null && oPic != DBNull.Value && !string.IsNullOrEmpty(oPic.ToString()))
+            //        nPicID = int.Parse(oPic.ToString());
+            //}
+            //nPicID = 0; 
+
+            string sPicName = sMediaName;
+            bool doesPicExist = true;
+            Logger.Logger.Log("TespIngest", "Directory Creation Started " + sBasePath + "/pics/" + nGroupID.ToString(), "TempIngest");
+            if (!Directory.Exists(sBasePath + "/pics/" + nGroupID.ToString() + "/"))
+            {
+                Directory.CreateDirectory(sBasePath + "/pics/" + nGroupID.ToString() + "/");
+            }
+            Logger.Logger.Log("TespIngest", "Directory Creation Finished " + sBasePath + "/pics/" + nGroupID.ToString(), "TempIngest");
+            if (nPicID == 0)
+            {
+                doesPicExist = false;
+                string sUploadedFile = TVinciShared.ImageUtils.DownloadWebImage(sPic, sBasePath);
+                if (sUploadedFile == "")
+                {
+                    sUploadedFile = TVinciShared.ImageUtils.DownloadWebImage(sPicsBasePath + "/" + sPic, sBasePath);
+                    if (sUploadedFile == "")
+                    {
+                        return 0;
+                    }
+                }
+                string sUploadedFileExt = "";
+                int nExtractPos = sUploadedFile.LastIndexOf(".");
+                if (nExtractPos > 0)
+                    sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
+
+                string sPicBaseName = string.Empty;
+                if (ratioID > 0)
+                {
+                    sPicBaseName = TVinciShared.ImageUtils.GetDateImageName(nMediaID);
+                }
+                if (string.IsNullOrEmpty(sPicBaseName))
+                {
+                    sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+                }
+                string sTmpImage = sBasePath + "/pics/" + sPicBaseName + "_full" + sUploadedFileExt;
+                bool bExists = System.IO.File.Exists(sTmpImage);
+                Int32 nAdd = 0;
+                while (bExists)
+                {
+                    if (sPicBaseName.IndexOf("_") != -1)
+                        sPicBaseName = sPicBaseName.Substring(0, sPicBaseName.IndexOf("_"));
+                    sPicBaseName += "_" + nAdd.ToString();
+                    sTmpImage = sBasePath + "/pics/" + sPicBaseName + "_full" + sUploadedFileExt;
+                    bExists = System.IO.File.Exists(sTmpImage);
+                    nAdd++;
+                }
+                //theFile.SaveAs(sTmpImage);
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                if (ratioID > 0)
+                {
+                    selectQuery += " and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
+                }
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
+                    if (bSetMediaThumb)
+                    {
+                        TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true);
+                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
+
+                        TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt);
+                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
+                    }
+
+                    for (int nI = 0; nI < nCount1; nI++)
+                    {
+                        string sWidth = selectQuery.Table("query").DefaultView[nI].Row["WIDTH"].ToString();
+                        string sHeight = selectQuery.Table("query").DefaultView[nI].Row["HEIGHT"].ToString();
+                        string sEndName = sWidth + "X" + sHeight;
+                        Int32 nCrop = int.Parse(selectQuery.Table("query").DefaultView[nI].Row["TO_CROP"].ToString());
+                        string sTmpImage1 = sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+                        bool bCrop = true;
+                        if (nCrop == 0)
+                            bCrop = false;
+                        bool bOverride = false;
+                        if (ratioID > 0)
+                        {
+                            bOverride = true;
+                        }
+                        TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bCrop, bOverride);
+                        Logger.Logger.Log("File download", "Resized Image " + sTmpImage1 + " from " + sBasePath + "/pics/" + sUploadedFile, "DownloadFile");
+
+                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                nPicID = InsertNewPic(sMediaName, sUploadedFile, sPicBaseName + sUploadedFileExt, nGroupID);
+            }
+            if (nPicID != 0)
+            {
+                if (doesPicExist)
+                {
+                    Logger.Logger.Log("Pic exists downloading again start: ", sPic, "ImporterPics");
+                    string sUploadedFile = TVinciShared.ImageUtils.DownloadWebImage(sPic, sBasePath);
+                    Logger.Logger.Log("Pic exists downloading again end: ", sUploadedFile, "ImporterPics");
+                    if (sUploadedFile == "")
+                    {
+                        sUploadedFile = TVinciShared.ImageUtils.DownloadWebImage(sPicsBasePath + "/" + sPic, sBasePath);
+                        if (sUploadedFile == "")
+                        {
+                            Logger.Logger.Log("Cant download pic from FTP: ", sPic, "ImporterPics");
+                            return 0;
+                        }
+                    }
+                    string sUploadedFileExt = "";
+                    int nExtractPos = sUploadedFile.LastIndexOf(".");
+                    if (nExtractPos > 0)
+                        sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
+
+                    string sPicBaseName = GetPicBaseName(nPicID, nGroupID);
+                    Logger.Logger.Log("Start re cropping: ", sPicBaseName, "ImporterPics");
+                    string sTmpImage = sBasePath + "/pics/" + sPicBaseName + "_full" + sUploadedFileExt;
+                    bool bExists = System.IO.File.Exists(sTmpImage);
+
+                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                    if (ratioID > 0)
+                    {
+                        selectQuery += " and ";
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
+                    }
+                    if (selectQuery.Execute("query", true) != null)
+                    {
+                        Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
+
+                        TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true, true);
+                        Logger.Logger.Log("Re cropping: ", sBasePath + "/pics/" + sPicBaseName + "_tn" + sUploadedFileExt, "ImporterPics");
+                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
+
+                        TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID + "/" + sPicBaseName + "_full" + sUploadedFileExt);
+                        Logger.Logger.Log("Re cropping: ", sBasePath + "/pics/" + sPicBaseName + "_full" + sUploadedFileExt, "ImporterPics");
+                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
+
+                        for (int nI = 0; nI < nCount1; nI++)
+                        {
+                            string sWidth = selectQuery.Table("query").DefaultView[nI].Row["WIDTH"].ToString();
+                            string sHeight = selectQuery.Table("query").DefaultView[nI].Row["HEIGHT"].ToString();
+                            string sEndName = sWidth + "X" + sHeight;
+                            Int32 nCrop = int.Parse(selectQuery.Table("query").DefaultView[nI].Row["TO_CROP"].ToString());
+                            string sTmpImage1 = sBasePath + "/pics/" + nGroupID + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+                            bool bCrop = true;
+                            if (nCrop == 0)
+                                bCrop = false;
+
+                            TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bCrop, true);
+                            Logger.Logger.Log("Re cropping: ", sTmpImage1, "ImporterPics");
+                            FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
+                        }
+                    }
+                    selectQuery.Finish();
+                    selectQuery = null;
+
+                }
+
+
+                //nPicID = InsertNewPic(sMediaName, sUploadedFile, sPicBaseName + sUploadedFileExt, nGroupID);
+                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, nPicID, false);
+                if (bSetMediaThumb == true)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+                //the media type id is invalid here
+                EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH");
+            }
+            return nPicID;
+        }
+
+        static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        {
+            //return DownloadPic_old(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+
+            Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
+            if (sPic.Trim() == "")
+            {
+                return 0;
+            }
+            string sBasePath = GetBasePath(nGroupID);
+            sBasePath = string.Format("{0}\\pics\\{1}", sBasePath, nGroupID);
+
+            Logger.Logger.Log("File download", "Base Path is " + sBasePath, "DownloadFile");
+
+            string sPicsBasePath = string.Empty;
+            string sPicsFTP = string.Empty;
+            string sPicsFTPUN = string.Empty;
+            string sPicsFTPPass = string.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select PICS_FTP, PICS_FTP_USERNAME, PICS_FTP_PASSWORD, PICS_REMOTE_BASE_URL from groups (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    sPicsBasePath = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
+                    sPicsFTP = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_FTP", 0);
+                    sPicsFTPUN = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_FTP_USERNAME", 0);
+                    sPicsFTPPass = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_FTP_PASSWORD", 0);
+
+                    if (sPicsFTP.ToLower().Trim().StartsWith("ftp://") == true)
+                        sPicsFTP = sPicsFTP.Substring(6);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            char[] delim = { '/' };
+            string[] splited1 = sPic.Split(delim);
+            string sPicBaseName1 = splited1[splited1.Length - 1];
+            if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
+            {
+                Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
+                Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
+                if (nEnd != 4)
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
+                else
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart);
+                sPicBaseName1 += ".jpg";
+            }
+
+            string sPicName = sMediaName;
+
+            if (!Directory.Exists(sBasePath))
+            {
+                Directory.CreateDirectory(sBasePath);
+            }
+
+            Int32 nPicID = 0;
+
+            string sUploadedFileExt = "";
+            int nExtractPos = sPic.LastIndexOf(".");
+            if (nExtractPos > 0)
+                sUploadedFileExt = sPic.Substring(nExtractPos);
+
+            string sPicBaseName = string.Empty;
+            if (ratioID > 0)
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName(nMediaID);
+            }
+            if (string.IsNullOrEmpty(sPicBaseName))
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+            }
+
+            List<ImageManager.ImageObj> images = new List<ImageManager.ImageObj>();
+            if (bSetMediaThumb)
+            {
+                ImageManager.ImageObj tnImage = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.THUMB, 90, 65, sUploadedFileExt);
+                ImageManager.ImageObj fullImage = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.FULL, 0, 0, sUploadedFileExt);
+
+                images.Add(tnImage);
+                images.Add(fullImage);
+            }
+
+            selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            if (ratioID > 0)
+            {
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
+            }
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
+                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
+
+                    ImageManager.ImageObj image = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.SIZE, nWidth, nHeight, sUploadedFileExt);
+                    images.Add(image);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            bool downloadRes = ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPic, sBasePath, images, sPicBaseName, sUploadedFileExt);
+            if (!downloadRes)
+            {
+                ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPicsBasePath + "/" + sPic, sBasePath, images, sPicBaseName, sUploadedFileExt);
+            }
+            if (downloadRes)
+            {
+                foreach (ImageManager.ImageObj image in images)
+                {
+                    if (image.eResizeStatus == ImageManager.ResizeStatus.SUCCESS)
+                    {
+                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, image.ToString());
+                    }
+                }
+                nPicID = InsertNewPic(sMediaName, sPic, sPicBaseName + sUploadedFileExt, nGroupID);
+            }
+
+            if (nPicID != 0)
+            {
+                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, nPicID, false);
+                if (bSetMediaThumb == true)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+                //the media type id is invalid here
+                EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH");
+            }
+            return nPicID;
+        }
+
+        static private string GetBasePath(int nGroupID)
+        {
+            string key = string.Format("pics_base_path_{0}", nGroupID);
+            if (!string.IsNullOrEmpty(TVinciShared.WS_Utils.GetTcmConfigValue(key)))
+            {
+                return TVinciShared.WS_Utils.GetTcmConfigValue(key);
+            }
+            if (!string.IsNullOrEmpty(TVinciShared.WS_Utils.GetTcmConfigValue("pics_base_path")))
+            {
+                return TVinciShared.WS_Utils.GetTcmConfigValue("pics_base_path");
+            }
+
+            string sBasePath = string.Empty;
+            try
+            {
+                if (System.Web.HttpContext.Current != null)
+                    sBasePath = HttpContext.Current.Server.MapPath("");
+                else
+                {
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(HttpRuntime.AppDomainAppPath))
+                        {
+                            sBasePath = HttpRuntime.AppDomainAppPath;
+                        }
+                        else
+                            sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (string.IsNullOrEmpty(sBasePath))
+                        {
+                            sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return sBasePath;
+
+        }
+        static public void UploadDirectory(int nGroupID)
+        {
+            string sBasePath = GetBasePath(nGroupID);
+            //if (System.Web.HttpContext.Current != null)
+            //    sBasePath = HttpContext.Current.Server.MapPath("");
+            //else
+            //{
+
+            //    if (!string.IsNullOrEmpty(HttpRuntime.AppDomainAppPath))
+            //    {
+            //        sBasePath = HttpRuntime.AppDomainAppPath;
+            //    }
+            //    else
+            //        sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            //}
+            object oPicsFTP = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP", nGroupID);
+            object oPicsFTPUN = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP_USERNAME", nGroupID);
+            object oPicsFTPPass = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP_PASSWORD", nGroupID);
+            object oPicsBasePath = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
+            string sPicsBasePath = string.Empty;
+            string sPicsFTP = "";
+            string sPicsFTPUN = "";
+            string sPicsFTPPass = "";
+            if (oPicsFTP != DBNull.Value && oPicsFTP != null)
+                sPicsFTP = oPicsFTP.ToString();
+            if (oPicsFTPUN != DBNull.Value && oPicsFTPUN != null)
+                sPicsFTPUN = oPicsFTPUN.ToString();
+            if (oPicsFTPPass != DBNull.Value && oPicsFTPPass != null)
+                sPicsFTPPass = oPicsFTPPass.ToString();
+            if (oPicsBasePath != DBNull.Value && oPicsBasePath != null)
+                sPicsBasePath = oPicsBasePath.ToString();
+            if (sPicsFTP.ToLower().Trim().StartsWith("ftp://") == true)
+                sPicsFTP = sPicsFTP.Substring(6);
+
+            FTPUploader.SetRunningProcesses(0);
+            Logger.Logger.Log("Start Load to directory - Running Uploads = " + FTPUploader.m_nNumberOfRuningUploads.ToString(), "Startitn loading : " + nGroupID.ToString(), "DirectoryUpload");
+            DBManipulator.UploadDirectoryToGroup(nGroupID, sBasePath + "/pics/" + nGroupID.ToString() + "/", sPicsFTP, sPicsFTPUN, sPicsFTPPass);
+            Logger.Logger.Log("Finish Load to directory -  Running Uploads = " + FTPUploader.m_nNumberOfRuningUploads.ToString(), "Finished loading : " + nGroupID.ToString(), "DirectoryUpload");
+        }
+
+        static protected Int32 GetBillingCodeIDByName(string sName)
+        {
+            Int32 nRet = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from lu_billing_type where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(API_VAL)))", "=", sName.Trim().ToLower());
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        static protected Int32 GetCDNIdByName(string sName, Int32 nGroupID)
+        {
+            Int32 nRet = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from streaming_companies where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(STREAMING_COMPANY_NAME)))", "=", sName.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        static protected Int32 GetAdCompID(string sAdCompName, Int32 nGroupID)
+        {
+            Int32 nRet = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from ads_companies where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ads_company_name", "=", sAdCompName);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            selectQuery += " order by id desc";
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        static protected Int32 GetPlayerTypeID(string sPlayerType)
+        {
+            Int32 nRet = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from lu_player_descriptions where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sPlayerType);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCopunt = selectQuery.Table("query").DefaultView.Count;
+                if (nCopunt > 0)
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        static protected int GetPPVModuleID(string moduleName, int groupID)
+        {
+            Int32 nRet = 0;
+            if (string.IsNullOrEmpty(moduleName))
+                return 0;
+
+            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(groupID);
+            object commerceGroupIDObj = ODBCWrapper.Utils.GetTableSingleVal("groups", "commerce_group_id", groupID, 86400);
+            int commerceGroupID = 0;
+            if (commerceGroupIDObj != null && !string.IsNullOrEmpty(commerceGroupIDObj.ToString()))
+            {
+                commerceGroupID = int.Parse(commerceGroupIDObj.ToString());
+            }
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("pricing_connection");
+            selectQuery += "select id from ppv_modules where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", moduleName);
+            selectQuery += "and group_id =" + commerceGroupIDObj;
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCopunt = selectQuery.Table("query").DefaultView.Count;
+                if (nCopunt > 0)
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        static protected void InsertFilePPVModule(int ppvModule, int fileID, int groupID)
+        {
+            // get parent group id
+            Int32 ppvModuleGroupID = 0;
+            DataTable dt = ApiDAL.Get_DataByTableID(groupID + "", "groups", "parent_group_id", "id");
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                ppvModuleGroupID = int.Parse(dt.Rows[0]["parent_group_id"].ToString());
+            //Int32 ppvModuleGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", ppvModule, "pricing_connection").ToString());
+
+            //First initialize all previous entries.
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
+            updateQuery.SetConnectionKey("pricing_connection");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
+            updateQuery += "where";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+
+            if (ppvModule == 0)
+                return;
+
+            int ppvFileID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("pricing_connection");
+            selectQuery += "select id from ppv_modules_media_files (nolock) where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", fileID);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    ppvFileID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            //If doesnt exist - create new entry
+            if (ppvFileID == 0)
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ppv_modules_media_files");
+                insertQuery.SetConnectionKey("pricing_connection");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", fileID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", ppvModuleGroupID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
+            }
+            else
+            {
+                //Update status of previous entry
+                ODBCWrapper.UpdateQuery updateOldQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
+                updateOldQuery.SetConnectionKey("pricing_connection");
+                updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
+                updateOldQuery += "where";
+                updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", ppvFileID);
+                updateOldQuery.Execute();
+                updateOldQuery.Finish();
+                updateOldQuery = null;
+            }
+        }
+
+        static protected void EnterClipMediaFile(string sPicType,
+            Int32 nMediaID, Int32 nPicID, Int32 nGroupID, string sQuality, string sCDN, string sCDNId,
+            string sCDNCode, string sBillingType,
+            string sPreRule, string sPostRule, string sBreakRule,
+            string sOverlayRule, string sBreakPoints, string sOverlayPoints,
+            bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage)
+        {
+            Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
+            Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
+
+            Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
+
+            Int32 nCDNId;
+
+            if (String.IsNullOrEmpty(sCDNId))
+                nCDNId = GetCDNIdByName(sCDN, nGroupID);
+            else
+                nCDNId = int.Parse(sCDNId);
+
+
+            Int32 nBillingCodeID    = GetBillingCodeIDByName(sBillingType);
+            Int32 nMediaFileID      = IngestionUtils.GetPicMediaFileID(nPicType, nMediaID, nGroupID, nQualityID, true, sLanguage);
+            Int32 nPreAdCompany     = GetAdCompID(sPreRule, nGroupID);
+            Int32 nPostAdCompany    = GetAdCompID(sPostRule, nGroupID);
+            Int32 nBreakAdCompany   = GetAdCompID(sBreakRule, nGroupID);
+            Int32 nOverlayAdCompany = GetAdCompID(sOverlayRule, nGroupID);
+
+            if (nMediaFileID != 0)
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_files");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("co_guid", "=", sCoGuid);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STREAMING_SUPLIER_ID", "=", nCDNId);
+
+                if (nBillingCodeID != 0 || sBillingType.ToLower() == "none")
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TYPE_ID", "=", nBillingCodeID);
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STREAMING_CODE", "=", sCDNCode);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS",         "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DURATION",       "=", nDuration);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE",      "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE",    "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID",     "=", 43);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_PRE_ID", "=", nPreAdCompany);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_POST_ID",    "=", nPostAdCompany);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_BREAK_ID",   "=", nBreakAdCompany);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_BREAK_POINTS",    "=", sBreakPoints);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_OVERLAY_ID", "=", nOverlayAdCompany);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_OVERLAY_POINTS",  "=", sOverlayPoints);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
+
+                if (bAdsEnabled == true)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADS_ENABLED", "=", 1);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADS_ENABLED", "=", 0);
+
+                if (bSkipPre == true)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OUTER_COMMERCIAL_SKIP_PRE", "=", 1);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OUTER_COMMERCIAL_SKIP_PRE", "=", 0);
+
+                if (bSkipPost == true)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OUTER_COMMERCIAL_SKIP_POST", "=", 1);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OUTER_COMMERCIAL_SKIP_POST", "=", 0);
+
+                if (nOverridePlayerTypeID != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OVERRIDE_PLAYER_TYPE_ID", "=", nOverridePlayerTypeID);
+
+                updateQuery += "where";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaFileID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+
+                SetPolicyToFile(sOutputProtectionLevel, nGroupID, sCoGuid, ref sErrorMessage);
+
+                int ppvID = GetPPVModuleID(ppvModuleName, nGroupID);
+                InsertFilePPVModule(ppvID, nMediaFileID, nGroupID);
+
+                /*Insert Family Contract For File */
+                if (!string.IsNullOrEmpty(sContractFamily))
+                {
+                    bool bInsert = InsertFileFamilyContract(sContractFamily, nMediaFileID, nGroupID);
+                }
+            }
+        }
+
+        static private void SetPolicyToFile(string sOutputProtectionLevel, int nGroupID, string sCoGuid, ref string sErrorMessage)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(sOutputProtectionLevel))
+                {
+                    string sWSURL = GetConfigVal("EncryptorService");
+                    string sWSPassword = GetConfigVal("EncryptorPassword");
+
+                    WS_Encryptor.Encryptor service = new WS_Encryptor.Encryptor();
+                    if (!string.IsNullOrEmpty(sWSURL))
+                    {
+                        service.Url = sWSURL;
+                    }
+
+                    bool res = service.SetPolicyToFileByCoGuid(nGroupID, sWSPassword, sOutputProtectionLevel, sCoGuid, false);
+
+                    if (!res)
+                    {
+                        AddError(ref sErrorMessage, string.Format("Fail OPL:{0}, co_guid:{1}", sOutputProtectionLevel, sCoGuid));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("ERROR", string.Format("group:{0}, co_guid:{1}, OPL:{2}, msg:{3}", nGroupID, sCoGuid, sOutputProtectionLevel, ex.Message), "OPL");
+            }
+        }
+
+        static protected void EnterPicMediaFile(string sPicType, Int32 nMediaID, Int32 nPicID, Int32 nGroupID, string sQuality)
+        {
+            Int32 nPicType      = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
+            Int32 nQualityID    = ProtocolsFuncs.GetFileQualityID(sQuality);
+            Int32 nMediaFileID  = IngestionUtils.GetPicMediaFileID(nPicType, nMediaID, nGroupID, nQualityID, true);
+            if (nMediaFileID != 0)
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_files");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REF_ID", "=", nPicID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                updateQuery += "where";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaFileID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+        }
+
+        static protected Int32 InsertNewPic(string sName, string sRemarks, string sBaseURL, Int32 nGroupID)
+        {
+            ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("pics");
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sRemarks);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BASE_URL", "=", sBaseURL);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            insertQuery.Execute();
+            insertQuery.Finish();
+            insertQuery = null;
+
+            Int32 nRet = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from pics (nolock) where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sRemarks);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BASE_URL", "=", sBaseURL);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        static protected Int32 InsertNewEPGPic(string sName, string sRemarks, string sBaseURL, Int32 nGroupID)
+        {
+            ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("EPG_pics");
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sRemarks);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BASE_URL", "=", sBaseURL);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            insertQuery.Execute();
+            insertQuery.Finish();
+            insertQuery = null;
+
+            Int32 nRet = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from EPG_pics (nolock) where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sRemarks);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BASE_URL", "=", sBaseURL);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        static protected void GetLangData(Int32 nGroupID, ref string sLangName, ref Int32 nLangID)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select ll.id,ll.code3 from lu_languages ll (nolock),groups g (nolock) where g.LANGUAGE_ID=ll.id and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    sLangName = selectQuery.Table("query").DefaultView[0].Row["code3"].ToString();
+                    nLangID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+
+        static protected string GetMultiLangValue(string sMainLang, ref XmlNode theItems)
+        {
+            if (theItems == null)
+                return "";
+            XmlNode theValue = theItems.SelectSingleNode("value[@lang='" + sMainLang + "']");
+            if (theValue == null)
+                return "";
+            else
+                return GetNodeValue(ref theValue, "");
+        }
+
+        static protected bool UpdateInsertBasicSubLangData(Int32 nGroupID, Int32 nMediaID,
+            string sMainLang, ref XmlNode theItemNames, ref XmlNode theItemDesc)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //selectQuery += "select * from lu_languages where ";
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(CODE3)))", "<>", sMainLang.Trim().ToLower());
+
+            selectQuery += "select ll.id,ll.code3 from lu_languages ll (nolock), group_extra_languages g where g.LANGUAGE_ID=ll.id and g.status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(ll.code3)))", "<>", sMainLang.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.group_id", "=", nGroupID);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sLang = selectQuery.Table("query").DefaultView[i].Row["CODE3"].ToString();
+                    Int32 nLangID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+                    string sMediaName = GetMultiLangValue(sLang, ref theItemNames);
+                    string sMediaDesc = GetMultiLangValue(sLang, ref theItemDesc);
+                    Int32 nMediaTransID = 0;
+                    bool b = false;
+                    if (sMediaName.Trim() != "" || sMediaDesc.Trim() != "")
+                        nMediaTransID = GetMediaTranslateID(nMediaID, nLangID, ref b, true);
+                    else
+                        nMediaTransID = GetMediaTranslateID(nMediaID, nLangID, ref b, false);
+                    if (nMediaTransID != 0)
+                    {
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_translate");
+                        if (sMediaName != "")
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sMediaName);
+                        if (sMediaDesc != "")
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sMediaDesc);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", nLangID);
+                        updateQuery += "where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nMediaTransID);
+
+                        updateQuery.Execute();
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+            return true;
+        }
+
+        static public Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID)
+        {
+            bool b = false;
+            bool bb = true;
+            return GetMediaTranslateID(nMediaID, nLangID, ref b, bb);
+        }
+
+        static protected Int32 GetEPGSchedTranslateID(Int32 nEPGSchedID, Int32 nLangID, ref bool bExists, bool bForceCreate)
+        {
+            bExists = true;
+            Int32 nMediaTransID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += "select id from epg_channels_schedule_translate where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNELS_SCHEDULE_ID", "=", nEPGSchedID);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", nLangID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    nMediaTransID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            if (nMediaTransID == 0)
+            {
+                bExists = false;
+                if (bForceCreate == true)
+                {
+                    bool bExists1 = false;
+                    ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("epg_channels_schedule_translate");
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNELS_SCHEDULE_ID", "=", nEPGSchedID);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", nLangID);
+                    insertQuery.Execute();
+                    insertQuery.Finish();
+                    insertQuery = null;
+
+                    return GetEPGSchedTranslateID(nEPGSchedID, nLangID, ref bExists1, bForceCreate);
+                }
+            }
+            return nMediaTransID;
+        }
+
+        static public Int32 GetChannelTranslateID(Int32 channelID, Int32 nLangID, ref bool bExists, bool bForceCreate)
+        {
+            bExists = true;
+            Int32 nChannelTransID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += "select id from channel_translate where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("channel_id", "=", channelID);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", nLangID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    nChannelTransID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            if (nChannelTransID == 0)
+            {
+                bExists = false;
+                if (bForceCreate == true)
+                {
+                    bool bExists1 = false;
+                    ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("channel_translate");
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("channel_ID", "=", channelID);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", nLangID);
+                    insertQuery.Execute();
+                    insertQuery.Finish();
+                    insertQuery = null;
+
+                    return GetChannelTranslateID(channelID, nLangID, ref bExists1, false);
+                }
+            }
+            return nChannelTransID;
+        }
+        
+        static public Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID, ref bool bExists, bool bForceCreate)
+        {
+            bExists = true;
+            Int32 nMediaTransID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += "select id from media_translate where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", nMediaID);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", nLangID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    nMediaTransID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            if (nMediaTransID == 0)
+            {
+                bExists = false;
+                if (bForceCreate == true)
+                {
+                    bool bExists1 = false;
+                    ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("media_translate");
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("media_ID", "=", nMediaID);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", nLangID);
+                    insertQuery.Execute();
+                    insertQuery.Finish();
+                    insertQuery = null;
+
+                    return GetMediaTranslateID(nMediaID, nLangID, ref bExists1, bForceCreate);
+                }
+            }
+            return nMediaTransID;
+        }
+
+        static protected Int32 GetStringMetaIDByMetaName(Int32 nGroupID, string sMetaName)
+        {
+            Int32 nMetaID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from groups where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    for (int i = 1; i < 21; i++)
+                    {
+                        object oCurMetaName = selectQuery.Table("query").DefaultView[0].Row["META" + i.ToString() + "_STR_NAME"];
+                        if (oCurMetaName != DBNull.Value && oCurMetaName != null)
+                        {
+                            if (sMetaName.Trim().ToLower() == oCurMetaName.ToString().Trim().ToLower())
+                                nMetaID = i;
+                        }
+                    }
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nMetaID;
+        }
+
+        static protected Int32 GetDoubleMetaIDByMetaName(Int32 nGroupID, string sMetaName)
+        {
+            Int32 nMetaID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from groups where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    for (int i = 1; i < 11; i++)
+                    {
+                        object oCurMetaName = selectQuery.Table("query").DefaultView[0].Row["META" + i.ToString() + "_DOUBLE_NAME"];
+                        if (oCurMetaName != DBNull.Value && oCurMetaName != null)
+                        {
+                            if (sMetaName.Trim().ToLower() == oCurMetaName.ToString().Trim().ToLower())
+                                nMetaID = i;
+                        }
+                    }
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nMetaID;
+        }
+
+        static protected Int32 GetBoolMetaIDByMetaName(Int32 nGroupID, string sMetaName)
+        {
+            Int32 nMetaID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from groups where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    for (int i = 1; i < 11; i++)
+                    {
+                        object oCurMetaName = selectQuery.Table("query").DefaultView[0].Row["META" + i.ToString() + "_BOOL_NAME"];
+                        if (oCurMetaName != DBNull.Value && oCurMetaName != null)
+                        {
+                            if (sMetaName.Trim().ToLower() == oCurMetaName.ToString().Trim().ToLower())
+                                nMetaID = i;
+                        }
+                    }
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nMetaID;
+        }
+
+        static protected bool UpdateStringSubLangData(Int32 nGroupID, Int32 nMediaID, string sMainLang, ref XmlNodeList theStrings)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //selectQuery += "select * from lu_languages where ";
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(CODE3)))", "<>", sMainLang.Trim().ToLower());
+
+            selectQuery += "select ll.id,ll.code3 from lu_languages ll (nolock), group_extra_languages g where g.LANGUAGE_ID=ll.id and g.status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(ll.code3)))", "<>", sMainLang.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.group_id", "=", nGroupID);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sLang = selectQuery.Table("query").DefaultView[i].Row["CODE3"].ToString();
+                    Int32 nLangID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+
+                    Int32 nMediaTransID = 0;
+                    bool b = false;
+                    nMediaTransID = GetMediaTranslateID(nMediaID, nLangID, ref b, false);
+                    if (nMediaTransID != 0)
+                    {
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_translate");
+                        bool bExecute = false;
+                        Int32 nCount1 = theStrings.Count;
+                        for (int j = 0; j < nCount1; j++)
+                        {
+                            XmlNode theItem = theStrings[j];
+                            string sName = GetItemParameterVal(ref theItem, "name");
+                            string sMLHandling = GetItemParameterVal(ref theItem, "ml_handling");
+                            string sValue = GetMultiLangValue(sLang, ref theItem);
+                            string sMainValue = GetMultiLangValue(sMainLang, ref theItem);
+
+                            Int32 nMetaID = GetStringMetaIDByMetaName(nGroupID, sName);
+                            if (nMetaID == 0)
+                            {
+                                Logger.Logger.Log("Ingest String data", "can not find the name: " + sName.ToString(), "TempIngest");
+                                continue;
+                            }
+
+                            if (sMLHandling.Trim().ToLower() == "duplicate")
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_STR", "=", sMainValue);
+                            else
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_STR", "=", sValue);
+                            bExecute = true;
+                        }
+                        updateQuery += " where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaTransID);
+                        if (bExecute == true)
+                            updateQuery.Execute();
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+            return true;
+        }
+
+        static protected bool UpdateBoolsData(Int32 nGroupID, Int32 nMediaID, string sMainLang, ref XmlNodeList theBools, ref string sError)
+        {
+            Int32 nCount = theBools.Count;
+            if (nCount <= 0)
+                return true;
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+            bool bExecute = false;
+
+            for (int i = 0; i < nCount; i++)
+            {
+                XmlNode theItem = theBools[i];
+                string sName = GetItemParameterVal(ref theItem, "name");
+                string sMainValue = GetNodeValue(ref theItem, "");
+
+                Int32 nMetaID = GetBoolMetaIDByMetaName(nGroupID, sName);
+                try
+                {
+                    if (sMainValue.Trim().ToLower() == "1" || sMainValue.Trim().ToLower() == "true")
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", 1);
+                    else if (sMainValue.Trim().ToLower() == "0" || sMainValue.Trim().ToLower() == "false")
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", 0);
+                    else
+                        AddError(ref sError, "On processing boolean value: " + sName + " The values are not boolean ");
+                }
+                catch (Exception ex)
+                {
+                    AddError(ref sError, "On processing boolean value: " + sName + " exception: " + ex.Message);
+                }
+                bExecute = true;
+            }
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+            if (bExecute == true)
+                updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+            return true;
+        }
+
+        static protected bool UpdateDoublesData(Int32 nGroupID, Int32 nMediaID, string sMainLang, ref XmlNodeList theDoubles, ref string sError)
+        {
+            Int32 nCount = theDoubles.Count;
+            if (nCount <= 0)
+                return true;
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+            bool bExecute = false;
+
+            for (int i = 0; i < nCount; i++)
+            {
+                XmlNode theItem = theDoubles[i];
+                string sName = GetItemParameterVal(ref theItem, "name");
+                string sMainValue = GetNodeValue(ref theItem, "");
+
+                Int32 nMetaID = GetDoubleMetaIDByMetaName(nGroupID, sName);
+                if (nMetaID != 0)
+                {
+                    try
+                    {
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_DOUBLE", "=", double.Parse(sMainValue));
+                    }
+                    catch (Exception ex)
+                    {
+                        AddError(ref sError, "On processing double value: " + sName + " exception: " + ex.Message);
+                        sError = ex.Message;
+                    }
+
+                    bExecute = true;
+                }
+            }
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+            if (bExecute == true)
+                updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+            return true;
+        }
+
+        static protected void GetSubLangMetaData(Int32 nGroupID, string sMainLang, ref TranslatorStringHolder metaHolder, ref XmlNode theContainer, string sID)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select ll.id,ll.code3 from lu_languages ll (nolock), group_extra_languages g where g.LANGUAGE_ID=ll.id and g.status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ll.code3", "<>", sMainLang);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.group_id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sLang = selectQuery.Table("query").DefaultView[i].Row["code3"].ToString();
+                    string sVal = GetMultiLangValue(sLang, ref theContainer).Replace(",", "");
+                    if (sVal != "")
+                        metaHolder.AddLanguageString(sLang, sVal, sID, false);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+
+        static protected void DuplicateMetaData(Int32 nGroupID, string sMainLang, ref TranslatorStringHolder metaHolder, string sVal, string sID)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select ll.id,ll.code3 from lu_languages ll (nolock), group_extra_languages g where g.LANGUAGE_ID=ll.id and g.status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ll.code3", "<>", sMainLang);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.group_id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sLang = selectQuery.Table("query").DefaultView[0].Row["code3"].ToString();
+                    metaHolder.AddLanguageString(sLang, sVal, sID, false);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+
+        static protected bool UpdateFiles(Int32 nGroupID, string sMainLang, Int32 nMediaID, ref XmlNodeList theFiles, ref string sErrorMessage)
+        {
+            string sMediaName = ODBCWrapper.Utils.GetTableSingleVal("media", "name", nMediaID, 0).ToString();
+            Int32 nCount = theFiles.Count;
+            for (int i = 0; i < nCount; i++)
+            {
+                XmlNode theItem = theFiles[i];
+                string sCoGuid            = GetItemParameterVal(ref theItem, "co_guid");
+                string sName              = GetItemParameterVal(ref theItem, "handling_type");
+                string sDuration          = GetItemParameterVal(ref theItem, "assetDuration");
+                string sQuality           = GetItemParameterVal(ref theItem, "quality");
+                string sFormat            = GetItemParameterVal(ref theItem, "type");
+                string sCDN               = GetItemParameterVal(ref theItem, "cdn_name");
+                string sCDNId             = GetItemParameterVal(ref theItem, "cdn_id");
+                string sBillingType       = GetItemParameterVal(ref theItem, "billing_type");
+                string sPPVModule         = GetItemParameterVal(ref theItem, "PPV_Module");
+                string sCDNCode           = GetItemParameterVal(ref theItem, "cdn_code");
+                string sPreRule           = GetItemParameterVal(ref theItem, "pre_rule");
+                string sPostRule          = GetItemParameterVal(ref theItem, "post_rule");
+                string sBreakRule         = GetItemParameterVal(ref theItem, "break_rule");
+                string sBreakPoints       = GetItemParameterVal(ref theItem, "break_points");
+                string sOverlayRule       = GetItemParameterVal(ref theItem, "overlay_rule");
+                string sOverlayPoints     = GetItemParameterVal(ref theItem, "overlay_points");
+                string sAdsEnabled        = GetItemParameterVal(ref theItem, "ads_enabled");
+                string sContractFamily    = GetItemParameterVal(ref theItem, "contract_family");
+                string sLanguage              = GetItemParameterVal(ref theItem, "lang");
+                string sIsDefaultLanguage     = GetItemParameterVal(ref theItem, "default");
+                string sOutputProtectionLevel = GetItemParameterVal(ref theItem, "output_protection_level");
+                int nIsDefaultLanguage        = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
+
+                bool bAdsEnabled = true;
+                if (sAdsEnabled.Trim().ToLower() == "false")
+                    bAdsEnabled = false;
+                string sSkipPreEnabled = GetItemParameterVal(ref theItem, "pre_skip_enabled");
+                bool bSkipPreEnabled = false;
+                if (sSkipPreEnabled.Trim().ToLower() == "true")
+                    bSkipPreEnabled = true;
+                string sSkipPostEnabled = GetItemParameterVal(ref theItem, "post_skip_enabled");
+                bool bSkipPostEnabled = false;
+                if (sSkipPostEnabled.Trim().ToLower() == "true")
+                    bSkipPostEnabled = true;
+
+                long nDuration = 0;
+                if (!string.IsNullOrEmpty(sDuration))
+                {
+                    nDuration = long.Parse(sDuration);
+                }
+
+                string sPlayerType = GetItemParameterVal(ref theItem, "player_type");
+
+                if (sName.Trim().ToLower() == "image")
+                {
+                    Int32 nPicID = DownloadPic(sCDNCode, sMediaName, nGroupID, nMediaID, sMainLang, sFormat, false);
+                }
+                else
+                {
+                    EnterClipMediaFile(sFormat, nMediaID, 0, nGroupID, sQuality, sCDN, sCDNId, sCDNCode, sBillingType,
+                        sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
+                        bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
+                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage);
+                }
+
+
+
+            }
+            return true;
+        }
+
+        /*Insert media file , contract family to fr_media_files_contract_families*/
+        private static bool InsertFileFamilyContract(string sContractFamily, int nMediaFileID, int nGroupID)
+        {
+            int nFamilylID = 0;
+            bool bRes = false;
+            try
+            {
+                //Get parent group id 
+                Int32 nParentGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "PARENT_GROUP_ID", nGroupID).ToString());
+                if (nParentGroupID == 1)
+                    nParentGroupID = nGroupID;
+
+                //Get contract family id by name + group_id
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select ID ";
+                selectQuery += "from fr_financial_entities ";
+                selectQuery += "where status = 1 and PARENT_ENTITY_ID <> 0 and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("entity_type", "=", 1);
+                selectQuery += "and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nParentGroupID);
+                selectQuery += "and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("name", "=", sContractFamily);
+                selectQuery += "order by PARENT_ENTITY_ID";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nFamilylID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                if (nFamilylID == 0)
+                {
+                    return false;
+                }
+
+                int nOldFamilylID = 0;
+                int nOldRecordID = 0;
+
+                //Get Old config
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select ID, CONTRACT_FAMILY_ID";
+                selectQuery += "from fr_media_files_contract_families";
+                selectQuery += "where status=1 and is_active=1 and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nParentGroupID);
+                selectQuery += "and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nOldRecordID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                        nOldFamilylID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["CONTRACT_FAMILY_ID"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                if (nOldFamilylID == nFamilylID)
+                {
+                    return true;
+                }
+
+                if (nOldRecordID > 0)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("fr_media_files_contract_families");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 2);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("updater_id", "=", 43);
+                    updateQuery += "where";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nOldRecordID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("fr_media_files_contract_families");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CONTRACT_FAMILY_ID", "=", nFamilylID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nParentGroupID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("updater_id", "=", 43);
+                bRes = insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
+
+                return bRes;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        static protected bool UpdateMetas(Int32 nGroupID, Int32 nMediaID, string sMainLang, ref XmlNodeList theMetas, ref string sError)
+        {
+            Int32 nCount = theMetas.Count;
+            for (int i = 0; i < nCount; i++)
+            {
+                XmlNode theItem = theMetas[i];
+                string sName = GetItemParameterVal(ref theItem, "name");
+                string sMLHandling = GetItemParameterVal(ref theItem, "ml_handling");
+
+                TranslatorStringHolder metaHolder = new TranslatorStringHolder();
+                XmlNodeList theContainers = theItem.SelectNodes("container");
+                Int32 nCount1 = theContainers.Count;
+                if (nCount1 == 0)
+                {
+                    theContainers = theItem.SelectNodes("values");
+                    nCount1 = theContainers.Count;
+                }
+                for (int j = 0; j < nCount1; j++)
+                {
+                    XmlNode theContainer = theContainers[j];
+                    string sVal = GetMultiLangValue(sMainLang, ref theContainer).Replace(",", "");
+                    if (sVal == "")
+                    {
+                        AddError(ref sError, "meta :" + sName + " - no main language value");
+                        continue;
+                    }
+                    metaHolder.AddLanguageString(sMainLang, sVal, j.ToString(), true);  ///i->j
+                    if (sMLHandling.Trim().ToLower() == "duplicate")
+                    {
+                        DuplicateMetaData(nGroupID, sMainLang, ref metaHolder, sVal, j.ToString());   ///i->j
+                    }
+                    else
+                    {
+                        GetSubLangMetaData(nGroupID, sMainLang, ref metaHolder, ref theContainer, j.ToString());  ///i->j
+                    }
+                }
+                Int32 nTagTypeID = GetTagTypeID(nGroupID, sName);
+                ClearMediaTags(nMediaID, nTagTypeID);
+                if (nCount1 > 0)
+                {
+                    if (nTagTypeID != 0 || sName.ToLower().Trim() == "free")
+                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", nTagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true", sMainLang, metaHolder, nGroupID, nMediaID);
+
+                }
+            }
+            return true;
+        }
+
+        static protected Int32 GetTagTypeID(Int32 nGroupID, string sTagName)
+        {
+            if (sTagName.ToLower().Trim() == "free")
+                return 0;
+            Int32 nRet = 0;
+            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select mtt.id from media_tags_types mtt (nolock) where status=1 and group_id " + sGroups;
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sTagName.Trim().ToLower());
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            if (nRet == 0)
+            {
+                bool bIs_Parent = false;
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select PARENT_GROUP_ID from groups where id = " + nGroupID;
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    bIs_Parent = selectQuery.Table("query").DefaultView[0].Row["PARENT_GROUP_ID"].ToString() == "1" ? true : false;
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                if (bIs_Parent == true)
+                {
+                    nRet = CheckOnChildNodes(nGroupID, sTagName);
+                }
+            }
+            return nRet;
+        }
+
+        static protected Int32 CheckOnChildNodes(Int32 nGroupID, string sTagName)
+        {
+            Int32 nRet = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from groups where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PARENT_GROUP_ID", "=", nGroupID.ToString());
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    for (int i = 0; i < nCount; ++i)
+                    {
+                        int ChildID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                        nRet = GetTagTypeID(ChildID, sTagName);
+
+                        if (nRet != 0)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return nRet;
+        }
+
+        static protected bool UpdateStringMainLangData(Int32 nGroupID, Int32 nMediaID, string sMainLang, ref XmlNodeList theStrings)
+        {
+            Int32 nCount = theStrings.Count;
+            if (nCount <= 0)
+                return true;
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+            bool bExecute = false;
+            for (int i = 0; i < nCount; i++)
+            {
+                XmlNode theItem = theStrings[i];
+                string sName = GetItemParameterVal(ref theItem, "name");
+                string sMLHandling = GetItemParameterVal(ref theItem, "ml_handling");
+                string sMainValue = GetMultiLangValue(sMainLang, ref theItem);
+
+                Int32 nMetaID = GetStringMetaIDByMetaName(nGroupID, sName);
+                if (nMetaID > 0)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_STR", "=", sMainValue);
+                    bExecute = true;
+                }
+            }
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+            if (bExecute == true)
+                updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+            return true;
+        }
+
+        static protected bool UpdateInsertBasicMainLangData(Int32 nGroupID, ref Int32 nMediaID, Int32 nItemType, string sCoGuid,
+            string sEpgIdentifier, Int32 nWatchPerRule, Int32 nGeoBlockRule, Int32 nPlayersRule, Int32 nDeviceRule,
+            DateTime dCatalogStartDate, DateTime dStartDate, DateTime dCatalogEndDate, DateTime dFinalEndDate, string sThumb, string sMainLang,
+            ref XmlNode theItemNames, ref XmlNode theItemDesc, string sIsActive, DateTime dCreate)
+        {
+            string sName = GetMultiLangValue(sMainLang, ref theItemNames);
+            string sDescription = GetMultiLangValue(sMainLang, ref theItemDesc);
+
+
+            if (nMediaID == 0)
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("media");
+                if (sName != "")
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+                if (sDescription != "")
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sDescription);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", sEpgIdentifier);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("WATCH_PERMISSION_TYPE_ID", "=", nWatchPerRule);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PLAYERS_RULES", "=", nPlayersRule);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BLOCK_TEMPLATE_ID", "=", nGeoBlockRule);
+                if (nItemType != 0)
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_TYPE_ID", "=", nItemType);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", 0);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CATALOG_START_DATE", "=", dCatalogStartDate);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dCatalogEndDate);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("FINAL_END_DATE", "=", dFinalEndDate);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", dCreate);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by auto importer process");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                if (sIsActive.Trim().ToLower() == "true")
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("device_rule_id", "=", nDeviceRule);
+
+                insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
+                nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
+                Logger.Logger.Log("TespIngest", "StartDownloadPic", "TempIngest");
+                Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true);
+                Logger.Logger.Log("TespIngest", "EndDownloadPic", "TempIngest");
+                if (nPicID != 0)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+
+            }
+            else
+            {
+                Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true);
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                if (sName != "")
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+                if (sDescription != "")
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sDescription);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CO_GUID", "=", sCoGuid);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", sEpgIdentifier);
+                if (nWatchPerRule != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("WATCH_PERMISSION_TYPE_ID", "=", nWatchPerRule);
+                if (nPlayersRule != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PLAYERS_RULES", "=", nPlayersRule);
+                if (nGeoBlockRule != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("BLOCK_TEMPLATE_ID", "=", nGeoBlockRule);
+                if (nDeviceRule != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_rule_id", "=", nDeviceRule);
+                if (nItemType != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_TYPE_ID", "=", nItemType);
+                if (nPicID != 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CATALOG_START_DATE", "=", dCatalogStartDate);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dCatalogEndDate);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FINAL_END_DATE", "=", dFinalEndDate);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by auto importer process");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                if (sIsActive.Trim().ToLower() == "true")
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0); // ask Ira
+                //if (sIsActive.Trim().ToLower() == "false")
+                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                bool res = updateQuery.Execute();
+                Logger.Logger.Log("Ingest", "Update:"+res, "IngestLog");
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+
+            return true;
+        }
+
+        static protected Int32 GetEPGSchedIDByEPGIdentifier(Int32 nGroupID, string sEPGIdentifier)
+        {
+            Int32 nMediaID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from epg_channels_schedule (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", sEPGIdentifier);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nMediaID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nMediaID;
+        }
+
+        static protected bool UpdateInsertBasicEPGMainLangData(Int32 nGroupID, Int32 nChannelID, ref Int32 nEPGSchedID,
+            string sEpgIdentifier, DateTime dStartDate, DateTime dEndDate, string sThumb, string sMainLang,
+            ref XmlNode theItemNames, ref XmlNode theItemDesc)
+        {
+            nEPGSchedID = GetEPGSchedIDByEPGIdentifier(nGroupID, sEpgIdentifier);
+            string sName = GetMultiLangValue(sMainLang, ref theItemNames);
+            string sDescription = GetMultiLangValue(sMainLang, ref theItemDesc);
+
+            if (nEPGSchedID == 0)
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("epg_channels_schedule");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sDescription);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", nChannelID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", sEpgIdentifier);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", 0);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dEndDate);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+
+                insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
+                nEPGSchedID = GetEPGSchedIDByEPGIdentifier(nGroupID, sEpgIdentifier);
+
+                Int32 nPicID = DownloadEPGPic(sThumb, sName, nGroupID, nEPGSchedID, sMainLang);
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+            else
+            {
+                Int32 nPicID = 0;
+                nPicID = DownloadEPGPic(sThumb, sName, nGroupID, nEPGSchedID, sMainLang);
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sDescription);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", nChannelID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", sEpgIdentifier);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dEndDate);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+
+            return true;
+        }
+
+        static protected bool UpdateInsertBasicEPGSubLangData(Int32 nGroupID, Int32 nEPGSchedID,
+            string sMainLang, ref XmlNode theItemNames, ref XmlNode theItemDesc)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from lu_languages where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(CODE3)))", "<>", sMainLang.Trim().ToLower());
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sLang = selectQuery.Table("query").DefaultView[i].Row["CODE3"].ToString();
+                    Int32 nLangID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+                    string sMediaName = GetMultiLangValue(sLang, ref theItemNames);
+                    string sMediaDesc = GetMultiLangValue(sLang, ref theItemDesc);
+                    Int32 nEPGSchedTransID = 0;
+                    bool b = false;
+                    if (sMediaName.Trim() != "" || sMediaDesc.Trim() != "")
+                        nEPGSchedTransID = GetEPGSchedTranslateID(nEPGSchedID, nLangID, ref b, true);
+                    else
+                        nEPGSchedTransID = GetEPGSchedTranslateID(nEPGSchedID, nLangID, ref b, false);
+                    if (nEPGSchedTransID != 0)
+                    {
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule_translate");
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sMediaName);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", sMediaDesc);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", nLangID);
+                        updateQuery += "where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nEPGSchedTransID);
+
+                        updateQuery.Execute();
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+            return true;
+        }
+
+        static public bool DoesReplicationClean(Int32 nMax, ref Int32 nRet)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select commands_2_apply from replication_status";
+            selectQuery.SetCachedSec(0);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["commands_2_apply"].ToString());
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            if (nRet > nMax)
+                return false;
+            return true;
+        }
+
+        static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
+        {           
+            XmlDocument theDoc = new XmlDocument();
+
+            theDoc.LoadXml(sXML);
+            try
+            {
+                int nParentGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "parent_group_id", nGroupID, "MAIN_CONNECTION_STRING").ToString());
+                if (nParentGroupID == 1)
+                {
+                    nParentGroupID = nGroupID;
+                }
+                XmlNodeList theItems = theDoc.SelectNodes("/feed/export/media");
+
+                Int32 nCount1 = theItems.Count;
+                for (int i = 0; i < nCount1; i++)
+                {
+                    Int32 nRepStatus = 0;
+                    while (DoesReplicationClean(250000, ref nRepStatus) == false)
+                    {
+                        System.Threading.Thread.Sleep(1000);
+                        Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
+                    }
+                    Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
+                    string sCoGuid = "";
+                    string sErrorMessage = "";
+                    Int32 nMediaID = 0;
+                    bool bProcess = ProcessItem(theItems[i], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID);
+                    Logger.Logger.Log("Import finished", "Index: " + i.ToString(), "importer");
+                    if (bProcess == false)
+                    {
+                        sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
+                        break;
+                    }
+                    else
+                    {
+                        sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";                       
+                        
+                        // Update record in Catalog (see the flow inside Update Index
+                        bool resultMQ = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update);
+                        // update notification 
+                        UpdateNotificationsRequests(nGroupID, nMediaID);
+                    }
+
+                }
+                if (uploadDirectory)
+                {
+                    UploadDirectory(nGroupID);
+                }
+                else
+                {
+                    FTPUploadQueue.FTPUploadHelper.SetJobsForUpload(nGroupID);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
+            }
+            try
+            {
+                XmlNodeList theChannelItems = theDoc.SelectNodes("/feed/export/channel");
+
+                Int32 nCount2 = theChannelItems.Count;
+                for (int i = 0; i < nCount2; i++)
+                {
+                    string sErrorMessage = "";
+                    XmlNode theChannelItem = theChannelItems[i];
+                    string sTVMID = GetItemParameterVal(ref theChannelItem, "tvm_id");
+                    Int32 nEPGChannelID = 0;
+
+                    sNotifyXML += "<channel tvm_id=\"" + sTVMID + "\">";
+
+                    if (sTVMID != "")
+                        nEPGChannelID = int.Parse(sTVMID);
+                    else
+                    {
+                        sNotifyXML += "<error>No such channel</error>";
+                        sNotifyXML += "</channel>";
+                        continue;
+                    }
+
+                    XmlNodeList theEntryItems = theChannelItem.SelectNodes("entry");
+
+                    Int32 nCount3 = theEntryItems.Count;
+                    for (int j = 0; j < nCount3; j++)
+                    {
+                        Int32 nEPGSchedId = 0;
+                        string sEPGIdentifier = "";
+                        bool bProcess = ProcessEPGItem(theEntryItems[j], nEPGChannelID, ref nEPGSchedId, ref sEPGIdentifier, ref sErrorMessage, nGroupID);
+                        if (bProcess == false)
+                        {
+                            sNotifyXML += "<entry co_guid=\"" + sEPGIdentifier + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_entry_id=\"" + nEPGSchedId.ToString() + "\"/>";
+                            break;
+                        }
+                        else
+                            sNotifyXML += "<entry co_guid=\"" + sEPGIdentifier + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_entry_id=\"" + nEPGSchedId.ToString() + "\"/>";
+                    }
+                    sNotifyXML += "</channel>";
+                }
+            }
+            catch (Exception ex)
+            {
+                sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
+            }
+
+
+            return true;
+        }
+
+        static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML)
+        {
+            return DoTheWorkInner(sXML, nGroupID, sNotifyURL, ref sNotifyXML, true);
+        }
+
+        static public bool DoTheWork(Int32 nGroupID, string sXMLUrl, string sNotifyURL, Int32 nAlertID)
+        {
+            string sNotifyXML = "<tvm><importer>";
+            Int32 nStatus = 404;
+            string sXML = "";
+            try
+            {
+                sXML = Notifier.SendGetHttpReq(sXMLUrl, ref nStatus);
+            }
+            catch (Exception ex)
+            {
+                sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
+                sNotifyXML += "</tvm></importer>";
+                return false;
+            }
+            bool bRet = DoTheWorkInner(sXML, nGroupID, sNotifyURL, ref sNotifyXML);
+            if (sNotifyURL.Trim() != "")
+                Notifier.SendXMLHttpReq(sNotifyURL, sNotifyXML, ref nStatus);
+
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("importer_alerts");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RESPONSE_XML", "=", sNotifyXML);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RUN_STATUS", "=", 2);
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nAlertID);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+
+            return bRet;
+        }
+
+        #region Lucene
+    
+        //Update Lucene Directory for the new media that was insert
+        static public bool UpdateRecordInLucene(int groupid, int nMediaID)
+        {
+            bool bUpdate = false;
+
+            Lucene_WCF.Service service = new Lucene_WCF.Service();
+            string sWSURL = GetLuceneUrl(groupid);
+            if (!string.IsNullOrEmpty(sWSURL))
+            {
+                foreach (string url in sWSURL.Split(';'))
+                {
+                    try
+                    {
+                        service.Url = url;
+                        bUpdate = service.UpdateRecord(groupid, nMediaID);
+                        Logger.Logger.Log("UpdateRecordInLucene", string.Format("Group:{0}, Media:{1}, Url:{2}, Res:{3}", groupid, nMediaID, url, bUpdate), "LuceneUpdate");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Logger.Log("Exception (UpdateRecordInLucene)", string.Format("Media:{0}, Url:{1}, ex:{2}", nMediaID, url, ex.Message), "LuceneUpdate");
+                    }
+                }
+            }
+
+            return bUpdate;
+        }
+
+        //remove media from Lucene
+        static public bool RemoveRecordInLucene(int groupid, int nMediaID)
+        {
+            bool bremove = false;
+
+            Lucene_WCF.Service service = new Lucene_WCF.Service();
+            string sWSURL = GetLuceneUrl(groupid);
+            if (!string.IsNullOrEmpty(sWSURL))
+            {
+                foreach (string url in sWSURL.Split(';'))
+                {
+                    try
+                    {
+                        service.Url = url;
+                        bremove = service.RemoveRecord(groupid, nMediaID);
+                        Logger.Logger.Log("RemoveRecordInLucene", string.Format("Group:{0}, Media:{1}, Url:{2}, Res:{3}", groupid, nMediaID, url, bremove), "LuceneUpdate");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Logger.Log("Exception (RemoveRecordInLucene)", string.Format("Media:{0}, Url:{1}, ex:{2}", nMediaID, url, ex.Message), "LuceneUpdate");
+                        return false;
+                    }
+                }
+            }
+            return bremove;
+        }
+
+        //Update Lucene Directory for the updated channel 
+        static public bool UpdateChannelInLucene_old(int groupid, int nChannelID)
+        {
+            bool bUpdate = false;
+
+            Lucene_WCF.Service service = new Lucene_WCF.Service();
+            string sWSURL = GetLuceneUrl(groupid);
+            if (!string.IsNullOrEmpty(sWSURL))
+            {
+                foreach (string url in sWSURL.Split(';'))
+                {
+                    try
+                    {
+                        service.Url = url;
+                        bUpdate = service.UpdateChannel(groupid, nChannelID);
+                        Logger.Logger.Log("UpdateChannelInLucene", string.Format("Group:{0}, Channel:{1}, Url:{2}, Res:{3}", groupid, nChannelID, url, bUpdate), "LuceneUpdate");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Logger.Log("Exception (UpdateChannelInLucene)", string.Format("Channel:{0}, Url:{1}, ex:{2}", nChannelID, url, ex.Message), "LuceneUpdate");
+                        return false;
+                    }
+                }
+            }
+
+            return bUpdate;
+        }
+       
+        static public bool UpdateChannelInLucene(int nGroupId, int nChannelID)
+        {
+            bool bUpdate = false;
+
+            WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+
+            try
+            {
+                string sWSURL = GetCatalogUrl(nGroupId);
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
+                    string[] addresses = sWSURL.Split(';');
+                    foreach (string endPointAddress in addresses)
+                    {
+                        try
+                        {
+                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
+                            bUpdate = client.UpdateChannel(nGroupId, nChannelID);
+                            Logger.Logger.Log("UpdateChannelInLucene", string.Format("Group:{0}, Channel:{1}, Url:{2}, Res:{3}", nGroupId, nChannelID, endPointAddress, bUpdate), "LuceneUpdate");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("Exception (UpdateChannelInLucene)", string.Format("Channel:{0}, Url:{1}, ex:{2}", nChannelID, endPointAddress, ex.Message), "LuceneUpdate");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception (UpdateChannelInLucene)", string.Format("Error:{0}", ex.Message), "LuceneUpdate");
+            }
+            finally
+            {
+                client.Close();
+            }
+
+            return bUpdate;
+        }
+
+
+        private static string GetLuceneUrl(int nGroupID)
+        {
+            string sLuceneURL = GetConfigVal("LUCENE_WCF_" + nGroupID);
+            try
+            {
+                DataTable dt = DAL.ImporterImpDAL.Get_LuceneUrl(nGroupID);
+                if (dt != null)
+                {
+                    if (dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        sLuceneURL = dt.Rows[0]["lucene_url"].ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetLuceneUrl", "GroupID : " + nGroupID + ", error : " + ex.Message, "Lucene");
+            }
+
+            return sLuceneURL;
+        }
+        /// <summary>
+        /// Gets all catalog urls releated to the given group id
+        /// </summary>
+        /// <param name="groupid"></param>
+        /// <returns>Concatenated urls from DB</returns>
+        private static string GetCatalogUrl(int nGroupID)
+        {
+            string sCatalogURL = GetConfigVal("CATALOG_WCF");
+            try
+            {
+                DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
+                if (dt != null)
+                {
+                    if (dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        sCatalogURL = dt.Rows[0]["catalog_url"].ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetCatalogUrl", "GroupID : " + nGroupID + ", error : " + ex.Message, "Catalog");
+            }
+
+            return sCatalogURL;
+        }
+
+
+        #endregion
+
+       
+        #region Notification
+
+        static public void UpdateNotificationsRequests(int groupid, int nMediaID)
+        {
+            ParameterizedThreadStart start = new ParameterizedThreadStart(UpdateNotification);
+            Thread t = new Thread(start);
+            int[] vals = new int[2];
+            vals[0] = groupid;
+            vals[1] = nMediaID;
+            t.Start(vals);                 
+        }
+
+        static private void UpdateNotification(object val)
+        {
+            int[] vals = (int[])val;
+            int nGroupID = vals[0];
+            int mediaID = vals[1];
+            bool notificationResult = ImporterImpl.UpdateNotificationRequest(nGroupID, mediaID); //(LoginManager.GetLoginGroupID(), nID);
+        }
+        //Update Notification Request for the new media that was insert
+        static private bool UpdateNotificationRequest(int groupid, int nMediaID)
+        {
+            bool bUpdate = false;
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupid);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);                
+                bUpdate = service.AddNotificationRequest(sWSUserName, sWSPass,string.Empty,Notification_WCF.NotificationTriggerType.FollowUpByTag,nMediaID);                                  
+            }
+            catch (Exception ex)
+            {
+                //_logger.Error(ex.Message, ex);
+                Logger.Logger.Log("Exception (UpdateNotificationRequest)", string.Format("Media:{0}, groupID:{1}, ex:{2}", nMediaID, groupid, ex.Message), "notifications");
+                return false;
+            }
+            return bUpdate;
+        }
+
+        
+        #endregion
+       
+        private static string GetConfigVal(string sKey)
+        {
+           return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
+        }
+        
+        public static bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction)
+        {
+            bool isUpdateIndexSucceeded = false;
+
+             string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
+             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
+             {
+
+                 using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+                 {
+                     WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+
+                     try
+                     {
+                         if (lMediaIds != null && lMediaIds.Count > 0 && nGroupId > 0)
+                         {
+                             string sWSURL = GetCatalogUrl(nGroupId);
+                             if (!string.IsNullOrEmpty(sWSURL))
+                             {
+                                 string[] addresses = sWSURL.Split(';');
+                                 int[] ids = lMediaIds.ToArray();
+                                 foreach (string endPointAddress in addresses)
+                                 {
+                                     try
+                                     {
+                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
+                                         isUpdateIndexSucceeded = client.UpdateIndex(ids, nGroupId, eAction);
+                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
+                                     }
+                                     catch (Exception ex)
+                                     {
+                                         updateIndexLog.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", endPointAddress, ex.Message));
+                                     }
+                                 }
+                             }
+                         }
+                     }
+                     catch (Exception ex)
+                     {
+                         updateIndexLog.Error(string.Format("{0} process failed due to the following error: {1}", MethodInfo.GetCurrentMethod().Name, ex.Message));
+                     }
+                     finally
+                     {
+                         if (client != null)
+                         {
+                             client.Close();
+                         }
+                     }
+                 }
+             }
+             else //Lucene
+             {
+                 if (lMediaIds != null && lMediaIds.Count > 0)
+                 {
+                     if (eAction.Equals(ApiObjects.eAction.Delete))
+                     {
+                         isUpdateIndexSucceeded = ImporterImpl.RemoveRecordInLucene(nGroupId, lMediaIds[0]);
+                     }
+                     else
+                     {
+                         isUpdateIndexSucceeded = ImporterImpl.UpdateRecordInLucene(nGroupId, lMediaIds[0]);
+                     }
+                 }
+             }
+
+            return isUpdateIndexSucceeded;
+        }
+
+        public static bool UpdateChannelIndex(int nGroupId, List<int> lChannelIds, eAction eAction)
+        {
+            bool isUpdateChannelIndexSucceeded = false;
+
+            string sUseElasticSearch = GetConfigVal("indexer");
+            if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES"))
+            {
+                WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+
+                using (BaseLog updateChannelLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+                {
+                    try
+                    {
+
+                        if (lChannelIds != null && lChannelIds.Count > 0 && nGroupId > 0)
+                        {
+                            string sWSURL = GetCatalogUrl(nGroupId);
+                            if (!string.IsNullOrEmpty(sWSURL))
+                            {
+                                string[] addresses = sWSURL.Split(';');
+                                int[] ids = lChannelIds.ToArray();
+                                foreach (string endPointAddress in addresses)
+                                {
+                                    try
+                                    {
+                                        client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
+                                        isUpdateChannelIndexSucceeded = client.UpdateChannelIndex(ids, nGroupId, eAction);
+                                        string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        updateChannelLog.Info(string.Format("Update channel index {0} in catalog '{1}'", sInfo, endPointAddress));
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        updateChannelLog.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", endPointAddress, ex.Message));
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        updateChannelLog.Error(string.Format("{0} process failed due to the following error: {1}", MethodInfo.GetCurrentMethod().Name, ex.Message));
+                    }
+                    finally
+                    {
+                        if (client != null)
+                        {
+                            client.Close();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (lChannelIds != null && lChannelIds.Count > 0)
+                {
+                    isUpdateChannelIndexSucceeded = ImporterImpl.UpdateChannelInLucene(nGroupId, lChannelIds[0]);
+                }
+            }
+            return isUpdateChannelIndexSucceeded;
+        }
+
+        public static bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
+        {
+            bool res = true;
+            WSCatalog.IserviceClient client = null;
+            try
+            {
+                string sWSURL = GetCatalogUrl(nGroupID);
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
+                    string[] addresses = sWSURL.Split(';');
+                    if (addresses != null && addresses.Length > 0)
+                    {
+                        client = new WSCatalog.IserviceClient();
+                        int length = addresses.Length;
+                        for (int i = 0; i < length; i++)
+                        {
+                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(addresses[i]);
+                            res &= client.UpdateOperator(nGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
+                        }
+                    }
+                }               
+                
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder(String.Concat("Exception. Msg: ", ex.Message));
+                sb.Append(String.Concat(" Group ID: ", nGroupID));
+                sb.Append(String.Concat(" Operator ID: ", nOperatorID));
+                sb.Append(String.Concat(" Sub ID: ", nSubscriptionID));
+                sb.Append(String.Concat(" Channel ID: ", lChannelID));
+                sb.Append(String.Concat(" Operator Event: ", oe.ToString().ToLower()));
+                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
+                Logger.Logger.Log("UpdateOperator", sb.ToString(), "ImporterImpl");
+                #endregion
+                res = false;
+            }
+            finally
+            {
+                if (client != null)
+                    client.Close();
+            }
+
+            return res;
+        }
+    }
+}
