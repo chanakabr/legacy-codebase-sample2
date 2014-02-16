@@ -7,6 +7,8 @@ namespace ScheduledTasks
 {
     abstract public class BaseTask
     {
+        //test
+        
         protected Int32 m_nIntervalInSec;
         protected Int32 m_nTaskID;
         protected string m_sParameters;
