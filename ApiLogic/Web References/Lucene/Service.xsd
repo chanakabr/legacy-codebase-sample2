@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="MediaSearchObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_bExact" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_bUseFinalEndDate" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_bUseStartDate" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_dAnd" nillable="true" type="tns:ArrayOfSearchValue" />
+      <xs:element minOccurs="0" name="m_dOr" nillable="true" type="tns:ArrayOfSearchValue" />
+      <xs:element minOccurs="0" name="m_eCutWith" type="tns:CutWith" />
+      <xs:element minOccurs="0" name="m_eFilterTagsAndMetasCutWith" type="tns:CutWith" />
+      <xs:element minOccurs="0" name="m_lFilterTagsAndMetas" nillable="true" type="tns:ArrayOfSearchValue" />
+      <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nDeviceRuleId" nillable="true" type="q1:ArrayOfint" />
+      <xs:element minOccurs="0" name="m_nGroupId" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nIndexGroupId" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nLangID" type="xs:int" />
+      <xs:element xmlns:q2="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nMediaFileTypes" nillable="true" type="q2:ArrayOfint" />
+      <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nPageIndex" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nPageSize" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nUserTypeID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_oOrder" nillable="true" type="tns:OrderObj" />
+      <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sMediaTypes" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sPermittedWatchRules" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MediaSearchObj" nillable="true" type="tns:MediaSearchObj" />
+  <xs:complexType name="ArrayOfSearchValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="SearchValue" nillable="true" type="tns:SearchValue" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfSearchValue" nillable="true" type="tns:ArrayOfSearchValue" />
+  <xs:complexType name="SearchValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_eInnerCutWith" type="tns:CutWith" />
+      <xs:element xmlns:q3="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lValue" nillable="true" type="q3:ArrayOfstring" />
+      <xs:element minOccurs="0" name="m_sKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sKeyPrefix" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sValue" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SearchValue" nillable="true" type="tns:SearchValue" />
+  <xs:simpleType name="CutWith">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WCF_ONLY_DEFAULT_VALUE" />
+      <xs:enumeration value="OR" />
+      <xs:enumeration value="AND" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="CutWith" nillable="true" type="tns:CutWith" />
+  <xs:complexType name="OrderObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="lu_min_period_id" type="xs:int" />
+      <xs:element minOccurs="0" name="m_bIsSlidingWindowField" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_eOrderBy" type="tns:OrderBy" />
+      <xs:element minOccurs="0" name="m_eOrderDir" type="tns:OrderDir" />
+      <xs:element minOccurs="0" name="m_sOrderValue" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OrderObj" nillable="true" type="tns:OrderObj" />
+  <xs:simpleType name="OrderBy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ID" />
+      <xs:enumeration value="VIEWS">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-7</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="VOTES_COUNT">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-80</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="LIKE_COUNTER">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-9</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="START_DATE">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-10</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="NAME">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-11</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="CREATE_DATE">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-12</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="META">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">100</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="RANDOM">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-6</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="RELATED">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">31</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="NONE">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">101</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="OrderBy" nillable="true" type="tns:OrderBy" />
+  <xs:simpleType name="OrderDir">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ASC" />
+      <xs:enumeration value="DESC" />
+      <xs:enumeration value="NONE" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="OrderDir" nillable="true" type="tns:OrderDir" />
+  <xs:complexType name="SearchResultsObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_resultIDs" nillable="true" type="tns:ArrayOfSearchResult" />
+      <xs:element minOccurs="0" name="n_TotalItems" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SearchResultsObj" nillable="true" type="tns:SearchResultsObj" />
+  <xs:complexType name="ArrayOfSearchResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="SearchResult" nillable="true" type="tns:SearchResult" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfSearchResult" nillable="true" type="tns:ArrayOfSearchResult" />
+  <xs:complexType name="SearchResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="UpdateDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="assetID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SearchResult" nillable="true" type="tns:SearchResult" />
+  <xs:complexType name="ArrayOfMediaSearchObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MediaSearchObj" nillable="true" type="tns:MediaSearchObj" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMediaSearchObj" nillable="true" type="tns:ArrayOfMediaSearchObj" />
+  <xs:complexType name="ArrayOfChannelContainSearchObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ChannelContainSearchObj" nillable="true" type="tns:ChannelContainSearchObj" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfChannelContainSearchObj" nillable="true" type="tns:ArrayOfChannelContainSearchObj" />
+  <xs:complexType name="ChannelContainSearchObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_nChannelID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_oSearchObj" nillable="true" type="tns:MediaSearchObj" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ChannelContainSearchObj" nillable="true" type="tns:ChannelContainSearchObj" />
+  <xs:complexType name="ArrayOfChannelContainObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ChannelContainObj" nillable="true" type="tns:ChannelContainObj" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfChannelContainObj" nillable="true" type="tns:ArrayOfChannelContainObj" />
+  <xs:complexType name="ChannelContainObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_bContain" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_nChannelID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ChannelContainObj" nillable="true" type="tns:ChannelContainObj" />
+  <xs:complexType name="EpgSearchObj">
+    <xs:sequence />
+  </xs:complexType>
+  <xs:element name="EpgSearchObj" nillable="true" type="tns:EpgSearchObj" />
+</xs:schema>

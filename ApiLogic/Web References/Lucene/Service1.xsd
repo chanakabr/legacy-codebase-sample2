@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
+  <xs:import schemaLocation="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:element name="SearchMedias">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="oSearch" nillable="true" type="q1:MediaSearchObj" />
+        <xs:element minOccurs="0" name="nLangID" type="xs:int" />
+        <xs:element minOccurs="0" name="bUseStartDate" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SearchMediasResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="SearchMediasResult" nillable="true" type="q2:SearchResultsObj" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetAutoCompleteList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="oSearch" nillable="true" type="q3:MediaSearchObj" />
+        <xs:element minOccurs="0" name="nLangID" type="xs:int" />
+        <xs:element minOccurs="0" name="nTotalItems" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetAutoCompleteListResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="GetAutoCompleteListResult" nillable="true" type="q4:ArrayOfstring" />
+        <xs:element minOccurs="0" name="nTotalItems" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetChannelsMedias">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+        <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="channels" nillable="true" type="q5:ArrayOfint" />
+        <xs:element minOccurs="0" name="mediaTypes" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="nUserTypeID" type="xs:int" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="oOrder" nillable="true" type="q6:OrderObj" />
+        <xs:element minOccurs="0" name="pageIndex" type="xs:int" />
+        <xs:element minOccurs="0" name="pageSize" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetChannelsMediasResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="GetChannelsMediasResult" nillable="true" type="q7:SearchResultsObj" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateRecord">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+        <xs:element minOccurs="0" name="nMediaID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateRecordResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="UpdateRecordResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateChannel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+        <xs:element minOccurs="0" name="nChannelID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateChannelResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="UpdateChannelResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoveRecord">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+        <xs:element minOccurs="0" name="nMediaID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoveRecordResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RemoveRecordResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ClearAndBuildGroup">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ClearAndBuildGroupResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ClearAndBuildGroupResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SearchSubscriptionMedias">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nSubscriptionGroupId" type="xs:int" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="oSearch" nillable="true" type="q8:ArrayOfMediaSearchObj" />
+        <xs:element minOccurs="0" name="nLangID" type="xs:int" />
+        <xs:element minOccurs="0" name="bUseStartDate" type="xs:boolean" />
+        <xs:element minOccurs="0" name="sMediaTypes" nillable="true" type="xs:string" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="oOrderObj" nillable="true" type="q9:OrderObj" />
+        <xs:element minOccurs="0" name="nPageIndex" type="xs:int" />
+        <xs:element minOccurs="0" name="nPageSize" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SearchSubscriptionMediasResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="SearchSubscriptionMediasResult" nillable="true" type="q10:SearchResultsObj" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DoesMediaBelongToChannels">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+        <xs:element xmlns:q11="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lChannelIDs" nillable="true" type="q11:ArrayOfint" />
+        <xs:element minOccurs="0" name="nMediaID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DoesMediaBelongToChannelsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="DoesMediaBelongToChannelsResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSubscriptionContainingMedia">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="oSearch" nillable="true" type="q12:ArrayOfChannelContainSearchObj" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSubscriptionContainingMediaResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="GetSubscriptionContainingMediaResult" nillable="true" type="q13:ArrayOfChannelContainObj" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDoc">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+        <xs:element minOccurs="0" name="nMediaID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDocResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="GetDocResult" nillable="true" type="q14:SearchResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMediaChannels">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupID" type="xs:int" />
+        <xs:element minOccurs="0" name="nMediaID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMediaChannelsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q15="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="GetMediaChannelsResult" nillable="true" type="q15:ArrayOfint" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SearchEpgs">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="epgSearch" nillable="true" type="q16:EpgSearchObj" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SearchEpgsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="SearchEpgsResult" nillable="true" type="q17:SearchResultsObj" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetEpgAutoCompleteList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="oSearch" nillable="true" type="q18:EpgSearchObj" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetEpgAutoCompleteListResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q19="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="GetEpgAutoCompleteListResult" nillable="true" type="q19:ArrayOfstring" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
