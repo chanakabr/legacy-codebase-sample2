@@ -61,14 +61,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\..\..\Libs\External\TVM\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>..\External\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="Interop.CUWMAuthTickets">
-      <HintPath>..\..\..\..\Libs\External\TVM\Interop.CUWMAuthTickets.dll</HintPath>
+      <HintPath>..\External\Interop.CUWMAuthTickets.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\..\Libs\External\Newtonsoft\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\External\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -87,7 +87,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="TCMClient">
-      <HintPath>..\..\External\TVM\TCMClient.dll</HintPath>
+      <HintPath>..\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -135,17 +135,17 @@
     <Compile Include="ZipUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Modules\ApiObjects\ApiObjects.csproj">
+    <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
+      <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
+      <Name>AkamaiTokenGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
       <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Tools\LLNWMediaVault\LLNWMediaVault.csproj">
+    <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj">
       <Project>{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}</Project>
       <Name>LLNWMediaVault</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TokenGenerators\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
-      <Project>{4E22204A-9560-4E78-8805-EFED0D0EEC9D}</Project>
-      <Name>AkamaiTokenGenerator</Name>
     </ProjectReference>
     <ProjectReference Include="..\CachingManager\CachingManager.csproj">
       <Project>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</Project>
