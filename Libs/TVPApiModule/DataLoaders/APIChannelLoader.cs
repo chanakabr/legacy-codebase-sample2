@@ -20,6 +20,18 @@ namespace TVPApi
         private bool m_bShouldUseCache;
         private APIChannelMediaLoader m_oCatalogChannelLoader;
 
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
         private string TvmUser
         {
             get
@@ -121,6 +133,7 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
                     UseStartDate = bool.Parse(GetFutureStartDate),
+                    SiteGuid = SiteGuid 
                 };
 
                 return m_oCatalogChannelLoader.Execute() as dsItemInfo;

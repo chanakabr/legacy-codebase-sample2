@@ -20,6 +20,18 @@ namespace TVPApi
         private APIChannelsListsLoader m_oCatalogChannelsListsLoader;
 
 
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
         public PlatformType Platform
         {
             get
@@ -69,7 +81,8 @@ namespace TVPApi
             {
                 m_oCatalogChannelsListsLoader = new APIChannelsListsLoader(0, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
-                    Culture = Language
+                    Culture = Language,
+                    SiteGuid = SiteGuid
                 };
                 return m_oCatalogChannelsListsLoader.Execute() as dsItemInfo;
             }

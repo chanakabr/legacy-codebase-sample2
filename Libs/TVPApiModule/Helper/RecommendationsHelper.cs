@@ -15,6 +15,8 @@ using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.TvinciPlatform.api;
+using TVPPro.SiteManager.CatalogLoaders;
+
 
 namespace TVPApiModule.Helper
 {
@@ -169,22 +171,27 @@ namespace TVPApiModule.Helper
             return medias;
         }
 
-        internal static TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] GetLiveRecommendedMedias(string siteGuid, int groupID, PlatformType platform, string calture, string picSize, List<LiveRecommendation> liveRecommendations)
+        internal static List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> GetLiveRecommendedMedias(string siteGuid, int groupID, PlatformType platform, string calture, string picSize, List<LiveRecommendation> liveRecommendations)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] epgChannelProgrammes = null;
+            List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> epgChannelProgrammes = null;
 
-            string[] pids = liveRecommendations.Select(r => r.ProgramID).ToArray();
+            List<string> pids = liveRecommendations.Select(r => r.ProgramID).ToList();
 
             try
             {
-                ApiApiService apiService = new ApiApiService(groupID, platform);
+                //ApiApiService apiService = new ApiApiService(groupID, platform);
                 var lng = TextLocalizationManager.Instance.GetTextLocalization(groupID, platform).GetLanguages().Where(l => l.Culture == calture).FirstOrDefault();
-                Language language = Language.Hebrew;
+                Tvinci.Data.Loaders.TvinciPlatform.Catalog.Language language = Tvinci.Data.Loaders.TvinciPlatform.Catalog.Language.Hebrew;
                 if (lng != null)
-                    language = (Language)Enum.Parse(typeof(Language), lng.Name);
+                    language = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.Language)Enum.Parse(typeof(TVPPro.SiteManager.TvinciPlatform.api.Language), lng.Name);
 
                 var duration = (int)(RecommendationsHelper.GetEndTimeForLiveRequest(ConfigManager.GetInstance().GetConfig(groupID, platform).OrcaRecommendationsConfiguration) - DateTime.UtcNow).TotalMinutes;
-                epgChannelProgrammes = apiService.GetEPGProgramsByProgramsIdentefier(siteGuid, pids, language, duration);
+                epgChannelProgrammes = new EPGProgramsByProgramsIdentefierLoader(groupID, SiteHelper.GetClientIP(), pids.Count(), 0, pids, duration, language)
+                    {
+                        SiteGuid = siteGuid
+                    }.Execute() as List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>;
+
+                    //apiService.GetEPGProgramsByProgramsIdentefier(siteGuid, pids, language, duration);
                 
             }
             catch (Exception ex)
@@ -250,7 +257,10 @@ namespace TVPApiModule.Helper
             List<Media> retVal = null;
 
             // get channel medias 
-            dsItemInfo medias = new APIChannelMediaLoader(channelID, groupID, groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), maxResults, 0, null,picSize, null, CutWith.OR).Execute() as dsItemInfo;
+            dsItemInfo medias = new APIChannelMediaLoader(channelID, groupID, groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), maxResults, 0, null, picSize, null, CutWith.OR)
+                {
+                    SiteGuid = initObj.SiteGuid
+                }.Execute() as dsItemInfo;
             if (medias != null && medias.Item != null && medias.Item.Rows != null && medias.Item.Rows.Count > 0)
             {
                 retVal = new List<Media>();
@@ -279,6 +289,8 @@ namespace TVPApiModule.Helper
             else
                 return dtEndTime;
         }
+
+        public static TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] EPGProgramsByProgramsIdentefierLoader { get; set; }
     }
 }
 

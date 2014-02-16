@@ -52,7 +52,7 @@ namespace TVPApi
         {
             Media retVal = null;
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, MediaID.ToString()) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage }.Execute());
+            dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, MediaID.ToString()) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }.Execute());
             if (mediaInfo.Item != null && mediaInfo.Item.Count == 1)
             {
                 dsItemInfo.ItemRow row = mediaInfo.Item.Rows[0] as dsItemInfo.ItemRow;
@@ -67,7 +67,7 @@ namespace TVPApi
         {
             Media retVal = null;
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, MediaID.ToString()) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, Language = initObj.Locale.LocaleLanguage }.Execute());
+            dsItemInfo mediaInfo = (new APIMediaLoader(account.TVMUser, account.TVMPass, MediaID.ToString()) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }.Execute());
             if (mediaInfo.Item != null && mediaInfo.Item.Count == 1)
             {
                 dsItemInfo.ItemRow row = mediaInfo.Item.Rows[0] as dsItemInfo.ItemRow;
@@ -82,7 +82,7 @@ namespace TVPApi
         {
             List<Media> retVal = new List<Media>();
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            dsItemInfo mediaInfo = (new APIMultiMediaLoader(account.TVMUser, account.TVMPass, MediaIDs.Select(i => i.ToString()).ToArray(), picSize, mediaType) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, Language = initObj.Locale.LocaleLanguage }.Execute());
+            dsItemInfo mediaInfo = (new APIMultiMediaLoader(account.TVMUser, account.TVMPass, MediaIDs.Select(i => i.ToString()).ToArray(), picSize, mediaType) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }.Execute());
 
             foreach (dsItemInfo.ItemRow row in mediaInfo.Item.Rows)
                 retVal.Add(new Media(row, initObj, groupID, withDynamic, mediaInfo.Item.Count));
@@ -149,7 +149,8 @@ namespace TVPApi
                     CutType = SearchMediaLoader.eCutType.And,
                     DeviceUDID = initObj.UDID,
                     Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()),
-                    Language = initObj.Locale.LocaleLanguage 
+                    Language = initObj.Locale.LocaleLanguage ,
+                    SiteGuid = initObj.SiteGuid
                 };
 
             dsItemInfo mediaInfo = searchLoader.Execute();
@@ -175,7 +176,7 @@ namespace TVPApi
             // create a signature for search loader
             //string sSigature = string.Format(@"{0}={1}|{2}|{3}", tagName, value, groupID, initObj.Platform);
 
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass, dictTags) { dictMetas = dictMetas, MediaType = mediaType, SearchTokenSignature = sSigature, Platform = initObj.Platform, GroupID = groupID, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, PictureSize = picSize, CutType = SearchMediaLoader.eCutType.And, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass, dictTags) { dictMetas = dictMetas, MediaType = mediaType, SearchTokenSignature = sSigature, Platform = initObj.Platform, GroupID = groupID, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, PictureSize = picSize, CutType = SearchMediaLoader.eCutType.And, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
@@ -205,7 +206,7 @@ namespace TVPApi
             // create a signature for search loader
             //string sSigature = string.Format(@"{0}={1}|{2}|{3}", tagName, value, groupID, initObj.Platform);
 
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass, dictTags) { ExactSearch = true, dictMetas = dictMetas, MediaType = mediaType, SearchTokenSignature = sSigature, Platform = initObj.Platform, GroupID = groupID, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, PictureSize = picSize, CutType = SearchMediaLoader.eCutType.And, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass, dictTags) { ExactSearch = true, dictMetas = dictMetas, MediaType = mediaType, SearchTokenSignature = sSigature, Platform = initObj.Platform, GroupID = groupID, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, PictureSize = picSize, CutType = SearchMediaLoader.eCutType.And, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
@@ -230,7 +231,8 @@ namespace TVPApi
                 DeviceId = initObj.UDID, 
                 OrderMetaMame = orderMeta, 
                 OrderBy = orderBy, 
-                OrderDir = orderDir 
+                OrderDir = orderDir ,
+                SiteGuid = initObj.SiteGuid
             };
 
             //Removed 30/12/2013. Using orderBy and orderDir and orderMeta from request.
@@ -274,7 +276,7 @@ namespace TVPApi
             // create a signature for search loader
             string sSigature = string.Format(@"{0}={1}|{2}|{3}", tagName, value, groupID, initObj.Platform);
 
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass, dictTags) { MediaType = mediaType, SearchTokenSignature = sSigature, Platform = initObj.Platform, GroupID = groupID, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, PictureSize = picSize, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass, dictTags) { MediaType = mediaType, SearchTokenSignature = sSigature, Platform = initObj.Platform, GroupID = groupID, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, PictureSize = picSize, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
@@ -301,7 +303,7 @@ namespace TVPApi
             dictMetas.Add("Base ID", sSubID);
 
             //Remote paging
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { SearchTokenSignature = sSubID, GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = arrValues.Length, PictureSize = picSize, PageIndex = 0, OrderBy = (OrderBy)orderBy, MetaValues = sSubID, UseFinalEndDate = "true", DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { SearchTokenSignature = sSubID, GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = arrValues.Length, PictureSize = picSize, PageIndex = 0, OrderBy = (OrderBy)orderBy, MetaValues = sSubID, UseFinalEndDate = "true", DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
@@ -332,7 +334,7 @@ namespace TVPApi
                 dictMetas.Add(metaName, sValue);
             }
             //Remote paging
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { MediaType = mediaType, SearchTokenSignature = value, GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = pageSize, PictureSize = picSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, MetaValues = value, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { MediaType = mediaType, SearchTokenSignature = value, GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = pageSize, PictureSize = picSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, MetaValues = value, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
@@ -358,7 +360,7 @@ namespace TVPApi
             dictMetas.Add(metaName, value);
 
             //Remote paging
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = pageSize, PictureSize = picSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, IsPosterPic = false, MetaValues = value, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = pageSize, PictureSize = picSize, PageIndex = pageIndex, OrderBy = (OrderBy)orderBy, IsPosterPic = false, MetaValues = value, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
             dsItemInfo mediaInfo = searchLoader.Execute();
             searchLoader.TryGetItemsCount(out mediaCount);
 
@@ -396,7 +398,8 @@ namespace TVPApi
                 OrderBy = (TVPApi.OrderBy)orderBy,
                 DeviceUDID = initObj.UDID,
                 Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()),
-                Language = initObj.Locale.LocaleLanguage
+                Language = initObj.Locale.LocaleLanguage,
+                SiteGuid = initObj.SiteGuid
             };
 
             dsItemInfo mediaInfo = searchLoader.Execute();
@@ -478,7 +481,7 @@ namespace TVPApi
             }
 
             //Remote paging
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { Name = string.IsNullOrEmpty(text) ? null : text, GroupID = groupID, Platform = initObj.Platform, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPApi.OrderBy)orderBy, PictureSize = picSize, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { Name = string.IsNullOrEmpty(text) ? null : text, GroupID = groupID, Platform = initObj.Platform, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPApi.OrderBy)orderBy, PictureSize = picSize, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
             dsItemInfo mediaInfo = searchLoader.Execute();
             searchLoader.TryGetItemsCount(out mediaCount);
 
@@ -519,7 +522,7 @@ namespace TVPApi
             }
 
             //Remote paging
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { Name = string.IsNullOrEmpty(text) ? null : text, PictureSize = picSize, GroupID = groupID, Platform = initObj.Platform, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPApi.OrderBy)orderBy, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { Name = string.IsNullOrEmpty(text) ? null : text, PictureSize = picSize, GroupID = groupID, Platform = initObj.Platform, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, OrderBy = (TVPApi.OrderBy)orderBy, DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
@@ -716,7 +719,8 @@ namespace TVPApi
                         GetFutureStartDate = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate,
                         Language = initObj.Locale.LocaleLanguage,
                         TagsMetas = tagsMetas,
-                        CutWith = cutWith
+                        CutWith = cutWith,
+                        SiteGuid = initObj.SiteGuid
                     };
 
                     mediaInfo = channelLoader.Execute();
@@ -724,13 +728,13 @@ namespace TVPApi
                     isPaged = true;
                     break;
                 case LoaderType.Related:
-                    APIRelatedMediaLoader relatedLoader = new APIRelatedMediaLoader(ID, user, pass) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, IsPosterPic = false, DeviceUDID = initObj.UDID, MediaTypes = reqMediaTypes, Language = initObj.Locale.LocaleLanguage };
+                    APIRelatedMediaLoader relatedLoader = new APIRelatedMediaLoader(ID, user, pass) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, IsPosterPic = false, DeviceUDID = initObj.UDID, MediaTypes = reqMediaTypes, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
                     mediaInfo = relatedLoader.Execute();
                     relatedLoader.TryGetItemsCount(out mediaCount);
                     isPaged = true;
                     break;
                 case LoaderType.PeopleWhoWatched:
-                    mediaInfo = (new APIPeopleWhoWatchedLoader(user, pass, ID, picSize) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, IsPosterPic = false, Language = initObj.Locale.LocaleLanguage }).Execute();
+                    mediaInfo = (new APIPeopleWhoWatchedLoader(user, pass, ID, picSize) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, IsPosterPic = false, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }).Execute();
                     isPaged = true;
                     break;
                 case LoaderType.LastWatched:
@@ -743,7 +747,7 @@ namespace TVPApi
                     isPaged = true;
                     break;
                 default:
-                    mediaInfo = (new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage }.Execute());
+                    mediaInfo = (new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }.Execute());
                     isPaged = true;
                     break;
             }
@@ -805,7 +809,8 @@ namespace TVPApi
                         GetFutureStartDate = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate,
                         Language = initObj.Locale.LocaleLanguage,
                         TagsMetas = tagsMetas,
-                        CutWith = cutWith
+                        CutWith = cutWith,
+                        SiteGuid = initObj.SiteGuid
                     };
 
                     mediaInfo = channelLoader.Execute();
@@ -813,13 +818,13 @@ namespace TVPApi
                     isPaged = true;
                     break;
                 case LoaderType.Related:
-                    APIRelatedMediaLoader relatedLoader = new APIRelatedMediaLoader(ID, user, pass) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, IsPosterPic = false, DeviceUDID = initObj.UDID, MediaTypes = reqMediaTypes, Language = initObj.Locale.LocaleLanguage };
+                    APIRelatedMediaLoader relatedLoader = new APIRelatedMediaLoader(ID, user, pass) { GroupID = groupID, Platform = initObj.Platform, PicSize = picSize, WithInfo = true, PageSize = pageSize, PageIndex = pageIndex, IsPosterPic = false, DeviceUDID = initObj.UDID, MediaTypes = reqMediaTypes, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
                     mediaInfo = relatedLoader.Execute();
                     relatedLoader.TryGetItemsCount(out mediaCount);
                     isPaged = true;
                     break;
                 case LoaderType.PeopleWhoWatched:
-                    mediaInfo = (new APIPeopleWhoWatchedLoader(user, pass, ID, picSize) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, IsPosterPic = false, Language = initObj.Locale.LocaleLanguage }).Execute();
+                    mediaInfo = (new APIPeopleWhoWatchedLoader(user, pass, ID, picSize) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, IsPosterPic = false, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }).Execute();
                     isPaged = false;
                     break;
                 case LoaderType.LastWatched:
@@ -830,7 +835,7 @@ namespace TVPApi
                     mediaInfo = new TVPApiModule.DataLoaders.APIPersonalRecommendedLoader(user, pass) { GroupID = groupID, Platform = initObj.Platform, WithInfo = true, SiteGuid = initObj.SiteGuid, PageSize = pageSize, PageIndex = pageIndex, PicSize = picSize, MediaTypes = reqMediaTypes, Language = initObj.Locale.LocaleLanguage }.Execute();
                     break;
                 default:
-                    mediaInfo = (new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage }.Execute());
+                    mediaInfo = (new APIChannelLoader(user, pass, ID, picSize) { WithInfo = true, GroupID = groupID, Platform = initObj.Platform, DeviceUDID = initObj.UDID, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }.Execute());
                     break;
             }
 
@@ -910,7 +915,7 @@ namespace TVPApi
                             {
                                 tempMediaType = mediaType;
                             }
-                            mediaInfo = (new APIMultiMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, favoritesList, picSize, tempMediaType) { GroupID = groupID, Platform = initObj.Platform, PageSize = 20, Language = initObj.Locale.LocaleLanguage }).Execute();
+                            mediaInfo = (new APIMultiMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, favoritesList, picSize, tempMediaType) { GroupID = groupID, Platform = initObj.Platform, PageSize = 20, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }).Execute();
                         }
                         //LogManager.Instance.Log(groupID, "Favorites", string.Format("Found {0} favorites", favoritesList != null ? favoritesList.Length.ToString() : "0")); 
 
@@ -1053,7 +1058,7 @@ namespace TVPApi
             List<Media> retVal = new List<Media>();
 
             TVMAccountType parentAccount = SiteMapManager.GetInstance.GetPageData(iGroupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            dsItemInfo mediaInfo = new APITVMSubscriptionMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, sBaseID) { MediaType = mediaType, WithInfo = true, Platform = initObj.Platform, GroupID = iGroupID, PageIndex = pageIndex, PageSize = pageSize, PicSize = picSize, BaseID = sBaseID, Language = initObj.Locale.LocaleLanguage }.Execute();
+            dsItemInfo mediaInfo = new APITVMSubscriptionMediaLoader(parentAccount.TVMUser, parentAccount.TVMPass, sBaseID) { MediaType = mediaType, WithInfo = true, Platform = initObj.Platform, GroupID = iGroupID, PageIndex = pageIndex, PageSize = pageSize, PicSize = picSize, BaseID = sBaseID, Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid }.Execute();
 
             if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
             {
