@@ -81,6 +81,18 @@ namespace TVPApiModule.DataLoaders
             }
         }
 
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
         public APITVMSubscriptionMediaLoader(long BaseID)
             : base(BaseID)
         {
@@ -116,7 +128,8 @@ namespace TVPApiModule.DataLoaders
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
                     Culture = Language,
-                    MediaTypes = MediaType.HasValue ? new List<int>() { MediaType.Value } : null
+                    MediaTypes = MediaType.HasValue ? new List<int>() { MediaType.Value } : null,
+                    SiteGuid = SiteGuid
                 };
                 return m_oSubscriptionMediaLoader.Execute() as dsItemInfo;
             }

@@ -15,7 +15,17 @@ namespace TVPApiModule.DataLoaders
 {
     public class APIMultiMediaLoader : TVMMultiMediaLoader
     {
-
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
         public int GroupID
         {
             get
@@ -84,7 +94,8 @@ namespace TVPApiModule.DataLoaders
                 {
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
-                    Culture = Language,                    
+                    Culture = Language,
+                    SiteGuid = SiteGuid
                 }.Execute() as dsItemInfo;
             }
             else

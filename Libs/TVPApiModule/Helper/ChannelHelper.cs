@@ -14,20 +14,20 @@ namespace TVPApiModule.Helper
             List<Channel> lstRet = new List<Channel>();
 
             // get all types of channel list
-            lstRet.AddRange(GetChannelsListByAccountType(picSize, groupID, initObj.Platform, AccountType.Parent));
-            lstRet.AddRange(GetChannelsListByAccountType(picSize, groupID, initObj.Platform, AccountType.Regular));
-            lstRet.AddRange(GetChannelsListByAccountType(picSize, groupID, initObj.Platform, AccountType.Fictivic));
+            lstRet.AddRange(GetChannelsListByAccountType(picSize, groupID, initObj.Platform, AccountType.Parent, initObj.SiteGuid));
+            lstRet.AddRange(GetChannelsListByAccountType(picSize, groupID, initObj.Platform, AccountType.Regular, initObj.SiteGuid));
+            lstRet.AddRange(GetChannelsListByAccountType(picSize, groupID, initObj.Platform, AccountType.Fictivic, initObj.SiteGuid));
             return lstRet;
         }
 
-        private static List<Channel> GetChannelsListByAccountType(string picSize, int groupID, PlatformType platform, AccountType accountType)
+        private static List<Channel> GetChannelsListByAccountType(string picSize, int groupID, PlatformType platform, AccountType accountType, string siteGuid)
         {
             List<Channel> retVal = new List<Channel>();
 
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(accountType);
 
             // get data
-            dsItemInfo _dsItemInfo = new APIChannelsListLoader(groupID, account.TVMUser, account.TVMPass, picSize){Platform = platform}.Execute();
+            dsItemInfo _dsItemInfo = new APIChannelsListLoader(groupID, account.TVMUser, account.TVMPass, picSize){Platform = platform, SiteGuid = siteGuid}.Execute();
 
             if (_dsItemInfo.Channel != null && _dsItemInfo.Channel.Count > 0)
             {
