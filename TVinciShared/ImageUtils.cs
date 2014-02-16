@@ -1,0 +1,503 @@
+using System;
+using System.Data;
+using System.Configuration;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+using System.Web.UI.HtmlControls;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Net;
+
+namespace TVinciShared
+{
+    /// <summary>
+    /// Summary description for ImageUtils
+    /// </summary>
+    public class ImageUtils
+    {
+        public ImageUtils()
+        {
+            //
+            // TODO: Add constructor logic here
+            //
+        }
+
+        static protected void GetNewSize(ref System.Drawing.Image theImage,
+        ref Int32 nWidth, ref Int32 nHeight)
+        {
+            Int32 nOrigWidth = theImage.Width;
+            Int32 nOrigHeight = theImage.Height;
+            Int32 nNewWidth = nWidth;
+            Int32 nNewHeight = nHeight;
+            if ((double)((double)nOrigWidth / (double)nNewWidth) > (double)((double)nOrigHeight / (double)nNewHeight))
+            {
+                nNewHeight = (Int32)(((double)nOrigHeight) * ((double)((double)nNewWidth / (double)nOrigWidth)));
+                if (nNewHeight > nOrigHeight)
+                {
+                    nNewWidth = nOrigWidth;
+                    nNewHeight = nOrigHeight;
+                }
+            }
+            else
+            {
+                nNewWidth = (Int32)(((double)nOrigWidth) * ((double)((double)nNewHeight / (double)nOrigHeight)));
+                if (nNewWidth > nOrigWidth)
+                {
+                    nNewWidth = nOrigWidth;
+                    nNewHeight = nOrigHeight;
+                }
+            }
+            nWidth = nNewWidth;
+            nHeight = nNewHeight;
+        }
+
+        static protected void GetNewSizeForCrop(ref System.Drawing.Image theImage,
+            ref Int32 nWidth, ref Int32 nHeight)
+        {
+            Int32 nOrigWidth = theImage.Width;
+            Int32 nOrigHeight = theImage.Height;
+            Int32 nNewWidth = nWidth;
+            Int32 nNewHeight = nHeight;
+            if ((double)((double)nOrigWidth / (double)nNewWidth) < (double)((double)nOrigHeight / (double)nNewHeight))
+            {
+                nNewHeight = (Int32)(((double)nOrigHeight) * ((double)((double)nNewWidth / (double)nOrigWidth)));
+                if (nNewHeight > nOrigHeight)
+                {
+                    nNewWidth = nOrigWidth;
+                    nNewHeight = nOrigHeight;
+                }
+            }
+            else
+            {
+                nNewWidth = (Int32)(((double)nOrigWidth) * ((double)((double)nNewHeight / (double)nOrigHeight)));
+                if (nNewWidth > nOrigWidth)
+                {
+                    nNewWidth = nOrigWidth;
+                    nNewHeight = nOrigHeight;
+                }
+            }
+            nWidth = nNewWidth;
+            nHeight = nNewHeight;
+        }
+
+        static public string GetDateImageName()
+        {
+            DateTime MyDate = DateTime.UtcNow;
+            return MyDate.ToString("ddMMyyhhmmssff");
+        }
+
+        static public string GetDateImageName(int mediaID)
+        {
+            string retVal = string.Empty;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += " select p.base_url, m.id from pics p, media m where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.id", "=", mediaID);
+            selectQuery += " and p.id = m.media_pic_id and p.status = 1";
+            selectQuery.SetCachedSec(0);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int count = selectQuery.Table("query").DefaultView.Count;
+                if (count > 0)
+                {
+                    retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString();
+                    if (retVal.IndexOf('.') > 0)
+                    {
+                        retVal = retVal.Substring(0, retVal.IndexOf('.'));
+                        Logger.Logger.Log("BaseURL", string.Format("media:{0}, base:{1}", mediaID, retVal), "GetDateImageName");
+                    }
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            
+            if (string.IsNullOrEmpty(retVal))
+            {
+                retVal = GetDateImageName();
+            }
+
+            return retVal;
+        }
+
+        static public ImageFormat GetFileFormat(string sPath)
+        {
+            string sFileExt = "";
+            int ExtractPos = sPath.LastIndexOf(".");
+            if (ExtractPos > 0)
+                sFileExt = sPath.Substring(ExtractPos);
+            if (sFileExt.StartsWith("."))
+                sFileExt = sFileExt.Substring(1).ToUpper();
+            if (sFileExt == "GIF")
+                return ImageFormat.Gif;
+            else if (sFileExt == "JPG")
+                return ImageFormat.Jpeg;
+            else if (sFileExt == "JPEG")
+                return ImageFormat.Jpeg;
+            else if (sFileExt == "JPEG")
+                return ImageFormat.Jpeg;
+            else if (sFileExt == "BMP")
+                return ImageFormat.Bmp;
+            else if (sFileExt == "PNG")
+                return ImageFormat.Png;
+            else
+                return ImageFormat.Jpeg;
+
+
+        }
+
+        static System.Drawing.Image FixedSize(System.Drawing.Image imgPhoto, int Width, int Height)
+        {
+            Bitmap bmPhoto = new Bitmap(Width, Height,
+                              PixelFormat.Format24bppRgb);
+            bmPhoto.SetResolution(imgPhoto.HorizontalResolution, imgPhoto.VerticalResolution);
+            Graphics grPhoto = Graphics.FromImage(bmPhoto);
+            grPhoto.Clear(Color.Transparent);
+            setGraphicsQuality(ref grPhoto);
+
+            grPhoto.DrawImage(imgPhoto, 0, 0, Width, Height);
+            grPhoto.Dispose();
+            return bmPhoto;
+        }
+
+        static System.Drawing.Image Crop(System.Drawing.Image imgPhoto, int nCorpWidth, int nCorpHeight, Int32 nOrigWidth, Int32 nOrigHeight)
+        {
+            Bitmap bmPhoto = new Bitmap(nCorpWidth, nCorpHeight, PixelFormat.Format24bppRgb);
+            bmPhoto.SetResolution(imgPhoto.HorizontalResolution, imgPhoto.VerticalResolution);
+
+            Graphics grPhoto = Graphics.FromImage(bmPhoto);
+            grPhoto.Clear(Color.Transparent);
+            setGraphicsQuality(ref grPhoto);
+            Int32 nX = (nOrigWidth - nCorpWidth) / 2;
+            Int32 nY = (nOrigHeight - nCorpHeight) / 2; ;
+            if (nX < 0)
+                nX = 0;
+            if (nY < 0)
+                nY = 0;
+            Rectangle rectDestination = new Rectangle(0, 0, bmPhoto.Width, bmPhoto.Height);
+            Rectangle rectCropArea = new Rectangle(nX, nY, bmPhoto.Width, bmPhoto.Height);
+
+            grPhoto.DrawImage(imgPhoto, rectDestination, rectCropArea, GraphicsUnit.Pixel);
+            grPhoto.Dispose();
+            return bmPhoto;
+        }
+
+        static public void RenameImage(string sOld , string sNew)
+        {
+            try
+            {
+                System.IO.File.Copy(sOld, sNew);
+
+                /*
+                long quality = 100L;
+                if (sNew.EndsWith("jpg"))
+                {
+                    quality = 80L;
+                }
+                EncoderParameter qualityParam = new EncoderParameter(Encoder.Quality, quality);
+
+                //Get the encoder type
+                ImageCodecInfo oCodec = getEncoderInfo(GetEncoderType(sNew));
+
+                EncoderParameters encoderParams = new EncoderParameters(1);
+                encoderParams.Param[0] = qualityParam;
+
+                System.Drawing.Image fullSizeImg = System.Drawing.Image.FromFile(sOld);
+                if (File.Exists(sNew) == false)
+                    fullSizeImg.Save(sNew, oCodec, encoderParams);
+                fullSizeImg.Dispose();
+                */ 
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("RenameImage", "old:"+sOld+", new:"+sNew+", ex:" + ex.Message, "PicResize");
+            }
+        }
+        /*
+        static public void ResizeImageAndSave(string sFullImagePath, string sResizablePath, Int32 nNewWidth, Int32 nNewHeight, bool bCrop)
+        {
+            System.Drawing.Image fullSizeImg = System.Drawing.Image.FromFile(sFullImagePath);
+            if (bCrop == false)
+            {
+                GetNewSize(ref fullSizeImg, ref nNewWidth, ref nNewHeight);
+                System.Drawing.Image bmp = FixedSize(fullSizeImg, nNewWidth, nNewHeight);
+                bmp.Save(sResizablePath, ImageFormat.Png);
+                bmp.Dispose();
+            }
+            else
+            {
+                Int32 nWidth = nNewWidth;
+                Int32 nHeight = nNewHeight;
+                GetNewSizeForCrop(ref fullSizeImg, ref nNewWidth, ref nNewHeight);
+                System.Drawing.Image bmpTmp = FixedSize(fullSizeImg, nNewWidth, nNewHeight);
+                System.Drawing.Image bmp = Crop(bmpTmp, nWidth, nHeight, nNewWidth, nNewHeight);
+                bmp.Save(sResizablePath, ImageFormat.Png);
+                bmp.Dispose();
+            }
+            fullSizeImg.Dispose();
+        }
+        */
+
+        static public void DynamicResizeImage(string sFullImageURL, Int32 nNewWidth, Int32 nNewHeight, bool bCrop, ref System.Drawing.Image i)
+        {
+            try
+            {
+                //Bitmap theImage = new Bitmap(imageStream);
+                if (bCrop == false)
+                {
+                    GetNewSize(ref i, ref nNewWidth, ref nNewHeight);
+                    i = FixedSize(i, nNewWidth, nNewHeight);
+                }
+                else
+                {
+                    Int32 nWidth = nNewWidth;
+                    Int32 nHeight = nNewHeight;
+                    GetNewSizeForCrop(ref i, ref nNewWidth, ref nNewHeight);
+                    i = FixedSize(i, nNewWidth, nNewHeight);
+                    i = Crop(i, nWidth, nHeight, nNewWidth, nNewHeight);
+                }
+
+                // Encoder parameter for image quality
+                //long quality = 100L;
+
+                //EncoderParameter qualityParam = new EncoderParameter(Encoder.Quality, quality);
+
+                ////Get the encoder type
+                //ImageCodecInfo oCodec = getEncoderInfo(GetEncoderType(sFullImageURL));
+                ////EncoderParameters encoderParams = new EncoderParameters(1);
+                //EncoderParameters encoderParams = i.GetEncoderParameterList(oCodec.Clsid);
+                ////encoderParams.Param[0] = qualityParam;
+                ////i.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Domain", "error resizing image " + sFullImageURL, "proxy");
+            }
+        }
+
+        static public void ResizeImageAndSave(string sFullImagePath, string sResizablePath, Int32 nNewWidth, Int32 nNewHeight, bool bCrop, bool isOverride)
+        {
+            System.Drawing.Image bmp = null;
+            System.Drawing.Image fullSizeImg = System.Drawing.Image.FromFile(sFullImagePath);
+            try
+            {
+                if (bCrop == false)
+                {
+                    GetNewSize(ref fullSizeImg, ref nNewWidth, ref nNewHeight);
+                    bmp = FixedSize(fullSizeImg, nNewWidth, nNewHeight);
+                }
+                else
+                {
+                    Int32 nWidth = nNewWidth;
+                    Int32 nHeight = nNewHeight;
+                    GetNewSizeForCrop(ref fullSizeImg, ref nNewWidth, ref nNewHeight);
+                    System.Drawing.Image bmpTmp = FixedSize(fullSizeImg, nNewWidth, nNewHeight);
+                    bmp = Crop(bmpTmp, nWidth, nHeight, nNewWidth, nNewHeight);
+                }
+
+                // Encoder parameter for image quality
+
+                long quality = 100L;
+                if (sFullImagePath.EndsWith("jpg"))
+                {
+                    quality = 80L;
+                }
+
+                EncoderParameter qualityParam = new EncoderParameter(Encoder.Quality, quality);
+
+                //Get the encoder type
+                ImageCodecInfo oCodec = getEncoderInfo(GetEncoderType(sResizablePath));
+
+                EncoderParameters encoderParams = new EncoderParameters(1);
+                //EncoderParameters encoderParams = fullSizeImg.GetEncoderParameterList(oCodec.Clsid);
+                encoderParams.Param[0] = qualityParam;
+                if (File.Exists(sResizablePath) == false || isOverride)
+                {
+                    bmp.Save(sResizablePath, oCodec, encoderParams);
+                    Logger.Logger.Log("Pic Resize", "Pic " + sResizablePath + " saved ", "PicResize");
+                }
+                //bmp.Save(sResizablePath);
+                //bmp.Save(sResizablePath, ImageFormat.Png);
+                bmp.Dispose();
+
+                fullSizeImg.Dispose();
+            }
+            catch (Exception ex)
+            {
+                if (bmp != null)
+                {
+                    bmp.Dispose();
+                    Logger.Logger.Log("Pic Resize", "Pic " + sResizablePath + " not saved " + ex.Message, "PicResize");
+                }
+            }
+        }
+
+        static public void ResizeImageAndSave(string sFullImagePath, string sResizablePath, Int32 nNewWidth, Int32 nNewHeight, bool bCrop)
+        {
+            ResizeImageAndSave(sFullImagePath, sResizablePath, nNewWidth, nNewHeight, bCrop, false);
+        }
+        
+        static public string GetEncoderType(string sFileName)
+        {
+            ImageFormat oImageFormat = GetFileFormat(sFileName);
+
+            if (oImageFormat == ImageFormat.Png)
+                return "image/png";
+            else if (oImageFormat == ImageFormat.Jpeg)
+                return "image/jpeg";
+            else if (oImageFormat == ImageFormat.Bmp)
+                return "image/bmp";
+            else if (oImageFormat == ImageFormat.Gif)
+                return "image/gif";
+            else
+                return "image/jpeg";
+        }
+
+        static private ImageCodecInfo getEncoderInfo(string mimeType)
+        {
+            // Get image codecs for all image formats
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
+
+            // Find the correct image codec
+            for (int i = 0; i < codecs.Length; i++)
+                if (codecs[i].MimeType == mimeType)
+                    return codecs[i];
+
+            return null;
+        }
+
+        static public string GetTNName(string sBaseName, string sEnding)
+        {
+            string sRet = "";
+            string[] s = sBaseName.Split('.');
+            if (s.Length == 2)
+            {
+                sRet += s[0] + "_";
+                sRet += sEnding;
+                sRet += ".";
+                sRet += s[1];
+                if (sEnding.Equals("tn"))
+                {
+                    Random random = new Random();
+                    int randomInt = random.Next();
+                    sRet += "?";
+                    sRet += randomInt.ToString();
+                }
+            }
+            return sRet;
+        }
+
+        static private void setGraphicsQuality(ref Graphics g)
+        {
+            //g.InterpolationMode =
+                //System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
+            g.PixelOffsetMode =
+                System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+            g.SmoothingMode =
+                System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+        }
+
+        static public string DownloadWebImage(string sURL)
+        {
+            return DownloadWebImage(sURL, string.Empty);
+        }
+
+        static public string DownloadWebImage(string sURL, string sDirectory)
+        {
+            Logger.Logger.Log("File downloaded", "Start Download Url:" + " " + sURL, "DownloadFile");
+            try
+            {
+                string sBasePath = "";
+                if (string.IsNullOrEmpty(sDirectory))
+                {
+                    if (HttpContext.Current != null)
+                        sBasePath = HttpContext.Current.Server.MapPath("");
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(HttpRuntime.AppDomainAppPath))
+                        {
+                            sBasePath = HttpRuntime.AppDomainAppPath;
+                        }
+                        else
+                            sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    }
+
+                    Logger.Logger.Log("Web path", sBasePath, "DownloadFile");
+                }
+                else
+                {
+                    sBasePath = sDirectory;
+                }
+                //string sBasePath = HttpContext.Current.Server.MapPath("");
+                char[] delim = { '/' };
+                Uri uri = new Uri(sURL);
+                string[] splited = sURL.Split(delim);
+                string sPicBaseName = splited[splited.Length - 1];
+                if (sPicBaseName.IndexOf("?") != -1 && sPicBaseName.IndexOf("uuid") != -1)
+                {
+                    Int32 nStart = sPicBaseName.IndexOf("uuid=" , 0) + 5;
+                    Int32 nEnd = sPicBaseName.IndexOf("&" , nStart);
+                    if (nEnd != 4)
+                        sPicBaseName = sPicBaseName.Substring(nStart, nEnd - nStart);
+                    else
+                        sPicBaseName = sPicBaseName.Substring(nStart);
+                    sPicBaseName += ".jpg";
+                }
+                string sTmpImage = sBasePath + "/pics/" + sPicBaseName;
+                //Uri uri = new Uri("http://maps.google.com/staticmap?center=45.728220,4.830321&zoom=8&size=200x200&maptype=roadmap&key=ABQIAAAAaHAby4XeLCIadFkAUW4vmRSkJGe9mG57rOapogjk9M-sm4TzXxR2I7bi2Qkj-opZe16CdmDs7_dNrQ");
+
+                HttpWebRequest httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
+                HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                
+
+                /*
+                Stream imageStream = httpResponse.GetResponseStream();
+                Bitmap theImage = new Bitmap(imageStream);
+                httpResponse.Close();
+                Logger.Logger.Log("Try to save file ", sTmpImage, "DownloadFile");
+                Bitmap temp = (Bitmap)(theImage.Clone());
+                
+                imageStream.Close();
+                theImage.Dispose();
+                if (File.Exists(sTmpImage) == false)
+                {
+                 //   theImage.Save(sTmpImage);
+                    temp.Save(sTmpImage);
+                }
+                temp.Dispose();
+                */
+
+                
+                using (Stream inputStream = httpResponse.GetResponseStream())
+                using (Stream outputStream = File.OpenWrite(sTmpImage))
+                {
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+                    do
+                    {
+                        bytesRead = inputStream.Read(buffer, 0, buffer.Length);
+                        outputStream.Write(buffer, 0, bytesRead);
+                    } while (bytesRead != 0);
+                }
+                httpResponse.Close();
+                
+
+
+                Logger.Logger.Log("File downloaded", "Url:" + " " + sURL + " " + "File:" + " " + sPicBaseName, "DownloadFile");
+                return sPicBaseName;
+            }
+            catch (Exception ex)
+            {
+                if (sURL.Contains("http"))
+                {
+                    Logger.Logger.Log("Exception", sURL + " " + ex.Message + " " + ex.InnerException, "DownloadFile", "Exception on download image " + sURL + " " + ex.Message);
+                }
+                Logger.Logger.Log("Exception", sURL + " " + ex.Message + " " + ex.InnerException, "DownloadFile");
+                return "";
+            }
+        }
+
+    }
+}

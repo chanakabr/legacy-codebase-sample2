@@ -1,0 +1,234 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TVinciShared</RootNamespace>
+    <AssemblyName>TVinciShared</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <PublishUrl>http://localhost/TVinciShared/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\..\..\..\Libs\External\TVM\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.CUWMAuthTickets">
+      <HintPath>..\..\..\..\Libs\External\TVM\Interop.CUWMAuthTickets.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\Libs\External\Newtonsoft\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TCMClient">
+      <HintPath>..\..\External\TVM\TCMClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CacheServerNotifier.cs" />
+    <Compile Include="CertificateTruster.cs" />
+    <Compile Include="Channel.cs" />
+    <Compile Include="ConcurrentUtils.cs" />
+    <Compile Include="CookieUtils.cs" />
+    <Compile Include="CSVReader.cs" />
+    <Compile Include="DateUtils.cs" />
+    <Compile Include="DBChunkUpdater.cs" />
+    <Compile Include="DBManipulator.cs" />
+    <Compile Include="DBRecordWebEditor.cs" />
+    <Compile Include="DBTableWebEditor.cs" />
+    <Compile Include="FTPUploader.cs" />
+    <Compile Include="HashUtils.cs" />
+    <Compile Include="Hitter.cs" />
+    <Compile Include="ImageUtils.cs" />
+    <Compile Include="IngestionUtils.cs" />
+    <Compile Include="JSONUtils.cs" />
+    <Compile Include="LoginManager.cs" />
+    <Compile Include="Mailer.cs" />
+    <Compile Include="Menu.cs" />
+    <Compile Include="Notifier.cs" />
+    <Compile Include="ObjectCopier.cs" />
+    <Compile Include="PageUtils.cs" />
+    <Compile Include="PasswordGenerator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="ProtocolsFuncs.cs" />
+    <Compile Include="ScheualerManager.cs" />
+    <Compile Include="UMObj.cs" />
+    <Compile Include="Web References\Lucene_WCF\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Utils.cs" />
+    <Compile Include="XmlSerialize.cs" />
+    <Compile Include="XmlUtils.cs" />
+    <Compile Include="ZipUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Modules\ApiObjects\ApiObjects.csproj">
+      <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Modules\Tools\LLNWMediaVault\LLNWMediaVault.csproj">
+      <Project>{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}</Project>
+      <Name>LLNWMediaVault</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TokenGenerators\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
+      <Project>{4E22204A-9560-4E78-8805-EFED0D0EEC9D}</Project>
+      <Name>AkamaiTokenGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CachingManager\CachingManager.csproj">
+      <Project>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</Project>
+      <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Logger\Logger.csproj">
+      <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
+      <Name>Logger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CUWMAuthTickets.dll" />
+    <None Include="Web References\Lucene_WCF\SearchResultsObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\Lucene_WCF\Service.disco" />
+    <None Include="Web References\Lucene_WCF\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\Lucene_WCF\Service.wsdl" />
+    <None Include="Web References\Lucene_WCF\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\Lucene_WCF\Service0.wsdl" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://localhost/LuceneWCF/Service.svc">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Lucene_WCF\</RelPath>
+      <UpdateFromURL>http://localhost/LuceneWCF/Service.svc</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>TVinciShared_Lucene_WCF_Service</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
