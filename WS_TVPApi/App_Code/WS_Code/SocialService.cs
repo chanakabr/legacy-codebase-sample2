@@ -10,6 +10,7 @@ using System.Web.Script.Serialization;
 using Tvinci.Data.TVMDataLoader.Protocols.ChannelsMedia;
 using TVPApi;
 using TVPApiModule.Objects;
+using TVPPro.SiteManager.DataLoaders;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
 using log4net;
@@ -479,8 +480,11 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
-        public string GetSocialFeed(InitializationObject initObj, int mediaId)
+        public SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId)
         {
+
+            SocialFeed resSocialFeed = new SocialFeed();
+
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
@@ -488,28 +492,48 @@ namespace TVPApiServices
                 {
                     int siteGuid;
                     if (mediaId == 0)
-                        return "No mediaId";
-
+                    {
+                        resSocialFeed.Error = "No mediaId";
+                        return resSocialFeed;
+                    }
                     if (!int.TryParse(initObj.SiteGuid, out siteGuid))
-                        return "No siteGuid";
+                    {
+                        resSocialFeed.Error = "No siteGuid";
+                        return resSocialFeed;
+                    }
+                    using (WebClient webClient = new WebClient())
+                    {
+                        webClient.QueryString.Add("mediaId", mediaId.ToString());
+                        webClient.QueryString.Add("groupId", groupId.ToString());
+                        webClient.QueryString.Add("siteGuid", initObj.SiteGuid);
+                        using (StreamReader streamReader = new StreamReader(webClient.OpenRead(ConfigurationManager.AppSettings["SocialFeedProxy"])))
+                        {
+                            string socialFeedStr = streamReader.ReadToEnd();
+                            try
+                            {
+                                resSocialFeed.Feed = new JavaScriptSerializer().Deserialize<SerializableDictionary<string, List<SocialFeedItem>>>(socialFeedStr);
+                            }
+                            catch (Exception)
+                            {
+                                resSocialFeed.Error = socialFeedStr;
+                            }
 
-                    WebClient webClient = new WebClient();
+                        }
+                    }
 
-                    webClient.QueryString.Add("mediaId", mediaId.ToString());
-                    webClient.QueryString.Add("groupId", groupId.ToString());
-                    webClient.QueryString.Add("siteGuid", initObj.SiteGuid);
-                    StreamReader streamReader = new StreamReader(webClient.OpenRead(ConfigurationManager.AppSettings["SocialFeedProxy"]));
-                    string socialFeedStr = streamReader.ReadToEnd();
-
-                    return socialFeedStr;
                 }
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
                 }
             }
-            HttpContext.Current.Items.Add("Error", "Unknown group");
-            return "Unknown group";
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                resSocialFeed.Error = "Unknown group";  
+            }
+
+            return resSocialFeed;
         }
     }
 }

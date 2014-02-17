@@ -14,7 +14,17 @@ namespace TVPApi
     [Serializable]
     public class APIMediaLoader : TVPPro.SiteManager.DataLoaders.TVMMediaLoader
     {
-
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
         public string Language
         {
             get
@@ -79,7 +89,8 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     UseFinalDate = bool.Parse(UseFinalEndDate),
                     UseStartDate = bool.Parse(GetFutureStartDate),
-                    Culture = Language
+                    Culture = Language,
+                    SiteGuid = SiteGuid
                 }.Execute() as dsItemInfo;
             }
             else

@@ -9,6 +9,8 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Logger;
+using System.Xml;
 
 public partial class Gateways_JsonPostGW : BaseGateway
 {
@@ -27,7 +29,8 @@ public partial class Gateways_JsonPostGW : BaseGateway
         StreamReader reader = new System.IO.StreamReader(body, encoding);
 
         string sJsonRequest = reader.ReadToEnd();
-
+        
+        
         if (!string.IsNullOrEmpty(sJsonRequest))
         {
             JObject json = JObject.Parse(sJsonRequest);
@@ -37,30 +40,30 @@ public partial class Gateways_JsonPostGW : BaseGateway
                 string sValue = string.Empty;
 
                 if (pair.Value.GetType() == typeof(JArray))
-                    sValue = pair.Value.ToString(Formatting.None);
+                    sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
                 else
                     sValue = (!pair.Key.Equals("initObj") &&
                               !pair.Key.Equals("tagPairs") &&
                               !pair.Key.Equals("metaPairs") &&
                               !pair.Key.Equals("userBasicData") &&
                               !pair.Key.Equals("userDynamicData")) &&
-                              !pair.Key.Equals("orderObj") ? pair.Value.ToString(Formatting.None).Replace("\"", @"") : pair.Value.ToString(Formatting.None);
+                              !pair.Key.Equals("orderObj") ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
 
                 HttpContext.Current.Items.Add(pair.Key, sValue);
             }
-        }
 
-        // add web service
-        MethodFinder queryServices = new MethodFinder(m_MediaService,
-                                                      m_SiteService,
-                                                      m_PricingService,
-                                                      m_DomainService,
-                                                      m_BillingService,
-                                                      m_ConditionalAccessService,
-                                                      m_SocialService,
-                                                      m_UsersService,
-                                                      m_NotificationService);
+            // add web service
+            MethodFinder queryServices = new MethodFinder(m_MediaService,
+                                                          m_SiteService,
+                                                          m_PricingService,
+                                                          m_DomainService,
+                                                          m_BillingService,
+                                                          m_ConditionalAccessService,
+                                                          m_SocialService,
+                                                          m_UsersService,
+                                                          m_NotificationService);
 
-        queryServices.ProcessRequest();
+            queryServices.ProcessRequest(sJsonRequest); 
+        }               
     }
 }

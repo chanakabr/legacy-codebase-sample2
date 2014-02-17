@@ -96,6 +96,18 @@ namespace TVPApi
             }
         }
 
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
         public override object BCExecute(eExecuteBehaivor behaivor)
         {
             return Execute();
@@ -120,6 +132,7 @@ namespace TVPApi
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
                     Culture = Language,
+                    SiteGuid = SiteGuid
                 };
                 return m_oCatalogRelatedLoader.Execute() as dsItemInfo;
             }
