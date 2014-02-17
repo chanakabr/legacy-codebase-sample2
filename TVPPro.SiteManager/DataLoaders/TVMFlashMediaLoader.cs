@@ -22,7 +22,20 @@ namespace TVPPro.SiteManager.DataLoaders
 		private FlashLoadersParams m_FlashLoadersParams;
 
 		#region Loader properties
-		public string MediaID
+        
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
+        public string MediaID
 		{
 			get
 			{
@@ -86,6 +99,7 @@ namespace TVPPro.SiteManager.DataLoaders
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
                     OnlyActiveMedia = true,
                     UseFinalDate = bool.Parse(UseFinalEndDate),
+                    SiteGuid = SiteGuid
                 }.Execute() as XmlDocument;
             }
             else

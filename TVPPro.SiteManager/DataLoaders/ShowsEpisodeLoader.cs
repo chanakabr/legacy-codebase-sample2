@@ -38,6 +38,18 @@ namespace TVPPro.SiteManager.DataLoaders
         #endregion Members
 
         #region properties
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", null);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
         public string ShowName
         {
             get
@@ -234,6 +246,7 @@ namespace TVPPro.SiteManager.DataLoaders
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
                     OnlyActiveMedia = true,
                     UseStartDate = bool.Parse(GetFutureStartDate),
+                    SiteGuid = SiteGuid
                 };
                 m_CatalogSearchLoader.Tags = new List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.KeyValue>();
                 m_CatalogSearchLoader.Metas = new List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.KeyValue>();

@@ -22,6 +22,19 @@ namespace TVPPro.SiteManager.DataLoaders
         private FlashLoadersParams m_FlashLoadersParams;
 
 		#region properties
+
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
 		public string MediaID
 		{
 			get
@@ -233,7 +246,8 @@ namespace TVPPro.SiteManager.DataLoaders
                     Platform = Platform.ToString(),
                     UseFinalDate = bool.Parse(UseFinalEndDate),
                     UseStartDate = bool.Parse(GetFutureStartDate),
-                    UserTypeID = this.UserTypeID
+                    UserTypeID = this.UserTypeID,
+                    SiteGuid = SiteGuid
                 }.Execute() as dsItemInfo;
             }
             else

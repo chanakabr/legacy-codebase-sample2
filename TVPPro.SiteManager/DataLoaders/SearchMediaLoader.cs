@@ -78,6 +78,18 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", null);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
         public Enums.eOrderBy OrderBy
         {
             get
@@ -369,7 +381,8 @@ namespace TVPPro.SiteManager.DataLoaders
                     UseFinalDate = bool.Parse(UseFinalEndDate),
                     UseStartDate = bool.Parse(GetFutureStartDate),
                     DeviceId = DeviceUDID,  
-                    UserTypeID = this.UserTypeID 
+                    UserTypeID = this.UserTypeID,
+                    SiteGuid = SiteGuid
                 };
                 if (OrderBy != Enums.eOrderBy.None)
                 {

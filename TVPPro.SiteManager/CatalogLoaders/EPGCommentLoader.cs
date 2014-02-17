@@ -19,7 +19,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string ContentText { get; set; }
         public string Country { get; set; }
         public string Header { get; set; }
-        public string SiteGuid { get; set; }
         public string SubHeader { get; set; }
         public string UDID { get; set; }
         public string Writer { get; set; }
@@ -62,7 +61,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_sContentText = ContentText,
                 m_sCountry = Country,
                 m_sHeader = Header,
-                m_sSiteGuid = SiteGuid,
                 m_sSubHeader = SubHeader,
                 m_sUDID = UDID,
                 m_sWriter = Writer,

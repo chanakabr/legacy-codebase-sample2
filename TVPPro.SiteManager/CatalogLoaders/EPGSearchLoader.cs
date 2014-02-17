@@ -21,6 +21,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public string SearchText { get; set; }
+        public List<long> EPGChannelIDs { get; set; }
 
 
         #region Constructors
@@ -49,6 +50,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_sSearch = SearchText,
                 m_dEndDate = EndTime,
                 m_dStartDate = StartTime,
+                m_oEPGChannelIDs = EPGChannelIDs
             };
         }
 

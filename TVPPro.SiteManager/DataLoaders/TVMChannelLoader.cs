@@ -161,6 +161,18 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<Enums.ePlatform>(eParameterType.Retrieve, "Platform", value);
             }
         }
+
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Filter, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Filter, "SiteGuid", value);
+            }
+        }
 		#endregion
 
 		public TVMChannelLoader(long channelID, string picSize) 
@@ -200,6 +212,7 @@ namespace TVPPro.SiteManager.DataLoaders
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
                     OnlyActiveMedia = true,
                     UseStartDate = bool.Parse(GetFutureStartDate),
+                    SiteGuid = SiteGuid
                 };
                 return m_oCatalogChannelLoader.Execute() as dsItemInfo;
             }

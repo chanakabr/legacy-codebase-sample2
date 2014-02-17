@@ -80,6 +80,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_sErrorCode = ErrorCode,
                 m_sErrorMessage = ErrorMessage,
                 m_sMediaCDN = MediaCDN,
+                m_sSiteGuid = SiteGuid
             };
         }
 

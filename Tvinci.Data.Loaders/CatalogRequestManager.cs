@@ -27,6 +27,7 @@ namespace Tvinci.Data.Loaders
         public int GroupID { get; set; }
         public int PageSize { get; set; }
         public int PageIndex { get; set; }
+        public string SiteGuid { get; set; }
 
         #region Public Properties for Filter
         public bool OnlyActiveMedia
@@ -159,7 +160,8 @@ namespace Tvinci.Data.Loaders
             m_oRequest.m_nPageIndex = PageIndex;
             m_oRequest.m_sSignature = m_sSignature;
             m_oRequest.m_sSignString = m_sSignString;
-            m_oRequest.m_sUserIP = m_sUserIP;            
+            m_oRequest.m_sUserIP = m_sUserIP;
+            m_oRequest.m_sSiteGuid = SiteGuid;
         }
 
         private string GetSignature(string signString)

@@ -108,6 +108,9 @@
     <Compile Include="CatalogLoaders\EPGAutoCompleteLoader.cs" />
     <Compile Include="CatalogLoaders\EPGCache.cs" />
     <Compile Include="CatalogLoaders\EPGLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGProgramsByProgramsIdentefierLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGProgramsByScidsLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGSearchContentLoader.cs" />
     <Compile Include="CatalogLoaders\EPGSearchLoader.cs" />
     <Compile Include="CatalogLoaders\MediaCommentLoader.cs" />
     <Compile Include="CatalogLoaders\MediaCommentsListLoader.cs" />
@@ -358,6 +361,7 @@
     <Compile Include="Manager\TechnicalManager.cs" />
     <Compile Include="Manager\TextLocalization.cs" />
     <Compile Include="Objects\EPGComment.cs" />
+    <Compile Include="Objects\EPGMultiChannelProgrammeObject.cs" />
     <Compile Include="Objects\MediaCorpAddressEntity.cs" />
     <Compile Include="Objects\MediaCorpBuildingEntity.cs" />
     <Compile Include="Objects\MediaCorpPostcodeEntity.cs" />

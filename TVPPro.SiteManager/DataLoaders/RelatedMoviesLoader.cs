@@ -59,6 +59,18 @@ namespace TVPPro.SiteManager.DataLoaders
 			}
 		}
 
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
 		public bool WithInfo
 		{
 			get
@@ -146,6 +158,7 @@ namespace TVPPro.SiteManager.DataLoaders
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
+                    SiteGuid = SiteGuid
                 };
                 return m_oCatalogRelatedLoader.Execute() as dsItemInfo;
             }

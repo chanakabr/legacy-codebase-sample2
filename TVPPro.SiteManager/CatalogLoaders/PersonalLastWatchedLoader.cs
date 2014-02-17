@@ -14,9 +14,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
     {
         private static ILog logger = log4net.LogManager.GetLogger(typeof(PersonalLastWatchedLoader));
 
-        public string SiteGuid { get; set; }
-
-
         #region Constructors
         public PersonalLastWatchedLoader(string siteGuid, int groupID, string userIP, int pageSize, int pageIndex, string picSize)
             : base(groupID, userIP, pageSize, pageIndex, picSize)
@@ -72,10 +69,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         protected override void BuildSpecificRequest()
         {
-            m_oRequest = new PersonalLastWatchedRequest()
-            {
-                m_sSiteGuid = SiteGuid,
-            };
+            m_oRequest = new PersonalLastWatchedRequest();
         }
 
         protected override void Log(string message, object obj)
