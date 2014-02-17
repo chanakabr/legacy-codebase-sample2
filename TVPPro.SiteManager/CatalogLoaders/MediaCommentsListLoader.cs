@@ -72,7 +72,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
             return retVal;
         }
 
-        private MediaComments ExecuteCommentsAdapter(CommentsListResponse commentsListRespons)
+        //protected virtual MediaComments ExecuteCommentsAdapter(CommentsListResponse commentsListRespons)
+        protected virtual Object ExecuteCommentsAdapter(CommentsListResponse commentsListRespons)
         {
             MediaComments retVal = new MediaComments();
             List<string> commentsTypesList = new List<string>();
