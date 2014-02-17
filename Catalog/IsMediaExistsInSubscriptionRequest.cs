@@ -1,0 +1,153 @@
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
+using ApiObjects.SearchObjects;
+using Logger;
+using TVinciShared;
+
+namespace Catalog
+{
+    [DataContract]
+    public class IsMediaExistsInSubscriptionRequest : BaseRequest, IRequestImp
+    {
+        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        [DataMember]
+        public int m_nSubscriptionID;
+        [DataMember]
+        public int m_nMediaID;
+
+        public IsMediaExistsInSubscriptionRequest()
+            : base()
+        {
+        }
+
+        public BaseResponse GetResponse(BaseRequest oBaseRequest)
+        {
+            try
+            {
+                IsMediaExistsInSubscriptionRequest request = (IsMediaExistsInSubscriptionRequest)oBaseRequest;
+                List<SearchResult> lMedias = new List<SearchResult>();
+
+                IsMediaExistsInSubscriptionResponse response = new IsMediaExistsInSubscriptionResponse();
+
+                if (request == null || request.m_nSubscriptionID == 0)
+                    throw new Exception("request object is null or Required variables is null");
+
+                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
+
+                if (sCheckSignature != request.m_sSignature)
+                    throw new Exception("Signatures dosen't match");
+
+                response.m_bExists = false;
+                response.m_nTotalItems = 0;
+
+                Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+                List<int> channelIds = Catalog.GetSubscriptionChannelIds(request.m_nGroupID, request.m_nSubscriptionID);
+                if (groupInCache != null && channelIds != null && channelIds.Count > 0)
+                {
+                    // Buils search Object per channelId call Searcher to return true/false result
+                    List<Channel> allChannels = Utils.GetChannelsFromCache(request.m_nGroupID, channelIds);
+
+                    if (allChannels != null && allChannels.Count > 0)
+                    {
+                        ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+                        #region searcher is LuceneWrapper
+                        if (searcher is LuceneWrapper)
+                        {
+                            List<ApiObjects.SearchObjects.MediaSearchObj> channelsSearchObjects = new List<ApiObjects.SearchObjects.MediaSearchObj>();
+
+                            Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
+                            int[] nDeviceRuleId = null;
+
+                            if (request.m_oFilter != null)
+                                nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+
+                            #region Building search object for each channel
+                            for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
+                            {
+                                channelsSearchObjectTasks[searchObjectIndex] = new Task(
+                                     (obj) =>
+                                     {
+                                         try
+                                         {
+                                             if (groupInCache != null)
+                                             {
+                                                 Channel currentChannel = allChannels[(int)obj];
+                                                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId);
+                                                 channelSearchObject.m_oOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
+                                                 channelsSearchObjects.Add(channelSearchObject);
+                                             }
+                                         }
+                                         catch (Exception ex)
+                                         {
+                                             _logger.Error(ex.Message, ex);
+                                         }
+                                     }, searchObjectIndex);
+                                channelsSearchObjectTasks[searchObjectIndex].Start();
+                            }
+
+                            //Wait for all parallel tasks to end
+                            Task.WaitAll(channelsSearchObjectTasks);
+                            #endregion
+
+                            if (channelsSearchObjects != null && channelsSearchObjects.Count > 0)
+                            {
+                                try
+                                {
+                                    if (searcher != null)
+                                    {
+
+                                        // Getting all medias in subscription
+                                        SearchResultsObj oSearchResult = searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, string.Empty, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
+
+                                        if (oSearchResult != null && oSearchResult.m_resultIDs != null && oSearchResult.m_resultIDs.Count > 0)
+                                        {
+
+                                            IList<int> mediaIDsInList = oSearchResult.m_resultIDs.Select(searchRes => searchRes.assetID).Where(searchMediaID => searchMediaID == m_nMediaID).ToList();
+                                            if (mediaIDsInList.Count > 0)
+                                            {
+                                                response.m_nTotalItems = 1;
+                                                response.m_bExists = true;
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.Error(ex.Message);
+                                }
+                            }
+                        }
+                        #endregion
+                        #region searcher is ElasticSearchWrapper
+                        else
+                        {
+                            List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
+                            int nOwnerGroup = groupInCache.m_nParentGroupID;
+                            bool bDoesMediaBelongToSubscription = searcher.DoesMediaBelongToChannels(nOwnerGroup, lChannelIDs, request.m_nMediaID);
+                            if (bDoesMediaBelongToSubscription)
+                            {
+                                response.m_bExists = true;
+                                response.m_nTotalItems = 1;
+                            }
+                        }
+                        #endregion
+                    }
+                }
+                return (BaseResponse)response;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message, ex);
+                throw ex;
+            }
+        }       
+    }
+}

@@ -1,0 +1,257 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using ODBCWrapper;
+using TVinciShared;
+using System.Runtime.Serialization;
+using Logger;
+using System.Reflection;
+using System.Net;
+using System.Xml.Serialization;
+using System.IO;
+using System.Xml;
+using System.Data;
+using System.Data.SqlClient;
+using Microsoft.SqlServer.Server;
+using Tvinci.Core.DAL;
+using ApiObjects.SearchObjects;
+
+namespace Catalog
+{
+    /**************************************************************************
+   * Get Channel + It's Medias List
+   * return :
+   * Channel with it's media List
+   * ************************************************************************/
+    [Serializable]
+    [DataContract]
+    public class ChannelRequest : BaseRequest, IRequestImp
+    {
+        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        [DataMember]
+        public Int32 m_nChannelID;
+        [DataMember]
+        public ApiObjects.SearchObjects.OrderObj m_oOrderObj;
+
+        public ChannelRequest()
+            : base()
+        {
+        }
+
+        public ChannelRequest(Int32 nChannelID, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex, string sUserIP, Filter oFilter, string sSignature, string sSignString, ApiObjects.SearchObjects.OrderObj oOrderObj)
+            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString)
+        {
+            m_nChannelID = nChannelID;
+            m_oOrderObj = oOrderObj;
+        }
+
+        public ChannelRequest(ChannelRequest c)
+            : base(c.m_nPageSize, c.m_nPageIndex, c.m_sUserIP, c.m_nGroupID, c.m_oFilter, c.m_sSignature, c.m_sSignString)
+        {
+            m_nChannelID = c.m_nChannelID;
+            m_oOrderObj = c.m_oOrderObj;
+        }
+
+        public BaseResponse GetResponse(BaseRequest oBaseRequest)
+        {
+            try
+            {
+                ChannelRequest request = (ChannelRequest)oBaseRequest;
+
+                if (request == null || request.m_nChannelID == 0)
+                    throw new Exception("request object is null or Required variables is null");
+
+                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
+                if (sCheckSignature != request.m_sSignature)
+                    throw new Exception("Signatures dosen't match");
+
+                ChannelResponse response = new ChannelResponse();
+                Group group = null;
+                Channel channel = null;
+
+                GroupsCache.Instance.GetGroupAndChannel(request.m_nChannelID, request.m_nGroupID, ref group, ref channel);
+                ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = null;
+
+                if (group != null && channel != null)
+                {
+                    channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID);
+                 
+                    DateTime start = DateTime.Now;
+                    List<int> medias = new List<int>();
+                    int nPageIndex = 0;
+                    int nPageSize = 0;
+
+                    if (channel.m_nChannelTypeID == 2 || IsSlidingWindow(channel))
+                    {
+                        nPageIndex = channelSearchObject.m_nPageIndex;
+                        nPageSize = channelSearchObject.m_nPageSize;
+                        channelSearchObject.m_nPageSize = 0;
+                        channelSearchObject.m_nPageIndex = 0;
+                    }
+
+                    ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                    if (searcher == null)
+                    {
+                        return response;
+                    }
+                    int nTotalItems = 0;
+                    SearchResultsObj oSearchResults = searcher.SearchMedias(channel.m_nGroupID, channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate);
+                    List<SearchResult> lMediaRes = null;
+                    if (oSearchResults != null && oSearchResults.m_resultIDs != null && oSearchResults.m_resultIDs.Count > 0)
+                    {
+                        medias = oSearchResults.m_resultIDs.Select(item => item.assetID).ToList();
+                        nTotalItems = oSearchResults.n_TotalItems;
+                        DateTime nMinDateTime = new DateTime(1970, 1, 1, 0, 0, 0);
+
+                        if (searcher.GetType().Equals(typeof(ElasticsearchWrapper))) // != typeof(LuceneWrapper))
+                        {
+                            lMediaRes = oSearchResults.m_resultIDs.Select(item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
+                        }
+                    }
+                    
+                    if (!IsSlidingWindow(channel))
+                    {
+                        OrderMediasByOrderNum(ref medias, channel.m_lManualMedias, channel.m_OrderObject);
+                    }
+                    else
+                    {
+                        medias = OrderMediaBySlidingWindow(channelSearchObject.m_oOrder.m_eOrderBy, channelSearchObject.m_oOrder.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channelSearchObject.m_oOrder.m_dSlidingWindowStartTimeField);
+                    }
+
+                    if (channel.m_nChannelTypeID == 2)
+                    {
+                        List<int> manualMediasReturned = medias.ToList();
+                        int nValidNumberOfMediasRange = nPageSize;
+                        if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(manualMediasReturned.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                        {
+                            if (nValidNumberOfMediasRange > 0)
+                            {
+                                manualMediasReturned = manualMediasReturned.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                            }
+                        }
+                        else
+                        {
+                            manualMediasReturned.Clear();
+                        }
+
+                        medias = manualMediasReturned;
+                        if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)) && medias != null && medias.Count > 0)
+                        {
+                            Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
+                            lMediaRes = new List<SearchResult>();
+                            foreach (int item in medias)
+                            {
+                                if (dMediaRes.ContainsKey(item))
+                                {
+                                    lMediaRes.Add(dMediaRes[item]);
+                                }
+                            }
+                        }
+                    }
+
+                    if (medias == null || medias.Count() == 0)
+                    {
+                        _logger.Info("No Media Found");
+                        response.m_nMedias = null;
+                        response.m_nTotalItems = 0;
+                        return response;
+                    }
+                    _logger.Info(string.Format("{0} : {1} ", medias.Count(), "MediasId returned"));
+
+                    response.m_nTotalItems = nTotalItems;
+                    
+                    if (searcher.GetType().Equals(typeof(LuceneWrapper)))   //if (lMediaRes == null) //LUCENE
+                    {
+                        lMediaRes = GetMediaUpdateDate(medias);
+                    }
+
+                    if (lMediaRes.Count > 0)
+                    {
+                        response.m_nMedias = new List<SearchResult>(lMediaRes);
+                    }
+                    else
+                    {
+                        response.m_nMedias = null;
+                    }
+                }
+
+                return (BaseResponse)response;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("ES Error", "Received " + ex.Message + " From ES", "Elasticsearch");
+                _logger.Error(ex.Message, ex);
+                throw ex;
+            }
+        }
+
+        private bool IsSlidingWindow(Channel channel)
+        {
+            bool hasSlidingAttr = typeof(OrderBy).GetMember(channel.m_OrderObject.m_eOrderBy.ToString())[0].GetCustomAttributes(typeof(SlidingWindowSupportedAttribute), false).Length > 0;
+            return hasSlidingAttr && channel.m_OrderObject.m_bIsSlidingWindowField;
+        }
+
+        private List<int> OrderMediaBySlidingWindow(ApiObjects.SearchObjects.OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media, DateTime windowTime)
+        {
+            DataTable dt = null;
+            switch (orderBy)
+            {
+                case ApiObjects.SearchObjects.OrderBy.VIEWS:
+                    dt = CatalogDAL.Get_Media_By_SlidingWindow("Get_SlidingWindowMediaIds_ByViews", media.ToList(), isDesc, pageSize, PageIndex, windowTime);
+                    break;
+                case ApiObjects.SearchObjects.OrderBy.RATING:
+                    dt = CatalogDAL.Get_Media_By_SlidingWindow("Get_SlidingWindowMediaIds_ByRatings", media.ToList(), isDesc, pageSize, PageIndex, windowTime);
+                    break;
+                case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
+                    dt = CatalogDAL.Get_Media_By_SlidingWindow("Get_SlidingWindowMediaIds_ByLikes", media.ToList(), isDesc, pageSize, PageIndex, windowTime);
+                    break;
+                default:
+                    return media;
+            }
+
+            if (dt != null)
+            {
+                return dt.AsEnumerable().Select(dr => ODBCWrapper.Utils.GetIntSafeVal(dr["MEDIA_ID"])).ToList();
+            }
+            else 
+                return null;
+        }
+
+        protected void OrderMediasByOrderNum(ref List<int> medias, List<ManualMedia> lManualMedias, ApiObjects.SearchObjects.OrderObj oOrderObj)
+        {
+            // Indicates that the channel is manual
+            if (medias != null && medias.Count > 0 && lManualMedias != null && lManualMedias.Count > 0)
+            {
+                if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
+                {
+                    var orderedByIDList = from m in medias
+                                          join manual in lManualMedias
+                                          on m.ToString() equals manual.m_sMediaId
+                                          orderby manual.m_nOrderNum, oOrderObj.m_eOrderDir
+                                          select manual.m_sMediaId;
+
+                    if (orderedByIDList != null)
+                    {
+                        List<int> ids = new List<int>();
+                        foreach (var mediaId in orderedByIDList)
+                        {
+                            ids.Add(int.Parse(mediaId.ToString()));
+                        }
+
+                        medias = ids;
+                    }
+                }
+            }
+        }        
+
+        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(Channel channel, ChannelRequest request, int nParentGroupID)
+        {
+            int[] nDeviceRuleId = null;
+            if (request.m_oFilter != null)
+                nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+            return Catalog.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, null, nDeviceRuleId);
+        }
+    }
+}

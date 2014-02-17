@@ -1,0 +1,63 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
+using ApiObjects;
+using EpgBL;
+using Logger;
+
+namespace Catalog
+{
+    [Serializable]
+    [DataContract]
+    public class EPGProgramsByProgramsIdentefierRequest : BaseEpg, IRequestImp
+    {
+        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        [DataMember]
+        string[] pids { get; set; }
+       
+        public EPGProgramsByProgramsIdentefierRequest()
+            : base()
+        {
+        }
+
+        public EPGProgramsByProgramsIdentefierRequest(EPGProgramsByProgramsIdentefierRequest epg)
+            : base(epg.eLang, epg.duration, epg.m_nPageSize, epg.m_nPageIndex, epg.m_sUserIP, epg.m_nGroupID, epg.m_oFilter, epg.m_sSignature, epg.m_sSignString)
+        {
+            this.pids = epg.pids;
+        }
+
+         public BaseResponse GetResponse(BaseRequest oBaseRequest)
+         {
+             try
+             {
+                 EPGProgramsByProgramsIdentefierRequest request = (EPGProgramsByProgramsIdentefierRequest)oBaseRequest;
+
+                 if (request == null)
+                     throw new Exception("request object is null or Required variables is null");
+
+                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
+                 if (sCheckSignature != request.m_sSignature)
+                     throw new Exception("Signatures dosen't match");
+
+                 EpgProgramsResponse response = new EpgProgramsResponse();
+                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
+
+                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGProgramsByProgramsIdentefier(request.m_nGroupID, request.pids, request.eLang, request.duration);
+                 if (retList != null && retList.Count > 0)
+                 {
+                     response.lEpgList = retList;
+                     response.m_nTotalItems = retList.Count;
+                 }
+                 return (BaseResponse)response;
+             }
+             catch (Exception ex)
+             {
+                 return new BaseResponse();
+             }
+         }
+
+    }
+}
