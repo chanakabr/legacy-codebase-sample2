@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifiers", "Notifiers\Noti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLAdapter", "XMLAdapter\XMLAdapter.csproj", "{42FB923F-D2ED-4B68-94FD-EA8C5A86D28C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElasticSearch", "ElasticSearch\ElasticSearch.csproj", "{C9718E6D-F866-4991-80CD-4BAFDF4D8878}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -234,6 +236,15 @@ Global
 		{42FB923F-D2ED-4B68-94FD-EA8C5A86D28C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{42FB923F-D2ED-4B68-94FD-EA8C5A86D28C}.Release|x86.ActiveCfg = Release|x86
 		{42FB923F-D2ED-4B68-94FD-EA8C5A86D28C}.Release|x86.Build.0 = Release|x86
+		{C9718E6D-F866-4991-80CD-4BAFDF4D8878}.Basic|Any CPU.ActiveCfg = Basic|Any CPU
+		{C9718E6D-F866-4991-80CD-4BAFDF4D8878}.Basic|Any CPU.Build.0 = Basic|Any CPU
+		{C9718E6D-F866-4991-80CD-4BAFDF4D8878}.Basic|x86.ActiveCfg = Basic|Any CPU
+		{C9718E6D-F866-4991-80CD-4BAFDF4D8878}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9718E6D-F866-4991-80CD-4BAFDF4D8878}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9718E6D-F866-4991-80CD-4BAFDF4D8878}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C9718E6D-F866-4991-80CD-4BAFDF4D8878}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9718E6D-F866-4991-80CD-4BAFDF4D8878}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9718E6D-F866-4991-80CD-4BAFDF4D8878}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
