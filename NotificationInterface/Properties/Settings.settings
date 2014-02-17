@@ -1,0 +1,17 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="NotificationInterface.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="NotificationInterface_WS_Users_UsersService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://webservices-us.tvinci.com/users_v1_7/module.asmx</Value>
+    </Setting>
+<<<<<<< .mine
+    <Setting Name="NotificationInterface_WS_Api_API" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost/ws_api/api.asmx</Value>
+=======
+    <Setting Name="NotificationInterface_WS_Api_API" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://192.168.16.67/WSApi/api.asmx</Value>
+>>>>>>> .r16628
+    </Setting>
+  </Settings>
+</SettingsFile>
