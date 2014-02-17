@@ -91,7 +91,7 @@ namespace TVPApiModule.Helper
             return retVal;
         }
 
-        public static List<Media> GetGalleryItemContent(PlatformType platform, string udid, Locale locale, long PageID, long GalleryID, long ItemID, string picSize, int groupID, int pageSize, int pageIndex, OrderBy orderBy)
+        public static List<Media> GetGalleryItemContent(PlatformType platform, string udid, Locale locale, long PageID, long GalleryID, long ItemID, string picSize, int groupID, int pageSize, int pageIndex, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj)
         {
             List<Media> retVal = new List<Media>();
             PageGallery gallery = GetGalleryByID(platform, locale, GalleryID, PageID, groupID);
@@ -102,7 +102,7 @@ namespace TVPApiModule.Helper
                                     select items).FirstOrDefault();
                 if (item != null)
                 {
-                    retVal = new APIChannelMediaLoader((int)item.tvm_channel_id, groupID, platform, udid, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, locale.LocaleLanguage, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.WCF_ONLY_DEFAULT_VALUE)
+                    retVal = new APIChannelMediaLoader((int)item.tvm_channel_id, groupID, platform, udid, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, locale.LocaleLanguage, orderObj, null, Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.WCF_ONLY_DEFAULT_VALUE)
                     {
                         UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
                     }.Execute() as List<Media>;

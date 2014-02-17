@@ -74,13 +74,13 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
-        public string ChargeUserForMediaFile(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sUserGuid, string sUDID)
+        public string ChargeUserForMediaFile(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sUserGuid, string sUDID, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = null;
 
             try
             {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, string.Empty, sUserIP, sExtraParams, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
             }
             catch (Exception ex)
             {
@@ -106,13 +106,13 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
-        public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
+        public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = null;
 
             try
             {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
+                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
             }
             catch (Exception ex)
             {

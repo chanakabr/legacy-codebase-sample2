@@ -17,6 +17,7 @@ using TVPPro.SiteManager.TvinciPlatform.Billing;
 using System.Web;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPApiModule.Helper;
 
 namespace TVPApiServices
 {
@@ -506,9 +507,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Is Item Exists In List")]
-        public IEnumerable<TVPApiModule.Objects.Responses.KeyValuePair> IsItemExistsInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public IEnumerable<TVPApiModule.Objects.KeyValuePair> IsItemExistsInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
-            IEnumerable<TVPApiModule.Objects.Responses.KeyValuePair> response = null;
+            IEnumerable<TVPApiModule.Objects.KeyValuePair> response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsItemExistsInList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

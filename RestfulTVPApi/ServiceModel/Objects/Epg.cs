@@ -35,7 +35,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/channels/{channel_ids}", "GET", Notes = "This method returns an array of EPG channel programs, for each EPG channel entered, and which is available for the time range entered. This method is usually followed by GetEPGChannels")]
-    public class GetEPGMultiChannelProgramRequest : PagingRequest, IReturn<List<EPGMultiChannelProgrammeObject>>
+    public class GetEPGMultiChannelProgramRequest : PagingRequest, IReturn<List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject>>
     {
         [ApiMember(Name = "channel_ids", Description = "Channels IDs", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public string[] channel_ids { get; set; }

@@ -35,7 +35,7 @@
     protected void Application_BeginRequest(Object sender, EventArgs e)
     {
         // Save site data (groupid, platform, wsuser, wspass) on session for further proccesses
-        TVPApi.ConnectionHelper.InitServiceConfigs();
+        ConnectionHelper.InitServiceConfigs();
         HttpContext.Current.Items.Add("RequestStartTime", DateTime.UtcNow);
 
         if (!Request.ContentType.Contains("xml"))

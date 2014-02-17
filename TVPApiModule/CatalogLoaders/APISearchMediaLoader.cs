@@ -76,7 +76,7 @@ namespace TVPApiModule.CatalogLoaders
                 {
                     m_eOrderBy = OrderBy,
                     m_eOrderDir = OrderDir,
-                    m_eOrderValue = OrderMetaMame,
+                    m_sOrderValue = OrderMetaMame,
                 },
                 m_nMediaTypes = MediaTypes,
             };

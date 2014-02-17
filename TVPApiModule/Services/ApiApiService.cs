@@ -483,6 +483,21 @@ namespace TVPApiModule.Services
             }
             return res;
         }
+
+        //public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] GetEPGProgramsByProgramsIdentefier(string siteGuid, string[] pids, Language language, int duration)
+        //{
+        //    TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] res = null;
+        //    try
+        //    {
+        //        res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetEPGProgramsByProgramsIdentefier(m_wsUserName, m_wsPassword, pids, language, duration);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramsByScids, Error Message: {0}, Parameters :  siteGuid: {1}, clientIP: {2}, language: {3}, duration: {4}", ex.Message, siteGuid, SiteHelper.GetClientIP(), language, duration);
+        //    }
+        //    return res;
+        //}
+
         #endregion
     }
 }

@@ -337,10 +337,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Branch\Libs\TVPPro.SiteManager\TVPPro.SiteManager.csproj">
-      <Project>{1df66db2-d5d1-4b31-a7a0-5beb650da85f}</Project>
-      <Name>TVPPro.SiteManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TVPApiModule\TVPApiModule.csproj">
       <Project>{2da122e7-8c17-49bc-8f28-108a4ed741e4}</Project>
       <Name>TVPApiModule</Name>

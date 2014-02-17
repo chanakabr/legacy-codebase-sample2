@@ -9,6 +9,8 @@ using System.IO;
 using System.Text;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
+using TVPApiModule.Objects;
+using TVPApiModule.Context;
 
 public partial class Gateways_DeviceInit : System.Web.UI.Page
 {
@@ -78,14 +80,14 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
         DeviceInit retDeviceInit = new DeviceInit();
         if (sBundleID.ToLower().Equals("com.tvinci.development.kanguroo"))
         {
-            retDeviceInit.initObj = new TVPApi.InitializationObject();
+            retDeviceInit.initObj = new InitializationObject();
             retDeviceInit.initObj.ApiUser = "tvpapi_144";
             retDeviceInit.initObj.ApiPass = "11111";
             retDeviceInit.initObj.SiteGuid = string.Empty;
             retDeviceInit.initObj.UDID = sUDID;
-            retDeviceInit.initObj.Platform = TVPApi.PlatformType.Cellular;
-            retDeviceInit.initObj.Locale = new TVPApi.Locale();
-            retDeviceInit.initObj.Locale.LocaleUserState = TVPApi.LocaleUserState.Unknown;
+            retDeviceInit.initObj.Platform = PlatformType.Cellular;
+            retDeviceInit.initObj.Locale = new Locale();
+            retDeviceInit.initObj.Locale.LocaleUserState = LocaleUserState.Unknown;
             retDeviceInit.initObj.Locale.LocaleCountry = string.Empty;
             retDeviceInit.initObj.Locale.LocaleDevice = string.Empty;
             retDeviceInit.initObj.Locale.LocaleLanguage = string.Empty;
@@ -112,14 +114,14 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
         }
         else if (sBundleID.ToLower().Equals("com.tvinci.development.toggle") || (sBundleID.ToLower().Equals("com.mediacorp.toggle")))
         {
-            retDeviceInit.initObj = new TVPApi.InitializationObject();
+            retDeviceInit.initObj = new InitializationObject();
             retDeviceInit.initObj.ApiUser = "tvpapi_147";
             retDeviceInit.initObj.ApiPass = "11111";
             retDeviceInit.initObj.SiteGuid = string.Empty;
             retDeviceInit.initObj.UDID = sUDID;
-            retDeviceInit.initObj.Platform = TVPApi.PlatformType.Cellular;
-            retDeviceInit.initObj.Locale = new TVPApi.Locale();
-            retDeviceInit.initObj.Locale.LocaleUserState = TVPApi.LocaleUserState.Unknown;
+            retDeviceInit.initObj.Platform = PlatformType.Cellular;
+            retDeviceInit.initObj.Locale = new Locale();
+            retDeviceInit.initObj.Locale.LocaleUserState = LocaleUserState.Unknown;
             retDeviceInit.initObj.Locale.LocaleCountry = string.Empty;
             retDeviceInit.initObj.Locale.LocaleDevice = string.Empty;
             retDeviceInit.initObj.Locale.LocaleLanguage = string.Empty;
@@ -149,14 +151,14 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
         }
         else if (sBundleID.ToLower().Equals("com.tvinci.development.ipad.toggle") || sBundleID.ToLower().Equals("com.mediacorp.toggle.ipad"))
         {
-            retDeviceInit.initObj = new TVPApi.InitializationObject();
+            retDeviceInit.initObj = new InitializationObject();
             retDeviceInit.initObj.ApiUser = "tvpapi_147";
             retDeviceInit.initObj.ApiPass = "11111";
             retDeviceInit.initObj.SiteGuid = string.Empty;
             retDeviceInit.initObj.UDID = sUDID;
-            retDeviceInit.initObj.Platform = TVPApi.PlatformType.iPad;
-            retDeviceInit.initObj.Locale = new TVPApi.Locale();
-            retDeviceInit.initObj.Locale.LocaleUserState = TVPApi.LocaleUserState.Unknown;
+            retDeviceInit.initObj.Platform = PlatformType.iPad;
+            retDeviceInit.initObj.Locale = new Locale();
+            retDeviceInit.initObj.Locale.LocaleUserState = LocaleUserState.Unknown;
             retDeviceInit.initObj.Locale.LocaleCountry = string.Empty;
             retDeviceInit.initObj.Locale.LocaleDevice = string.Empty;
             retDeviceInit.initObj.Locale.LocaleLanguage = string.Empty;
@@ -188,14 +190,14 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
         }
         else if (sBundleID.ToLower().Equals("com.tvinci2.activities") || sBundleID.ToLower().Equals("com.tvinci.development.ipadtvincidemo"))
         {
-            retDeviceInit.initObj = new TVPApi.InitializationObject();
+            retDeviceInit.initObj = new InitializationObject();
             retDeviceInit.initObj.ApiUser = "tvpapi_125";
             retDeviceInit.initObj.ApiPass = "11111";
             retDeviceInit.initObj.SiteGuid = string.Empty;
             retDeviceInit.initObj.UDID = sUDID;
-            retDeviceInit.initObj.Platform = TVPApi.PlatformType.iPad;
-            retDeviceInit.initObj.Locale = new TVPApi.Locale();
-            retDeviceInit.initObj.Locale.LocaleUserState = TVPApi.LocaleUserState.Unknown;
+            retDeviceInit.initObj.Platform = PlatformType.iPad;
+            retDeviceInit.initObj.Locale = new Locale();
+            retDeviceInit.initObj.Locale.LocaleUserState = LocaleUserState.Unknown;
             retDeviceInit.initObj.Locale.LocaleCountry = string.Empty;
             retDeviceInit.initObj.Locale.LocaleDevice = string.Empty;
             retDeviceInit.initObj.Locale.LocaleLanguage = string.Empty;
@@ -240,7 +242,7 @@ public partial class Gateways_DeviceInit : System.Web.UI.Page
 
 public class DeviceInit
 {
-    public TVPApi.InitializationObject initObj { get; set; }
+    public InitializationObject initObj { get; set; }
     public string GatewayURL { get; set; }
     public string LogoURL { get; set; }
     public string FacebookURL { get; set; }
@@ -268,14 +270,14 @@ public class MyStringEnumConverter : Newtonsoft.Json.Converters.StringEnumConver
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
 
-        if (value is TVPApi.LocaleUserState)
+        if (value is LocaleUserState)
         {
-            writer.WriteValue(Enum.GetName(typeof(TVPApi.LocaleUserState), (TVPApi.LocaleUserState)value));
+            writer.WriteValue(Enum.GetName(typeof(LocaleUserState), (LocaleUserState)value));
             return;
         }
-        else if (value is TVPApi.PlatformType)
+        else if (value is PlatformType)
         {
-            writer.WriteValue(Enum.GetName(typeof(TVPApi.PlatformType), (TVPApi.PlatformType)value));
+            writer.WriteValue(Enum.GetName(typeof(PlatformType), (PlatformType)value));
             return;
         }
 

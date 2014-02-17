@@ -13,6 +13,8 @@ using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
+using TVPApiModule.Helper;
+using TVPApiModule.Objects.Responses;
 
 
 namespace TVPApiServices
@@ -76,7 +78,7 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Followup by tag")]
-        public bool SubscribeByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags)
+        public bool SubscribeByTag(InitializationObject initObj, List<TagMetaPairArray> tags)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SubscribeByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             logger.InfoFormat("SubscribeByTag-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
@@ -100,7 +102,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Unsubscribe Followup by tag")]
-        public bool UnsubscribeFollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags)
+        public bool UnsubscribeFollowUpByTag(InitializationObject initObj, List<TagMetaPairArray> tags)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnsubscribeFollowUpByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             logger.InfoFormat("UnsubscribeFollowUpByTag-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);
@@ -124,7 +126,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets the user status subscription")]
-        public IEnumerable<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj)
+        public IEnumerable<TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserStatusSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             logger.InfoFormat("GetUserStatusSubscriptions-> [{0}, {1}], Params:[user: {2}]", groupId, initObj.Platform, initObj.SiteGuid);

@@ -6,6 +6,9 @@ using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApiModule.Objects.Responses;
+using TVPPro.Configuration.OrcaRecommendations;
+using TVPApiModule.Objects;
+using TVPApiModule.yes.tvinci.ITProxy;
 
 namespace TVPApiModule.Interfaces
 {
@@ -14,8 +17,7 @@ namespace TVPApiModule.Interfaces
         ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword);
         TVPApiModule.Objects.Responses.DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID);
         string MediaHit(int nMediaID, int nFileID, int nLocationID);
-        string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode,
-                                            string sIP, string sExtraParams);
+        string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sIP, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV);
 
         string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, int nLocationID);
 
@@ -23,5 +25,10 @@ namespace TVPApiModule.Interfaces
 
         string GetMediaLicenseData(int iMediaFileID, int iMediaID);
 
+        TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType);
+
+        string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink);
+
+        RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId);
     }
 }

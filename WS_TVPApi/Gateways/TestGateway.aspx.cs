@@ -7,6 +7,8 @@ using System.Web.UI.WebControls;
 using TVPApi;
 using System.Text;
 using System.Web.Script.Serialization;
+using TVPApiModule.Manager;
+using TVPApiModule.Context;
 
 public partial class Gateways_TestGateway : System.Web.UI.Page
 {

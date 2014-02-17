@@ -81,7 +81,7 @@ namespace RestfulTVPApi.ServiceInterface
                 if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)
                     pageIndex = pageIndex / pageSize;
 
-                lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj.Platform, initObj.UDID, initObj.Locale, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, orderBy);
+                lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj.Platform, initObj.UDID, initObj.Locale, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, null);//orderBy);
             }
             else
             {

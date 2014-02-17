@@ -144,7 +144,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = new APIChannelMediaLoader(channelID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage, tagsMetas, cutWith)
+                    lstMedia = new APIChannelMediaLoader(channelID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage, null, tagsMetas, cutWith)
                     {
                         UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
                     }.Execute() as List<Media>;
@@ -1628,7 +1628,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, clientIp, siteGuid, initObj.UDID);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForMediaFile(iPrice, sCurrency, iFileID, sPPVModuleCode, clientIp, initObj.SiteGuid, initObj.UDID, string.Empty, string.Empty, string.Empty);
                 }
                 catch (Exception ex)
                 {
@@ -1683,7 +1683,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, clientIp, initObj.SiteGuid, sExtraParameters, sUDID);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForSubscription(iPrice, sCurrency, sSubscriptionID, sCouponCode, clientIp, initObj.SiteGuid, sExtraParameters, sUDID, string.Empty, string.Empty);
 
                 }
                 catch (Exception ex)

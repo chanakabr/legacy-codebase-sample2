@@ -671,18 +671,6 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Libs\Data\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj">
-      <Project>{bead66e3-143b-4c83-9352-50afb0aa62fa}</Project>
-      <Name>Tvinci.Data.TVMDataLoader</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Branch\Libs\TVPPro.SiteManager\TVPPro.SiteManager.csproj">
-      <Project>{1df66db2-d5d1-4b31-a7a0-5beb650da85f}</Project>
-      <Name>TVPPro.SiteManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Branch\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj">
-      <Project>{209ee212-3a89-4966-951e-0173dcc76bb0}</Project>
-      <Name>Tvinci.Data.Loaders</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TVPApiModule\TVPApiModule.csproj">
       <Project>{2da122e7-8c17-49bc-8f28-108a4ed741e4}</Project>
       <Name>TVPApiModule</Name>

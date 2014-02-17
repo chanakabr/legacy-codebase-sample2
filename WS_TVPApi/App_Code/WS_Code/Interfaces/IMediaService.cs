@@ -160,7 +160,7 @@ namespace TVPApiServices
         //List<Media> GetRecommendedMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex);
 
         [OperationContract]
-        BillingResponse ChargeUserWithInApp(InitializationObject initObj, double price, string currency, string receipt, string productCode);
+        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse ChargeUserWithInApp(InitializationObject initObj, double price, string currency, string receipt, string productCode);
 
         [OperationContract]
         bool CancelSubscription(InitializationObject initObj, string sSubscriptionID, int sSubscriptionPurchaseID);
@@ -172,7 +172,7 @@ namespace TVPApiServices
         List<Media> GetSubscriptionMedias(InitializationObject initObj, string[] sSubID, string picSize, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy);
 
         [OperationContract]
-        PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid);
+        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PermittedSubscriptionContainer[] GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid);
 
         //[OperationContract]
         //void ToggleOfflineMode(InitializationObject initObj, bool isTurnOn);

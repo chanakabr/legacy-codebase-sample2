@@ -31,7 +31,7 @@ public class CRMGateway : IHttpHandler {
 
             try
             {
-                if (ConnectionHelper.GetApiCredentials(context.Request.Headers["X-CRM-USER"], context.Request.Headers["X-CRM-PASS"], out sApiUser, out sApiPass))
+                if (TVPApiModule.Helper.ConnectionHelper.GetApiCredentials(context.Request.Headers["X-CRM-USER"], context.Request.Headers["X-CRM-PASS"], out sApiUser, out sApiPass))
                 {
                     string methodName = HttpContext.Current.Request.QueryString["m"];
 

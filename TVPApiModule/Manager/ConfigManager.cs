@@ -13,6 +13,7 @@ using TVPApi.Configuration.Media;
 using TVPPro.Configuration.PlatformServices;
 using log4net;
 using TVPApiModule.Context;
+using TVPApi.Configuration.OrcaConfiguration;
 
 
 /// <summary>
@@ -37,6 +38,7 @@ namespace TVPApiModule.Manager
             public ApiPlatformServicesConfiguration PlatformServicesConfiguration;
             public ApiSiteConfiguration SiteConfiguration;
             public ApiMediaConfiguration MediaConfiguration;
+            public ApiOrcaRecommendationsConfiguration OrcaRecommendationsConfiguration;
         }
 
         //Get specific config manager by group ID. If this is a new group ID - create new instances of platform configuration and Technichal c
@@ -146,6 +148,10 @@ namespace TVPApiModule.Manager
                     else if (file.Contains("Site"))
                     {
                         configType.SiteConfiguration = new TVPApi.Configuration.Site.ApiSiteConfiguration(file);
+                    }
+                    else if (file.Contains("OrcaRecommendations"))
+                    {
+                        configType.OrcaRecommendationsConfiguration = new TVPApi.Configuration.OrcaConfiguration.ApiOrcaRecommendationsConfiguration(file);
                     }
                 }
             }

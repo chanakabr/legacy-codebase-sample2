@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Collections;
+using TVPApiModule.Manager;
+using TVPApiModule.Parsers;
 
 public partial class ClearCache : System.Web.UI.Page
 {
@@ -26,8 +28,8 @@ public partial class ClearCache : System.Web.UI.Page
 
             //TVPApi.SiteMapManager.GetInstance.Clear();
             //TVPApi.PageData.GetInstance.Clear();
-            TVPApi.MenuBuilder.Clear();
-            TVPApi.UsersXMLParser.Clear();
+            MenuBuilder.Clear();
+            UsersXMLParser.Clear();
             if (Request.UrlReferrer != null && !string.IsNullOrEmpty(Request.UrlReferrer.ToString()))
             {
                 Response.Redirect(Request.UrlReferrer.ToString());

@@ -11,6 +11,7 @@ using TVPApiModule.Services;
 using TVPApiModule.Context;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
+using TVPPro.Configuration.OrcaRecommendations;
 
 namespace TVPApiModule.Objects
 {
@@ -54,10 +55,10 @@ namespace TVPApiModule.Objects
             return ActionHelper.MediaHit(_initObj, _nGroupID, _initObj.Platform, nMediaID, nFileID, nLocationID);
         }
 
-        
-        public virtual string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sIP, string sExtraParams)
+
+        public virtual string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sIP, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV)
         {
-            return new ApiConditionalAccessService(_nGroupID, _initObj.Platform).ChargeUserForSubscription(dPrice, sCurrency, sSubscriptionID, sCouponCode, sIP, _initObj.SiteGuid, sExtraParams, _initObj.UDID);
+            return new ApiConditionalAccessService(_nGroupID, _initObj.Platform).ChargeUserForSubscription(dPrice, sCurrency, sSubscriptionID, sCouponCode, sIP, _initObj.SiteGuid, sExtraParams, _initObj.UDID, sPaymentMethodID, sEncryptedCVV);
         }
 
         public virtual string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, int nLocationID)
@@ -105,5 +106,22 @@ namespace TVPApiModule.Objects
 
             return sRet;
         }
+
+
+        public virtual TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType)
+        {
+            return null;
+        }
+
+
+        public virtual string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink)
+        {
+            return new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
+        }
+
+        public virtual TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId)
+        {
+            return null;
+        }    
     }
 }

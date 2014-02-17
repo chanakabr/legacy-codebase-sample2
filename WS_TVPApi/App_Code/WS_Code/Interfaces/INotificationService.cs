@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.ServiceModel;
-using TVPApi;
 using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Social;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiServices
 {
@@ -24,9 +20,9 @@ namespace TVPApiServices
         bool SubscribeByTag(InitializationObject initObj, List<TagMetaPairArray> tags);
 
         [OperationContract]
-        bool UnsubscribeFollowUpByTag(InitializationObject initObj, List<TVPApi.TagMetaPairArray> tags);
+        bool UnsubscribeFollowUpByTag(InitializationObject initObj, List<TagMetaPairArray> tags);
 
         [OperationContract]
-        List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj);
+        List<TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj);
     }
 }

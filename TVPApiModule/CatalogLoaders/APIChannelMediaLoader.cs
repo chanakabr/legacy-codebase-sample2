@@ -23,20 +23,20 @@ namespace TVPApiModule.CatalogLoaders
         public string Culture
         {
             get { return m_sCulture; }
-            set 
-            { 
+            set
+            {
                 m_sCulture = value;
                 Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).GetLanguageDBID(value);
             }
         }
 
         #region Constructors
-        public APIChannelMediaLoader(int channelID, int groupID, PlatformType platform, string udid, string userIP, int pageSize, int pageIndex, string picSize, string language, List<KeyValue> tagsMetas = null, CutWith cutWith = Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.AND)
-            : base(channelID, groupID, userIP, pageSize, pageIndex, picSize, tagsMetas, cutWith)
+        public APIChannelMediaLoader(int channelID, int groupID, PlatformType platform, string udid, string userIP, int pageSize, int pageIndex, string picSize, string language, OrderObj orderObj, List<KeyValue> tagsMetas = null, CutWith cutWith = Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.AND)
+            : base(channelID, groupID, userIP, pageSize, pageIndex, picSize, tagsMetas, cutWith, orderObj)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             Platform = platform.ToString();
-            DeviceId = udid;   
+            DeviceId = udid;
             Culture = language;
         }
         #endregion

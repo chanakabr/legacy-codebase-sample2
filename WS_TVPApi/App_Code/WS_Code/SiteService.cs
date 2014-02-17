@@ -331,9 +331,9 @@ namespace TVPApiServices
                 {
                     //XXX: Patch for ximon
                     if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)                    
-                        pageIndex = pageIndex / pageSize;                    
+                        pageIndex = pageIndex / pageSize;
 
-                    lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj.Platform, initObj.UDID, initObj.Locale, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, orderBy);
+                    lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj.Platform, initObj.UDID, initObj.Locale, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, null);//orderBy);
                 }
                 catch (Exception ex)
                 {
@@ -992,9 +992,9 @@ namespace TVPApiServices
         #region XXXX
 
         [WebMethod(EnableSession = true, Description = "Do Social Action")]
-        public string DoSocialAction(InitializationObject initObj, string siteGuid, int mediaID, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction socialAction, SocialPlatform socialPlatform, string actionParam)
+        public string DoSocialAction(InitializationObject initObj, string siteGuid, int mediaID, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction socialAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, string actionParam)
         {
-            string sRes = SocialActionResponseStatus.UNKNOWN.ToString();
+            string sRes = TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus.UNKNOWN.ToString();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "DoSocialAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1016,7 +1016,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user social actions")]
-        public IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> GetUserSocialActions(InitializationObject initObj, string siteGuid, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
+        public IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> GetUserSocialActions(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction socialAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
         {
             IEnumerable<TVPApiModule.Objects.Responses.UserSocialActionObject> res = null;
 

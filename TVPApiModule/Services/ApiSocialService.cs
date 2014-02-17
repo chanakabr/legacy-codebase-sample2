@@ -96,7 +96,8 @@ namespace TVPApiModule.Services
                     m_sDeviceUDID = udid,
                     m_sSiteGuid = siteGuid
                 };
-                eRes = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                eRes = res != null ? (TVPApiModule.Objects.Responses.SocialActionResponseStatus)res.m_eActionResponseStatusIntern : TVPApiModule.Objects.Responses.SocialActionResponseStatus.UNKNOWN;
             }
             catch (Exception ex)
             {
@@ -447,8 +448,10 @@ namespace TVPApiModule.Services
                     m_sDeviceUDID = udid,
 
                 };
-
-                res = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).DoUserAction(m_wsUserName, m_wsPassword, request);
+                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).DoUserAction(m_wsUserName, m_wsPassword, request);
+                if (response != null)
+                    res = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)response.m_eActionResponseStatusIntern;
+                //res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Social.module).DoUserAction(m_wsUserName, m_wsPassword, request);
             }
             catch (Exception ex)
             {
