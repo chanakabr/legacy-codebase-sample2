@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Notifiers.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Notifiers_tikle_ws_Service" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://212.58.18.44:8080/Service.asmx</Value>
+    </Setting>
+    <Setting Name="Notifiers_WS_3SS_TvinciService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://82.79.128.235:8080/TvinciService.svc?wsdl</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
