@@ -144,8 +144,9 @@
     <Reference Include="Enyim.Caching.Log4NetAdapter">
       <HintPath>..\..\tvpapi\packages\CouchbaseLog4NetAdapter.1.2.7\lib\net35\Enyim.Caching.Log4NetAdapter.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\..\tvpapi\packages\log4net.2.0.3\lib\net35-full\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\tvpapi\packages\Newtonsoft.Json.6.0.1\lib\net35\Newtonsoft.Json.dll</HintPath>
@@ -165,12 +166,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AMQPAppender.cs" />
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ILogger4Net.cs" />
+    <Compile Include="Log4NetManager.cs" />
     <Compile Include="Logger.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Logger4Net.cs" />
+    <Compile Include="Model\BaseLog.cs" />
+    <Compile Include="Model\Enums.cs" />
+    <Compile Include="Model\LogImpl.cs" />
+    <Compile Include="Model\LogWithSeverity.cs" />
+    <Compile Include="Model\SqlLog.cs" />
     <Compile Include="TvinciCouchbaseLogger.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -202,7 +212,14 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Log4Net.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
