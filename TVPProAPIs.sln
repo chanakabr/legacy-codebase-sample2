@@ -14,29 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TVPApi.Libs", "TVPApi.Libs"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPApiModule", "TVPApiModule\TVPApiModule.csproj", "{2DA122E7-8C17-49BC-8F28-108A4ED741E4}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WS_TVPApi", "WS_TVPApi\", "{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv3.5"
-		ProjectReferences = "{5D400DB4-C756-4B5C-8359-FE55084043F4}|iucon.web.Controls.PartialUpdatePanel.dll;{E53BAE81-A07C-4112-A42D-4E899D6A52FC}|Tvinci.Localization.dll;{48CB3B25-623B-4500-8E88-2E77A7074238}|ODBCWrapper.dll;{B7DDD3F9-1844-41B1-AE65-68CFE6F95915}|Tvinci.Configuration.dll;{B76F07E3-91C2-44A7-B80B-EB60BFB07825}|Tvinci.Helpers.dll;{53D79E6C-FE76-40FD-8C8E-6256D9DE79A3}|Tvinci.Helpers.Link.dll;{9C98DB15-9EFB-47A4-8BE1-9BB873518E8C}|Tvinci.MultiClient.dll;{C14818ED-F1A0-4CDB-85DF-4F8018F60C31}|Tvinci.Data.DataLoader.dll;{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}|TVPPro.Configuration.dll;{D9C9D8FA-3215-4E73-8765-D573DA24D6BE}|Tvinci.Performance.dll;{BEAD66E3-143B-4C83-9352-50AFB0AA62FA}|Tvinci.Data.TVMDataLoader.dll;{2DA122E7-8C17-49BC-8F28-108A4ED741E4}|TVPApiModule.dll;{6409DA6B-D48D-43A2-9217-02B25D4ED5E3}|Tvinci.Web.Controls.dll;{18F39282-8646-41CC-8E56-600087A2A9AC}|Tvinci.Web.TVS.Controls.dll;{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F}|TVPPro.SiteManager.dll;{72228EF8-6AFA-4C0C-9C8A-59EDDAC688FB}|Logger.dll;{9D2ABB52-E0A0-4DFA-9E24-7E0B98D3557D}|TVinci.TimePeriod.dll;{209EE212-3A89-4966-951E-0173DCC76BB0}|Tvinci.Data.Loaders.dll;{E4F95CCC-2127-4A5C-90BB-D60A446BEC3B}|QueueWrapper.dll;"
-		Debug.AspNetCompiler.VirtualPath = "/WS_TVPApi"
-		Debug.AspNetCompiler.PhysicalPath = "WS_TVPApi\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\WS_TVPApi\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/WS_TVPApi"
-		Release.AspNetCompiler.PhysicalPath = "WS_TVPApi\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\WS_TVPApi\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "21818"
-		VWDDynamicPort = "true"
-		DefaultWebSiteLanguage = "Visual C#"
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPApiTests", "TVPApiTests\TVPApiTests.csproj", "{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0CB48298-7017-415C-8732-6542C9A88F45}"
@@ -103,19 +80,7 @@ Global
 		{2DA122E7-8C17-49BC-8F28-108A4ED741E4}.test|Any CPU.ActiveCfg = Debug|Any CPU
 		{2DA122E7-8C17-49BC-8F28-108A4ED741E4}.test|Any CPU.Build.0 = Debug|Any CPU
 		{2DA122E7-8C17-49BC-8F28-108A4ED741E4}.Yes|Any CPU.ActiveCfg = Debug|Any CPU
-		{2DA122E7-8C17-49BC-8F28-108A4ED741E4}.Yes|Any CPU.Build.0 = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.AllClients|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.AllClients|Any CPU.Build.0 = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.debug32|Any CPU.Build.0 = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.test|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.test|Any CPU.Build.0 = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.Yes|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779}.Yes|Any CPU.Build.0 = Debug|Any CPU
+		{2DA122E7-8C17-49BC-8F28-108A4ED741E4}.Yes|Any CPU.Build.0 = Debug|Any CPU		
 		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
 		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.AllClients|Any CPU.Build.0 = Release|Any CPU
 		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -362,8 +327,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C} = {83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}
-		{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F} = {83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}
-		{0CA5041F-9C1B-4263-9AA1-D5FD3A705779} = {173647D2-B5B7-46DC-80FB-0326B428418A}
+		{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F} = {83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}		
 		{BE818F02-F5D8-4DAD-BE39-FA27AB8D064E} = {173647D2-B5B7-46DC-80FB-0326B428418A}
 		{8E0EC7C1-FCB0-4C56-800D-B02784301B98} = {173647D2-B5B7-46DC-80FB-0326B428418A}
 		{E53BAE81-A07C-4112-A42D-4E899D6A52FC} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
