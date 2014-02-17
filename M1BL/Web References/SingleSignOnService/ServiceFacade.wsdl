@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://m1.com.sg/SingleSignOn/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://m1.com.sg/SingleSignOn/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://m1.com.sg/SingleSignOn/">
+      <s:element name="GetAuthenticationTicketForClients">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="accountType" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAuthenticationTicketForClientsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAuthenticationTicketForClientsResult" type="tns:GetAuthenticationTicketResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetAuthenticationTicketResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ActionResult" type="tns:WebMethodActionResult" />
+          <s:element minOccurs="0" maxOccurs="1" name="AuthTicket" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebMethodActionResult">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="OK" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="ErrorCode" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorDescription" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorDetails" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAuthenticationTicketForServers">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="accountType" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="sessionIdentifer" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAuthenticationTicketForServersResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAuthenticationTicketForServersResult" type="tns:GetAuthenticationTicketResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RetrieveAuthenticationTicketForClients">
+        <s:complexType />
+      </s:element>
+      <s:element name="RetrieveAuthenticationTicketForClientsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RetrieveAuthenticationTicketForClientsResult" type="tns:RetrieveAuthenticationTicketResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="RetrieveAuthenticationTicketResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ActionResult" type="tns:WebMethodActionResult" />
+          <s:element minOccurs="0" maxOccurs="1" name="AuthTickets" type="tns:ArrayOfAuthenticationTicketPackage" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfAuthenticationTicketPackage">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="AuthenticationTicketPackage" nillable="true" type="tns:AuthenticationTicketPackage" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AuthenticationTicketPackage">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AccountType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ticket" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="RetrieveAuthenticationTicketForServers">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="sessionIdentifer" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RetrieveAuthenticationTicketForServersResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RetrieveAuthenticationTicketForServersResult" type="tns:RetrieveAuthenticationTicketResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckAuthorisation">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="encryptedTicket" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="appName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="appFnName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckAuthorisationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CheckAuthorisationResult" type="tns:CheckAuthorisationResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CheckAuthorisationResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ActionResult" type="tns:WebMethodActionResult" />
+          <s:element minOccurs="0" maxOccurs="1" name="AuthTicket" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Authorised" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetMemberDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="encryptedTicket" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMemberDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMemberDetailsResult" type="tns:GetMemberDetailsResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetMemberDetailsResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ActionResult" type="tns:WebMethodActionResult" />
+          <s:element minOccurs="0" maxOccurs="1" name="AuthTicket" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="MemberRoleDetails" type="tns:ArrayOfMemberRoleDetail" />
+          <s:element minOccurs="0" maxOccurs="1" name="MemberDetails" type="tns:ArrayOfMemberDetail" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMemberRoleDetail">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MemberRoleDetail" nillable="true" type="tns:MemberRoleDetail" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MemberRoleDetail">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="AppName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="RoleName" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMemberDetail">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MemberDetail" nillable="true" type="tns:MemberDetail" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MemberDetail">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAllApplicationFunctionsRoles">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="encryptedTicket" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="appName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllApplicationFunctionsRolesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllApplicationFunctionsRolesResult" type="tns:GetMemberAppFuncsRolesResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GetMemberAppFuncsRolesResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ActionResult" type="tns:WebMethodActionResult" />
+          <s:element minOccurs="0" maxOccurs="1" name="AuthTicket" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="MemberAppFuncRoleDetails" type="tns:ArrayOfMemberAppFuncRoleDetails" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMemberAppFuncRoleDetails">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MemberAppFuncRoleDetails" nillable="true" type="tns:MemberAppFuncRoleDetails" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MemberAppFuncRoleDetails">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="RoleName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AppName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AppFuncName" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="TellMeAboutAuthenticationTicket">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="encryptedTicket" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="TellMeAboutAuthenticationTicketResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="TellMeAboutAuthenticationTicketResult" type="tns:TellMeAboutAuthenticationTicketResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TellMeAboutAuthenticationTicketResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ActionResult" type="tns:WebMethodActionResult" />
+          <s:element minOccurs="0" maxOccurs="1" name="TicketDetails" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAuthenticationTicketResult" nillable="true" type="tns:GetAuthenticationTicketResult" />
+      <s:element name="RetrieveAuthenticationTicketResult" nillable="true" type="tns:RetrieveAuthenticationTicketResult" />
+      <s:element name="CheckAuthorisationResult" nillable="true" type="tns:CheckAuthorisationResult" />
+      <s:element name="GetMemberDetailsResult" nillable="true" type="tns:GetMemberDetailsResult" />
+      <s:element name="GetMemberAppFuncsRolesResult" nillable="true" type="tns:GetMemberAppFuncsRolesResult" />
+      <s:element name="TellMeAboutAuthenticationTicketResult" nillable="true" type="tns:TellMeAboutAuthenticationTicketResult" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetAuthenticationTicketForClientsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAuthenticationTicketForClients" />
+  </wsdl:message>
+  <wsdl:message name="GetAuthenticationTicketForClientsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAuthenticationTicketForClientsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAuthenticationTicketForServersSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAuthenticationTicketForServers" />
+  </wsdl:message>
+  <wsdl:message name="GetAuthenticationTicketForServersSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAuthenticationTicketForServersResponse" />
+  </wsdl:message>
+  <wsdl:message name="RetrieveAuthenticationTicketForClientsSoapIn">
+    <wsdl:part name="parameters" element="tns:RetrieveAuthenticationTicketForClients" />
+  </wsdl:message>
+  <wsdl:message name="RetrieveAuthenticationTicketForClientsSoapOut">
+    <wsdl:part name="parameters" element="tns:RetrieveAuthenticationTicketForClientsResponse" />
+  </wsdl:message>
+  <wsdl:message name="RetrieveAuthenticationTicketForServersSoapIn">
+    <wsdl:part name="parameters" element="tns:RetrieveAuthenticationTicketForServers" />
+  </wsdl:message>
+  <wsdl:message name="RetrieveAuthenticationTicketForServersSoapOut">
+    <wsdl:part name="parameters" element="tns:RetrieveAuthenticationTicketForServersResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckAuthorisationSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckAuthorisation" />
+  </wsdl:message>
+  <wsdl:message name="CheckAuthorisationSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckAuthorisationResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMemberDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMemberDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetMemberDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMemberDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllApplicationFunctionsRolesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllApplicationFunctionsRoles" />
+  </wsdl:message>
+  <wsdl:message name="GetAllApplicationFunctionsRolesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllApplicationFunctionsRolesResponse" />
+  </wsdl:message>
+  <wsdl:message name="TellMeAboutAuthenticationTicketSoapIn">
+    <wsdl:part name="parameters" element="tns:TellMeAboutAuthenticationTicket" />
+  </wsdl:message>
+  <wsdl:message name="TellMeAboutAuthenticationTicketSoapOut">
+    <wsdl:part name="parameters" element="tns:TellMeAboutAuthenticationTicketResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAuthenticationTicketForClientsHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="accountType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAuthenticationTicketForClientsHttpPostOut">
+    <wsdl:part name="Body" element="tns:GetAuthenticationTicketResult" />
+  </wsdl:message>
+  <wsdl:message name="GetAuthenticationTicketForServersHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="accountType" type="s:string" />
+    <wsdl:part name="sessionIdentifer" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAuthenticationTicketForServersHttpPostOut">
+    <wsdl:part name="Body" element="tns:GetAuthenticationTicketResult" />
+  </wsdl:message>
+  <wsdl:message name="RetrieveAuthenticationTicketForClientsHttpPostIn" />
+  <wsdl:message name="RetrieveAuthenticationTicketForClientsHttpPostOut">
+    <wsdl:part name="Body" element="tns:RetrieveAuthenticationTicketResult" />
+  </wsdl:message>
+  <wsdl:message name="RetrieveAuthenticationTicketForServersHttpPostIn">
+    <wsdl:part name="sessionIdentifer" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RetrieveAuthenticationTicketForServersHttpPostOut">
+    <wsdl:part name="Body" element="tns:RetrieveAuthenticationTicketResult" />
+  </wsdl:message>
+  <wsdl:message name="CheckAuthorisationHttpPostIn">
+    <wsdl:part name="encryptedTicket" type="s:string" />
+    <wsdl:part name="appName" type="s:string" />
+    <wsdl:part name="appFnName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckAuthorisationHttpPostOut">
+    <wsdl:part name="Body" element="tns:CheckAuthorisationResult" />
+  </wsdl:message>
+  <wsdl:message name="GetMemberDetailsHttpPostIn">
+    <wsdl:part name="encryptedTicket" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMemberDetailsHttpPostOut">
+    <wsdl:part name="Body" element="tns:GetMemberDetailsResult" />
+  </wsdl:message>
+  <wsdl:message name="GetAllApplicationFunctionsRolesHttpPostIn">
+    <wsdl:part name="encryptedTicket" type="s:string" />
+    <wsdl:part name="appName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllApplicationFunctionsRolesHttpPostOut">
+    <wsdl:part name="Body" element="tns:GetMemberAppFuncsRolesResult" />
+  </wsdl:message>
+  <wsdl:message name="TellMeAboutAuthenticationTicketHttpPostIn">
+    <wsdl:part name="encryptedTicket" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="TellMeAboutAuthenticationTicketHttpPostOut">
+    <wsdl:part name="Body" element="tns:TellMeAboutAuthenticationTicketResult" />
+  </wsdl:message>
+  <wsdl:portType name="ServiceFacadeSoap">
+    <wsdl:operation name="GetAuthenticationTicketForClients">
+      <wsdl:input message="tns:GetAuthenticationTicketForClientsSoapIn" />
+      <wsdl:output message="tns:GetAuthenticationTicketForClientsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAuthenticationTicketForServers">
+      <wsdl:input message="tns:GetAuthenticationTicketForServersSoapIn" />
+      <wsdl:output message="tns:GetAuthenticationTicketForServersSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForClients">
+      <wsdl:input message="tns:RetrieveAuthenticationTicketForClientsSoapIn" />
+      <wsdl:output message="tns:RetrieveAuthenticationTicketForClientsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForServers">
+      <wsdl:input message="tns:RetrieveAuthenticationTicketForServersSoapIn" />
+      <wsdl:output message="tns:RetrieveAuthenticationTicketForServersSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorisation">
+      <wsdl:input message="tns:CheckAuthorisationSoapIn" />
+      <wsdl:output message="tns:CheckAuthorisationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMemberDetails">
+      <wsdl:input message="tns:GetMemberDetailsSoapIn" />
+      <wsdl:output message="tns:GetMemberDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllApplicationFunctionsRoles">
+      <wsdl:input message="tns:GetAllApplicationFunctionsRolesSoapIn" />
+      <wsdl:output message="tns:GetAllApplicationFunctionsRolesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TellMeAboutAuthenticationTicket">
+      <wsdl:input message="tns:TellMeAboutAuthenticationTicketSoapIn" />
+      <wsdl:output message="tns:TellMeAboutAuthenticationTicketSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="ServiceFacadeHttpPost">
+    <wsdl:operation name="GetAuthenticationTicketForClients">
+      <wsdl:input message="tns:GetAuthenticationTicketForClientsHttpPostIn" />
+      <wsdl:output message="tns:GetAuthenticationTicketForClientsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAuthenticationTicketForServers">
+      <wsdl:input message="tns:GetAuthenticationTicketForServersHttpPostIn" />
+      <wsdl:output message="tns:GetAuthenticationTicketForServersHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForClients">
+      <wsdl:input message="tns:RetrieveAuthenticationTicketForClientsHttpPostIn" />
+      <wsdl:output message="tns:RetrieveAuthenticationTicketForClientsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForServers">
+      <wsdl:input message="tns:RetrieveAuthenticationTicketForServersHttpPostIn" />
+      <wsdl:output message="tns:RetrieveAuthenticationTicketForServersHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorisation">
+      <wsdl:input message="tns:CheckAuthorisationHttpPostIn" />
+      <wsdl:output message="tns:CheckAuthorisationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMemberDetails">
+      <wsdl:input message="tns:GetMemberDetailsHttpPostIn" />
+      <wsdl:output message="tns:GetMemberDetailsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllApplicationFunctionsRoles">
+      <wsdl:input message="tns:GetAllApplicationFunctionsRolesHttpPostIn" />
+      <wsdl:output message="tns:GetAllApplicationFunctionsRolesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TellMeAboutAuthenticationTicket">
+      <wsdl:input message="tns:TellMeAboutAuthenticationTicketHttpPostIn" />
+      <wsdl:output message="tns:TellMeAboutAuthenticationTicketHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ServiceFacadeSoap" type="tns:ServiceFacadeSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetAuthenticationTicketForClients">
+      <soap:operation soapAction="http://m1.com.sg/SingleSignOn/GetAuthenticationTicketForClients" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAuthenticationTicketForServers">
+      <soap:operation soapAction="http://m1.com.sg/SingleSignOn/GetAuthenticationTicketForServers" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForClients">
+      <soap:operation soapAction="http://m1.com.sg/SingleSignOn/RetrieveAuthenticationTicketForClients" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForServers">
+      <soap:operation soapAction="http://m1.com.sg/SingleSignOn/RetrieveAuthenticationTicketForServers" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorisation">
+      <soap:operation soapAction="http://m1.com.sg/SingleSignOn/CheckAuthorisation" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMemberDetails">
+      <soap:operation soapAction="http://m1.com.sg/SingleSignOn/GetMemberDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllApplicationFunctionsRoles">
+      <soap:operation soapAction="http://m1.com.sg/SingleSignOn/GetAllApplicationFunctionsRoles" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TellMeAboutAuthenticationTicket">
+      <soap:operation soapAction="http://m1.com.sg/SingleSignOn/TellMeAboutAuthenticationTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ServiceFacadeSoap12" type="tns:ServiceFacadeSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetAuthenticationTicketForClients">
+      <soap12:operation soapAction="http://m1.com.sg/SingleSignOn/GetAuthenticationTicketForClients" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAuthenticationTicketForServers">
+      <soap12:operation soapAction="http://m1.com.sg/SingleSignOn/GetAuthenticationTicketForServers" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForClients">
+      <soap12:operation soapAction="http://m1.com.sg/SingleSignOn/RetrieveAuthenticationTicketForClients" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForServers">
+      <soap12:operation soapAction="http://m1.com.sg/SingleSignOn/RetrieveAuthenticationTicketForServers" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorisation">
+      <soap12:operation soapAction="http://m1.com.sg/SingleSignOn/CheckAuthorisation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMemberDetails">
+      <soap12:operation soapAction="http://m1.com.sg/SingleSignOn/GetMemberDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllApplicationFunctionsRoles">
+      <soap12:operation soapAction="http://m1.com.sg/SingleSignOn/GetAllApplicationFunctionsRoles" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TellMeAboutAuthenticationTicket">
+      <soap12:operation soapAction="http://m1.com.sg/SingleSignOn/TellMeAboutAuthenticationTicket" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ServiceFacadeHttpPost" type="tns:ServiceFacadeHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="GetAuthenticationTicketForClients">
+      <http:operation location="/GetAuthenticationTicketForClients" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAuthenticationTicketForServers">
+      <http:operation location="/GetAuthenticationTicketForServers" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForClients">
+      <http:operation location="/RetrieveAuthenticationTicketForClients" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveAuthenticationTicketForServers">
+      <http:operation location="/RetrieveAuthenticationTicketForServers" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorisation">
+      <http:operation location="/CheckAuthorisation" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMemberDetails">
+      <http:operation location="/GetMemberDetails" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllApplicationFunctionsRoles">
+      <http:operation location="/GetAllApplicationFunctionsRoles" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TellMeAboutAuthenticationTicket">
+      <http:operation location="/TellMeAboutAuthenticationTicket" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ServiceFacade">
+    <wsdl:port name="ServiceFacadeSoap" binding="tns:ServiceFacadeSoap">
+      <soap:address location="http://proximityws3.m1.com.sg/SingleSignOn/ServiceFacade.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ServiceFacadeSoap12" binding="tns:ServiceFacadeSoap12">
+      <soap12:address location="http://proximityws3.m1.com.sg/SingleSignOn/ServiceFacade.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ServiceFacadeHttpPost" binding="tns:ServiceFacadeHttpPost">
+      <http:address location="http://proximityws3.m1.com.sg/SingleSignOn/ServiceFacade.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

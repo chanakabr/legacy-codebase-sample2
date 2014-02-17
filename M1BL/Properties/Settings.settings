@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="M1BL.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="M1BL_AdsService_AuthorizationWebServiceService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://ads1.m1.com.sg/ws/AuthorizationWebService.jws</Value>
+    </Setting>
+    <Setting Name="M1BL_MobileOneBusinessFascadeService_ServiceInterface" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://proximityws3.m1.com.sg/MobileOneBusinessFascade/serviceinterface/serviceinterface.asmx</Value>
+    </Setting>
+    <Setting Name="M1BL_SingleSignOnService_ServiceFacade" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://proximityws3.m1.com.sg/SingleSignOn/ServiceFacade.asmx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
