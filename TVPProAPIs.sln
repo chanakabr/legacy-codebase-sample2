@@ -9,11 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "z -Tvinci.Libs", "z -Tvinci
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TVPApi.Libs", "TVPApi.Libs", "{2B6AD0A5-EDED-4C75-B92E-86D0C03D2A1E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0CB48298-7017-415C-8732-6542C9A88F45}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPApiModule", "Libs\TVPApiModule\TVPApiModule.csproj", "{2DA122E7-8C17-49BC-8F28-108A4ED741E4}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WS_TVPApi", "WS_TVPApi\", "{A23A04F3-7BDF-4AE4-9911-42BFA1232F54}"
