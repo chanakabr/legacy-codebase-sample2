@@ -1,0 +1,111 @@
+﻿using DAL;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+
+namespace Users
+{
+    public class MediaCorpUsers : TvinciUsers
+    {
+        public MediaCorpUsers(int nGroupID)
+            : base(nGroupID)
+        {
+
+        }
+
+
+        public override bool IsActivationNeeded(UserBasicData oBasicData)
+        {
+            if (oBasicData == null)
+                return base.IsActivationNeeded(null);
+            return string.IsNullOrEmpty(oBasicData.m_sFacebookToken);
+        }
+
+        protected override TvinciAPI.WelcomeMailRequest GetWelcomeMailRequest(string sFirstName, string sUserName, string sPassword, string sEmail, string sFacekookID)
+        {
+            TvinciAPI.WelcomeMailRequest retVal = new TvinciAPI.WelcomeMailRequest();
+            string sMailData = string.Empty;
+            string sActivation = string.Empty;
+            retVal.m_eMailType = TvinciAPI.eMailTemplateType.Welcome;
+            retVal.m_sFirstName = sFirstName;
+            retVal.m_sLastName = string.Empty;
+            retVal.m_sSenderFrom = m_sMailFromAdd;
+            retVal.m_sSenderName = m_sMailFromName;
+            retVal.m_sSenderTo = sEmail;
+            retVal.m_sUsername = sUserName;
+            sActivation = UsersDal.GetActivationToken(m_nGroupID, sUserName);
+
+            //DataTable dt = UsersDal.GetActivationToken(m_nGroupID, sUserName);
+            //if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            //    if (dt.Rows[0]["ACTIVATION_TOKEN"] != DBNull.Value)
+            //        sActivation = dt.Rows[0]["ACTIVATION_TOKEN"].ToString();
+
+            if (string.IsNullOrEmpty(sFacekookID))
+            {
+                //not facebook registeration, user needs to activate his account.
+
+                retVal.m_sPassword = sPassword;
+                retVal.m_sTemplateName = m_sWelcomeMailTemplate;
+                retVal.m_sSubject = m_sWelcomeMailSubject;
+            }
+            else
+            {
+
+                if (sActivation.Length > 0)
+                {
+                    /*
+                     the user did the following flow:
+                 1. regular registeration
+                 2. did NOT activate his account
+                 3. merged his account with facebook
+                 4. tried to login after non activation period expires
+                 5. asked to resend activation token.
+                     */
+                    retVal.m_sPassword = sPassword;
+                    retVal.m_sTemplateName = m_sWelcomeMailTemplate;
+                    retVal.m_sSubject = m_sWelcomeMailSubject;
+
+                }
+                else
+                {
+                    // facebook registeration. no need for user to activate his account.
+                    retVal.m_sPassword = "Facebook Password";
+                    retVal.m_sTemplateName = m_sWelcomeFacebookMailTemplate;
+                    retVal.m_sSubject = m_sWelcomeFacebookMailSubject;
+
+                }
+            }
+            retVal.m_sToken = sActivation;
+
+            return retVal;
+
+        }
+
+        private string GenerateUniqueNumberWithChecksum(string sSiteGuid)
+        {
+            int guidLength = sSiteGuid.Length;
+            int extraDigitCount = 8 - guidLength;
+
+            Random r = new Random();
+            for (int i = 0; i < extraDigitCount; i++)
+            {
+                sSiteGuid = "0" + sSiteGuid;
+            }
+            sSiteGuid += GenerateChecksum(sSiteGuid);
+            return sSiteGuid;
+        }
+
+        private int GenerateChecksum(string s)
+        {
+            char[] chars = s.ToCharArray();
+            int sum = 0;
+            for (int i = 0; i < chars.Length; i++)
+            {
+                sum += int.Parse(chars[i].ToString());
+            }
+            return (sum % 6);
+        }
+    }
+}

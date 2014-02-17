@@ -1,0 +1,190 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Users
+{
+    public enum ResponseStatus
+    {
+        OK = 0,
+        UserExists = 1,
+        UserDoesNotExist = 2,
+        WrongPasswordOrUserName = 3,
+        InsideLockTime = 4,
+        NotImplementedYet = 5,
+        UserNotActivated = 6,
+        UserAllreadyLoggedIn = 7,
+        UserDoubleLogIn = 8,
+        SessionLoggedOut = 9,
+        DeviceNotRegistered = 10,
+        ErrorOnSendingMail = 11,
+        UserEmailAlreadyExists = 12,
+        ErrorOnUpdatingUserType = 13,
+        UserTypeNotExist = 14,
+        UserNotMasterApproved = 15,
+        ErrorOnInitUser = 16,
+        ErrorOnSaveUser = 17,
+        UserRemovedFromDomain = 18,
+        TokenNotFound = 19,
+        UserAlreadyMasterApproved = 20
+    }
+
+    public enum UserAction
+    {
+        SignUp = 0,
+        SignIn = 1,
+        SignOut = 2
+    }
+
+    public enum UserState
+    {
+        Unknown = 0,
+        Activated = 1,
+        SingleSignIn = 2,
+        DoubleSignIn = 3,
+        LoggedOut = 4
+    }
+
+    public enum UserActivationState
+    {
+        Error = -2,
+        UserDoesNotExist = -1,
+        Activated = 0,
+        NotActivated = 1,
+        NotActivatedByMaster = 2,
+        UserRemovedFromDomain
+    }
+
+    //public enum DeviceState
+    //{
+    //    UnKnown = 0, // Initial device status
+    //    Error = 1, // Error
+    //    NotExists = 2, // Device not in devices table or is in table but status<>1
+    //    NotActive = 3, // Device in devices table and status=1 but active<>1
+    //    Active = 4, // Device in devices table and status=1 & active=1 (domains_devcies status not known);
+    //    NotRegistered = 5, // Device in devices table and status=1 & active=1 but in domains_devices no record with status=1 & active=1
+    //    Registered = 6, // Device in devices table and status=1 & active=1 and in domains_devices there's a record with status=1 & active=1
+    //}
+
+    public enum DeviceState
+    {
+        UnKnown = 0,     // Initial device status
+        Error = 1,       // Error
+        NotExists = 2,   // Device not in devices table or is in table but status<>1
+        Pending = 3,
+        Activated = 4,   // Device in devices table and status=1 & active=1 (domains_devcies status not known);
+        UnActivated = 5, // Device in devices table and status=1 but active<>1
+    }
+
+
+    public enum DomainStatus
+    {
+        OK = 1,
+        DomainAlreadyExists = 2,
+        ExceededLimit = 3,
+        DeviceTypeNotAllowed = 7,
+        UnKnown = 4,
+        Error = 5,
+        DeviceNotInDomin = 6,
+        MasterEmailAlreadyExists = 8,
+        UserNotInDomain = 9,
+        DomainNotExists = 10,
+        HouseholdUserFailed = 11
+    }
+
+    public enum DomainRestriction
+    {
+        Unrestricted = 0,
+        UserMasterRestricted = 1,
+        DeviceMasterRestricted = 2,
+        DeviceUserMasterRestricted = 3
+    }
+
+    //public enum DomainState
+    //{
+    //    UnKnown,
+    //    Error,
+    //    NotExists,
+    //    Exists
+    //}
+
+    //public enum DomainStatus
+    //{
+    //    UnKnown,
+    //    Error,
+    //    NotExists,
+    //    Exists
+    //}
+
+
+    public enum DomainResponseStatus
+    {
+        LimitationPeriod = 0,
+        UnKnown = 1,
+        Error = 2,
+        DomainAlreadyExists = 3,
+        ExceededLimit = 4,
+        DeviceTypeNotAllowed = 5,
+        DeviceNotInDomain = 6,
+        DeviceNotExists = 7,
+        DeviceAlreadyExists = 8,
+        UserNotExistsInDomain = 9,
+        OK = 10,
+        ActionUserNotMaster = 11,
+        UserNotAllowed = 12,
+        ExceededUserLimit = 13,
+        NoUsersInDomain = 14,
+        UserExistsInOtherDomains = 15,
+        DomainNotExists = 16,
+        HouseholdUserFailed = 17,
+        DeviceExistsInOtherDomains = 18,
+        DomainNotInitialized = 19,
+        RequestSent = 20,
+        DeviceNotConfirmed = 21,
+        RequestFailed = 22
+    }
+
+    public enum DeviceResponseStatus
+    {
+        UnKnown,
+        Error,
+        DuplicatePin,
+        DeviceNotExists,
+        OK
+    }
+
+    public enum UserGroupRuleResponseStatus
+    {
+        OK = 1,
+        TokenExpired = 2,
+        TokenNotExist = 3,
+        Error = 4
+    }
+
+    public enum ListType
+    {
+        All = 0,
+        Watch = 1,
+        Purchase = 2
+    }
+
+    public enum ItemType
+    {
+        All = 0,        
+        Media = 2
+    }
+
+    public enum UserDomainType
+    {
+        Regular = 0,
+        Master = 1,
+        Household = 2
+    }
+
+    public enum ImplementationsModules
+    {
+        Users = 1,
+        Domains,
+    }
+}
