@@ -1,0 +1,122 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace ConditionalAccess
+{
+    public class WSInt32
+    {
+        public Int32 m_nInt32;
+    }
+
+    public class MediaFileItemPricesContainer
+    {
+        public Int32 m_nMediaFileID;
+        public ItemPriceContainer[] m_oItemPrices;
+        public string m_sProductCode;
+
+        public MediaFileItemPricesContainer()
+        { }
+
+        public void Initialize(Int32 nMediaFileID, ItemPriceContainer[] oItemPrices)
+        {
+            m_nMediaFileID = nMediaFileID;
+            m_oItemPrices = oItemPrices;
+            m_sProductCode = string.Empty;
+        }
+        public void Initialize(Int32 nMediaFileID, ItemPriceContainer[] oItemPrices, string sProductCode)
+        {
+            m_nMediaFileID = nMediaFileID;
+            m_oItemPrices = oItemPrices;
+            m_sProductCode = sProductCode;
+        }
+    }
+
+    public class SubscriptionsPricesContainer
+    {
+        public string m_sSubscriptionCode;
+        public TvinciPricing.Price m_oPrice;
+        public PriceReason m_PriceReason;
+
+        public SubscriptionsPricesContainer()
+        { }
+
+        public void Initialize(string sSubscriptionCode, TvinciPricing.Price oPrice, PriceReason ePriceReason)
+        {
+            m_sSubscriptionCode = sSubscriptionCode;
+            m_oPrice = oPrice;
+            m_PriceReason = ePriceReason;
+        }
+
+    }
+
+    public class PrePaidPricesContainer
+    {
+        public string m_sPrePaidCode;
+        public TvinciPricing.Price m_oPrice;
+        public PriceReason m_PriceReason;
+
+        public PrePaidPricesContainer()
+        { }
+
+        public void Initialize(string sPrePaidCode, TvinciPricing.Price oPrice, PriceReason ePriceReason)
+        {
+            m_sPrePaidCode = sPrePaidCode;
+            m_oPrice = oPrice;
+            m_PriceReason = ePriceReason;
+        }
+
+    }
+
+    public class ItemPriceContainer
+    {
+        public string m_sPPVModuleCode;
+        public bool m_bSubscriptionOnly;
+        public TvinciPricing.Price m_oPrice;
+        public TvinciPricing.Price m_oFullPrice;
+        public PriceReason m_PriceReason;
+        public TvinciPricing.Subscription m_relevantSub;
+        public TvinciPricing.PrePaidModule m_relevantPP;
+        public TvinciPricing.LanguageContainer[] m_oPPVDescription;
+        public TvinciPricing.CouponsStatus m_couponStatus;
+        public string m_sFirstDeviceNameFound;
+
+        public ItemPriceContainer()
+        {
+            m_relevantSub = null;
+            m_PriceReason = PriceReason.UnKnown;
+            m_oPrice = null;
+            m_oFullPrice = null;
+            m_sPPVModuleCode = "";
+            m_oPPVDescription = null;
+            m_bSubscriptionOnly = false;
+            m_sFirstDeviceNameFound = string.Empty;
+            m_relevantPP = null;
+        }
+
+        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, bool bSubscriptionOnly)
+        {
+            m_oPPVDescription = oPPVDescription;
+            m_oPrice = oPrice;
+            m_oFullPrice = oFullPrice;
+            m_sPPVModuleCode = sPPVModuleCode;
+            m_PriceReason = theReason;
+            m_relevantSub = relevantSub;
+            m_bSubscriptionOnly = bSubscriptionOnly;
+        }
+
+        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound)
+        {
+            m_oPPVDescription = oPPVDescription;
+            m_oPrice = oPrice;
+            m_oFullPrice = oFullPrice;
+            m_sPPVModuleCode = sPPVModuleCode;
+            m_PriceReason = theReason;
+            m_relevantSub = relevantSub;
+            m_bSubscriptionOnly = bSubscriptionOnly;            
+            m_relevantPP = relevantPP;
+            m_sFirstDeviceNameFound = sFirstDeviceFound;
+        }
+    }
+}
