@@ -21,7 +21,7 @@ namespace Catalog
     public class Utils
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        
+
         /*Build some of the "where" query part : the range date by the params*/
         static public string GetDateRangeQuery(string sEndDateField, bool bUseStartDate)
         {
@@ -106,7 +106,7 @@ namespace Catalog
                     countItems = request.m_nPageSize;
                 else
                     countItems = medias.Count() - startIndex;
-                
+
                 if (medias.Count() < startIndex)
                     return mediaList;
 
@@ -167,7 +167,7 @@ namespace Catalog
             {
                 if (nRowCount == 0)
                 {
-                   return false;
+                    return false;
                 }
 
                 startIndex = 0;
@@ -192,7 +192,7 @@ namespace Catalog
                     count = nRowCount - startIndex;
 
                 return true;
-              
+
             }
             catch (Exception ex)
             {
@@ -202,12 +202,12 @@ namespace Catalog
         }
 
         public static bool IsLangMain(int nGroupID, int nLanguage)
-        {   
+        {
             bool bIsMain = true;
-         
+
             if (nLanguage == 0)
                 return bIsMain;
-            
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select g.LANGUAGE_ID from groups g (nolock) where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
@@ -256,7 +256,7 @@ namespace Catalog
                 return string.Empty;
             }
         }
-        
+
         public static int GetIntSafeVal(DataRow dr, string sField)
         {
             try
@@ -418,7 +418,7 @@ namespace Catalog
             }
         }
 
-       
+
 
         //This method is used specifically for Lucene cases when we get a search result which does not consist of an update date (Lucene does not hold update_date
         //within its documents and therefore we need to go to the DB and return the media update date
@@ -474,7 +474,7 @@ namespace Catalog
             {
 
                 if (searcher.GetType().Equals(typeof(LuceneWrapper)))
-                {   
+                {
                     DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0);
 
                     lMediaRes = GetMediaUpdateDate(lMediaIDs.Select(id => new SearchResult() { assetID = id, UpdateDate = dt }).ToList());
@@ -560,11 +560,6 @@ namespace Catalog
             }
 
             return res;
-        }
-
-        internal static bool IsGroupSupportsIPNOs(long lGroupID)
-        {
-            return IsGroupIDContainedInConfig(lGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';');
         }
 
         public static int GetOperatorIDBySiteGuid(int nGroupID, long lSiteGuid)

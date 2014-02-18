@@ -106,11 +106,11 @@ namespace Catalog
 
         private static MediaObj GetMediaDetails(int nMedia, MediasProtocolRequest mediaRequest, bool bIsMainLang)
         {
-           bool result = true;
+            bool result = true;
             try
             {
                 MediaObj oMediaObj = new MediaObj();
-                
+
                 // get mediaID and complete all details per media
                 _logger.Info(string.Format("MediaId : {0}", nMedia));
 
@@ -163,7 +163,7 @@ namespace Catalog
                         {
                             if (ds.Tables[6].Rows != null && ds.Tables[6].Rows.Count > 0)
                             {
-                                oMediaObj.m_sLastWatchedDevice = Utils.GetStrSafeVal(ds.Tables[6].Rows[0],"LastDeviceName");
+                                oMediaObj.m_sLastWatchedDevice = Utils.GetStrSafeVal(ds.Tables[6].Rows[0], "LastDeviceName");
                                 string sLastWatchedDate = Utils.GetStrSafeVal(ds.Tables[6].Rows[0], "LastWatchedDate");
                                 if (!string.IsNullOrEmpty(sLastWatchedDate))
                                 {
@@ -173,7 +173,7 @@ namespace Catalog
                         }
                     }
                     else
-                    {                       
+                    {
                         return null;
                     }
                 }
@@ -182,11 +182,11 @@ namespace Catalog
             catch (Exception ex)
             {
                 _logger.Error(ex.Message, ex);
-                result = false; 
+                result = false;
                 return null;
             }
         }
-            
+
 
         /*Insert all tags that return from the "CompleteDetailsForMediaResponse" into List<Tags>*/
         private static List<Tags> GetTagsDetails(DataTable dtTags, bool bIsMainLang, ref bool result)
@@ -205,15 +205,15 @@ namespace Catalog
                         oTags = new Tags();
                         oTags.m_lValues = new List<string>();
 
-                        oTags.m_oTagMeta = new TagMeta(Utils.GetStrSafeVal(dtTags.Rows[i],"tag_type_name"), typeof(string).ToString());
-                        nTagId = Utils.GetIntSafeVal(dtTags.Rows[i],"tag_type_id");
-                        oTags.m_lValues.Add(Utils.GetStrSafeVal(dtTags.Rows[i],"value"));
+                        oTags.m_oTagMeta = new TagMeta(Utils.GetStrSafeVal(dtTags.Rows[i], "tag_type_name"), typeof(string).ToString());
+                        nTagId = Utils.GetIntSafeVal(dtTags.Rows[i], "tag_type_id");
+                        oTags.m_lValues.Add(Utils.GetStrSafeVal(dtTags.Rows[i], "value"));
                         int j = i + 1;
                         for (; j < dtTags.Rows.Count; j++)
                         {
-                            if (nTagId != Utils.GetIntSafeVal(dtTags.Rows[j],"tag_type_id"))
+                            if (nTagId != Utils.GetIntSafeVal(dtTags.Rows[j], "tag_type_id"))
                                 break;
-                            oTags.m_lValues.Add(Utils.GetStrSafeVal(dtTags.Rows[j],"value"));
+                            oTags.m_lValues.Add(Utils.GetStrSafeVal(dtTags.Rows[j], "value"));
                         }
 
                         if (oTags.m_lValues != null && oTags.m_lValues.Count > 0)
@@ -250,13 +250,13 @@ namespace Catalog
                     sFieldVal = "META" + i.ToString() + "_STR";
                     if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
                     {
-                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0],sFieldName);
+                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
                         if (!string.IsNullOrEmpty(sName))
                         {
                             if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
                             {
                                 oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
-                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0],sFieldVal);
+                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
                                 lMetas.Add(oMeta);
                             }
                         }
@@ -270,13 +270,13 @@ namespace Catalog
                     sFieldVal = "META" + i.ToString() + "_DOUBLE";
                     if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
                     {
-                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0],sFieldName);
+                        sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
                         if (!string.IsNullOrEmpty(sName))
                         {
                             if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
                             {
                                 oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
-                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0],sFieldVal);
+                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
                                 lMetas.Add(oMeta);
                             }
                         }
@@ -296,7 +296,7 @@ namespace Catalog
                             if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
                             {
                                 oMeta.m_oTagMeta = new TagMeta(sName, typeof(bool).ToString());
-                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0],sFieldVal);
+                                oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
                                 lMetas.Add(oMeta);
                             }
                         }
@@ -314,7 +314,7 @@ namespace Catalog
         }
 
         /*Insert all files that return from the "CompleteDetailsForMediaResponse" into List<FileMedia>*/
-        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, int nMedia,ref bool result)
+        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, int nMedia, ref bool result)
         {
             try
             {
@@ -326,28 +326,28 @@ namespace Catalog
                 {
                     for (int i = 0; i < dtFileMedia.Rows.Count; i++)
                     {
-                        if ((!string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT")) && dtFileMedia.Rows[i]["BRAND_HEIGHT"].ToString() != "0")||
-                             !string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i],"RECURRING_TYPE_ID")) && dtFileMedia.Rows[i]["RECURRING_TYPE_ID"].ToString() != "0")                          
+                        if ((!string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT")) && dtFileMedia.Rows[i]["BRAND_HEIGHT"].ToString() != "0") ||
+                             !string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID")) && dtFileMedia.Rows[i]["RECURRING_TYPE_ID"].ToString() != "0")
                         {
-                            brand.m_nFileId          = Utils.GetIntSafeVal(dtFileMedia.Rows[i],"id");
-                            brand.m_nDuration        = Utils.GetIntSafeVal(dtFileMedia.Rows[i],"duration");
-                            brand.m_sFileFormat      = Utils.GetStrSafeVal(dtFileMedia.Rows[i],"foramtDescription");
-                            brand.m_sUrl             = Utils.GetStrSafeVal(dtFileMedia.Rows[i],"FileURL");
-                            brand.m_nBrandHeight     = Utils.GetIntSafeVal(dtFileMedia.Rows[i],"BRAND_HEIGHT");
-                            brand.m_nRecurringTypeId = Utils.GetIntSafeVal(dtFileMedia.Rows[i],"RECURRING_TYPE_ID");
-                            brand.m_sBillingType     = Utils.GetStrSafeVal(dtFileMedia.Rows[i],"bill_type"); 
-                            brand.m_nCdnID           = Utils.GetIntSafeVal(dtFileMedia.Rows[i],"CdnID");
+                            brand.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
+                            brand.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
+                            brand.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
+                            brand.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
+                            brand.m_nBrandHeight = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT");
+                            brand.m_nRecurringTypeId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID");
+                            brand.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
+                            brand.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
                             lBranding.Add(brand);
                             brand = new Branding();
                         }
                         else
                         {
                             int tempAdProvID = 0;
-                            fileMedia.m_nFileId            = Utils.GetIntSafeVal(dtFileMedia.Rows[i],"id");
-                            fileMedia.m_nDuration          = Utils.GetIntSafeVal(dtFileMedia.Rows[i],"duration");
-                            fileMedia.m_sFileFormat        = Utils.GetStrSafeVal(dtFileMedia.Rows[i],"foramtDescription");
-                            fileMedia.m_sCoGUID            = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "co_guid");
-                            fileMedia.m_sLanguage          = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "LANGUAGE");
+                            fileMedia.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
+                            fileMedia.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
+                            fileMedia.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
+                            fileMedia.m_sCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "co_guid");
+                            fileMedia.m_sLanguage = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "LANGUAGE");
                             fileMedia.m_nIsDefaultLanguage = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "IS_DEFAULT_LANGUAGE");
 
                             if (noFileUrl)
@@ -359,41 +359,41 @@ namespace Catalog
                                 fileMedia.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
                             }
 
-                            fileMedia.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i],"bill_type");
-                            fileMedia.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i],"CdnID");
+                            fileMedia.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
+                            fileMedia.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
                             tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_ID");
                             if (tempAdProvID != 0)
                             {
                                 fileMedia.m_oPreProvider = new AdProvider();
-                                fileMedia.m_oPreProvider.ProviderID   = tempAdProvID;
+                                fileMedia.m_oPreProvider.ProviderID = tempAdProvID;
                                 fileMedia.m_oPreProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_NAME");
-                                fileMedia.m_bIsPreSkipEnabled         = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_PRE") == 1;
+                                fileMedia.m_bIsPreSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_PRE") == 1;
 
                             }
                             tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_ID");
                             if (tempAdProvID != 0)
                             {
                                 fileMedia.m_oPostProvider = new AdProvider();
-                                fileMedia.m_oPostProvider.ProviderID   = tempAdProvID;
+                                fileMedia.m_oPostProvider.ProviderID = tempAdProvID;
                                 fileMedia.m_oPostProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_NAME");
-                                fileMedia.m_bIsPostSkipEnabled         = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_POST") == 1;
+                                fileMedia.m_bIsPostSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_POST") == 1;
                             }
                             tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_ID");
                             if (tempAdProvID != 0)
                             {
                                 fileMedia.m_oBreakProvider = new AdProvider();
-                                fileMedia.m_oBreakProvider.ProviderID   = tempAdProvID;
+                                fileMedia.m_oBreakProvider.ProviderID = tempAdProvID;
                                 fileMedia.m_oBreakProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_NAME");
-                                fileMedia.m_sBreakpoints                = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_BREAK_POINTS");
+                                fileMedia.m_sBreakpoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_BREAK_POINTS");
 
                             }
                             tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_ID");
                             if (tempAdProvID != 0)
                             {
                                 fileMedia.m_oOverlayProvider = new AdProvider();
-                                fileMedia.m_oOverlayProvider.ProviderID   = tempAdProvID;
+                                fileMedia.m_oOverlayProvider.ProviderID = tempAdProvID;
                                 fileMedia.m_oOverlayProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_NAME");
-                                fileMedia.m_sOverlaypoints                = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_OVERLAY_POINTS");
+                                fileMedia.m_sOverlaypoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_OVERLAY_POINTS");
                             }
                             lFileMedia.Add(fileMedia);
                             fileMedia = new FileMedia();
@@ -423,8 +423,8 @@ namespace Catalog
                 {
                     for (int i = 0; i < dtPic.Rows.Count; i++)
                     {
-                        picObj.m_sSize = Utils.GetStrSafeVal(dtPic.Rows[i],"PicSize");
-                        picObj.m_sURL = Utils.GetStrSafeVal(dtPic.Rows[i],"m_sURL");
+                        picObj.m_sSize = Utils.GetStrSafeVal(dtPic.Rows[i], "PicSize");
+                        picObj.m_sURL = Utils.GetStrSafeVal(dtPic.Rows[i], "m_sURL");
                         lPicObject.Add(picObj);
                         picObj = new Picture();
                     }
@@ -440,7 +440,7 @@ namespace Catalog
         }
 
         /*Insert all Basic Details about media  that return from the "CompleteDetailsForMediaResponse" into MediaObj*/
-        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia,DataTable dtUpdateDate, bool bIsMainLang)
+        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang)
         {
             bool result = false;
             try
@@ -453,18 +453,18 @@ namespace Catalog
                         oMediaObj.m_nID = Utils.GetIntSafeVal(dtMedia.Rows[0], "ID");
                         if (!bIsMainLang)
                         {
-                            oMediaObj.m_sName = Utils.GetStrSafeVal(dtMedia.Rows[0],"TranslateName");
-                            oMediaObj.m_sDescription = Utils.GetStrSafeVal(dtMedia.Rows[0],"TranslateDescription");
+                            oMediaObj.m_sName = Utils.GetStrSafeVal(dtMedia.Rows[0], "TranslateName");
+                            oMediaObj.m_sDescription = Utils.GetStrSafeVal(dtMedia.Rows[0], "TranslateDescription");
                         }
                         else
                         {
-                            oMediaObj.m_sName = Utils.GetStrSafeVal(dtMedia.Rows[0],"NAME");
-                            oMediaObj.m_sDescription = Utils.GetStrSafeVal(dtMedia.Rows[0],"DESCRIPTION");
+                            oMediaObj.m_sName = Utils.GetStrSafeVal(dtMedia.Rows[0], "NAME");
+                            oMediaObj.m_sDescription = Utils.GetStrSafeVal(dtMedia.Rows[0], "DESCRIPTION");
                         }
                         oMediaObj.m_oMediaType = new MediaType();
-                        oMediaObj.m_oMediaType.m_nTypeID = Utils.GetIntSafeVal(dtMedia.Rows[0],"MEDIA_TYPE_ID");
-                        oMediaObj.m_oMediaType.m_sTypeName = Utils.GetStrSafeVal(dtMedia.Rows[0],"typeDescription");
-                        oMediaObj.m_nLikeCounter = Utils.GetIntSafeVal(dtMedia.Rows[0],"like_counter");
+                        oMediaObj.m_oMediaType.m_nTypeID = Utils.GetIntSafeVal(dtMedia.Rows[0], "MEDIA_TYPE_ID");
+                        oMediaObj.m_oMediaType.m_sTypeName = Utils.GetStrSafeVal(dtMedia.Rows[0], "typeDescription");
+                        oMediaObj.m_nLikeCounter = Utils.GetIntSafeVal(dtMedia.Rows[0], "like_counter");
 
                         string sEpgIdentifier = Utils.GetStrSafeVal(dtMedia.Rows[0], "EPG_IDENTIFIER");
                         if (!string.IsNullOrEmpty(sEpgIdentifier))
@@ -473,21 +473,21 @@ namespace Catalog
                         }
                         //Rating
                         oMediaObj.m_oRatingMedia = new RatingMedia();
-                        oMediaObj.m_oRatingMedia.m_nViwes = Utils.GetIntSafeVal(dtMedia.Rows[0],"Viwes");
-                        oMediaObj.m_oRatingMedia.m_nRatingSum = Utils.GetIntSafeVal(dtMedia.Rows[0],"RatingSum");
-                        oMediaObj.m_oRatingMedia.m_nRatingCount = Utils.GetIntSafeVal(dtMedia.Rows[0],"RatingCount");
+                        oMediaObj.m_oRatingMedia.m_nViwes = Utils.GetIntSafeVal(dtMedia.Rows[0], "Viwes");
+                        oMediaObj.m_oRatingMedia.m_nRatingSum = Utils.GetIntSafeVal(dtMedia.Rows[0], "RatingSum");
+                        oMediaObj.m_oRatingMedia.m_nRatingCount = Utils.GetIntSafeVal(dtMedia.Rows[0], "RatingCount");
 
                         if (oMediaObj.m_oRatingMedia.m_nRatingCount > 0)
                         {
                             oMediaObj.m_oRatingMedia.m_nRatingAvg = (double)((double)oMediaObj.m_oRatingMedia.m_nRatingSum / (double)oMediaObj.m_oRatingMedia.m_nRatingCount);
                         }
-                        oMediaObj.m_oRatingMedia.m_nVotesLoCnt = Utils.GetIntSafeVal(dtMedia.Rows[0],"VotesLoCnt");                        
-                        oMediaObj.m_oRatingMedia.m_nVotesUpCnt = Utils.GetIntSafeVal(dtMedia.Rows[0],"VotesUpCnt");
-                        oMediaObj.m_oRatingMedia.m_nVote1Count = Utils.GetIntSafeVal(dtMedia.Rows[0],"VOTES_1_COUNT");
-                        oMediaObj.m_oRatingMedia.m_nVote2Count = Utils.GetIntSafeVal(dtMedia.Rows[0],"VOTES_2_COUNT");
-                        oMediaObj.m_oRatingMedia.m_nVote3Count = Utils.GetIntSafeVal(dtMedia.Rows[0],"VOTES_3_COUNT");
-                        oMediaObj.m_oRatingMedia.m_nVote4Count = Utils.GetIntSafeVal(dtMedia.Rows[0],"VOTES_4_COUNT");
-                        oMediaObj.m_oRatingMedia.m_nVote5Count = Utils.GetIntSafeVal(dtMedia.Rows[0],"VOTES_5_COUNT");
+                        oMediaObj.m_oRatingMedia.m_nVotesLoCnt = Utils.GetIntSafeVal(dtMedia.Rows[0], "VotesLoCnt");
+                        oMediaObj.m_oRatingMedia.m_nVotesUpCnt = Utils.GetIntSafeVal(dtMedia.Rows[0], "VotesUpCnt");
+                        oMediaObj.m_oRatingMedia.m_nVote1Count = Utils.GetIntSafeVal(dtMedia.Rows[0], "VOTES_1_COUNT");
+                        oMediaObj.m_oRatingMedia.m_nVote2Count = Utils.GetIntSafeVal(dtMedia.Rows[0], "VOTES_2_COUNT");
+                        oMediaObj.m_oRatingMedia.m_nVote3Count = Utils.GetIntSafeVal(dtMedia.Rows[0], "VOTES_3_COUNT");
+                        oMediaObj.m_oRatingMedia.m_nVote4Count = Utils.GetIntSafeVal(dtMedia.Rows[0], "VOTES_4_COUNT");
+                        oMediaObj.m_oRatingMedia.m_nVote5Count = Utils.GetIntSafeVal(dtMedia.Rows[0], "VOTES_5_COUNT");
 
                         //Dates
                         string sDate = string.Empty;
@@ -570,14 +570,15 @@ namespace Catalog
                     search = BuildSearchObject(oMediaRequest);
                 }
 
-                
+
                 search.m_nPageIndex = oMediaRequest.m_nPageIndex;
                 search.m_nPageSize = oMediaRequest.m_nPageSize;
 
-                isLucene = searcher != null && searcher is LuceneWrapper;
 
                 if (searcher != null)
                 {
+                    isLucene = searcher is LuceneWrapper;
+
                     SearchResultsObj resultObj = searcher.SearchMedias(oMediaRequest.m_nGroupID, search, 0, oMediaRequest.m_oFilter.m_bUseStartDate);
 
                     if (resultObj != null)
@@ -595,7 +596,7 @@ namespace Catalog
             }
             #endregion
 
-            return lSearchResults;          
+            return lSearchResults;
         }
 
         #region Build Search object for Searcher project.
@@ -725,7 +726,7 @@ namespace Catalog
                 foreach (KeyValue andKeyValue in request.m_AndList)
                 {
                     SearchValue search = new SearchValue();
-                    search.m_sKey   = andKeyValue.m_sKey;
+                    search.m_sKey = andKeyValue.m_sKey;
                     search.m_lValue = new List<string> { andKeyValue.m_sValue };
                     search.m_sValue = andKeyValue.m_sValue;
                     m_dAnd.Add(search);
@@ -737,7 +738,7 @@ namespace Catalog
                 foreach (KeyValue orKeyValue in request.m_OrList)
                 {
                     SearchValue search = new SearchValue();
-                    search.m_sKey   = orKeyValue.m_sKey;
+                    search.m_sKey = orKeyValue.m_sKey;
                     search.m_lValue = new List<string> { orKeyValue.m_sValue };
                     search.m_sValue = orKeyValue.m_sValue;
                     m_dOr.Add(search);
@@ -758,8 +759,8 @@ namespace Catalog
                         string[] valueArr = meta.m_sValue.Split(';');
                         foreach (string metaVar in valueArr)
                         {
-                            search          = new SearchValue();
-                            search.m_sKey   = meta.m_sKey;
+                            search = new SearchValue();
+                            search.m_sKey = meta.m_sKey;
                             if (!string.IsNullOrEmpty(metaVar))
                             {
                                 search.m_sValue = metaVar.ToLower();
@@ -787,14 +788,14 @@ namespace Catalog
             {
                 foreach (KeyValue tags in request.m_lTags)
                 {
-                    search          = new SearchValue();
-                    search.m_sKey   = tags.m_sKey;
+                    search = new SearchValue();
+                    search.m_sKey = tags.m_sKey;
                     if (!string.IsNullOrEmpty(tags.m_sValue))
                     {
                         search.m_sValue = tags.m_sValue.ToLower();
                     }
                     search.m_sKeyPrefix = TAGS;
-                    
+
                     //// ADDED
                     search.m_lValue = new List<string>() { tags.m_sValue };
 
@@ -822,7 +823,7 @@ namespace Catalog
         public static void GetOrderValues(ref ApiObjects.SearchObjects.OrderObj oSearchOrderObj, ApiObjects.SearchObjects.OrderObj oOrderObj)
         {
             try
-            {            
+            {
                 if (oOrderObj != null)
                 {
                     oSearchOrderObj.m_bIsSlidingWindowField = oOrderObj.m_bIsSlidingWindowField;
@@ -928,7 +929,7 @@ namespace Catalog
         #endregion
 
         #region Build search Object for search Related
-       
+
         /*Build the right MediaSearchRequest for a Search Related Media */
         public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes)
         {
@@ -944,7 +945,7 @@ namespace Catalog
                 }
 
                 DataSet ds = CatalogDAL.Build_MediaRelated(nGroupID, nMediaID, nLanguage);
-                
+
                 if (ds == null)
                     return null;
                 oMediasRequest.m_nGroupID = nGroupID;
@@ -952,12 +953,12 @@ namespace Catalog
                 {
                     if (ds.Tables[1] != null) // basic details
                     {
-                        oMediasRequest.m_sName = Utils.GetStrSafeVal(ds.Tables[1].Rows[0],"NAME");
+                        oMediasRequest.m_sName = Utils.GetStrSafeVal(ds.Tables[1].Rows[0], "NAME");
                         oMediasRequest.m_nMediaTypes = new List<int>();
                         if (nMediaTypes == null || nMediaTypes.Count == 0)
                         {
                             if (ds.Tables[1].Rows[0]["MEDIA_TYPE_ID"] != DBNull.Value && !string.IsNullOrEmpty(ds.Tables[1].Rows[0]["MEDIA_TYPE_ID"].ToString()))
-                                oMediasRequest.m_nMediaTypes.Add(Utils.GetIntSafeVal(ds.Tables[1].Rows[0],"MEDIA_TYPE_ID"));
+                                oMediasRequest.m_nMediaTypes.Add(Utils.GetIntSafeVal(ds.Tables[1].Rows[0], "MEDIA_TYPE_ID"));
                         }
                         else
                         {
@@ -982,7 +983,7 @@ namespace Catalog
                 return null;
             }
         }
-        
+
         /*Build tags for search related protocol*/
         private static List<KeyValue> BuildTagsForSearch(bool bIsMainLang, DataTable dtTags)
         {
@@ -995,15 +996,15 @@ namespace Catalog
                 string sValue;
                 int nTagID;
                 List<KeyValue> lTags = new List<KeyValue>();
-               
+
                 for (int i = 0; i < dtTags.Rows.Count; i++)
                 {
-                    sKey = Utils.GetStrSafeVal(dtTags.Rows[i],"NAME");
-                    nTagID = Utils.GetIntSafeVal(dtTags.Rows[i],"tagID");
+                    sKey = Utils.GetStrSafeVal(dtTags.Rows[i], "NAME");
+                    nTagID = Utils.GetIntSafeVal(dtTags.Rows[i], "tagID");
                     if (bIsMainLang)
-                        sValue = Utils.GetStrSafeVal(dtTags.Rows[i],"tagValue");
+                        sValue = Utils.GetStrSafeVal(dtTags.Rows[i], "tagValue");
                     else
-                        sValue = Utils.GetStrSafeVal(dtTags.Rows[i],"tagTranslate");
+                        sValue = Utils.GetStrSafeVal(dtTags.Rows[i], "tagTranslate");
                     lTags.Add(new KeyValue(sKey, sValue));
                 }
                 return lTags;
@@ -1254,7 +1255,7 @@ namespace Catalog
             ApiObjects.SearchObjects.OrderObj oSearcherOrderObj = new ApiObjects.SearchObjects.OrderObj();
             if (orderObj != null && orderObj.m_eOrderBy != ApiObjects.SearchObjects.OrderBy.NONE)
                 GetOrderValues(ref oSearcherOrderObj, orderObj);
-	        else
+            else
                 GetOrderValues(ref oSearcherOrderObj, channel.m_OrderObject);
 
             searchObject.m_oOrder = oSearcherOrderObj;
@@ -1266,7 +1267,7 @@ namespace Catalog
                 searchObject.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
 
             }
-            CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);          
+            CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
             return searchObject;
         }
 
@@ -1308,7 +1309,7 @@ namespace Catalog
                 }
             }
 
-            return returnedSearchValues;        
+            return returnedSearchValues;
         }
 
         private static string GetPermittedWatchRules(int nGroupId, DataTable extractedPermittedWatchRulesDT)
@@ -1384,7 +1385,7 @@ namespace Catalog
             {
                 searchObject.m_dOr = m_dOr;
             }
-             
+
             if (m_dAnd.Count > 0)
             {
                 searchObject.m_dAnd = m_dAnd;
@@ -1416,8 +1417,8 @@ namespace Catalog
         public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
         {
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction, eObjectType.Channel);
-        }        
-        
+        }
+
         private static bool Update(List<int> lIds, int nGroupId, eObjectType eUpdatedObjectType, eAction eAction, eObjectType eObjectType)
         {
             bool bIsUpdateIndexSucceeded = false;
@@ -1440,15 +1441,13 @@ namespace Catalog
 
             return bIsUpdateIndexSucceeded;
         }
-        #endregion 
+        #endregion
 
         internal static SearchResultsObj GetProgramIdsFromSearcher(EpgSearchRequest request, ref bool isLucene)
         {
             try
             {
                 SearchResultsObj epgReponse = null;
-                if (request == null || string.IsNullOrEmpty(request.m_sSearch) || request.m_nGroupID == 0)
-                    throw new Exception("request object null or miss 'must' parameters ");
 
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
@@ -1471,10 +1470,20 @@ namespace Catalog
                         MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(request.m_nGroupID,
                             dict, jsonizedChannelsDefinitions);
                         SearchResultsObj searcherAnswer = searcher.SearchMedias(request.m_nGroupID, linearChannelMediaIDsRequest, 0, true);
-                        List<long> ipnoEPGChannelsMediaIDs = ExtractMediaIDs(searcherAnswer);
-                        List<long> epgChannelsIDs = GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs);
-                        request.m_oEPGChannelIDs = epgChannelsIDs;
-                        epgSearch = BuildEpgSearchObject(request, isLucene);
+
+                        if (searcherAnswer.n_TotalItems > 0)
+                        {
+                            List<long> ipnoEPGChannelsMediaIDs = ExtractMediaIDs(searcherAnswer);
+                            List<long> epgChannelsIDs = GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs);
+                            request.m_oEPGChannelIDs = epgChannelsIDs;
+                            epgSearch = BuildEpgSearchObject(request, isLucene);
+                        }
+                        else
+                        {
+                            // no linear medias returned from searcher
+                            _logger.Info(String.Concat("No linear medias returned from searcher. ", request.ToString()));
+                            return epgReponse;
+                        }
                     }
                     else
                     {
@@ -1555,10 +1564,10 @@ namespace Catalog
             }
         }
 
-        private static void GetGroupsTagsAndMetas(int nGroupID,ref  List<string> lSearchList)
+        private static void GetGroupsTagsAndMetas(int nGroupID, ref  List<string> lSearchList)
         {
             try
-            {          
+            {
                 DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID);
 
                 lSearchList.Add("name");
@@ -1600,7 +1609,7 @@ namespace Catalog
 
 
         internal static bool CompleteDetailsForProgramResponse(EpgProgramDetailsRequest pRequest, ref EpgProgramResponse pResponse)
-        {            
+        {
             ProgramObj oProgramObj = null;
             List<BaseObject> lProgramObj = new List<BaseObject>();
 
@@ -1616,25 +1625,25 @@ namespace Catalog
                 List<int> lEpgIDs = new List<int>();
                 for (int i = nStartIndex; i < nEndIndex; i++)
                 {
-                   lEpgIDs.Add(pRequest.m_lProgramsIds[i]);                    
+                    lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
                 }
 
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
-                List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);               
-                EPGChannelProgrammeObject epgProg = null;                              
+                List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);
+                EPGChannelProgrammeObject epgProg = null;
 
                 //keeping the original order and amount of items (some of the items might return as null)
                 if (pRequest.m_lProgramsIds != null && lEpgProg != null)
                 {
-                    pResponse.m_nTotalItems = lEpgProg.Count;                    
+                    pResponse.m_nTotalItems = lEpgProg.Count;
                     foreach (int nProgram in pRequest.m_lProgramsIds)
                     {
-                        if (lEpgProg.Exists(x => x.EPG_ID == nProgram)) 
+                        if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
                         {
                             epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
                             oProgramObj = new ProgramObj();
                             oProgramObj.m_oProgram = epgProg;
-                            oProgramObj.m_nID = (int)epgProg.EPG_ID;                            
+                            oProgramObj.m_nID = (int)epgProg.EPG_ID;
                             bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
                         }
                         else
@@ -1677,8 +1686,8 @@ namespace Catalog
                     bool isProgram = GetProgramBasicDetails(ref oProgramObj, ds.Tables[0], ds.Tables[1]);
                     if (isProgram) //only if we found basic details for media - media in status = 1 , and active if necessary
                     {
-                        oProgramObj.m_oProgram.EPG_Meta = GetEpgMetaDetails(ds.Tables[2], ref result);                       
-                        oProgramObj.m_oProgram.EPG_TAGS = GetEpgTagsDetails(ds.Tables[3], ref result);                        
+                        oProgramObj.m_oProgram.EPG_Meta = GetEpgMetaDetails(ds.Tables[2], ref result);
+                        oProgramObj.m_oProgram.EPG_TAGS = GetEpgTagsDetails(ds.Tables[3], ref result);
                     }
                     else
                     {
@@ -1700,7 +1709,7 @@ namespace Catalog
             try
             {
                 result = true;
-                EPGDictionary oTag;         
+                EPGDictionary oTag;
                 List<EPGDictionary> lTags = new List<EPGDictionary>();
 
                 if (dtTags != null && dtTags.DefaultView != null)
@@ -1710,7 +1719,7 @@ namespace Catalog
                         oTag = new EPGDictionary();
                         oTag.Key = Utils.GetStrSafeVal(row, "TagTypeName");
                         oTag.Value = Utils.GetStrSafeVal(row, "TagValueName");
-                        lTags.Add(oTag);                       
+                        lTags.Add(oTag);
                     }
                 }
                 return lTags;
@@ -1724,18 +1733,18 @@ namespace Catalog
         }
 
         private static List<EPGDictionary> GetEpgMetaDetails(DataTable dtMeta, ref bool result)
-        {          
+        {
             try
             {
                 result = true;
-                EPGDictionary oMeta;                
+                EPGDictionary oMeta;
                 List<EPGDictionary> lMetas = new List<EPGDictionary>();
 
                 if (dtMeta != null && dtMeta.DefaultView != null)
                 {
                     foreach (DataRow row in dtMeta.Rows)
                     {
-                        oMeta = new EPGDictionary();                       
+                        oMeta = new EPGDictionary();
                         oMeta.Key = Utils.GetStrSafeVal(row, "name");
                         oMeta.Value = Utils.GetStrSafeVal(row, "value");
                         lMetas.Add(oMeta);
@@ -1766,7 +1775,7 @@ namespace Catalog
                     oProgramObj.m_oProgram.NAME = Utils.GetStrSafeVal(dt.Rows[0], "NAME");
                     oProgramObj.m_oProgram.DESCRIPTION = Utils.GetStrSafeVal(dt.Rows[0], "DESCRIPTION");
                     oProgramObj.m_oProgram.EPG_CHANNEL_ID = Utils.GetStrSafeVal(dt.Rows[0], "EPG_CHANNEL_ID");
-                    oProgramObj.m_oProgram.LIKE_COUNTER = Utils.GetIntSafeVal(dt.Rows[0] ,"like_counter");
+                    oProgramObj.m_oProgram.LIKE_COUNTER = Utils.GetIntSafeVal(dt.Rows[0], "like_counter");
                     oProgramObj.m_oProgram.PIC_URL = Utils.GetStrSafeVal(dt.Rows[0], "PIC_URL");
                     oProgramObj.m_oProgram.STATUS = Utils.GetStrSafeVal(dt.Rows[0], "STATUS");
                     oProgramObj.m_oProgram.IS_ACTIVE = Utils.GetStrSafeVal(dt.Rows[0], "IS_ACTIVE");
@@ -1781,7 +1790,7 @@ namespace Catalog
                     oProgramObj.m_oProgram.PUBLISH_DATE = Utils.GetStrSafeVal(dt.Rows[0], "PUBLISH_DATE");
                     oProgramObj.m_oProgram.UPDATE_DATE = Utils.GetStrSafeVal(dtUpdateDate.Rows[0], "UPDATE_DATE");
                 }
-                
+
                 return result;
             }
             catch (Exception ex)
@@ -1791,7 +1800,7 @@ namespace Catalog
             }
         }
 
-        internal static List<string>  EpgAutoComplete(EpgAutoCompleteRequest request)
+        internal static List<string> EpgAutoComplete(EpgAutoCompleteRequest request)
         {
             try
             {
@@ -1819,7 +1828,7 @@ namespace Catalog
                     if (epgSearch != null)
                         result = searcher.GetEpgAutoCompleteList(epgSearch);
                     if (result != null)
-                    {                        
+                    {
                         return result;
                     }
                     else
@@ -1859,7 +1868,7 @@ namespace Catalog
                 string sVal = string.Empty;
                 //Get all tags and meta for group
                 GetGroupsTagsAndMetas(request.m_nGroupID, ref lSearchList);
-                
+
                 if (lSearchList == null)
                     return null;
                 foreach (string item in lSearchList)
@@ -1872,7 +1881,7 @@ namespace Catalog
                 }
 
                 oEpgSearch.m_lSearch = dEsv;
-                
+
                 // get parent group by request.m_nGroupID
                 int nParentGroup = UtilsDal.GetParentGroupID(request.m_nGroupID);
                 oEpgSearch.m_nGroupID = nParentGroup;
@@ -1904,7 +1913,7 @@ namespace Catalog
                         return null;
                     }
 
-                    List<EpgResultsObj> epgResponse = new List<EpgResultsObj>(); 
+                    List<EpgResultsObj> epgResponse = new List<EpgResultsObj>();
                     EpgResultsObj resultPerChannel;
                     BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
                     Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
@@ -1959,20 +1968,20 @@ namespace Catalog
                     log.Error(log.Message, false);
                     return null;
                 }
-            }             
-        }        
+            }
+        }
 
         private static EpgResultsObj createEpgResults(List<EPGChannelProgrammeObject> epgList, int nChannelID)
         {
             EpgResultsObj resultPerChannel = new EpgResultsObj();
             resultPerChannel.m_nChannelID = nChannelID;
             resultPerChannel.m_nTotalItems = epgList.Count();
-            resultPerChannel.m_lEpgProgram = epgList;            
+            resultPerChannel.m_lEpgProgram = epgList;
             return resultPerChannel;
-        }       
+        }
 
         //insert default values to Top Next and Top prev, if they are 0
-        private static void getTopValues (EpgRequest request, ref int nNextTop, ref int nPrevTop)
+        private static void getTopValues(EpgRequest request, ref int nNextTop, ref int nPrevTop)
         {
             if (request.m_eSearchType == EpgSearchType.Current)
             {
@@ -2002,9 +2011,9 @@ namespace Catalog
                 {
                     nPrevTop = request.m_nPrevTop;
                 }
-            }            
+            }
         }
-        
+
         public static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
             using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
@@ -2067,7 +2076,7 @@ namespace Catalog
             List<AssetStatsResult> resList = new List<AssetStatsResult>();
             AssetStatsResult epgStat;
             try
-            {                
+            {
                 if (ds.Tables != null && ds.Tables.Count == 1)
                 {
                     //getting only medias that were in the DB
@@ -2102,7 +2111,7 @@ namespace Catalog
             List<AssetStatsResult> resList = new List<AssetStatsResult>();
             AssetStatsResult epgStat;
             try
-            {               
+            {
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(nGroupID);
                 List<EPGChannelProgrammeObject> lEpg = epgBL.GetEpgs(lAssetIDs);
                 foreach (EPGChannelProgrammeObject epg in lEpg)
@@ -2403,5 +2412,5 @@ namespace Catalog
         }
 
     }
-       
+
 }

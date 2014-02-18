@@ -38,7 +38,7 @@ namespace Catalog
         {
             get { return Nested.Instance; }
         }
-        
+
         class Nested
         {
             // Explicit static constructor to tell C# compiler
@@ -200,6 +200,8 @@ namespace Catalog
             {
                 Group group = null;
                 bIsGroupRemoved = m_GroupByParentGroupId.TryRemove(nParentGroupID, out group);
+                if (bIsGroupRemoved && group != null)
+                    group.Dispose();
             }
 
             return bIsGroupRemoved;
@@ -207,7 +209,7 @@ namespace Catalog
 
         #endregion
 
-        #region Private Methods        
+        #region Private Methods
 
         private Channel GetChannel(int nChannelId, ref Group group)
         {
@@ -419,7 +421,7 @@ namespace Catalog
         public bool HandleOperatorEvent(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
         {
             bool res = false;
-            if (Utils.IsGroupSupportsIPNOs(nGroupID))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
             {
                 switch (oe)
                 {
@@ -476,7 +478,7 @@ namespace Catalog
             if (subscriptionChannels != null && subscriptionChannels.Count > 0)
             {
                 Group group = GetGroup(nGroupID);
-                if(group != null)
+                if (group != null)
                     res = group.AddChannelsToOperator(nOperatorID, subscriptionChannels);
             }
 

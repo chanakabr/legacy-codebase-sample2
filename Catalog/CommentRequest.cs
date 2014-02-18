@@ -23,16 +23,14 @@ namespace Catalog
         [DataMember]
         public string m_sContentText;
         [DataMember]
-        public string m_sSiteGuid;
-        [DataMember]
         public string m_sUDID;
         [DataMember]
         public string m_sCountry;
         [DataMember]
-        public bool  m_bAutoActive;
+        public bool m_bAutoActive;
         [DataMember]
-        public Int32  m_nAssetID;
-        
+        public Int32 m_nAssetID;
+
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
@@ -43,9 +41,7 @@ namespace Catalog
             if (cr == null)
                 throw new Exception("request object is null or Required variables is null");
 
-            string sCheckSignature = Utils.GetSignature(cr.m_sSignString, cr.m_nGroupID);
-            if (sCheckSignature != cr.m_sSignature)
-                throw new Exception("Signatures dosen't match");
+            CheckSignature(cr);
 
 
             if (string.IsNullOrEmpty(cr.m_sCountry))

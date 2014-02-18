@@ -27,21 +27,23 @@ namespace TVinciShared
         {
             JavaScriptSerializer js = new JavaScriptSerializer();
             T obj = js.Deserialize<T>(json);
-            return (T)obj;  
+            return (T)obj;
         }
 
         public static bool TryGetJSONToken(JToken baseToken, string[] orderedPathDownTheJSONTree, ref string result)
         {
             int length = orderedPathDownTheJSONTree.Length;
-            StringBuilder sb = new StringBuilder();
+            JToken iter = baseToken;
+            JToken temp = null;
             for (int i = 0; i < length; i++)
             {
-                sb.Append(String.Concat(i == 0 ? string.Empty : ".", orderedPathDownTheJSONTree[i]));
-                if (baseToken.SelectToken(sb.ToString()) == null)
+                temp = iter.SelectToken(orderedPathDownTheJSONTree[i]);
+                if (temp == null)
                     return false;
+                iter = temp;
             }
 
-            result = baseToken.SelectToken(sb.ToString()).ToString();
+            result = iter.ToString();
 
             return true;
         }

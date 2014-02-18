@@ -12,10 +12,11 @@ using DAL;
 
 namespace Catalog
 {
-    public class Group
+    public class Group : IDisposable
     {
 
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private const string GROUP_LOG_FILENAME = "Group";
         #region Members
 
         public int m_nParentGroupID { get; set; }
@@ -25,8 +26,8 @@ namespace Catalog
         public ConcurrentDictionary<int, Channel> m_oGroupChannels { get; set; }
         public EpgGroupSettings m_oEpgGroupSettings { get; set; }
         public List<string> m_sPermittedWatchRules { get; set; }
-        private ConcurrentDictionary<int, List<long>> m_oOperatorChannelIDs { get; set; } // ipno
-
+        private Dictionary<int, List<long>> m_oOperatorChannelIDs; // channel ids for each operator. used for ipno filtering.
+        private ConcurrentDictionary<int, ReaderWriterLockSlim> m_oLockers; // readers-writers lockers for operator channel ids.
         #endregion
 
         #region CTOR
@@ -39,47 +40,191 @@ namespace Catalog
             this.m_oGroupTags = new Dictionary<int, string>();
             this.m_oEpgGroupSettings = new EpgGroupSettings();
             this.m_sPermittedWatchRules = new List<string>();
-            this.m_oOperatorChannelIDs = new ConcurrentDictionary<int, List<long>>();
+            this.m_oOperatorChannelIDs = new Dictionary<int, List<long>>();
+            this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
+        }
+
+        private void GetLocker(int nOperatorID, ref ReaderWriterLockSlim locker)
+        {
+            if (!m_oLockers.ContainsKey(nOperatorID))
+            {
+                lock (m_oLockers)
+                {
+                    Logger.Logger.Log("GetLocker", string.Format("Locked. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                    if (!m_oLockers.ContainsKey(nOperatorID))
+                    {
+                        if (!m_oLockers.TryAdd(nOperatorID, new ReaderWriterLockSlim()))
+                        {
+                            Logger.Logger.Log("GetLocker", string.Format("Failed to create reader writer manager. operator id: {0} , group_id {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                        }
+                    }
+                }
+                Logger.Logger.Log("GetLocker", string.Format("Locker released. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+            }
+
+            if (!m_oLockers.TryGetValue(nOperatorID, out locker))
+            {
+                Logger.Logger.Log("GetLocker", string.Format("Failed to read reader writer manager. operator id: {0} , group_id: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+            }
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
         {
+            return Read(nOperatorID);
+        }
+
+        private List<long> Read(int nOperatorID)
+        {
+            ReaderWriterLockSlim locker = null;
+            GetLocker(nOperatorID, ref locker);
+            if (locker == null)
+            {
+                Logger.Logger.Log("Read", string.Format("Read. Failed to obtain locker. Operator ID: {0}", nOperatorID), GROUP_LOG_FILENAME);
+                throw new Exception(string.Format("Read. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
+            }
+            locker.EnterReadLock();
+            List<long> res = null;
+            if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+            {
+                res = m_oOperatorChannelIDs[nOperatorID];
+                if (res != null && res.Count > 0)
+                {
+                    locker.ExitReadLock();
+                }
+                else
+                {
+                    locker.ExitReadLock();
+                    if (!Build(nOperatorID))
+                    {
+                        Logger.Logger.Log("Read", string.Format("Failed to build operator channel ids cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                    }
+                    res = Read(nOperatorID);
+                }
+            }
+            else
+            {
+                locker.ExitReadLock();
+                if (!Build(nOperatorID))
+                {
+                    Logger.Logger.Log("Read", string.Format("Failed to build operator channel ids cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                }
+                res = Read(nOperatorID);
+            }
+
+            return res;
+        }
+
+        private bool Build(int nOperatorID)
+        {
+            bool res = true;
+            ReaderWriterLockSlim locker = null;
             if (!m_oOperatorChannelIDs.ContainsKey(nOperatorID))
             {
-                bool createdNew = false;
-                MutexSecurity mutexSecurity = Utils.CreateMutex();
-                string sMutexName = GetMutexName(nOperatorID, OperatorChannelsAction.Build);
-                using (Mutex mutex = new Mutex(false, sMutexName, out createdNew, mutexSecurity))
+                GetLocker(nOperatorID, ref locker);
+                if (locker == null)
                 {
-                    try
+                    Logger.Logger.Log("Build", string.Format("Build. Failed to obtain locker. Operator ID: {0}", nOperatorID), GROUP_LOG_FILENAME);
+                    throw new Exception(string.Format("Build. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
+                }
+                locker.EnterWriteLock();
+                if (!m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+                {
+                    List<long> channelIDs = PricingDAL.Get_OperatorChannelIDs(m_nParentGroupID, nOperatorID, "pricing_connection");
+                    if (channelIDs != null && channelIDs.Count > 0)
                     {
-                        _logger.Info(GetMutexLogMsg("Mutex about to get locked", nOperatorID, sMutexName));
-                        mutex.WaitOne(-1);
-                        if (!m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+                        m_oOperatorChannelIDs.Add(nOperatorID, channelIDs);
+                    }
+                    else
+                    {
+                        m_oOperatorChannelIDs.Add(nOperatorID, new List<long>(1) { 0 });
+                        Logger.Logger.Log("Build", string.Format("No operator channel ids were extracted from DB. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                        res = false;
+                    }
+
+                }
+                else
+                {
+                    // no need to build. already built by another thread.
+                }
+                locker.ExitWriteLock();
+            }
+            else
+            {
+                // no need to build
+            }
+            return res;
+        }
+
+        private bool Add(int nOperatorID, List<long> channelIDs)
+        {
+            bool retVal = true;
+            ReaderWriterLockSlim locker = null;
+            GetLocker(nOperatorID, ref locker);
+            if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+            {
+                if (locker == null)
+                {
+                    Logger.Logger.Log("Add", string.Format("Add. Failed to obtain locker. Operator ID: {0} , Channel IDs: {1}", nOperatorID, channelIDs.Aggregate<long, string>(string.Empty, (res, item) => String.Concat(res, ";", item))), GROUP_LOG_FILENAME);
+                    throw new Exception(string.Format("Add. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
+                }
+                locker.EnterWriteLock();
+                if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+                {
+                    List<long> cachedChannels = m_oOperatorChannelIDs[nOperatorID];
+                    if (cachedChannels != null && cachedChannels.Count > 0)
+                    {
+                        int length = channelIDs.Count;
+                        for (int i = 0; i < length; i++)
                         {
-                            _logger.Info(GetMutexLogMsg("Entered Critical Section", nOperatorID, sMutexName));
-                            List<long> channelIDs = PricingDAL.Get_OperatorChannelIDs(m_nParentGroupID, nOperatorID, "pricing_connection");
-                            _logger.Info(GetMutexLogMsg(String.Concat("Num of channels retrieved from DB: ", channelIDs.Count), nOperatorID, sMutexName));
-                            m_oOperatorChannelIDs.TryAdd(nOperatorID, channelIDs);
+                            if (!cachedChannels.Contains(channelIDs[i]))
+                                cachedChannels.Add(channelIDs[i]);
                         }
+                        m_oOperatorChannelIDs[nOperatorID] = cachedChannels;
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        _logger.Error("GetOperatorChannelIDs. Exception occurred.", ex);
-                    }
-                    finally
-                    {
-                        mutex.ReleaseMutex();
-                        _logger.Info(GetMutexLogMsg("Mutex released", nOperatorID, sMutexName));
+                        // no channel ids in cache. we wait for the next read command that will lazy evaluate initialize the cache.
+                        retVal = false;
                     }
                 }
+                else
+                {
+                    // no channel ids in cache. we wait for the next read command that will lazy evaluate initialize the cache.
+                    retVal = false;
+                }
 
+                locker.ExitWriteLock();
             }
-            List<long> res = null;
-            if (m_oOperatorChannelIDs.TryGetValue(nOperatorID, out res))
-                return res;
-            return new List<long>(0);
 
+            return retVal;
+        }
+
+        private bool Delete(int nOperatorID)
+        {
+            bool res = true;
+            ReaderWriterLockSlim locker = null;
+            GetLocker(nOperatorID, ref locker);
+            if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+            {
+                if (locker == null)
+                {
+                    Logger.Logger.Log("Delete", string.Format("Delete. Failed to obtain locker. Operator ID: {0}", nOperatorID), GROUP_LOG_FILENAME);
+                    throw new Exception(string.Format("Delete. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
+                }
+                locker.EnterWriteLock();
+                if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+                {
+                    res = m_oOperatorChannelIDs.Remove(nOperatorID);
+                    if (!res)
+                    {
+                        // failed to remove from dictionary
+                        Logger.Logger.Log("Delete", string.Format("Failed to remove channel ids from dictionary. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                    }
+                }
+                locker.ExitWriteLock();
+            }
+
+            return res;
         }
 
         public List<long> GetAllOperatorsChannelIDs()
@@ -98,128 +243,41 @@ namespace Catalog
             return allChannelIDs.ToList();
         }
 
-        private string GetMutexName(int nOperatorID, OperatorChannelsAction action)
-        {
-            return String.Concat("CatalogGroupCacheAction_", action.ToString(), "_", "OperatorID_", nOperatorID);
-        }
-
-        private string GetMutexLogMsg(string sDesc, int nOperatorID, string sMutexName)
-        {
-            return string.Format("{0} . Operator ID: {1} , Parent Group ID: {2} , Mutex Name: {3}", sDesc, nOperatorID, m_nParentGroupID, sMutexName);
-        }
-
         public bool AddChannelsToOperator(int nOperatorID, List<long> channelIDs)
         {
-            bool res = false;
-            if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
-            {
-                string sMutexName = GetMutexName(nOperatorID, OperatorChannelsAction.Add);
-                bool createdNew = false;
-                MutexSecurity mutexSecurity = Utils.CreateMutex();
-                using (Mutex mutex = new Mutex(false, sMutexName, out createdNew, mutexSecurity))
-                {
-                    try
-                    {
-                        _logger.Info(GetMutexLogMsg("Mutex about to get locked", nOperatorID, sMutexName));
-                        mutex.WaitOne(-1);
-                        _logger.Info(GetMutexLogMsg("Entered Critical Section", nOperatorID, sMutexName));
-                        List<long> listOfOperatorChannels = GetOperatorChannelIDs(nOperatorID);
-                        _logger.Info(GetMutexLogMsg(string.Format("Length of listOfOperatorChannels: {0}", listOfOperatorChannels != null ? listOfOperatorChannels.Count.ToString() : "null"), nOperatorID, sMutexName));
-                        if (listOfOperatorChannels != null && listOfOperatorChannels.Count > 0)
-                        {
-                            for (int i = 0; i < channelIDs.Count; i++)
-                            {
-                                if (!listOfOperatorChannels.Contains(channelIDs[i]))
-                                {
-                                    listOfOperatorChannels.Add(channelIDs[i]);
-                                    res = true;
-                                }
-                            }
-
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error("AddChannelToOperator. Exception occurred.", ex);
-                    }
-                    finally
-                    {
-                        mutex.ReleaseMutex();
-                        _logger.Info(GetMutexLogMsg("Mutex released", nOperatorID, sMutexName));
-                    }
-                } // end using
-            }
-
-            return res;
+            return Add(nOperatorID, channelIDs);
         }
 
         public bool DeleteOperatorChannels(int nOperatorID)
         {
-            bool res = false;
-
-            if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
-            {
-                string sBuilderMutexName = GetMutexName(nOperatorID, OperatorChannelsAction.Build);
-                bool createdNewBuilder = false;
-                MutexSecurity mutexSecurity = Utils.CreateMutex();
-                using (Mutex builderMutex = new Mutex(false, sBuilderMutexName, out createdNewBuilder, mutexSecurity))
-                {
-                    string sAdderMutexName = GetMutexName(nOperatorID, OperatorChannelsAction.Add);
-                    bool createdNewAdder = false;
-                    try
-                    {
-                        _logger.Info(GetMutexLogMsg("Builder mutex about to get locked", nOperatorID, sBuilderMutexName));
-                        builderMutex.WaitOne(-1); // lock builder mutex
-                        _logger.Info(GetMutexLogMsg("Builder mutex locked", nOperatorID, sBuilderMutexName));
-                        using (Mutex adderMutex = new Mutex(false, sBuilderMutexName, out createdNewAdder, mutexSecurity))
-                        {
-                            try
-                            {
-                                _logger.Info(GetMutexLogMsg("Adder mutex about to get locked", nOperatorID, sAdderMutexName));
-                                adderMutex.WaitOne(-1); // lock adder mutex
-                                _logger.Info(GetMutexLogMsg("Adder mutex locked", nOperatorID, sAdderMutexName));
-                                if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
-                                {
-                                    List<long> temp = null;
-                                    res = m_oOperatorChannelIDs.TryRemove(nOperatorID, out temp);
-                                    _logger.Info(string.Format("DeleteOperatorChannels result: {0}", res.ToString().ToLower()));
-                                }
-
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.Error("Exception adder mutex", ex);
-                            }
-                            finally
-                            {
-                                adderMutex.ReleaseMutex();
-                                _logger.Info(GetMutexLogMsg("Adder mutex released", nOperatorID, sAdderMutexName));
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error("Exception builder mutex", ex);
-                    }
-                    finally
-                    {
-                        builderMutex.ReleaseMutex();
-                        _logger.Info(GetMutexLogMsg("Builder mutex released", nOperatorID, sBuilderMutexName));
-                    }
-                }
-
-            }
-
-            return res;
+            return Delete(nOperatorID);
         }
 
-        private enum OperatorChannelsAction : byte
-        {
-            Build = 0,
-            Add = 1
-        }
         #endregion
 
 
+
+        public void Dispose()
+        {
+            if (m_oLockers != null && m_oLockers.Count > 0)
+            {
+                lock (m_oLockers)
+                {
+                    Logger.Logger.Log("Dispose", String.Concat("Dispose. Locked. Group ID: ", m_nParentGroupID), GROUP_LOG_FILENAME);
+                    if (m_oLockers != null && m_oLockers.Count > 0)
+                    {
+                        foreach (KeyValuePair<int, ReaderWriterLockSlim> kvp in m_oLockers)
+                        {
+                            if (kvp.Value != null)
+                            {
+                                kvp.Value.Dispose();
+                            }
+                        } // end foreach
+                    }
+                    m_oLockers.Clear();
+                } // end lock
+                Logger.Logger.Log("Dispose", String.Concat("Dispose. Unlocked. Group ID: ", m_nParentGroupID), GROUP_LOG_FILENAME);
+            }
+        }
     }
 }
