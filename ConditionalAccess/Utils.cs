@@ -22,7 +22,7 @@ namespace ConditionalAccess
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
         // table groups_parameters, column FAIL_COUNT under ConditionalAccess DB.
 
-       
+
 
         static public void GetBaseConditionalAccessImpl(ref ConditionalAccess.BaseConditionalAccess t, Int32 nGroupID)
         {
@@ -321,7 +321,7 @@ namespace ConditionalAccess
             byte[] originalBytes = UTF8Encoding.Default.GetBytes(sToHash);
             byte[] encodedBytes = md5Provider.ComputeHash(originalBytes);
             return BitConverter.ToString(encodedBytes).Replace("-", "").ToLower();
-        } 
+        }
 
         static public TvinciAPI.MeidaMaper[] GetMediaMapper(Int32 nGroupID, Int32[] nMediaFilesIDs)
         {
@@ -905,13 +905,13 @@ namespace ConditionalAccess
             {
                 m = new ConditionalAccess.TvinciPricing.mdoule();
 
-            //set web service pricing url
+                //set web service pricing url
                 if (GetWSURL("pricing_ws").Length > 0)
                     m.Url = GetWSURL("pricing_ws");
-                        
-            //create Cahe object Name
-            string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-            
+
+                //create Cahe object Name
+                string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+
                 if (CachingManager.CachingManager.Exist("GetSubscriptionData" + sSubCode + "_" + nGroupID.ToString() + sLocaleForCache) == true)
                     //get subscription object from chace
                     s = (TvinciPricing.Subscription)(CachingManager.CachingManager.GetCachedData("GetSubscriptionData" + sSubCode + "_" + nGroupID.ToString() + sLocaleForCache));
@@ -923,10 +923,10 @@ namespace ConditionalAccess
                     //get subscription data object
                     s = m.GetSubscriptionData(sWSUserName, sWSPass, sSubCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
 
-                //add the subscription object to cache
-                //CachingManager.CachingManager.SetCachedData("GetSubscriptionData" + sSubCode + "_" + nGroupID.ToString() + sLocaleForCache,s,86400,System.Web.Caching.CacheItemPriority.Default,0,false);
-            }
-                
+                    //add the subscription object to cache
+                    //CachingManager.CachingManager.SetCachedData("GetSubscriptionData" + sSubCode + "_" + nGroupID.ToString() + sLocaleForCache,s,86400,System.Web.Caching.CacheItemPriority.Default,0,false);
+                }
+
             }
             catch (Exception ex)
             {
@@ -966,14 +966,14 @@ namespace ConditionalAccess
             #region Check subscription Geo Commerce Block
 
             TvinciAPI.API api = null;
-            try 
+            try
             {
-            api = new TvinciAPI.API();
-            TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetSubscriptionData", "api", sIP, ref sWSUserName, ref sWSPass);
-            if (GetWSURL("api_ws").Length > 0)
-                api.Url = GetWSURL("api_ws");
+                api = new TvinciAPI.API();
+                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetSubscriptionData", "api", sIP, ref sWSUserName, ref sWSPass);
+                if (GetWSURL("api_ws").Length > 0)
+                    api.Url = GetWSURL("api_ws");
 
-            isGeoCommerceBlock = api.CheckGeoCommerceBlock(sWSUserName, sWSPass, s.n_GeoCommerceID, sClientIP);
+                isGeoCommerceBlock = api.CheckGeoCommerceBlock(sWSUserName, sWSPass, s.n_GeoCommerceID, sClientIP);
             }
             catch (Exception ex)
             {
@@ -1412,7 +1412,7 @@ namespace ConditionalAccess
         }
 
         static public TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, TvinciPricing.PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID, ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub,
-            ref TvinciPricing.PrePaidModule relevantPP, 
+            ref TvinciPricing.PrePaidModule relevantPP,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             string sFirstDeviceNameFound = string.Empty;
@@ -1564,7 +1564,7 @@ namespace ConditionalAccess
                                 {
                                     theReason = PriceReason.PPVPurchased;
                                     if (ppvModule.m_bFirstDeviceLimitation)
-                                    {                                        
+                                    {
                                         if (!IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, lUsersIds, sDEVICE_NAME, ref sFirstDeviceNameFound))
                                         {
                                             theReason = PriceReason.FirstDeviceLimitation;
@@ -1606,10 +1606,10 @@ namespace ConditionalAccess
 
                     }
 
-           
-                if (bEnd)
-                    return p;
-                //subscriptions check
+
+                    if (bEnd)
+                        return p;
+                    //subscriptions check
 
 
                     TvinciPricing.Subscription[] relevantValidSubscriptions = GetUserValidSubscriptionFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes);
@@ -1739,7 +1739,7 @@ namespace ConditionalAccess
 
             return p;
         }
-        
+
 
         static public List<int> GetAllUsersDomainBySiteGUID(string sSiteGUID, Int32 nGroupID)
         {
@@ -1969,10 +1969,15 @@ namespace ConditionalAccess
             return sBasicLink;
         }
 
-        static public int GetGroupFAILCOUNT(int nGroupID)
+        public static int GetGroupFAILCOUNT(int nGroupID, string sConnKey)
         {
-            int res = ConditionalAccessDAL.Get_GroupFailCount(nGroupID);
+            int res = ConditionalAccessDAL.Get_GroupFailCount(nGroupID, sConnKey);
             return res > 0 ? res : DEFAULT_MPP_RENEW_FAIL_COUNT;
+        }
+
+        public static int GetGroupFAILCOUNT(int nGroupID)
+        {
+            return GetGroupFAILCOUNT(nGroupID, string.Empty);
         }
 
         static public string GetSafeParValue(string sQueryKey, string sParName, ref System.Xml.XmlNode theRoot)
@@ -2357,7 +2362,7 @@ namespace ConditionalAccess
                         }
                     }
                     break;
-                
+
                 case eEPGFormatType.StartOver:
                     {
                         switch (streamType)
@@ -2376,7 +2381,7 @@ namespace ConditionalAccess
                         }
                     }
                     break;
-                
+
                 case eEPGFormatType.LivePause:
                     {
                         switch (streamType)
@@ -2452,7 +2457,7 @@ namespace ConditionalAccess
             {
                 string sKeyOfMinPrice = String.Concat("PreviewModuleMinPrice", nGroupID);
                 double dMinPriceForPreviewModule = DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE;
-                if ( GetValueFromConfig(sKeyOfMinPrice) != string.Empty )
+                if (GetValueFromConfig(sKeyOfMinPrice) != string.Empty)
                     double.TryParse(GetValueFromConfig(sKeyOfMinPrice), out dMinPriceForPreviewModule);
                 p.m_dPrice = dMinPriceForPreviewModule;
                 theReason = PriceReason.EntitledToPreviewModule;
@@ -2599,21 +2604,21 @@ namespace ConditionalAccess
         }
 
 
-        public static bool IsFirstDeviceEqualToCurrentDevice(int nMediaFileID, string sPPVCode,List<int> lUsersIds, string sCurrentDeviceName, ref string sFirstDeviceName)
+        public static bool IsFirstDeviceEqualToCurrentDevice(int nMediaFileID, string sPPVCode, List<int> lUsersIds, string sCurrentDeviceName, ref string sFirstDeviceName)
         {
             bool result = false;
             int numOfRowsReturned = 0;
-          
+
             sFirstDeviceName = ConditionalAccessDAL.Get_FirstDeviceUsedByPPVModule(nMediaFileID, sPPVCode, lUsersIds, out numOfRowsReturned);
             if (numOfRowsReturned == 0)
             {
                 return true;
-            }           
-            
+            }
+
             result = (sCurrentDeviceName == sFirstDeviceName);
 
             return result;
-        }   
+        }
 
     }
 }

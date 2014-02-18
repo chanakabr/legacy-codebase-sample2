@@ -10,7 +10,8 @@ namespace ConditionalAccess
 {
     public class TvinciConditionalAccess : BaseConditionalAccess
     {
-        public TvinciConditionalAccess(Int32 nGroupID): base(nGroupID)
+        public TvinciConditionalAccess(Int32 nGroupID)
+            : base(nGroupID)
         {
         }
 
@@ -18,7 +19,7 @@ namespace ConditionalAccess
             : base(nGroupID, connKey)
         {
         }
-        
+
         protected override string GetLicensedLink(string sBasicLink, string sUserIP, string sRefferer)
         {
             object oSecretCode = ODBCWrapper.Utils.GetTableSingleVal("groups_ll_parameters", "SECRET_CODE", "group_id", "=", m_nGroupID);
@@ -99,10 +100,10 @@ namespace ConditionalAccess
                     camp = m.GetCampaignsByHash(sWSUserName, sWSPass, cai.m_socialInviteInfo.m_hashCode);
                 }
             }
-            if (camp != null )
+            if (camp != null)
             {
                 BaseCampaignActionImpl campImpl = Utils.GetCampaignActionByTriggerType(camp.m_CampaignTrigger);
-                
+
                 if (campImpl != null)
                 {
                     retVal = campImpl.ActivateCampaignWithInfo(camp, cai, m_nGroupID);
@@ -134,12 +135,12 @@ namespace ConditionalAccess
                             }
                         case eBillingProvider.M1:
                             {
-                                res = bm.Cellular_ChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, nRecPeriods, lPurchaseID.ToString());        
+                                res = bm.Cellular_ChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, nRecPeriods, lPurchaseID.ToString());
                                 break;
                             }
-                    } 
-                    
-                  
+                    }
+
+
 
                 }
                 else
@@ -177,11 +178,11 @@ namespace ConditionalAccess
 
             if (IsLastPeriodOfLastUsageModule(bIsPurchasedWithPreviewModule, bIsMPPRecurringInfinitely, nNumOfRecPeriods, nPaymentNumber))
             {
-                ConditionalAccessDAL.Update_MPPRenewalData(lPurchaseID, false, dNext, 0);
+                ConditionalAccessDAL.Update_MPPRenewalData(lPurchaseID, false, dNext, 0, "CA_CONNECTION_STRING");
             }
             else
             {
-                ConditionalAccessDAL.Update_MPPRenewalData(lPurchaseID, true, dNext, 0);
+                ConditionalAccessDAL.Update_MPPRenewalData(lPurchaseID, true, dNext, 0, "CA_CONNECTION_STRING");
             }
 
             long lBillingTransactionID = 0;
@@ -208,7 +209,7 @@ namespace ConditionalAccess
         {
             if (!bIsDummy && !bIsEntitledToPreviewModule)
             {
-                return bm.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);               
+                return bm.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
             }
             else
             {
@@ -360,6 +361,6 @@ namespace ConditionalAccess
             return res;
         }
 
-   
+
     }
 }

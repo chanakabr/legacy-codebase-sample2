@@ -310,8 +310,8 @@ namespace ConditionalAccess
             {
                 u = new ConditionalAccess.TvinciUsers.UsersService();
                 string sIP = "1.1.1.1";
-                string sWSUserName = "";
-                string sWSPass = "";
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
                 TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "WriteLog", "users", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
 
@@ -327,7 +327,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-
+                Logger.Logger.Log("WriteToUserLog", string.Format("Failed to write to user log. Site Guid: {0} , Msg: {1} , Exception msg: {2} , Stack trace : {3}", sSiteGUID, sMessage, ex.Message, ex.StackTrace), GetLogFilename());
             }
             finally
             {
@@ -1490,7 +1490,7 @@ namespace ConditionalAccess
 
             TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, string.Empty, ref theReason, ref theSub, "", "", "");
 
-            if (theSub != null && theSub.m_oUsageModule != null && theSub.m_bIsRecurring == true)
+            if (theSub != null && theSub.m_oUsageModule != null && theSub.m_bIsRecurring)
             {
                 DataTable dt = DAL.ConditionalAccessDAL.GetSubscriptionPurchaseID(nSubscriptionPurchaseID);
                 if (dt != null)
@@ -1503,9 +1503,7 @@ namespace ConditionalAccess
 
                         bRet = DAL.ConditionalAccessDAL.CancelSubscription(nID, m_nGroupID, sSiteGUID, sSubscriptionCode) != 0 ? false : bRet;
 
-                        try { WriteToUserLog(sSiteGUID, "Subscription: " + sSubscriptionCode.ToString() + " renew cancelled"); }
-                        catch { }
-                        //Write to users log                       
+                        WriteToUserLog(sSiteGUID, "Subscription: " + sSubscriptionCode.ToString() + " renew cancelled");
                     }
                 }
             }
@@ -2064,8 +2062,9 @@ namespace ConditionalAccess
                     string sIP = "1.1.1.1";
                     TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetSubscriptionData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                     m = new TvinciPricing.mdoule();
-                    if (Utils.GetWSURL("cloud_pricing_ws").Length > 0)
-                        m.Url = Utils.GetWSURL("cloud_pricing_ws");
+                    string sWSURL = Utils.GetWSURL("cloud_pricing_ws");
+                    if (sWSURL.Length > 0)
+                        m.Url = sWSURL;
 
                     TvinciPricing.Subscription theSub = null;
                     string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
@@ -2252,7 +2251,7 @@ namespace ConditionalAccess
                 {
                     // card is expired. there is no point to continue trying renewing the mpp for this user.
                     // hence, we set the fail count to maximum.
-                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID));
+                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"));
                 }
                 else
                 {
@@ -2268,7 +2267,7 @@ namespace ConditionalAccess
 
             // user does not exist. there is no point to continue trying renewing the mpp.
             // hence, we set the fail count to maximum
-            ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID));
+            ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"));
 
             res.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnownUser;
             res.m_sStatusDescription = "User does not exist";

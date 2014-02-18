@@ -77,7 +77,16 @@ namespace ConditionalAccess
             lst.Add(new KeyValuePair<string, string>("user_id", sSiteGuid));
             lst.Add(new KeyValuePair<string, string>("user_email", sUserEmail));
             lst.Add(new KeyValuePair<string, string>("user_ipaddress", sUserIP));
-            lst.Add(new KeyValuePair<string, string>("sh", CalcSecurityHash()));
+
+            string securityHash = CalcSecurityHash();
+            if (securityHash.Length == 0)
+            {
+                // Failed to extracted security hash from DB. Cinepolis will not process our request.
+                #region Logging
+                Logger.Logger.Log("TryGetCinepolisToken", string.Format("Failed to extract security hash from DB. Site Guid: {0} , Custom Data ID: {1}", sSiteGuid, nCustomDataID), GetLogFilename());
+                #endregion
+            }
+            lst.Add(new KeyValuePair<string, string>("sh", securityHash));
             lst.Add(new KeyValuePair<string, string>("custom_data_id", nCustomDataID + ""));
             lst.Add(new KeyValuePair<string, string>("ammt", dPrice + ""));
 
@@ -194,7 +203,15 @@ namespace ConditionalAccess
             List<KeyValuePair<string, string>> lst = new List<KeyValuePair<string, string>>(3);
             lst.Add(new KeyValuePair<string, string>("tvinci_transaction_id", lBillingTransactionID + ""));
             lst.Add(new KeyValuePair<string, string>("tvinci_confirmation_id", String.Concat((int)bit, "_", lPurchaseID)));
-            lst.Add(new KeyValuePair<string, string>("sh", CalcSecurityHash()));
+            string securityHash = CalcSecurityHash();
+            if (securityHash.Length == 0)
+            {
+                // Failed to extract security hash. Cinepolis will not process our request.
+                #region Logging
+                Logger.Logger.Log("TrySendOperationConfirm", string.Format("Failed to extract security hash from DB. Purchase ID: {0} , Billing transaction ID: {1}", lPurchaseID, lBillingTransactionID), GetLogFilename());
+                #endregion
+            }
+            lst.Add(new KeyValuePair<string, string>("sh", securityHash));
 
             string sRequestData = TVinciShared.WS_Utils.BuildDelimiterSeperatedString(lst, "&", false, false);
             string sResponseJSON = string.Empty;
@@ -227,7 +244,7 @@ namespace ConditionalAccess
                     res = false;
                     #region Logging
                     Logger.Logger.Log("TrySendOperationConfirm", GetTrySendOperationConfirmStdErrMsg(string.Format("No status key in JSON. JSON: {0}", sResponseJSON), lPurchaseID, lBillingTransactionID, bit, dict), CINEPOLIS_CA_LOG_FILE_NAME);
-                    #endregion                    
+                    #endregion
                 }
             }
             else
@@ -236,14 +253,14 @@ namespace ConditionalAccess
                 res = false;
                 #region Logging
                 Logger.Logger.Log("TrySendOperationConfirm", GetTrySendOperationConfirmStdErrMsg(string.Format("Post request to Cinepolis failed. Address: {0} , Content type: {1} , Request data: {2}", sAddress, sContentType, sRequestData), lPurchaseID, lBillingTransactionID, bit, null), CINEPOLIS_CA_LOG_FILE_NAME);
-                #endregion                
+                #endregion
             }
 
             return res;
         }
 
         private string GetTrySendOperationConfirmStdErrMsg(string sDescription, long lPurchaseID, long lBillingTransactionID,
-            BillingItemsType bit, Dictionary<string, string> dict) 
+            BillingItemsType bit, Dictionary<string, string> dict)
         {
             StringBuilder sb = new StringBuilder(String.Concat(sDescription, " , "));
             sb.Append(String.Concat("Purchase ID: ", lPurchaseID));
@@ -283,10 +300,6 @@ namespace ConditionalAccess
 
                 res = bm.CC_DummyChargeUser(sWSUsername, sWSPass, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber, nRecPeriods, sExtraParams);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
             finally
             {
                 #region Disposing
@@ -316,7 +329,7 @@ namespace ConditionalAccess
                 // billing transaction id is corrupted
                 #region Logging
                 WriteToUserLog(sSiteGUID, string.Format("Billing transaction ID is corrupted. Purchase ID: {0} , Billing transaction ID: {1} , MPP Code: {2} , Price: {3}", lPurchaseID, sBillingTransactionID, sSubscriptionCode, dPrice));
-                Logger.Logger.Log("HandleMPPRenewalBillingSuccess",string.Format("Corrupted billing transaction ID. Site Guid: {0} , Purchase ID: {1} , Billing transaction ID: {2} , MPP Code: {3}", sSiteGUID, lPurchaseID, sBillingTransactionID, sSubscriptionCode), "TvinciRenewer");
+                Logger.Logger.Log("HandleMPPRenewalBillingSuccess", string.Format("Corrupted billing transaction ID. Site Guid: {0} , Purchase ID: {1} , Billing transaction ID: {2} , MPP Code: {3}", sSiteGUID, lPurchaseID, sBillingTransactionID, sSubscriptionCode), "TvinciRenewer");
                 #endregion
             }
 
@@ -326,8 +339,9 @@ namespace ConditionalAccess
             }
             else
             {
-                BillingDAL.Update_CinepolisConfirmationDataByBillingID(lBillingTransactionID, (byte) CinepolisConfirmationStatus.Failed, nInternalCode, sMessage, "BILLING_CONNECTION_STRING");
+                BillingDAL.Update_CinepolisConfirmationDataByBillingID(lBillingTransactionID, (byte)CinepolisConfirmationStatus.Failed, nInternalCode, sMessage, "BILLING_CONNECTION_STRING");
             }
+
             return true;
         }
 
@@ -348,7 +362,15 @@ namespace ConditionalAccess
             }
             List<KeyValuePair<string, string>> lst = new List<KeyValuePair<string, string>>(4);
             lst.Add(new KeyValuePair<string, string>("user_id", sSiteGuid));
-            lst.Add(new KeyValuePair<string, string>("sh", CalcSecurityHash()));
+            string securityHash = CalcSecurityHash();
+            if (securityHash.Length == 0)
+            {
+                // Failed to extract security hash from DB. Cinepolis will not process out request.
+                #region Logging
+                Logger.Logger.Log("TrySendRenewalDoneToCinepolis", string.Format("Failed to extract security hash from DB. Site Guid: {0} , Billing transaction ID: {1}", sSiteGuid, lBillingTransactionID), GetLogFilename());
+                #endregion
+            }
+            lst.Add(new KeyValuePair<string, string>("sh", securityHash));
             lst.Add(new KeyValuePair<string, string>("tvinci_transaction_id", lBillingTransactionID + ""));
             lst.Add(new KeyValuePair<string, string>("ammt", dPrice + ""));
 
@@ -432,8 +454,8 @@ namespace ConditionalAccess
         }
 
         protected override TvinciBilling.BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule, ref TvinciBilling.module bm)
-        {           
-           return bm.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
+        {
+            return bm.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
         }
 
         protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, TvinciPricing.Subscription theSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID)

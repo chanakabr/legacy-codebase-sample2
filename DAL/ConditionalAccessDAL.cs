@@ -218,7 +218,7 @@ namespace DAL
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-            
+
                 if (nTopNum > 0)
                 {
                     selectQuery += string.Format("SELECT TOP {0} * FROM BILLING_TRANSACTIONS WITH (NOLOCK) WHERE BILLING_STATUS=0 AND ", nTopNum);
@@ -245,7 +245,7 @@ namespace DAL
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HandleException(ex);
             }
@@ -260,7 +260,7 @@ namespace DAL
 
             try
             {
-                                
+
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetCachedSec(0);
                 selectQuery += "select ID, subscription_code, rel_pp from ppv_purchases with (nolock) where is_active=1 and status=1 and ";
@@ -345,10 +345,10 @@ namespace DAL
                     int count = fileTypesSelectQuery.Table("query").DefaultView.Count;
 
                     for (int i = 0; i < count; i++)
-			        {
+                    {
                         int mediaTypeID = int.Parse(fileTypesSelectQuery.Table("query").DefaultView[i].Row["MEDIA_TYPE_ID"].ToString());
-			            lMediaTypeIDs.Add(mediaTypeID);
-			        }
+                        lMediaTypeIDs.Add(mediaTypeID);
+                    }
                 }
 
             }
@@ -367,7 +367,7 @@ namespace DAL
 
             try
             {
-                
+
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "SELECT GETDATE() AS T FROM GROUPS_MODULES_IPS WITH (NOLOCK)";
                 if (selectQuery.Execute("query", true) != null)
@@ -414,7 +414,7 @@ namespace DAL
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
                 }
 
-                updated = updateQuery.Execute();                    
+                updated = updateQuery.Execute();
                 updateQuery.Finish();
                 updateQuery = null;
             }
@@ -426,12 +426,12 @@ namespace DAL
             return updated;
         }
 
-        public static bool InsertSubPurchase(int m_nGroupID, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency, string sCustomData, int numOfUses, string sCountryCd, 
+        public static bool InsertSubPurchase(int m_nGroupID, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency, string sCustomData, int numOfUses, string sCountryCd,
             string sLANGUAGE_CODE, string sDEVICE_NAME, int nMaxNumberOfViews, int nViewLifeCycleSec, int nIsRecurringStatus, int nReceiptCode, int nIsActive, int nStatus, DateTime? dtEndDate)
         {
 
             bool inserted = false;
-            
+
             try
             {
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("subscriptions_purchases");
@@ -469,7 +469,7 @@ namespace DAL
             return inserted;
         }
 
-        public static int GetSubPurchaseID(int m_nGroupID, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency, int numOfUses, int nMaxNumberOfViews, int nViewLifeCycleSec, 
+        public static int GetSubPurchaseID(int m_nGroupID, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency, int numOfUses, int nMaxNumberOfViews, int nViewLifeCycleSec,
                                         int nIsRecurringStatus, int nIsActive, int nStatus)
         {
             int nPurchaseID = 0;
@@ -734,7 +734,7 @@ namespace DAL
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@nMediaFileID", nMediaFileID);
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@groupID", nGroupID);
-            
+
 
             DataSet ds = spGet_AllPPVPurchasesByUserIDsAndMediaFileID.ExecuteDataSet();
 
@@ -774,7 +774,7 @@ namespace DAL
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                
+
                 if (nGroupID != 0)
                 {
                     selectQuery += "and";
@@ -958,19 +958,24 @@ namespace DAL
             return null;
         }
 
-        public static int Get_GroupFailCount(long lGroupID)
+        public static int Get_GroupFailCount(long lGroupID, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupFailCount");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
             sp.AddParameter("@GroupID", lGroupID);
 
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses)
+        public static int Get_GroupFailCount(long lGroupID)
+        {
+            return Get_GroupFailCount(lGroupID, string.Empty);
+        }
+
+        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalData");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
             sp.AddParameter("@PurchaseID", lPurchaseID);
             sp.AddParameter("@IsRecurringStatus", bIsRecurringStatus ? 1 : 0);
             sp.AddParameter("@EndDate", dtNewEndDate);
@@ -999,7 +1004,7 @@ namespace DAL
             sp.ExecuteNonQuery();
         }
 
-        public static string  Get_FirstDeviceUsedByPPVModule(int nMediaFileID, string sPPVModuleCode, List<int> usersList, out int numofRowsReturned)
+        public static string Get_FirstDeviceUsedByPPVModule(int nMediaFileID, string sPPVModuleCode, List<int> usersList, out int numofRowsReturned)
         {
             string result = string.Empty;
             numofRowsReturned = 0;
@@ -1007,10 +1012,10 @@ namespace DAL
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@MediaFileID", nMediaFileID);
             sp.AddParameter("@PPVModuleCode", sPPVModuleCode);
-            sp.AddIDListParameter("@UsersList", usersList, "id");     
+            sp.AddIDListParameter("@UsersList", usersList, "id");
             DataSet ds = sp.ExecuteDataSet();
-            
-            if (ds != null &&  ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+
+            if (ds != null && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
                 numofRowsReturned = dt.Rows.Count;
@@ -1068,6 +1073,7 @@ namespace DAL
 
             return sp.ExecuteReturnValue<bool>();
         }
+
 
     }
 }
