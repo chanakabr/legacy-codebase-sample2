@@ -236,5 +236,11 @@ namespace TVPApiServices
 
         [OperationContract]
         List<EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
+
+        [OperationContract]
+        List<AssetStatsResult> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime);
+
+        [OperationContract]
+        List<AssetStatsResult> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType);
     }
 }
