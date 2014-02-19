@@ -121,9 +121,9 @@
       <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FTPUploadQueue\FTPUploadQueue.csproj">
-      <Project>{8E6BE280-9DCC-42D2-84C2-1A56812AE704}</Project>
-      <Name>FTPUploadQueue</Name>
+    <ProjectReference Include="..\FTPUploadQueue\UploadQueue.csproj">
+      <Project>{8e6be280-9dcc-42d2-84c2-1a56812ae704}</Project>
+      <Name>UploadQueue</Name>
     </ProjectReference>
     <ProjectReference Include="..\ImageManager\ImageManager.csproj">
       <Project>{145e19bb-ea2e-430a-8ca6-707877d53d02}</Project>
@@ -144,6 +144,10 @@
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
       <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
       <Name>TVinciShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uploader\Uploader.csproj">
+      <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>
+      <Name>Uploader</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

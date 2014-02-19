@@ -10,6 +10,7 @@ using System.Web.UI.HtmlControls;
 using System.Threading;
 using System.IO;
 using System.Collections.Generic;
+using Uploader;
 
 namespace TVinciShared
 {
@@ -97,21 +98,7 @@ namespace TVinciShared
         static protected void UpdateTable(string sConnectionKey)
         {
             Int32 nGroupID = LoginManager.GetLoginGroupID();
-            object oPicsFTP = PageUtils.GetTableSingleVal("groups", "PICS_FTP", nGroupID);
-            object oPicsFTPUN = PageUtils.GetTableSingleVal("groups", "PICS_FTP_USERNAME", nGroupID);
-            object oPicsFTPPass = PageUtils.GetTableSingleVal("groups", "PICS_FTP_PASSWORD", nGroupID);
-            string sPicsFTP = "";
-            string sPicsFTPUN = "";
-            string sPicsFTPPass = "";
-            if (oPicsFTP != DBNull.Value && oPicsFTP != null)
-                sPicsFTP = oPicsFTP.ToString();
-            if (oPicsFTPUN != DBNull.Value && oPicsFTPUN != null)
-                sPicsFTPUN = oPicsFTPUN.ToString();
-            if (oPicsFTPPass != DBNull.Value && oPicsFTPPass != null)
-                sPicsFTPPass = oPicsFTPPass.ToString();
 
-            if (sPicsFTP.ToLower().Trim().StartsWith("ftp://") == true)
-                sPicsFTP = sPicsFTP.Substring(6);
             System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
             string sTableName = coll["table_name"].ToString();
             Int32 nCount = coll.Count;
@@ -344,7 +331,8 @@ namespace TVinciShared
                                     }
 
                                     theFile.SaveAs(sTmpImage);
-                                    UploadPicToGroup(sTmpImage, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
+
+                                    UploadPicToGroup(nGroupID, sTmpImage);
                                 }
                                 else
                                 {
@@ -361,7 +349,9 @@ namespace TVinciShared
                                     //    nAdd++;
                                     //}
                                     theFile.SaveAs(sTmpImage);
-                                    UploadPicToGroup(sTmpImage, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
+
+                                    UploadPicToGroup(nGroupID, sTmpImage);
+
                                     Int32 nI = 0;
                                     bool bCont1 = true;
                                     while (bCont1 && sPicBaseName != "")
@@ -398,7 +388,8 @@ namespace TVinciShared
                                             if (isResize)
                                             {
                                                 ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
-                                                UploadPicToGroup(sTmpImage1, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
+
+                                                UploadPicToGroup(nGroupID, sTmpImage);
                                             }
                                             nI++;
                                         }
@@ -1182,68 +1173,40 @@ namespace TVinciShared
             return bRet;
         }
 
-        static public void UploadPicToGroup(string sPicName, string sFTP, string sFTPUN, string sFTPPass)
+        static public void UploadPicToGroup(int groupID, string sPicName)
         {
-            //string sFilePath = HttpContext.Current.Server.MapPath("");
-            //sFilePath += "/pics/" + sPicName;
-            //FTPUploader t = new FTPUploader(sPicName, sFTP, sFTPUN, sFTPPass);
-            //ThreadStart job = new ThreadStart(t.Upload);
-            //Thread thread = new Thread(job);
-            //thread.Start();
-            UploadPicToGroup(sPicName, sFTP, sFTPUN, sFTPPass, false);
+            UploadPicToGroup(groupID, sPicName, false);
         }
 
-        static public void UploadPicToGroup(string sPicName, string sFTP, string sFTPUN, string sFTPPass, bool isDelete)
+        static public void UploadPicToGroup(int groupID, string sPicName, bool isDelete)
         {
-            //string sFilePath = HttpContext.Current.Server.MapPath("");
-            //sFilePath += "/pics/" + sPicName;
-            FTPUploader t = new FTPUploader(sPicName, sFTP, sFTPUN, sFTPPass, isDelete);
-            ThreadStart job = new ThreadStart(t.Upload);
-            Thread thread = new Thread(job);
-            thread.Start();
+            BaseUploader uploader = UploaderFactory.GetUploader(groupID);
+
+            if (uploader != null)
+            {
+                ThreadStart job = delegate { uploader.Upload(sPicName, isDelete); };
+                Thread thread = new Thread(job);
+                thread.Start();
+            }
         }
 
-        static public void UploadDirectoryToGroup(int nGroupID, string sDirectoryName, string sFTP, string sFTPUN, string sFTPPass)
+        static public void UploadDirectoryToGroup(int groupID, string sDirectoryName)
         {
-            //string sFilePath = HttpContext.Current.Server.MapPath("");
-            //sFilePath += "/pics/" + sPicName;
-            FTPUploader t = new FTPUploader(nGroupID, string.Empty, sFTP, sFTPUN, sFTPPass, sDirectoryName);
-            ThreadStart job = new ThreadStart(t.UploadDirectory);
-            Thread thread = new Thread(job);
-            thread.Start();
-        }
+            BaseUploader uploader = UploaderFactory.GetUploader(groupID);
 
-        static public void UploadPicToGroupSync(string sPicName, string sFTP, string sFTPUN, string sFTPPass)
-        {
-            //string sFilePath = HttpContext.Current.Server.MapPath("");
-            //sFilePath += "/pics/" + sPicName;
-            FTPUploader t = new FTPUploader(sPicName, sFTP, sFTPUN, sFTPPass);
-            //ThreadStart job = new ThreadStart(t.Upload);
-            //Thread thread = new Thread(job);
-            //thread.Start();
-            t.Upload();
+            if (uploader != null)
+            {
+                ThreadStart job = delegate { uploader.UploadDirectory(sDirectoryName); };
+                Thread thread = new Thread(job);
+                thread.Start();
+            }
         }
 
         static protected Int32 InsertTable(string sConnectionKey)
         {
 
             Int32 nGroupID = LoginManager.GetLoginGroupID();
-            object oPicsFTP = PageUtils.GetTableSingleVal("groups", "PICS_FTP", nGroupID);
-            object oPicsFTPUN = PageUtils.GetTableSingleVal("groups", "PICS_FTP_USERNAME", nGroupID);
-            object oPicsFTPPass = PageUtils.GetTableSingleVal("groups", "PICS_FTP_PASSWORD", nGroupID);
-            string sPicsFTP = "";
-            string sPicsFTPUN = "";
-            string sPicsFTPPass = "";
-            if (oPicsFTP != DBNull.Value && oPicsFTP != null)
-                sPicsFTP = oPicsFTP.ToString();
-            if (oPicsFTPUN != DBNull.Value && oPicsFTPUN != null)
-                sPicsFTPUN = oPicsFTPUN.ToString();
-            if (oPicsFTPPass != DBNull.Value && oPicsFTPPass != null)
-                sPicsFTPPass = oPicsFTPPass.ToString();
-
-            if (sPicsFTP.ToLower().Trim().StartsWith("ftp://") == true)
-                sPicsFTP = sPicsFTP.Substring(6);
-
+            
             Int32 nID = 0;
             System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
             string sUniquField = "";
@@ -1521,7 +1484,7 @@ namespace TVinciShared
                                         nAdd++;
                                     }
                                     theFile.SaveAs(sTmpImage);
-                                    UploadPicToGroup(sTmpImage, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
+                                    UploadPicToGroup(nGroupID, sTmpImage);
 
                                     Int32 nI = 0;
                                     bool bCont1 = true;
@@ -1549,7 +1512,7 @@ namespace TVinciShared
                                             if (isResize)
                                             {
                                                 ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName));
-                                                UploadPicToGroup(sTmpImage1, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
+                                                UploadPicToGroup(nGroupID, sTmpImage);
                                             }
                                             nI++;
                                         }

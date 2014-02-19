@@ -1678,10 +1678,10 @@ namespace TvinciImporter
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
 
                     TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true);
-                    FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
+                    UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
 
                     TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt);
-                    FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
+                    UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
 
                     for (int nI = 0; nI < nCount; nI++)
                     {
@@ -1692,7 +1692,7 @@ namespace TvinciImporter
                         string sTmpImage1 = sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
 
                         TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), true);
-                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
                     }
                 }
                 selectQuery.Finish();
@@ -1765,10 +1765,10 @@ namespace TvinciImporter
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
 
                     TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true);
-                    FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
+                    UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
 
                     TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt);
-                    FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
+                    UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
 
                     for (int nI = 0; nI < nCount; nI++)
                     {
@@ -1779,7 +1779,7 @@ namespace TvinciImporter
                         string sTmpImage1 = sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
 
                         TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), true);
-                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
                     }
                 }
                 selectQuery.Finish();
@@ -1818,24 +1818,12 @@ namespace TvinciImporter
             string sBasePath = GetBasePath(nGroupID);
 
             Logger.Logger.Log("File download", "Base Path is " + sBasePath, "DownloadFile");
-            object oPicsFTP = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP", nGroupID);
-            object oPicsFTPUN = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP_USERNAME", nGroupID);
-            object oPicsFTPPass = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP_PASSWORD", nGroupID);
+
             object oPicsBasePath = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
             string sPicsBasePath = string.Empty;
-            string sPicsFTP = "";
-            string sPicsFTPUN = "";
-            string sPicsFTPPass = "";
-            if (oPicsFTP != DBNull.Value && oPicsFTP != null)
-                sPicsFTP = oPicsFTP.ToString();
-            if (oPicsFTPUN != DBNull.Value && oPicsFTPUN != null)
-                sPicsFTPUN = oPicsFTPUN.ToString();
-            if (oPicsFTPPass != DBNull.Value && oPicsFTPPass != null)
-                sPicsFTPPass = oPicsFTPPass.ToString();
+
             if (oPicsBasePath != DBNull.Value && oPicsBasePath != null)
                 sPicsBasePath = oPicsBasePath.ToString();
-            if (sPicsFTP.ToLower().Trim().StartsWith("ftp://") == true)
-                sPicsFTP = sPicsFTP.Substring(6);
 
             char[] delim = { '/' };
             string[] splited1 = sPic.Split(delim);
@@ -1929,10 +1917,10 @@ namespace TvinciImporter
                     if (bSetMediaThumb)
                     {
                         TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true);
-                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
 
                         TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt);
-                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
                     }
 
                     for (int nI = 0; nI < nCount1; nI++)
@@ -1953,7 +1941,7 @@ namespace TvinciImporter
                         TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bCrop, bOverride);
                         Logger.Logger.Log("File download", "Resized Image " + sTmpImage1 + " from " + sBasePath + "/pics/" + sUploadedFile, "DownloadFile");
 
-                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
                     }
                 }
                 selectQuery.Finish();
@@ -2001,11 +1989,11 @@ namespace TvinciImporter
 
                         TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true, true);
                         Logger.Logger.Log("Re cropping: ", sBasePath + "/pics/" + sPicBaseName + "_tn" + sUploadedFileExt, "ImporterPics");
-                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
 
                         TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID + "/" + sPicBaseName + "_full" + sUploadedFileExt);
                         Logger.Logger.Log("Re cropping: ", sBasePath + "/pics/" + sPicBaseName + "_full" + sUploadedFileExt, "ImporterPics");
-                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
 
                         for (int nI = 0; nI < nCount1; nI++)
                         {
@@ -2020,7 +2008,7 @@ namespace TvinciImporter
 
                             TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bCrop, true);
                             Logger.Logger.Log("Re cropping: ", sTmpImage1, "ImporterPics");
-                            FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
+                            UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
                         }
                     }
                     selectQuery.Finish();
@@ -2062,27 +2050,21 @@ namespace TvinciImporter
             Logger.Logger.Log("File download", "Base Path is " + sBasePath, "DownloadFile");
 
             string sPicsBasePath = string.Empty;
-            string sPicsFTP = string.Empty;
-            string sPicsFTPUN = string.Empty;
-            string sPicsFTPPass = string.Empty;
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select PICS_FTP, PICS_FTP_USERNAME, PICS_FTP_PASSWORD, PICS_REMOTE_BASE_URL from groups (nolock) where";
+
+            selectQuery += "select PICS_REMOTE_BASE_URL from groups (nolock) where";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
+
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                 if (nCount > 0)
                 {
                     sPicsBasePath = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
-                    sPicsFTP = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_FTP", 0);
-                    sPicsFTPUN = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_FTP_USERNAME", 0);
-                    sPicsFTPPass = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_FTP_PASSWORD", 0);
-
-                    if (sPicsFTP.ToLower().Trim().StartsWith("ftp://") == true)
-                        sPicsFTP = sPicsFTP.Substring(6);
                 }
             }
+
             selectQuery.Finish();
             selectQuery = null;
 
@@ -2168,7 +2150,7 @@ namespace TvinciImporter
                 {
                     if (image.eResizeStatus == ImageManager.ResizeStatus.SUCCESS)
                     {
-                        FTPUploadQueue.FTPUploadHelper.AddJobToQueue(nGroupID, image.ToString());
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, image.ToString());
                     }
                 }
                 nPicID = InsertNewPic(sMediaName, sPic, sPicBaseName + sUploadedFileExt, nGroupID);
@@ -2239,45 +2221,16 @@ namespace TvinciImporter
             return sBasePath;
 
         }
+
         static public void UploadDirectory(int nGroupID)
         {
-            string sBasePath = GetBasePath(nGroupID);
-            //if (System.Web.HttpContext.Current != null)
-            //    sBasePath = HttpContext.Current.Server.MapPath("");
-            //else
-            //{
+            //string sBasePath = GetBasePath(nGroupID);
+            //BaseUploader.SetRunningProcesses(0);
+            //Logger.Logger.Log("Start Load to directory - Running Uploads = " + BaseUploader.m_nNumberOfRuningUploads.ToString(), "Startitn loading : " + nGroupID.ToString(), "DirectoryUpload");
+            //DBManipulator.UploadDirectoryToGroup(nGroupID, sBasePath + "/pics/" + nGroupID.ToString() + "/");
+            //Logger.Logger.Log("Finish Load to directory -  Running Uploads = " + BaseUploader.m_nNumberOfRuningUploads.ToString(), "Finished loading : " + nGroupID.ToString(), "DirectoryUpload");
 
-            //    if (!string.IsNullOrEmpty(HttpRuntime.AppDomainAppPath))
-            //    {
-            //        sBasePath = HttpRuntime.AppDomainAppPath;
-            //    }
-            //    else
-            //        sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-
-            //}
-            object oPicsFTP = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP", nGroupID);
-            object oPicsFTPUN = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP_USERNAME", nGroupID);
-            object oPicsFTPPass = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP_PASSWORD", nGroupID);
-            object oPicsBasePath = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
-            string sPicsBasePath = string.Empty;
-            string sPicsFTP = "";
-            string sPicsFTPUN = "";
-            string sPicsFTPPass = "";
-            if (oPicsFTP != DBNull.Value && oPicsFTP != null)
-                sPicsFTP = oPicsFTP.ToString();
-            if (oPicsFTPUN != DBNull.Value && oPicsFTPUN != null)
-                sPicsFTPUN = oPicsFTPUN.ToString();
-            if (oPicsFTPPass != DBNull.Value && oPicsFTPPass != null)
-                sPicsFTPPass = oPicsFTPPass.ToString();
-            if (oPicsBasePath != DBNull.Value && oPicsBasePath != null)
-                sPicsBasePath = oPicsBasePath.ToString();
-            if (sPicsFTP.ToLower().Trim().StartsWith("ftp://") == true)
-                sPicsFTP = sPicsFTP.Substring(6);
-
-            FTPUploader.SetRunningProcesses(0);
-            Logger.Logger.Log("Start Load to directory - Running Uploads = " + FTPUploader.m_nNumberOfRuningUploads.ToString(), "Startitn loading : " + nGroupID.ToString(), "DirectoryUpload");
-            DBManipulator.UploadDirectoryToGroup(nGroupID, sBasePath + "/pics/" + nGroupID.ToString() + "/", sPicsFTP, sPicsFTPUN, sPicsFTPPass);
-            Logger.Logger.Log("Finish Load to directory -  Running Uploads = " + FTPUploader.m_nNumberOfRuningUploads.ToString(), "Finished loading : " + nGroupID.ToString(), "DirectoryUpload");
+            Logger.Logger.Log("UploadDirectory", "Group : " + nGroupID.ToString(), "Importer");
         }
 
         static protected Int32 GetBillingCodeIDByName(string sName)
@@ -3749,7 +3702,7 @@ namespace TvinciImporter
                 }
                 else
                 {
-                    FTPUploadQueue.FTPUploadHelper.SetJobsForUpload(nGroupID);
+                    UploadQueue.UploadQueueHelper.SetJobsForUpload(nGroupID);
                 }
 
             }

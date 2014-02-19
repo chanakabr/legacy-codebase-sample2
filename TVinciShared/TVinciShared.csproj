@@ -163,6 +163,10 @@
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Uploader\Uploader.csproj">
+      <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>
+      <Name>Uploader</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="CUWMAuthTickets.dll" />

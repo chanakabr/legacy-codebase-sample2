@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ScheduledTasks;
+using Uploader;
 
 namespace TvinciImporter
 {
@@ -91,7 +92,7 @@ namespace TvinciImporter
                             string sNotifyURL = selectQuery.Table("query").DefaultView[i].Row["NOTIFY_URL"].ToString();
                             bool bOK = ImporterImpl.DoTheWork(nGroupID, sXMLUrl, sNotifyURL, nID);
                             Int32 nCounter = 1;
-                            while (TVinciShared.FTPUploader.m_nNumberOfRuningUploads != 0)
+                            while (BaseUploader.m_nNumberOfRuningUploads != 0)
                             {
                                 System.Threading.Thread.Sleep(1000);
                                 Logger.Logger.Log("message", "IMPORTER Sync process finished, but uploads are still in progress - waiting message number: " + nCounter.ToString(), "IMPORTER");
@@ -114,7 +115,7 @@ namespace TvinciImporter
             {
                 Logger.Logger.Log("Exception", "On function: DoTheTaskInner: " + ex.Message + " || " + ex.StackTrace, "IMPORTER");
                 Int32 nCounter = 1;
-                while (TVinciShared.FTPUploader.m_nNumberOfRuningUploads != 0)
+                while (BaseUploader.m_nNumberOfRuningUploads != 0)
                 {
                     System.Threading.Thread.Sleep(1000);
                     Logger.Logger.Log("message", "IMPORTER process finished with exceptions, but uploads are still in progress - waiting message number: " + nCounter.ToString() + "Error: " + ex.Message, "IMPORTER");

@@ -1,0 +1,397 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Net;
+using System.IO;
+using System.Threading;
+
+namespace Uploader
+{
+    public class FTPUploader : BaseUploader
+    {
+        protected Int32 m_nFTPPort;
+
+        public FTPUploader(int nGroupID, string sAddress, string sUN, string sPass, string sPrefix)
+        {
+            m_sAddress = sAddress;
+            if (m_sAddress.StartsWith("ftp://") == true)
+                m_sAddress = m_sAddress.Substring(6);
+            if (m_sAddress.StartsWith("sftp://") == true)
+                m_sAddress = m_sAddress.Substring(7);
+
+            m_sUserName = sUN;
+            m_sPass = sPass;
+            m_sPrefix = sPrefix;
+            m_nFTPPort = 21;
+            m_nGroupID = nGroupID;
+        }
+
+        public override bool Upload(string fileToUpload, bool deleteFileAfterUpload)
+        {
+            if (m_sAddress.Trim() == "")
+                return false;
+
+            bool res = true;
+
+            while (m_nNumberOfRuningUploads > 10)
+            {
+                System.Threading.Thread.Sleep(500);
+
+                Logger.Logger.Log("Upload - Waiting (more then 10 uploads parallel).", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+            }
+
+            m_nNumberOfRuningUploads++;
+
+            Logger.Logger.Log("Upload - Start.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+            
+            FileInfo fileInf = new FileInfo(fileToUpload);
+
+            string uri = string.Empty;
+
+            if (string.IsNullOrEmpty(m_sPrefix))
+            {
+                uri = "ftp://" + m_sAddress + "/" + fileInf.Name;
+            }
+            else
+            {
+                uri = "ftp://" + m_sAddress + "/" + m_sPrefix + "/" + fileInf.Name;
+            }
+
+            FtpWebRequest reqFTP = null;
+            
+            reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+            reqFTP.Credentials = new NetworkCredential(m_sUserName, m_sPass);
+            reqFTP.UsePassive = true;
+            reqFTP.KeepAlive = false;
+            reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
+            reqFTP.UseBinary = true;
+            reqFTP.ConnectionGroupName = "Ftp_" + m_nGroupID.ToString();
+            reqFTP.Timeout = 240000;
+
+            Stream strm = reqFTP.GetRequestStream();
+            reqFTP.ContentLength = fileInf.Length;
+
+            int buffLength = 2048;
+            byte[] buff = new byte[buffLength];
+            int contentLen;
+
+            FileStream fs = fileInf.OpenRead();
+
+            try
+            {
+                contentLen = fs.Read(buff, 0, buffLength);
+                while (contentLen != 0)
+                {
+                    strm.Write(buff, 0, contentLen);
+                    contentLen = fs.Read(buff, 0, buffLength);
+                }
+
+                Logger.Logger.Log("Upload - Finish.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+
+                if (deleteFileAfterUpload)
+                {
+                    fileInf.Delete();
+
+                    Logger.Logger.Log("Upload - Delete.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                }
+            }
+            catch (Exception ex)
+            {
+                res = false;
+
+                Logger.Logger.Log("Upload - Error.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, "FTPUploader");
+            }
+            finally
+            {
+                if (strm != null)
+                {
+                    strm.Close();
+                    //Logger.Logger.Log("Stream Closed: ", fileToUpload, "UploadedPics");
+                }
+                if (fs != null)
+                {
+                    fs.Close();
+                    //Logger.Logger.Log("File Stream Closed: ", fileToUpload, "UploadedPics");
+                }
+            }
+
+            m_nNumberOfRuningUploads--;
+
+            return res;
+        }
+
+        public override void UploadDirectory(string directoryToUpload)
+        {
+            if (m_sAddress.Trim() == "")
+                return;
+
+            if (!Directory.Exists(directoryToUpload))
+            {
+                Logger.Logger.Log("UploadDirectory - Dirctory does not exist.", "Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+
+                return;
+            }
+
+            int failCount = 0;
+
+            string[] files = Directory.GetFiles(directoryToUpload);
+
+            if (files != null && files.Length > 0)
+            {
+                files = Directory.GetFiles(directoryToUpload);
+
+                AddUploadGroup();
+
+                Logger.Logger.Log("UploadDirectory - Start.", "Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                
+                foreach (string file in files)
+                {
+                    Stream strm = null;
+                    FileStream fs = null;
+
+                    try
+                    {
+                        if (failCount > 3)
+                        {
+                            Logger.Logger.Log("UploadDirectory - Fail Count Limit Exceeded.", "Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                            
+                            RemoveUploadGroup();
+
+                            break;
+                        }
+
+                        Logger.Logger.Log("UploadDirectory - Start.", "Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+
+                        FileInfo fileInf = new FileInfo(file);
+
+                        string uri = string.Empty;
+
+                        if (string.IsNullOrEmpty(m_sPrefix))
+                        {
+                            uri = "ftp://" + m_sAddress + "/" + fileInf.Name;
+                        }
+                        else
+                        {
+                            uri = "ftp://" + m_sAddress + "/" + m_sPrefix + "/" + fileInf.Name;
+                        }
+
+                        FtpWebRequest reqFTP = null;
+
+                        reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+                        reqFTP.Credentials = new NetworkCredential(m_sUserName, m_sPass);
+                        reqFTP.UsePassive = true;
+                        reqFTP.KeepAlive = false;
+                        reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
+                        reqFTP.UseBinary = true;
+                        reqFTP.ConnectionGroupName = "Ftp_" + m_nGroupID.ToString();
+                        reqFTP.Timeout = 240000;
+
+                        strm = reqFTP.GetRequestStream();
+
+                        reqFTP.ContentLength = fileInf.Length;
+                        int buffLength = 2048;
+                        byte[] buff = new byte[buffLength];
+                        int contentLen;
+                        fs = fileInf.OpenRead();
+
+                        try
+                        {
+
+                            contentLen = fs.Read(buff, 0, buffLength);
+
+                            while (contentLen != 0)
+                            {
+                                strm.Write(buff, 0, contentLen);
+                                contentLen = fs.Read(buff, 0, buffLength);
+                            }
+
+                            Logger.Logger.Log("UploadDirectory - Finish.", "Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "FTPUploader");
+                        }
+                        catch (Exception ex)
+                        {
+                            failCount++;
+
+                            Logger.Logger.Log("UploadDirectory - Error.", "Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, "FTPUploader");
+
+                            if (failCount > 3)
+                            {
+
+                            }
+                        }
+                        finally
+                        {
+                            if (strm != null)
+                            {
+                                strm.Close();
+                                //Logger.Logger.Log("Stream Closed: ", file, "UploadedPics");
+                            }
+                            if (fs != null)
+                            {
+                                fs.Close();
+                                //Logger.Logger.Log("File Stream Closed: ", file, "UploadedPics");
+                            }
+                            if (fileInf != null)
+                            {
+                                fileInf.Delete();
+                                //Logger.Logger.Log("DeleteFile: ", m_sAddress + file, "UploadedPics");
+                            }
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        failCount++;
+
+                        Logger.Logger.Log("UploadDirectory - Error.", "Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, "FTPUploader");
+                    }
+                    finally
+                    {
+                        if (strm != null)
+                        {
+                            strm.Close();
+                            //Logger.Logger.Log("Stream Closed: ", file, "UploadedPics");
+                        }
+                        if (fs != null)
+                        {
+                            fs.Close();
+                            //Logger.Logger.Log("File Stream Closed: ", file, "UploadedPics");
+                        }
+
+                    }
+                }
+
+                RemoveUploadGroup();
+            }
+        }
+
+        protected override void ProccessJob(UploadJob job, ref int nFailCount)
+        {
+            string file = string.Format("{0}{1}", m_sBasePath, job.file_name);
+
+            Stream strm = null;
+            FileStream fs = null;
+            
+            try
+            {
+                Logger.Logger.Log("ProccessJob - Start.", "Job: " + job.ToString(), "FTPUploader");
+
+                FileInfo fileInf = new FileInfo(file);
+                
+                if (!fileInf.Exists)
+                {
+                    throw new Exception("File does not exist : " + file);
+                }
+                else
+                {
+                    string uri = string.Empty;
+
+                    //if (string.IsNullOrEmpty(m_sPrefix))
+                    //{
+                    //    uri = "ftp://" + m_sAddress;
+
+                    //    uri = job.media_id > 0 ? uri + "/" + job.media_id + "/" + fileInf.Name : uri + "/" + fileInf.Name;
+                    //}
+                    //else
+                    //{
+                    //    uri = "ftp://" + m_sAddress + "/" + m_sPrefix;
+
+                    //    uri = job.media_id > 0 ? uri + "/" + job.media_id + "/" + fileInf.Name : uri + "/" + fileInf.Name;
+                    //}
+
+                    if (string.IsNullOrEmpty(m_sPrefix))
+                    {
+                        uri = "ftp://" + m_sAddress + "/" + fileInf.Name;
+                    }
+                    else
+                    {
+                        uri = "ftp://" + m_sAddress + "/" + m_sPrefix + "/" + fileInf.Name;
+                    }
+
+                    FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+
+                    reqFTP.Credentials = new NetworkCredential(m_sUserName, m_sPass);
+                    reqFTP.UsePassive = true;
+                    reqFTP.KeepAlive = false;
+                    reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
+                    reqFTP.UseBinary = true;
+                    reqFTP.ConnectionGroupName = "Ftp_" + m_nGroupID.ToString();
+                    reqFTP.Timeout = 240000;
+                    strm = reqFTP.GetRequestStream();
+                    reqFTP.ContentLength = fileInf.Length;
+                    
+                    int buffLength = 2048;
+                    byte[] buff = new byte[buffLength];
+                    int contentLen;
+                    
+                    fs = fileInf.OpenRead();
+
+                    try
+                    {
+                        contentLen = fs.Read(buff, 0, buffLength);
+
+                        while (contentLen != 0)
+                        {
+                            strm.Write(buff, 0, contentLen);
+                            contentLen = fs.Read(buff, 0, buffLength);
+                        }
+
+                        job.upload_status = UploadJobStatus.FINISHED;
+
+                        Logger.Logger.Log("ProccessJob - Finish.", "Job: " + job.ToString(), "FTPUploader");
+                    }
+                    catch (Exception ex)
+                    {
+                        Interlocked.Add(ref nFailCount, 1);
+
+                        job.fail_count++;
+
+                        Logger.Logger.Log("ProccessJob - Error.", "Job: " + job.ToString() + ", Exception: " + ex.Message, "FTPUploader");
+                    }
+                    finally
+                    {
+                        if (strm != null)
+                        {
+                            strm.Close();
+                            //Logger.Logger.Log("Stream Closed.", "File: " + file, "UploadedPics");
+                        }
+                        if (fs != null)
+                        {
+                            fs.Close();
+                            //Logger.Logger.Log("File Stream Closed.", "File: " + file, "UploadedPics");
+                        }
+                        if (fileInf != null && job.upload_status == UploadJobStatus.FINISHED)
+                        {
+                            fileInf.Delete();
+
+                            //Logger.Logger.Log("DeleteFile.", "File: " + file, "UploadedPics");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Interlocked.Add(ref nFailCount, 1);
+
+                job.fail_count++;
+
+                Logger.Logger.Log("ProccessJob - Error.", "Job: " + job.ToString() + ", Exception: " + ex.Message, "FTPUploader");
+            }
+            finally
+            {
+                if (strm != null)
+                {
+                    strm.Close();
+                    //Logger.Logger.Log("Stream Closed: ", file, "UploadedPics");
+                }
+                if (fs != null)
+                {
+                    fs.Close();
+                    //Logger.Logger.Log("File Stream Closed: ", file, "UploadedPics");
+                }
+
+                UploadHelper.UpdateJob(job);
+            }
+        }
+    }
+}
