@@ -31,6 +31,18 @@ namespace TVPApi
 
         }
 
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
         public string Country
         {
             get
@@ -135,6 +147,7 @@ namespace TVPApi
                     //UseStartDate = bool.Parse(GetFutureStartDate),
                     DeviceId = DeviceUDID,
                     Culture = Language,
+                    SiteGuid = SiteGuid
                 };
                 if (OrderBy != TVPApi.OrderBy.None)
                 {

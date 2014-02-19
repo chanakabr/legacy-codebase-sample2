@@ -943,9 +943,9 @@ namespace TVPApiServices
 
         //Search media by free text
         [WebMethod(EnableSession = true, Description = "Search EPG by free text")]
-        public TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
+        public List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
-            TVPPro.SiteManager.TvinciPlatform.api.EPGChannelProgrammeObject[] programs = { };
+            List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> programs = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchEPG", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -953,7 +953,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    programs = new ApiApiService(groupID, initObj.Platform).SearchEPGContent(text, pageIndex, pageSize);
+                    programs = new EPGSearchContentLoader(groupID, SiteHelper.GetClientIP(), pageSize, pageIndex, text)
+                    {
+                        SiteGuid = initObj.SiteGuid,
+                    }.Execute() as List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>;
                 }
                 catch (Exception ex)
                 {
@@ -1515,7 +1518,8 @@ namespace TVPApiServices
                             OrderBy = TVPApi.OrderBy.ABC,
                             MetaValues = psc.m_sSubscriptionCode,
                             Country = new TVPApiModule.Services.ApiUsersService(groupId, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()),
-                            UseFinalEndDate = "true"
+                            UseFinalEndDate = "true",
+                            SiteGuid = initObj.SiteGuid
                         };
 
                         TVPPro.SiteManager.DataEntities.dsItemInfo ds = searchLoader.Execute();
@@ -2306,9 +2310,10 @@ namespace TVPApiServices
                     List<int> channelIDs = new List<int>() { int.Parse(channelID) };
 
                     EPGLoader loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, fromDate, toDate, 0, 0);
-                           
-
+                    
                     loader.DeviceId = initObj.UDID;
+                    loader.SiteGuid = initObj.SiteGuid;
+
                     var loaderRes = loader.Execute() as List<TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject>;
                     if (loaderRes != null && loaderRes.Count() > 0)
                         sRet = loaderRes[0].EPGChannelProgrammeObject;
@@ -2355,6 +2360,8 @@ namespace TVPApiServices
                     }
 
                     loader.DeviceId = initObj.UDID;
+                    loader.SiteGuid = initObj.SiteGuid;
+
                     var loaderRes = loader.Execute() as List<TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject>;
                     if (loaderRes != null && loaderRes.Count() > 0)
                         sRet = loaderRes[0].EPGChannelProgrammeObject;
@@ -2402,6 +2409,7 @@ namespace TVPApiServices
                     }
 
                     loader.DeviceId = initObj.UDID;
+                    loader.SiteGuid = initObj.SiteGuid;
                     sRet = (loader.Execute() as List<TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject>).ToArray();
                 }
                 catch (Exception ex)
@@ -2662,7 +2670,8 @@ namespace TVPApiServices
 
                     loaderResult = new APIEPGSearchLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
                     {
-                        Culture = initObj.Locale.LocaleLanguage
+                        Culture = initObj.Locale.LocaleLanguage,
+                        SiteGuid = initObj.SiteGuid
                     }.Execute() as List<BaseObject>;
                 }
                 catch (Exception ex)
@@ -2703,7 +2712,8 @@ namespace TVPApiServices
 
                     retVal = new APIEPGAutoCompleteLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
                     {
-                        Culture = initObj.Locale.LocaleLanguage
+                        Culture = initObj.Locale.LocaleLanguage,
+                        SiteGuid = initObj.SiteGuid
                     }.Execute() as List<string>;
                 }
                 catch (Exception ex)
@@ -2765,7 +2775,8 @@ namespace TVPApiServices
                     retVal = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, DateTime.MinValue, DateTime.MaxValue)
                     {
                         Platform = initObj.Platform.ToString(),
-                        DeviceId = initObj.UDID
+                        DeviceId = initObj.UDID,
+                        SiteGuid = initObj.SiteGuid
                     }.Execute() as List<AssetStatsResult>;
                 }
                 catch (Exception ex)

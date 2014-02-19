@@ -24,6 +24,19 @@ namespace TVPApi
             TvmPass = tvmPass;
         }
 
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+
+        }
+
         protected string TvmUser
         {
             get
@@ -99,6 +112,7 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
                     Culture = Language,
+                    SiteGuid = SiteGuid
                 };
 
                 return m_oPeopleWhoWatchedLoader.Execute() as dsItemInfo;

@@ -10,6 +10,7 @@ using System.Xml;
 using System.Web.Services.Protocols;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
+using Logger;
 
 /// <summary>
 /// Finds the Method By Reflection
@@ -40,30 +41,48 @@ public partial class MethodFinder
         IsPost = HttpContext.Current.Items.Contains("initObj") || HttpContext.Current.Items.Contains("sRecieverUDID") || HttpContext.Current.Items.Contains("sUDID");
     }
 
-    public void ProcessRequest()
+    public void ProcessRequest(string sJsonFormatInput)
     {
         try
         {
             if (VerifyAllParametersCheck())
             {
-                string SerializedReturnValue = String.Empty;
-
-                // get the strategy to use to handle request
-                ParameterInitBase executer = GetExecuter();
-
-                object[] CallParameters = new object[MethodParameters.Length];
-                for (int i = 0; i < MethodParameters.Length; i++)
+                using (BaseLog log = new BaseLog(eLogType.SoapRequest, DateTime.UtcNow, false))
                 {
-                    ParameterInfo TargetParameter = MethodParameters[i];
+                    log.Id = HttpContext.Current.ApplicationInstance.Session.SessionID;
+                    log.IP = HttpContext.Current.Request.UserHostAddress;
+                    log.UserAgent = HttpContext.Current.Request.UserAgent;
+                    log.Method = HttpContext.Current.Request.QueryString["m"];
+                    log.Info(sJsonFormatInput.Replace('\n', ' '), false);
 
-                    // get the object value of the parameter
-                    CallParameters[i] = executer.InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);
+                    string SerializedReturnValue = String.Empty;
+
+                    // get the strategy to use to handle request
+                    ParameterInitBase executer = GetExecuter();
+
+                    object[] CallParameters = new object[MethodParameters.Length];
+                    for (int i = 0; i < MethodParameters.Length; i++)
+                    {
+                        ParameterInfo TargetParameter = MethodParameters[i];
+
+                        // get the object value of the parameter
+                        CallParameters[i] = executer.InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);
+                    }
+
+                    // post handle request
+                    SerializedReturnValue = executer.PostParametersInit(this, MethodParameters, CallParameters);
+                    log.Type = eLogType.SoapResponse;
+                    if (!string.IsNullOrEmpty(SerializedReturnValue))
+                    {
+                        log.Info(SerializedReturnValue, false);
+                    }
+                    else
+                    {
+                        log.Info("No results found or null object returned", false);
+                    }
+
+                    WriteResponseBackToClient(SerializedReturnValue);
                 }
-
-                // post handle request
-                SerializedReturnValue = executer.PostParametersInit(this, MethodParameters, CallParameters);
-
-                WriteResponseBackToClient(SerializedReturnValue);
             }
         }
         catch (Exception e)
