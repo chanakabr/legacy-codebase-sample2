@@ -34,7 +34,7 @@
   <ItemGroup>
     <Reference Include="AWSSDK, Version=2.0.2.3, Culture=neutral, PublicKeyToken=9f476d3089b52be3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External\AWS SDK for .NET\bin\Net35\AWSSDK.dll</HintPath>
+      <HintPath>..\External\AWSSDK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
