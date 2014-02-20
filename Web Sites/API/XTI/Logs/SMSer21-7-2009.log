@@ -1,0 +1,20 @@
+
+7/21/2009 2:18:53 PM , THREAD-2560, SMS sent - returnd: OK : ODBCWrapper.UpdateQuery: Lock request time out period exceeded.
+The statement has been terminated.
+7/21/2009 2:19:16 PM , THREAD-2560, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 2:19:16 PM , THREAD-2560, SMS sent - returnd: OK : ODBCWrapper.UpdateQuery: Lock request time out period exceeded.
+The statement has been terminated.
+7/21/2009 3:32:59 PM , THREAD-2560, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 4:07:48 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 4:09:11 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 4:09:16 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 4:15:57 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 4:31:36 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 4:32:06 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 4:32:08 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.UpdateQuery: Lock request time out period exceeded.
+The statement has been terminated.
+7/21/2009 4:36:42 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 4:38:25 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.
+7/21/2009 4:46:40 PM , THREAD-3612, SMS sent - returnd: OK : ODBCWrapper.UpdateQuery: Lock request time out period exceeded.
+The statement has been terminated.
+7/21/2009 4:46:59 PM , THREAD-2560, SMS sent - returnd: OK : ODBCWrapper.DataSetSelectQuery: Lock request time out period exceeded.

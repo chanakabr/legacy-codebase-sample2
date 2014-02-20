@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="asx_handler.aspx.cs" Inherits="asx_handler" %>

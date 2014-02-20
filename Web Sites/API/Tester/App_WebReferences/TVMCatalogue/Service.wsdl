@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="/Imports">
+      <xsd:import schemaLocation="http://192.168.16.124/TVMCatalogue/Service.svc?xsd=xsd0" />
+      <xsd:import schemaLocation="http://192.168.16.124/TVMCatalogue/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://192.168.16.124/TVMCatalogue/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog" />
+      <xsd:import schemaLocation="http://192.168.16.124/TVMCatalogue/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://192.168.16.124/TVMCatalogue/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/System.Collections.Generic" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="Iservice_InjestAdiData_InputMessage">
+    <wsdl:part name="parameters" element="InjestAdiData" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_InjestAdiData_OutputMessage">
+    <wsdl:part name="parameters" element="InjestAdiDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_InjestTvinciData_InputMessage">
+    <wsdl:part name="parameters" element="InjestTvinciData" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_InjestTvinciData_OutputMessage">
+    <wsdl:part name="parameters" element="InjestTvinciDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetChannelMedia_InputMessage">
+    <wsdl:part name="parameters" element="GetChannelMedia" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetChannelMedia_OutputMessage">
+    <wsdl:part name="parameters" element="GetChannelMediaResponse" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetMediasByIDs_InputMessage">
+    <wsdl:part name="parameters" element="GetMediasByIDs" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetMediasByIDs_OutputMessage">
+    <wsdl:part name="parameters" element="GetMediasByIDsResponse" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetMedias_InputMessage">
+    <wsdl:part name="parameters" element="GetMedias" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetMedias_OutputMessage">
+    <wsdl:part name="parameters" element="GetMediasResponse" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetMediaRelated_InputMessage">
+    <wsdl:part name="parameters" element="GetMediaRelated" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetMediaRelated_OutputMessage">
+    <wsdl:part name="parameters" element="GetMediaRelatedResponse" />
+  </wsdl:message>
+  <wsdl:portType name="Iservice">
+    <wsdl:operation name="InjestAdiData">
+      <wsdl:input wsaw:Action="urn:Iservice/InjestAdiData" message="Iservice_InjestAdiData_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/InjestAdiDataResponse" message="Iservice_InjestAdiData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="InjestTvinciData">
+      <wsdl:input wsaw:Action="urn:Iservice/InjestTvinciData" message="Iservice_InjestTvinciData_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/InjestTvinciDataResponse" message="Iservice_InjestTvinciData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelMedia">
+      <wsdl:input wsaw:Action="urn:Iservice/GetChannelMedia" message="Iservice_GetChannelMedia_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/GetChannelMediaResponse" message="Iservice_GetChannelMedia_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediasByIDs">
+      <wsdl:input wsaw:Action="urn:Iservice/GetMediasByIDs" message="Iservice_GetMediasByIDs_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/GetMediasByIDsResponse" message="Iservice_GetMediasByIDs_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMedias">
+      <wsdl:input wsaw:Action="urn:Iservice/GetMedias" message="Iservice_GetMedias_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/GetMediasResponse" message="Iservice_GetMedias_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaRelated">
+      <wsdl:input wsaw:Action="urn:Iservice/GetMediaRelated" message="Iservice_GetMediaRelated_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/GetMediaRelatedResponse" message="Iservice_GetMediaRelated_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

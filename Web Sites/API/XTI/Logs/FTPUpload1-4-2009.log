@@ -1,0 +1,4 @@
+
+4/1/2009 3:53:37 PM , THREAD-752, Notifier : SendXMLHttpReq exception:The remote server returned an error: (404) Not Found. to: http://www.tvinci.com/xml/tin.aspx contnet: <tvm><importer><exception message="Object reference not set to an instance of an object."/></importer></tvm>
+4/1/2009 3:56:43 PM , THREAD-7304, Notifier : SendXMLHttpReq exception:The remote server returned an error: (404) Not Found. to: http://www.tvinci.com/xml/tin.aspx contnet: <tvm><importer><exception message="Object reference not set to an instance of an object."/></importer></tvm>
+4/1/2009 4:00:06 PM , THREAD-752, Notifier : SendXMLHttpReq exception:The remote server returned an error: (404) Not Found. to: http://www.tvinci.com/xml/tin.aspx contnet: <tvm><importer><exception message="Object reference not set to an instance of an object."/></importer></tvm>

@@ -1,0 +1,268 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<BasicExport xmlns="URN:NNDS:SSR:XTI:VOD:EXPORT:002" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="URN:NNDS:SSR:XTI:VOD:EXPORT:002 VODEXPORT002.xsd" utcOffset="+00:00" transactionIdentifier="546006943634">
+	<VodAssetList>
+		<VodAssets>
+			<catalogueKey>GibraltarVod</catalogueKey>
+			<VodAssetItem>
+				<providerId>Orange</providerId>
+				<assetId>ORGN000000000005051</assetId>
+				<availStartTime>2008/04/01 00:00:00:00</availStartTime>
+				<availEndTime>2008/08/16 00:00:00:00</availEndTime>
+				<parentalRating>0</parentalRating>
+				<epgInfoBits>FF0F&gt;</epgInfoBits>
+				<duration>00:29:47:00</duration>
+				<exhibitionDateTime>2008/04/01 19:30:00:00</exhibitionDateTime>
+				<soundType>3</soundType>
+				<widescreenFlag>1</widescreenFlag>
+				<subtitleFlag>1</subtitleFlag>
+				<letterboxFlag>0</letterboxFlag>
+				<criticsChoiceFlag>1</criticsChoiceFlag>
+				<VodAssetCredit>
+					<lang>eng</lang>
+					<classificationKey>credit:role:actor</classificationKey>
+					<creditKey>urn:bbc:eastenders:1</creditKey>
+					<orderNum>1</orderNum>
+					<personGivenName>Barbara</personGivenName>
+					<personFamilyName>Windsor</personFamilyName>
+					<personTitle>Windsor</personTitle>
+					<characterGivenName>Peggy</characterGivenName>
+					<characterFamilyName>Mitchell</characterFamilyName>
+					<characterTitle>Windsor</characterTitle>
+				</VodAssetCredit>
+				<VodAssetKeyword>
+					<lang>eng</lang>
+					<keyword>Albert Square</keyword>
+				</VodAssetKeyword>
+				<VodAssetClassification>
+					<classificationKey>Rank:Highly</classificationKey>
+					<activationDateTime>2008/04/01 00:00:00:00</activationDateTime>
+					<deactivationDateTime>2008/08/15 23:00:00:00</deactivationDateTime>
+				</VodAssetClassification>
+				<VodAssetClassification>
+					<classificationKey>ContentType:video:trailer:SD</classificationKey>
+					<activationDateTime>2008/04/01 00:00:00:00</activationDateTime>
+					<deactivationDateTime>2008/08/15 23:00:00:00</deactivationDateTime>
+				</VodAssetClassification>
+				<VodAssetDescription>
+					<lang>eng</lang>
+					<assetName>BlaBlaBla</assetName>
+					<assetDescription>Boring soap opera</assetDescription>
+					<assetEpisodeTitle>Love of my life</assetEpisodeTitle>
+					<assetMarketingMsg>Missable</assetMarketingMsg>
+					<assetSeriesInfo>3/300/1</assetSeriesInfo>
+					<assetBranding>BBC On Demand</assetBranding>
+				</VodAssetDescription>
+				<VodAssetMedia>
+					<mediaKey>media0000000050</mediaKey>
+					<mediaLanguage>eng</mediaLanguage>
+					<classificationKey>mediaType:image:poster</classificationKey>
+					<relationshipType>P</relationshipType>
+					<mediaUri>http://www.imdb.com/Films/WonderWoman6/WonderWoman6.jpg</mediaUri>
+					<mediaMimeType>img/jpg</mediaMimeType>
+				</VodAssetMedia>
+				<VodAssetMedia>
+					<mediaKey>media0000000051</mediaKey>
+					<mediaLanguage>eng</mediaLanguage>
+					<classificationKey>mediaType:video:trailler</classificationKey>
+					<relationshipType>P</relationshipType>
+					<mediaUri>http://www.imdb.com/Films/WonderWoman6/WonderWoman6.flv</mediaUri>
+					<mediaMimeType>video/flv</mediaMimeType>
+				</VodAssetMedia>
+				<VodAssetExtendedDescription>
+					<providerId>Orange</providerId>
+					<assetId>ORGN000000000005051</assetId>
+					<itemNumber>1</itemNumber>
+					<displayLanguage>heb</displayLanguage>
+					<assetDescriptionLabel>SoundRights</assetDescriptionLabel>
+					<assetExtendedDescription>EMC</assetExtendedDescription>
+				</VodAssetExtendedDescription>
+				<VodOfferItem>
+					<offerKey>ORGN000000000005051</offerKey>
+					<offerStartDateTime>2008/04/01 00:00:00:00</offerStartDateTime>
+					<offerEndDateTime>2008/08/15 00:00:00:00</offerEndDateTime>
+					<offerExpiryDateTime>2008/08/15 23:00:00:00</offerExpiryDateTime>
+					<status>2</status>
+					<errorDescription>No physical content for material iiii</errorDescription>
+					<vodFlag>1</vodFlag>
+					<pdlFlag>0</pdlFlag>
+					<dlFlag>0</dlFlag>
+					<hiddenFlag>0</hiddenFlag>
+					<VodOfferDescription>
+						<lang>eng</lang>
+						<offerDescription>Rent content for 24 hours</offerDescription>
+					</VodOfferDescription>
+				</VodOfferItem>
+				<VodAssetDelivery>
+					<catalogueKey>GibraltarVod</catalogueKey>
+					<deliveryUri>http://www.imdb.com/Films/WonderWoman6/WonderWoman6.gib</deliveryUri>
+					<deliveryType>0</deliveryType>
+				</VodAssetDelivery>
+			</VodAssetItem>
+			<VodAssetItem>
+				<providerId>Orange</providerId>
+				<assetId>orng0000000004</assetId>
+				<availStartTime>2008/05/14 17:52:45:00</availStartTime>
+				<availEndTime>2008/05/24 17:52:45:00</availEndTime>
+				<parentalRating>5</parentalRating>
+				<epgInfoBits>3</epgInfoBits>
+				<duration>01:15:00:00</duration>
+				<exhibitionDateTime>1978/01/01 00:00:00:00</exhibitionDateTime>
+				<soundType>3</soundType>
+				<widescreenFlag>1</widescreenFlag>
+				<subtitleFlag>1</subtitleFlag>
+				<letterboxFlag>0</letterboxFlag>
+				<criticsChoiceFlag>0</criticsChoiceFlag>
+				<VodAssetCredit>
+					<lang>heb</lang>
+					<classificationKey>credit:role:director</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>1</orderNum>
+					<personGivenName>3שם ומשפחה</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>eng</lang>
+					<classificationKey>credit:role:director</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>1</orderNum>
+					<personGivenName>name last name3</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>rus</lang>
+					<classificationKey>credit:role:director</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>1</orderNum>
+					<personGivenName>имя фамилия3</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>heb</lang>
+					<classificationKey>credit:role:actor</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>2</orderNum>
+					<personGivenName>2שם ומשפחה</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>eng</lang>
+					<classificationKey>credit:role:actor</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>2</orderNum>
+					<personGivenName>2name last name</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>rus</lang>
+					<classificationKey>credit:role:actor</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>2</orderNum>
+					<personGivenName>2имя фамилия</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>heb</lang>
+					<classificationKey>credit:role:writer</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>3</orderNum>
+					<personGivenName>4שם ומשפחה</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>eng</lang>
+					<classificationKey>credit:role:writer</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>3</orderNum>
+					<personGivenName>name last name4</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>rus</lang>
+					<classificationKey>credit:role:writer</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>3</orderNum>
+					<personGivenName>имя фамилия4</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>heb</lang>
+					<classificationKey>credit:role:scriptWriter</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>4</orderNum>
+					<personGivenName>1שם ומשפחה</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>eng</lang>
+					<classificationKey>credit:role:scriptWriter</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>4</orderNum>
+					<personGivenName>name last name1</personGivenName>
+				</VodAssetCredit>
+				<VodAssetCredit>
+					<lang>rus</lang>
+					<classificationKey>credit:role:scriptWriter</classificationKey>
+					<creditKey>credit_orng0000000004</creditKey>
+					<orderNum>4</orderNum>
+					<personGivenName>имя фамилия1</personGivenName>
+				</VodAssetCredit>
+				<VodAssetClassification>
+					<classificationKey>Rank:0</classificationKey>
+					<activationDateTime>2008/05/14 17:52:45:00</activationDateTime>
+					<deactivationDateTime>2008/05/24 17:52:45:00</deactivationDateTime>
+				</VodAssetClassification>
+				<VodAssetClassification>
+					<classificationKey>ContentType:video:movie</classificationKey>
+					<activationDateTime>2008/05/14 17:52:45:00</activationDateTime>
+					<deactivationDateTime>2008/05/24 17:52:45:00</deactivationDateTime>
+				</VodAssetClassification>
+				<VodAssetDescription>
+					<lang>heb</lang>
+					<assetName>מת לחיות 38.5</assetName>
+					<assetDescription>long description</assetDescription>
+					<assetMarketingMsg>medium description</assetMarketingMsg>
+				</VodAssetDescription>
+				<VodAssetDescription>
+					<lang>eng</lang>
+					<assetName>Die Hard 38.5</assetName>
+				</VodAssetDescription>
+				<VodAssetDescription>
+					<lang>rus</lang>
+					<assetName>Крепкий орешек 38.5</assetName>
+				</VodAssetDescription>
+				<VodAssetExtendedDescription>
+					<providerId>Orange</providerId>
+					<assetId>orng0000000004</assetId>
+					<itemNumber>1</itemNumber>
+					<displayLanguage>heb</displayLanguage>
+					<assetDescriptionLabel>ShortDescription</assetDescriptionLabel>
+					<assetExtendedDescription>short description</assetExtendedDescription>
+				</VodAssetExtendedDescription>
+				<VodAssetExtendedDescription>
+					<providerId>Orange</providerId>
+					<assetId>orng0000000004</assetId>
+					<itemNumber>5</itemNumber>
+					<displayLanguage>eng</displayLanguage>
+					<assetDescriptionLabel>Category</assetDescriptionLabel>
+					<assetExtendedDescription>Action movies</assetExtendedDescription>
+				</VodAssetExtendedDescription>
+				<VodAssetExtendedDescription>
+					<providerId>Orange</providerId>
+					<assetId>orng0000000004</assetId>
+					<itemNumber>6</itemNumber>
+					<displayLanguage>eng</displayLanguage>
+					<assetDescriptionLabel>Category</assetDescriptionLabel>
+					<assetExtendedDescription>Bruce Willis</assetExtendedDescription>
+				</VodAssetExtendedDescription>
+				<VodOfferItem>
+					<offerKey>orng0000000004</offerKey>
+					<offerStartDateTime>2008/05/14 17:52:45:00</offerStartDateTime>
+					<offerEndDateTime>2008/05/22 17:52:45:00</offerEndDateTime>
+					<offerExpiryDateTime>2008/05/24 17:52:45:00</offerExpiryDateTime>
+					<status>2</status>
+					<errorDescription>No delivery details defined for delivery type vod</errorDescription>
+					<vodFlag>1</vodFlag>
+					<pdlFlag>0</pdlFlag>
+					<dlFlag>0</dlFlag>
+					<hiddenFlag>0</hiddenFlag>
+				</VodOfferItem>
+				<VodAssetDelivery>
+					<catalogueKey>GibraltarVod</catalogueKey>
+					<deliveryUri>orng0000000004</deliveryUri>
+					<deliveryType>0</deliveryType>
+					<size>1000000</size>
+				</VodAssetDelivery>
+			</VodAssetItem>
+		</VodAssets>
+	</VodAssetList>
+</BasicExport>

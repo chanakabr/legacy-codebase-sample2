@@ -1,0 +1,153 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Xml;
+using ADIFeeder;
+using System.Text;
+using TVinciShared;
+using System.Configuration;
+
+public partial class adi_api : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+
+        string sXML = GetFormParameters();
+        Logger.Logger.Log("ADI_API", "Start request - input is " + sXML, "ADI_API");
+        XmlDocument theDoc = new XmlDocument();
+        string responseSTR = string.Empty;
+        try
+        {
+            theDoc.LoadXml(sXML);
+            XmlNode userNode = theDoc.SelectSingleNode("Feeder/userName");
+            string userName = userNode.FirstChild.Value.ToLower().Trim();
+
+            XmlNode passNode = theDoc.SelectSingleNode("Feeder/passWord");
+            string passWord = passNode.FirstChild.Value.ToLower().Trim();
+
+            XmlNode dataNode = theDoc.SelectSingleNode("Feeder/data");
+            string data = dataNode.FirstChild.Value.Trim();
+            int playerID = 0;
+            int groupID = PageUtils.GetGroupByUNPass(userName, passWord, ref playerID);
+
+            if (groupID > 0)
+            {
+                string xmlStr = data;
+                ADIFeeder.ADIFeeder adiFeeder = (ADIFeeder.ADIFeeder)ADIFeeder.ADIFeeder.GetInstance(9, 3600, xmlStr, 147);
+                bool retVal = adiFeeder.DoTheTask();
+                responseSTR = adiFeeder.GetResXml();
+                if (string.IsNullOrEmpty(responseSTR))
+                {
+                    responseSTR = GetResponse(false, string.Empty);
+                }
+                else
+                {
+                    XmlDocument theRes = new XmlDocument();
+
+                    try
+                    {
+                        theRes.LoadXml(responseSTR);
+
+                        XmlNode theNode = theRes.FirstChild;
+
+                        string status = GetItemParameterVal(ref theNode, "status");
+                        string desc = GetItemParameterVal(ref theNode, "message");
+                        string coguid = GetItemParameterVal(ref theNode, "co_guid");
+                        string tvmid = GetItemParameterVal(ref theNode, "tvm_id");
+                        if (!string.IsNullOrEmpty(tvmid))
+                        {
+                            int nTVMID = int.Parse(tvmid);
+                            Lucene.Service luceneSer = new Lucene.Service();
+                            bool luceneUpdated = luceneSer.UpdateRecord(groupID, nTVMID);
+                            if (luceneUpdated)
+                            {
+                                Logger.Logger.Log("ADI_API", "Lucene update tvm id " + tvmid, "ADI_API");
+                            }
+                            else
+                            {
+                                Logger.Logger.Log("ADI_API", "Lucene not update tvm id " + tvmid, "ADI_API");
+                            }
+                        }
+                        responseSTR = GetResponse(status, desc, coguid, tvmid);
+                    }
+                    catch
+                    {
+                        responseSTR = GetResponse(false, string.Empty);
+                    }
+                }
+            }
+            else
+            {
+                responseSTR = GetResponse(false, "INVALID_CREDENTIALS");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            responseSTR = GetResponse(false, ex.Message);
+        }
+        Logger.Logger.Log("ADI_API", "For input " + sXML + " response is " + responseSTR, "ADI_API");
+        Response.ContentType = "text/xml";
+        Response.ClearHeaders();
+        Response.Clear();
+        Response.Write(responseSTR);
+    }
+
+    private string GetResponse(bool isValid, string description)
+    {
+        string retVal = string.Empty;
+
+        string statusStr = "OK";
+        if (!isValid)
+        {
+            statusStr = "ERROR";
+        }
+        return GetResponse(statusStr, description, string.Empty, string.Empty);
+    }
+
+    private string GetResponse(string status, string description, string coguid, string tvmid)
+    {
+        string retVal = string.Empty;
+        StringBuilder sb = new StringBuilder();
+        sb.Append("<Response>");
+        sb.AppendFormat("<status>{0}</status>", status);
+        sb.AppendFormat("<description>{0}</description>", description);
+        sb.AppendFormat("<assetID>{0}</assetID>", coguid);
+        sb.AppendFormat("<tvmID>{0}</tvmID>", tvmid);
+        sb.Append("</Response>");
+        return sb.ToString();
+    }
+
+    protected string GetFormParameters()
+    {
+        Int32 nCount = Request.TotalBytes;
+        string sFormParameters = Encoding.UTF8.GetString(Request.BinaryRead(nCount));
+        return sFormParameters;
+    }
+
+    private string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
+    {
+        string sVal = "";
+        if (theNode != null)
+        {
+            XmlAttributeCollection theAttr = theNode.Attributes;
+            if (theAttr != null)
+            {
+                int nCount = theAttr.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sName = theAttr[i].Name.ToLower();
+                    if (sName.ToLower().Trim() == sParameterName.ToLower().Trim())
+                    {
+                        sVal = theAttr[i].Value.ToString();
+                        break;
+                    }
+                }
+            }
+        }
+        return sVal;
+    }
+}

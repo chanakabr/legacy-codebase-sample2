@@ -1,0 +1,2181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://users.tvinci.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://users.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://users.tvinci.com/">
+      <s:element name="CheckUserPassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckUserPasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CheckUserPasswordResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UserResponseObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_RespStatus" type="tns:ResponseStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_user" type="tns:User" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="ResponseStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="OK" />
+          <s:enumeration value="UserExists" />
+          <s:enumeration value="UserDoesNotExist" />
+          <s:enumeration value="WrongPasswordOrUserName" />
+          <s:enumeration value="InsideLockTime" />
+          <s:enumeration value="NotImplementedYet" />
+          <s:enumeration value="UserNotActivated" />
+          <s:enumeration value="UserAllreadyLoggedIn" />
+          <s:enumeration value="UserDoubleLogIn" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="User">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_oBasicData" type="tns:UserBasicData" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oDynamicData" type="tns:UserDynamicData" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGUID" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserBasicData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sUserName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFirstName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sLastName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sEmail" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sCity" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_State" type="tns:State" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Country" type="tns:Country" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sZip" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sPhone" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFacebookID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFacebookImage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsFacebookImagePermitted" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sAffiliateCode" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="State">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nObjecrtID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sStateName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sStateCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Country" type="tns:Country" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Country">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nObjecrtID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sCountryName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sCountryCode" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserDynamicData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sUserData" type="tns:ArrayOfUserDynamicDataContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserDynamicDataContainer" nillable="true" type="tns:UserDynamicDataContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDataType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SignIn">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sessionID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SignInResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SignInResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SignOut">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sessionID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SignOutResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SignOutResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddUserFavorit">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sApplication" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sItemType" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sItemCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sExtraData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddUserFavoritResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AddUserFavoritResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="WriteLog">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLogMessage" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWriter" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="WriteLogResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="WriteLogResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveUserFavorit">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nFavoritID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveUserFavoritResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetUserFavorites">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sApllication" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sItemType" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserFavoritesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserFavoritesResult" type="tns:ArrayOfFavoritObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfFavoritObject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="FavoritObject" nillable="true" type="tns:FavoritObject" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FavoritObject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sApplication" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sItemCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sSiteUserGUID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dUpdateDate" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sExtraData" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nID" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetUserByFacebookID">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sFacebookID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserByFacebookIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserByFacebookIDResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserByUsername">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUsername" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserByUsernameResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserByUsernameResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserData">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserDataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserDataResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddNewUser">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oBasicData" type="tns:UserBasicData" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDynamicData" type="tns:UserDynamicData" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sAffiliateCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddNewUserResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddNewUserResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetUserData">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oBasicData" type="tns:UserBasicData" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDynamicData" type="tns:UserDynamicData" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetUserDataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetUserDataResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Hit">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="HitResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="Logout">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LogoutResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="ChangeUserPassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUN" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sOldPass" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPass" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChangeUserPasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ChangeUserPasswordResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ForgotPassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ForgotPasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ForgotPasswordResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckTemporaryToken">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckTemporaryTokenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CheckTemporaryTokenResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RenewUserPassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNewPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RenewUserPasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RenewUserPasswordResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ResendWelcomeMail">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNewPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ResendWelcomeMailResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ResendWelcomeMailResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ResendActivationMail">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNewPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ResendActivationMailResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ResendActivationMailResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ActivateAccount">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ActivateAccountResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ActivateAccountResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserToken">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserTokenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserTokenResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DoesUserNameExists">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DoesUserNameExistsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoesUserNameExistsResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCountryList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCountryListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCountryListResult" type="tns:ArrayOfCountry" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfCountry">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Country" nillable="true" type="tns:Country" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetStateList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nCountryID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetStateListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetStateListResult" type="tns:ArrayOfState" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfState">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="State" nillable="true" type="tns:State" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetIPToCountry">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetIPToCountryResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetIPToCountryResult" type="tns:Country" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddDomain">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDomainName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDomainDescription" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMasterUserGuid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddDomainResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddDomainResult" type="tns:Domain" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="Domain">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nDomainID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nGroupID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nLimit" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nStatus" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nIsActive" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Users" type="tns:ArrayOfUser" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_DomainStatus" type="tns:DomainStatus" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUser">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="User" nillable="true" type="tns:User" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="DomainStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="OK" />
+          <s:enumeration value="DomainAlreadyExists" />
+          <s:enumeration value="ExceededLimit" />
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="Error" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="SetDomainInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDomainName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDomainDescription" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetDomainInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetDomainInfoResult" type="tns:Domain" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddUserToDomain">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nUserGuid" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="bIsMaster" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddUserToDomainResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddUserToDomainResult" type="tns:Domain" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveUserFromDomain">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nUserGUID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveUserFromDomainResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RemoveUserFromDomainResult" type="tns:Domain" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDomainInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDomainInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainInfoResult" type="tns:Domain" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="ArrayOfFavoritObject" nillable="true" type="tns:ArrayOfFavoritObject" />
+      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="ArrayOfCountry" nillable="true" type="tns:ArrayOfCountry" />
+      <s:element name="ArrayOfState" nillable="true" type="tns:ArrayOfState" />
+      <s:element name="Country" nillable="true" type="tns:Country" />
+      <s:element name="Domain" nillable="true" type="tns:Domain" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="CheckUserPasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="CheckUserPasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="SignInSoapIn">
+    <wsdl:part name="parameters" element="tns:SignIn" />
+  </wsdl:message>
+  <wsdl:message name="SignInSoapOut">
+    <wsdl:part name="parameters" element="tns:SignInResponse" />
+  </wsdl:message>
+  <wsdl:message name="SignOutSoapIn">
+    <wsdl:part name="parameters" element="tns:SignOut" />
+  </wsdl:message>
+  <wsdl:message name="SignOutSoapOut">
+    <wsdl:part name="parameters" element="tns:SignOutResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddUserFavoritSoapIn">
+    <wsdl:part name="parameters" element="tns:AddUserFavorit" />
+  </wsdl:message>
+  <wsdl:message name="AddUserFavoritSoapOut">
+    <wsdl:part name="parameters" element="tns:AddUserFavoritResponse" />
+  </wsdl:message>
+  <wsdl:message name="WriteLogSoapIn">
+    <wsdl:part name="parameters" element="tns:WriteLog" />
+  </wsdl:message>
+  <wsdl:message name="WriteLogSoapOut">
+    <wsdl:part name="parameters" element="tns:WriteLogResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFavoritSoapIn">
+    <wsdl:part name="parameters" element="tns:RemoveUserFavorit" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFavoritSoapOut">
+    <wsdl:part name="parameters" element="tns:RemoveUserFavoritResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserFavoritesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserFavorites" />
+  </wsdl:message>
+  <wsdl:message name="GetUserFavoritesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserFavoritesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByFacebookIDSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserByFacebookID" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByFacebookIDSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserByFacebookIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByUsernameSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserByUsername" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByUsernameSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserByUsernameResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserDataSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserData" />
+  </wsdl:message>
+  <wsdl:message name="GetUserDataSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddNewUserSoapIn">
+    <wsdl:part name="parameters" element="tns:AddNewUser" />
+  </wsdl:message>
+  <wsdl:message name="AddNewUserSoapOut">
+    <wsdl:part name="parameters" element="tns:AddNewUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetUserDataSoapIn">
+    <wsdl:part name="parameters" element="tns:SetUserData" />
+  </wsdl:message>
+  <wsdl:message name="SetUserDataSoapOut">
+    <wsdl:part name="parameters" element="tns:SetUserDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="HitSoapIn">
+    <wsdl:part name="parameters" element="tns:Hit" />
+  </wsdl:message>
+  <wsdl:message name="HitSoapOut">
+    <wsdl:part name="parameters" element="tns:HitResponse" />
+  </wsdl:message>
+  <wsdl:message name="LogoutSoapIn">
+    <wsdl:part name="parameters" element="tns:Logout" />
+  </wsdl:message>
+  <wsdl:message name="LogoutSoapOut">
+    <wsdl:part name="parameters" element="tns:LogoutResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangeUserPasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:ChangeUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="ChangeUserPasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:ChangeUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="ForgotPasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:ForgotPassword" />
+  </wsdl:message>
+  <wsdl:message name="ForgotPasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:ForgotPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckTemporaryTokenSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckTemporaryToken" />
+  </wsdl:message>
+  <wsdl:message name="CheckTemporaryTokenSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckTemporaryTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="RenewUserPasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:RenewUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="RenewUserPasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:RenewUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="ResendWelcomeMailSoapIn">
+    <wsdl:part name="parameters" element="tns:ResendWelcomeMail" />
+  </wsdl:message>
+  <wsdl:message name="ResendWelcomeMailSoapOut">
+    <wsdl:part name="parameters" element="tns:ResendWelcomeMailResponse" />
+  </wsdl:message>
+  <wsdl:message name="ResendActivationMailSoapIn">
+    <wsdl:part name="parameters" element="tns:ResendActivationMail" />
+  </wsdl:message>
+  <wsdl:message name="ResendActivationMailSoapOut">
+    <wsdl:part name="parameters" element="tns:ResendActivationMailResponse" />
+  </wsdl:message>
+  <wsdl:message name="ActivateAccountSoapIn">
+    <wsdl:part name="parameters" element="tns:ActivateAccount" />
+  </wsdl:message>
+  <wsdl:message name="ActivateAccountSoapOut">
+    <wsdl:part name="parameters" element="tns:ActivateAccountResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserTokenSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserToken" />
+  </wsdl:message>
+  <wsdl:message name="GetUserTokenSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="DoesUserNameExistsSoapIn">
+    <wsdl:part name="parameters" element="tns:DoesUserNameExists" />
+  </wsdl:message>
+  <wsdl:message name="DoesUserNameExistsSoapOut">
+    <wsdl:part name="parameters" element="tns:DoesUserNameExistsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCountryListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCountryList" />
+  </wsdl:message>
+  <wsdl:message name="GetCountryListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCountryListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetStateListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetStateList" />
+  </wsdl:message>
+  <wsdl:message name="GetStateListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetStateListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetIPToCountrySoapIn">
+    <wsdl:part name="parameters" element="tns:GetIPToCountry" />
+  </wsdl:message>
+  <wsdl:message name="GetIPToCountrySoapOut">
+    <wsdl:part name="parameters" element="tns:GetIPToCountryResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainSoapIn">
+    <wsdl:part name="parameters" element="tns:AddDomain" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainSoapOut">
+    <wsdl:part name="parameters" element="tns:AddDomainResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:SetDomainInfo" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:SetDomainInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddUserToDomainSoapIn">
+    <wsdl:part name="parameters" element="tns:AddUserToDomain" />
+  </wsdl:message>
+  <wsdl:message name="AddUserToDomainSoapOut">
+    <wsdl:part name="parameters" element="tns:AddUserToDomainResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFromDomainSoapIn">
+    <wsdl:part name="parameters" element="tns:RemoveUserFromDomain" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFromDomainSoapOut">
+    <wsdl:part name="parameters" element="tns:RemoveUserFromDomainResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDomainInfo" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDomainInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckUserPasswordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserName" type="s:string" />
+    <wsdl:part name="sPassword" type="s:string" />
+    <wsdl:part name="bPreventDoubleLogins" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckUserPasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="SignInHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserName" type="s:string" />
+    <wsdl:part name="sPassword" type="s:string" />
+    <wsdl:part name="sessionID" type="s:string" />
+    <wsdl:part name="sIP" type="s:string" />
+    <wsdl:part name="bPreventDoubleLogins" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SignInHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="SignOutHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sessionID" type="s:string" />
+    <wsdl:part name="sIP" type="s:string" />
+    <wsdl:part name="bPreventDoubleLogins" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SignOutHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="AddUserFavoritHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sApplication" type="s:string" />
+    <wsdl:part name="sItemType" type="s:string" />
+    <wsdl:part name="sItemCode" type="s:string" />
+    <wsdl:part name="sExtraData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddUserFavoritHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="WriteLogHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sLogMessage" type="s:string" />
+    <wsdl:part name="sWriter" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="WriteLogHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFavoritHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="nFavoritID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFavoritHttpPostOut" />
+  <wsdl:message name="GetUserFavoritesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sApllication" type="s:string" />
+    <wsdl:part name="sItemType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserFavoritesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfFavoritObject" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByFacebookIDHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sFacebookID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByFacebookIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByUsernameHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUsername" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByUsernameHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="GetUserDataHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserDataHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="HitHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="HitHttpPostOut" />
+  <wsdl:message name="LogoutHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="LogoutHttpPostOut" />
+  <wsdl:message name="ChangeUserPasswordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUN" type="s:string" />
+    <wsdl:part name="sOldPass" type="s:string" />
+    <wsdl:part name="sPass" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangeUserPasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="ForgotPasswordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUN" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ForgotPasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="CheckTemporaryTokenHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sToken" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckTemporaryTokenHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="RenewUserPasswordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserName" type="s:string" />
+    <wsdl:part name="sNewPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RenewUserPasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="ResendWelcomeMailHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserName" type="s:string" />
+    <wsdl:part name="sNewPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ResendWelcomeMailHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="ResendActivationMailHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserName" type="s:string" />
+    <wsdl:part name="sNewPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ResendActivationMailHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="ActivateAccountHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserName" type="s:string" />
+    <wsdl:part name="sToken" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ActivateAccountHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="GetUserTokenHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserTokenHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="DoesUserNameExistsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DoesUserNameExistsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetCountryListHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCountryListHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfCountry" />
+  </wsdl:message>
+  <wsdl:message name="GetStateListHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nCountryID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetStateListHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfState" />
+  </wsdl:message>
+  <wsdl:message name="GetIPToCountryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetIPToCountryHttpPostOut">
+    <wsdl:part name="Body" element="tns:Country" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sDomainName" type="s:string" />
+    <wsdl:part name="sDomainDescription" type="s:string" />
+    <wsdl:part name="nMasterUserGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:Domain" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainInfoHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="sDomainName" type="s:string" />
+    <wsdl:part name="sDomainDescription" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainInfoHttpPostOut">
+    <wsdl:part name="Body" element="tns:Domain" />
+  </wsdl:message>
+  <wsdl:message name="AddUserToDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="nUserGuid" type="s:string" />
+    <wsdl:part name="bIsMaster" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddUserToDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:Domain" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFromDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="nUserGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFromDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:Domain" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainInfoHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainInfoHttpPostOut">
+    <wsdl:part name="Body" element="tns:Domain" />
+  </wsdl:message>
+  <wsdl:portType name="UsersServiceSoap">
+    <wsdl:operation name="CheckUserPassword">
+      <wsdl:input message="tns:CheckUserPasswordSoapIn" />
+      <wsdl:output message="tns:CheckUserPasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SignIn">
+      <wsdl:input message="tns:SignInSoapIn" />
+      <wsdl:output message="tns:SignInSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <wsdl:input message="tns:SignOutSoapIn" />
+      <wsdl:output message="tns:SignOutSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddUserFavorit">
+      <wsdl:input message="tns:AddUserFavoritSoapIn" />
+      <wsdl:output message="tns:AddUserFavoritSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="WriteLog">
+      <wsdl:input message="tns:WriteLogSoapIn" />
+      <wsdl:output message="tns:WriteLogSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFavorit">
+      <wsdl:input message="tns:RemoveUserFavoritSoapIn" />
+      <wsdl:output message="tns:RemoveUserFavoritSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFavorites">
+      <wsdl:input message="tns:GetUserFavoritesSoapIn" />
+      <wsdl:output message="tns:GetUserFavoritesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByFacebookID">
+      <wsdl:input message="tns:GetUserByFacebookIDSoapIn" />
+      <wsdl:output message="tns:GetUserByFacebookIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByUsername">
+      <wsdl:input message="tns:GetUserByUsernameSoapIn" />
+      <wsdl:output message="tns:GetUserByUsernameSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserData">
+      <wsdl:input message="tns:GetUserDataSoapIn" />
+      <wsdl:output message="tns:GetUserDataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddNewUser">
+      <wsdl:input message="tns:AddNewUserSoapIn" />
+      <wsdl:output message="tns:AddNewUserSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserData">
+      <wsdl:input message="tns:SetUserDataSoapIn" />
+      <wsdl:output message="tns:SetUserDataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Hit">
+      <wsdl:input message="tns:HitSoapIn" />
+      <wsdl:output message="tns:HitSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Logout">
+      <wsdl:input message="tns:LogoutSoapIn" />
+      <wsdl:output message="tns:LogoutSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <wsdl:input message="tns:ChangeUserPasswordSoapIn" />
+      <wsdl:output message="tns:ChangeUserPasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ForgotPassword">
+      <wsdl:input message="tns:ForgotPasswordSoapIn" />
+      <wsdl:output message="tns:ForgotPasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckTemporaryToken">
+      <wsdl:input message="tns:CheckTemporaryTokenSoapIn" />
+      <wsdl:output message="tns:CheckTemporaryTokenSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RenewUserPassword">
+      <wsdl:input message="tns:RenewUserPasswordSoapIn" />
+      <wsdl:output message="tns:RenewUserPasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ResendWelcomeMail">
+      <wsdl:input message="tns:ResendWelcomeMailSoapIn" />
+      <wsdl:output message="tns:ResendWelcomeMailSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ResendActivationMail">
+      <wsdl:input message="tns:ResendActivationMailSoapIn" />
+      <wsdl:output message="tns:ResendActivationMailSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ActivateAccount">
+      <wsdl:input message="tns:ActivateAccountSoapIn" />
+      <wsdl:output message="tns:ActivateAccountSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserToken">
+      <wsdl:input message="tns:GetUserTokenSoapIn" />
+      <wsdl:output message="tns:GetUserTokenSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoesUserNameExists">
+      <wsdl:input message="tns:DoesUserNameExistsSoapIn" />
+      <wsdl:output message="tns:DoesUserNameExistsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryList">
+      <wsdl:input message="tns:GetCountryListSoapIn" />
+      <wsdl:output message="tns:GetCountryListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetStateList">
+      <wsdl:input message="tns:GetStateListSoapIn" />
+      <wsdl:output message="tns:GetStateListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetIPToCountry">
+      <wsdl:input message="tns:GetIPToCountrySoapIn" />
+      <wsdl:output message="tns:GetIPToCountrySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddDomain">
+      <wsdl:input message="tns:AddDomainSoapIn" />
+      <wsdl:output message="tns:AddDomainSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainInfo">
+      <wsdl:input message="tns:SetDomainInfoSoapIn" />
+      <wsdl:output message="tns:SetDomainInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToDomain">
+      <wsdl:input message="tns:AddUserToDomainSoapIn" />
+      <wsdl:output message="tns:AddUserToDomainSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromDomain">
+      <wsdl:input message="tns:RemoveUserFromDomainSoapIn" />
+      <wsdl:output message="tns:RemoveUserFromDomainSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainInfo">
+      <wsdl:input message="tns:GetDomainInfoSoapIn" />
+      <wsdl:output message="tns:GetDomainInfoSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="UsersServiceHttpPost">
+    <wsdl:operation name="CheckUserPassword">
+      <wsdl:input message="tns:CheckUserPasswordHttpPostIn" />
+      <wsdl:output message="tns:CheckUserPasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SignIn">
+      <wsdl:input message="tns:SignInHttpPostIn" />
+      <wsdl:output message="tns:SignInHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <wsdl:input message="tns:SignOutHttpPostIn" />
+      <wsdl:output message="tns:SignOutHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddUserFavorit">
+      <wsdl:input message="tns:AddUserFavoritHttpPostIn" />
+      <wsdl:output message="tns:AddUserFavoritHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="WriteLog">
+      <wsdl:input message="tns:WriteLogHttpPostIn" />
+      <wsdl:output message="tns:WriteLogHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFavorit">
+      <wsdl:input message="tns:RemoveUserFavoritHttpPostIn" />
+      <wsdl:output message="tns:RemoveUserFavoritHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFavorites">
+      <wsdl:input message="tns:GetUserFavoritesHttpPostIn" />
+      <wsdl:output message="tns:GetUserFavoritesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByFacebookID">
+      <wsdl:input message="tns:GetUserByFacebookIDHttpPostIn" />
+      <wsdl:output message="tns:GetUserByFacebookIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByUsername">
+      <wsdl:input message="tns:GetUserByUsernameHttpPostIn" />
+      <wsdl:output message="tns:GetUserByUsernameHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserData">
+      <wsdl:input message="tns:GetUserDataHttpPostIn" />
+      <wsdl:output message="tns:GetUserDataHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Hit">
+      <wsdl:input message="tns:HitHttpPostIn" />
+      <wsdl:output message="tns:HitHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Logout">
+      <wsdl:input message="tns:LogoutHttpPostIn" />
+      <wsdl:output message="tns:LogoutHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <wsdl:input message="tns:ChangeUserPasswordHttpPostIn" />
+      <wsdl:output message="tns:ChangeUserPasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ForgotPassword">
+      <wsdl:input message="tns:ForgotPasswordHttpPostIn" />
+      <wsdl:output message="tns:ForgotPasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckTemporaryToken">
+      <wsdl:input message="tns:CheckTemporaryTokenHttpPostIn" />
+      <wsdl:output message="tns:CheckTemporaryTokenHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RenewUserPassword">
+      <wsdl:input message="tns:RenewUserPasswordHttpPostIn" />
+      <wsdl:output message="tns:RenewUserPasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ResendWelcomeMail">
+      <wsdl:input message="tns:ResendWelcomeMailHttpPostIn" />
+      <wsdl:output message="tns:ResendWelcomeMailHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ResendActivationMail">
+      <wsdl:input message="tns:ResendActivationMailHttpPostIn" />
+      <wsdl:output message="tns:ResendActivationMailHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ActivateAccount">
+      <wsdl:input message="tns:ActivateAccountHttpPostIn" />
+      <wsdl:output message="tns:ActivateAccountHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserToken">
+      <wsdl:input message="tns:GetUserTokenHttpPostIn" />
+      <wsdl:output message="tns:GetUserTokenHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoesUserNameExists">
+      <wsdl:input message="tns:DoesUserNameExistsHttpPostIn" />
+      <wsdl:output message="tns:DoesUserNameExistsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryList">
+      <wsdl:input message="tns:GetCountryListHttpPostIn" />
+      <wsdl:output message="tns:GetCountryListHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetStateList">
+      <wsdl:input message="tns:GetStateListHttpPostIn" />
+      <wsdl:output message="tns:GetStateListHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetIPToCountry">
+      <wsdl:input message="tns:GetIPToCountryHttpPostIn" />
+      <wsdl:output message="tns:GetIPToCountryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddDomain">
+      <wsdl:input message="tns:AddDomainHttpPostIn" />
+      <wsdl:output message="tns:AddDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainInfo">
+      <wsdl:input message="tns:SetDomainInfoHttpPostIn" />
+      <wsdl:output message="tns:SetDomainInfoHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToDomain">
+      <wsdl:input message="tns:AddUserToDomainHttpPostIn" />
+      <wsdl:output message="tns:AddUserToDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromDomain">
+      <wsdl:input message="tns:RemoveUserFromDomainHttpPostIn" />
+      <wsdl:output message="tns:RemoveUserFromDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainInfo">
+      <wsdl:input message="tns:GetDomainInfoHttpPostIn" />
+      <wsdl:output message="tns:GetDomainInfoHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="UsersServiceSoap" type="tns:UsersServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CheckUserPassword">
+      <soap:operation soapAction="http://users.tvinci.com/CheckUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignIn">
+      <soap:operation soapAction="http://users.tvinci.com/SignIn" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <soap:operation soapAction="http://users.tvinci.com/SignOut" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddUserFavorit">
+      <soap:operation soapAction="http://users.tvinci.com/AddUserFavorit" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WriteLog">
+      <soap:operation soapAction="http://users.tvinci.com/WriteLog" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFavorit">
+      <soap:operation soapAction="http://users.tvinci.com/RemoveUserFavorit" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFavorites">
+      <soap:operation soapAction="http://users.tvinci.com/GetUserFavorites" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByFacebookID">
+      <soap:operation soapAction="http://users.tvinci.com/GetUserByFacebookID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByUsername">
+      <soap:operation soapAction="http://users.tvinci.com/GetUserByUsername" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserData">
+      <soap:operation soapAction="http://users.tvinci.com/GetUserData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddNewUser">
+      <soap:operation soapAction="http://users.tvinci.com/AddNewUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserData">
+      <soap:operation soapAction="http://users.tvinci.com/SetUserData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Hit">
+      <soap:operation soapAction="http://users.tvinci.com/Hit" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Logout">
+      <soap:operation soapAction="http://users.tvinci.com/Logout" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <soap:operation soapAction="http://users.tvinci.com/ChangeUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ForgotPassword">
+      <soap:operation soapAction="http://users.tvinci.com/ForgotPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckTemporaryToken">
+      <soap:operation soapAction="http://users.tvinci.com/CheckTemporaryToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RenewUserPassword">
+      <soap:operation soapAction="http://users.tvinci.com/RenewUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResendWelcomeMail">
+      <soap:operation soapAction="http://users.tvinci.com/ResendWelcomeMail" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResendActivationMail">
+      <soap:operation soapAction="http://users.tvinci.com/ResendActivationMail" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ActivateAccount">
+      <soap:operation soapAction="http://users.tvinci.com/ActivateAccount" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserToken">
+      <soap:operation soapAction="http://users.tvinci.com/GetUserToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoesUserNameExists">
+      <soap:operation soapAction="http://users.tvinci.com/DoesUserNameExists" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryList">
+      <soap:operation soapAction="http://users.tvinci.com/GetCountryList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetStateList">
+      <soap:operation soapAction="http://users.tvinci.com/GetStateList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetIPToCountry">
+      <soap:operation soapAction="http://users.tvinci.com/GetIPToCountry" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDomain">
+      <soap:operation soapAction="http://users.tvinci.com/AddDomain" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainInfo">
+      <soap:operation soapAction="http://users.tvinci.com/SetDomainInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToDomain">
+      <soap:operation soapAction="http://users.tvinci.com/AddUserToDomain" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromDomain">
+      <soap:operation soapAction="http://users.tvinci.com/RemoveUserFromDomain" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainInfo">
+      <soap:operation soapAction="http://users.tvinci.com/GetDomainInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="UsersServiceSoap12" type="tns:UsersServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CheckUserPassword">
+      <soap12:operation soapAction="http://users.tvinci.com/CheckUserPassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignIn">
+      <soap12:operation soapAction="http://users.tvinci.com/SignIn" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <soap12:operation soapAction="http://users.tvinci.com/SignOut" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddUserFavorit">
+      <soap12:operation soapAction="http://users.tvinci.com/AddUserFavorit" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WriteLog">
+      <soap12:operation soapAction="http://users.tvinci.com/WriteLog" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFavorit">
+      <soap12:operation soapAction="http://users.tvinci.com/RemoveUserFavorit" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFavorites">
+      <soap12:operation soapAction="http://users.tvinci.com/GetUserFavorites" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByFacebookID">
+      <soap12:operation soapAction="http://users.tvinci.com/GetUserByFacebookID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByUsername">
+      <soap12:operation soapAction="http://users.tvinci.com/GetUserByUsername" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserData">
+      <soap12:operation soapAction="http://users.tvinci.com/GetUserData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddNewUser">
+      <soap12:operation soapAction="http://users.tvinci.com/AddNewUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserData">
+      <soap12:operation soapAction="http://users.tvinci.com/SetUserData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Hit">
+      <soap12:operation soapAction="http://users.tvinci.com/Hit" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Logout">
+      <soap12:operation soapAction="http://users.tvinci.com/Logout" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <soap12:operation soapAction="http://users.tvinci.com/ChangeUserPassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ForgotPassword">
+      <soap12:operation soapAction="http://users.tvinci.com/ForgotPassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckTemporaryToken">
+      <soap12:operation soapAction="http://users.tvinci.com/CheckTemporaryToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RenewUserPassword">
+      <soap12:operation soapAction="http://users.tvinci.com/RenewUserPassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResendWelcomeMail">
+      <soap12:operation soapAction="http://users.tvinci.com/ResendWelcomeMail" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResendActivationMail">
+      <soap12:operation soapAction="http://users.tvinci.com/ResendActivationMail" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ActivateAccount">
+      <soap12:operation soapAction="http://users.tvinci.com/ActivateAccount" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserToken">
+      <soap12:operation soapAction="http://users.tvinci.com/GetUserToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoesUserNameExists">
+      <soap12:operation soapAction="http://users.tvinci.com/DoesUserNameExists" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryList">
+      <soap12:operation soapAction="http://users.tvinci.com/GetCountryList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetStateList">
+      <soap12:operation soapAction="http://users.tvinci.com/GetStateList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetIPToCountry">
+      <soap12:operation soapAction="http://users.tvinci.com/GetIPToCountry" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDomain">
+      <soap12:operation soapAction="http://users.tvinci.com/AddDomain" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainInfo">
+      <soap12:operation soapAction="http://users.tvinci.com/SetDomainInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToDomain">
+      <soap12:operation soapAction="http://users.tvinci.com/AddUserToDomain" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromDomain">
+      <soap12:operation soapAction="http://users.tvinci.com/RemoveUserFromDomain" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainInfo">
+      <soap12:operation soapAction="http://users.tvinci.com/GetDomainInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="UsersServiceHttpPost" type="tns:UsersServiceHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="CheckUserPassword">
+      <http:operation location="/CheckUserPassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignIn">
+      <http:operation location="/SignIn" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <http:operation location="/SignOut" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddUserFavorit">
+      <http:operation location="/AddUserFavorit" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WriteLog">
+      <http:operation location="/WriteLog" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFavorit">
+      <http:operation location="/RemoveUserFavorit" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFavorites">
+      <http:operation location="/GetUserFavorites" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByFacebookID">
+      <http:operation location="/GetUserByFacebookID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByUsername">
+      <http:operation location="/GetUserByUsername" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserData">
+      <http:operation location="/GetUserData" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Hit">
+      <http:operation location="/Hit" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="Logout">
+      <http:operation location="/Logout" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <http:operation location="/ChangeUserPassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ForgotPassword">
+      <http:operation location="/ForgotPassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckTemporaryToken">
+      <http:operation location="/CheckTemporaryToken" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RenewUserPassword">
+      <http:operation location="/RenewUserPassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResendWelcomeMail">
+      <http:operation location="/ResendWelcomeMail" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResendActivationMail">
+      <http:operation location="/ResendActivationMail" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ActivateAccount">
+      <http:operation location="/ActivateAccount" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserToken">
+      <http:operation location="/GetUserToken" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoesUserNameExists">
+      <http:operation location="/DoesUserNameExists" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryList">
+      <http:operation location="/GetCountryList" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetStateList">
+      <http:operation location="/GetStateList" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetIPToCountry">
+      <http:operation location="/GetIPToCountry" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDomain">
+      <http:operation location="/AddDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainInfo">
+      <http:operation location="/SetDomainInfo" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToDomain">
+      <http:operation location="/AddUserToDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromDomain">
+      <http:operation location="/RemoveUserFromDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainInfo">
+      <http:operation location="/GetDomainInfo" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="UsersService">
+    <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
+      <soap:address location="http://192.168.16.122:8000/users/module.asmx" />
+    </wsdl:port>
+    <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
+      <soap12:address location="http://192.168.16.122:8000/users/module.asmx" />
+    </wsdl:port>
+    <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
+      <http:address location="http://192.168.16.122:8000/users/module.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

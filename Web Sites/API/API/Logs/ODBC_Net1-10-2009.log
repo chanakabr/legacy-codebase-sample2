@@ -1,0 +1,5 @@
+
+10/1/2009 11:25:52 AM , THREAD-10096, connection_string : Server=msd169.1host.co.il;Database=tvinci;Uid=production;Pwd=lF6CZU9HIOIAGuzj;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200
+10/1/2009 12:31:07 PM , THREAD-7140, connection_string : Server=msd169.1host.co.il;Database=tvinci;Uid=production;Pwd=lF6CZU9HIOIAGuzj;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200
+10/1/2009 1:17:31 PM , THREAD-7140, connection_string : Server=msd169.1host.co.il;Database=tvinci;Uid=production;Pwd=lF6CZU9HIOIAGuzj;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200
+10/1/2009 1:31:55 PM , THREAD-364, connection_string : Server=msd169.1host.co.il;Database=tvinci;Uid=production;Pwd=lF6CZU9HIOIAGuzj;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200

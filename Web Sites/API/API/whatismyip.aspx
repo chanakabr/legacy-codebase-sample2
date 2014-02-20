@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="whatismyip.aspx.cs" Inherits="whatismyip" %>

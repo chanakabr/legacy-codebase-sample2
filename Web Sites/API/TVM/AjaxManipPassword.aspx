@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="AjaxManipPassword.aspx.cs" Inherits="AjaxManipPassword" %>

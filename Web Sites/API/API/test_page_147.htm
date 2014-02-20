@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Untitled Page</title>
+    <script type="text/javascript">
+        function GetCookie(cookieName)
+        {
+            if(document.cookie.length>0)
+            {
+                var cookieNameEq=cookieName+'=';var cookies=document.cookie.split(';');for(var i=0;i<cookies.length;++i)
+                {
+                    while(cookies[i].charAt(0)==' ')
+                        cookies[i]=cookies[i].substr(1);
+                    if(cookies[i].indexOf(cookieNameEq)==0)
+                        return decodeURIComponent(cookies[i].substr(cookieNameEq.length));
+                }
+            }
+            return null;
+        }
+        function postXML(pURL , toSend , pHandlerFunc) 
+        {
+            pParameters = "";
+            if (window.XMLHttpRequest) { // code for Mozilla, Safari, etc 
+              xmlhttp=new XMLHttpRequest();
+              xmlhttp.onreadystatechange=pHandlerFunc;
+              xmlhttp.open("POST", pURL, true);
+              xmlhttp.setRequestHeader("Content-Type", "application/xml");
+              xmlhttp.setRequestHeader("enctype", "multipart/form-data");
+              xmlhttp.send(toSend);
+            } 
+            else if (window.ActiveXObject) 
+            { //IE 
+              xmlhttp=new ActiveXObject('Microsoft.XMLHTTP'); 
+              if (xmlhttp) 
+              {
+                 xmlhttp.onreadystatechange=pHandlerFunc;
+                 xmlhttp.open('POST', pURL, true);
+                 xmlhttp.setRequestHeader("Content-Type", "application/xml");
+		 xmlhttp.setRequestHeader("enctype", "multipart/form-data");
+                 xmlhttp.send(toSend);
+              }
+            }
+        }
+        function sendXML()
+        {
+            document.getElementById("theAnswer").value = "";
+            postXML("http://localhost:4047/orangews/papi.aspx" , document.getElementById("theText").value , doResponse);
+        }
+        function doResponse()
+        {
+            if (xmlhttp.readyState==4) 
+            { 
+			alert(xmlhttp.status);
+              if (xmlhttp.status==200) 
+              { 
+                result=xmlhttp.responseText; 
+                document.getElementById("theAnswer").value = result;
+	          }
+            }
+        }
+    </script>
+</head>
+<body>
+    <textarea id="theText" cols=100 rows=12></textarea><br />
+    <button onclick="sendXML();">Send</button><br />
+    <textarea disabled=disabled id="theAnswer" cols=100 rows=12></textarea><br />
+</body>
+</html>

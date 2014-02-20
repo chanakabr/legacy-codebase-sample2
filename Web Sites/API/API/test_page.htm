@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Untitled Page</title>
+    <script type="text/javascript">
+        function GetCookie(cookieName)
+        {
+            if(document.cookie.length>0)
+            {
+                var cookieNameEq=cookieName+'=';var cookies=document.cookie.split(';');for(var i=0;i<cookies.length;++i)
+                {
+                    while(cookies[i].charAt(0)==' ')
+                        cookies[i]=cookies[i].substr(1);
+                    if(cookies[i].indexOf(cookieNameEq)==0)
+                        return decodeURIComponent(cookies[i].substr(cookieNameEq.length));
+                }
+            }
+            return null;
+        }
+        function postXML(pURL , toSend , pHandlerFunc) 
+        {
+            pParameters = "";
+            if (window.XMLHttpRequest) { // code for Mozilla, Safari, etc 
+              xmlhttp=new XMLHttpRequest();
+              xmlhttp.onreadystatechange=pHandlerFunc;
+              xmlhttp.open("POST", pURL, true);
+              //xmlhttp.setRequestHeader("enctype", "text/xml; charset=utf-8");
+              xmlhttp.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
+              xmlhttp.setRequestHeader("SOAPAction", "http://ca.tvinci.com/GetItemsPrices");
+              
+              xmlhttp.send(toSend);
+            } 
+            else if (window.ActiveXObject) 
+            { //IE 
+              xmlhttp=new ActiveXObject('Microsoft.XMLHTTP'); 
+              if (xmlhttp) 
+              {
+                 xmlhttp.onreadystatechange=pHandlerFunc;
+                 xmlhttp.open('POST', pURL, true);
+                 xmlhttp.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
+		 xmlhttp.setRequestHeader("SOAPAction", "http://ca.tvinci.com/GetItemsPrices");
+		 xmlhttp.setRequestHeader("enctype", "multipart/form-data");
+                 xmlhttp.send(toSend);
+              }
+            }
+        }
+        function sendXML()
+        {
+            document.getElementById("theAnswer").value = "";
+		//postXML("https://www.projector.tv/redirector.aspx", document.getElementById("theText").value, doResponse);
+//            postXML("http://localhost:1886/API/redirector.aspx", document.getElementById("theText").value, doResponse);
+            //postXML("https://platform.tvinci.com/ca/module.asmx", document.getElementById("theText").value, doResponse);
+            //postXML("http://localhost:4375/module.asmx/GetUserData", document.getElementById("theText").value, doResponse);
+		//postXML("http://62.128.54.168/api.aspx" , document.getElementById("theText").value , doResponse);
+           postXML("api.aspx" , document.getElementById("theText").value , doResponse);
+            //postXML("tvm_caching_server.aspx", document.getElementById("theText").value, doResponse);
+            //postXML("https://platform.tvinci.com/tvm_caching_server.aspx", document.getElementById("theText").value, doResponse);
+            //postXML("https://vod.orange.co.il/tvm/tvm_monitoring_listener.aspx", document.getElementById("theText").value, doResponse);
+            
+        }
+        function doResponse()
+        {
+            if (xmlhttp.readyState==4) 
+            { 
+			alert(xmlhttp.status);
+              if (xmlhttp.status==200) 
+              { 
+                result=xmlhttp.responseText; 
+                document.getElementById("theAnswer").value = result;
+	          }
+            }
+        }
+    </script>
+</head>
+<body>
+    <textarea id="theText" cols=100 rows=22></textarea><br />
+    <button onclick="sendXML();">Send</button><br />
+    <textarea disabled=disabled id="theAnswer" cols=100 rows=22></textarea><br />
+    <!--iframe  frameborder="0" width="610px" height="400px" src="http://simmons-simmons.tvinci.com/miniplayer.aspx?media_id=35221&auto_play=true" style="padding:0 0 0 0;margin: 0 0 0 0;"/-->
+</body>
+</html>

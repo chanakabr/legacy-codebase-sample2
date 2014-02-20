@@ -1,0 +1,36 @@
+
+7/21/2009 2:18:47 PM , THREAD-2560, connection_string : Server=msd169.1host.co.il;Database=tvinci;Uid=production;Pwd=lF6CZU9HIOIAGuzj;Trusted_Connection=False
+7/21/2009 2:18:52 PM , THREAD-2560, ODBCWrapper.UpdateQuery : While running : 'update pics_tags set  status=@P0, Updater_ID=@P1, Update_date=@P2  where  pic_id=@P3 and status=@P4 and group_id in (68,67,1)(1,0,7/21/2009 5:18:52 PM,43635,3)'
+ Exception accured: Lock request time out period exceeded.
+The statement has been terminated.
+7/21/2009 2:19:16 PM , THREAD-2560, ODBCWrapper.DataSetSelectQuery : While running : ' select id as co from pics_tags where  pic_id=@P0 and tag_id=@P1 and group_id in (68,67,1) order by id desc(43635,35310)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 2:19:16 PM , THREAD-2560, ODBCWrapper.UpdateQuery : While running : 'update pics_tags set  status=@P0, Updater_ID=@P1, Update_date=@P2  where  pic_id=@P3 and status=@P4 and group_id in (68,67,1)(1,0,7/21/2009 5:19:16 PM,43635,3)'
+ Exception accured: Lock request time out period exceeded.
+The statement has been terminated.
+7/21/2009 3:32:59 PM , THREAD-2560, ODBCWrapper.DataSetSelectQuery : While running : ' select id from media_translate where  media_id=@P0 and LANGUAGE_ID=@P1(61266,8)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 4:07:48 PM , THREAD-3612, ODBCWrapper.DataSetSelectQuery : While running : ' select id from media_translate where  media_id=@P0 and LANGUAGE_ID=@P1(61215,3)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 4:09:11 PM , THREAD-3612, ODBCWrapper.DataSetSelectQuery : While running : ' select id from media_translate where  media_id=@P0 and LANGUAGE_ID=@P1(61218,7)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 4:09:15 PM , THREAD-3612, ODBCWrapper.DataSetSelectQuery : While running : ' select id from media_translate where  media_id=@P0 and LANGUAGE_ID=@P1(61218,6)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 4:15:57 PM , THREAD-3612, ODBCWrapper.DataSetSelectQuery : While running : ' select id from media_translate where  media_id=@P0 and LANGUAGE_ID=@P1(61234,6)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 4:31:36 PM , THREAD-3612, ODBCWrapper.DataSetSelectQuery : While running : ' select id from media_translate where  media_id=@P0 and LANGUAGE_ID=@P1(61268,1)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 4:32:06 PM , THREAD-3612, ODBCWrapper.DataSetSelectQuery : While running : ' select id from media_translate where  media_id=@P0 and LANGUAGE_ID=@P1(61269,6)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 4:32:08 PM , THREAD-3612, ODBCWrapper.UpdateQuery : While running : 'update media set  meta5_double=@P0 where  id=@P1(0,61269)'
+ Exception accured: Lock request time out period exceeded.
+The statement has been terminated.
+7/21/2009 4:36:42 PM , THREAD-3612, ODBCWrapper.DataSetSelectQuery : While running : ' select id from media_translate where  media_id=@P0 and LANGUAGE_ID=@P1(61279,8)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 4:38:25 PM , THREAD-3612, ODBCWrapper.DataSetSelectQuery : While running : ' select id from media_translate where  media_id=@P0 and LANGUAGE_ID=@P1(61283,8)'
+ Exception accured: Lock request time out period exceeded.
+7/21/2009 4:46:39 PM , THREAD-3612, ODBCWrapper.UpdateQuery : While running : 'update pics_tags set  status=@P0, Update_date=@P1, Updater_ID=@P2 where id=@P3(3,7/21/2009 7:46:39 PM,0,39933)'
+ Exception accured: Lock request time out period exceeded.
+The statement has been terminated.
+7/21/2009 4:46:59 PM , THREAD-2560, ODBCWrapper.DataSetSelectQuery : While running : ' select id as co from pics_tags where  pic_id=@P0 and tag_id=@P1 and group_id in (68,67,1) order by id desc(43635,35310)'
+ Exception accured: Lock request time out period exceeded.

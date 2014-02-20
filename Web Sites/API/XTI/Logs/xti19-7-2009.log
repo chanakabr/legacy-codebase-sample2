@@ -1,0 +1,8 @@
+
+7/19/2009 7:42:14 AM , THREAD-7216, Response : 
+7/19/2009 7:42:35 AM , THREAD-4220, Response : <response><status description="Fail - Please qualify the test type"/></response>
+7/19/2009 7:43:40 AM , THREAD-4220, Exception : Unable to connect to the remote server
+7/19/2009 7:43:40 AM , THREAD-4220, Response : <response><error description="Unable to connect to the remote server"/></response>
+7/19/2009 7:46:44 AM , THREAD-4220, Response : 
+7/19/2009 7:47:58 AM , THREAD-4220, Response : 
+7/19/2009 8:22:53 AM , THREAD-7216, Response : 
