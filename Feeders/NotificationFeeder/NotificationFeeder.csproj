@@ -44,23 +44,23 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\TvmCore\DAL\DAL.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\Logger\Logger.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\Logger\Logger.csproj">
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\NotificationInterface\NotificationInterface.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\NotificationInterface\NotificationInterface.csproj">
       <Project>{1c21e97d-6309-4a6b-8c0b-013cd3168332}</Project>
       <Name>NotificationInterface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\NotificationObj\NotificationObj.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\NotificationObj\NotificationObj.csproj">
       <Project>{8ed93100-feca-4aeb-9e33-7b2761fefe72}</Project>
       <Name>NotificationObj</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
