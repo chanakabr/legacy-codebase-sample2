@@ -55,33 +55,33 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CompilerServices.AsyncTargetingPack.Net4">
-      <HintPath>..\..\..\..\TvmCore\External\net40\Microsoft.CompilerServices.AsyncTargetingPack.Net4.dll</HintPath>
+      <HintPath>..\..\..\TvmCore\External\net40\Microsoft.CompilerServices.AsyncTargetingPack.Net4.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Threading.Tasks">
-      <HintPath>..\..\..\..\TvmCore\External\net40\Microsoft.Threading.Tasks.dll</HintPath>
+      <HintPath>..\..\..\TvmCore\External\net40\Microsoft.Threading.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Threading.Tasks.Extensions">
-      <HintPath>..\..\..\..\TvmCore\External\net40\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
+      <HintPath>..\..\..\TvmCore\External\net40\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Threading.Tasks.Extensions.Desktop">
-      <HintPath>..\..\..\..\TvmCore\External\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
+      <HintPath>..\..\..\TvmCore\External\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="SimpleInjector">
-      <HintPath>..\..\..\..\TvmCore\External\net40\SimpleInjector.dll</HintPath>
+      <HintPath>..\..\..\TvmCore\External\net40\SimpleInjector.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
     <Reference Include="System.Runtime">
-      <HintPath>..\..\..\..\TvmCore\External\net40\System.Runtime.dll</HintPath>
+      <HintPath>..\..\..\TvmCore\External\net40\System.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks">
-      <HintPath>..\..\..\..\TvmCore\External\net40\System.Threading.Tasks.dll</HintPath>
+      <HintPath>..\..\..\TvmCore\External\net40\System.Threading.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -91,7 +91,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WebActivator">
-      <HintPath>..\..\..\..\TvmCore\External\net40\WebActivator.dll</HintPath>
+      <HintPath>..\..\..\TvmCore\External\net40\WebActivator.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -131,47 +131,47 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\TvmCore\ApiObjects\ApiObjects.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\Catalog\Catalog.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\Catalog\Catalog.csproj">
       <Project>{1c524197-e2b6-437e-80de-7f307a9b36f1}</Project>
       <Name>Catalog</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\DalCB\DalCB.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\DalCB\DalCB.csproj">
       <Project>{cc97d8e8-cfcb-4a33-a8ae-34ebdb0812c3}</Project>
       <Name>DalCB</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\DAL\DAL.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\ElasticSearch\ElasticSearch.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\ElasticSearch\ElasticSearch.csproj">
       <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
       <Name>ElasticSearch</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\EpgBL\EpgBL.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\EpgBL\EpgBL.csproj">
       <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
       <Name>EpgBL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\Logger\Logger.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\Logger\Logger.csproj">
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\QueueWrapper\QueueWrapper.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\QueueWrapper\QueueWrapper.csproj">
       <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
       <Name>QueueWrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+    <ProjectReference Include="..\..\..\TvmCore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
