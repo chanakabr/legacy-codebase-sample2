@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CollectionTasker.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="CollectionTasker_TvinciPricing_mdoule" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://platform-us.tvinci.com/pricing/module.asmx</Value>
+    </Setting>
+    <Setting Name="CollectionTasker_TvinciCA_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://platform-us.tvinci.com/ca/module.asmx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
