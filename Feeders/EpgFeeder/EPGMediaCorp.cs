@@ -1,0 +1,918 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using System.Net;
+using Logger;
+using System.Xml.Serialization;
+using System.Xml;
+using TvinciImporter;
+using TVinciShared;
+using System.Data;
+using ApiObjects;
+using EpgBL;
+namespace EpgFeeder
+{
+    public class EPGMediaCorp : EPGImplementor
+    {
+        List<string> FilePathList = new List<string>();
+        string sPath_successPath;
+        string sPath_FailedPath;
+        string userName;
+        string password;
+        NetworkCredential NetCredential;
+        string UpdaterID = "700";
+        bool ProcessError = false;
+
+        List<DateTime> EPGDateRang;
+
+        protected override string LogFileName
+        {
+            get
+            {
+                return "EPGMediaCorp";
+            }
+        }
+
+        public EPGMediaCorp(string sGroupID)
+            : base(sGroupID)
+        {
+
+        }
+        
+        public EPGMediaCorp(string sGroupID, string sPathType, string sPath, Dictionary<string, string> sExtraParamter)
+            : base(sGroupID, sPathType, sPath, sExtraParamter)
+        {
+            // Init NetworkCredential          
+            sExtraParamter.TryGetValue("FTPUserName", out userName);
+            sExtraParamter.TryGetValue("FTPPassword", out password);
+            sExtraParamter.TryGetValue("FTPSuccessFolder", out sPath_successPath);
+            sExtraParamter.TryGetValue("FTPFailedFolder", out sPath_FailedPath);
+
+            NetCredential = new NetworkCredential(userName, password);
+            EPGDateRang = new List<DateTime>();
+        }
+        /// <summary>
+        /// Save Chaneel
+        /// </summary>
+        public override Dictionary<DateTime, List<int>> SaveChannel()
+        {
+            //Get list file name from the spasfic Path)
+            Dictionary<DateTime, List<int>> dateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());
+
+            LoadFile();
+
+            foreach (string fname in FilePathList)
+            {
+                Dictionary<DateTime, List<int>> epgDateVsChannelIds = SaveMediaCorpEPGData(fname);
+                dateWithChannelIds.AddRange<DateTime, List<int>>(epgDateVsChannelIds);
+            }
+
+            return dateWithChannelIds;
+        }
+        /// <summary>
+        /// Get Channel
+        /// </summary>
+        public override void GetChannel()
+        {
+            //throw new NotImplementedException();
+        }
+        protected int GetExistEPGTagID(string value, int EPGTagTypeId)
+        {
+            int res = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += " select id from EPG_tags";
+            selectQuery += "Where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", s_GroupID);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(value)))", "=", value.Trim().ToLower());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("epg_tag_type_id", "=", EPGTagTypeId);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int count = selectQuery.Table("query").DefaultView.Count;
+                res = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return res;
+        }
+
+        protected int GetProgramIDByEPGIdentifier(Guid EPGIdentfier)
+        {
+            int res = 0;
+            ODBCWrapper.DataSetSelectQuery selectProgramQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectProgramQuery += "select ID from epg_channels_schedule where ";
+            selectProgramQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", EPGIdentfier.ToString());
+            if (selectProgramQuery.Execute("query", true) != null)
+            {
+                int count = selectProgramQuery.Table("query").DefaultView.Count;
+                if (count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetIntSafeVal(selectProgramQuery, "ID", 0);
+                }
+            }
+            selectProgramQuery.Finish();
+            selectProgramQuery = null;
+            return res;
+        }
+
+        private string GetSingleNodeValue(XmlNode node, string xpath)
+        {
+            string res = "";
+            try
+            {
+                res = node.SelectSingleNode(xpath).InnerText;
+            }
+            catch (Exception exp)
+            {
+                string errorMessage = string.Format("could not get the node '{0}' innerText value, error:{1}", xpath, exp.Message);
+                Logger.Logger.Log("Media Corp: Upload EPG File", errorMessage, LogFileName, errorMessage);
+            }
+            return res;
+        }
+        /// <summary>
+        /// Save EPG schedule program from file name
+        /// </summary>
+        /// <param name="sFileName">set file name</param>
+        private Dictionary<DateTime, List<int>> SaveMediaCorpEPGData(string sFileName)
+        {
+            Dictionary<DateTime, List<int>> epgDateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());
+            List<int> lProgramIds = new List<int>();
+            FtpWebResponse response = null;
+            Stream stream = null;
+            string channel_id = "";
+            bool enabledelete = false;
+            ProcessError = false;
+
+            try
+            {
+                //-------------------- Start Add Schedule EPG to Data Base ------------------------------//
+                //
+                //
+                //create xml document to load FTP file
+                Int32 channelID = 0;
+
+                stream = GetFTPStreamFile(sFileName, out response);
+
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(stream);
+
+                XmlNodeList xmlnodelist = xmlDoc.GetElementsByTagName("program");
+                if (xmlnodelist.Count > 0)
+                {
+                    channel_id = GetSingleNodeValue(xmlnodelist[0], "channel_id");
+                    channelID = GetExistChannel(channel_id);
+                }
+
+                if (channelID > 0)
+                {
+                    Logger.Logger.Log("Media Corp: EPG", string.Format("\r\n###################################### START EPG Channel {0} ######################################\r\n", channelID), LogFileName);
+
+                    List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
+
+                    EPGDateRang = new List<DateTime>();
+                    foreach (XmlNode node in xmlnodelist)
+                    {
+                        try
+                        {
+                            Guid EPGGuid = Guid.NewGuid();
+
+                            #region Basic xml Data
+                            int ProgramID = 0;
+                            string schedule_date = GetSingleNodeValue(node, "schedule_date");
+                            string start_time = GetSingleNodeValue(node, "start_time");
+                            string duration = GetSingleNodeValue(node, "duration");
+                            string program_desc_english = GetSingleNodeValue(node, "program_desc_english");
+                            string program_desc_chinese = GetSingleNodeValue(node, "program_desc_chinese");
+                            string episode_no = GetSingleNodeValue(node, "episode_no");
+                            string syp = GetSingleNodeValue(node, "syp");
+                            string syp_chi = GetSingleNodeValue(node, "syp_chi");
+                            string epg_poster = GetSingleNodeValue(node, "epg_poster");
+                            #endregion
+
+                            #region Set field mapping valus
+                            SetMappingValues(FieldEntityMapping, node);
+                            #endregion
+
+                            #region Insert EPG Program Schedule
+
+                            DateTime dProgStartDate = ParseEPGStrToDate(schedule_date, start_time);
+                            DateTime dProgEndDate = dProgStartDate.Add(GetProgramDuration(duration));
+                            AddDateRange(dProgStartDate);
+
+                            InsertProgramSchedule(program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate);
+                            EpgCB newEpgItem = InsertProgramScheduleCB(program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);
+                            #endregion
+
+                            ProgramID = GetProgramIDByEPGIdentifier(EPGGuid);
+
+                            if (ProgramID > 0)
+                            {
+                                DateTime progDate = new DateTime(dProgStartDate.Year, dProgStartDate.Month, dProgStartDate.Day);
+
+                                if (!epgDateWithChannelIds.ContainsKey(progDate))
+                                {
+                                    List<int> channelIds = new List<int>();
+                                    epgDateWithChannelIds.Add(progDate, channelIds);
+                                }
+
+                                if (epgDateWithChannelIds[progDate].FindIndex(i => i == channelID) == -1)
+                                {
+                                    epgDateWithChannelIds[progDate].Add(channelID);
+                                }
+
+                                lProgramIds.Add(ProgramID);
+
+                                #region Update Image ID
+                                if (!string.IsNullOrEmpty(epg_poster))
+                                {
+                                    int nPicID = ImporterImpl.DownloadEPGPic(epg_poster, program_desc_english, int.Parse(s_GroupID), ProgramID, channelID);
+
+                                    #region Update EpgProgram with the PicID
+                                    if (nPicID != 0)
+                                    {
+                                        //Update DB
+                                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+                                        updateQuery += " where ";
+                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", ProgramID);
+                                        updateQuery.Execute();
+                                        updateQuery.Finish();
+                                        updateQuery = null;
+
+                                        //Update CB
+                                        newEpgItem.PicUrl = nPicID.ToString();                                        
+                                        
+                                        int nParentGroupID = 0;
+                                        if (!string.IsNullOrEmpty(m_ParentGroupId))
+                                        {
+                                            nParentGroupID = int.Parse(m_ParentGroupId);
+                                        }
+                                        else
+                                        {
+                                            nParentGroupID = DAL.UtilsDal.GetParentGroupID(int.Parse(s_GroupID));
+                                        }
+
+                                        BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);
+
+
+                                        oEpgBL.UpdateEpg(newEpgItem);
+                                    }
+                                    #endregion
+
+                                }
+                                #endregion
+
+                                #region Insert EPG Meta Field Value DB
+
+                                base.InserEPGMetas(FieldEntityMapping, ProgramID);
+
+                                #endregion
+
+                                #region Insert EPG Tags Field Value DB
+
+                                base.InsertEPGTags(FieldEntityMapping, ProgramID);
+
+                                #endregion
+                            }
+                        }
+                        catch (Exception exp)
+                        {
+                            ProcessError = true;
+                            Logger.Logger.Log("Media Corp: Add Program Error ", string.Format("there an error occurring during the insert Program Schedule '{0}'\r\n\r\nError : {1} \r\n StackTrace : {2}  \r\n\r\nXmlNode : {3}\r\n", sFileName, exp.Message, exp.StackTrace, node.InnerXml), LogFileName, string.Format("there an error occurring during the insert Program Schedule '{0}'", sFileName));
+
+                        }
+                    }
+
+                    //start Upload proccess Queue
+                    UploadQueue.UploadQueueHelper.SetJobsForUpload(int.Parse(s_GroupID));
+
+                    foreach (DateTime date in EPGDateRang)
+                    {
+                        DeleteScheduleProgramByDate(channelID, date);
+                        ApproverdScheduleProgramByDate(channelID, date);
+                    }
+
+                    if (response != null)
+                        response.Close();
+
+                    if (stream != null)
+                        stream.Close();
+
+                    enabledelete = MoveFile(sFileName);
+                    Logger.Logger.Log("Media Corp: EPG", string.Format("\r\n###################################### END EPG Channel {0} ######################################\r\n", channelID), LogFileName);
+                }
+                else
+                {
+                    ProcessError = true;
+                    Logger.Logger.Log("Media Corp: Channel Id doesn’t exist ", string.Format("could not add programs schedule for EPG channel id '{0}' in file name: {1}", channel_id, sFileName), LogFileName, string.Format("could not add programs schedule for EPG channel id '{0}' in file name : {1}", channel_id, sFileName));
+
+                    if (response != null)
+                        response.Close();
+
+                    if (stream != null)
+                        stream.Close();
+                    enabledelete = MoveFile(sFileName);
+
+                }
+
+
+
+                //
+                //
+                //-------------------- End Add Schedule EPG to Data Base --------------------------------//
+
+
+            }
+            catch (Exception exp)
+            {
+                ProcessError = true;
+                if (response != null)
+                    response.Close();
+
+                if (stream != null)
+                    stream.Close();
+                Logger.Logger.Log("Media Corp: Upload EPG File", string.Format("there an error occurring during the process Upload EPG File '{0}', Error : {1}", sFileName, exp.Message), LogFileName, string.Format("there an error occurring during the process Upload EPG File '{0}'", sFileName));
+                enabledelete = MoveFile(sFileName);
+            }
+            finally
+            {
+                if (response != null)
+                    response.Close();
+
+                if (stream != null)
+                    stream.Close();
+
+                //delete the source file that proccess even if the proc
+                if (enabledelete)
+                {
+                    DeleteFile(sFileName);
+                }
+            }
+
+            return epgDateWithChannelIds;
+        }
+
+        private string GetMoveFilePath()
+        {
+            if (ProcessError)
+            {
+                return sPath_FailedPath;
+            }
+            else
+            {
+                return sPath_successPath;
+            }
+        }
+       
+        private void InsertProgramSchedule(string program_desc_english, string program_desc_chinese, string episode_no, string syp, string syp_chi, int channelID, string EPGGuid, DateTime dProgStartDate, DateTime dProgEndDate)
+        {
+            try
+            {
+                ODBCWrapper.InsertQuery insertProgQuery = new ODBCWrapper.InsertQuery("epg_channels_schedule");
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", string.Format("{0} {1} {2}", program_desc_english, program_desc_chinese, episode_no));
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", string.Format("{0} {1}", syp, syp_chi));
+
+
+
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", s_GroupID);
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
+
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", EPGGuid);
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", 0);
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dProgStartDate);
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dProgEndDate);
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 5);
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", UpdaterID);
+
+                bool res = insertProgQuery.Execute();
+
+                insertProgQuery.Finish();
+                insertProgQuery = null;
+                if (!res)
+                {
+                    Logger.Logger.Log("InsertProgramSchedule", string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: SQL execute query error.", channelID, dProgStartDate, dProgEndDate), LogFileName);
+                }
+            }
+            catch (Exception exp)
+            {
+                Logger.Logger.Log("InsertProgramSchedule", string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), LogFileName);
+            }
+        }
+        private EpgCB InsertProgramScheduleCB(string program_desc_english, string program_desc_chinese, string episode_no, string syp, string syp_chi,
+            int channelID, string EPGGuid, DateTime dProgStartDate, DateTime dProgEndDate, XmlNode progItem)
+        {
+            ulong epgID = 0;
+            EpgCB newEpgItem = new EpgCB();
+            try
+            {   
+                BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId)); 
+
+                newEpgItem.ChannelID = channelID;
+                newEpgItem.Name = string.Format("{0} {1} {2}", program_desc_english, program_desc_chinese, episode_no);
+                newEpgItem.Description = string.Format("{0} {1}", syp, syp_chi);
+                newEpgItem.GroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                newEpgItem.ParentGroupID = int.Parse(m_ParentGroupId);
+                newEpgItem.EpgIdentifier = EPGGuid;
+                newEpgItem.StartDate = dProgStartDate;
+                newEpgItem.EndDate = dProgEndDate;
+                newEpgItem.UpdateDate = DateTime.UtcNow;
+                newEpgItem.CreateDate = DateTime.UtcNow;
+                newEpgItem.isActive = true;
+                newEpgItem.Status = 5;
+
+                List<FieldTypeEntity> lFieldTypeEntity = GetMappingFields();
+                SetMappingValues(lFieldTypeEntity, progItem);
+
+                newEpgItem.Metas = Utils.GetEpgProgramMetas(lFieldTypeEntity);
+                // When We stop insert to DB , we still need to insert new tags to DB !!!!!!!
+                newEpgItem.Tags = Utils.GetEpgProgramTags(lFieldTypeEntity);
+                                
+                newEpgItem.ExtraData = new EpgExtraData();
+                // not include in the DATA we get 
+                //newEpgItem.ExtraData.MediaID = 0;
+                //newEpgItem.ExtraData.FBObjectID = ""; 
+
+                bool bInsert = oEpgBL.InsertEpg(newEpgItem, out epgID);
+                if (!bInsert)
+                {
+                    Logger.Logger.Log("InsertProgramScheduleCB", string.Format("Failed Insert Program Schedule to CB in channelID '{0}' ,start date {1} end date {2} ", channelID, dProgStartDate, dProgEndDate), LogFileName);
+                }
+                newEpgItem.EpgID = epgID;
+            }
+            catch (Exception exp)
+            {
+                Logger.Logger.Log("InsertProgramSchedule", string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), LogFileName);
+            }
+            return newEpgItem;
+        }
+
+        private void InsertEPGProgramMetaValue(string value, int EPGMetaID, int ProgramID)
+        {
+            try
+            {
+                ODBCWrapper.InsertQuery insertMetaProgQuery = new ODBCWrapper.InsertQuery("EPG_program_metas");
+                insertMetaProgQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", s_GroupID);
+                insertMetaProgQuery += ODBCWrapper.Parameter.NEW_PARAM("value", "=", value);
+                insertMetaProgQuery += ODBCWrapper.Parameter.NEW_PARAM("epg_meta_id", "=", EPGMetaID);
+                insertMetaProgQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                insertMetaProgQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", UpdaterID);
+                insertMetaProgQuery += ODBCWrapper.Parameter.NEW_PARAM("program_id", "=", ProgramID);
+                insertMetaProgQuery.Execute();
+                insertMetaProgQuery.Finish();
+                insertMetaProgQuery = null;
+            }
+            catch (Exception exp)
+            {
+                Logger.Logger.Log("InsertEPGProgramMetaValue", string.Format("could not Insert EPG Program Meta Value '{0}' epg_meta_id '{1}' , error message: {2}", value, EPGMetaID, exp.Message), LogFileName);
+            }
+        }
+      
+        /// <summary>
+        /// remove chaneel schedule from DB
+        /// </summary>
+        /// <returns></returns>
+        public override bool ResetChannelSchedule()
+        {
+            try
+            {                
+            }
+            catch (Exception exp)
+            { }
+            return true;
+        }
+        private DateTime ParseEPGStrToDate(string date, string programtime)
+        {
+            DateTime dt = new DateTime();
+            try
+            {
+                int year = int.Parse(date.Substring(0, 4));
+                int month = int.Parse(date.Substring(4, 2));
+                int day = int.Parse(date.Substring(6, 2));
+                int hour = int.Parse(programtime.Substring(0, 2));
+                int min = int.Parse(programtime.Substring(2, 2));
+                int sec = int.Parse(programtime.Substring(4, 2));
+                dt = new DateTime(year, month, day, hour, min, sec);
+            }
+            catch (Exception exp)
+            {
+                string errormessage = string.Format("Media Corp: Upload EPG File", "could not parse EPG date field value '{0} - {1}', error message: {2} \r\n", date, programtime, exp.Message);
+                Logger.Logger.Log("Media Corp: Upload EPG File", errormessage, LogFileName, errormessage);
+            }
+            return dt;
+        }
+        private TimeSpan GetProgramDuration(string duration)
+        {
+            TimeSpan tspan;
+            int hour = int.Parse(duration.Substring(0, 2));
+            int min = int.Parse(duration.Substring(2, 2));
+            int sec = int.Parse(duration.Substring(4, 2));
+
+            tspan = new TimeSpan(hour, min, sec);
+            return tspan;
+        }
+        /// <summary>
+        /// read files from source directory
+        /// </summary>
+        /// <param name="filename">set File name</param>
+        private void ReadFile(string filename)
+        {
+
+
+        }
+        /// <summary>
+        /// download FTP stream file
+        /// </summary>
+        /// <param name="sFileName">set file name</param>
+        /// <param name="response">out FtpWebResponse response</param>
+        /// <returns>Download Stream object </returns>
+        private Stream GetFTPStreamFile(string sFileName, out FtpWebResponse response)
+        {
+            Stream stream = null;
+            try
+            {
+                //create instance FTPWebRequest to the specific path. 
+                FtpWebRequest reqdownloadFTP = (FtpWebRequest)WebRequest.Create(new Uri(string.Format("{0}/{1}", s_Path, sFileName)));
+                //Add Network Credential
+                reqdownloadFTP.Credentials = NetCredential;
+                //specific the action method
+                reqdownloadFTP.Method = WebRequestMethods.Ftp.DownloadFile;
+                reqdownloadFTP.UseBinary = true;
+
+
+                //get response 
+                FtpWebResponse responseDownload = (FtpWebResponse)reqdownloadFTP.GetResponse();
+                //stream response
+                stream = responseDownload.GetResponseStream();
+                response = responseDownload;
+
+            }
+            catch (Exception exp)
+            {
+                Logger.Logger.Log("Media Corp: EPG FTP Stream ", string.Format("there an error occurred during the Get FTP Stream file process, Stream file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG MediaCorp - Get stream file faild.");
+                response = null;
+
+            }
+
+            return stream;
+        }
+        /// <summary>
+        /// Move file to spasfice destination
+        /// </summary>
+        /// <param name="sFileName">set file name</param>
+        /// <param name="sTargetDirectoryPath">Target Directory Path</param>
+        /// <returns>retur true if success else return false</returns>
+        private bool MoveFile(string sFileName)
+        {
+            bool res = false;
+            FtpWebResponse response = null;
+            Stream stream = null;
+            FtpWebResponse Uploadresponse = null;
+            string sTargetDirectoryPath = GetMoveFilePath();
+            try
+            {
+                // Get the object used to communicate with the server.
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(string.Format("{0}/{1}", sTargetDirectoryPath, sFileName)));
+                request.Method = WebRequestMethods.Ftp.UploadFile;
+
+                // This example assumes the FTP site uses anonymous logon.
+                request.Credentials = NetCredential;
+                stream = GetFTPStreamFile(sFileName, out response);
+                // Copy the contents of the file to the request stream.
+                StreamReader sourceStream = new StreamReader(stream);
+
+
+                byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
+                sourceStream.Close();
+
+                if (response != null)
+                    response.Close();
+
+                if (stream != null)
+                    stream.Close();
+                request.ContentLength = fileContents.Length;
+                Stream requestStream = request.GetRequestStream();
+                requestStream.Write(fileContents, 0, fileContents.Length);
+                requestStream.Close();
+
+                Uploadresponse = (FtpWebResponse)request.GetResponse();
+
+                res = true;
+
+                Logger.Logger.Log("Media Corp: EPG Move file", string.Format("Move source file '{0}' to directory path '{1}' success .! , response status: {2}", sFileName, sTargetDirectoryPath, Uploadresponse.StatusDescription), LogFileName);
+            }
+            catch (Exception exp)
+            {
+                if (response != null)
+                    response.Close();
+
+                if (stream != null)
+                    stream.Close();
+
+                if (Uploadresponse != null)
+                    Uploadresponse.Close();
+
+                Logger.Logger.Log("Media Corp: EPG Move file", string.Format("there an error occurring during move file process, Move file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG MediaCorp - Moves source file faild.");
+            }
+            finally
+            {
+                if (response != null)
+                    response.Close();
+
+                if (stream != null)
+                    stream.Close();
+
+                if (Uploadresponse != null)
+                    Uploadresponse.Close();
+
+
+
+
+            }
+            return res;
+        }
+        /// <summary>
+        /// Delete file from source 
+        /// </summary>
+        /// <param name="sFileName">set file name</param>
+        /// <returns>retur true if success else return false</returns>
+        private bool DeleteFile(string sFileName)
+        {
+            bool res = false;
+            FtpWebResponse response = null;
+            try
+            {
+
+                FtpWebRequest reqFTP = (FtpWebRequest)WebRequest.Create(new Uri(string.Format("{0}/{1}", s_Path, sFileName)));
+                reqFTP.Credentials = NetCredential;
+                reqFTP.Method = WebRequestMethods.Ftp.DeleteFile;
+                response = (FtpWebResponse)reqFTP.GetResponse();
+                res = true;
+                Logger.Logger.Log("Media Corp: EPG Delete file", string.Format("delete source file '{0}' success .! , response status: {1}", sFileName, response.StatusDescription), LogFileName);
+            }
+            catch (Exception exp)
+            {
+                if (response != null)
+                {
+                    response.Close();
+                }
+                res = false;
+                Logger.Logger.Log("MediaCorp_EPG_Delete", string.Format("there an error occurred during the delete process, delete file '{0}' EPGMediaCorp , Error: {1}", sFileName, exp.Message), LogFileName, "EPG MediaCorp - delete source file faild.");
+            }
+            finally
+            {
+                if (response != null)
+                {
+                    response.Close();
+                }
+            }
+
+            return res;
+        }
+        /// <summary>
+        /// Load files from source path
+        /// </summary>
+        private void LoadFile()
+        {
+            FtpWebResponse response = null;
+            Stream stream = null;
+            StreamReader reader = null;
+            try
+            {
+                FtpWebRequest reqFTP;
+                reqFTP = (FtpWebRequest)WebRequest.Create(new Uri(string.Format("{0}", s_Path)));
+                reqFTP.Credentials = NetCredential;
+                reqFTP.Method = WebRequestMethods.Ftp.ListDirectory;
+                response = (FtpWebResponse)reqFTP.GetResponse();
+                stream = response.GetResponseStream();
+                reader = new StreamReader(stream);
+                string[] spleter = { " " };
+
+                while (reader.Peek() > 0)
+                {
+                    string filename = "";
+                    filename = reader.ReadLine();
+
+                    if (!string.IsNullOrEmpty(filename))
+                    {
+                        string[] arrfilename = filename.Split(spleter, StringSplitOptions.RemoveEmptyEntries);
+                        FilePathList.Add(arrfilename[arrfilename.Length - 1]);
+                    }
+                }
+            }
+
+            catch (Exception exp)
+            {
+                if (response != null)
+                {
+                    response.Close();
+                }
+                if (stream != null)
+                {
+                    stream.Close();
+                }
+                if (reader != null)
+                {
+                    reader.Close();
+                }
+                Logger.Logger.Log("MediaCorp_EPG_LoadFile", string.Format("there an error occurred during the Load Files process,  Error: {0}", exp.Message), LogFileName);
+
+            }
+            finally
+            {
+                if (response != null)
+                {
+                    response.Close();
+                }
+                if (stream != null)
+                {
+                    stream.Close();
+                }
+                if (reader != null)
+                {
+                    reader.Close();
+                }
+            }
+        }
+        
+        private Int32 GetMediaIDByChannelID(Int32 EPG_IDENTIFIER)
+        {
+            Int32 res = 0;
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select * from media";
+                selectQuery += "Where";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", s_GroupID);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", EPG_IDENTIFIER);
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                        res = Int32.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception exp)
+            {
+                Logger.Logger.Log("GetMediaIDByChannelID", string.Format("could not get Get Media ID By ChannelID by EPG_IDENTIFIER  {0}, error message: {1}", EPG_IDENTIFIER.ToString(), exp.Message), LogFileName);
+            }
+            return res;
+        }
+        private Int32 GetExistChannel(string sChannelID)
+        {
+            Int32 res = 0;
+            if (!string.IsNullOrEmpty(sChannelID))
+            {
+                try
+                {
+                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += "select * from epg_channels";
+                    selectQuery += "Where";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", s_GroupID);
+                    selectQuery += " and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", sChannelID);
+
+                    if (selectQuery.Execute("query", true) != null)
+                    {
+                        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                        if (nCount > 0)
+                            res = Int32.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                    }
+                    selectQuery.Finish();
+                    selectQuery = null;
+                }
+                catch (Exception exp)
+                {
+                    Logger.Logger.Log("GetExistChannel", string.Format("could not get Get Exist Channel  by ID {0}, error message: {1}", sChannelID, exp.Message), LogFileName);
+                }
+            }
+            return res;
+        }
+
+        private Int32 GetExistMedia(Int32 EPG_IDENTIFIER)
+        {
+            Int32 res = 0;
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select * from media";
+                selectQuery += "Where";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", s_GroupID);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", EPG_IDENTIFIER);
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                        res = Int32.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception exp)
+            {
+                Logger.Logger.Log("GetExistMedia", string.Format("could not get Exist Media by EPG Identifier {0}, error message: {1}", EPG_IDENTIFIER.ToString(), exp.Message), LogFileName);
+            }
+            return res;
+        }
+
+        private bool AddDateRange(DateTime date)
+        {
+            bool res = false;
+            try
+            {
+                if (!EPGDateRang.Exists(c => c.Day == date.Day && c.Month == date.Month && c.Year == date.Year))
+                {
+                    Logger.Logger.Log("AddDateRange", string.Format("add date '{0}' to EPG date range success.", date.ToString()), LogFileName);
+                    EPGDateRang.Add(date);
+                    res = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("AddDateRange", string.Format("error add date '{0}' to EPG date range , error message: {1}", date.ToString(), ex.Message), LogFileName);
+            }
+            return res;
+        }
+
+        private void DeleteScheduleProgramByDate(int channelID, DateTime date)
+        {
+            DateTime fromDate = new DateTime(date.Year, date.Month, date.Day, 00, 00, 00);
+            DateTime toDate = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+
+            try
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 2);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", fromDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "<=", toDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
+
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+
+                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")), LogFileName);
+            }
+            catch (Exception ex)
+            {
+                //ProcessError = true;
+                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), LogFileName, string.Format("Media Corp EPG Error : Could not delete schedule program for EPG Channel ID {0} between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")));
+            }
+        }
+
+        private void ApproverdScheduleProgramByDate(int channelID, DateTime date)
+        {
+            DateTime fromDate = new DateTime(date.Year, date.Month, date.Day, 00, 00, 00);
+            DateTime toDate = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+
+            try
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", fromDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "<=", toDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 5);
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
+
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+
+                Logger.Logger.Log("ApproverdScheduleProgramByDate", string.Format("success approverd schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.\r\n", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")), LogFileName);
+            }
+            catch (Exception ex)
+            {
+                //ProcessError = true;
+                Logger.Logger.Log("ApproverdScheduleProgramByDate", string.Format("success approverd schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), LogFileName, string.Format("Media Corp EPG Error : Could not approved schedule program for EPG Channel ID {0} between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")));
+
+            }
+        }
+
+        public override Dictionary<DateTime, List<int>> ProcessConcreteXmlFile(XmlDocument xmlDoc)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
+}

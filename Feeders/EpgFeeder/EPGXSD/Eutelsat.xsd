@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="tv">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="channel">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="display-name" type="xs:string" />
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element maxOccurs="unbounded" name="programme">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="title" type="xs:string" />
+              <xs:element minOccurs="0" name="sub-title" type="xs:string" />
+              <xs:element minOccurs="0" name="desc" type="xs:string" />
+              <xs:element name="credits">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element maxOccurs="unbounded" name="director" type="xs:string" />
+                    <xs:element maxOccurs="unbounded" name="actor" type="xs:string" />
+                    <xs:element maxOccurs="unbounded" name="writer" type="xs:string" />
+                    <xs:element minOccurs="0" name="producer" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="date" type="xs:unsignedShort" />
+              <xs:element maxOccurs="unbounded" name="category" type="xs:string" />
+              <xs:element name="language" type="xs:string" />
+              <xs:element name="length">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:unsignedByte">
+                      <xs:attribute name="units" type="xs:string" use="required" />
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="country" type="xs:string" />
+              <xs:element minOccurs="0" name="episode-num">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute name="system" type="xs:string" use="required" />
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element maxOccurs="unbounded" name="rating">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="value" type="xs:unsignedByte" />
+                  </xs:sequence>
+                  <xs:attribute name="system" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element minOccurs="0" name="star-rating">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="value" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="icon">
+                <xs:complexType>
+                  <xs:attribute name="src" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Catch-Up" type="xs:string" />
+              <xs:element name="Start-Over" type="xs:string" />
+              <xs:element name="Allow-Recording" type="xs:string" />
+              <xs:element name="Downloadable" type="xs:string" />
+            </xs:sequence>
+            <xs:attribute name="channel" type="xs:string" use="required" />
+            <xs:attribute name="start" type="xs:string" use="required" />
+            <xs:attribute name="stop" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="generator-info-name" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

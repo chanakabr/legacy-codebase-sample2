@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="e1d1f2b4-a87e-4c86-a835-b7559df60a4d" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost/LuceneWCF2.0/Service.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="b0b3f513-c3cd-46d5-a345-479f91c44abe" SourceId="1" SourceUrl="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="53e8bf30-431e-4757-913f-f86d5b5dad49" SourceId="1" SourceUrl="http://localhost/LuceneWCF2.0/Service.svc?wsdl" />
+    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="ccc62622-de93-4274-be87-f3ae38fa2676" SourceId="1" SourceUrl="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="ac002bf9-17e5-467b-8daa-2d75eabe846f" SourceId="1" SourceUrl="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service1.wsdl" MetadataType="Wsdl" ID="87fd5e73-7d38-433d-b4c1-7d3c4b720cc3" SourceId="1" SourceUrl="http://localhost/LuceneWCF2.0/Service.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="ad66ed03-31db-4a63-bcf2-681f135c1d17" SourceId="1" SourceUrl="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="547f6f48-5c5a-4e5e-b31f-4b3658bb70e0" SourceId="1" SourceUrl="http://localhost/LuceneWCF2.0/Service.svc?disco" />
+    <MetadataFile FileName="Service4.xsd" MetadataType="Schema" ID="e5fddf1d-b103-43ab-aace-ea5019475b0a" SourceId="1" SourceUrl="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd4" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>
