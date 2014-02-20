@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>
+    </title>
+    <script type="text/javascript" src="js/VGObject.js" language="javascript"></script>   
+    <script type="text/javascript" src="js/player.js" language="javascript"></script>   
+        <script type="text/javascript" src="js/PlayerMessages.js" language="javascript"></script>
+        <script>
+            var VG = null;
+            function GetVG() {
+                if (VG == null)
+                    VG = new VGObject();
+                return VG;
+            }
+            function TvinciPlayerAddToLog(ddd)
+            { }
+            function getFlashObject() {
+                return parent.getFlashObject();
+            }
+        </script>
+</head>
+<body onload="GetVG().replaceVGDK(theVgdk,'IEPlayer');">
+    <object id='theVgdk' CLASSID='clsid:25827FF5-104D-42ab-A802-CDCD838DD02B' BORDER=0 VSPACE=0 HSPACE=0 ALIGN=TOP HEIGHT=0% WIDTH=0%></object>
+	 <script type="text/javascript">
+	     
+	    var errCodes = new Array();
+        errCodes['-43bdff9a'] = { 'NDSCode' : '-43bdff9a',  'Description' : 'באפר התחיל', 'Action' : 'buffer_start', 'LogMessage' : 'buffering started'};errCodes['3c420066'] = { 'NDSCode' : '3c420066',  'Description' : 'באפר הפסיק', 'Action' : 'buffer_stop', 'LogMessage' : 'buffering stopped'};errCodes['37f0001'] = { 'NDSCode' : '37f0001',  'Description' : 'הדרייבר המותקן במחשבך אינו עדכני ואינו מאפשר צפייה  בכתוביות בפריט,אנא שדרג  ונסה שנית', 'Action' : 'message', 'LogMessage' : 'probelm with the driver that disable viewing subtitles'};errCodes['-35afcde'] = { 'NDSCode' : '-35afcde',  'Description' : 'אנו מתנצלים ,אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'message', 'LogMessage' : 'Invalid asset id'};errCodes['-35afc18'] = { 'NDSCode' : '-35afc18',  'Description' : 'אנו מתנצלים ,אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'message', 'LogMessage' : 'User is not logged in'};errCodes['-35afc17'] = { 'NDSCode' : '-35afc17',  'Description' : 'לצערנו, לא ניתן לצפות בסרט משני מחשבים במקביל. כדי לשוב ולצפות ממחשב זה יש לסגור את הדפדפן במחשב השני ולאחר מכן לסגור את הדפדפן במחשב זה ולהתחבר מחדש', 'Action' : 'message', 'LogMessage' : 'Another user is logged-in'};errCodes['-35afb50'] = { 'NDSCode' : '-35afb50',  'Description' : 'אנו מתנצלים ,אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'message', 'LogMessage' : 'NO FECM provided for asset'};errCodes['1,0,0,0,5'] = { 'NDSCode' : '1,0,0,0,5',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, אנא אתחל מחדש את הדפדפן. במידה והבעיה חוזרת  עליך להתקין מחדש את התוכנה.', 'Action' : 'message', 'LogMessage' : 'Sorry, but we cannot continue. Please close and restart the browser. If the problem persists, please re-install the PC client software'};errCodes['-35afb4a'] = { 'NDSCode' : '-35afb4a',  'Description' : 'קיימת בעיית תקשורת לאינטרנט - אנא בדוק תקינות הקשר לאינטרנט. במידה ובעיה ממשיכה, אנא צור קשר עם שירות הלקוחות *2074', 'Action' : 'message', 'LogMessage' : 'Connection with content server timed-out'};errCodes['-35afb49'] = { 'NDSCode' : '-35afb49',  'Description' : 'קיימת בעיית תקשורת לאינטרנט - אנא בדוק תקינות הקשר לאינטרנט. במידה ובעיה ממשיכה, אנא צור קשר עם שירות הלקוחות *2074', 'Action' : 'message', 'LogMessage' : 'Connection with content server timed-out more times than the configured retry count for the asset'};errCodes['-35afaeb'] = { 'NDSCode' : '-35afaeb',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'message', 'LogMessage' : 'Localisation of content failed'};errCodes['-35ffa23'] = { 'NDSCode' : '-35ffa23',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'message', 'LogMessage' : 'Problem occurred when communicating with VGDRM system because the user is not logged-in'};errCodes['-35ffa22'] = { 'NDSCode' : '-35ffa22',  'Description' : 'אנו מתנצלים ,אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'message', 'LogMessage' : 'Wrong username/password'};errCodes['-35ffa18'] = { 'NDSCode' : '-35ffa18',  'Description' : 'קיימת בעיה מערכתית הנוגעת לפריט, אנא צור קשר עם שירות הלקוחות *2074', 'Action' : 'message', 'LogMessage' : 'Could not obtain license because the subscriber (or the security device) is not entitled for this specific content'};errCodes['-35ffa17'] = { 'NDSCode' : '-35ffa17',  'Description' : 'תקופת הרכישה הסתיימה. על מנת לצפות בפריט יש לרכוש אותו מחדש', 'Action' : 'message', 'LogMessage' : 'Cannot get license as entitlement has expired'};errCodes['-35ffa15'] = { 'NDSCode' : '-35ffa15',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'message', 'LogMessage' : 'Cannot get license due to communication problem to VGDRM system'};errCodes['-35ffa13'] = { 'NDSCode' : '-35ffa13',  'Description' : 'נדרש שדרוג לתוכנה על מנת לצפות בפריט. לחץ כאן לעדכון גרסה', 'Action' : 'message', 'LogMessage' : 'Cannot get license, incorrect software version'};errCodes['-35ffa11'] = { 'NDSCode' : '-35ffa11',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'message', 'LogMessage' : 'Cannot get license, user not logged in'};errCodes['-35ffa10'] = { 'NDSCode' : '-35ffa10',  'Description' : 'לצערנו, לא ניתן לצפות בסרט משני מחשבים במקביל. כדי לשוב ולצפות ממחשב זה יש לסגור את הדפדפן במחשב השני ולאחר מכן לסגור את הדפדפן במחשב זה ולהתחבר מחדש', 'Action' : 'message', 'LogMessage' : 'The connection to the VGDRM server has been closed (will typically happen if the user has logged in from another computer)'};errCodes['-35ff9fc'] = { 'NDSCode' : '-35ff9fc',  'Description' : 'לצורך צפייה, יש לסגור את הדפדפן ולפתוח אותו מחדש. במידה והבעיה חוזרת, עליך להתקין מחדש את הרכיב', 'Action' : 'message', 'LogMessage' : 'Internal VGDRM error'};errCodes['-35ff9de'] = { 'NDSCode' : '-35ff9de',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, עליך להתקין מחדש את הרכיב ', 'Action' : 'message', 'LogMessage' : 'Configuration data could not be obtained'};errCodes['-35f0001'] = { 'NDSCode' : '-35f0001',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, יש לסגור את הדפדפן ולפתוח אותו מחדש ', 'Action' : 'message', 'LogMessage' : 'General error'};errCodes['-3deff9c'] = { 'NDSCode' : '-3deff9c',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, יש לסגור את הדפדפן ולפתוח אותו מחדש ', 'Action' : 'message', 'LogMessage' : 'Internal error'};errCodes['-2d6ff9b'] = { 'NDSCode' : '-2d6ff9b',  'Description' : 'בעייה בניגון הסרט, בדוק את תקינות כרטיס הקול ומנהל ההתקנים (driver) של המחשב ', 'Action' : 'message', 'LogMessage' : 'Could not create renderer(s)'};errCodes['-3deff9a'] = { 'NDSCode' : '-3deff9a',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, עליך להתקין מחדש את הרכיב ', 'Action' : 'message', 'LogMessage' : 'Missing mandatory configuration parameter'};errCodes['-3deff98'] = { 'NDSCode' : '-3deff98',  'Description' : 'לנגן שמחשבך חסרים רכיבים, אנא בדוק שמדובר בגרסה העדכית ביותר ', 'Action' : 'message', 'LogMessage' : 'Audio or Video format not supported'};errCodes['-3deff93'] = { 'NDSCode' : '-3deff93',  'Description' : 'קיימת בעיה מערכתית הנוגעת לפריט, אנא צור קשר עם שירות הלקוחות *2074 ', 'Action' : 'message', 'LogMessage' : 'User not entitled'};errCodes['-3deff92'] = { 'NDSCode' : '-3deff92',  'Description' : 'תקופת הרכישה הסתיימה. על מנת לצפות בפריט יש לרכוש אותו מחדש ', 'Action' : 'message', 'LogMessage' : 'Entitlement expired'};errCodes['-3deff8f'] = { 'NDSCode' : '-3deff8f',  'Description' : 'לנגן שמחשבך חסרים רכיבים, אנא בדוק שמדובר בגרסה העדכנית ביותר ', 'Action' : 'message', 'LogMessage' : 'The TSP could not locate any audio driver able to decode clear MP3 audio.'};errCodes['-3dfff8e'] = { 'NDSCode' : '-3dfff8e',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, יש לסגור את הדפדפן ולפתוח אותו מחדש ', 'Action' : 'message', 'LogMessage' : 'Internal DRM error.'};errCodes['-3dfff8d'] = { 'NDSCode' : '-3dfff8d',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'Cannot get playback license because user not logged in.'};errCodes['-3dfff8c'] = { 'NDSCode' : '-3dfff8c',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'Cannot get playback license because of a connection problem.'};errCodes['-3dfff8b'] = { 'NDSCode' : '-3dfff8b',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, עליך להתקין מחדש את הרכיב  ', 'Action' : 'message', 'LogMessage' : 'Wrong version of the client application is used.'};errCodes['-3dfff87'] = { 'NDSCode' : '-3dfff87',  'Description' : 'לא ניתן להמשיך בצפייה בסרט משום שעברו 4 שעות מתחילת הצפייה בו. יש להתחיל את הצפייה בסרט מהתחלה. ', 'Action' : 'message', 'LogMessage' : 'Playback session timeout.'};errCodes['-3bffe0d'] = { 'NDSCode' : '-3bffe0d',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'The asset cannot be accessed.'};errCodes['-37ffe0d'] = { 'NDSCode' : '-37ffe0d',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'Cannot access subtitles.'};errCodes['-2d6fda6'] = { 'NDSCode' : '-2d6fda6',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'Could not open URI.'};errCodes['-39cfcde'] = { 'NDSCode' : '-39cfcde',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'Invalid asset id.'};errCodes['-37bfc17'] = { 'NDSCode' : '-37bfc17',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'The subtitle text could not be displayed.'};errCodes['-39cfb50'] = { 'NDSCode' : '-39cfb50',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'NO FECM provided for asset.'};errCodes['-39cfaeb'] = { 'NDSCode' : '-39cfaeb',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'Localisation of content failed.'};errCodes['-39ffa23'] = { 'NDSCode' : '-39ffa23',  'Description' : 'אנו מתנצלים, אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר ', 'Action' : 'message', 'LogMessage' : 'Problem occurred when communicating with VGDRM system because the user is not logged-in.'};errCodes['-39ffa18'] = { 'NDSCode' : '-39ffa18',  'Description' : 'קיימת בעיה מערכתית הנוגעת לפריט, אנא צור קשר עם שירות הלקוחות *2074 ', 'Action' : 'message', 'LogMessage' : 'Could not obtain license because the subscriber (or the security device) is not entitled for this specific content.'};errCodes['-39ffa17'] = { 'NDSCode' : '-39ffa17',  'Description' : 'תקופת הרכישה הסתיימה. על מנת לצפות בפריט יש לרכוש אותו מחדש ', 'Action' : 'message', 'LogMessage' : 'Cannot get license as entitlement has expired.'};errCodes['-39ffa15'] = { 'NDSCode' : '-39ffa15',  'Description' : 'קיימת בעיה מערכתית הנוגעת לפריט, אנא צור קשר עם שירות הלקוחות *2074 ', 'Action' : 'message', 'LogMessage' : 'Cannot get license due to communication problem to VGDRM system.'};errCodes['-39ffa13'] = { 'NDSCode' : '-39ffa13',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, עליך להתקין מחדש את הרכיב  ', 'Action' : 'message', 'LogMessage' : 'Cannot get license, incorrect software version.'};errCodes['-39ffa11'] = { 'NDSCode' : '-39ffa11',  'Description' : 'קיימת בעיה מערכתית הנוגעת לפריט, אנא צור קשר עם שירות הלקוחות *2074 ', 'Action' : 'message', 'LogMessage' : 'Cannot get license, user not logged in.'};errCodes['-39ffa10'] = { 'NDSCode' : '-39ffa10',  'Description' : 'לצערנו, לא ניתן לצפות בסרט משני מחשבים במקביל. כדי לשוב ולצפות ממחשב זה יש לסגור את הדפדפן במחשב השני ולאחר מכן לסגור את הדפדפן במחשב זה ולהתחבר מחדש ', 'Action' : 'message', 'LogMessage' : 'The connection to the VGDRM server has been closed (will typically happen if the user has logged in from another computer).'};errCodes['-39ff9fc'] = { 'NDSCode' : '-39ff9fc',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, יש לסגור את הדפדפן/את המחשב ולפתוח אותו מחדש ', 'Action' : 'message', 'LogMessage' : 'Internal VGDRM error.'};errCodes['-39ff9de'] = { 'NDSCode' : '-39ff9de',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, עליך להתקין מחדש את הרכיב  ', 'Action' : 'message', 'LogMessage' : 'Configuration data could not be obtained.'};errCodes['-39f0001'] = { 'NDSCode' : '-39f0001',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, יש לסגור את הדפדפן/את המחשב ולפתוח אותו מחדש ', 'Action' : 'message', 'LogMessage' : 'General error.'};errCodes['-37b0001'] = { 'NDSCode' : '-37b0001',  'Description' : 'לא ניתן להמשיך בביצוע הפעולה, יש לסגור את הדפדפן/את המחשב ולפתוח אותו מחדש ', 'Action' : 'message', 'LogMessage' : 'An error has occurred.'};errCodes['1,0,0,2,4'] = { 'NDSCode' : '1,0,0,2,4',  'Description' : 'אנו מתנצלים ,אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'relogin', 'LogMessage' : 'Sorry, but we cannot perform this action at present, please try later'};errCodes['1,0,0,1,0'] = { 'NDSCode' : '1,0,0,1,0',  'Description' : 'אנו מתנצלים ,אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'relogin', 'LogMessage' : 'Sorry, but we cannot perform this action at present, please try later'};errCodes['1,0,0,6,112'] = { 'NDSCode' : '1,0,0,6,112',  'Description' : 'אנו מתנצלים ,אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'relogin', 'LogMessage' : 'Sorry, but we cannot perform this action at present, please try later'};errCodes['1,0,0,6,103'] = { 'NDSCode' : '1,0,0,6,103',  'Description' : 'אנו מתנצלים ,אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'relogin', 'LogMessage' : 'Sorry, but we cannot perform this action at present, please try later'};errCodes['1,0,0,8,103'] = { 'NDSCode' : '1,0,0,8,103',  'Description' : 'אנו מתנצלים ,אך לא ניתן לבצע את הפעולה כעת, אנא נסה מאוחר יותר', 'Action' : 'relogin', 'LogMessage' : 'Sorry, but we cannot perform this action at present, please try later'};errCodes['3c420067'] = { 'NDSCode' : '3c420067',  'Description' : '', 'Action' : 'none', 'LogMessage' : ''};errCodes['3c210078'] = { 'NDSCode' : '3c210078',  'Description' : '', 'Action' : 'none', 'LogMessage' : ''};errCodes['3c4203e8'] = { 'NDSCode' : '3c4203e8',  'Description' : '', 'Action' : 'none', 'LogMessage' : ''};errCodes['7c420066'] = { 'NDSCode' : '7c420066',  'Description' : '', 'Action' : 'none', 'LogMessage' : ''};errCodes['-43bdff99'] = { 'NDSCode' : '-43bdff99',  'Description' : '', 'Action' : 'none', 'LogMessage' : ''};errCodes['-43deff88'] = { 'NDSCode' : '-43deff88',  'Description' : '', 'Action' : 'none', 'LogMessage' : ''};
+        
+        var errDefaultMessage = "Sorry, but we cannot perform this action at present, please try later";
+            
+        function findErr(errCode) {
+                        
+            var error = null;
+            if (typeof errCode != 'undefined' && errCode != null) {                
+                        
+                var errC = '';
+                
+                if (typeof errCode == 'string')
+                {
+                    errC = errCode.split(' ').join('').replace(/[()]/g,"");
+                }else
+                {                            
+                    errC = Number(errCode).toString(16);
+                }
+                            
+                if (typeof errCodes[errC] != "undefined")
+                {
+                    error = errCodes[errC];
+                }
+                else
+                {
+                    error = null;
+                }
+            } else {            
+                error = null;
+            }
+
+            if (error == null)
+            {            
+                return { 'NDSCode' : errC, 'Description' : errDefaultMessage, 'Action' : 'message', 'LogMessage' : 'Unknown error code. Showing default message to client'};
+            }
+            else
+            {
+                return error;
+            }
+        }
+
+        function theVgdk::AssetCompleted(assetId) 
+        {
+            if (typeof top.NDSDownloadProgressCallback == 'function')
+            {
+                top.NDSDownloadProgressCallback(assetId, 100);        
+            }    
+        }
+
+        function theVgdk::AssetProgress(assetId, percentComplete) 
+        {
+            if (percentComplete > 0 && percentComplete < 100)
+            {
+                if (typeof top.NDSDownloadProgressCallback == 'function')
+                {
+                    top.NDSDownloadProgressCallback(assetId, percentComplete);        
+                }
+            }           
+        }
+
+
+    function theVgdk::Status(assetId, status,payload)
+    {
+        handleNDSError(assetId, status,payload);
+    }
+
+    function theVgdk::PlayerStatus(assetId, status, payload)
+    {
+        handleNDSError(assetId, status,payload);
+    }
+
+                                            
+    function theVgdk::Error(assetID, ErrorID, ErrorTxt) 
+    {	        
+        handleNDSError(assetId, ErrorTxt,'');
+    }
+    
+    function handleNDSError(assetId, status,payload)
+    {
+        var errItem;		
+        		
+	    errItem = findErr(status); 		 		
+    	
+	    if (errItem == null)
+	    {
+		    if (typeof top.TvinciNDSAddToLog == 'function')   
+	        {
+    	        top.TvinciNDSAddToLog(assetId, '-', 'failed top retrieve error with the requested status. Inform "Tvinci".' , "status returned '" + status + "'");
+    	    }	
+		    return;
+	    }
+    	
+	    if (typeof top.TvinciNDSAddToLog == 'function')   
+	    {
+	        top.TvinciNDSAddToLog(assetId, errItem.NDSCode, errItem.LogMessage, "performing action '" + errItem.Action + "'");
+	    }	
+    	
+	    if (errItem.Action == 'none')
+	    {
+	        return;
+	    }
+    		
+	    if (errItem.Action == 'relogin')
+	    {
+	        top.GetVG().logout();  		
+	    }
+    	
+	    SendEventToFlash(assetId, errItem.Description + ' (' + errItem.NDSCode + ')' , errItem.Action);
+    }
+    
+    function SendEventToFlash(assetID, theMessage ,  theAction)
+    {
+	    try
+	    {
+	        if (typeof getFlashObject().callFlashAction == 'function')
+	        {
+	            getFlashObject().callFlashAction({action:theAction, msg:theMessage});	        
+	        }	
+	    }
+	    catch(e){
+	        TvinciPlayerAddToLog("Error occured while tring to send for asset id '" + assetID + "' action '" + theAction + "'. error message '" + e.message + "'");                 
+	    }
+    }
+
+
+
+          </script>
+</body>
+</html>

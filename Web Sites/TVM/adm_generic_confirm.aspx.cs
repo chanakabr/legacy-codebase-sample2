@@ -1,0 +1,302 @@
+using System;
+using System.Data;
+using System.Configuration;
+using System.Collections;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+using System.Web.UI.HtmlControls;
+using TVinciShared;
+using TvinciImporter;
+using ApiObjects;
+using System.Collections.Generic;
+
+public partial class adm_generic_confirm : System.Web.UI.Page
+{
+    protected string m_sMenu;
+    protected string m_sSubMenu;
+    protected Int32 m_nID;
+    protected string m_sTable;
+    protected bool m_bConfirm;
+    protected Int32 m_nMainMenu;
+    protected Int32 m_nSubMenu;
+    protected string m_sBasePageURL;
+    protected string m_sRepresentField;
+    protected string m_sRepresentName;
+    protected string m_sDB;
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        try
+        {
+            if (LoginManager.CheckLogin() == false)
+            {
+                Response.Redirect("login.html");
+                return;
+            }
+
+            if (AMS.Web.RemoteScripting.InvokeMethod(this))
+                return;
+            if (Session["ContentPage"] != null)
+                m_sBasePageURL = Session["ContentPage"].ToString();
+            m_nSubMenu = int.Parse(Request.QueryString["sub_menu"].ToString());
+            m_nMainMenu = int.Parse(Request.QueryString["main_menu"].ToString());
+            if (Request.QueryString["confirm"].ToString() == "false")
+                m_bConfirm = false;
+            else
+                m_bConfirm = true;
+            m_sTable = Request.QueryString["table"].ToString();
+            m_nID = int.Parse(Request.QueryString["id"].ToString());
+            Int32 nMenuID = 0;
+            m_sMenu = TVinciShared.Menu.GetMainMenu(m_nMainMenu, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, m_nSubMenu, true);
+            m_sRepresentField = Request.QueryString["rep_field"].ToString();
+            m_sRepresentName = Request.QueryString["rep_name"].ToString();
+            if (Request.QueryString["db"] != null)
+                m_sDB = Request.QueryString["db"].ToString();
+            else
+                m_sDB = "";
+            if (LoginManager.IsPagePermitted(m_sBasePageURL) == false)
+            {
+                LoginManager.LogoutFromSite("login.html");
+                return;
+            }
+            //if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.PUBLISH) == false)
+                //LoginManager.LogoutFromSite("login.html");
+            object oStatus = ODBCWrapper.Utils.GetTableSingleVal(m_sTable , "status" , m_nID , m_sDB);
+            if (oStatus != null)
+            {
+                Int32 nCurrentStatus = int.Parse(oStatus.ToString());
+                if (nCurrentStatus == 3)
+                {
+                    if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.PUBLISH) == false)
+                    {
+                        LoginManager.LogoutFromSite("login.html");
+                        return;
+                    }
+                }
+                if (nCurrentStatus == 4)
+                {
+                    if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.REMOVE) == false)
+                    {
+                        LoginManager.LogoutFromSite("login.html");
+                        return;
+                    }
+                }
+            }
+            Remove();
+        }
+        catch
+        {
+            LoginManager.LogoutFromSite("login.html");
+            return;
+        }
+    }
+
+    protected void Remove()
+    {
+        bool bIsPublished = false;
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
+        updateQuery.SetConnectionKey(m_sDB);
+        if (m_bConfirm == true)
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+        else
+        {
+            bIsPublished = true;
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+        }
+        updateQuery += "where";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+        updateQuery += "and";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 4);
+        updateQuery.Execute();
+        updateQuery.Finish();
+        updateQuery = null;
+
+        ODBCWrapper.UpdateQuery updateQuery1 = new ODBCWrapper.UpdateQuery(m_sTable);
+        updateQuery1.SetConnectionKey(m_sDB);
+        if (m_bConfirm == true)
+        {
+            bIsPublished = true;
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+        }
+        else
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+        updateQuery1 += "where";
+        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+        updateQuery1 += "and";
+        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 3);
+        updateQuery1.Execute();
+        updateQuery1.Finish();
+        updateQuery1 = null;
+
+        int nStatus = -1;
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey(m_sDB);
+        selectQuery += "select status from " + m_sTable + " where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                object oNURL = selectQuery.Table("query").DefaultView[0].Row["status"];
+                if (oNURL != DBNull.Value && oNURL != null)
+                    nStatus = int.Parse(oNURL.ToString());
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+        if (nStatus == 2) // Deleted
+        {
+            eAction action = eAction.Delete;
+            List<int> lIds = new List<int>() { m_nID };
+            int nGroupId = LoginManager.GetLoginGroupID();
+            Logger.Logger.Log("Remove", "Table: " + m_sTable + " Id:" + m_nID.ToString(), "LuceneUpdate");
+
+            //Remove Media / Channel from Lucene 
+            bool result = false;
+            switch (m_sTable.ToLower())
+            {
+                case "media":
+                    result = ImporterImpl.UpdateIndex(lIds, nGroupId, action);
+                    break;
+                case "channels":
+                    result = ImporterImpl.UpdateChannelIndex(nGroupId, lIds, action);
+                    break;
+                case "channels_media":
+                    object oChannelId = ODBCWrapper.Utils.GetTableSingleVal("channels_media", "CHANNEL_ID", m_nID);//get channel+media_id 
+                    int nChannelId;
+                    if (oChannelId != null && oChannelId != DBNull.Value)
+                    {
+                        nChannelId = int.Parse(oChannelId.ToString());
+                        lIds.Clear();
+                        lIds.Add(nChannelId);
+
+                        result = ImporterImpl.UpdateChannelIndex(nGroupId, lIds, action);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (bIsPublished == true)
+        {
+            ODBCWrapper.UpdateQuery updateQuery2 = new ODBCWrapper.UpdateQuery(m_sTable);
+            updateQuery2.SetConnectionKey(m_sDB);
+            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.Now);
+            updateQuery2 += "where";
+            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+            updateQuery2.Execute();
+            updateQuery2.Finish();
+            updateQuery2 = null;
+        }
+        if (Session["LastContentPage"].ToString().IndexOf("?") == -1)
+            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1'</script>");
+        else
+            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1'</script>");
+    }
+
+    protected void GetMainMenu()
+    {
+        Response.Write(m_sMenu);
+    }
+
+    protected void GetSubMenu()
+    {
+        Response.Write(m_sSubMenu);
+    }
+
+    protected void GetLoginName()
+    {
+        Response.Write(LoginManager.GetLoginName());
+    }
+
+    public void GetPageContext()
+    {
+        /*
+        string sTmp = "<table width=100%><tr><td class=alert_text>";
+        sTmp += "אנא אשר שינוי סטטוס הרשומה שזיהויה: <br>";
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select " + m_sRepresentField + " from " + m_sTable + " where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", m_nID);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                sTmp += m_sRepresentName + " : " + selectQuery.Table("query").DefaultView[0].Row[m_sRepresentField].ToString();
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+        sTmp += "</td></tr>";
+        sTmp += "<tr><td width=100% nowrap><table width=100%><tr>";
+        sTmp += "<td width=60px align=center onmouseover=\"this.className='FormButtonOver';\" onmouseout=\"this.className='FormButton';\" valign=top onclick='FinalRemove();' class=FormButton nowrap id=\"confirm_btn\"><strong>&nbsp;אשר&nbsp;</strong></td>";
+        sTmp += "<td width=30px></td>";
+        sTmp += "<td width=60px align=center onmouseover=\"this.className='FormButtonOver';\" onmouseout=\"this.className='FormButton';\" valign=top onclick='window.document.location.href=\"" + Session["LastContentPage"].ToString() + "\";' class=FormButton nowrap><strong>&nbsp;בטל&nbsp;</strong></td>";
+        sTmp += "<td width=100%></td>";
+        sTmp += "</tr></table></td></tr>";
+        sTmp += "</table>";
+        Response.Write(sTmp);
+         */
+    }
+
+    protected void RemoveTheRecord(Object Sender, EventArgs e)
+    {
+        bool bIsPublished = false;
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
+        updateQuery.SetConnectionKey(m_sDB);
+        if (m_bConfirm == true)
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+        else
+        {
+            bIsPublished = true;
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+        }
+        updateQuery += "where";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+        updateQuery += "and";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 4);
+        updateQuery.Execute();
+        updateQuery.Finish();
+        updateQuery = null;
+
+        ODBCWrapper.UpdateQuery updateQuery1 = new ODBCWrapper.UpdateQuery(m_sTable);
+        updateQuery1.SetConnectionKey(m_sDB);
+        if (m_bConfirm == true)
+        {
+            bIsPublished = true;
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+        }
+        else
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+        updateQuery1 += "where";
+        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+        updateQuery1 += "and";
+        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 3);
+        updateQuery1.Execute();
+        updateQuery1.Finish();
+        updateQuery1 = null;
+
+        if (bIsPublished == true)
+        {
+            ODBCWrapper.UpdateQuery updateQuery2 = new ODBCWrapper.UpdateQuery(m_sTable);
+            updateQuery2.SetConnectionKey(m_sDB);
+            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.Now);
+            updateQuery2 += "where";
+            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+            updateQuery2.Execute();
+            updateQuery2.Finish();
+            updateQuery2 = null;
+        }
+        if (Session["LastContentPage"].ToString().IndexOf("?") == -1)
+            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1'</script>");
+        else
+            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1'</script>");
+    }
+}
