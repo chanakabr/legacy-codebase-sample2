@@ -1,0 +1,651 @@
+using System;
+using System.Data;
+using System.Configuration;
+using System.Collections;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+using System.Web.UI.HtmlControls;
+using TVinciShared;
+using TvinciImporter;
+using System.Collections.Generic;
+
+public partial class adm_channels_new : System.Web.UI.Page
+{
+    protected string m_sMenu;
+    protected string m_sSubMenu;
+    protected string m_sLangMenu;
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (LoginManager.CheckLogin() == false)
+            Response.Redirect("login.html");
+        if (LoginManager.IsPagePermitted("adm_channels.aspx") == false)
+            LoginManager.LogoutFromSite("login.html");
+        if (LoginManager.IsActionPermittedOnPage("adm_channels.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT) == false)
+            LoginManager.LogoutFromSite("login.html");
+
+        if (AMS.Web.RemoteScripting.InvokeMethod(this))
+        {
+            Response.Expires = -1;
+            return;
+        }
+        if (!IsPostBack)
+        {
+            if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
+            {
+                bool result;
+                int nId = DBManipulator.DoTheWork();
+                //Update channel at Lucene/ ES
+                if (nId != 0)
+                {
+                    result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { nId }, ApiObjects.eAction.Update);
+                }
+                return;
+            }
+            Int32 nMenuID = 0;
+            m_sMenu = TVinciShared.Menu.GetMainMenu(6, true, ref nMenuID);
+            if (Request.QueryString["channel_id"] != null &&
+                Request.QueryString["channel_id"].ToString() != "")
+                Session["channel_id"] = int.Parse(Request.QueryString["channel_id"].ToString());
+            else
+                Session["channel_id"] = 0;
+
+            if (Request.QueryString["channel_type"] != null &&
+                Request.QueryString["channel_type"].ToString() != "")
+                Session["channel_type"] = int.Parse(Request.QueryString["channel_type"].ToString());
+            else
+            {
+                if (Session["channel_id"] != null &&
+                    Session["channel_id"].ToString() != "" &&
+                    Session["channel_id"].ToString() != "0")
+                    StartChannelType();
+                else
+                    LoginManager.LogoutFromSite("login.aspx");
+            }
+            Int32 nOwnerGroupID = LoginManager.GetLoginGroupID();
+            m_sLangMenu = GetLangMenu(nOwnerGroupID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 2, false);
+        }
+    }
+
+    protected void GetLangMenu()
+    {
+        Response.Write(m_sLangMenu);
+    }
+
+    protected void StartChannelType()
+    {
+        Session["channel_type"] = int.Parse(PageUtils.GetTableSingleVal("channels", "CHANNEL_TYPE", int.Parse(Session["channel_id"].ToString())).ToString());
+    }
+
+    protected string GetLangMenu(Int32 nGroupID)
+    {
+        if (Session["channel_id"] != null &&
+            Session["channel_id"].ToString() == "0")
+            return "";
+        try
+        {
+            string sTemp = "";
+            Int32 nCount = 0;
+            string sMainLang = "";
+            Int32 nMainLangID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select l.name,l.id from groups g,lu_languages l where l.id=g.language_id and  ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    sMainLang = selectQuery.Table("query").DefaultView[0].Row["name"].ToString();
+                    nMainLangID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            sTemp += "<li><a class=\"on\" href=\"";
+            sTemp += "adm_channels_new.aspx?channel_id=" + Session["channel_id"].ToString();
+            sTemp += "\"><span>";
+            sTemp += sMainLang;
+            sTemp += "</span></a></li>";
+
+            //Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("media", "group_id", int.Parse(Session["media_id"].ToString())).ToString());
+            ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery1 += "select l.name,l.id from group_extra_languages gel,lu_languages l where gel.language_id=l.id and l.status=1 and gel.status=1 and  ";
+            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("l.id", "<>", nMainLangID);
+            selectQuery1 += "and";
+            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("gel.group_id", "=", nGroupID);
+            selectQuery1 += " order by l.name";
+            if (selectQuery1.Execute("query", true) != null)
+            {
+                Int32 nCount1 = selectQuery1.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount1; i++)
+                {
+                    Int32 nLangID = int.Parse(selectQuery1.Table("query").DefaultView[i].Row["id"].ToString());
+                    string nLangName = selectQuery1.Table("query").DefaultView[i].Row["name"].ToString();
+                    sTemp += "<li><a href=\"";
+                    sTemp += "adm_channel_translate.aspx?channel_id=" + Session["channel_id"].ToString() + "&lang_id=" + nLangID.ToString();
+                    sTemp += "\"><span>";
+                    sTemp += nLangName;
+                    sTemp += "</span></a></li>";
+                }
+                if (nCount1 == 0)
+                    sTemp = "";
+            }
+            selectQuery1.Finish();
+            selectQuery1 = null;
+
+            return sTemp;
+        }
+        catch
+        {
+            HttpContext.Current.Response.Redirect("login.html");
+            return "";
+        }
+    }
+
+    public void GetHeader()
+    {
+        string sRet = PageUtils.GetPreHeader() + ": Channels";
+        if (Session["channel_id"] != null && Session["channel_id"].ToString() != "" && Session["channel_id"].ToString() != "0")
+            sRet += " - Edit";
+        else
+            sRet += " - New";
+        Response.Write(sRet);
+    }
+
+    protected void GetMainMenu()
+    {
+        Response.Write(m_sMenu);
+    }
+
+    protected void GetSubMenu()
+    {
+        Response.Write(m_sSubMenu);
+    }
+
+    protected string GetSafeStrVal(ref ODBCWrapper.DataSetSelectQuery selectQuery , string sField)
+    {
+        string sRet = "";
+        object oVal = selectQuery.Table("query").DefaultView[0].Row[sField];
+        if (oVal != DBNull.Value && oVal != null)
+            sRet = oVal.ToString();
+        return sRet;
+    }
+
+    protected void AddCutBy(ref DBRecordWebEditor theRecord)
+    {
+        string sChaildsGroupStr = "";
+        string sGroups = PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID());
+        PageUtils.GetAllGroupsStr(LoginManager.GetLoginGroupID(), ref sChaildsGroupStr);
+        sGroups = sGroups.Insert(sGroups.Length - 1 , sChaildsGroupStr);
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select * from media_tags_types where status=1 and group_id " + sGroups;
+        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
+        selectQuery += " order by order_num";
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            for (int i = 0; i < nCount; i++)
+            {
+                string sTagTypeName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
+                Int32 nTagTypeID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+                DataRecordMultiField dr_tags = new DataRecordMultiField("tags", "id", "id", "channel_tags", "channel_id", "TAG_ID", true, "ltr", 60, "tags");
+                dr_tags.Initialize(sTagTypeName, "adm_table_header_nbg", "FormInput", "VALUE", false);
+                dr_tags.SetCollectionLength(8);
+                dr_tags.SetExtraWhere("TAG_TYPE_ID=" + nTagTypeID.ToString());
+                theRecord.AddRecord(dr_tags);
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+        {
+            DataRecordMultiField dr_tags = new DataRecordMultiField("tags", "id", "id", "channel_tags", "channel_id", "TAG_ID", true, "ltr", 60, "tags");
+            dr_tags.Initialize("Free", "adm_table_header_nbg", "FormInput", "VALUE", false);
+            dr_tags.SetCollectionLength(8);
+            dr_tags.SetExtraWhere("TAG_TYPE_ID=0");
+            theRecord.AddRecord(dr_tags);
+        }
+    }
+
+    protected void AddOrderBy(ref DBRecordWebEditor theRecord , bool bIsAuto)
+    {
+        string META1_STR_NAME = "";
+        string META2_STR_NAME = "";
+        string META3_STR_NAME = "";
+        string META4_STR_NAME = "";
+        string META5_STR_NAME = "";
+        string META6_STR_NAME = "";
+        string META7_STR_NAME = "";
+        string META8_STR_NAME = "";
+        string META9_STR_NAME = "";
+        string META10_STR_NAME = "";
+        string META11_STR_NAME = "";
+        string META12_STR_NAME = "";
+        string META13_STR_NAME = "";
+        string META14_STR_NAME = "";
+        string META15_STR_NAME = "";
+        string META16_STR_NAME = "";
+        string META17_STR_NAME = "";
+        string META18_STR_NAME = "";
+        string META19_STR_NAME = "";
+        string META20_STR_NAME = "";
+
+        string META1_DOUBLE_NAME = "";
+        string META2_DOUBLE_NAME = "";
+        string META3_DOUBLE_NAME = "";
+        string META4_DOUBLE_NAME = "";
+        string META5_DOUBLE_NAME = "";
+        string META6_DOUBLE_NAME = "";
+        string META7_DOUBLE_NAME = "";
+        string META8_DOUBLE_NAME = "";
+        string META9_DOUBLE_NAME = "";
+        string META10_DOUBLE_NAME = "";
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select * from groups where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", LoginManager.GetLoginGroupID());
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                META1_STR_NAME = GetSafeStrVal(ref selectQuery , "META1_STR_NAME");
+                META2_STR_NAME = GetSafeStrVal(ref selectQuery, "META2_STR_NAME");
+                META3_STR_NAME = GetSafeStrVal(ref selectQuery, "META3_STR_NAME");
+                META4_STR_NAME = GetSafeStrVal(ref selectQuery, "META4_STR_NAME");
+                META5_STR_NAME = GetSafeStrVal(ref selectQuery, "META5_STR_NAME");
+                META6_STR_NAME = GetSafeStrVal(ref selectQuery, "META6_STR_NAME");
+                META7_STR_NAME = GetSafeStrVal(ref selectQuery, "META7_STR_NAME");
+                META8_STR_NAME = GetSafeStrVal(ref selectQuery, "META8_STR_NAME");
+                META9_STR_NAME = GetSafeStrVal(ref selectQuery, "META9_STR_NAME");
+                META10_STR_NAME = GetSafeStrVal(ref selectQuery, "META10_STR_NAME");
+
+                META11_STR_NAME = GetSafeStrVal(ref selectQuery, "META11_STR_NAME");
+                META12_STR_NAME = GetSafeStrVal(ref selectQuery, "META12_STR_NAME");
+                META13_STR_NAME = GetSafeStrVal(ref selectQuery, "META13_STR_NAME");
+                META14_STR_NAME = GetSafeStrVal(ref selectQuery, "META14_STR_NAME");
+                META15_STR_NAME = GetSafeStrVal(ref selectQuery, "META15_STR_NAME");
+                META16_STR_NAME = GetSafeStrVal(ref selectQuery, "META16_STR_NAME");
+                META17_STR_NAME = GetSafeStrVal(ref selectQuery, "META17_STR_NAME");
+                META18_STR_NAME = GetSafeStrVal(ref selectQuery, "META18_STR_NAME");
+                META19_STR_NAME = GetSafeStrVal(ref selectQuery, "META19_STR_NAME");
+                META20_STR_NAME = GetSafeStrVal(ref selectQuery, "META20_STR_NAME");
+
+                META1_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META1_DOUBLE_NAME");
+                META2_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META2_DOUBLE_NAME");
+                META3_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META3_DOUBLE_NAME");
+                META4_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META4_DOUBLE_NAME");
+                META5_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META5_DOUBLE_NAME");
+
+                META6_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META6_DOUBLE_NAME");
+                META7_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META7_DOUBLE_NAME");
+                META8_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META8_DOUBLE_NAME");
+                META9_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META9_DOUBLE_NAME");
+                META10_DOUBLE_NAME = GetSafeStrVal(ref selectQuery, "META10_DOUBLE_NAME");
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+        DataTable d = new DataTable();
+        Int32 n = 0;
+        string s = "";
+        d.Columns.Add(PageUtils.GetColumn("ID", n));
+        d.Columns.Add(PageUtils.GetColumn("txt", s));
+
+        System.Data.DataRow tmpRow = null;
+        
+        tmpRow = d.NewRow();
+        tmpRow["ID"] = -6;
+        tmpRow["txt"] = "Random";
+        d.Rows.InsertAt(tmpRow, 0);
+        d.AcceptChanges();
+
+        tmpRow = d.NewRow();
+        tmpRow["ID"] = -11;
+        tmpRow["txt"] = "A.B.C";
+        d.Rows.InsertAt(tmpRow, 0);
+        d.AcceptChanges();
+
+        tmpRow = d.NewRow();
+        tmpRow["ID"] = -8;
+        tmpRow["txt"] = "Rating";
+        d.Rows.InsertAt(tmpRow, 0);
+        d.AcceptChanges();
+
+        tmpRow = d.NewRow();
+        tmpRow["ID"] = -7;
+        tmpRow["txt"] = "Views";
+        d.Rows.InsertAt(tmpRow, 0);
+        d.AcceptChanges();
+        
+        tmpRow = d.NewRow();
+        tmpRow["ID"] = -10;
+        tmpRow["txt"] = "Start Date";
+        d.Rows.InsertAt(tmpRow, 0);
+        d.AcceptChanges();
+
+        tmpRow = d.NewRow();
+        tmpRow["ID"] = -9;
+        tmpRow["txt"] = "Likes";
+        d.Rows.InsertAt(tmpRow, 0);
+        d.AcceptChanges();
+
+        tmpRow = d.NewRow();
+        tmpRow["ID"] = -12;
+        tmpRow["txt"] = "Create Date";
+        d.Rows.InsertAt(tmpRow, 0);
+        d.AcceptChanges();
+
+        if (bIsAuto == false)
+        {
+            tmpRow = d.NewRow();
+            tmpRow["ID"] = 0;
+            tmpRow["txt"] = "Order Num";
+            d.Rows.InsertAt(tmpRow, 0);
+            d.AcceptChanges();
+        }
+
+        SafeMerge(META1_STR_NAME, "META1_STR_NAME", 1, ref d);
+        SafeMerge(META2_STR_NAME, "META2_STR_NAME", 2 , ref d);
+        SafeMerge(META3_STR_NAME, "META3_STR_NAME", 3, ref d);
+        SafeMerge(META4_STR_NAME, "META4_STR_NAME", 4, ref d);
+        SafeMerge(META5_STR_NAME, "META5_STR_NAME", 5, ref d);
+        SafeMerge(META6_STR_NAME, "META6_STR_NAME", 6, ref d);
+        SafeMerge(META7_STR_NAME, "META7_STR_NAME", 7, ref d);
+        SafeMerge(META8_STR_NAME, "META8_STR_NAME", 8, ref d);
+        SafeMerge(META9_STR_NAME, "META9_STR_NAME", 9, ref d);
+        SafeMerge(META10_STR_NAME, "META10_STR_NAME", 10, ref d);
+
+        SafeMerge(META11_STR_NAME, "META11_STR_NAME", 11, ref d);
+        SafeMerge(META12_STR_NAME, "META12_STR_NAME", 12, ref d);
+        SafeMerge(META13_STR_NAME, "META13_STR_NAME", 13, ref d);
+        SafeMerge(META14_STR_NAME, "META14_STR_NAME", 14, ref d);
+        SafeMerge(META15_STR_NAME, "META15_STR_NAME", 15, ref d);
+        SafeMerge(META16_STR_NAME, "META16_STR_NAME", 16, ref d);
+        SafeMerge(META17_STR_NAME, "META17_STR_NAME", 17, ref d);
+        SafeMerge(META18_STR_NAME, "META18_STR_NAME", 18, ref d);
+        SafeMerge(META19_STR_NAME, "META19_STR_NAME", 19, ref d);
+        SafeMerge(META20_STR_NAME, "META20_STR_NAME", 20, ref d);
+
+        SafeMerge(META1_DOUBLE_NAME, "META1_DOUBLE_NAME", 21, ref d);
+        SafeMerge(META2_DOUBLE_NAME, "META2_DOUBLE_NAME", 22, ref d);
+        SafeMerge(META3_DOUBLE_NAME, "META3_DOUBLE_NAME", 23, ref d);
+        SafeMerge(META4_DOUBLE_NAME, "META4_DOUBLE_NAME", 24, ref d);
+        SafeMerge(META5_DOUBLE_NAME, "META5_DOUBLE_NAME", 25, ref d);
+
+        SafeMerge(META6_DOUBLE_NAME, "META6_DOUBLE_NAME", 26, ref d);
+        SafeMerge(META7_DOUBLE_NAME, "META7_DOUBLE_NAME", 27, ref d);
+        SafeMerge(META8_DOUBLE_NAME, "META8_DOUBLE_NAME", 28, ref d);
+        SafeMerge(META9_DOUBLE_NAME, "META9_DOUBLE_NAME", 29, ref d);
+        SafeMerge(META10_DOUBLE_NAME, "META10_DOUBLE_NAME", 30, ref d);
+
+        DataRecordRadioField dr_channels_order_by_types = new DataRecordRadioField("lu_channels_order_by_types", "description", "id", "", null);
+        dr_channels_order_by_types.Initialize("Order By", "adm_table_header_nbg", "FormInput", "ORDER_BY_TYPE", true);
+        dr_channels_order_by_types.SetSelectsDT(d);
+        dr_channels_order_by_types.SetDefault(0);
+        theRecord.AddRecord(dr_channels_order_by_types);
+
+        if (bIsAuto)
+        {
+            DataRecordRadioField dr_IsSlidingWindow = new DataRecordRadioField("lu_on_off", "description", "id", "", null);
+            dr_IsSlidingWindow.Initialize("Sliding Window enabled", "adm_table_header_nbg", "FormInput", "IsSlidingWindow", true);
+            dr_IsSlidingWindow.SetDefault(0);
+            theRecord.AddRecord(dr_IsSlidingWindow);
+
+            DataRecordDropDownField dr_SlidingWindowPeriod = new DataRecordDropDownField("lu_min_periods", "description", "id", "", null, 90, false);
+            dr_SlidingWindowPeriod.Initialize("Window period", "adm_table_header_nbg", "FormInput", "SlidingWindowPeriod", true);
+            theRecord.AddRecord(dr_SlidingWindowPeriod);
+        }
+
+    }
+
+    static protected void SafeMerge(string sMetaVal , string sMetaName , Int32 nID , ref DataTable d)
+    {
+        DataTable dToMerge = GetOrderByPart(sMetaVal, sMetaName, nID);
+        if (dToMerge.DefaultView.Count > 0 && dToMerge.DefaultView[0].Row["txt"].ToString() != "")
+            d.Merge(dToMerge);
+    }
+
+    static protected DataTable GetOrderByPart(string sMetaVal , string sMetaName , Int32 nID)
+    {
+        DataTable d = null;
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select " + sMetaName + " as txt," + nID.ToString() + " as ID from groups where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id" , "=" , LoginManager.GetLoginGroupID());
+        if (selectQuery.Execute("query", true) != null)
+        {
+            d = selectQuery.Table("query").Copy();
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+        return d;
+    }
+
+    protected void AddStrFields(ref DBRecordWebEditor theRecord)
+    {
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select * from groups where status=1 and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", LoginManager.GetLoginGroupID());
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                for (int i = 1; i < 21; i++)
+                {
+                    string sFieldName = "META" + i.ToString() + "_STR_NAME";
+                    object oName = selectQuery.Table("query").DefaultView[0].Row[sFieldName];
+                    if (oName != DBNull.Value && oName != null && oName.ToString() != "")
+                    {
+                        string sName = oName.ToString();
+                        string sField = "META" + i.ToString() + "_STR";
+                        DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 255);
+                        dr_name.Initialize(sName, "adm_table_header_nbg", "FormInput", sField, false);
+                        theRecord.AddRecord(dr_name);
+                    }
+                }
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+    }
+
+    protected void AddIntFields(ref DBRecordWebEditor theRecord)
+    {
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select * from groups where status=1 and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", LoginManager.GetLoginGroupID());
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                for (int i = 1; i < 11; i++)
+                {
+                    string sFieldName = "META" + i.ToString() + "_DOUBLE_NAME";
+                    object oName = selectQuery.Table("query").DefaultView[0].Row[sFieldName];
+                    if (oName != DBNull.Value && oName != null && oName.ToString() != "")
+                    {
+                        string sName = oName.ToString();
+                        string sField = "META" + i.ToString() + "_DOUBLE";
+                        string sFieldCB = "USE_META" + i.ToString() + "_DOUBLE";
+
+                        
+
+                        DataRecordCheckBoxField dr_use = new DataRecordCheckBoxField(true);
+                        dr_use.Initialize("Cut Using " + sName, "adm_table_header_nbg", "FormInput", sFieldCB, false);
+                        //theRecord.AddRecord(dr_use);
+
+                        DataRecordShortDoubleField dr_name = new DataRecordShortDoubleField(true, 6, 6);
+                        dr_name.Initialize("", "adm_table_header_nbg", "FormInput", sField, false);
+                        //theRecord.AddRecord(dr_name);
+
+                        DataRecordCutWithDoubleField dr_cut = new DataRecordCutWithDoubleField(ref dr_use, ref dr_name, "Check to cut using this field");
+                        dr_cut.Initialize(sName, "adm_table_header_nbg", "FormInput", sField, false);
+                        theRecord.AddRecord(dr_cut);
+                    }
+                }
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+    }
+
+    protected void AddBoolFields(ref DBRecordWebEditor theRecord)
+    {
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select * from groups where status=1 and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", LoginManager.GetLoginGroupID());
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                for (int i = 1; i < 11; i++)
+                {
+                    string sFieldName = "META" + i.ToString() + "_BOOL_NAME";
+                    object oName = selectQuery.Table("query").DefaultView[0].Row[sFieldName];
+                    if (oName != DBNull.Value && oName != null && oName.ToString() != "")
+                    {
+                        string sName = oName.ToString();
+                        string sField = "META" + i.ToString() + "_BOOL";
+                        string sFieldCB = "USE_META" + i.ToString() + "_BOOL";
+
+                        DataRecordCheckBoxField dr_use = new DataRecordCheckBoxField(true);
+                        dr_use.Initialize(sName, "adm_table_header_nbg", "FormInput", sFieldCB, false);
+                        //theRecord.AddRecord(dr_use);
+
+                        DataRecordBoolField dr_name = new DataRecordBoolField(true);
+                        dr_name.Initialize("", "adm_table_header_nbg", "FormInput", sField, false);
+                        //theRecord.AddRecord(dr_name);
+
+                        DataRecordCutWithBoolField dr_cut = new DataRecordCutWithBoolField(ref dr_use, ref dr_name , "Check to cut using this field");
+                        dr_cut.Initialize(sName, "adm_table_header_nbg", "FormInput", sField, false);
+                        theRecord.AddRecord(dr_cut);
+
+
+                    }
+                }
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+    }
+
+    public string GetPageContent(string sOrderBy, string sPageNum)
+    {
+        if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
+        {
+            Session["error_msg"] = "";
+            return Session["last_page_html"].ToString();
+        }
+        object t = null; ;
+        if (Session["channel_id"] != null && Session["channel_id"].ToString() != "" && int.Parse(Session["channel_id"].ToString()) != 0)
+            t = Session["channel_id"];
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("channels", "adm_table_pager", "adm_channels.aspx?search_save=1", "", "ID", t, "adm_channels.aspx?search_save=1", "channel_id");
+
+        DataRecordShortIntField dr_order_num = new DataRecordShortIntField(true, 3, 3);
+        dr_order_num.Initialize("Order number", "adm_table_header_nbg", "FormInput", "ORDER_NUM", true);
+        dr_order_num.SetDefault(1);
+        theRecord.AddRecord(dr_order_num);
+
+        DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
+        theRecord.AddRecord(dr_name);
+
+        DataRecordShortTextField dr_admin_name = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_admin_name.Initialize("Unique Name", "adm_table_header_nbg", "FormInput", "ADMIN_NAME", true);
+        theRecord.AddRecord(dr_admin_name);
+
+
+        
+        DataRecordLongTextField dr_bio = new DataRecordLongTextField("ltr", true, 60, 20);
+        dr_bio.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
+        theRecord.AddRecord(dr_bio);
+
+        DataRecordCheckBoxField dr_rss = new DataRecordCheckBoxField(true);
+        dr_rss.Initialize("Enable feed ", "adm_table_header_nbg", "FormInput", "IS_RSS", false);
+        theRecord.AddRecord(dr_rss);
+
+        DataRecordMultiField dr_channels = new DataRecordMultiField("categories", "id", "id", "categories_channels", "channel_ID", "category_id", false, "ltr", 60, "tags");
+        dr_channels.Initialize("Categories", "adm_table_header_nbg", "FormInput", "ADMIN_NAME", false);
+        string sQuery = "select ADMIN_NAME as txt,id as val from categories where status=1 and group_id=" + LoginManager.GetLoginGroupID().ToString();
+        sQuery += " order by ADMIN_NAME";
+        dr_channels.SetCollectionQuery(sQuery);
+        theRecord.AddRecord(dr_channels);
+
+        DataRecordTimeField dr_relevant_time = new DataRecordTimeField();
+        dr_relevant_time.Initialize("Linear Start Time", "adm_table_header_nbg", "FormInput", "LINEAR_START_TIME", false);
+        theRecord.AddRecord(dr_relevant_time);
+
+        DataRecordOnePicBrowserField dr_logo_Pic = new DataRecordOnePicBrowserField();
+        dr_logo_Pic.Initialize("Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
+        theRecord.AddRecord(dr_logo_Pic);
+
+        string sDefPT = "";
+        object oDefPT = ODBCWrapper.Utils.GetTableSingleVal("groups", "DEFAULT_PLAYLIST_TEMPLATE_ID", LoginManager.GetLoginGroupID());
+        if (oDefPT != DBNull.Value && oDefPT != null)
+            sDefPT = oDefPT.ToString();
+
+        DataRecordDropDownField dr_pli_template = new DataRecordDropDownField("play_list_items_templates_types", "NAME", "id", "", null, 60, true);
+        sQuery = "select name as txt,id as id from play_list_items_templates_types where status=1 and is_active=1 and group_id= " + LoginManager.GetLoginGroupID().ToString();
+        dr_pli_template.SetSelectsQuery(sQuery);
+        dr_pli_template.Initialize("Playlist schema", "adm_table_header_nbg", "FormInput", "PLAYLIST_TEMPLATE_ID", false);
+        dr_pli_template.SetNoSelectStr("---");
+        dr_pli_template.SetDefaultVal(sDefPT);
+        theRecord.AddRecord(dr_pli_template);
+
+        //DataRecordCheckBoxField dr_personal = new DataRecordCheckBoxField(true);
+        //dr_personal.Initialize("Cut with person ", "adm_table_header_nbg", "FormInput", "IS_PERSONAL", false);
+        //theRecord.AddRecord(dr_personal);
+
+        DataRecordRadioField dr_cut_type = new DataRecordRadioField("lu_cut_type" , "description" , "id" , "" , null);
+        dr_cut_type.Initialize("Cut Tags Type", "adm_table_header_nbg", "FormInput", "IS_AND", false);
+        theRecord.AddRecord(dr_cut_type);
+
+        if (int.Parse(Session["channel_type"].ToString()) == 1)
+        {
+            //AdmCutByStr(ref theRecord);
+            DataRecordDropDownField dr_type = new DataRecordDropDownField("media_types", "NAME", "id", "", null, 60, true);
+            sQuery = "select name as txt,id as id from media_types where status=1 and group_id " + PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID()) + " order by ORDER_NUM";
+            dr_type.SetSelectsQuery(sQuery);
+            dr_type.Initialize("Media type", "adm_table_header_nbg", "FormInput", "MEDIA_TYPE_ID", false);
+            theRecord.AddRecord(dr_type);
+            AddStrFields(ref theRecord);
+            AddIntFields(ref theRecord);
+            AddBoolFields(ref theRecord);
+            AddCutBy(ref theRecord);
+        }
+        if (int.Parse(Session["channel_type"].ToString()) == 1)
+            AddOrderBy(ref theRecord , true);
+        else
+            AddOrderBy(ref theRecord, false);
+        DataRecordRadioField dr_channels_order_by_dir = new DataRecordRadioField("lu_channels_order_by_DIR", "description", "id", "", null);
+        dr_channels_order_by_dir.Initialize("Order Direction", "adm_table_header_nbg", "FormInput", "ORDER_BY_DIR", true);
+        dr_channels_order_by_dir.SetDefault(0);
+        theRecord.AddRecord(dr_channels_order_by_dir);
+        
+        DataRecordLongTextField dr_edit_data = new DataRecordLongTextField("rtl", true, 60, 10);
+        dr_edit_data.Initialize("Editor remarks", "adm_table_header_nbg", "FormInput", "EDITOR_REMARKS", false);
+        theRecord.AddRecord(dr_edit_data);
+
+        DataRecordShortIntField dr_channel_type = new DataRecordShortIntField(false, 3, 3);
+        dr_channel_type.Initialize("Channel type", "adm_table_header_nbg", "FormInput", "CHANNEL_TYPE", false);
+        if (int.Parse(Session["channel_type"].ToString()) == 1)
+            dr_channel_type.SetValue("1");
+        else
+            dr_channel_type.SetValue("2");
+        theRecord.AddRecord(dr_channel_type);
+
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        theRecord.AddRecord(dr_groups);
+
+        string sTable = theRecord.GetTableHTML("adm_channels_new.aspx?submited=1");
+
+        return sTable;
+    }   
+}

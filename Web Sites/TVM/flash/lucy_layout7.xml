@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layouts>
+	<layout id="stage">
+		<mode id="zero">
+			<item id="mainBG" parent="mainStage" depth="1" alignment="width,height" rightMargin="0" leftMargin="0" bottomMargin="0" topMargin="0" alpha="1" />
+			<item id="videoPlayer" parent="mainStage" depth="2" alignment="" width="1" height="1" x="0" y="0" alpha="1" />
+		</mode>
+		<mode id="empty">
+			<item id="mainBG" parent="mainStage" depth="1" alignment="width,height" rightMargin="0" leftMargin="0" bottomMargin="0" topMargin="0" alpha="1" />
+			<item id="videoPlayer" parent="mainStage" depth="2" alignment="width,height" rightMargin="0" leftMargin="0" bottomMargin="26" topMargin="0" alpha="1" />
+			<item id="controllers" parent="mainStage" depth="6" alignment="width,bottom" bottomMargin="0" rightMargin="0" leftMargin="0" height="28" alpha="1" />
+		</mode>
+		<mode id="normal">
+			<item id="mainBG" parent="mainStage" depth="1" alignment="width,height" rightMargin="0" leftMargin="0" bottomMargin="0" topMargin="0" alpha="1" />
+			<item id="videoPlayer" parent="mainStage" depth="2" alignment="width,height" rightMargin="0" leftMargin="0" bottomMargin="26" topMargin="0" alpha="1" />
+			<item id="controllers" parent="mainStage" depth="6" alignment="width,bottom" bottomMargin="0" rightMargin="0" leftMargin="0" height="28" alpha="1" />
+		</mode>
+		<mode id="widgetOpen">
+		</mode>
+		<mode filter="heb" id="playerMsg">
+			<item id="mainBG" parent="mainStage" depth="1" alignment="width,height" rightMargin="0" leftMargin="0" bottomMargin="0" topMargin="0" alpha="1" />
+			<item id="controllers" parent="mainStage" depth="6" alignment="width,bottom" bottomMargin="0" rightMargin="0" leftMargin="0" height="28" alpha="1" />
+			<item id="msgHolder" parent="mainStage" depth="4" alignment="width,height" rightMargin="0" leftMargin="0" bottomMargin="26" topMargin="0" alpha="1" />
+			<item id="videoPlayer" parent="mainStage" depth="5" alignment="right" width="1" height="1" x="0" y="-500" alpha="1" />
+		</mode>
+		<mode id="fullscreen">
+			<item id="videoPlayer" parent="mainStage" depth="2" alignment="width,height" rightMargin="0" leftMargin="0" bottomMargin="26" topMargin="0" alpha="1" />
+			<item id="controllers" parent="mainStage" depth="6" alignment="width,bottom" bottomMargin="0" rightMargin="0" leftMargin="0" height="28" alpha="1" />
+		</mode>
+		<mode id="clearFullscreen">
+			<item id="videoPlayer" parent="mainStage" depth="2" alignment="width,height" rightMargin="0" leftMargin="0" bottomMargin="0" topMargin="0" alpha="1" />
+		</mode>
+	</layout>
+	<layout id="controllers">
+		<mode id="normal">
+			<item id="seekbar" parent="container" depth="5" alignment="top,width" leftMargin="0" rightMargin="0" y="0" />
+			<item id="play_btn" parent="container" alignment="left" depth="1" leftMargin="0" y="8" />
+			<item id="durationPositionText" parent="container" depth="2" alignment="left" leftMargin="25" y="8" />
+			<item id="volumeControl" parent="container" depth="3" alignment="right" rightMargin="25" y="8" />
+			<item id="fullscreen_btn" parent="container" alignment="right" depth="4" rightMargin="0" y="8" />
+		</mode>
+		<mode id="buffering">
+			<item id="buffering" parent="container" depth="5" alignment="top,width" height="5" leftMargin="0" rightMargin="0" y="0" />
+			<item id="play_btn" parent="container" alignment="left" depth="1" leftMargin="0" y="8" />
+			<item id="durationPositionText" parent="container" depth="2" alignment="left" leftMargin="25" y="8" />
+			<item id="volumeControl" parent="container" depth="3" alignment="right" rightMargin="25" y="8" />
+			<item id="fullscreen_btn" parent="container" alignment="right" depth="4" rightMargin="0" y="8" />
+		</mode>
+	</layout>
+	<layout id="nowPlaying">
+		<mode id="normal">
+			<item id="mediaInfo" parent="container" depth="1" alignment="width"/>
+		</mode>
+	</layout>
+	<layout id="infoWidget">
+		<mode id="normal">
+			<item id="titleMediaInfo" parent="container" depth="1" x="0" width="440" alignment="width" />
+			<item id="infoMediaInfo" parent="container" depth="2" x="5" y="50" width="170" alignment="width" />
+			<item id="descriptionScrollPane" parent="container" depth="3" x="0" topMargin="160" leftMargin="0" rightMargin="1" width="285" alignment="width,height" />
+		</mode>
+	</layout>
+	<layout id="widgetHolder">
+		<mode id="normal">
+			<item filter="heb" id="close_btn" parent="container" depth="1" rightMargin="5" leftMargin="5" alignment="left" />
+			<item filter="rus" id="close_btn" parent="container" depth="1" rightMargin="5" leftMargin="5" alignment="right" />
+		</mode>
+	</layout>
+</layouts>
