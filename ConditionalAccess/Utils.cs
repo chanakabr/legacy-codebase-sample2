@@ -53,20 +53,12 @@ namespace ConditionalAccess
 
                 if (nImplID == 1)
                     t = new ConditionalAccess.TvinciConditionalAccess(nGroupID, sConnKey);
-                //if (nImplID == 2)
-                //    t = new ConditionalAccess.BFTVConditionalAccess(nGroupID, sConnKey);
-                if (nImplID == 3)
-                    t = new ConditionalAccess.TikleConditionalAccess(nGroupID, sConnKey);
                 if (nImplID == 4)
                     t = new ConditionalAccess.FilmoConditionalAccess(nGroupID, sConnKey);
-                if (nImplID == 5)
-                    t = new ConditionalAccess.ProjectorConditionalAccess(nGroupID, sConnKey);
                 if (nImplID == 6)
                     t = new ConditionalAccess.ElisaConditionalAccess(nGroupID, sConnKey);
                 if (nImplID == 7)
                     t = new ConditionalAccess.EutelsatConditionalAccess(nGroupID, sConnKey);
-                //if (nImplID == 8)
-                //    t = new ConditionalAccess.KangurooConditionalAccess(nGroupID, sConnKey);
                 if (nImplID == 9)
                     t = new ConditionalAccess.CinepolisConditionalAccess(nGroupID, sConnKey);
             }

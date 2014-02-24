@@ -8076,71 +8076,71 @@ namespace ConditionalAccess
             return TimeSpan.Zero.ToString();
         }
 
-        public string GetListFromCache(string sWSUserName, string sWSPassword)
-        {
-            //  object cacheObject = null;
-            List<string> cacheList = new List<string>();
-            Dictionary<string, object> cacheDictionary = new Dictionary<string, object>();
-            List<CachingDataResponse> cachingDataResponseList = new List<CachingDataResponse>();
-            CachingDataResponse cachingDataResponse = null;
-            try
-            {
-                ConditionalAccess.BaseConditionalAccess t = null;
-                Int32 nGroupID = ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword, "", ref t);
+        //public string GetListFromCache(string sWSUserName, string sWSPassword)
+        //{
+        //    //  object cacheObject = null;
+        //    List<string> cacheList = new List<string>();
+        //    Dictionary<string, object> cacheDictionary = new Dictionary<string, object>();
+        //    List<CachingDataResponse> cachingDataResponseList = new List<CachingDataResponse>();
+        //    CachingDataResponse cachingDataResponse = null;
+        //    try
+        //    {
+        //        ConditionalAccess.BaseConditionalAccess t = null;
+        //        Int32 nGroupID = ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword, "", ref t);
 
-                if (nGroupID != 0 && t != null)
-                {
-                    //Get all Key/Value pairs in the cache , by GroupID 
-                    foreach (System.Collections.DictionaryEntry entry in System.Web.HttpRuntime.Cache)
-                    {
-                        CachingManager.CachingData cachingData = null;
-                        object cacheObject = null;
-                        if (entry.Value.GetType().FullName.Equals("CachingManager.CachingData"))
-                        {
+        //        if (nGroupID != 0 && t != null)
+        //        {
+        //            //Get all Key/Value pairs in the cache , by GroupID 
+        //            foreach (System.Collections.DictionaryEntry entry in System.Web.HttpRuntime.Cache)
+        //            {
+        //                CachingManager.CachingData cachingData = null;
+        //                object cacheObject = null;
+        //                if (entry.Value.GetType().FullName.Equals("CachingManager.CachingData"))
+        //                {
 
-                            cachingData = CachingManager.CachingManager.GetCacheDataObject(entry.Key.ToString());
-                            cacheDictionary.Add(entry.Key.ToString(), cachingData);
+        //                    cachingData = CachingManager.CachingManager.GetCacheDataObject(entry.Key.ToString());
+        //                    cacheDictionary.Add(entry.Key.ToString(), cachingData);
 
-                            cachingDataResponse = new CachingDataResponse(entry.Key.ToString(), cachingData.m_oVal, cachingData.m_nMediaID, cachingData.m_bToRenew,
-                                cachingData.m_nCacheSecs, cachingData.m_Priority);
+        //                    cachingDataResponse = new CachingDataResponse(entry.Key.ToString(), cachingData.m_oVal, cachingData.m_nMediaID, cachingData.m_bToRenew,
+        //                        cachingData.m_nCacheSecs, cachingData.m_Priority);
 
-                            cachingDataResponseList.Add(cachingDataResponse);
+        //                    cachingDataResponseList.Add(cachingDataResponse);
 
-                        }
-                        else
-                        {
-                            //cacheObject = CachingManager.CachingManager.GetCachedData(entry.Key.ToString());
-                            cacheObject = CachingManager.CachingManager.GetCacheObject(entry.Key.ToString());
-                            cacheDictionary.Add(entry.Key.ToString(), cacheObject);
-                        }
-                    }
+        //                }
+        //                else
+        //                {
+        //                    //cacheObject = CachingManager.CachingManager.GetCachedData(entry.Key.ToString());
+        //                    cacheObject = CachingManager.CachingManager.GetCacheObject(entry.Key.ToString());
+        //                    cacheDictionary.Add(entry.Key.ToString(), cacheObject);
+        //                }
+        //            }
 
 
-                    StringBuilder sb = new StringBuilder();
-                    string s;
-                    foreach (CachingDataResponse item in cachingDataResponseList)
-                    {
-                        s = SerializeToXML(item);
-                        sb.AppendFormat("{0}", s);
-                    }
-                    return SerializeToXML(cachingDataResponseList);
-                    //return sb.ToString(); //  SerializeToXML(cachingDataResponseList[0]);
+        //            StringBuilder sb = new StringBuilder();
+        //            string s;
+        //            foreach (CachingDataResponse item in cachingDataResponseList)
+        //            {
+        //                s = SerializeToXML(item);
+        //                sb.AppendFormat("{0}", s);
+        //            }
+        //            return SerializeToXML(cachingDataResponseList);
+        //            //return sb.ToString(); //  SerializeToXML(cachingDataResponseList[0]);
 
-                }
-                else
-                {
-                    if (nGroupID == 0)
-                        HttpContext.Current.Response.StatusCode = 404;
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                //TODO : which log file to use??????
-                //  Logger.Logger.Log("BaseConditionalAccess : GetListFromCache", ex.Message , "mailer");
-                return null;
-            }
-        }
+        //        }
+        //        else
+        //        {
+        //            if (nGroupID == 0)
+        //                HttpContext.Current.Response.StatusCode = 404;
+        //            return null;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //TODO : which log file to use??????
+        //        //  Logger.Logger.Log("BaseConditionalAccess : GetListFromCache", ex.Message , "mailer");
+        //        return null;
+        //    }
+        //}
 
         public String SerializeToXML<T>(T objectToSerialize)
         {
