@@ -62,18 +62,18 @@ public partial class epg_uploader : System.Web.UI.Page
         int taskID = 1;
         int taskIntervalsInSeconds = 1;
 
-        int groupID = 0;
-        bool result = int.TryParse(sGroupID, out groupID);
-        if (result == true)       
-        {
-            string epgFeederParams = string.Format(EPG_FEEDER_PARAMS, sGroupID, sEPGChannel, filePath);
-            EpgFeeder.EpgFeederObj feeder = new EpgFeeder.EpgFeederObj(taskID, taskIntervalsInSeconds, epgFeederParams);
-            feeder.DoTheTask();
-        }
-        else
-        {
-            throw new Exception("GroupID must be number!!!"); 
-        }
+        //int groupID = 0;
+        //bool result = int.TryParse(sGroupID, out groupID);
+        //if (result == true)       
+        //{
+        //    string epgFeederParams = string.Format(EPG_FEEDER_PARAMS, sGroupID, sEPGChannel, filePath);
+        //    EpgFeeder.EpgFeederObj feeder = new EpgFeeder.EpgFeederObj(taskID, taskIntervalsInSeconds, epgFeederParams);
+        //    feeder.DoTheTask();
+        //}
+        //else
+        //{
+        //    throw new Exception("GroupID must be number!!!"); 
+        //}
     }
     
     protected void UploadXmlFileToFtp(int groupID, string filePath)
