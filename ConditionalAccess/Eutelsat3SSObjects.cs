@@ -26,7 +26,7 @@ namespace ConditionalAccess
         public string Currency              { get; set; }
 
         [JsonProperty("asset_id")]
-        public int AssetID                  { get; set; }
+        public string AssetID               { get; set; }
 
         [JsonProperty("IPNO_Id")]
         public string IPNO_ID               { get; set; }
@@ -67,7 +67,7 @@ namespace ConditionalAccess
         public string CouponCode            { get; set; }
 
         [JsonProperty("rovi_id")]
-        public int RoviID                   { get; set; }
+        public string RoviID                { get; set; }
             
         [JsonProperty("device_brand")]
         public int DeviceBrandID            { get; set; }
