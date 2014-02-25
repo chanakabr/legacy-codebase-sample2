@@ -219,19 +219,6 @@ namespace ConditionalAccess
                     return ret;
                 }
 
-                string sContendID = sMediaFileCoGuid.Substring(0, sMediaFileCoGuid.IndexOf('_'));
-                int nMediaExternalFileID = 0;
-                if (!int.TryParse(sMediaFileCoGuid, out nMediaExternalFileID))
-                {
-                    ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                    ret.m_sRecieptCode = "";
-                    ret.m_sStatusDescription = "The external identifier of the item is empty";
-                    try { WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription); }
-                    catch { }
-
-                    return ret;
-                }
-
                 PriceReason theReason = PriceReason.UnKnown;
 
                 TvinciPricing.Subscription relevantSub = null;
@@ -271,7 +258,8 @@ namespace ConditionalAccess
                         {
 
                             EutelsatTransactionResponse externalEntitledResponse =
-                                IsUserTvodAllowed(sHouseholdUID, sSiteGUID, sArvatoContractID, dPrice, sCurrency, nMediaExternalFileID);
+                                IsUserTvodAllowed(sHouseholdUID, sSiteGUID, sArvatoContractID, dPrice, sCurrency, sMediaFileCoGuid);
+                                //IsUserTvodAllowed(sHouseholdUID, sSiteGUID, sArvatoContractID, dPrice, sCurrency, nMediaExternalFileID);
 
                             if (externalEntitledResponse.Success == false)
                             {
@@ -386,7 +374,7 @@ namespace ConditionalAccess
                                 try
                                 {
                                     EutelsatTransactionResponse transNotificationRes =
-                                        MakeTransactionNotification(sHouseholdUID, dPrice, sCurrency, nMediaFileID, nMediaExternalFileID, sPPVModuleVirtualName, sCouponCode, sDeviceUDID, transactionID);
+                                        MakeTransactionNotification(sHouseholdUID, dPrice, sCurrency, nMediaFileID, sMediaFileCoGuid, sPPVModuleVirtualName, sCouponCode, sDeviceUDID, transactionID);
 
                                     if (transNotificationRes.Success == false)
                                     {
@@ -455,7 +443,7 @@ namespace ConditionalAccess
         }
 
 
-        protected static EutelsatTransactionResponse IsUserTvodAllowed(string sHouseholdUID, string siteGUID, string sArvatoContractID, double dPrice, string sCurrency, int nExternalMediaFileID)
+        protected static EutelsatTransactionResponse IsUserTvodAllowed(string sHouseholdUID, string siteGUID, string sArvatoContractID, double dPrice, string sCurrency, string sExternalMediaFileID)
         {
             EutelsatTransactionResponse res = new EutelsatTransactionResponse();
             res.Success = false;
@@ -474,7 +462,7 @@ namespace ConditionalAccess
                 UserID = sHouseholdUID,
                 Price = dPrice,
                 Currency = sCurrency,
-                AssetID = nExternalMediaFileID,
+                AssetID = sExternalMediaFileID,
                 IPNO_ID = sHouseholdUID.Substring(0, 8),    // Take first 8 digits
                 SiteGUID = siteGUID,
                 ContractID = sArvatoContractID
@@ -496,7 +484,7 @@ namespace ConditionalAccess
         }
 
         protected EutelsatTransactionResponse MakeTransactionNotification
-            (string sHouseholdUID, double dPrice, string sCurrency, int nAssetID, int nExternalAssetID, string sPpvModuleCode, string sCouponCode, string sDeviceUDID, int nTransactionID)
+            (string sHouseholdUID, double dPrice, string sCurrency, int nAssetID, string sExternalAssetID, string sPpvModuleCode, string sCouponCode, string sDeviceUDID, int nTransactionID)
         {
 
             EutelsatTransactionResponse res = new EutelsatTransactionResponse();
@@ -526,7 +514,7 @@ namespace ConditionalAccess
                     AssetID = nAssetID,
                     PPVModuleCode = sPpvModuleCode,
                     CouponCode = sCouponCode,
-                    RoviID = nExternalAssetID,
+                    RoviID = sExternalAssetID,
                     DeviceUDID = sDeviceUDID,
                     DeviceBrandID = nDeviceBrandID,
                     TransactionID = nTransactionID,
