@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using PricingMonitor;
+//using PricingMonitor;
 
 public partial class PricingMonitoring : System.Web.UI.Page
 {
@@ -23,11 +23,11 @@ public partial class PricingMonitoring : System.Web.UI.Page
       //  PriceMonitoring pm = new PriceMonitoring(0, 10, "109||111736||219307");
 
 
-        PriceMonitoring pm = new PriceMonitoring(Convert.ToInt32(TaskID.Text),Convert.ToInt32(IntervalInSec.Text), groupID.Text+"||"+UserGuid.Text +"||" + MediaFiles.Text);
+        //PriceMonitoring pm = new PriceMonitoring(Convert.ToInt32(TaskID.Text),Convert.ToInt32(IntervalInSec.Text), groupID.Text+"||"+UserGuid.Text +"||" + MediaFiles.Text);
 
         
         bool doTheTask = false;
-        doTheTask = pm.DoTheTask();
+       // doTheTask = pm.DoTheTask();
         //test until here
 
 

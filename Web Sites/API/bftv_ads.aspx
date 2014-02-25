@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="bftv_ads.aspx.cs" Inherits="bftv_ads" %>

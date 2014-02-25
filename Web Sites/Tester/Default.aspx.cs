@@ -10,7 +10,7 @@ using System.Text;
 using System.Xml;
 using System.Collections;
 using ConditionalAccess;
-using AbertisHPFeeder;
+//using AbertisHPFeeder;
 using TVinciShared;
 using System.Globalization;
 using api_ws;

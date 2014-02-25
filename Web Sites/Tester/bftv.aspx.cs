@@ -22,7 +22,7 @@ public partial class bftv : System.Web.UI.Page
     {
         int refInt = 0;
         ImporterImpl.DoesReplicationClean(250000, ref refInt);
-        BFTVFeeder.feeder.ActualWork("", "", 6);
+//        BFTVFeeder.feeder.ActualWork("", "", 6);
         return;
        // string reason = string.Empty;
         //users.UsersService service = new users.UsersService();
@@ -61,7 +61,7 @@ public partial class bftv : System.Web.UI.Page
         //BFTVFeeder.feeder.ProcessXML(sw.ToString(), ref ht, 117,  ref serverTime);
         ImporterImpl.UploadDirectory(117);
         return;
-        BFTVFeeder.feeder.ActualWork("", "", 6);
+//        BFTVFeeder.feeder.ActualWork("", "", 6);
         return;
         ca.module caMod = new ca.module();
         caMod.Url = "http://platfrom-us.tvinci.com/ca/module.asmx";
