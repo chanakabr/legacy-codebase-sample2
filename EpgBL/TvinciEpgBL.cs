@@ -138,6 +138,14 @@ namespace EpgBL
 
         }
 
+
+        public EpgCB GetEpgCB(ulong nProgramID)
+        {
+            EpgCB oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString());
+            oRes = (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null;
+            return oRes;
+        }
+
         public override EPGChannelProgrammeObject GetEpg(ulong nProgramID)
         {
             EPGChannelProgrammeObject oRes = new EPGChannelProgrammeObject();
@@ -469,12 +477,7 @@ namespace EpgBL
             return lProg;
         }
 
-        private EpgCB GetEpgCB(ulong nProgramID)
-        {
-            EpgCB oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString());
-            oRes = (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null;
-            return oRes;
-        }
+      
 
         #endregion
 
