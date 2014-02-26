@@ -1,16 +1,10 @@
-﻿using System.Net;
-using ServiceStack.ServiceInterface;
-using ServiceStack.Common.Web;
-using ServiceStack.PartialResponse.ServiceModel;
+﻿using ServiceStack.ServiceInterface;
 using RestfulTVPApi.ServiceModel;
-using System;
-using System.Linq;
-using ServiceStack.ServiceHost;
 
 namespace RestfulTVPApi.ServiceInterface
 {
 
-    [RequiresAuthentication]
+    //[RequiresAuthentication]
     [RequiresInitializationObject]
     public class DomainService : Service
     {
@@ -193,6 +187,10 @@ namespace RestfulTVPApi.ServiceInterface
         }
 
         #endregion
+
+
+
+        
 
         #endregion
     }
