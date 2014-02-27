@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 
 namespace RestfulTVPApi.ServiceModel
@@ -77,7 +78,7 @@ namespace RestfulTVPApi.ServiceModel
     //{
     //    [ApiMember(Name = "co_guid", Description = "Domain Master Co-GUID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
     //    public string co_guid { get; set; }
-    //}
+    //}    
 
     #region POST
 

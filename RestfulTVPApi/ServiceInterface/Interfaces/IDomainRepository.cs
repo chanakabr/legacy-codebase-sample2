@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using TVPApi;
-using TVPApiModule.Services;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Objects;
 
@@ -60,5 +56,7 @@ namespace RestfulTVPApi.ServiceInterface
         List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(InitializationObject initObj, int domainId);
 
         bool SetRuleState(InitializationObject initObj, int ruleID, int isActive);
+
+        
     }
 }

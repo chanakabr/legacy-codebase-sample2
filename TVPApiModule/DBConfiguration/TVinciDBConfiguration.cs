@@ -53,7 +53,8 @@ namespace TVPApiModule.DBConfiguration
         //Get the types TVinci DB consig section
         public static TVinciDBConfiguration GetConfig()
         {
-            return ConfigurationSettings.GetConfig("TVinciDBConfig") as TVinciDBConfiguration;
+            return ConfigurationManager.GetSection("TVinciDBConfig") as TVinciDBConfiguration;
+            //return ConfigurationSettings.GetConfig("TVinciDBConfig") as TVinciDBConfiguration;
         }
 
 

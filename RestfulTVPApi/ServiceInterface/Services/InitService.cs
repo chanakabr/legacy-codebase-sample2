@@ -22,32 +22,32 @@ namespace RestfulTVPApi.ServiceInterface
     [Route("/init", "POST", Summary = "Get Secured Initialization Object", Notes = "Get Secured Initialization Object")]
     public class SecuredInitObjRequest : IReturn<string>
     {
-        [ApiMember(Name = "init_obj", Description = "Initialization Object", ParameterType = "body", DataType = "InitializationObject", IsRequired = true)]
-        public InitializationObject init_obj { get; set; }
+        [ApiMember(Name = "initObj", Description = "Initialization Object", ParameterType = "body", DataType = "InitializationObject", IsRequired = true)]
+        public InitializationObject initObj { get; set; }
     }
 
     #endregion
 
-    [RequiresAuthentication]
+    //[RequiresAuthentication]
     public class InitService : Service
     {
-        public object Post(SecuredInitObjRequest request)
+        public string Post(SecuredInitObjRequest request)
         {
-            if (request.init_obj == null)
-            {
-                return new HttpResult(HttpStatusCode.BadRequest);
-            }
+            //if (request.init_obj == null)
+            //{
+            //    return new HttpResult(HttpStatusCode.BadRequest);
+            //}
 
             string _token = string.Empty;
 
             using (MemoryStream ms = new MemoryStream())
             {
-                new BinaryFormatter().Serialize(ms, request.init_obj);
+                new BinaryFormatter().Serialize(ms, request.initObj);
 
                 _token = Convert.ToBase64String(ms.ToArray());
             }
 
-            return new HttpResult(_token, HttpStatusCode.OK);
+            return _token;
         }
     }
 }
