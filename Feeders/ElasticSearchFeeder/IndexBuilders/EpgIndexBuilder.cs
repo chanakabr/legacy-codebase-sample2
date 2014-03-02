@@ -37,7 +37,7 @@ namespace ElasticSearchFeeder.IndexBuilders
             string sGroupAlias = Utils.GetEpgGroupAliasStr(m_nGroupID);
             string sNewIndex = Utils.GetNewEpgIndexStr(m_nGroupID);
 
-            bRes = m_oESApi.BuildIndex(sNewIndex, 0, 0);
+            bRes = m_oESApi.BuildIndex(sNewIndex, 0, 0, null, null);
 
             if (!bRes)
             {

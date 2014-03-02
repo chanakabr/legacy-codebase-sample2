@@ -44,6 +44,18 @@ namespace ElasticSearchFeeder
             return string.Format("{0}_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
+        public static string GetTanslationType(string sType, LanguageObj oLanguage)
+        {
+            if (oLanguage.IsDefault)
+            {
+                return sType;
+            }
+            else
+            {
+                return string.Concat(sType, "_", oLanguage.Code);
+            }
+        }
+
         public static EpgCB GetEpgProgram(int nGroupID, int nEpgID)
         {
             EpgCB res = null;

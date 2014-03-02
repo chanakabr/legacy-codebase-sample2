@@ -40,55 +40,78 @@ namespace ElasticSearchFeeder.IndexBuilders
             int.TryParse(sNumOfReplicas, out nNumOfReplicas);
             int.TryParse(sNumOfShards, out nNumOfShards);
 
-            bool bRes = m_oESApi.BuildIndex(sNewIndex, nNumOfShards, nNumOfReplicas);
-
-            if (!bRes)
-                return false;
-            #endregion
 
             GroupsCache.Instance.RemoveGroup(m_nGroupID);
             Group oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
 
-            #region create mapping
-
             if (oGroup == null)
+            {
+                Logger.Logger.Log("Error", "Could not load group in media index builder", "ESFeeder");
                 return false;
+            }
 
-            string sMapping = m_oESSerializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags);
+            List<string> lAnalyzers;
+            List<string> lFilters;
+            GetAnalyzers(oGroup.GetLangauges(), out lAnalyzers, out lFilters);
 
-            bRes = m_oESApi.InsertMapping(sNewIndex, MEDIA, sMapping.ToString());
+            bool bRes = m_oESApi.BuildIndex(sNewIndex, nNumOfShards, nNumOfReplicas, lAnalyzers, lFilters);
+
+            #endregion
+
+            #region create mapping
+            foreach (ApiObjects.LanguageObj language in oGroup.GetLangauges())
+            {
+                string sMapping = m_oESSerializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags, language);
+                string sType = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
+                bool bMappingRes = m_oESApi.InsertMapping(sNewIndex, sType, sMapping.ToString());
+
+                if (language.IsDefault && !bMappingRes)
+                    bRes = false;
+
+                if (!bMappingRes)
+                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type media for language ", language.Name), "ESFeeder");
+
+            }
 
             if (!bRes)
-                return false;
+                return bRes;
             #endregion
 
             #region insert medias
-            Dictionary<int, Media> dGroupMedias = await GetGroupMedias(0);
+            Dictionary<int, Dictionary<int, Media>> dGroupMedias = await GetGroupMedias(m_nGroupID, 0);
 
             if (dGroupMedias != null)
             {
-                List<KeyValuePair<int, string>> lMediaObject = new List<KeyValuePair<int, string>>();
+                List<ESBulkRequestObj<int>> lBulkObj = new List<ESBulkRequestObj<int>>();
+
                 foreach (int nMediaID in dGroupMedias.Keys)
                 {
-                    Media oMedia = dGroupMedias[nMediaID];
-
-                    if (oMedia != null)
+                    foreach (int nLangID in dGroupMedias[nMediaID].Keys)
                     {
-                        string sMediaObj = m_oESSerializer.SerializeMediaObject(oMedia);
-                        lMediaObject.Add(new KeyValuePair<int, string>(oMedia.m_nMediaID, sMediaObj));
-                    }
-                    if (lMediaObject.Count >= 50)
-                    {
-                        Task<List<KeyValuePair<int, string>>> t = Task<List<KeyValuePair<int, string>>>.Factory.StartNew(() => m_oESApi.CreateBulkIndexRequest(sNewIndex, MEDIA, lMediaObject));
-                        t.Wait();
+                        Media oMedia = dGroupMedias[nMediaID][nLangID];
 
-                        lMediaObject = new List<KeyValuePair<int, string>>();
+                        if (oMedia != null)
+                        {
+                            string sMediaObj;
+
+                            sMediaObj = m_oESSerializer.SerializeMediaObject(oMedia);
+
+                            string sType = Utils.GetTanslationType(MEDIA, oGroup.GetLanguage(nLangID));
+
+                            lBulkObj.Add(new ESBulkRequestObj<int>() { docID = oMedia.m_nMediaID, index = sNewIndex, type = sType, document = sMediaObj });
+                        }
+                        if (lBulkObj.Count >= 50)
+                        {
+                            Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => m_oESApi.CreateBulkIndexRequest(lBulkObj));
+                            t.Wait();
+                            lBulkObj = new List<ESBulkRequestObj<int>>();
+                        }
                     }
                 }
 
-                if (lMediaObject.Count > 0)
+                if (lBulkObj.Count > 0)
                 {
-                    Task<List<KeyValuePair<int, string>>> t = Task<List<KeyValuePair<int, string>>>.Factory.StartNew(() => m_oESApi.CreateBulkIndexRequest(sNewIndex, MEDIA, lMediaObject));
+                    Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => m_oESApi.CreateBulkIndexRequest(lBulkObj));
                     t.Wait();
                 }
             }
@@ -152,110 +175,166 @@ namespace ElasticSearchFeeder.IndexBuilders
             return true;
         }
 
-        protected async Task<Dictionary<int, Media>> GetGroupMedias(int nMediaID)
+        private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters)
         {
+            lAnalyzers = new List<string>();
+            lFilters = new List<string>();
+
+            if (lLanguages != null)
+            {
+                foreach (ApiObjects.LanguageObj language in lLanguages)
+                {
+                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code));
+                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code));
+
+                    if (string.IsNullOrEmpty(analyzer))
+                    {
+                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ElasticSearch");
+                    }
+                    else
+                    {
+                        lAnalyzers.Add(analyzer);
+                    }
+
+                    if (!string.IsNullOrEmpty(filter))
+                    {
+                        lFilters.Add(filter);
+                    }
+                }
+            }
+        }
+
+        public static async Task<Dictionary<int, Dictionary<int, Media>>> GetGroupMedias(int nGroupID, int nMediaID)
+        {
+
+            //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
+            //E.g. dMedias[123][2] --> will return media 123 of the hebrew language
+            Dictionary<int, Dictionary<int, Media>> dMediaTrans = new Dictionary<int, Dictionary<int, Media>>();
+
+            //temporary media dictionary
             Dictionary<int, Media> medias = new Dictionary<int, Media>();
+
             try
             {
-                Group oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
+                Group oGroup = GroupsCache.Instance.GetGroup(nGroupID);
+
                 if (oGroup == null)
                 {
-                    return medias;
+                    Logger.Logger.Log("Error", "Could not load group from cache in GetGroupMedias", "ESFeeder");
+                    return dMediaTrans;
                 }
 
-                Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => Tvinci.Core.DAL.CatalogDAL.Get_GroupMedias(m_nGroupID, nMediaID));
+                ApiObjects.LanguageObj oDefaultLangauge = oGroup.GetGroupDefaultLanguage();
+
+                if (oDefaultLangauge == null)
+                {
+                    Logger.Logger.Log("Error", "Could not get group default language from cache in GetGroupMedias", "ESFeeder");
+                    return dMediaTrans;
+                }
+
+                ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_test");
+                GroupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                GroupMedias.AddParameter("@GroupID", nGroupID);
+                GroupMedias.AddParameter("@MediaID", nMediaID);
+
+                Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => GroupMedias.ExecuteDataSet());
                 tDS.Wait();
                 DataSet ds = tDS.Result;
 
                 if (ds != null && ds.Tables.Count > 0)
                 {
-                    if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0 && ds.Tables[0].Columns != null)
+                    if (ds.Tables[0].Rows.Count > 0)
                     {
                         foreach (DataRow row in ds.Tables[0].Rows)
                         {
                             Media media = new Media();
-                            #region media info
-                            media.m_nMediaID = ODBCWrapper.Utils.GetIntSafeVal(row["ID"]);
-                            media.m_nWPTypeID = ODBCWrapper.Utils.GetIntSafeVal(row["watch_permission_type_id"]);
-                            media.m_nMediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(row["media_type_id"]);
-                            media.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(row["group_id"]);
-                            media.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(row["is_active"]);
-                            media.m_nDeviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(row["device_rule_id"]);
-                            media.m_nLikeCounter = ODBCWrapper.Utils.GetIntSafeVal(row["like_counter"]);
-                            media.m_nViews = ODBCWrapper.Utils.GetIntSafeVal(row["views"]);
-                            media.m_sUserTypes = ODBCWrapper.Utils.GetSafeStr(row["user_types"]);
-
-                            double dSum = ODBCWrapper.Utils.GetDoubleSafeVal(row["votes_sum"]);
-                            double dCount = ODBCWrapper.Utils.GetDoubleSafeVal(row["votes_count"]);
-
-                            if (dCount > 0)
+                            if (ds.Tables[0].Columns != null && ds.Tables[0].Rows != null)
                             {
-                                media.m_nVotes = (int)dCount;
-                                media.m_dRating = dSum / dCount;
-                            }
+                                #region media info
+                                media.m_nMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                                media.m_nWPTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "watch_permission_type_id");
+                                media.m_nMediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_type_id");
+                                media.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id");
+                                media.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(row, "is_active");
+                                media.m_nDeviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(row, "device_rule_id");
+                                media.m_nLikeCounter = ODBCWrapper.Utils.GetIntSafeVal(row, "like_counter");
+                                media.m_nViews = ODBCWrapper.Utils.GetIntSafeVal(row, "views");
+                                media.m_sUserTypes = ODBCWrapper.Utils.GetSafeStr(row["user_types"]);
 
-                            media.m_sName = ODBCWrapper.Utils.GetSafeStr(row["name"]);
-                            media.m_sDescription = ODBCWrapper.Utils.GetSafeStr(row["description"]);
+                                double dSum = ODBCWrapper.Utils.GetDoubleSafeVal(row, "votes_sum");
+                                double dCount = ODBCWrapper.Utils.GetDoubleSafeVal(row, "votes_count");
 
-                            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["create_date"])))
-                            {
-                                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row["create_date"]);
-                                media.m_sCreateDate = dt.ToString("yyyyMMddHHmmss");
-                            }
-                            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["update_date"])))
-                            {
-                                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row["update_date"]);
-                                media.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");
-                            }
-                            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["start_date"])))
-                            {
-                                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row["start_date"]);
-                                media.m_sStartDate = dt.ToString("yyyyMMddHHmmss");
-                            }
-
-                            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["end_date"])))
-                            {
-                                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row["end_date"]);
-                                media.m_sEndDate = dt.ToString("yyyyMMddHHmmss");
-                            }
-
-                            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["final_end_date"])))
-                            {
-                                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row["final_end_date"]);
-                                media.m_sFinalEndDate = dt.ToString("yyyyMMddHHmmss");
-                            }
-                            #endregion
-
-                            #region - get all metas by groupId
-                            //Strings
-                            Dictionary<string, string> dMetas;
-                            //Get Meta - MetaNames (e.g. will contain key/value <META1_STR, show>)
-                            if (oGroup.m_oMetasValuesByGroupId.TryGetValue(media.m_nGroupID, out dMetas))
-                            {
-                                foreach (string sMeta in dMetas.Keys)
+                                if (dCount > 0)
                                 {
-                                    //Retreive meta name and check that it is not null or empty so that it will not form an invalid field later on
-                                    string sMetaName;
-                                    dMetas.TryGetValue(sMeta, out sMetaName);
+                                    media.m_nVotes = (int)dCount;
+                                    media.m_dRating = dSum / dCount;
+                                }
 
-                                    if (!string.IsNullOrEmpty(sMetaName))
+                                media.m_sName = ODBCWrapper.Utils.GetSafeStr(row, "name");
+                                media.m_sDescription = ODBCWrapper.Utils.GetSafeStr(row, "description");
+
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "create_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "create_date");
+                                    media.m_sCreateDate = dt.ToString("yyyyMMddHHmmss");
+                                }
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "update_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "update_date");
+                                    media.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");
+                                }
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "start_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "start_date");
+                                    media.m_sStartDate = dt.ToString("yyyyMMddHHmmss");
+                                }
+
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "end_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "end_date");
+                                    media.m_sEndDate = dt.ToString("yyyyMMddHHmmss");
+
+                                }
+
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "final_end_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "final_end_date");
+                                    media.m_sFinalEndDate = dt.ToString("yyyyMMddHHmmss");
+
+                                }
+                                #endregion
+
+                                #region - get all metas by groupId
+                                Dictionary<string, string> dMetas;
+                                //Get Meta - MetaNames (e.g. will contain key/value <META1_STR, show>)
+                                if (oGroup.m_oMetasValuesByGroupId.TryGetValue(media.m_nGroupID, out dMetas))
+                                {
+                                    foreach (string sMeta in dMetas.Keys)
                                     {
-                                        string sMetaValue = ODBCWrapper.Utils.GetSafeStr(row[sMeta]);
-                                        media.m_oMeatsValues.Add(sMetaName, sMetaValue);
+                                        //Retreive meta name and check that it is not null or empty so that it will not form an invalid field later on
+                                        string sMetaName;
+                                        dMetas.TryGetValue(sMeta, out sMetaName);
+
+                                        if (!string.IsNullOrEmpty(sMetaName))
+                                        {
+                                            string sMetaValue = ODBCWrapper.Utils.GetSafeStr(row[sMeta]);
+                                            media.m_dMeatsValues.Add(sMetaName, sMetaValue);
+                                        }
                                     }
                                 }
                             }
                             medias.Add(media.m_nMediaID, media);
-                            #endregion
+                                #endregion
                         }
 
                         #region - get all the media files types for each mediaId that have been selected.
                         if (ds.Tables[1].Columns != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
                         {
-                            foreach (DataRow item in ds.Tables[1].Rows)
+                            foreach (DataRow row in ds.Tables[1].Rows)
                             {
-                                int mediaID = ODBCWrapper.Utils.GetIntSafeVal(item["media_id"]);
-                                string sMFT = ODBCWrapper.Utils.GetSafeStr(item["media_type_id"]);
+                                int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
+                                string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
                                 medias[mediaID].m_sMFTypes += string.Format("{0};", sMFT);
                             }
                         }
@@ -264,42 +343,162 @@ namespace ElasticSearchFeeder.IndexBuilders
                         #region - get all media tags
                         if (ds.Tables[2].Columns != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
                         {
-                            foreach (DataRow item in ds.Tables[2].Rows)
+                            foreach (DataRow row in ds.Tables[2].Rows)
                             {
-                                int nTagMediaID = ODBCWrapper.Utils.GetIntSafeVal(item["media_id"]);
-                                int mttn = ODBCWrapper.Utils.GetIntSafeVal(item["tag_type_id"]);
-                                string val = ODBCWrapper.Utils.GetSafeStr(item["value"]);
+                                int nTagMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
+                                int mttn = ODBCWrapper.Utils.GetIntSafeVal(row, "tag_type_id");
+                                string val = ODBCWrapper.Utils.GetSafeStr(row, "value");
+                                long tagID = ODBCWrapper.Utils.GetLongSafeVal(row, "tag_id");
 
-                                if (oGroup.m_oGroupTags.ContainsKey(mttn))
+                                try
                                 {
-                                    string sTagName = oGroup.m_oGroupTags[mttn];
-
-                                    if (!string.IsNullOrEmpty(sTagName))
+                                    if (oGroup.m_oGroupTags.ContainsKey(mttn))
                                     {
-                                        if (medias[nTagMediaID].m_oTagsValues.ContainsKey(sTagName))
+                                        string sTagName = oGroup.m_oGroupTags[mttn];
+
+                                        if (!string.IsNullOrEmpty(sTagName))
                                         {
-                                            medias[nTagMediaID].m_oTagsValues[sTagName] += string.Format(" ; {0}", val);
+                                            if (!medias[nTagMediaID].m_dTagValues.ContainsKey(sTagName))
+                                            {
+                                                medias[nTagMediaID].m_dTagValues.Add(sTagName, new Dictionary<long, string>());
+                                            }
+
+                                            medias[nTagMediaID].m_dTagValues[sTagName].Add(tagID, val);
                                         }
-                                        else
+                                    }
+                                }
+                                catch
+                                {
+                                    Logger.Logger.Log("Error", string.Format("Caught exception when trying to add media to group tags. TagMediaId={0}; TagTypeID={1}; TagID={2}; TagValue={3}", nTagMediaID, mttn, tagID, val), "ESFeeder");
+                                }
+                            }
+                        }
+                        #endregion
+
+                        #region Clone medias to all translated languages
+                        foreach (int mediaID in medias.Keys)
+                        {
+                            Media media = medias[mediaID];
+
+                            Dictionary<int, Media> tempMediaTrans = new Dictionary<int, Media>();
+                            foreach (ApiObjects.LanguageObj oLanguage in oGroup.GetLangauges())
+                            {
+                                tempMediaTrans.Add(oLanguage.ID, media.Clone());
+                            }
+
+                            dMediaTrans.Add(mediaID, tempMediaTrans);
+
+                        }
+                        #endregion
+
+                        #region get all translated metas and media info
+
+                        if (ds.Tables[3].Columns != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+                        {
+                            Dictionary<string, string> dMetas;
+
+                            foreach (DataRow row in ds.Tables[3].Rows)
+                            {
+                                int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_ID");
+                                int nLanguageID = ODBCWrapper.Utils.GetIntSafeVal(row, "LANGUAGE_ID");
+
+                                if (dMediaTrans.ContainsKey(mediaID) && dMediaTrans[mediaID].ContainsKey(nLanguageID))
+                                {
+                                    Media oMedia = dMediaTrans[mediaID][nLanguageID];
+
+                                    if (oGroup.m_oMetasValuesByGroupId.TryGetValue(oMedia.m_nGroupID, out dMetas))
+                                    {
+                                        #region get media translated name
+                                        string sTransName = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
+
+                                        if (!string.IsNullOrEmpty(sTransName))
+                                            oMedia.m_sName = sTransName;
+                                        #endregion
+
+                                        #region get media translated description
+                                        string sTransDesc = ODBCWrapper.Utils.GetSafeStr(row, "DESCRIPTION");
+
+                                        if (!string.IsNullOrEmpty(sTransDesc))
+                                            oMedia.m_sDescription = sTransDesc;
+                                        #endregion
+
+                                        #region get media translated metas
+                                        foreach (string sMeta in dMetas.Keys)
                                         {
-                                            medias[nTagMediaID].m_oTagsValues.Add(sTagName, val);
+                                            //if meta is a string, then get translated value from DB, for all other metas, we keep the same values as there's no translation
+                                            if (sMeta.EndsWith("_STR"))
+                                            {
+                                                string sMetaName;
+                                                dMetas.TryGetValue(sMeta, out sMetaName);
+
+                                                if (!string.IsNullOrEmpty(sMetaName))
+                                                {
+                                                    string sMetaValue = ODBCWrapper.Utils.GetSafeStr(row, sMeta);
+
+                                                    if (!string.IsNullOrEmpty(sMetaValue))
+                                                    {
+                                                        oMedia.m_dMeatsValues[sMetaName] = sMetaValue;
+                                                    }
+                                                }
+                                            }
                                         }
+                                        #endregion
                                     }
                                 }
                             }
                         }
                         #endregion
+
+                        #region - get all translated media tags
+                        if (ds.Tables[4].Columns != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
+                        {
+                            foreach (DataRow row in ds.Tables[4].Rows)
+                            {
+                                int nTagMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
+                                int mttn = ODBCWrapper.Utils.GetIntSafeVal(row, "tag_type_id");
+                                string val = ODBCWrapper.Utils.GetSafeStr(row, "translated_value");
+                                int nLangID = ODBCWrapper.Utils.GetIntSafeVal(row, "language_id");
+                                long tagID = ODBCWrapper.Utils.GetLongSafeVal(row, "tag_id");
+
+                                if (oGroup.m_oGroupTags.ContainsKey(mttn) && !string.IsNullOrEmpty(val))
+                                {
+                                    Media oMedia;
+
+                                    if (dMediaTrans.ContainsKey(nTagMediaID) && dMediaTrans[nTagMediaID].ContainsKey(nLangID))
+                                    {
+                                        oMedia = dMediaTrans[nTagMediaID][nLangID];
+                                        string sTagTypeName = oGroup.m_oGroupTags[mttn];
+
+                                        if (oMedia.m_dTagValues.ContainsKey(sTagTypeName))
+                                        {
+                                            oMedia.m_dTagValues[sTagTypeName][tagID] = val;
+                                        }
+                                        else
+                                        {
+                                            Dictionary<long, string> dTemp = new Dictionary<long, string>();
+                                            dTemp[tagID] = val;
+                                            oMedia.m_dTagValues[sTagTypeName] = dTemp;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        #endregion
                     }
+
                 }
+
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("Media Exception", ex.Message, "ESFeeder");
             }
-            return medias;
+
+            return dMediaTrans;
         }
 
-        private static ApiObjects.SearchObjects.MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
+        public static ApiObjects.SearchObjects.MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
         {
             ApiObjects.SearchObjects.MediaSearchObj searchObject = new ApiObjects.SearchObjects.MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
@@ -309,7 +508,7 @@ namespace ElasticSearchFeeder.IndexBuilders
             searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
-            searchObject.m_bUseStartDate = true;
+            searchObject.m_bUseStartDate = false;
             searchObject.m_bUseFinalEndDate = false;
 
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
