@@ -13,9 +13,6 @@ namespace ElasticSearch.Common
         private static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         private static readonly string META_BOOL_SUFFIX = "_BOOL";
 
-        private static readonly string JSON_ANALYZED_TAG_AND_META = " { \"type\": \"string\", \"analyzer\": \"whitespace\", \"null_value\": \"\" }";
-        private static readonly string JSON_TAG_AND_META = " { \"type\": \"string\", \"index\": \"not_analyzed\", \"null_value\": \"\" },";
-
         public ESSerializer()
         {
         }

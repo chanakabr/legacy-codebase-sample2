@@ -25,12 +25,12 @@ namespace ElasticSearch.Common
 
         private static readonly string[] EscapeChars = new[]
 		                                               	{
-		                                               		"\"", "\\", "\r\n", "\n", "\r", "\t", "\f", "\b"
+		                                               		"\\", "\"",  "\r\n", "\n", "\r", "\t", "\f", "\b"
 		                                               	};
 
         private static readonly string[] EscapeCharOutputs = new[]
 		                                                     	{
-		                                                     		"\\\"", "\\\\", " ", " ", " ", " ", " ", " "
+		                                                     		"\\\\", "\\\"", " ", " ", " ", " ", " ", " "
 		                                                     	};
 
         public static string EscapeValues(ref string values)
