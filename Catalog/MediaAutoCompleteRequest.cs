@@ -41,7 +41,13 @@ namespace Catalog
                 {
                     MediaSearchObj searchObj = new MediaSearchObj();
                     searchObj.m_nGroupId = request.m_nGroupID;
-                    searchObj.m_nLangID = request.m_nLangID;
+
+                    Group oGroup = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+                    if (oGroup != null)
+                    {
+                        searchObj.m_oLangauge = oGroup.GetLanguage(request.m_nLangID);
+                    }
+
                     searchObj.m_sName = request.m_sPrefix;
                     if (m_lMetas != null && m_lMetas.Count > 0)
                     {

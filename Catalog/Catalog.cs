@@ -1238,7 +1238,7 @@ namespace Catalog
 
         #endregion
 
-        internal static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId)
+        internal static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
         {
             MediaSearchObj searchObject = new MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
@@ -1251,6 +1251,7 @@ namespace Catalog
                 searchObject.m_sPermittedWatchRules = string.Join(" ", lPermittedWatchRules);
             searchObject.m_nDeviceRuleId = nDeviceRuleId;
             searchObject.m_nIndexGroupId = nParentGroupID;
+            searchObject.m_oLangauge = oLanguage;
 
             ApiObjects.SearchObjects.OrderObj oSearcherOrderObj = new ApiObjects.SearchObjects.OrderObj();
             if (orderObj != null && orderObj.m_eOrderBy != ApiObjects.SearchObjects.OrderBy.NONE)

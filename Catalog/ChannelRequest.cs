@@ -76,7 +76,7 @@ namespace Catalog
 
                 if (group != null && channel != null)
                 {
-                    channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID);
+                    channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID, group.GetGroupDefaultLanguage());
                  
                     DateTime start = DateTime.Now;
                     List<int> medias = new List<int>();
@@ -246,12 +246,12 @@ namespace Catalog
             }
         }        
 
-        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(Channel channel, ChannelRequest request, int nParentGroupID)
+        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage)
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)
                 nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
-            return Catalog.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, null, nDeviceRuleId);
+            return Catalog.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, null, nDeviceRuleId, oLanguage);
         }
     }
 }

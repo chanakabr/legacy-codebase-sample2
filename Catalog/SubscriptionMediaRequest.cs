@@ -97,7 +97,7 @@ namespace Catalog
                                                  Channel currentChannel = allChannels[(int)obj];
                                                  if (sMediaTypesFromRequest.Contains<string>("0") || sMediaTypesFromRequest.Contains<string>(currentChannel.m_nMediaType.ToString()) || currentChannel.m_nMediaType.ToString().Equals("0"))
                                                  {
-                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, request.m_oOrderObj, nOwnerGroup, groupInCache.m_sPermittedWatchRules, nDeviceRuleId);
+                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, request.m_oOrderObj, nOwnerGroup, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
 
                                                      if ((currentChannel.m_nMediaType.ToString().Equals("0") || string.IsNullOrEmpty(currentChannel.m_nMediaType.ToString())) && !(sMediaTypesFromRequest.Contains<string>("0")) && sMediaTypesFromRequest.Length > 0)
                                                      {

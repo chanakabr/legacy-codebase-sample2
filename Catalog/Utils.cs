@@ -572,5 +572,21 @@ namespace Catalog
 
         }
 
+        public static string GetESTypeByLanguage(string sType, ApiObjects.LanguageObj oLanguage)
+        {
+            string sResult;
+
+            if (oLanguage != null && !oLanguage.IsDefault)
+            {
+                sResult = string.Concat(sType, "_", oLanguage.Code);
+            }
+            else
+            {
+                sResult = sType;
+            }
+
+            return sResult;
+        }
+
     }
 }

@@ -43,7 +43,7 @@ namespace ElasticSearch.Searcher
             foreach (var kvp in m_oEpgSearchObj.m_lSearch)
             {
                 bQuerySingle = new BoolQuery();
-                wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(kvp.m_sKey), Value = string.Format("*{0}*", Common.Utils.EscapeValues(kvp.m_sValue)) };
+                wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("*{0}*", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
                 bQuerySingle.AddChild(wildCard, CutWith.AND);
 
                 textBooleanQuery.AddChild(bQuerySingle, m_oEpgSearchObj.m_eInterCutWith);

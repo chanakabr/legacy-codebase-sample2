@@ -108,7 +108,7 @@ namespace Catalog
                                              if (groupInCache != null)
                                              {
                                                  Channel currentChannel = allChannels[(int)obj];                                                 
-                                                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId);
+                                                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
                                                  channelSearchObject.m_oOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
                                                  channelsSearchObjects.Add(channelSearchObject);
                                              }

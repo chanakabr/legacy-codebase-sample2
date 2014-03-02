@@ -106,7 +106,7 @@ namespace Catalog
                                                  if (groupInCache != null)
                                                  {
                                                      Channel currentChannel = allChannels[(int)obj];
-                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, oOrderObj, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId);
+                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, oOrderObj, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
                                                      if (channelSearchObject != null)
                                                      {
                                                          channelSearchObject.m_nMediaID = request.m_nMediaID;

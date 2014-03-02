@@ -76,7 +76,7 @@ namespace ElasticSearch.Common
         public bool analyzed { get; set; }
         public bool store { get; set; }
 
-        public List<BasicMappingProperty> fields { get; protected set; }
+        public List<IMappingProperty> fields { get; protected set; }
 
         public MultiFieldMappingProperty()
         {
@@ -86,15 +86,15 @@ namespace ElasticSearch.Common
             analyzed = false;
             store = true;
             name = string.Empty;
-            fields = new List<BasicMappingProperty>();
+            fields = new List<IMappingProperty>();
         }
 
-        public void AddField(BasicMappingProperty property)
+        public void AddField(IMappingProperty property)
         {
             if(property != null) 
                 fields.Add(property);
         }
-        public void AddFields(List<BasicMappingProperty> properties)
+        public void AddFields(List<IMappingProperty> properties)
         {
             if (properties != null && properties.Count > 0)
                 fields.AddRange(properties);

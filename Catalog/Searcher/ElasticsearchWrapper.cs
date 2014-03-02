@@ -52,7 +52,10 @@ namespace Catalog
             if (!string.IsNullOrEmpty(sQuery))
             {
                 int nStatus = 0;
-                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nParentGroupID, ES_MEDIA_TYPE);
+
+                string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
+                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nParentGroupID, sType);
+
                 string retObj = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
 
                 if (nStatus == STATUS_OK)
@@ -119,7 +122,8 @@ namespace Catalog
 
             if (!string.IsNullOrEmpty(sQuery))
             {
-                string retObj = m_oESApi.Search(nParentGroupID.ToString(), ES_MEDIA_TYPE, ref sQuery);
+                string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
+                string retObj = m_oESApi.Search(nParentGroupID.ToString(), sType, ref sQuery);
 
                 List<ElasticSearchApi.ESAssetDocument> lMediaDocs = DecodeAssetSearchJsonObject(retObj, ref nTotalItems);
                 if (lMediaDocs != null && lMediaDocs.Count > 0)
@@ -190,7 +194,7 @@ namespace Catalog
                  * Foreach media search object, create filtered query.
                  * Add the query's filter to the grouped filter so that we can then create a single request
                  * containing all the channels that we want.
-                 */ 
+                 */
                 foreach (MediaSearchObj searchObj in oSearch)
                 {
                     if (searchObj == null)
@@ -209,14 +213,14 @@ namespace Catalog
                     }
                 }
 
-                tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize};
+                tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize };
                 tempQuery.ESSort.Add(new ESOrderObj() { m_eOrderDir = oOrderObj.m_eOrderDir, m_sOrderValue = FilteredQuery.GetESSortValue(oOrderObj) });
                 tempQuery.Filter = new QueryFilter() { FilterSettings = groupedFilters };
-                
+
                 string sSearchQuery = tempQuery.ToString();
 
 
-                
+
                 string sRetVal = m_oESApi.Search(oGroup.m_nParentGroupID.ToString(), ES_MEDIA_TYPE, ref sSearchQuery);
 
                 lSearchResults = DecodeAssetSearchJsonObject(sRetVal, ref nTotalItems);
@@ -227,7 +231,7 @@ namespace Catalog
                     lSortedMedias.m_resultIDs = new List<SearchResult>();
 
                     lSortedMedias.n_TotalItems = nTotalItems;
-                    
+
 
                     if ((oOrderObj.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oOrderObj.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) || oOrderObj.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
                     {
@@ -251,7 +255,7 @@ namespace Catalog
                     }
                 }
             }
-            DateTime dtEnd= DateTime.Now;
+            DateTime dtEnd = DateTime.Now;
 
             double totalMilli = (dtEnd - dtStart).TotalMilliseconds;
             Logger.Logger.Log("Info", "SearchSubscriptionMedias took " + totalMilli + " milliseconds", "Elasticsearch");
@@ -338,25 +342,16 @@ namespace Catalog
                     sbMediaDoc.Append("}");
 
                     sMediaDoc = sbMediaDoc.ToString();
-                    string sRetVal = m_oESApi.SearchPercolator(sIndex, ES_MEDIA_TYPE, ref sMediaDoc);
+                    List<string> lRetVal = m_oESApi.SearchPercolator(sIndex, ES_MEDIA_TYPE, ref sMediaDoc);
 
-                    if (!string.IsNullOrEmpty(sRetVal))
+                    if (lRetVal != null && lRetVal.Count > 0)
                     {
-
-                        jsonObj = JObject.Parse(sRetVal);
-
-                        if (jsonObj != null)
+                        int nID;
+                        foreach (string match in lRetVal)
                         {
-                            JToken jToken = jsonObj.SelectToken("matches");
-                            if (jToken != null)
+                            if (int.TryParse(match, out nID))
                             {
-                                lResult = jToken.Select(item =>
-                                {
-                                    int n;
-                                    int.TryParse((string)item.SelectToken("."), out n);
-                                    return n;
-                                }
-                                ).ToList();
+                                lResult.Add(nID);
                             }
                         }
                     }
@@ -708,7 +703,7 @@ namespace Catalog
                     string definition = string.Empty;
                     for (int i = 0; i < length; i++)
                     {
-                        if(TVinciShared.JSONUtils.TryGetJSONToken(docs[i], orderedPathDownTheJSONTree, ref definition) && definition.Length > 0)
+                        if (TVinciShared.JSONUtils.TryGetJSONToken(docs[i], orderedPathDownTheJSONTree, ref definition) && definition.Length > 0)
                             res.Add(definition);
                         definition = string.Empty;
                     }
