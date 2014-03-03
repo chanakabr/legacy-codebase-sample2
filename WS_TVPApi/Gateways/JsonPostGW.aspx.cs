@@ -50,20 +50,19 @@ public partial class Gateways_JsonPostGW : BaseGateway
                               !pair.Key.Equals("orderObj") ? pair.Value.ToString(Newtonsoft.Json.Formatting.None).Replace("\"", @"") : pair.Value.ToString(Newtonsoft.Json.Formatting.None);
 
                 HttpContext.Current.Items.Add(pair.Key, sValue);
-            }
+            }            
+        }
+        // add web service
+        MethodFinder queryServices = new MethodFinder(m_MediaService,
+                                                      m_SiteService,
+                                                      m_PricingService,
+                                                      m_DomainService,
+                                                      m_BillingService,
+                                                      m_ConditionalAccessService,
+                                                      m_SocialService,
+                                                      m_UsersService,
+                                                      m_NotificationService);
 
-            // add web service
-            MethodFinder queryServices = new MethodFinder(m_MediaService,
-                                                          m_SiteService,
-                                                          m_PricingService,
-                                                          m_DomainService,
-                                                          m_BillingService,
-                                                          m_ConditionalAccessService,
-                                                          m_SocialService,
-                                                          m_UsersService,
-                                                          m_NotificationService);
-
-            queryServices.ProcessRequest(sJsonRequest); 
-        }               
+        queryServices.ProcessRequest(sJsonRequest);    
     }
 }
