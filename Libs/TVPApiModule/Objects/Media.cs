@@ -78,6 +78,7 @@ namespace TVPApi
             public string[] OverlayPoints;
             public string Language;
             public bool IsDefaultLang;
+            public string CoGuid;
         }
 
         public struct Picture
@@ -202,7 +203,7 @@ namespace TVPApi
                         if (MediaTypeName == "Series")
                             retVal = string.Format("{0}/ShowPage/{1}/{2}", baseUrl, sMediaName, MediaID);
                         else if (MediaTypeName == "Linear")
-                            retVal = string.Format("{0}/ChannelPage/{1}/{2}", baseUrl, sMediaName, MediaID); 
+                            retVal = string.Format("{0}/ChannelPage/{1}/{2}", baseUrl, sMediaName, MediaID);
                         else
                             retVal = string.Format("{0}/MediaPage/{1}/{2}", baseUrl, sMediaName, MediaID);
                     }
@@ -361,7 +362,7 @@ namespace TVPApi
                     file.Format = rowFile["Format"].ToString();
                     file.Language = rowFile["Language"].ToString();
                     file.IsDefaultLang = Convert.ToBoolean(Convert.ToInt16(rowFile["IsDefaultLang"].ToString()));
-
+                    file.CoGuid = rowFile["CoGuid"].ToString();
 
                     int preProviderID = Convert.ToInt32(rowFile["PreProviderID"].ToString());
 
@@ -369,12 +370,12 @@ namespace TVPApi
                         file.PreProvider = new AdvertisingProvider(preProviderID, rowFile["PostProviderName"].ToString());
 
                     int postProviderID = Convert.ToInt32(rowFile["PostProviderID"].ToString());
-                    
+
                     if (postProviderID != 0)
                         file.PostProvider = new AdvertisingProvider(postProviderID, rowFile["PostProviderName"].ToString());
 
                     int breakProviderID = Convert.ToInt32(rowFile["BreakProviderID"].ToString());
-                    
+
                     if (breakProviderID != 0)
                     {
                         file.BreakProvider = new AdvertisingProvider(breakProviderID, rowFile["BreakProviderName"].ToString());
