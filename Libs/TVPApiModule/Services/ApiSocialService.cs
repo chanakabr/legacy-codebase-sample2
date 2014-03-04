@@ -50,14 +50,14 @@ namespace TVPApiModule.Services
 
         #endregion
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus DoSocialAction(int mediaID,
+        public TVPPro.SiteManager.TvinciPlatform.Social.DoSocialActionResponse DoSocialAction(int mediaID,
                                                                                                   string siteGuid,
                                                                                                   string udid,
                                                                                                   TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
                                                                                                   TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                   string actionParam)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus eRes = TVPPro.SiteManager.TvinciPlatform.Social.SocialActionResponseStatus.UNKNOWN;
+            TVPPro.SiteManager.TvinciPlatform.Social.DoSocialActionResponse eRes = null;
 
             try
             {
@@ -82,7 +82,7 @@ namespace TVPApiModule.Services
                 };
                 DoSocialActionResponse response = m_Module.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
                 if (response != null)
-                    eRes = response.m_eActionResponseStatusIntern;
+                    eRes = response;
 
             }
             catch (Exception ex)

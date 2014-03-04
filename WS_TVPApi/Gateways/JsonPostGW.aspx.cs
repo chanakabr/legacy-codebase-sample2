@@ -29,8 +29,8 @@ public partial class Gateways_JsonPostGW : BaseGateway
         StreamReader reader = new System.IO.StreamReader(body, encoding);
 
         string sJsonRequest = reader.ReadToEnd();
-        
-        
+
+
         if (!string.IsNullOrEmpty(sJsonRequest))
         {
             JObject json = JObject.Parse(sJsonRequest);
@@ -51,19 +51,19 @@ public partial class Gateways_JsonPostGW : BaseGateway
 
                 HttpContext.Current.Items.Add(pair.Key, sValue);
             }
+        }
 
-            // add web service
-            MethodFinder queryServices = new MethodFinder(m_MediaService,
-                                                          m_SiteService,
-                                                          m_PricingService,
-                                                          m_DomainService,
-                                                          m_BillingService,
-                                                          m_ConditionalAccessService,
-                                                          m_SocialService,
-                                                          m_UsersService,
-                                                          m_NotificationService);
+        // add web service
+        MethodFinder queryServices = new MethodFinder(m_MediaService,
+                                                        m_SiteService,
+                                                        m_PricingService,
+                                                        m_DomainService,
+                                                        m_BillingService,
+                                                        m_ConditionalAccessService,
+                                                        m_SocialService,
+                                                        m_UsersService,
+                                                        m_NotificationService);
 
-            queryServices.ProcessRequest(sJsonRequest); 
-        }               
+        queryServices.ProcessRequest(sJsonRequest);                     
     }
 }
