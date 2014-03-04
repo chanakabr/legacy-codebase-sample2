@@ -129,11 +129,8 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
     }
 
     static public string GetWSURL(string sKey)
-    {
-        if (ConfigurationManager.AppSettings[sKey] != null &&
-            ConfigurationManager.AppSettings[sKey].ToString() != "")
-            return ConfigurationManager.AppSettings[sKey].ToString();
-        return "";
+    {        
+        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
