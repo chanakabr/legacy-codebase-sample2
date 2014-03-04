@@ -16,19 +16,19 @@ public partial class whoami : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        string m_sServerName = "";
-        if (ConfigurationManager.AppSettings["SERVER_NAME"] != null &&
-            ConfigurationManager.AppSettings["SERVER_NAME"].ToString() != "")
-            m_sServerName = ConfigurationManager.AppSettings["SERVER_NAME"].ToString();
-        else
+        string m_sServerName = TVinciShared.WS_Utils.GetTcmConfigValue("SERVER_NAME");
+        if (string.IsNullOrEmpty(m_sServerName))
+        {
             m_sServerName = "Unknown";
+        }
 
-        string m_sApplicationName = "";
-        if (ConfigurationManager.AppSettings["APPLICATION_NAME"] != null &&
-            ConfigurationManager.AppSettings["APPLICATION_NAME"].ToString() != "")
-            m_sApplicationName = ConfigurationManager.AppSettings["APPLICATION_NAME"].ToString();
-        else
+        string m_sApplicationName = TVinciShared.WS_Utils.GetTcmConfigValue("APPLICATION_NAME");
+        if (string.IsNullOrEmpty(m_sApplicationName))
+        {
             m_sApplicationName = "Unknown";
+        }
+
+
 
         Response.Write("Server: " + m_sServerName + "<br/>Application: " + m_sApplicationName);
     }

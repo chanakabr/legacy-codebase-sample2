@@ -15,10 +15,7 @@ public partial class AjaxManipGift : System.Web.UI.Page
 {
     static public string GetWSURL(string sKey)
     {
-        if (ConfigurationManager.AppSettings[sKey] != null &&
-            ConfigurationManager.AppSettings[sKey].ToString() != "")
-            return ConfigurationManager.AppSettings[sKey].ToString();
-        return "";
+        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     protected void AddUserLog(string sSiteGUID, string sRemarks)

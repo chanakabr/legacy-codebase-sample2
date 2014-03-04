@@ -408,10 +408,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
 
     static protected string GetWSURL()
     {
-        if (ConfigurationManager.AppSettings["pricing_ws"] != null &&
-            ConfigurationManager.AppSettings["pricing_ws"].ToString() != "")
-            return ConfigurationManager.AppSettings["pricing_ws"].ToString();
-        return "";
+        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
     }
 
     protected string GetCurrentValue(string sField, string sTable, Int32 nsubscription_idID, string sLangCode, string sConnKey)

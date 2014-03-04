@@ -157,14 +157,8 @@ public partial class adm_epg_upload : System.Web.UI.Page
 
     protected string GetFtpPathFromConfiguration(int groupID)
     {  
-        string retFtp = string.Empty;
-
         string groupFtpKey = GROUP_CONFIG_KEY_PREFIX + groupID.ToString();
-
-        if (ConfigurationManager.AppSettings[groupFtpKey] != null)
-        {
-            retFtp = ConfigurationManager.AppSettings[groupFtpKey].ToString();
-        }
+        string retFtp  = TVinciShared.WS_Utils.GetTcmConfigValue(groupFtpKey);
 
         return retFtp;
     }
