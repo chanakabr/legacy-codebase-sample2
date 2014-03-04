@@ -316,6 +316,66 @@ namespace TVinciShared
             return result;
         }
 
+        public static bool GetTcmBoolValue(string sKey)
+        {
+            bool result = false;
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<bool>(sKey);
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+            }
+            return result;
+        }
+
+        public static int GetTcmIntValue(string sKey)
+        {
+            int result = 0;
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<int>(sKey);
+            }
+            catch (Exception ex)
+            {
+                result = 0;
+                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+            }
+            return result;
+        }
+
+        public static DateTime GetTcmDateTimeValue(string sKey)
+        {
+            DateTime result = DateTime.UtcNow;
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<DateTime>(sKey);
+            }
+            catch (Exception ex)
+            {
+                result = DateTime.UtcNow; ;
+                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+            }
+            return result;
+        }
+
+        public static T GetTcmGenericValue<T>(string sKey)
+        {
+            T result = default(T);
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<T>(sKey);
+            }
+            catch (Exception ex)
+            {
+                result = default(T);
+                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+            }
+            return result;
+        }
+
         public static void InitTcmConfig()
         {
             try
