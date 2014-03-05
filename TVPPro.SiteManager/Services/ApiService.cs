@@ -317,55 +317,55 @@ namespace TVPPro.SiteManager.Services
             return res;
         }
 
-        public EPGChannelProgrammeObject[] GetEPGChannelProgramme(string EpgId, string PicSize, TvinciPlatform.api.EPGUnit unit, int nFromOffsetDay, int nToOffsetDay, int nUTCOffset)
-        {
-            EPGChannelProgrammeObject[] res = null;
+        //public EPGChannelProgrammeObject[] GetEPGChannelProgramme(string EpgId, string PicSize, TvinciPlatform.api.EPGUnit unit, int nFromOffsetDay, int nToOffsetDay, int nUTCOffset)
+        //{
+        //    EPGChannelProgrammeObject[] res = null;
 
-            string sKey = string.Format("{0}_{1}_{2}_{3}_{4}", EpgId, PicSize, DateTime.Now.AddDays(nFromOffsetDay).Date.ToShortDateString(), DateTime.Now.AddDays(nToOffsetDay).Date.ToShortDateString(), nUTCOffset);
+        //    string sKey = string.Format("{0}_{1}_{2}_{3}_{4}", EpgId, PicSize, DateTime.Now.AddDays(nFromOffsetDay).Date.ToShortDateString(), DateTime.Now.AddDays(nToOffsetDay).Date.ToShortDateString(), nUTCOffset);
 
-            // return object from cache if exist
-            object oFromCache = DataHelper.GetCacheObject(sKey);
-            if (oFromCache != null && oFromCache is EPGChannelProgrammeObject[]) return oFromCache as EPGChannelProgrammeObject[];
+        //    // return object from cache if exist
+        //    object oFromCache = DataHelper.GetCacheObject(sKey);
+        //    if (oFromCache != null && oFromCache is EPGChannelProgrammeObject[]) return oFromCache as EPGChannelProgrammeObject[];
 
-            try
-            {
-                wsUserName = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultUser;
-                wsPassword = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultPassword;
-                res = m_Module.GetEPGChannelProgramme(wsUserName, wsPassword, EpgId, PicSize, unit, nFromOffsetDay, nToOffsetDay, nUTCOffset);
-                if (res.Length > 0)
-                    DataHelper.SetCacheObject(sKey, res);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, Parameters :  Epg Id: {1}, User ID: {2}", ex.Message, EpgId, UsersService.Instance.GetUserID());
-            }
-            return res;
-        }
+        //    try
+        //    {
+        //        wsUserName = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultUser;
+        //        wsPassword = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultPassword;
+        //        res = m_Module.GetEPGChannelProgramme(wsUserName, wsPassword, EpgId, PicSize, unit, nFromOffsetDay, nToOffsetDay, nUTCOffset);
+        //        if (res.Length > 0)
+        //            DataHelper.SetCacheObject(sKey, res);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, Parameters :  Epg Id: {1}, User ID: {2}", ex.Message, EpgId, UsersService.Instance.GetUserID());
+        //    }
+        //    return res;
+        //}
 
-        public EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgramme(string[] channelID, string PicSize, TvinciPlatform.api.EPGUnit unit, int nFromOffsetDay, int nToOffsetDay, int nUTCOffset)
-        {
-            EPGMultiChannelProgrammeObject[] res = null;
+        //public EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgramme(string[] channelID, string PicSize, TvinciPlatform.api.EPGUnit unit, int nFromOffsetDay, int nToOffsetDay, int nUTCOffset)
+        //{
+        //    EPGMultiChannelProgrammeObject[] res = null;
 
-            string sKey = string.Format("{0}_{1}_{2}_{3}_{4}", string.Join(";", channelID), PicSize, DateTime.Now.AddDays(nFromOffsetDay).Date.ToShortDateString(), DateTime.Now.AddDays(nToOffsetDay).Date.ToShortDateString(), nUTCOffset);
+        //    string sKey = string.Format("{0}_{1}_{2}_{3}_{4}", string.Join(";", channelID), PicSize, DateTime.Now.AddDays(nFromOffsetDay).Date.ToShortDateString(), DateTime.Now.AddDays(nToOffsetDay).Date.ToShortDateString(), nUTCOffset);
 
-            // return object from cache if exist
-            object oFromCache = DataHelper.GetCacheObject(sKey);
-            if (oFromCache != null && oFromCache is EPGMultiChannelProgrammeObject[]) return oFromCache as EPGMultiChannelProgrammeObject[];
+        //    // return object from cache if exist
+        //    object oFromCache = DataHelper.GetCacheObject(sKey);
+        //    if (oFromCache != null && oFromCache is EPGMultiChannelProgrammeObject[]) return oFromCache as EPGMultiChannelProgrammeObject[];
 
-            try
-            {
-                wsUserName = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultUser;
-                wsPassword = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultPassword;
-                res = m_Module.GetEPGMultiChannelProgramme(wsUserName, wsPassword, channelID, PicSize, unit, nFromOffsetDay, nToOffsetDay, nUTCOffset);
-                if (res.Length > 0)
-                    DataHelper.SetCacheObject(sKey, res);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, Parameters :  Epg Id: {1}, User ID: {2}", ex.Message, string.Join(";", channelID), UsersService.Instance.GetUserID());
-            }
-            return res;
-        }
+        //    try
+        //    {
+        //        wsUserName = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultUser;
+        //        wsPassword = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultPassword;
+        //        res = m_Module.GetEPGMultiChannelProgramme(wsUserName, wsPassword, channelID, PicSize, unit, nFromOffsetDay, nToOffsetDay, nUTCOffset);
+        //        if (res.Length > 0)
+        //            DataHelper.SetCacheObject(sKey, res);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, Parameters :  Epg Id: {1}, User ID: {2}", ex.Message, string.Join(";", channelID), UsersService.Instance.GetUserID());
+        //    }
+        //    return res;
+        //}
 
         public GroupRule[] GetGroupMediaRules(int MediaId, int siteGuid, string deviceUDID)
         {

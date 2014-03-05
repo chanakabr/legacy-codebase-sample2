@@ -106,7 +106,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://stg-hk.tvincidnshk.com/webservices/api_v2_0/api.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices.dev/API/api.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_api_API {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_api_API"]));

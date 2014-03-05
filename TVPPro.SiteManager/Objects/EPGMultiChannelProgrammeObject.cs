@@ -12,4 +12,13 @@ namespace TVPPro.SiteManager.Objects
 
         public List<EPGChannelProgrammeObject> EPGChannelProgrammeObject { get; set; }
     }
+
+    public enum EPGUnit
+    {
+        Days,
+        
+        Hours,
+        
+        Current
+    }
 }
