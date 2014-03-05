@@ -15,10 +15,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
 
     static protected string GetWSURL()
     {
-        if (ConfigurationManager.AppSettings["pricing_ws"] != null &&
-            ConfigurationManager.AppSettings["pricing_ws"].ToString() != "")
-            return ConfigurationManager.AppSettings["pricing_ws"].ToString();
-        return "";
+        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
     }
 
     protected void Page_Load(object sender, EventArgs e)
