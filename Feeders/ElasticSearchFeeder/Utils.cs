@@ -46,10 +46,71 @@ namespace ElasticSearchFeeder
 
         public static EpgCB GetEpgProgram(int nGroupID, int nEpgID)
         {
-            EpgCB res = null;
+            EpgCB epg = new EpgCB();
 
-            DataSet ds = Tvinci.Core.DAL.EpgDal.GetEpgProgramDetails(nGroupID, nEpgID);
+            EpgBL.BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nGroupID);
+            try
+            {
+                ulong uEpgID = ulong.Parse(nEpgID.ToString());
+                EPGChannelProgrammeObject oProg = oEpgBL.GetEpg(uEpgID);
+                if (oProg != null)
+                {
+                    epg.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(oProg.EPG_CHANNEL_ID);
+                    epg.EpgID = ODBCWrapper.Utils.GetUnsignedLongSafeVal(oProg.EPG_ID);
+                    epg.GroupID = ODBCWrapper.Utils.GetIntSafeVal(oProg.GROUP_ID);
+                    epg.isActive = (oProg.IS_ACTIVE == "true" ? true : false);
+                    epg.Description = oProg.DESCRIPTION;
+                    epg.Name = oProg.NAME;
+                    if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(oProg.START_DATE)))
+                    {
+                        epg.StartDate = ODBCWrapper.Utils.GetDateSafeVal(oProg.START_DATE);
+                    }
+                     if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(oProg.END_DATE)))
+                     {
+                         epg.EndDate = ODBCWrapper.Utils.GetDateSafeVal(oProg.END_DATE);
+                     }
+                     
+                    List<string> tempList;
+                    foreach (EPGDictionary meta in oProg.EPG_Meta)
+                    {
+                        if (epg.Metas.TryGetValue(meta.Key, out tempList))
+                        {
+                            tempList.Add(meta.Value);
+                            epg.Metas.Add(meta.Key, tempList);
+                        }
+                        else
+                        {
+                            tempList = new List<string>() { meta.Value };
+                            epg.Metas.Add(meta.Key, tempList);
+                        }
+                    }
 
+
+                    foreach (EPGDictionary tag in oProg.EPG_TAGS)
+                    {
+                        if (epg.Tags.TryGetValue(tag.Key, out tempList))
+                        {
+                            tempList.Add(tag.Value);
+                            epg.Tags.Add(tag.Key, tempList);
+                        }
+                        else
+                        {
+                            tempList = new List<string>() { tag.Value };
+                            epg.Tags.Add(tag.Key, tempList);
+                        }
+                    }                    
+
+                }
+                return epg;
+            }
+            catch (Exception ex)
+            {
+                //write to log???
+                return null;
+            }
+
+            #region old code take details from DB
+            /*            DataSet ds = Tvinci.Core.DAL.EpgDal.GetEpgProgramDetails(nGroupID, nEpgID);
             if (ds != null && ds.Tables != null)
             {
                 if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
@@ -121,8 +182,10 @@ namespace ElasticSearchFeeder
                     }
                 }
             }
-
+            
             return res;
+ * */
+            #endregion
         }
 
         public static string GetPermittedWatchRules(int nGroupId)

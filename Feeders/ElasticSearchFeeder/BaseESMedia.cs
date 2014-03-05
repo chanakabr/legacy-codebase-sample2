@@ -74,10 +74,9 @@ namespace ElasticSearchFeeder
                         string sAckId;
                         bool bRetVal;
                         try
-                        {
-                            while ((oMessage = oMessageQueue.Dequeue<IndexingData>(sGroupID, out sAckId)) != null)
+                        {                          
+                            while ((oMessage = oMessageQueue.Dequeue<IndexingData>(m_sQueueName, out sAckId)) != null)
                             {
-
                                 if (oMessage.Ids != null && oMessage.Ids.Count > 0)
                                 {
                                     try
@@ -141,7 +140,7 @@ namespace ElasticSearchFeeder
                         (index) =>
                         {
                             return Utils.GetEpgProgram(m_nGroupID, (int)index);
-                        }, i);
+                        }, lEpgIDs[i]);
                 }
 
                 Task.WaitAll(tPrograms);
