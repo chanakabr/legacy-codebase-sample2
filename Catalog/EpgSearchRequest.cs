@@ -19,20 +19,31 @@ namespace Catalog
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         [DataMember]
+        public bool m_bExact;
+
+        [DataMember]
+        public List<KeyValue> m_AndList;
+        [DataMember]
+        public List<KeyValue> m_OrList;
+
+        [DataMember]
         public string m_sSearch;
+        
         [DataMember]
         public DateTime m_dStartDate;
         [DataMember]
         public DateTime m_dEndDate;
-        [DataMember]
-        public int m_nProgramID;
+        
         [DataMember]
         public List<long> m_oEPGChannelIDs;
 
         public EpgSearchRequest()
             : base()
         {
-            m_nProgramID = 0;
+            m_bExact = false; // search with "like" on text
+
+            m_AndList = null;
+            m_OrList = null;
 
             m_dStartDate = DateTime.UtcNow;
             m_dEndDate = DateTime.UtcNow.AddDays(7);
@@ -41,32 +52,37 @@ namespace Catalog
             m_oEPGChannelIDs = new List<long>();
         }
 
-        public EpgSearchRequest(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nProgramID, int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString, List<long> epgChannelIDs)
+        public EpgSearchRequest(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString, List<long> epgChannelIDs,
+                    List<KeyValue> andList, List<KeyValue> orList)
             : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
-            Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, nProgramID, epgChannelIDs);
+            Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, epgChannelIDs, andList, orList);
         }
 
-        private void Initialize(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nProgramID,
-            List<long> epgChannelIDs)
+        private void Initialize(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, /*int nProgramID,*/
+            List<long> epgChannelIDs, List<KeyValue> andList, List<KeyValue> orList)
         {
 
             this.m_dEndDate = dEndDate;
             this.m_dStartDate = dStartDate;
             this.m_sSearch = sSearch;
-            this.m_nProgramID = nProgramID;
             this.m_oEPGChannelIDs = epgChannelIDs;
+            this.m_AndList = andList;
+            this.m_OrList = orList;
         }
 
-        private void Initialize(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nProgramID)
+        private void Initialize(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, List<KeyValue> andList, List<KeyValue> orList)
         {
-            Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, nProgramID, null);
+            Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, null, andList, orList);
         }
 
         protected void CheckEPGRequestIsValid(EpgSearchRequest request)
         {
-            if (request == null || string.IsNullOrEmpty(request.m_sSearch) || request.m_nGroupID == 0)
+            if (request == null || request.m_nGroupID == 0 || (string.IsNullOrEmpty(request.m_sSearch) && request.m_AndList == null && request.m_OrList == null
+                && request.m_AndList.Count == 0 && request.m_OrList.Count == 0))
+            {
                 throw new Exception("Request object is null or missing search text or group id");
+            }
         }
 
 
@@ -147,7 +163,6 @@ namespace Catalog
             sb.Append(String.Concat(" Search Text: ", m_sSearch));
             sb.Append(String.Concat(" Start Date: ", m_dStartDate != null ? m_dStartDate.ToString() : "null"));
             sb.Append(String.Concat(" End Date: ", m_dEndDate != null ? m_dEndDate.ToString() : "null"));
-            sb.Append(String.Concat(" Program ID: ", m_nProgramID));
             sb.Append(" EPG Channel IDs: ");
             if (m_oEPGChannelIDs != null && m_oEPGChannelIDs.Count > 0)
             {

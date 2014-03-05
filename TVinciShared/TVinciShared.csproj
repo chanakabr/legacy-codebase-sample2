@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheServerNotifier.cs" />
+    <Compile Include="CBTableWebEditor.cs" />
     <Compile Include="CertificateTruster.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="ConcurrentUtils.cs" />
