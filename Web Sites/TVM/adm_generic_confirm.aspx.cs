@@ -93,17 +93,23 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                                 if (epgCB.Status == 4) //remove permanent
                                 {
                                     oEpgBL.RemoveEpg(uID);
+                                    bool result = false;
+                                    result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Delete);
                                 }
                                 else if (epgCB.Status == 1)
                                 {
                                     epgCB.Status = 4;
                                     bool res = oEpgBL.UpdateEpg(epgCB);
+                                    bool result = false;
+                                    result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
                                 }
                             }
                             else // cancel button
                             {
                                 epgCB.Status = 1;
                                 bool res = oEpgBL.UpdateEpg(epgCB);
+                                bool result = false;
+                                result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
                             }
                         }
                         //Delete from ElasticSearch

@@ -30,7 +30,7 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
                 Request.QueryString["epg_tag_id"].ToString() != "")
             {
                 Session["epg_tag_id"] = int.Parse(Request.QueryString["epg_tag_id"].ToString());
-                Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("device_rules", "group_id", int.Parse(Session["epg_tag_id"].ToString())).ToString());
+                Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("EPG_Tags_Types", "group_id", int.Parse(Session["epg_tag_id"].ToString())).ToString());
                 Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
                 if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
                 {
@@ -80,16 +80,6 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
         DataRecordShortTextField dr_Name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_Name.Initialize("tag name", "adm_table_header_nbg", "FormInput", "Name", true);
         theRecord.AddRecord(dr_Name);
-
-        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
-        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
-        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
-        theRecord.AddRecord(dr_groups);
-
-        //is_searchable true/ false
-        DataRecordCheckBoxField dr_Searchable = new DataRecordCheckBoxField(true);
-        dr_Searchable.Initialize("is searchable", "adm_table_header_nbg", "FormInput", "is_searchable", false);
-        theRecord.AddRecord(dr_Searchable);
 
         string sTable = theRecord.GetTableHTML("adm_epg_tags_new.aspx?submited=1");
 
