@@ -75,7 +75,15 @@ namespace Catalog
                             if (string.IsNullOrEmpty(request.m_sMediaType))
                                 sMediaTypesFromRequest = new string[1] { "0" };
                             else
+                            {
+                                if (request.m_sMediaType.EndsWith(";"))
+                                {
+                                    request.m_sMediaType = request.m_sMediaType.Remove(request.m_sMediaType.Length - 1);
+                                }
+
                                 sMediaTypesFromRequest = request.m_sMediaType.Split(';');
+
+                            }
 
                             //List<int> lIds = new List<int>();
                             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
