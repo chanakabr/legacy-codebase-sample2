@@ -69,9 +69,9 @@ namespace TVPApiModule.Helper
                         int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
 
                         if (!string.IsNullOrEmpty(isOfflineSync))
-                            new ApiUsersService(groupID, platform).AddUserOfflineMedia(sUserID, mediaID);
+                            ServicesManager.UsersService(groupID, platform).AddUserOfflineMedia(sUserID, mediaID);
 
-                        retVal = new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), extraVal.ToString());
+                        retVal = ServicesManager.UsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), extraVal.ToString());
                         break;
                     }
                 case ActionType.RemoveFavorite:
@@ -80,7 +80,7 @@ namespace TVPApiModule.Helper
                         retVal = true;
 
                         if (!string.IsNullOrEmpty(isOfflineSync))
-                            new ApiUsersService(groupID, platform).RemoveUserOfflineMedia(sUserID, mediaID);
+                            ServicesManager.UsersService(groupID, platform).RemoveUserOfflineMedia(sUserID, mediaID);
 
                         //long guidNum = Convert.ToInt64(sUserID);
                         //int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
@@ -127,7 +127,7 @@ namespace TVPApiModule.Helper
                         //initObj.m_oUserIMRequestObject.m_sSiteGuid = "11111";
                         //string apiWsUser = string.Format("api_{0}", favGroupID.ToString());
                         //RateResponseObject obj = service.TVAPI_RateMedia(apiWsUser, "11111", DateTime.UtcNow, initObj, mediaID, extraVal);
-                        TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject rro = new ApiApiService(groupID, platform).RateMedia(sUserID, mediaID, extraVal);
+                        TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject rro = ServicesManager.ApiApiService(groupID, platform).RateMedia(sUserID, mediaID, extraVal);
                         retVal = rro.oStatus != null && rro.oStatus.m_nStatusCode == 0;
                         break;
                         //long guidNum = Convert.ToInt64(sID);
@@ -243,7 +243,7 @@ namespace TVPApiModule.Helper
 
         public static bool SendToFriend(TVPApiModule.Objects.InitializationObject initObj, int groupID, int mediaID, string senderName, string senderEmail, string toEmail)
         {
-            return new ApiApiService(groupID, initObj.Platform).SendToFriend(senderName, senderEmail, toEmail, mediaID);
+            return ServicesManager.ApiApiService(groupID, initObj.Platform).SendToFriend(senderName, senderEmail, toEmail, mediaID);            
         }
 
         public ActionHelper()

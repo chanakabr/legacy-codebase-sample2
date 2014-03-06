@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TVPApi;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.Configuration.Site;
 using TVPPro.SiteManager.Helper;
-using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
 using TVPApiModule.Context;
-using TVPApiModule.Manager;
-using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
@@ -48,6 +42,18 @@ namespace TVPApiModule.Services
 
         #endregion
 
+        #region Properties
+
+        protected TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module ConditionalAccess
+        {
+            get
+            {
+                return (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module);
+            }
+        }
+
+        #endregion
+
         //#region Public Static Functions
 
         //public static ApiConditionalAccessService Instance(int groupId, PlatformType platform)
@@ -62,78 +68,63 @@ namespace TVPApiModule.Services
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = null;
 
-            try
-            {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_DummyChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : CC_DummyChargeUserForMediaFile, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
-            }
+            string concatenatedRes = Execute(() =>
+                {
+                    response = ConditionalAccess.CC_DummyChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID);
+                    return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+                }) as string;
 
-            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            return concatenatedRes;
         }
 
         public string ChargeUserForMediaFile(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sUserGuid, string sUDID, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = null;
 
-            try
+            string concatenatedRes = Execute(() =>
             {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, string.Empty, sUserIP, sExtraParams, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : ChargeUserForMediaFile, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
-            }
+                response = ConditionalAccess.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, string.Empty, sUserIP, sExtraParams, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
+                return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            }) as string;
 
-            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            return concatenatedRes;            
         }
 
         public string DummyChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = null;
 
-            try
+            string concatenatedRes = Execute(() =>
             {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : DummyChargeUserForSubscription, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
-            }
+                response = ConditionalAccess.CC_DummyChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID);
+                return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            }) as string;
 
-            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            return concatenatedRes;
         }
 
         public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingResponse response = null;
 
-            try
-            {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : ChargeUserForSubscription, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
-            }
+            string concatenatedRes = Execute(() =>
+                {
+                    response = ConditionalAccess.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sSubscriptionID, sCouponCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sPaymentMethodID, sEncryptedCVV);
+                    return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+                }) as string;
 
-            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+            return concatenatedRes;
         }
 
         public bool CancelSubscription(string sUserGuid, string sSubscriptionID, int nSubscriptionPurchaseID)
         {
             bool response = false;
 
-            try
-            {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : CancelSubscription, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
-            }
+            response = Convert.ToBoolean(Execute(() =>
+                {
+                    response = ConditionalAccess.CancelSubscription(m_wsUserName, m_wsPassword, sUserGuid, sSubscriptionID, nSubscriptionPurchaseID);
+                    return response;
+                }));
 
             return response;
         }
@@ -142,16 +133,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.BillingResponse response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : InAppChargeUserForSubscription, Error Message: {0}, Parameters :  User: {1}", ex.Message, sUserGuid);
-            }
+            response = Execute(() =>
+                {
+                    var res = ConditionalAccess.InApp_ChargeUserForSubscription(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, sProductCode, sUserIP, sExtraParameters, string.Empty, string.Empty, sUDID, sReceipt);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.BillingResponse;
 
             return response;
         }
@@ -160,42 +149,38 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.PermittedMediaContainer> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
-
-                if (response != null)
+            retVal = Execute(() =>
                 {
-                    retVal = response.Where(pmc => pmc != null).Select(m => m.ToApiObject()).ToList();
-                    if (retVal != null)
-                    {
-                        retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetUserPermittedItems, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
-            }
+                    var response = ConditionalAccess.GetUserPermittedItems(m_wsUserName, m_wsPassword, sSiteGuid);
 
-            return retVal;
+                    if (response != null)
+                    {
+                        retVal = response.Where(pmc => pmc != null).Select(m => m.ToApiObject()).ToList();
+                        if (retVal != null)
+                        {
+                            retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                        }
+                    }
+
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.PermittedMediaContainer>;
+
+            return retVal;            
         }
 
         public List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> GetItemsPrice(int[] fileArray, string sSiteGuid, bool bOnlyLowest)
         {
             List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> retVal = null;
 
-            try
+            retVal = Execute(() =>
             {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                var response = ConditionalAccess.GetItemsPrices(m_wsUserName, m_wsPassword, fileArray, sSiteGuid, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
 
                 if (response != null)
                     retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetItemsPrice, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
-            }
+
+                return retVal;
+            }) as List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer>;
 
             return retVal;
         }
@@ -204,23 +189,21 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
-
-                if (response != null)
+            retVal = Execute(() =>
                 {
-                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
-                    if (retVal != null)
+                    var response = ConditionalAccess.GetUserPermittedSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid);
+
+                    if (response != null)
                     {
-                        retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                        retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
+                        if (retVal != null)
+                        {
+                            retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                        }
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetUserPermitedSubscriptions, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
-            }
+
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer>;
 
             return retVal;
         }
@@ -229,16 +212,15 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.BillingTransactionsResponse retVal = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
-                if (res != null)
-                    retVal = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetUserBillingHistory, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
-            }
+            retVal = Execute(() =>
+                {
+                    var res = ConditionalAccess.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
+                    if (res != null)
+                        retVal = res.ToApiObject();
+
+                    return retVal;
+                }) as TVPApiModule.Objects.Responses.BillingTransactionsResponse;
+
             return retVal;
         }
 
@@ -246,24 +228,22 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.PermittedMediaContainer> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
-
-                if (response != null)
+            retVal = Execute(() =>
                 {
-                    retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToList();
-                    if (retVal != null)
-                    {
-                        retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
-                    }
-                }
+                    var response = ConditionalAccess.GetUserExpiredItems(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
 
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetUserExpiredItems, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
-            }
+                    if (response != null)
+                    {
+                        retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToList();
+                        if (retVal != null)
+                        {
+                            retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                        }
+                    }
+
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.PermittedMediaContainer>;
+
             return retVal;
         }
 
@@ -271,24 +251,21 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
-
-                if (response != null)
+            retVal = Execute(() =>
                 {
-                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
-                    if (retVal != null)
-                    {
-                        retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
-                    }
-                }
+                    var response = ConditionalAccess.GetUserExpiredSubscriptions(m_wsUserName, m_wsPassword, sSiteGuid, numOfItems);
 
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetUserExpiredSubscriptions, Error Message: {0}, Parameters :  User: {1}", ex.Message, sSiteGuid);
-            }
+                    if (response != null)
+                    {
+                        retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
+                        if (retVal != null)
+                        {
+                            retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                        }
+                    }
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer>;
+
             return retVal;
         }
 
@@ -296,17 +273,16 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> returnObject = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+            returnObject = Execute(() =>
+                {
+                    var response = ConditionalAccess.GetSubscriptionsPrices(m_wsUserName, m_wsPassword, sSubscriptions, sSiteGuid, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
 
-                if (response != null)
-                    returnObject = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionsPrices, Error Message: {0}, Parameters : User: {1}", ex.Message, sSiteGuid);
-            }
+                    if (response != null)
+                        returnObject = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
+
+                    return returnObject;
+                }) as List<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer>;
+
             return returnObject;
         }
 
@@ -329,22 +305,20 @@ namespace TVPApiModule.Services
         {
             List<string> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserPrePaidStatus(m_wsUserName, m_wsPassword, siteGuid, currencyCode);
-
-                if (response != null)
+            retVal = Execute(() =>
                 {
-                    retVal = new List<string>();
+                    var response = ConditionalAccess.GetUserPrePaidStatus(m_wsUserName, m_wsPassword, siteGuid, currencyCode);
 
-                    retVal.Add((response.m_nTotalAmount - response.m_nAmountUsed).ToString());
-                    retVal.Add(response.m_sCurrencyCode);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetPrepaidBalance, Error Message: {0}, Parameters : User: {1}", ex.Message, siteGuid);
-            }
+                    if (response != null)
+                    {
+                        retVal = new List<string>();
+
+                        retVal.Add((response.m_nTotalAmount - response.m_nAmountUsed).ToString());
+                        retVal.Add(response.m_sCurrencyCode);
+                    }
+
+                    return retVal;
+                }) as List<string>;
 
             return retVal;
         }
@@ -353,54 +327,43 @@ namespace TVPApiModule.Services
         {
             PrePaidResponse returnObject = null;
 
-            try
+            TVPApiModule.Objects.Responses.PrePaidResponseStatus prePaidReturnObject = (TVPApiModule.Objects.Responses.PrePaidResponseStatus)Enum.Parse(typeof(TVPApiModule.Objects.Responses.PrePaidResponseStatus), Execute(() =>
             {
-                returnObject = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).PP_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : PP_ChargeUserForMediaFile, Error Message: {0}, Parameters : User: {1}", ex.Message, siteGuid);
-            }
+                returnObject = ConditionalAccess.PP_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currency, mediaFileID, ppvModuleCode, couponCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                return (TVPApiModule.Objects.Responses.PrePaidResponseStatus)returnObject.m_oStatus;
+            }).ToString());
 
-            return (TVPApiModule.Objects.Responses.PrePaidResponseStatus)returnObject.m_oStatus;
+            return prePaidReturnObject;
         }
 
         public string GetMediaLicenseLink(string siteGuid, int mediaFileID, string baseLink, string udid)
         {
             string returnObject = null;
 
-            try
-            {
-                returnObject = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetLicensedLink(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetMediaLicenseLink, Error Message: {0}, Parameters : User: {1}", ex.Message, siteGuid);
-            }
+            returnObject = Execute(() =>
+                {
+                    returnObject = ConditionalAccess.GetLicensedLink(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);                    
+                    return returnObject;
+                }) as string;
 
-            return returnObject;
+            return returnObject;           
         }
 
         public UserCAStatus GetUserCAStatus(string siteGuid)
         {
             UserCAStatus retVal = UserCAStatus.Annonymus;
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-            //GetWSMethodUserPass(eWSMethodName.GetUserPermittedItems, out wsUser, out wsPass);
-            if (!string.IsNullOrEmpty(siteGuid))
-            {
-                try
-                {
-                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUserCAStatus(wsUser, wsPass, siteGuid);
-                    logger.InfoFormat("Protocol: GetUserStatus, Parameters : SiteGuid : {0}", siteGuid);
 
-                }
-                catch (Exception ex)
+            retVal = (UserCAStatus)Enum.Parse(typeof(UserCAStatus), Execute(() =>
                 {
-                    logger.ErrorFormat("Error calling webservice protocol : GetUserStatus, Error Message: {0}, Parameters :  SiteGuid: {1}", ex.Message, siteGuid);
-                }
-            }
-            return retVal;
+                    if (!string.IsNullOrEmpty(siteGuid))
+                    {
+                        retVal = ConditionalAccess.GetUserCAStatus(m_wsUserName, m_wsPassword, siteGuid);
+                        logger.InfoFormat("Protocol: GetUserStatus, Parameters : SiteGuid : {0}", siteGuid);
+                    }
+                    return retVal;
+                }).ToString());
+
+            return retVal;            
         }
 
         public TVPApiModule.Objects.Responses.CampaignActionInfo ActivateCampaignWithInfo(string siteGuid, long campID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
@@ -408,29 +371,27 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.CampaignActionInfo campaignActionInfo = null;
 
-            try
-            {
-                TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo campaignActionInfoParam = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo()
+            campaignActionInfo = Execute(() =>
                 {
-                    m_siteGuid = int.Parse(siteGuid),
-                    m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SocialInviteInfo() { m_hashCode = hashCode } : null,
-                    m_mediaID = mediaID,
-                    m_mediaLink = mediaLink,
-                    m_senderEmail = senderEmail,
-                    m_senderName = senderName,
-                    m_status = status,
-                    m_voucherReceipents = voucherReceipents
-                };
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).ActivateCampaignWithInfo(m_wsUserName, m_wsPassword, (int)campID, campaignActionInfoParam);
-                if (res != null)
-                    campaignActionInfo = res.ToApiObject();
+                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo campaignActionInfoParam = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo()
+                        {
+                            m_siteGuid = int.Parse(siteGuid),
+                            m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SocialInviteInfo() { m_hashCode = hashCode } : null,
+                            m_mediaID = mediaID,
+                            m_mediaLink = mediaLink,
+                            m_senderEmail = senderEmail,
+                            m_senderName = senderName,
+                            m_status = status,
+                            m_voucherReceipents = voucherReceipents
+                        };
+                    var res = ConditionalAccess.ActivateCampaignWithInfo(m_wsUserName, m_wsPassword, (int)campID, campaignActionInfoParam);
+                    if (res != null)
+                        campaignActionInfo = res.ToApiObject();
 
-                logger.InfoFormat("Protocol: ActivateCampaignWithInfo, Parameters : campID : {0}", campID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : ActivateCampaignWithInfo, Error Message: {0}, Parameters :  CampID: {1}", ex.Message, campID);
-            }
+                    logger.InfoFormat("Protocol: ActivateCampaignWithInfo, Parameters : campID : {0}", campID);
+
+                    return campaignActionInfo;
+                }) as TVPApiModule.Objects.Responses.CampaignActionInfo;
 
             return campaignActionInfo;
         }
@@ -451,57 +412,42 @@ namespace TVPApiModule.Services
         {
             int res = 0;
 
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).AD_GetCustomDataID(m_wsUserName,
-                                                  m_wsPassword,
-                                                  siteGuid,
-                                                  price,
-                                                  currencyCode3,
-                                                  assetId,
-                                                  ppvModuleCode,
-                                                  campaignCode,
-                                                  couponCode,
-                                                  paymentMethod,
-                                                  userIp,
-                                                  countryCd2,
-                                                  languageCode3,
-                                                  deviceName,
-                                                  assetType);
+            res = Convert.ToInt32(Execute(() =>
+                {
+                    res = ConditionalAccess.AD_GetCustomDataID(m_wsUserName,
+                                                          m_wsPassword,
+                                                          siteGuid,
+                                                          price,
+                                                          currencyCode3,
+                                                          assetId,
+                                                          ppvModuleCode,
+                                                          campaignCode,
+                                                          couponCode,
+                                                          paymentMethod,
+                                                          userIp,
+                                                          countryCd2,
+                                                          languageCode3,
+                                                          deviceName,
+                                                          assetType);
 
-                logger.InfoFormat("Protocol: AD_GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}",
-                                  siteGuid,
-                                  price,
-                                  currencyCode3,
-                                  assetId,
-                                  ppvModuleCode,
-                                  campaignCode,
-                                  couponCode,
-                                  paymentMethod,
-                                  userIp,
-                                  countryCd2,
-                                  languageCode3,
-                                  deviceName,
-                                  assetType);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : AD_GetCustomDataID, Error Message: {0}, Parameters : siteGuid - {1}, price - {2}, currencyCode3 - {3}, assetId - {4}, ppvModuleCode - {5}, campaignCode - {6}, couponCode - {7}, paymentMethod - {8}, userIp - {9}, countryCd2 - {10}, languageCode3 - {11}, deviceName - {12}, assetType - {13}",
-                                    ex.Message,
-                                    siteGuid,
-                                    price,
-                                    currencyCode3,
-                                    assetId,
-                                    ppvModuleCode,
-                                    campaignCode,
-                                    couponCode,
-                                    paymentMethod,
-                                    userIp,
-                                    countryCd2,
-                                    languageCode3,
-                                    deviceName,
-                                    assetType);
-            }
+                    logger.InfoFormat("Protocol: AD_GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}",
+                                      siteGuid,
+                                      price,
+                                      currencyCode3,
+                                      assetId,
+                                      ppvModuleCode,
+                                      campaignCode,
+                                      couponCode,
+                                      paymentMethod,
+                                      userIp,
+                                      countryCd2,
+                                      languageCode3,
+                                      deviceName,
+                                      assetType);
+
+                    return res;
+                }));
+
             return res;
         }
 
@@ -522,94 +468,75 @@ namespace TVPApiModule.Services
         {
             int res = 0;
 
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetCustomDataID(m_wsUserName,
-                                                  m_wsPassword,
-                                                  siteGuid,
-                                                  price,
-                                                  currencyCode3,
-                                                  assetId,
-                                                  ppvModuleCode,
-                                                  campaignCode,
-                                                  couponCode,
-                                                  paymentMethod,
-                                                  userIp,
-                                                  countryCd2,
-                                                  languageCode3,
-                                                  deviceName,
-                                                  assetType,
-                                                  overrideEndDate,
-                                                  string.Empty);
+            res = Convert.ToInt32(Execute(() =>
+                {
+                    res = ConditionalAccess.GetCustomDataID(m_wsUserName,
+                                                          m_wsPassword,
+                                                          siteGuid,
+                                                          price,
+                                                          currencyCode3,
+                                                          assetId,
+                                                          ppvModuleCode,
+                                                          campaignCode,
+                                                          couponCode,
+                                                          paymentMethod,
+                                                          userIp,
+                                                          countryCd2,
+                                                          languageCode3,
+                                                          deviceName,
+                                                          assetType,
+                                                          overrideEndDate,
+                                                          string.Empty);
 
-                logger.InfoFormat("Protocol: GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}, overrideEndDate - {13}",
-                                  siteGuid,
-                                  price,
-                                  currencyCode3,
-                                  assetId,
-                                  ppvModuleCode,
-                                  campaignCode,
-                                  couponCode,
-                                  paymentMethod,
-                                  userIp,
-                                  countryCd2,
-                                  languageCode3,
-                                  deviceName,
-                                  assetType,
-                                  overrideEndDate);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetCustomDataID, Error Message: {0}, Parameters : siteGuid - {1}, price - {2}, currencyCode3 - {3}, assetId - {4}, ppvModuleCode - {5}, campaignCode - {6}, couponCode - {7}, paymentMethod - {8}, userIp - {9}, countryCd2 - {10}, languageCode3 - {11}, deviceName - {12}, assetType - {13}, overrideEndDate - {14}",
-                                    ex.Message,
-                                    siteGuid,
-                                    price,
-                                    currencyCode3,
-                                    assetId,
-                                    ppvModuleCode,
-                                    campaignCode,
-                                    couponCode,
-                                    paymentMethod,
-                                    userIp,
-                                    countryCd2,
-                                    languageCode3,
-                                    deviceName,
-                                    assetType,
-                                    overrideEndDate);
-            }
-            return res;
+                    logger.InfoFormat("Protocol: GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}, overrideEndDate - {13}",
+                                      siteGuid,
+                                      price,
+                                      currencyCode3,
+                                      assetId,
+                                      ppvModuleCode,
+                                      campaignCode,
+                                      couponCode,
+                                      paymentMethod,
+                                      userIp,
+                                      countryCd2,
+                                      languageCode3,
+                                      deviceName,
+                                      assetType,
+                                      overrideEndDate);
+
+                    return res;
+                }));
+
+            return res;            
         }
 
         public bool ActivateCampaign(string siteGuid, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
                                                            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionResult status, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.VoucherReceipentInfo[] voucherReceipents)
         {
             bool retVal = false;
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-            
-            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo actionInfo = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo()
-            {
-                m_siteGuid = int.Parse(siteGuid),
-                m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SocialInviteInfo() { m_hashCode = hashCode } : null,
-                m_mediaID = mediaID,
-                m_mediaLink = mediaLink,
-                m_senderEmail = senderEmail,
-                m_senderName = senderName,
-                m_status = status,
-                m_voucherReceipents = voucherReceipents
-            };
-            if (!string.IsNullOrEmpty(siteGuid))
-            {
-                try
+
+            retVal = Convert.ToBoolean(Execute(() =>
                 {
-                    logger.InfoFormat("ActivateCampaign, Parameters : SiteGuid : {0} campaignID : {1} actionInfo : {2}", siteGuid, campaignID, actionInfo.ToString());
-                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).ActivateCampaign(wsUser, wsPass, campaignID, actionInfo);
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error calling web service protocol : ActivateCampaign, Error Message: {0}, Parameters : SiteGuid: {1} campaignID : {2} actionInfo : {3}", ex.Message, siteGuid, campaignID, actionInfo.ToString());
-                }
-            }
+                    TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo actionInfo = new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo()
+                    {
+                        m_siteGuid = int.Parse(siteGuid),
+                        m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SocialInviteInfo() { m_hashCode = hashCode } : null,
+                        m_mediaID = mediaID,
+                        m_mediaLink = mediaLink,
+                        m_senderEmail = senderEmail,
+                        m_senderName = senderName,
+                        m_status = status,
+                        m_voucherReceipents = voucherReceipents
+                    };
+                    if (!string.IsNullOrEmpty(siteGuid))
+                    {
+                        logger.InfoFormat("ActivateCampaign, Parameters : SiteGuid : {0} campaignID : {1} actionInfo : {2}", siteGuid, campaignID, actionInfo.ToString());
+                        retVal = ConditionalAccess.ActivateCampaign(m_wsUserName, m_wsPassword, campaignID, actionInfo);
+                    }
+
+                    return retVal;
+                }));
+
             return retVal;
         }
 
@@ -617,25 +544,22 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer> retVal = null;
 
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-            
-            if (!string.IsNullOrEmpty(siteGuid))
-            {
-                try
+            retVal = Execute(() =>
                 {
-                    logger.InfoFormat("GetItemsPricesWithCoupons, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
+                    if (!string.IsNullOrEmpty(siteGuid))
+                    {
+                        logger.InfoFormat("GetItemsPricesWithCoupons, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
 
-                    var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
-                    
-                    if (response != null)
-                        retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToList();
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error calling web service protocol : GetItemsPricesWithCoupons, Error Message: {0}, Parameters : SiteGuid: {1} sCouponCode : {2}", ex.Message, siteGuid, sCouponCode);
-                }
-            }
+                        var response = ConditionalAccess.GetItemsPricesWithCoupons(m_wsUserName, m_wsPassword, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+
+                        if (response != null)
+                            retVal = response.Where(mf => mf != null).Select(mf => mf.ToApiObject()).ToList();
+
+                    }
+
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.MediaFileItemPricesContainer>;
+
             return retVal;
         }
 
@@ -643,170 +567,147 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer> retVal = null;
 
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-
-            if (!string.IsNullOrEmpty(siteGuid))
-            {
-                try
+            retVal = Execute(() =>
                 {
-                    logger.InfoFormat("GetSubscriptionsPricesWithCoupon, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
+                    if (!string.IsNullOrEmpty(siteGuid))
+                    {
+                        logger.InfoFormat("GetSubscriptionsPricesWithCoupon, Parameters : SiteGuid : {0} sCouponCode : {1}", siteGuid, sCouponCode);
 
-                    var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetSubscriptionsPricesWithCoupon(wsUser, wsPass, sSubscriptions, siteGuid, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
-                    
-                    if (response != null)
-                        retVal = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error calling web service protocol : GetSubscriptionsPricesWithCoupon, Error Message: {0}, Parameters : SiteGuid: {1} sCouponCode : {2}", ex.Message, siteGuid, sCouponCode);
-                }
-            }
+                        var response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(m_wsUserName, m_wsPassword, sSubscriptions, siteGuid, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+
+                        if (response != null)
+                            retVal = response.Where(sp => sp != null).Select(sp => sp.ToApiObject()).ToList();
+                    }
+
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.SubscriptionsPricesContainer>;
+
             return retVal;
         }
 
         public bool IsPermittedItem(string siteGuid, int mediaId)
         {
             bool retVal = false;
-            
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-            
-            if (!string.IsNullOrEmpty(siteGuid))
-            {
-                try
-                {
-                    logger.InfoFormat("IsPermittedItem, Parameters : SiteGuid : {0} mediaId : {1}", siteGuid, mediaId);
 
-                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).IsPermittedItem(wsUser, wsPass, siteGuid, mediaId);
-                }
-                catch (Exception ex)
+            retVal = Convert.ToBoolean(Execute(() =>
                 {
-                    logger.ErrorFormat("Error calling web service protocol : IsPermittedItem, Error Message: {0}, Parameters : SiteGuid: {1} mediaId : {2}", ex.Message, siteGuid, mediaId);
-                }
-            }
+                    if (!string.IsNullOrEmpty(siteGuid))
+                    {
+                        logger.InfoFormat("IsPermittedItem, Parameters : SiteGuid : {0} mediaId : {1}", siteGuid, mediaId);
+
+                        retVal = ConditionalAccess.IsPermittedItem(m_wsUserName, m_wsPassword, siteGuid, mediaId);
+                    }
+
+                    return retVal;
+                }));
+
             return retVal;
         }
 
         public string GetGoogleSignature(string siteGuid, int customerId)
         {
             string retVal = string.Empty;
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-            if (!string.IsNullOrEmpty(siteGuid))
-            {
-                try
+
+            retVal = Execute(() =>
                 {
-                    logger.InfoFormat("GetGoogleSignature, Parameters : SiteGuid : {0} customerId : {1}", siteGuid, customerId);
-                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetGoogleSignature(wsUser, wsPass, customerId);
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error calling web service protocol : GetGoogleSignature, Error Message: {0}, Parameters : SiteGuid: {1} customerId : {2}", ex.Message, siteGuid, customerId);
-                }
-            }
+                    if (!string.IsNullOrEmpty(siteGuid))
+                    {
+                        logger.InfoFormat("GetGoogleSignature, Parameters : SiteGuid : {0} customerId : {1}", siteGuid, customerId);
+                        retVal = ConditionalAccess.GetGoogleSignature(m_wsUserName, m_wsPassword, customerId);
+                    }
+
+                    return retVal;
+                }) as string;
+
             return retVal;
         }
 
         public bool IsPermittedSubscription(string siteGuid, int subId)
         {
             bool retVal = false;
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-            if (!string.IsNullOrEmpty(siteGuid))
+
+            retVal = Convert.ToBoolean(Execute(() =>
             {
-                try
+                if (!string.IsNullOrEmpty(siteGuid))
                 {
                     logger.InfoFormat("IsPermittedSubscription, Parameters : SiteGuid : {0} subId : {1}", siteGuid, subId);
 
                     string reason = string.Empty;
 
-                    retVal = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).IsPermittedSubscription(wsUser, wsPass, siteGuid, subId, ref reason);
+                    retVal = ConditionalAccess.IsPermittedSubscription(m_wsUserName, m_wsPassword, siteGuid, subId, ref reason);
                 }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error calling web service protocol : IsPermittedSubscription, Error Message: {0}, Parameters : SiteGuid: {1} subId : {2}", ex.Message, siteGuid, subId);
-                }
-            }
-            return retVal;
+
+                return retVal;
+            }));
+
+            return retVal;        
         }
 
         public TVPApiModule.Objects.Responses.BillingResponse InApp_ChargeUserForMediaFile(string siteGuid, double price, string currency, string productCode, string ppvModuleCode, string sDeviceName, string ReceiptData)
         {
             TVPApiModule.Objects.Responses.BillingResponse retVal = null;
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-            if (!string.IsNullOrEmpty(siteGuid))
-            {
-                try
+
+            retVal = Execute(() =>
                 {
-                    logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                    var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).InApp_ChargeUserForMediaFile(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
-                    if (res != null)
-                        retVal = res.ToApiObject();
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error calling web service protocol : InApp_ChargeUserForMediaFile, Error Message: {0}, Parameters : SiteGuid: {1} productCode : {2}", ex.Message, siteGuid, productCode);
-                }
-            }
-            return retVal;
+                    if (!string.IsNullOrEmpty(siteGuid))
+                    {
+                        logger.InfoFormat("InApp_ChargeUserForMediaFile, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
+                        var res = ConditionalAccess.InApp_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currency, productCode, ppvModuleCode, string.Empty, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName, ReceiptData);
+                        if (res != null)
+                            retVal = res.ToApiObject();
+                    }
+
+                    return retVal;
+                }) as TVPApiModule.Objects.Responses.BillingResponse;
+
+            return retVal;            
         }
 
         public TVPApiModule.Objects.Responses.BillingResponse CC_ChargeUserForPrePaid(string siteGuid, double price, string currency, string productCode, string ppvModuleCode, string sDeviceName)
         {
             TVPApiModule.Objects.Responses.BillingResponse retVal = null;
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-            if (!string.IsNullOrEmpty(siteGuid))
-            {
-                try
+
+            retVal = Execute(() =>
                 {
-                    logger.InfoFormat("CC_ChargeUserForPrePaid, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
-                    var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).CC_ChargeUserForPrePaid(wsUser, wsPass, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
-                    if (res != null)
-                        retVal = res.ToApiObject();
-                }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error calling web service protocol : CC_ChargeUserForPrePaid, Error Message: {0}, Parameters : SiteGuid: {1} productCode : {2}", ex.Message, siteGuid, productCode);
-                }
-            }
+                    if (!string.IsNullOrEmpty(siteGuid))
+                    {
+                        logger.InfoFormat("CC_ChargeUserForPrePaid, Parameters : SiteGuid : {0} productCode : {1}", siteGuid, productCode);
+                        var res = ConditionalAccess.CC_ChargeUserForPrePaid(m_wsUserName, m_wsPassword, siteGuid, price, currency, productCode, ppvModuleCode, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, sDeviceName);
+                        if (res != null)
+                            retVal = res.ToApiObject();
+                    }
+
+                    return retVal;
+                }) as TVPApiModule.Objects.Responses.BillingResponse;
+
             return retVal;
         }
 
         public string GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType)
         {
             string res = string.Empty;
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPassword = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
 
-            try
-            {
-                return (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetEPGLicensedLink(wsUser, wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGLicensedLink, Error Message: {0}, Parameters : MediaFileID : {1}, EPGItemID : {2}, UserIP: {3}", ex.Message, mediaFileID, EPGItemID, userIP);
-            }
-            return res;
+            res = Execute(() =>
+                {
+                    return ConditionalAccess.GetEPGLicensedLink(m_wsUserName, m_wsPassword, siteGUID, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
+                }) as string;
+
+            return res;            
         }
 
         public List<TVPApiModule.Objects.Responses.UserBillingTransactionsResponse> GetUsersBillingHistory(string[] siteGuids, DateTime startDate, DateTime endDate)
         {
             List<TVPApiModule.Objects.Responses.UserBillingTransactionsResponse> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetUsersBillingHistory(m_wsUserName, m_wsPassword, siteGuids, startDate, endDate);
-                if (response != null)
-                    retVal = response.Where(ubt => ubt != null).Select(ubt => ubt.ToApiObject()).ToList();
+            retVal = Execute(() =>
+                {
+                    var response = ConditionalAccess.GetUsersBillingHistory(m_wsUserName, m_wsPassword, siteGuids, startDate, endDate);
+                    if (response != null)
+                        retVal = response.Where(ubt => ubt != null).Select(ubt => ubt.ToApiObject()).ToList();
 
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetUsersBillingHistory, Error Message: {0}, Parameters :  startDate: {1}, endDate: {2}", ex.Message, startDate, endDate);
-            }
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.UserBillingTransactionsResponse>;
+
             return retVal;
         }
 
@@ -814,16 +715,15 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetDomainsBillingHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
-                if (response != null)
-                    retVal = response.Where(dbt => dbt != null).Select(dbt => dbt.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetDomainsBillingHistory, Error Message: {0}, Parameters :  startDate: {1}, endDate: {2}", ex.Message, startDate, endDate);
-            }
+            retVal = Execute(() =>
+                {
+                    var response = ConditionalAccess.GetDomainsBillingHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
+                    if (response != null)
+                        retVal = response.Where(dbt => dbt != null).Select(dbt => dbt.ToApiObject()).ToList();
+
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse>;
+
             return retVal;
         }
 
@@ -831,16 +731,15 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.PermittedMediaContainer> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
-                if (response != null)
-                    retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetDomainPermittedItems, Error Message: {0}, Parameters :  domainID: {1}", ex.Message, domainID);
-            }
+            retVal = Execute(() =>
+                {
+                    var response = ConditionalAccess.GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
+                    if (response != null)
+                        retVal = response.Where(pm => pm != null).Select(m => m.ToApiObject()).ToList();
+
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.PermittedMediaContainer>;
+
             return retVal;
         }
 
@@ -848,17 +747,14 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.module).GetDomainPermittedSubscriptions(m_wsUserName, m_wsPassword, domainID);
+            retVal = Execute(() =>
+                {
+                    var response = ConditionalAccess.GetDomainPermittedSubscriptions(m_wsUserName, m_wsPassword, domainID);
+                    if (response != null)
+                        retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
 
-                if (response != null)
-                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetDomainPermittedSubscriptions, Error Message: {0}, Parameters :  domainID: {1}", ex.Message, domainID);
-            }
+                    return retVal;
+                }) as List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer>;
 
             return retVal;
         }

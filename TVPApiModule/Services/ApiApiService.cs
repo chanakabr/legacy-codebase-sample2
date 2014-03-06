@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using log4net;
-using TVPApi;
 using TVPPro.SiteManager.Services;
 //using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.Helper;
@@ -11,8 +9,7 @@ using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPApiModule.Context;
-using TVPApiModule.Manager;
-using TVPApiModule.Objects;
+using TVPPro.SiteManager.Objects;
 
 namespace TVPApiModule.Services
 {
@@ -49,6 +46,18 @@ namespace TVPApiModule.Services
 
         #endregion C'tor
 
+        #region
+
+        protected TVPPro.SiteManager.TvinciPlatform.api.API Api
+        {
+            get
+            {
+                return (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API);
+            }
+        }
+
+        #endregion
+
         //#region Public Static Functions
 
         //public static ApiApiService Instance(int groupId, PlatformType platform)
@@ -62,16 +71,15 @@ namespace TVPApiModule.Services
         public List<TVPApiModule.Objects.Responses.GroupOperator> GetGroupOperators(string scope)
         {
             List<TVPApiModule.Objects.Responses.GroupOperator> response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetGroupOperators(m_wsUserName, m_wsPassword, scope);
-                if (res != null)
-                    response = res.Where(go => go != null).Select(o => o.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetGroupOperators, Error Message: {0}", ex.Message);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Api.GetGroupOperators(m_wsUserName, m_wsPassword, scope);
+                    if (res != null)
+                        response = res.Where(go => go != null).Select(o => o.ToApiObject()).ToList();
+
+                    return response;
+                }) as List<TVPApiModule.Objects.Responses.GroupOperator>;
 
             return response;
         }
@@ -79,34 +87,32 @@ namespace TVPApiModule.Services
         public List<TVPApiModule.Objects.Responses.GroupOperator> GetOperators(int[] operatorIds)
         {
             List<TVPApiModule.Objects.Responses.GroupOperator> operators = null;
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetOperator(m_wsUserName, m_wsPassword, operatorIds);
-                if (response != null)
-                    operators = response.Where(go => go != null).Select(o => o.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetOperators, Error Message: {0}, Parameters : operators: {1}", ex.Message,
-                    string.Join(",", operatorIds.Select(x => x.ToString()).ToArray()));
-            }
 
-            return operators;
+            operators = Execute(() =>
+                {
+
+                    var response = Api.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
+                    if (response != null)
+                        operators = response.Where(go => go != null).Select(o => o.ToApiObject()).ToList();
+
+                    return operators;
+                }) as List<TVPApiModule.Objects.Responses.GroupOperator>;
+
+            return operators;            
         }
 
         public TVPApiModule.Objects.Responses.MediaMarkObject GetMediaMark(string sSiteGuid, int iMediaID)
         {
             TVPApiModule.Objects.Responses.MediaMarkObject mediaMark = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetMediaMark(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid);
-                if (res != null)
-                    mediaMark = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetMediaMark, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, iMediaID, sSiteGuid);
-            }
+
+            mediaMark = Execute(() =>
+                {
+                    var res = Api.GetMediaMark(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid);
+                    if (res != null)
+                        mediaMark = res.ToApiObject();
+
+                    return mediaMark;
+                }) as TVPApiModule.Objects.Responses.MediaMarkObject;
 
             return mediaMark;
         }
@@ -114,14 +120,12 @@ namespace TVPApiModule.Services
         public bool AddUserSocialAction(int iMediaID, string sSiteGuid, SocialAction Action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
         {
             bool bRet = false;
-            try
-            {
-                bRet = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).AddUserSocialAction(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid, Action, socialPlatform);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : AddUserSocialAction, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, iMediaID, sSiteGuid);
-            }
+
+            bRet = Convert.ToBoolean(Execute(() =>
+                {
+                    bRet = Api.AddUserSocialAction(m_wsUserName, m_wsPassword, iMediaID, sSiteGuid, Action, socialPlatform);
+                    return bRet;
+                }));
 
             return bRet;
         }
@@ -129,14 +133,12 @@ namespace TVPApiModule.Services
         public RateMediaObject RateMedia(string siteGuid, int mediaId, int rating)
         {
             RateMediaObject res = null;
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).RateMedia(m_wsUserName, m_wsPassword, mediaId, siteGuid, rating);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : RateMedia, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, mediaId, siteGuid);
-            }
+
+            res = Execute(() =>
+                {
+                    res = Api.RateMedia(m_wsUserName, m_wsPassword, mediaId, siteGuid, rating);
+                    return res;
+                }) as RateMediaObject;
 
             return res;
         }
@@ -144,201 +146,199 @@ namespace TVPApiModule.Services
         public string CheckGeoBlockMedia(int iMediaID, string UserIP)
         {
             string geo = string.Empty;
-            try
-            {
-                geo = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).CheckGeoBlockMedia(m_wsUserName, m_wsPassword, iMediaID, UserIP);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : CheckGEOBlock, Error Message: {0}, Parameters :  Media ID: {1}, User ID: {2}", ex.Message, iMediaID, SiteHelper.GetClientIP());
-            }
+
+            geo = Execute(() =>
+                {
+
+                    geo = Api.CheckGeoBlockMedia(m_wsUserName, m_wsPassword, iMediaID, UserIP);
+                    return geo;
+                }) as string;
+
             return geo;
         }
 
         public List<EPGChannel> GetEPGChannel(string sPicSize)
         {
             List<EPGChannel> objEPGRes = null;
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
-                if (response != null)
-                    objEPGRes = response.Where(c => c != null).Select(c => c.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling web service protocol : GetEPGChannel, Error Message: {0}, IP: {1}", ex.Message, SiteHelper.GetClientIP());
-            }
+
+            objEPGRes = Execute(() =>
+                {
+
+                    var response = Api.GetEPGChannel(m_wsUserName, m_wsPassword, sPicSize);
+                    if (response != null)
+                        objEPGRes = response.Where(c => c != null).Select(c => c.ToApiObject()).ToList();
+
+                    return objEPGRes;
+                }) as List<EPGChannel>;
+
             return objEPGRes;
         }
 
-        public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannelProgrammeByDates(string sChannelID, string sPicSize, DateTime fromDate, DateTime toDate, int utcOffset)
-        {
-            List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> objEPGRes = null;
+        //public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannelProgrammeByDates(string sChannelID, string sPicSize, DateTime fromDate, DateTime toDate, int utcOffset)
+        //{
+        //    List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> objEPGRes = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetEPGChannelProgrammeByDates(m_wsUserName, m_wsPassword, sChannelID, sPicSize, fromDate, toDate, utcOffset);
-                if (response != null)
-                    objEPGRes = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling web service protocol : GetEPGChannelProgrammeByDates, Error Message: {0}, IP: {1}", ex.Message, SiteHelper.GetClientIP());
-            }
-            return objEPGRes;
-        }
+        //    objEPGRes = Execute(() =>
+        //        {
 
-        public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannel(string sChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
-        {
-            List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> objEPGProgramRes = null;
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetEPGChannelProgramme(m_wsUserName, m_wsPassword, sChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
-                if (response != null)
-                    objEPGProgramRes = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, sChannelID, SiteHelper.GetClientIP());
-            }
-            return objEPGProgramRes;
-        }
+        //            var response = Api.GetEPGChannelProgrammeByDates(m_wsUserName, m_wsPassword, sChannelID, sPicSize, fromDate, toDate, utcOffset);
+        //            if (response != null)
+        //                objEPGRes = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToList();
 
-        public List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
-        {
-            List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> objEPGProgramRes = null;
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
-                if (response != null)
-                    objEPGProgramRes = response.Where(mcp => mcp != null).Select(p => p.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGMultiChannelProgram, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, string.Join(",", sEPGChannelID), SiteHelper.GetClientIP());
-            }
-            return objEPGProgramRes;
-        }
+        //            return objEPGRes;
+        //        }) as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+
+        //    return objEPGRes;
+        //}
+
+        //public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGChannel(string sChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        //{
+        //    List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> objEPGProgramRes = null;
+
+        //    objEPGProgramRes = Execute(() =>
+        //        {
+        //            var response = Api.GetEPGChannelProgramme(m_wsUserName, m_wsPassword, sChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+        //            if (response != null)
+        //                objEPGProgramRes = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToList();
+
+        //            return objEPGProgramRes;
+        //        }) as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+
+        //    return objEPGProgramRes;
+        //}
+
+        //public List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        //{
+        //    List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> objEPGProgramRes = null;
+
+        //    objEPGProgramRes = Execute(() =>
+        //        {
+        //            var response = Api.GetEPGMultiChannelProgramme(m_wsUserName, m_wsPassword, sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+        //            if (response != null)
+        //                objEPGProgramRes = response.Where(mcp => mcp != null).Select(p => p.ToApiObject()).ToList();
+
+        //            return objEPGProgramRes;
+        //        }) as List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject>;
+
+        //    return objEPGProgramRes;
+        //}
 
         public List<TVPApiModule.Objects.Responses.GroupRule> GetGroupMediaRules(int MediaId, int siteGuid, string udid)
         {
             List<TVPApiModule.Objects.Responses.GroupRule> res = null;
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
-                if (response != null)
-                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetGroupMediaRules, Error Message: {0}, Parameters :  MediaId: {1}, siteGuid: {2}, clientIP: {3}", ex.Message, MediaId, siteGuid, SiteHelper.GetClientIP());
-            }
-            return res;
+
+            res = Execute(() =>
+                {
+
+                    var response = Api.GetGroupMediaRules(m_wsUserName, m_wsPassword, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
+                    if (response != null)
+                        res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToList();
+
+                    return res;
+                }) as List<TVPApiModule.Objects.Responses.GroupRule>;
+
+            return res;            
         }
 
         public List<TVPApiModule.Objects.Responses.GroupRule> GetGroupRules()
         {
             List<TVPApiModule.Objects.Responses.GroupRule> res = null;
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetGroupRules(m_wsUserName, m_wsPassword);
-                if (response != null)
-                    res = response.Where(gr => gr != null).Select(gr => gr.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetGroupRules, Error Message: {0}, Parameters", ex.Message);
-            }
-            return res;
+
+            res = Execute(() =>
+                {
+                    var response = Api.GetGroupRules(m_wsUserName, m_wsPassword);
+                    if (response != null)
+                        res = response.Where(gr => gr != null).Select(gr => gr.ToApiObject()).ToList();
+
+                    return res;
+                }) as List<TVPApiModule.Objects.Responses.GroupRule>;
+
+            return res;     
         }
 
         public List<TVPApiModule.Objects.Responses.GroupRule> GetUserGroupRules(string siteGuid)
         {
             List<TVPApiModule.Objects.Responses.GroupRule> res = null;
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetUserGroupRules(m_wsUserName, m_wsPassword, siteGuid);
-                if (response != null)
-                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetUserGroupRules, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
-            }
-            return res;
+
+            res = Execute(() =>
+                {
+                    var response = Api.GetUserGroupRules(m_wsUserName, m_wsPassword, siteGuid);
+                    if (response != null)
+                        res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToList();
+
+                    return res;
+                }) as List<TVPApiModule.Objects.Responses.GroupRule>;
+
+            return res;            
         }
 
         public bool SetUserGroupRule(string siteGuid, int ruleID, string PIN, int isActive)
         {
             bool res = false;
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).SetUserGroupRule(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN, isActive);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SetUserGroupRule, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
-            }
+
+            res = Convert.ToBoolean(Execute(() =>
+                {
+                    res = Api.SetUserGroupRule(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN, isActive);
+                    return res;
+                }));
+
             return res;
         }
 
         public bool CheckParentalPIN(string siteGuid, int ruleID, string PIN)
         {
             bool res = false;
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).CheckParentalPIN(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : CheckParentalPIN, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
-            }
-            return res;
+
+            res = Convert.ToBoolean(Execute(() =>
+                {
+
+                    res = Api.CheckParentalPIN(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN);
+                    return res;
+                }));
+
+            return res;            
         }
 
         public List<string> GetAutoCompleteList(int[] mediaTypes, string[] metas, string[] tags, string prefix, string lang, int pageIdx, int pageSize)
         {
             List<string> retVal = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetAutoCompleteList(m_wsUserName, m_wsPassword, new TVPPro.SiteManager.TvinciPlatform.api.RequestObj()
+            retVal = Execute(() =>
                 {
-                    m_InfoStruct = new TVPPro.SiteManager.TvinciPlatform.api.InfoStructObj()
+                    var res = Api.GetAutoCompleteList(m_wsUserName, m_wsPassword, new TVPPro.SiteManager.TvinciPlatform.api.RequestObj()
                     {
-                        m_MediaTypes = mediaTypes,
-                        m_Metas = metas,
-                        m_Tags = tags,
-                        m_sPrefix = prefix
-                    },
-                    m_eRuleType = TVPPro.SiteManager.TvinciPlatform.api.eCutType.Or,
-                    m_sLanguage = lang,
-                    m_iPageIndex = pageIdx,
-                    m_iPageSize = pageSize
-                });
+                        m_InfoStruct = new TVPPro.SiteManager.TvinciPlatform.api.InfoStructObj()
+                        {
+                            m_MediaTypes = mediaTypes,
+                            m_Metas = metas,
+                            m_Tags = tags,
+                            m_sPrefix = prefix
+                        },
+                        m_eRuleType = TVPPro.SiteManager.TvinciPlatform.api.eCutType.Or,
+                        m_sLanguage = lang,
+                        m_iPageIndex = pageIdx,
+                        m_iPageSize = pageSize
+                    });
 
-                if (res != null)
-                    retVal = res.ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetAutoCompleteList, Error Message: {0}, Parameters : prefix {1}", ex.Message, prefix);
-            }
-            return retVal;
+                    if (res != null)
+                        retVal = res.ToList();
+
+                    return retVal;
+                }) as List<string>;
+
+            return retVal;            
         }
 
         public bool SetRuleState(string siteGuid, int domainID, int ruleID, int isActive)
         {
             bool res = false;
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).SetRuleState(m_wsUserName, m_wsPassword, domainID, siteGuid, ruleID, isActive);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SetRuleState, Error Message: {0}, Parameters : siteGuid = {1}, domainID = {2}, ruleID = {3}, isActive = {4}", 
-                    ex.Message, siteGuid, domainID, ruleID, isActive);
-            }
+
+            res = Convert.ToBoolean(Execute(() =>
+                {
+                    res = Api.SetRuleState(m_wsUserName, m_wsPassword, domainID, siteGuid, ruleID, isActive);
+                    return res;
+                }));
+
             return res;
         }
 
@@ -346,48 +346,45 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.GroupRule> res = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetDomainGroupRules(m_wsUserName, m_wsPassword, domainID);
+            res = Execute(() =>
+                {
+                    var response = Api.GetDomainGroupRules(m_wsUserName, m_wsPassword, domainID);
 
-                if (response != null)
-                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetDomainGroupRules, Error Message: {0}, Parameters : domainID: {1}", ex.Message, domainID);
-            }
+                    if (response != null)
+                        res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToList();
+
+                    return res;
+                }) as List<TVPApiModule.Objects.Responses.GroupRule>;
+
             return res;
         }
 
         public bool SetDomainGroupRule(int domainID, int ruleID, string PIN, int isActive)
         {
             bool res = false;
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).SetDomainGroupRule(m_wsUserName, m_wsPassword, domainID, ruleID, PIN, isActive);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SetDomainGroupRule, Error Message: {0}, Parameters : domainID: {1}, ruleID: {2}, PIN: {3} isActive: {4}",
-                    ex.Message, domainID, ruleID, PIN, isActive);
-            }
+
+            res = Convert.ToBoolean(Execute(() =>
+                {
+                    res = Api.SetDomainGroupRule(m_wsUserName, m_wsPassword, domainID, ruleID, PIN, isActive);
+                    return res;
+                }));
+
             return res;
         }
 
         public List<TVPApiModule.Objects.Responses.GroupRule> GetEPGProgramRules(int MediaId, int programId, string siteGuid, string IP, string udid)
         {
             List<TVPApiModule.Objects.Responses.GroupRule> res = null;
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetEPGProgramRules(m_wsUserName, m_wsPassword, MediaId, programId, int.Parse(siteGuid), IP, udid);
-                if (response != null)
-                    res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramRules, Error Message: {0}, Parameters :  MediaId: {1}, siteGuid: {2}, clientIP: {3}, ProgramID: {4}", ex.Message, MediaId, siteGuid, IP, programId);
-            }
+
+            res = Execute(() =>
+                {
+                    var response = Api.GetEPGProgramRules(m_wsUserName, m_wsPassword, MediaId, programId, int.Parse(siteGuid), IP, udid);
+                    if (response != null)
+                        res = response.Where(gr => gr != null).Select(r => r.ToApiObject()).ToList();
+
+                    return res;
+                }) as List<TVPApiModule.Objects.Responses.GroupRule>;
+
             return res;
         }
 
@@ -395,17 +392,14 @@ namespace TVPApiModule.Services
         {
             List<string> retVal = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetUserStartedWatchingMedias(m_wsUserName, m_wsPassword, siteGuid, numOfItems);
+            retVal = Execute(() =>
+                {
+                    var res = Api.GetUserStartedWatchingMedias(m_wsUserName, m_wsPassword, siteGuid, numOfItems);
+                    if (res != null)
+                        retVal = res.ToList();
 
-                if (res != null)
-                    retVal = res.ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetUserStartedWatchingMedias, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}", ex.Message, siteGuid, SiteHelper.GetClientIP());
-            }
+                    return retVal;
+                }) as List<string>;
 
             return retVal;
         }
@@ -413,83 +407,78 @@ namespace TVPApiModule.Services
         public bool CleanUserHistory(string siteGuid, int[] mediaIDs)
         {
             bool res = false;
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).CleanUserHistory(m_wsUserName, m_wsPassword, siteGuid, mediaIDs);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : CleanUserHistory, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}", ex.Message, siteGuid, SiteHelper.GetClientIP());
-            }
+
+            res = Convert.ToBoolean(Execute(() =>
+                {
+                    res = Api.CleanUserHistory(m_wsUserName, m_wsPassword, siteGuid, mediaIDs);
+                    return res;
+                }));
+
             return res;
         }
 
-        public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGProgramsByScids(string siteGuid, string[] scids, Language language, int duration)
-        {
-            List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> res = null;
+        //public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> GetEPGProgramsByScids(string siteGuid, string[] scids, Language language, int duration)
+        //{
+        //    List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> res = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetEPGProgramsByScids(m_wsUserName, m_wsPassword, scids, language, duration);
+        //    res = Execute(() =>
+        //        {
+        //            var response = Api.GetEPGProgramsByScids(m_wsUserName, m_wsPassword, scids, language, duration);
+        //            if (response != null)
+        //                res = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToList();
 
-                if (response != null)
-                    res = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramsByScids, Error Message: {0}, Parameters :  siteGuid: {1}, clientIP: {2}, language: {3}, duration: {4}", ex.Message, siteGuid, SiteHelper.GetClientIP(), language, duration);
-            }
-            return res;
-        }
+        //            return res;
+        //        }) as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+
+        //    return res;
+        //}
 
         public bool SendToFriend(string senderName, string senderMail, string mailTo, int mediaID)
         {
             bool res = false;
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).SendToFriend(m_wsUserName, m_wsPassword, senderName, senderMail, mailTo, mailTo, mediaID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SendToFriend, Error Message: {0}, Parameters :  senderName: {1}, senderMail: {2}, mailTo: {3}, mediaID: {4}", ex.Message, senderName, senderMail, mailTo, mediaID);
-            }
-            return res;
-        }
 
-        public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGContent(string searchValue, int nPageIndex, int nPageSize)
-        {
-            List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> res = null;
-
-            string sKey = string.Format("{0}_{1}_{2}", searchValue, nPageIndex, nPageSize);
-
-            // return object from cache if exist
-            object oFromCache = DataHelper.GetCacheObject(sKey);
-            if (oFromCache != null && oFromCache is IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>)
-                return (oFromCache as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>);
-
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).SearchEPGContent(m_wsUserName, m_wsPassword, searchValue, nPageIndex, nPageSize);
-
-                if (response != null && response.Length > 0)
+            res = Convert.ToBoolean(Execute(() =>
                 {
-                    res = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToList();
-                    DataHelper.SetCacheObject(sKey, res);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SearchEPGContent, Error Message: {0}, Parameters :  searchValue: {1}, User ID: {2}", ex.Message, searchValue, UsersService.Instance.GetUserID());
-            }
+                    res = Api.SendToFriend(m_wsUserName, m_wsPassword, senderName, senderMail, mailTo, mailTo, mediaID);
+                    return res;
+                }));
+
             return res;
         }
+
+        //public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGContent(string searchValue, int nPageIndex, int nPageSize)
+        //{
+        //    List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> res = null;
+
+        //    res = Execute(() =>
+        //        {
+        //            string sKey = string.Format("{0}_{1}_{2}", searchValue, nPageIndex, nPageSize);
+
+        //            // return object from cache if exist
+        //            object oFromCache = DataHelper.GetCacheObject(sKey);
+        //            if (oFromCache != null && oFromCache is IEnumerable<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>)
+        //                return (oFromCache as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>);
+
+        //            var response = Api.SearchEPGContent(m_wsUserName, m_wsPassword, searchValue, nPageIndex, nPageSize);
+
+        //            if (response != null && response.Length > 0)
+        //            {
+        //                res = response.Where(cp => cp != null).Select(p => p.ToApiObject()).ToList();
+        //                DataHelper.SetCacheObject(sKey, res);
+        //            }
+
+        //            return res;
+        //        }) as List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>;
+
+        //    return res;           
+        //}
 
         //public TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] GetEPGProgramsByProgramsIdentefier(string siteGuid, string[] pids, Language language, int duration)
         //{
         //    TVPApiModule.Objects.Responses.EPGChannelProgrammeObject[] res = null;
         //    try
         //    {
-        //        res = (m_Module as TVPPro.SiteManager.TvinciPlatform.api.API).GetEPGProgramsByProgramsIdentefier(m_wsUserName, m_wsPassword, pids, language, duration);
+        //        res = Api.GetEPGProgramsByProgramsIdentefier(m_wsUserName, m_wsPassword, pids, language, duration);
         //    }
         //    catch (Exception ex)
         //    {

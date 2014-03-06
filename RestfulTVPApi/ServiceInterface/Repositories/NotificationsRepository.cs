@@ -21,9 +21,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
-
-                bRes = service.SubscribeByTag(initObj.SiteGuid, tags);
+                bRes = ServicesManager.NotificationService(groupId, initObj.Platform).SubscribeByTag(initObj.SiteGuid, tags);              
             }
             else
             {
@@ -41,11 +39,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                //ApiNotificationService service = new ApiNotificationService(groupId, initObj.Platform);
-                //ApiNotificationService service = ApiNotificationService.Instance(groupId, initObj.Platform);
-                ApiNotificationService service = ServicesManager.Instance.GetService(groupId, initObj.Platform, eService.NotificationService) as ApiNotificationService;
-
-                bRes = service.UnsubscribeFollowUpByTag(initObj.SiteGuid, tags);
+                bRes = ServicesManager.NotificationService(groupId, initObj.Platform).UnsubscribeFollowUpByTag(sSiteGUID, tags);
             }
             else
             {

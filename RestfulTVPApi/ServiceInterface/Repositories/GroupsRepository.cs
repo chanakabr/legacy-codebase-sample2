@@ -20,9 +20,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                TVPApiModule.Services.ApiApiService _service = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform);
-
-                return _service.GetGroupOperators(scope);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetGroupOperators(scope);
             }
             else
             {
@@ -36,9 +34,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
-
-                return _service.GetGroupRules();
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetGroupRules();
             }
             else
             {

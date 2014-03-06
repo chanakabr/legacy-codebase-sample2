@@ -28,7 +28,14 @@ namespace TVPApiModule.Services
         private ServicesManager()
         {
             m_Services = new ConcurrentDictionary<string, BaseService>();
-            m_FailOverLimit = TCMClient.Settings.Instance.GetValue<int>("FailOverLimit");
+            try
+            {
+                m_FailOverLimit = TCMClient.Settings.Instance.GetValue<int>("FailOverLimit");
+            }
+            catch
+            {
+                m_FailOverLimit = 5;
+            }
         }
 
         #endregion
@@ -56,7 +63,47 @@ namespace TVPApiModule.Services
             internal static readonly ServicesManager Instance = new ServicesManager();
         }
 
-        public BaseService GetService(int groupId, PlatformType platform, eService serviceType)
+        public static ApiApiService ApiApiService(int groupId, PlatformType platform)
+        {
+            return Nested.Instance.GetService(groupId, platform, eService.ApiService) as ApiApiService;
+        }
+
+        public static ApiBillingService BillingService(int groupId, PlatformType platform)
+        {
+            return Nested.Instance.GetService(groupId, platform, eService.BillingService) as ApiBillingService;
+        }
+
+        public static ApiConditionalAccessService ConditionalAccessService(int groupId, PlatformType platform)
+        {
+            return Nested.Instance.GetService(groupId, platform, eService.ConditionalAccessService) as ApiConditionalAccessService;
+        }
+
+        public static ApiDomainsService DomainsService(int groupId, PlatformType platform)
+        {
+            return Nested.Instance.GetService(groupId, platform, eService.DomainsService) as ApiDomainsService;
+        }
+
+        public static ApiNotificationService NotificationService(int groupId, PlatformType platform)
+        {
+            return Nested.Instance.GetService(groupId, platform, eService.NotificationService) as ApiNotificationService;
+        }
+
+        public static ApiPricingService PricingService(int groupId, PlatformType platform)
+        {
+            return Nested.Instance.GetService(groupId, platform, eService.PricingService) as ApiPricingService;
+        }
+
+        public static ApiSocialService SocialService(int groupId, PlatformType platform)
+        {
+            return Nested.Instance.GetService(groupId, platform, eService.SocialService) as ApiSocialService;
+        }
+
+        public static ApiUsersService UsersService(int groupId, PlatformType platform)
+        {
+            return Nested.Instance.GetService(groupId, platform, eService.UsersService) as ApiUsersService;
+        }
+
+        private BaseService GetService(int groupId, PlatformType platform, eService serviceType)
         {
             /////// Implement GetInstance Logic /////
             string serviceTcmConfigurationKey = string.Format("{0}{1}{2}{3}{4}", groupId, SPLITTER, platform, SPLITTER, serviceType);
@@ -64,7 +111,7 @@ namespace TVPApiModule.Services
 
             if (!string.IsNullOrEmpty(serviceUrl) && !m_Services.ContainsKey(serviceUrl))
             {
-                BaseService serviceInserted = ServiceFactory.GetService(groupId, platform, serviceUrl, serviceType);
+                BaseService serviceInserted = ServiceFactory.GetService(groupId, platform, serviceUrl, serviceType, serviceUrl);
 
                 if (serviceInserted != null)
                 {
@@ -93,5 +140,30 @@ namespace TVPApiModule.Services
         }
 
         #endregion
+
+        public BaseService ResetService(BaseService service)
+        {
+            BaseService removedService = null;
+            
+            if (service != null && !string.IsNullOrEmpty(service.serviceKey))
+            {
+                m_Services.TryRemove(service.serviceKey, out removedService);                
+            }
+
+            return removedService;
+        }
+
+        public BaseService RestartService(BaseService service)
+        {
+            BaseService removedService = ResetService(service);
+            BaseService insertedService = null;
+            
+            if (removedService != null)
+            {
+                insertedService = GetService(service.m_groupID, service.m_platform, service.m_ServiceType);
+            }
+
+            return insertedService;
+        }
     }
 }

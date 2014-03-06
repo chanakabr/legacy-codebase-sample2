@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using log4net;
-using TVPApi;
-using TVPPro.SiteManager.Services;
-using TVPPro.SiteManager.TvinciPlatform.api;
-using TVPPro.SiteManager.Helper;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
-using TVPApiModule.Manager;
 using TVPApiModule.Context;
-using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
@@ -48,6 +39,18 @@ namespace TVPApiModule.Services
 
         #endregion C'tor
 
+        #region Properties
+
+        protected TVPPro.SiteManager.TvinciPlatform.Billing.module Billing
+        {
+            get
+            {
+                return (m_Module as TVPPro.SiteManager.TvinciPlatform.Billing.module);
+            }
+        }
+
+        #endregion
+
         //#region Public Static Functions
 
         //public static ApiBillingService Instance(int groupId, PlatformType platform)
@@ -61,16 +64,15 @@ namespace TVPApiModule.Services
         public AdyenBillingDetail GetLastBillingUserInfo(string siteGuid, int billingMethod)
         {
             AdyenBillingDetail response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Billing.module).GetLastBillingUserInfo(m_wsUserName, m_wsPassword, siteGuid, billingMethod);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetLastBillingUserInfo, Error Message: {0}, params: siteGuid: {1}", ex.Message, siteGuid);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Billing.GetLastBillingUserInfo(m_wsUserName, m_wsPassword, siteGuid, billingMethod);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as AdyenBillingDetail;
 
             return response;
         }
@@ -78,14 +80,12 @@ namespace TVPApiModule.Services
         public string GetClientMerchantSig(string sParamaters)
         {
             string response = null;
-            try
-            {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Billing.module).GetClientMerchantSig(m_wsUserName, m_wsPassword, sParamaters);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetClientMerchantSig, Error Message: {0}, params: sParamaters: {1}", ex.Message, sParamaters);
-            }
+
+            response = Execute(() =>
+                {
+                    response = Billing.GetClientMerchantSig(m_wsUserName, m_wsPassword, sParamaters);
+                    return response;
+                }) as string;
 
             return response;
         }

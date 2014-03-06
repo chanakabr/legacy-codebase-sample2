@@ -55,8 +55,6 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(InitializationObject initObj, int domainId);
 
-        bool SetRuleState(InitializationObject initObj, int ruleID, int isActive);
-
-        
+        bool SetRuleState(InitializationObject initObj, int ruleID, int isActive);        
     }
 }

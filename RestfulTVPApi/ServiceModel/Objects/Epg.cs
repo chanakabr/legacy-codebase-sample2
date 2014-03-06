@@ -42,8 +42,8 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
         [ApiMember(Name = "unit", Description = "Program ID", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
-        [ApiAllowableValues("unit", typeof(TVPPro.SiteManager.TvinciPlatform.api.EPGUnit))]
-        public TVPPro.SiteManager.TvinciPlatform.api.EPGUnit unit { get; set; }
+        [ApiAllowableValues("unit", typeof(EPGUnit))]
+        public EPGUnit unit { get; set; }
         [ApiMember(Name = "from_offset", Description = "From Offset", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int from_offset { get; set; }
         [ApiMember(Name = "to_offset", Description = "To Offset", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]

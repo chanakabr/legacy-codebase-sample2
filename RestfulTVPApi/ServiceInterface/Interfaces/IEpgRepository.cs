@@ -6,6 +6,7 @@ using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Context;
+using TVPPro.SiteManager.Objects;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -17,7 +18,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(InitializationObject initObj, int epgProgramID, int pageSize, int pageIndex);
 
-        List<EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet);
+        List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet);
 
         List<EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
 

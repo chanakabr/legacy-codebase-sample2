@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TVPPro.SiteManager.Services;
-using TVPApi;
-using TVPPro.SiteManager.Context;
 using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.Helper;
 using System.Web;
-using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
-using TVPApiModule.Manager;
 using TVPApiModule.Context;
-using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
@@ -31,7 +24,7 @@ namespace TVPApiModule.Services
         //private PlatformType m_platform;
 
         [Serializable]
-        public struct LogInResponseData
+        public class LogInResponseData
         {
             public string SiteGuid;
             public int DomainID;
@@ -58,11 +51,14 @@ namespace TVPApiModule.Services
         }
         #endregion C'tor
 
-        #region Public Static Functions
+        #region Properties
 
-        public static ApiUsersService Instance(int groupId, PlatformType platform)
+        protected TVPPro.SiteManager.TvinciPlatform.Users.UsersService Users
         {
-            return BaseService.Instance(groupId, platform, eService.UsersService) as ApiUsersService;
+            get
+            {
+                return (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService);
+            }
         }
 
         #endregion
@@ -72,16 +68,15 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.UserResponseObject ValidateUser(string userName, string password, bool isDoubleLogin)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).CheckUserPassword(m_wsUserName, m_wsPassword, userName, password, isDoubleLogin);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : ValidateUser, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, userName, password);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Users.CheckUserPassword(m_wsUserName, m_wsPassword, userName, password, isDoubleLogin);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -90,28 +85,26 @@ namespace TVPApiModule.Services
         {
             LogInResponseData loginData = new LogInResponseData();
 
-            try
-            {
-                sDeviceID = string.Empty;
-                sUserName = HttpUtility.UrlDecode(sUserName);
-                TVPApiModule.Objects.Responses.UserResponseObject response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin).ToApiObject();
+            loginData = Execute(() =>
+                {
+                    sDeviceID = string.Empty;
+                    sUserName = HttpUtility.UrlDecode(sUserName);
+                    TVPApiModule.Objects.Responses.UserResponseObject response = Users.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin).ToApiObject();
 
-                if (response != null && response.user != null)
-                {
-                    loginData.SiteGuid = response.user.site_guid;
-                    loginData.DomainID = response.user.domian_id;
-                    loginData.LoginStatus = response.resp_status;
-                    loginData.UserData = response.user;
-                }
-                else if (response != null)
-                {
-                    loginData.LoginStatus = response.resp_status;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SignIn, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, sUserName, sPassword);
-            }
+                    if (response != null && response.user != null)
+                    {
+                        loginData.SiteGuid = response.user.site_guid;
+                        loginData.DomainID = response.user.domian_id;
+                        loginData.LoginStatus = response.resp_status;
+                        loginData.UserData = response.user;
+                    }
+                    else if (response != null)
+                    {
+                        loginData.LoginStatus = response.resp_status;
+                    }
+
+                    return loginData;
+                }) as LogInResponseData;
 
             return loginData;
         }
@@ -119,48 +112,44 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.UserResponseObject SignUp(TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).AddNewUser(m_wsUserName, m_wsPassword, userBasicData, userDynamicData, sPassword, sAffiliateCode);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SignUp, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", ex.Message, userBasicData.m_sUserName, sPassword);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Users.AddNewUser(m_wsUserName, m_wsPassword, userBasicData, userDynamicData, sPassword, sAffiliateCode);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
 
         public void SignOut(string sSiteGuid, string sSessionID, string sDeviceID, bool bPreventDoubleLogin)
         {
-            try
-            {
-                TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject uro = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SignOut, Error Message: {0}, Parameters :  SiteGuid: {1}", ex.Message, sSiteGuid);
-            }
+            Execute(() =>
+                {
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject uro = null;
+                    uro = Users.SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
+                    return uro;
+                });
         }
 
         public bool IsUserLoggedIn(string sSiteGuid, string sSessionID, string sDeviceID, string sIP, bool bPreventDoubleLogin)
         {
             bool bRet = false;
-            try
+
+            bRet = Convert.ToBoolean(Execute(() =>
             {
-                TVPPro.SiteManager.TvinciPlatform.Users.UserState response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);
+                TVPPro.SiteManager.TvinciPlatform.Users.UserState response = Users.GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);
                 if (response == TVPPro.SiteManager.TvinciPlatform.Users.UserState.Activated || (response == TVPPro.SiteManager.TvinciPlatform.Users.UserState.SingleSignIn && bPreventDoubleLogin) ||
                     (!bPreventDoubleLogin && (response == TVPPro.SiteManager.TvinciPlatform.Users.UserState.SingleSignIn || response == TVPPro.SiteManager.TvinciPlatform.Users.UserState.DoubleSignIn)))
                 {
                     bRet = true;
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : IsUserLoggedIn, Error Message: {0}, Parameters :  siteGuid: {1}", ex.Message, sSiteGuid);
-            }
+
+                return bRet;
+            }));
 
             return bRet;
         }
@@ -169,15 +158,13 @@ namespace TVPApiModule.Services
         {
             bool IsRemoved = false;
 
-            try
-            {
-                (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
-                IsRemoved = true;
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol AddUserFavorit, Error Message: {0} Parameters :ws User name : {1} , ws Password {2} ", ex.Message, m_wsUserName, m_wsPassword);
-            }
+            IsRemoved = Convert.ToBoolean(Execute(() =>
+                {
+                    Users.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
+                    IsRemoved = true;
+
+                    return IsRemoved;
+                }));
 
             return IsRemoved;
         }
@@ -186,23 +173,21 @@ namespace TVPApiModule.Services
         {
             List<FavoriteObject> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
-
-                if (response != null && response.Length > 0)
+            retVal = Execute(() =>
                 {
-                    retVal = response.Where(f => f != null).Select(f => f.ToApiObject()).ToList();
-                    if (retVal != null)
+                    var response = Users.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+
+                    if (response != null && response.Length > 0)
                     {
-                        retVal = retVal.OrderByDescending(r => r.update_date.Date).ThenByDescending(r => r.update_date.TimeOfDay).ToList();
+                        retVal = response.Where(f => f != null).Select(f => f.ToApiObject()).ToList();
+                        if (retVal != null)
+                        {
+                            retVal = retVal.OrderByDescending(r => r.update_date.Date).ThenByDescending(r => r.update_date.TimeOfDay).ToList();
+                        }
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol GetUserFavorites, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
-            }
+
+                    return retVal;
+                }) as List<FavoriteObject>;
 
             return retVal;
         }
@@ -210,44 +195,37 @@ namespace TVPApiModule.Services
         public bool AddUserFavorite(string sSiteGuid, int iDomainID, string sUDID, string sMediaType, string sMediaID, string sExtra)
         {
             bool bRet = false;
-            try
-            {
-                bRet = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol AddUserFavorite, Error Message: {0} Parameters : User {1}, Media: {2}", ex.Message, sSiteGuid, sMediaID);
-            }
 
+            bRet = Convert.ToBoolean(Execute(() =>
+                {
+                    bRet = Users.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
+                    return bRet;
+                }));
+            
             return bRet;
         }
 
         public void RemoveUserFavorite(string sSiteGuid, int[] mediaID)
         {
-            try
-            {
-                (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, mediaID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol RemoveUserFavorite, Error Message: {0} Parameters : User {1}, Favourite: {2}", ex.Message, sSiteGuid, mediaID);
-            }
+            Execute(() =>
+                {
+                    Users.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, mediaID);
+                    return 0;
+                });
         }
 
         public TVPApiModule.Objects.Responses.UserResponseObject SSOSignIn(string sUserName, string sPassword, int nProviderID, string sSessionID, string sIP, string sDeviceID, bool bIsPreventDoubleLogins)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol SSOSignIn, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
-            }
+            response = Execute(() =>
+                {
+                    var res = Users.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -256,16 +234,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol SSOCheckLogin, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
-            }
+            response = Execute(() =>
+                {
+                    var res = Users.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                        if (res != null)
+                            response = res.ToApiObject();
+                    
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -274,17 +250,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
-                if (res != null)
-                    response = res.ToApiObject();
+            response = Execute(() =>
+                {
+                    var res = Users.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                    if (res != null)
+                        response = res.ToApiObject();
 
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol SSOCheckLogin, Error Message: {0} Parameters : User {1}", ex.Message, sUserName);
-            }
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -293,16 +266,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserData(m_wsUserName, m_wsPassword, sSiteGuid);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol GetUserData, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
-            }
+            response = Execute(() =>
+                {
+                    var res = Users.GetUserData(m_wsUserName, m_wsPassword, sSiteGuid);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -311,17 +282,14 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.UserResponseObject> response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(';'));
+            response = Execute(() =>
+                {
+                    var res = Users.GetUsersData(m_wsUserName, m_wsPassword, sSiteGuids.Split(';'));
+                    if (res != null)
+                        response = res.Where(ur => ur != null).Select(u => u.ToApiObject()).ToList();
 
-                if (res != null)
-                    response = res.Where(ur => ur != null).Select(u => u.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol GetUsersData, Error Message: {0}", ex.Message);
-            }
+                    return response;
+                }) as List<TVPApiModule.Objects.Responses.UserResponseObject>;
 
             return response;
         }
@@ -330,16 +298,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData, userDynamicData);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol SetUserData, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
-            }
+            response = Execute(() =>
+                {
+                    var res = Users.SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData, userDynamicData);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -348,16 +314,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : ActivateAccount, Error Message: {0}, Parameters :  sUserName: {1}", ex.Message, sUserName);
-            }
+            response = Execute(() =>
+                {
+                    var res = Users.ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -366,14 +330,11 @@ namespace TVPApiModule.Services
         {
             bool response = false;
 
-            try
-            {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : ResendActivationMail, Error Message: {0}, Parameters :  sUserName: {1}", ex.Message, sUserName);
-            }
+            response = Convert.ToBoolean(Execute(() =>
+                {
+                    response = Users.ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
+                    return response;
+                }));
 
             return response;
         }
@@ -384,14 +345,11 @@ namespace TVPApiModule.Services
         {
             UserOfflineObject[] response = null;
 
-            try
+            response = Execute(() =>
             {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetAllUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol GetUserOfflineList, Error Message: {0} Parameters : User {1}", ex.Message, sSiteGuid);
-            }
+                response = Users.GetAllUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid);
+                return response;
+            }) as UserOfflineObject[];
 
             return response;
         }
@@ -400,14 +358,11 @@ namespace TVPApiModule.Services
         {
             bool response = false;
 
-            try
-            {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).AddUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol AddUserOfflineMedia, Error Message: {0} Parameters : User {1}", ex.Message, siteGuid);
-            }
+            response = Convert.ToBoolean(Execute(() =>
+                {
+                    response = Users.AddUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                    return response;
+                }));
 
             return response;
         }
@@ -416,14 +371,11 @@ namespace TVPApiModule.Services
         {
             bool response = false;
 
-            try
+            response = Convert.ToBoolean(Execute(() =>
             {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RemoveUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol RemoveUserOfflineMedia, Error Message: {0} Parameters : User {1}", ex.Message, siteGuid);
-            }
+                response = Users.RemoveUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                return response;
+            }));
 
             return response;
         }
@@ -432,182 +384,192 @@ namespace TVPApiModule.Services
         {
             bool response = false;
 
-            try
-            {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ClearUserOfflineAssets(m_wsUserName, m_wsPassword, siteGuid);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol ClearUserOfflineList, Error Message: {0} Parameters : User {1}", ex.Message, siteGuid);
-            }
+            response = Convert.ToBoolean(Execute(() =>
+                {
+                    response = Users.ClearUserOfflineAssets(m_wsUserName, m_wsPassword, siteGuid);
+                    return response;
+                }));
 
             return response;
         }
 
         public bool SentNewPasswordToUser(string UserName)
         {
-            try
-            {
-                TVPApiModule.Objects.Responses.UserResponseObject uro = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ForgotPassword(m_wsUserName, m_wsPassword, UserName).ToApiObject();
-                if (uro.resp_status == TVPApiModule.Objects.Responses.eResponseStatus.OK)
+            bool returnedValue = false;
+
+            returnedValue = Convert.ToBoolean(Execute(() =>
                 {
-                    logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", UserName);
-                    return true;
-                }
-                else
-                {
-                    logger.InfoFormat("Can not send temp password protocol CheckUserPassword,Parameters : User name : {0}", UserName);
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error occured in SentNewPasswordToUser protocol ForgotPassword, Error Message: {0} Parameters :User : {1} ", ex.Message, UserName);
-                return false;
-            }
+                    TVPApiModule.Objects.Responses.UserResponseObject uro = Users.ForgotPassword(m_wsUserName, m_wsPassword, UserName).ToApiObject();
+                    if (uro.resp_status == TVPApiModule.Objects.Responses.eResponseStatus.OK)
+                    {
+                        logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", UserName);
+                        return true;
+                    }
+                    else
+                    {
+                        logger.InfoFormat("Can not send temp password protocol CheckUserPassword,Parameters : User name : {0}", UserName);
+                        return false;
+                    }
+                }));
+
+            return returnedValue;
         }
 
         public string IpToCountry(string sIP)
         {
             string sRet = string.Empty;
 
-            try
-            {
-                TVPPro.SiteManager.TvinciPlatform.Users.Country response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
-                sRet = response.m_sCountryName;
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol IpToCountry, Error Message: {0} Parameters : UserIP {1}", ex.Message, sIP);
-            }
+            sRet = Execute(() =>
+                {
+                    TVPPro.SiteManager.TvinciPlatform.Users.Country response = Users.GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
+                    sRet = response.m_sCountryName;
+
+                    return sRet;
+                }) as string;
 
             return sRet;
         }
 
         public bool IsOfflineModeEnabled(string siteGuid)
         {
-            var offlineMode = GetUserData(siteGuid).user.dynamic_data.user_data.Where(x => x.data_type == "IsOfflineMode" && x.value == "true").FirstOrDefault();
+            bool isOfflineModeEnabled = false;
 
-            if (offlineMode == null)
-                return false;
+            isOfflineModeEnabled = Convert.ToBoolean(Execute(() =>
+                {
+                    var offlineMode = GetUserData(siteGuid).user.dynamic_data.user_data.Where(x => x.data_type == "IsOfflineMode" && x.value == "true").FirstOrDefault();
 
-            if (offlineMode.value == "false")
-                return false;
+                    if (offlineMode == null)
+                        return false;
 
-            return true;
+                    if (offlineMode.value == "false")
+                        return false;
+
+                    return true;
+                }));
+
+            return isOfflineModeEnabled;
         }
 
         private TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData cloneDynamicData(TVPApiModule.Objects.Responses.UserDynamicData curDynamicData, bool isAddNew)
         {
             TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData newDynamicData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData();
-            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dData;
-            newDynamicData.m_sUserData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer[curDynamicData.user_data.Count() + (isAddNew ? 1 : 0)];
-            int idx = 0;
 
-            foreach (var UserData in curDynamicData.user_data)
-            {
-                dData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer();
-                dData.m_sDataType = UserData.data_type;
-                dData.m_sValue = UserData.value;
-                newDynamicData.m_sUserData[idx] = dData;
-                idx++;
-            }
+            newDynamicData = Execute(() =>
+                {
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dData;
+                    newDynamicData.m_sUserData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer[curDynamicData.user_data.Count() + (isAddNew ? 1 : 0)];
+                    int idx = 0;
+
+                    foreach (var UserData in curDynamicData.user_data)
+                    {
+                        dData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer();
+                        dData.m_sDataType = UserData.data_type;
+                        dData.m_sValue = UserData.value;
+                        newDynamicData.m_sUserData[idx] = dData;
+                        idx++;
+                    }
+
+                    return newDynamicData;
+                }) as TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData;
 
             return newDynamicData;
         }
 
         public void ToggleOfflineMode(string siteGUID, bool isTurnOn)
         {
-            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData newDynamicData;
-            TVPApiModule.Objects.Responses.UserResponseObject userData;
-            TVPApiModule.Objects.Responses.UserDynamicData curDynamicData;
-
-            if (isTurnOn)
-            {
-                
-                userData = GetUserData(siteGUID);
-                curDynamicData = userData.user.dynamic_data;
-                var isOfflineMode = curDynamicData.user_data.Where(x => x != null && x.data_type == "IsOfflineMode").Count() > 0;
-                newDynamicData = cloneDynamicData(curDynamicData, !isOfflineMode);
-
-                if (!isOfflineMode)
+            Execute(() =>
                 {
-                    TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer();
-                    dData.m_sDataType = "IsOfflineMode";
-                    dData.m_sValue = "true";
-                    newDynamicData.m_sUserData[newDynamicData.m_sUserData.Count() - 1] = dData;
-                }
-                else
-                    newDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode").First().m_sValue = "true";
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData newDynamicData;
+                    TVPApiModule.Objects.Responses.UserResponseObject userData;
+                    TVPApiModule.Objects.Responses.UserDynamicData curDynamicData;
 
-                
-            }
-            else
-            {
-                userData = GetUserData(siteGUID);
-                curDynamicData = userData.user.dynamic_data;
-                newDynamicData = cloneDynamicData(curDynamicData, false);
-
-                newDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode").First().m_sValue = "false";
-            }
-
-            TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData = new TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData()
-            {
-                m_bIsFacebookImagePermitted = userData.user.basic_data.is_facebook_image_permitted,
-                m_CoGuid = userData.user.basic_data.co_guid,
-                m_Country = new TVPPro.SiteManager.TvinciPlatform.Users.Country()
-                {
-                    m_nObjecrtID = userData.user.basic_data.country.object_id,
-                    m_sCountryCode = userData.user.basic_data.country.country_code,
-                    m_sCountryName = userData.user.basic_data.country.country_name
-                },
-                m_ExternalToken = userData.user.basic_data.external_token,
-                m_sAddress = userData.user.basic_data.address,
-                m_sAffiliateCode = userData.user.basic_data.affiliate_code,
-                m_sCity = userData.user.basic_data.city,
-                m_sEmail = userData.user.basic_data.email,
-                m_sFacebookID = userData.user.basic_data.facebook_id,
-                m_sFacebookImage = userData.user.basic_data.facebook_image,
-                m_sFacebookToken = userData.user.basic_data.facebook_token,
-                m_sFirstName = userData.user.basic_data.first_name,
-                m_sLastName = userData.user.basic_data.last_name,
-                m_sPhone = userData.user.basic_data.phone,
-                m_State = new TVPPro.SiteManager.TvinciPlatform.Users.State()
-                {
-                    m_Country = new TVPPro.SiteManager.TvinciPlatform.Users.Country()
+                    if (isTurnOn)
                     {
-                        m_nObjecrtID = userData.user.basic_data.state.country.object_id,
-                        m_sCountryCode = userData.user.basic_data.state.country.country_code,
-                        m_sCountryName = userData.user.basic_data.state.country.country_name
-                    },
-                    m_nObjecrtID = userData.user.basic_data.state.object_id,
-                    m_sStateCode = userData.user.basic_data.state.state_code,
-                    m_sStateName = userData.user.basic_data.state.state_name
-                },
-                m_sUserName = userData.user.basic_data.user_name,
-                m_sZip = userData.user.basic_data.zip,
-                m_UserType = new TVPPro.SiteManager.TvinciPlatform.Users.UserType()
-                {
-                    Description = userData.user.basic_data.user_type.description,
-                    ID = userData.user.basic_data.user_type.id,
-                    IsDefault = userData.user.basic_data.user_type.is_default
-                }
-            };
 
-            SetUserData(siteGUID, userBasicData, newDynamicData);
+                        userData = GetUserData(siteGUID);
+                        curDynamicData = userData.user.dynamic_data;
+                        var isOfflineMode = curDynamicData.user_data.Where(x => x != null && x.data_type == "IsOfflineMode").Count() > 0;
+                        newDynamicData = cloneDynamicData(curDynamicData, !isOfflineMode);
+
+                        if (!isOfflineMode)
+                        {
+                            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer();
+                            dData.m_sDataType = "IsOfflineMode";
+                            dData.m_sValue = "true";
+                            newDynamicData.m_sUserData[newDynamicData.m_sUserData.Count() - 1] = dData;
+                        }
+                        else
+                            newDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode").First().m_sValue = "true";
+
+
+                    }
+                    else
+                    {
+                        userData = GetUserData(siteGUID);
+                        curDynamicData = userData.user.dynamic_data;
+                        newDynamicData = cloneDynamicData(curDynamicData, false);
+
+                        newDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode").First().m_sValue = "false";
+                    }
+
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData = new TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData()
+                    {
+                        m_bIsFacebookImagePermitted = userData.user.basic_data.is_facebook_image_permitted,
+                        m_CoGuid = userData.user.basic_data.co_guid,
+                        m_Country = new TVPPro.SiteManager.TvinciPlatform.Users.Country()
+                        {
+                            m_nObjecrtID = userData.user.basic_data.country.object_id,
+                            m_sCountryCode = userData.user.basic_data.country.country_code,
+                            m_sCountryName = userData.user.basic_data.country.country_name
+                        },
+                        m_ExternalToken = userData.user.basic_data.external_token,
+                        m_sAddress = userData.user.basic_data.address,
+                        m_sAffiliateCode = userData.user.basic_data.affiliate_code,
+                        m_sCity = userData.user.basic_data.city,
+                        m_sEmail = userData.user.basic_data.email,
+                        m_sFacebookID = userData.user.basic_data.facebook_id,
+                        m_sFacebookImage = userData.user.basic_data.facebook_image,
+                        m_sFacebookToken = userData.user.basic_data.facebook_token,
+                        m_sFirstName = userData.user.basic_data.first_name,
+                        m_sLastName = userData.user.basic_data.last_name,
+                        m_sPhone = userData.user.basic_data.phone,
+                        m_State = new TVPPro.SiteManager.TvinciPlatform.Users.State()
+                        {
+                            m_Country = new TVPPro.SiteManager.TvinciPlatform.Users.Country()
+                            {
+                                m_nObjecrtID = userData.user.basic_data.state.country.object_id,
+                                m_sCountryCode = userData.user.basic_data.state.country.country_code,
+                                m_sCountryName = userData.user.basic_data.state.country.country_name
+                            },
+                            m_nObjecrtID = userData.user.basic_data.state.object_id,
+                            m_sStateCode = userData.user.basic_data.state.state_code,
+                            m_sStateName = userData.user.basic_data.state.state_name
+                        },
+                        m_sUserName = userData.user.basic_data.user_name,
+                        m_sZip = userData.user.basic_data.zip,
+                        m_UserType = new TVPPro.SiteManager.TvinciPlatform.Users.UserType()
+                        {
+                            Description = userData.user.basic_data.user_type.description,
+                            ID = userData.user.basic_data.user_type.id,
+                            IsDefault = userData.user.basic_data.user_type.is_default
+                        }
+                    };
+
+                    SetUserData(siteGUID, userBasicData, newDynamicData);
+
+                    return 0;
+                });
         }
 
         public bool SetUserDynamicData(string sSiteGuid, string sKey, string sValue)
         {
             bool bRet = false;
-            try
-            {
-                bRet = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SetUserDynamicData(m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol SetUserDynamicData, Error Message: {0} Parameters :ws User name : {1} , ws Password: {2}, SiteGUID: {3}, Key: {4}, Value: {5}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
-            }
+
+            bRet = Convert.ToBoolean(Execute(() =>
+                {
+                    bRet = Users.SetUserDynamicData(m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
+                    return bRet;
+                }));
 
             return bRet;
         }
@@ -616,16 +578,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserDataByCoGuid(m_wsUserName, m_wsPassword, coGuid, operatorID);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error recive user data Protocol GetUserData, Error Message: {0} Parameters : coGuid {1}", ex.Message, coGuid);
-            }
+            response = Execute(() =>
+                {
+                    var res = Users.GetUserDataByCoGuid(m_wsUserName, m_wsPassword, coGuid, operatorID);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -633,16 +593,15 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.UserResponseObject ChangeUserPassword(string sUN, string sOldPass, string sPass)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ChangeUserPassword(m_wsUserName, m_wsPassword, sUN, sOldPass, sPass);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol ChangeUserPassword, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Users.ChangeUserPassword(m_wsUserName, m_wsPassword, sUN, sOldPass, sPass);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -650,16 +609,15 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.UserResponseObject GetUserByFacebookID(string facebookId)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserByFacebookID(m_wsUserName, m_wsPassword, facebookId);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol GetUserByFacebookID, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Users.GetUserByFacebookID(m_wsUserName, m_wsPassword, facebookId);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -667,16 +625,15 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.UserResponseObject GetUserByUsername(string userName)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetUserByUsername(m_wsUserName, m_wsPassword, userName);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol GetUserByUsername, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Users.GetUserByUsername(m_wsUserName, m_wsPassword, userName);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -685,48 +642,39 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.UserBasicData> response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+            response = Execute(() =>
+                {
+                    var res = Users.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+                    if (res != null)
+                        response = res.Where(ubd => ubd != null).Select(u => u.ToApiObject()).ToList();
 
-                if (res != null)
-                    response = res.Where(ubd => ubd != null).Select(u => u.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol SearchUsers, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
-            }
+                    return response;
+                }) as List<TVPApiModule.Objects.Responses.UserBasicData>;
 
             return response;
         }
 
         public void Logout(string sSiteGuid)
         {
-            try
+            Execute(() =>
             {
-                (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).Logout(m_wsUserName, m_wsPassword, sSiteGuid);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol Logout, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, SiteGUID: {3}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid);
-            }
+                Users.Logout(m_wsUserName, m_wsPassword, sSiteGuid);
+                return 0;
+            });
         }
 
         public List<TVPApiModule.Objects.Responses.Country> GetCountriesList()
         {
             List<TVPApiModule.Objects.Responses.Country> response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetCountryList(m_wsUserName, m_wsPassword);
+            response = Execute(() =>
+                {
+                    var res = Users.GetCountryList(m_wsUserName, m_wsPassword);
+                    if (res != null)
+                        response = res.Where(c => c != null).Select(c => c.ToApiObject()).ToList();
 
-                if (res != null)
-                    response = res.Where(c => c != null).Select(c => c.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol GetCountryList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
-            }
+                    return response;
+                }) as List<TVPApiModule.Objects.Responses.Country>;
 
             return response;
         }
@@ -734,16 +682,15 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.UserResponseObject CheckTemporaryToken(string sToken)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).CheckTemporaryToken(m_wsUserName, m_wsPassword, sToken);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol CheckTemporaryToken, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Users.CheckTemporaryToken(m_wsUserName, m_wsPassword, sToken);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -752,16 +699,14 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.UserType> response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetGroupUserTypes(m_wsUserName, m_wsPassword);
-                if (res != null)
-                    response = res.Where(ut => ut != null).Select(u => u.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol GetGroupUserTypes, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
-            }
+            response = Execute(() =>
+                {
+                    var res = Users.GetGroupUserTypes(m_wsUserName, m_wsPassword);
+                    if (res != null)
+                        response = res.Where(ut => ut != null).Select(u => u.ToApiObject()).ToList();
+
+                    return response;
+                }) as List<TVPApiModule.Objects.Responses.UserType>;
 
             return response;
         }
@@ -769,34 +714,28 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.UserResponseObject RenewUserPassword(string sUN, string sPass)
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
-            try
+
+            response = Execute(() =>
             {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RenewUserPassword(m_wsUserName, m_wsPassword, sUN, sPass);
+                var res = Users.RenewUserPassword(m_wsUserName, m_wsPassword, sUN, sPass);
                 if (res != null)
                     response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol RenewUserPassword, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.Message, m_wsUserName, m_wsPassword);
-            }
+
+                return response;
+            }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
 
         public TVPApiModule.Objects.Responses.eResponseStatus RenewUserPIN(string sSiteGuid, int ruleID)
         {
-            TVPApiModule.Objects.Responses.eResponseStatus response = TVPApiModule.Objects.Responses.eResponseStatus.OK;
+            TVPApiModule.Objects.Responses.eResponseStatus response = TVPApiModule.Objects.Responses.eResponseStatus.ErrorOnSendingMail;
 
-            try
-            {
-                response = (TVPApiModule.Objects.Responses.eResponseStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SendChangedPinMail(m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol RenewUserPIN, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, ruleID: {4}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
-
-                response = TVPApiModule.Objects.Responses.eResponseStatus.ErrorOnSendingMail;
-            }
+            response = (eResponseStatus)Enum.Parse(typeof(eResponseStatus), Execute(() =>
+                {
+                    response = (TVPApiModule.Objects.Responses.eResponseStatus)Users.SendChangedPinMail(m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
+                    return response;
+                }).ToString());
 
             return response;
         }
@@ -805,17 +744,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.UserResponseObject response = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol ActivateAccountByDomainMaster, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, masterUserName: {3}, userName: {4}, token: {5}", 
-                    ex.Message, m_wsUserName, m_wsPassword, masterUserName, userName, token);
-            }
+            response = Execute(() =>
+                {
+                    var res = Users.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.UserResponseObject;
 
             return response;
         }
@@ -824,15 +760,11 @@ namespace TVPApiModule.Services
         {
             bool res = false;
 
-            try
-            {
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SendPasswordMail(m_wsUserName, m_wsPassword, userName);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol SendPasswordMail, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, userName: {3}",
-                    ex.Message, m_wsUserName, m_wsPassword, userName);
-            }
+            res = Convert.ToBoolean(Execute(() =>
+                {
+                    res = Users.SendPasswordMail(m_wsUserName, m_wsPassword, userName);
+                    return res;
+                }));
 
             return res;
         }
@@ -841,23 +773,20 @@ namespace TVPApiModule.Services
         {
             bool res = false;
 
-            try
-            {
-                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+            res = Convert.ToBoolean(Execute(() =>
                 {
-                    itemObj = itemObjects,
-                    itemType = itemType,
-                    listType = listType,
-                    siteGuid = siteGuid
-                    
-                };
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).AddItemToList(m_wsUserName, m_wsPassword, userItemList);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol AddItemToList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuide: {3}",
-                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
-            }
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+                        {
+                            itemObj = itemObjects,
+                            itemType = itemType,
+                            listType = listType,
+                            siteGuid = siteGuid
+
+                        };
+                    res = Users.AddItemToList(m_wsUserName, m_wsPassword, userItemList);
+
+                    return res;
+                }));
 
             return res;
         }
@@ -866,23 +795,20 @@ namespace TVPApiModule.Services
         {
             bool res = false;
 
-            try
-            {
-                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+            res = Convert.ToBoolean(Execute(() =>
                 {
-                    itemObj = itemObjects,
-                    itemType = itemType,
-                    listType = listType,
-                    siteGuid = siteGuid
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+                        {
+                            itemObj = itemObjects,
+                            itemType = itemType,
+                            listType = listType,
+                            siteGuid = siteGuid
 
-                };
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).RemoveItemFromList(m_wsUserName, m_wsPassword, userItemList);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol RemoveItemFromList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
-                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
-            }
+                        };
+                    res = Users.RemoveItemFromList(m_wsUserName, m_wsPassword, userItemList);
+
+                    return res;
+                }));
 
             return res;
         }
@@ -891,23 +817,20 @@ namespace TVPApiModule.Services
         {
             bool res = false;
 
-            try
-            {
-                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+            res = Convert.ToBoolean(Execute(() =>
                 {
-                    itemObj = itemObjects,
-                    itemType = itemType,
-                    listType = listType,
-                    siteGuid = siteGuid
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+                        {
+                            itemObj = itemObjects,
+                            itemType = itemType,
+                            listType = listType,
+                            siteGuid = siteGuid
 
-                };
-                res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).UpdateItemInList(m_wsUserName, m_wsPassword, userItemList);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol UpdateItemInList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
-                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
-            }
+                        };
+                    res = Users.UpdateItemInList(m_wsUserName, m_wsPassword, userItemList);
+
+                    return res;
+                }));
 
             return res;
         }
@@ -916,27 +839,24 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.UserItemList> response = null;
 
-            try
-            {
-                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+            response = Execute(() =>
                 {
-                    itemObj = itemObjects,
-                    itemType = itemType,
-                    listType = listType,
-                    siteGuid = siteGuid
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+                                   {
+                                       itemObj = itemObjects,
+                                       itemType = itemType,
+                                       listType = listType,
+                                       siteGuid = siteGuid
 
-                };
+                                   };
 
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                    var res = Users.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
 
-                if (res != null)
-                    response = res.Where(uil => uil != null).Select(u => u.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol GetItemFromList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
-                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
-            }
+                    if (res != null)
+                        response = res.Where(uil => uil != null).Select(u => u.ToApiObject()).ToList();
+
+                    return response;
+                }) as List<TVPApiModule.Objects.Responses.UserItemList>;
 
             return response;
         }
@@ -944,27 +864,24 @@ namespace TVPApiModule.Services
         public List<TVPApiModule.Objects.KeyValuePair> IsItemExistsInList(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
         {
             List<TVPApiModule.Objects.KeyValuePair> response = null;
-            
-            try
-            {
-                TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+
+            response = Execute(() =>
                 {
-                    itemObj = itemObjects,
-                    itemType = itemType,
-                    listType = listType,
-                    siteGuid = siteGuid
+                    TVPPro.SiteManager.TvinciPlatform.Users.UserItemList userItemList = new TVPPro.SiteManager.TvinciPlatform.Users.UserItemList()
+                        {
+                            itemObj = itemObjects,
+                            itemType = itemType,
+                            listType = listType,
+                            siteGuid = siteGuid
 
-                };
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+                        };
 
-                if (res != null)
-                    response = res.Where(kv => kv != null).Select(kv => kv.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol IsItemExistsInList, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, siteGuid: {3}",
-                    ex.Message, m_wsUserName, m_wsPassword, siteGuid);
-            }
+                    var res = Users.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+                    if (res != null)
+                        response = res.Where(kv => kv != null).Select(kv => kv.ToApiObject()).ToList();
+
+                    return response;
+                }) as List<TVPApiModule.Objects.KeyValuePair>;
 
             return response;
         }
@@ -972,15 +889,13 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.eResponseStatus SetUserTypeByUserID(string sSiteGuid, int userTypeID)
         {
             TVPApiModule.Objects.Responses.eResponseStatus response = TVPApiModule.Objects.Responses.eResponseStatus.OK;
-            try
-            {
-                response = (TVPApiModule.Objects.Responses.eResponseStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Users.UsersService).SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error receive user data Protocol SetUserTypeByUserID, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}, sSiteGUID: {3}, userTypeID: {4}", ex.Message, m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
-                response = TVPApiModule.Objects.Responses.eResponseStatus.ErrorOnUpdatingUserType;
-            }
+
+            response = (eResponseStatus)Enum.Parse(typeof(eResponseStatus), Execute(() => 
+                {
+                    response = (TVPApiModule.Objects.Responses.eResponseStatus)Users.SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
+                    return response;
+                }).ToString());
+            
             return response;
         }
     }

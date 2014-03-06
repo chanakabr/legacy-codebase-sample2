@@ -10,22 +10,17 @@ namespace TVPApiModule.Services
 {
     public class BaseService
     {
-        #region Consts
+        #region Private
 
-        //private static char SPLITTER = '.';
+        private Object lockObject = new Object();
 
-        #endregion
-
-        #region Static Members
-
-        //private static ConcurrentDictionary<string, BaseService> _services = new ConcurrentDictionary<string, BaseService>();
-        //private static ConcurrentDictionary<int, ConcurrentDictionary<PlatformType, ConcurrentDictionary<eService, BaseService>>> _services = new ConcurrentDictionary<int, ConcurrentDictionary<PlatformType, ConcurrentDictionary<eService, BaseService>>>();
         #endregion
 
         #region Properties
 
         public object m_Module { get; set; }
-        //public string m_wsUserName { get; set; }
+        public string serviceKey { get; set; }
+        
         public string m_wsUserName
         {
             get
@@ -56,45 +51,65 @@ namespace TVPApiModule.Services
     
         public int m_groupID { get; set; }
         public PlatformType m_platform { get; set; }
-        public int m_FailOverCounter { get; set; }        
+        public int m_FailOverCounter { get; set; }
+        public eService m_ServiceType { get; set; }
 
         #endregion
 
-        #region Public Static
+        #region Service Failover
 
-        public static BaseService Instance(int groupId, PlatformType platform, eService serviceType)
+        public object Execute(Func<object> funcToExecute)
         {
-            return null;
-            ///////// Implement GetInstance Logic /////
-            //string serviceTcmConfigurationKey = string.Format("{0}{1}{2}{3}{4}", groupId, SPLITTER, platform, SPLITTER, serviceType);
-            //string serviceUrl = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}{1}{2}", serviceTcmConfigurationKey, SPLITTER, "URL"));
+            object result = null;
 
+        Operate:
+            {
+                try
+                {
+                    result = funcToExecute();
+                    m_FailOverCounter = 0;
+                    // TODO: Write a log that indicates the function succeeded running - get the function name
+                }
+                catch (TimeoutException timeout) // Catches services operations exceptions
+                {
+                    m_FailOverCounter++;
+                    if (m_FailOverCounter < ServicesManager.Instance.FailOverLimit)
+                    {
+                        BaseService restartedService = null;
+                        lock (this.lockObject)
+                        {
+                            restartedService = ServicesManager.Instance.RestartService(this);
+                        }
 
+                        if (restartedService != null)
+                        {
+                            goto Operate;
+                        }
+                        else
+                        {
+                            goto End;
+                        }
+                    }
+                    else
+                    {
+                        // TODO: Write Log that we reached the limit of failures
+                        // Reset Service
+                        lock (this.lockObject)
+                        {
+                            ServicesManager.Instance.ResetService(this);
+                        }
+                    }
+                }
+                catch (Exception ex) // Catches logic exceptions from backend
+                {
+                    // TODO: Write log exception message
+                }
+            }
 
-            //if (!string.IsNullOrEmpty(serviceUrl) && !_services.ContainsKey(serviceUrl))
-            //{
-            //    //string serviceUrl = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}{1}{2}", dictionaryMultiKey, SPLITTER, "URL"));
-            //    //string serviceUser = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}{1}{2}", dictionaryMultiKey, SPLITTER, "USER"));
-            //    //string servicePass = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}{1}{2}", dictionaryMultiKey, SPLITTER, "PASSWORD"));
-
-            //    //if (!string.IsNullOrEmpty(serviceUrl) && !string.IsNullOrEmpty(serviceUser) && !string.IsNullOrEmpty(servicePass))
-            //    //{
-            //        BaseService serviceInserted = ServiceFactory.GetService(groupId, platform, serviceUrl, serviceType);
-
-            //        if (serviceInserted != null)
-            //        {
-            //            _services.TryAdd(serviceUrl, serviceInserted);
-            //        }
-            //    //}
-            //}
-
-            //BaseService service = null;
-            //_services.TryGetValue(serviceUrl, out service);
-
-            //return service;            
+        End:
+            return result;
         }
 
         #endregion
-
     }
 }
