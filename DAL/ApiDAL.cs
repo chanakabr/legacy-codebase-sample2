@@ -824,6 +824,29 @@ namespace DAL
             return returnedDataTable;
         }
 
+
+        public static DataTable Get_EPGRules(string sSiteGuid)
+        {
+            DataTable returnedDataTable = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure spEpgProgramRules = new ODBCWrapper.StoredProcedure("Get_EPGRules");
+                spEpgProgramRules.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spEpgProgramRules.AddParameter("@SiteGuid", sSiteGuid);
+
+                DataSet returnedRulesSet = spEpgProgramRules.ExecuteDataSet();
+
+                if (returnedRulesSet != null)
+                    returnedDataTable = returnedRulesSet.Tables[0];
+            }
+            catch
+            {
+                returnedDataTable = null;
+            }
+            return returnedDataTable;
+        }
+
+
         public static DataTable GetProgramSchedule(int nProgramId)
         {
             DataTable returnedDataTable = null;

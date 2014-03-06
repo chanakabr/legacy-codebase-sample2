@@ -70,6 +70,27 @@ namespace TVinciShared
             m_nDefault = -1;
             m_sConnectionKey = "";
         }
+
+        //added
+        public void Initialize(string sFieldHeader,
+           string sHeaderCss,
+           string sInputCss,
+           string sFieldName, string sValue,
+           bool bMust)
+        {
+            m_bMust = bMust;
+            m_sFieldHeader = sFieldHeader;
+            m_sHeaderCss = sHeaderCss;
+            m_sInputCss = sInputCss;
+            m_sFieldName = sFieldName;
+            m_sStartValue = sValue;
+            m_bStartValue = false;
+            m_sDefaultVal = "";
+            m_nDefault = -1;
+            m_sConnectionKey = "";
+        }
+
+
         public void SetConnectionKey(string sKey)
         {
             m_sConnectionKey = sKey;
@@ -135,6 +156,48 @@ namespace TVinciShared
                 m_sStartValue = dt.DefaultView[0].Row[m_sFieldName].ToString();
         }
 
+
+        //added
+        //protected void ConvertObjToStr(ref object obj)
+        //{
+        //    m_sStartValue = "";
+            
+        //    {
+        //        if (this.GetFieldType() == "date")
+        //        {
+        //           if (obj != null)
+        //           {
+        //            if (obj.GetType() == typeof(DateTime))
+        //               m_sStartValue = DateUtils.GetStrFromDate((DateTime)obj);                    
+        //           }
+        //        }
+        //        else if (this.GetFieldType() == "time")
+        //        {
+        //            if (obj != null)
+        //            {
+        //                DateTime t = (DateTime)obj;
+        //                m_sStartValue = t.Hour.ToString() + ":" + t.Minute.ToString();
+        //            }
+        //            else
+        //                m_sStartValue = "00:00";
+        //        }
+        //        else if (this.GetFieldType() == "datetime")
+        //        {
+        //            if ( obj != null || obj.ToString() == "")
+        //                m_sStartValue = "";
+        //            else
+        //            {
+        //                DateTime t = (DateTime) obj;
+        //                m_sStartValue = DateUtils.GetStrFromDate(t);
+        //                m_sStartValue += " ";
+        //                m_sStartValue += t.Hour.ToString() + ":" + t.Minute.ToString();
+        //            }
+        //        }
+        //        else
+        //            m_sStartValue = obj.ToString();
+        //    }
+        //}
+
         public virtual void SetValue(string sTable, string sIndexFieldName, object oIndexFieldVal)
         {
             if (m_bStartValue == true || m_sFieldName == "")
@@ -199,6 +262,10 @@ namespace TVinciShared
             selectQuery.Finish();
             selectQuery = null;
         }
+
+
+
+     
     }
 
     public class DataRecordShortTextField : BaseDataRecordField
@@ -2298,6 +2365,106 @@ namespace TVinciShared
             sTmp += "</table></td></tr>";
             return sTmp;
         }
+
+        public string GetFieldHtmlCB(long nID)
+        {
+            Int32 nGroupID = LoginManager.GetLoginGroupID();
+            object oBasePicsURL = PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
+            string sBasePicsURL = "";
+            if (oBasePicsURL != DBNull.Value && oBasePicsURL != null)
+                sBasePicsURL = oBasePicsURL.ToString();
+            if (sBasePicsURL == "")
+                sBasePicsURL = "pics";
+            else if (sBasePicsURL.ToLower().Trim().StartsWith("http://") == false &&
+                sBasePicsURL.ToLower().Trim().StartsWith("https://") == false)
+                sBasePicsURL = "http://" + sBasePicsURL;
+
+            string sTmp = "<tr>";
+            sTmp += "<td class='" + m_sHeaderCss + "' nowrap>";
+            if (m_bMust == true)
+                sTmp += "<span class=\"red\">*&nbsp;&nbsp;</span>";
+            sTmp += m_sFieldHeader;
+            sTmp += "</td>";
+            //sTmp += "<td width=10px nowrap></td>";
+            sTmp += "<td class=\"align1\">";
+            sTmp += "<table width=100%>";
+            if (m_sStartValue != "")
+            {
+                string sPicID = m_sStartValue;
+                if (m_sStartValue.EndsWith(";"))
+                    sPicID = sPicID.Substring(0, sPicID.Length - 1);
+                Int32 nPicID = 0;
+                try
+                {
+                    nPicID = int.Parse(sPicID);
+                }
+                catch
+                {
+                }
+
+                if (nPicID > 0)
+                {
+                    object oPic = PageUtils.GetTableSingleVal("EPG_pics", "BASE_URL", int.Parse(sPicID));
+                    if (oPic != DBNull.Value && oPic != null)
+                    {
+                        sTmp += "<tr><td colspan=\"3\" id=\"" + nID.ToString() + "_pic_beowse\">";
+                        string sPicURL = ImageUtils.GetTNName(oPic.ToString(), "tn");
+                        if (sBasePicsURL.EndsWith("=") == true)
+                        {
+                            string sTmp1 = "";
+                            string[] s = sPicURL.Split('.');
+                            for (int i = 0; i < s.Length - 1; i++)
+                            {
+                                if (i > 0)
+                                    sTmp1 += ".";
+                                sTmp1 += s[i];
+                            }
+                            sPicURL = sTmp1;
+                        }
+                        sTmp += "<img src=\"";
+                        sTmp += sBasePicsURL;
+                        if (sBasePicsURL.EndsWith("=") == false)
+                            sTmp += "/";
+                        Random random = new Random();
+                        int randomInt = random.Next();
+                        sTmp += sPicURL + "\" class=\"img_border\"/>";
+                        sTmp += "</td></tr>";
+                    }
+                    else
+                    {
+                        sTmp += "<tr><td colspan=\"3\" id=\"" + nID.ToString() + "_pic_beowse\">";
+                        sTmp += "</td></tr>";
+                    }
+                }
+                else
+                {
+                    sTmp += "<tr><td colspan=\"3\" id=\"" + nID.ToString() + "_pic_beowse\">";
+                    sTmp += "</td></tr>";
+                }
+            }
+            else
+            {
+                sTmp += "<tr><td colspan=\"3\" id=\"" + nID.ToString() + "_pic_beowse\">";
+                sTmp += "</td></tr>";
+            }
+            sTmp += "<tr><td colspan=2 class=\"align1\">";
+
+            sTmp += "<input tabindex=\"2000\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='";
+            sTmp += "hidden' ";
+            sTmp += "dir='ltr' ";
+            sTmp += "size=8 ";
+            sTmp += "maxlength=8 ";
+            if (m_sStartValue != "")
+                sTmp += "value='" + m_sStartValue.ToString() + "' ";
+            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"OpenPicBrowserEpg('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "');\" href=\"javascript:void(0);\"></a>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+            sTmp += "</td>";
+            sTmp += "</tr>";
+            sTmp += "</table></td></tr>";
+            return sTmp;
+        }
     }
 
     public class DataRecordOneVideoBrowserField : BaseDataRecordField
@@ -3574,6 +3741,47 @@ namespace TVinciShared
             sTable += GetTableHTMLFooter(thePage, bRemoveConfirm, nRows);
             SaveTable(sTable);
             return sTable;
+        }
+
+       
+        public string GetTableHTMLCB(string thePage, bool bRemoveConfirm, object epg)
+        {
+            string sTable = GetTableHTMLHeader();
+            sTable += GetTableHTMLUpper(thePage, bRemoveConfirm);
+            Int32 nRows = 0;
+            sTable += GetTableHTMLInnerCB(0, 0, epg, ref nRows);
+            sTable += GetTableHTMLFooter(thePage, bRemoveConfirm, nRows);
+            SaveTable(sTable);
+            return sTable;
+        }
+
+       
+        public string GetTableHTMLInnerCB(Int32 nStart, Int32 nEnd, object epg, ref Int32 nRows)
+        {
+            if (nStart < 0)
+                nStart = 0;
+            if (nEnd <= 0)
+                nEnd = m_Records.Count;
+            StringBuilder sTable = new StringBuilder();
+            sTable.Append("<tr><td width=100% nowrap><table width=100%>");
+            Int32 nC = nStart;
+            for (int i = nStart; i < nEnd; i++)
+            {
+                nRows++;
+                Int32 nToAdd = 1;
+                if (m_Records[i.ToString()].GetType() == typeof(DataRecordOnePicBrowserField))
+                {
+                    sTable.Append(((DataRecordOnePicBrowserField)(m_Records[i.ToString()])).GetFieldHtmlCB(nC));
+                }
+                else
+                {
+                    sTable.Append(((BaseDataRecordField)(m_Records[i.ToString()])).GetFieldHtml(nC, ref nToAdd));
+                }
+                sTable.Append("<tr><td width=100% nowrap class=horizon_line_space colspan=3></td></tr>");
+                nC += nToAdd;
+            }
+            sTable.Append("</table></td></tr>");
+            return sTable.ToString();
         }
     }
 }
