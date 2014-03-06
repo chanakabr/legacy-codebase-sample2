@@ -670,7 +670,7 @@ namespace TVPApi
             return lstRet;
         }
 
-        public static List<Media> GetChannelMultiFilter(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
+        public static List<Media> GetChannelMultiFilter(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, eOrderDirection orderDir, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
         {
             // convert TagMetaPair to KeyValue 
             List<KeyValue> newTagsMetas = tagsMetas.Select(x => new KeyValue { m_sKey = x.Key, m_sValue = x.Value }).ToList();
@@ -680,9 +680,41 @@ namespace TVPApi
 
             List<Media> lstRet = new List<Media>();
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Regular);
-            lstRet = GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel, orderBy, null, newTagsMetas, newCutWith);
+           
+            //lstRet = GetMediaList(initObj, account.TVMUser, account.TVMPass, channelID, picSize, pageSize, pageIndex, groupID, LoaderType.Channel, orderBy, null, newTagsMetas, newCutWith);
 
+
+            var channelLoader = new APIChannelLoader(account.TVMUser, account.TVMPass, channelID, picSize)
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                OrderObj = new OrderObj()
+                {
+                    m_eOrderBy = CatalogHelper.GetCatalogOrderBy((TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy), orderBy.ToString())),
+                    m_eOrderDir = CatalogHelper.GetCatalogOrderDirection((TVPPro.SiteManager.DataLoaders.SearchMediaLoader.eOrderDirection)Enum.Parse(typeof(TVPPro.SiteManager.DataLoaders.SearchMediaLoader.eOrderDirection), orderDir.ToString())),
+                    
+                },
+                CutWith = newCutWith,
+                TagsMetas = newTagsMetas,
+                Platform = initObj.Platform,
+                GroupID = groupID
+            };
+
+            dsItemInfo mediaInfo = channelLoader.Execute();
+
+            long mediaCount;
+            channelLoader.TryGetItemsCount(out mediaCount);
+
+
+            if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
+            {
+                foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
+                {
+                    lstRet.Add(new Media(row, initObj, groupID, false, mediaCount));
+                }
+            }
             return lstRet;
+
         }
 
         public static List<Media> GetChannelMediaList(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID, ref long mediaCount)
@@ -713,8 +745,7 @@ namespace TVPApi
                         Platform = initObj.Platform,
                         PageSize = pageSize,
                         PageIndex = pageIndex,
-                        OrderBy = (TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy),
-                        orderBy.ToString()),
+                        OrderBy = (TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy),orderBy.ToString()),
                         DeviceUDID = initObj.UDID,
                         GetFutureStartDate = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate,
                         Language = initObj.Locale.LocaleLanguage,

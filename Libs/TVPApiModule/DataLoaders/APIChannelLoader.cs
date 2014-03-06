@@ -133,8 +133,10 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     OnlyActiveMedia = true,
                     UseStartDate = bool.Parse(GetFutureStartDate),
-                    SiteGuid = SiteGuid 
+                    SiteGuid = SiteGuid
                 };
+
+                m_oCatalogChannelLoader.OrderObj = OrderObj == null ? new OrderObj() { m_eOrderDir = OrderDir.DESC, m_eOrderBy = CatalogHelper.GetCatalogOrderBy(OrderBy) } : OrderObj;
 
                 return m_oCatalogChannelLoader.Execute() as dsItemInfo;
             }

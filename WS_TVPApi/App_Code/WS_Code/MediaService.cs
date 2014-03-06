@@ -138,7 +138,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, orderBy, tagsMetas, cutWith);
+                    lstMedia = MediaHelper.GetChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, orderBy, orderDir, tagsMetas, cutWith);
                 }
                 catch (Exception ex)
                 {
