@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TVPApi;
 using log4net;
-using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPApiModule.Extentions;
 using TVPApiModule.Context;
-using TVPApiModule.Manager;
-using TVPApiModule.Objects;
 
 namespace TVPApiModule.Services
 {
@@ -45,11 +41,14 @@ namespace TVPApiModule.Services
         }
         #endregion C'tor
 
-        #region Public Static Functions
+        #region Properties
 
-        public static ApiPricingService Instance(int groupId, PlatformType platform)
+        protected TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule Pricing
         {
-            return BaseService.Instance(groupId, platform, eService.PricingService) as ApiPricingService;
+            get
+            {
+                return (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule);
+            }
         }
 
         #endregion
@@ -59,16 +58,15 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.PPVModule GetPPVModuleData(int ppvCode, string sCountry, string sLanguage, string sDevice)
         {
             TVPApiModule.Objects.Responses.PPVModule response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetPPVModuleData, Error Message: {0} Parameters: ppv: {1}", ex.Message, ppvCode);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Pricing.GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as TVPApiModule.Objects.Responses.PPVModule;
 
             return response;
         }
@@ -77,21 +75,14 @@ namespace TVPApiModule.Services
         {
             List<MediaFilePPVModule> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetPPVModuleListForMediaFiles(m_wsUserName, m_wsPassword, mediaFiles, sCountry, sLanguage, sDevice);
+            retVal = Execute(() =>
+                {
+                    var response = Pricing.GetPPVModuleListForMediaFiles(m_wsUserName, m_wsPassword, mediaFiles, sCountry, sLanguage, sDevice);
+                    if (response != null)
+                        retVal = response.ToList();
 
-                if (response != null)
-                    retVal = response.ToList();
-            }
-            catch (Exception ex)
-            {
-                StringBuilder sb = new StringBuilder();
-                foreach (int media in mediaFiles)                
-                    sb.Append(media + ",");
-                
-                logger.ErrorFormat("Error calling webservice protocol : GetPPVModuleListForMediaFiles, Error Message: {0} Parameters: Medias: {1}", ex.Message, sb.ToString());
-            }
+                    return retVal;
+                }) as List<MediaFilePPVModule>;
 
             return retVal;
         }
@@ -100,17 +91,15 @@ namespace TVPApiModule.Services
         {
             List<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+            subscriptions = Execute(() =>
+                {
+                    var response = Pricing.GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
 
-                if (response != null)
-                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionsContainingMediaFile, Error Message: {0}, Parameters :  iMediaID: {1}, iMediaFileID : {2}", ex.Message, iMediaID, iMediaFileID);
-            }
+                    if (response != null)
+                        subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
+
+                    return subscriptions;
+                }) as List<TVPApiModule.Objects.Responses.Subscription>;
 
             return subscriptions;
         }
@@ -119,16 +108,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.Subscription sub = null;
 
-            try
+            sub = Execute(() =>
             {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
+                var res = Pricing.GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
                 if (res != null)
                     sub = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionData, Error Message: {0}", ex.Message);
-            }
+
+                return sub;
+            }) as TVPApiModule.Objects.Responses.Subscription;
 
             return sub;
         }
@@ -137,32 +124,27 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.CouponData couponData = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
-                if (res != null)
-                    couponData = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetCouponStatus, Error Message: {0}", ex.Message);
-            }
+            couponData = Execute(() =>
+                {
+                    var res = Pricing.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
+                    if (res != null)
+                        couponData = res.ToApiObject();
 
-            return couponData ;
+                    return couponData;
+                }) as TVPApiModule.Objects.Responses.CouponData;
+
+            return couponData;
         }
 
         public TVPApiModule.Objects.Responses.CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID)
         {
             TVPApiModule.Objects.Responses.CouponsStatus couponStatus = TVPApiModule.Objects.Responses.CouponsStatus.NotExists;
-            
-            try
-            {
-                couponStatus = (TVPApiModule.Objects.Responses.CouponsStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID); 
-            } 
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SetCouponUsed, Error Message: {0}", ex.Message);
-            }
+
+            couponStatus = (TVPApiModule.Objects.Responses.CouponsStatus)Enum.Parse(typeof(TVPApiModule.Objects.Responses.CouponsStatus), Execute(() =>
+                {
+                    couponStatus = (TVPApiModule.Objects.Responses.CouponsStatus)Pricing.SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID);
+                    return couponStatus;
+                }).ToString());
 
             return couponStatus;
         }
@@ -171,17 +153,14 @@ namespace TVPApiModule.Services
         {
             List<Campaign> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetCampaignsByType(m_wsUserName, m_wsPassword, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
+            retVal = Execute(() =>
+                {
+                    var response = Pricing.GetCampaignsByType(m_wsUserName, m_wsPassword, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
+                    if (response != null)
+                        retVal = response.ToList();
 
-                if (response != null)
-                    retVal = response.ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetCampaignsByType, Error Message: {0}", ex.Message);
-            }
+                    return retVal;
+                }) as List<Campaign>;
 
             return retVal;
         }
@@ -190,17 +169,14 @@ namespace TVPApiModule.Services
         {
             List<int> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetSubscriptionIDsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+            retVal = Execute(() =>
+                {
+                    var response = Pricing.GetSubscriptionIDsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+                    if (response != null)
+                        retVal = response.ToList();
 
-                if (response != null)
-                    retVal = response.ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionIDsContainingMediaFile, Error Message: {0}, Parameters :  iMediaID: {1}, iMediaFileID : {2}", ex.Message, iMediaID, iMediaFileID);
-            }
+                    return retVal;
+                }) as List<int>;
 
             return retVal;
         }
@@ -208,25 +184,19 @@ namespace TVPApiModule.Services
         public List<TVPApiModule.Objects.Responses.Subscription> GetSubscriptionsContainingUserTypes(int isActive, int[] userTypesIDs)
         {
             List<TVPApiModule.Objects.Responses.Subscription> subscriptions = null;
-            string sUserTypesIDs = string.Empty;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule).GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
-                
-                if (response != null)
+            subscriptions = Execute(() =>
                 {
-                    subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                if (userTypesIDs != null && userTypesIDs.Length > 0)
-                {
-                    sUserTypesIDs = string.Join(",", userTypesIDs.Select(x => x.ToString()).ToArray());
-                }
-                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionsContainingUserTypes, Error Message: {0}, Parameters :  isActive: {1}, userTypesIDs : {2}", ex.Message, isActive, sUserTypesIDs);
-            }
+                    string sUserTypesIDs = string.Empty;
+
+                    var response = Pricing.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
+                    if (response != null)
+                    {
+                        subscriptions = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
+                    }
+
+                    return subscriptions;
+                }) as List<TVPApiModule.Objects.Responses.Subscription>;
 
             return subscriptions;
         }

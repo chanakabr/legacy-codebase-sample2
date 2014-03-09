@@ -38,7 +38,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                domainRes = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).AddDomain(domainName, domainDesc, masterGuid);
+                domainRes = ServicesManager.DomainsService(groupID, initObj.Platform).AddDomain(domainName, domainDesc, masterGuid);
             }
             else
             {
@@ -54,9 +54,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.GetDeviceDomains(initObj.UDID);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
             }
             else
             {
@@ -87,9 +85,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.RemoveDeviceToDomain(domainID, initObj.UDID);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, initObj.UDID);
             }
             else
             {
@@ -103,20 +99,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                //ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-                //ApiDomainsService _service = ApiDomainsService.Instance(groupID, initObj.Platform);
-                try
-                {
-                    ApiDomainsService _service = ServicesManager.Instance.GetService(groupID, initObj.Platform, eService.DomainsService) as ApiDomainsService;
-
-                    return ((ApiDomainsService)_service).GetDomainInfo(initObj.DomainID);
-                }
-                catch (Exception ex)
-                {
-                    // Implement FailOver Mechanism
-                    GetDomainInfo(initObj, domainId);
-                    throw ex;
-                }
+                return ServicesManager.DomainsService(groupID, initObj.Platform).GetDomainInfo(domainId);
             }
             else
             {
@@ -130,9 +113,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.ChangeDeviceDomainStatus(initObj.DomainID, initObj.UDID, bActive);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).ChangeDeviceDomainStatus(initObj.DomainID, initObj.UDID, bActive);
             }
             else
             {
@@ -146,9 +127,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.AddUserToDomain(initObj.DomainID, initObj.SiteGuid, int.Parse(addedUserGuid));
+                return ServicesManager.DomainsService(groupID, initObj.Platform).AddUserToDomain(initObj.DomainID, initObj.SiteGuid, int.Parse(addedUserGuid));
             }
             else
             {
@@ -180,9 +159,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.GetPINForDevice(initObj.UDID, devBrandID);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).GetPINForDevice(initObj.UDID, devBrandID);
             }
             else
             {
@@ -196,9 +173,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
-
-                return _service.SetRuleState(initObj.SiteGuid, initObj.DomainID, ruleID, isActive);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).SetRuleState(initObj.SiteGuid, initObj.DomainID, ruleID, isActive);
             }
             else
             {
@@ -240,9 +215,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.RemoveDomain(initObj.DomainID);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).RemoveDomain(initObj.DomainID);                
             }
             else
             {
@@ -256,9 +229,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.RemoveUserFromDomain(initObj.DomainID, userGuidToRemove);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).RemoveUserFromDomain(initObj.DomainID, userGuidToRemove);                
             }
             else
             {
@@ -272,9 +243,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.SetDeviceInfo(initObj.UDID, deviceName);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).SetDeviceInfo(initObj.UDID, deviceName);
             }
             else
             {
@@ -288,9 +257,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).SetDomainInfo(initObj.DomainID, sDomainName, sDomainDescription);
             }
             else
             {
@@ -304,9 +271,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.SubmitAddUserToDomainRequest(siteGuid, masterUsername);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).SubmitAddUserToDomainRequest(siteGuid, masterUsername);
             }
             else
             {
@@ -320,9 +285,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
-
-                return _service.GetDomainGroupRules(initObj.DomainID);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetDomainGroupRules(initObj.DomainID);
             }
             else
             {
@@ -336,9 +299,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
-
-                return _service.SetDomainGroupRule(initObj.DomainID, ruleID, PIN, isActive);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).SetDomainGroupRule(initObj.DomainID, ruleID, PIN, isActive);                
             }
             else
             {
@@ -352,9 +313,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                return _service.GetDomainsBillingHistory(domainIDs, startDate, endDate);
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetDomainsBillingHistory(domainIDs, startDate, endDate);
             }
             else
             {
@@ -368,9 +327,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiDomainsService _service = new ApiDomainsService(groupID, initObj.Platform);
-
-                return _service.AddDomainWithCoGuid(domainName, domainDesc, masterGuid, coGuid);
+                return ServicesManager.DomainsService(groupID, initObj.Platform).AddDomainWithCoGuid(domainName, domainDesc, masterGuid, coGuid);
             }
             else
             {
@@ -401,9 +358,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                return _service.GetDomainPermittedItems(initObj.DomainID);
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetDomainPermittedItems(initObj.DomainID);                
             }
             else
             {
@@ -417,9 +372,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                return _service.GetDomainPermittedSubscriptions(initObj.DomainID);
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetDomainPermittedSubscriptions(initObj.DomainID);                
             }
             else
             {

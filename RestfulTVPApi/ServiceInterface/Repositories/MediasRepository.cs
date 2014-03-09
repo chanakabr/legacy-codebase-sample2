@@ -204,7 +204,7 @@ namespace RestfulTVPApi.ServiceInterface
                 string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
                 string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
 
-                List<string> lstResponse = new ApiApiService(groupID, initObj.Platform).GetAutoCompleteList(iMediaTypes != null ? iMediaTypes : new int[0], arrMetaNames, arrTagNames, prefixText, initObj.Locale.LocaleLanguage, 0, maxItems).ToList();
+                List<string> lstResponse = ServicesManager.ApiApiService(groupID, initObj.Platform).GetAutoCompleteList(iMediaTypes != null ? iMediaTypes : new int[0], arrMetaNames, arrTagNames, prefixText, initObj.Locale.LocaleLanguage, 0, maxItems).ToList();
 
                 if (lstResponse != null)
                 {
@@ -230,9 +230,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiPricingService _service = new ApiPricingService(groupId, initObj.Platform);
-
-                return _service.GetSubscriptionIDsContainingMediaFile(iMediaID, iFileID);
+                return ServicesManager.PricingService(groupId, initObj.Platform).GetSubscriptionIDsContainingMediaFile(iMediaID, iFileID);
             }
             else
             {
@@ -246,9 +244,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
-
-                return _service.GetItemsPricesWithCoupons(sSiteGUID, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName);
+                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetItemsPricesWithCoupons(sSiteGUID, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName);
             }
             else
             {
@@ -308,9 +304,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
-
-                return _service.GetMediaLicenseLink(sSiteGUID, mediaFileID, baseLink, initObj.UDID);
+                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(sSiteGUID, mediaFileID, baseLink, initObj.UDID);
             }
             else
             {
@@ -324,9 +318,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
-
-                return _service.PP_ChargeUserForMediaFile(sSiteGUID, price, currency, mediaFileID, ppvModuleCode, couponCode, initObj.UDID);
+                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).PP_ChargeUserForMediaFile(sSiteGUID, price, currency, mediaFileID, ppvModuleCode, couponCode, initObj.UDID);                
             }
             else
             {
@@ -355,9 +347,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.GetUsersLikedMedia(siteGuid, mediaID, (int)TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK, onlyFriends, startIndex, pageSize);
+                return ServicesManager.SocialService(groupId, initObj.Platform).GetUsersLikedMedia(siteGuid, mediaID, (int)TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK, onlyFriends, startIndex, pageSize);                
             }
             else
             {

@@ -28,7 +28,7 @@ namespace RestfulTVPApi.ServiceInterface
 
     #endregion
 
-    //[RequiresAuthentication]
+    [RequiresAuthentication]
     public class InitService : Service
     {
         public string Post(SecuredInitObjRequest request)

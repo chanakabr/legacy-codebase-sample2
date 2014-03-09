@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Configuration;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
-using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Helper;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Services;
-using TVPApiModule.Context;
+using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.Objects;
+using System.Linq;
+using TVPApiModule.Extentions;
+
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -47,9 +50,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiApiService _service = new ApiApiService(groupId, initObj.Platform);
-
-                return _service.GetEPGChannel(sPicSize);
+                return ServicesManager.ApiApiService(groupId, initObj.Platform).GetEPGChannel(sPicSize);
             }
             else
             {
@@ -71,20 +72,43 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public List<EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, TVPPro.SiteManager.TvinciPlatform.api.EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
+            List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> sRet = null;
+
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGMultiChannelProgram", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {
-                ApiApiService _service = new ApiApiService(groupId, initObj.Platform);
+                EPGLoader loader;
+                List<int> channelIDs = sEPGChannelID.Select(c => int.Parse(c)).ToList();
+                switch (oUnit)
+                {
+                    case EPGUnit.Days:
+                        loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddDays(iFromOffset).DateTime, DateTimeOffset.UtcNow.AddDays(iToOffset).DateTime, 0, 0);
+                        break;
+                    case EPGUnit.Hours:
+                        loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, DateTimeOffset.UtcNow.AddHours(iFromOffset).DateTime, DateTimeOffset.UtcNow.AddHours(iToOffset).DateTime, 0, 0);
+                        break;
+                    case EPGUnit.Current:
+                        loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, iFromOffset, iToOffset);
+                        break;
+                    default:
+                        loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, DateTime.UtcNow, DateTime.UtcNow, iFromOffset, iToOffset);
+                        break;
+                }
 
-                return _service.GetEPGMultiChannelProgram(sEPGChannelID, sPicSize, oUnit, iFromOffset, iToOffset, iUTCOffSet);
+                loader.DeviceId = initObj.UDID;
+                loader.SiteGuid = initObj.SiteGuid;
+                sRet = (loader.Execute() as List<TVPPro.SiteManager.Objects.EPGMultiChannelProgrammeObject>).Select(p => p.ToApiObject()).ToList();
             }
+
             else
             {
                 throw new UnknownGroupException();
             }
+
+            return sRet;
         }
 
         public List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex)
@@ -119,9 +143,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
-
-                return _service.GetEPGProgramRules(MediaId, programId, sSiteGUID, SiteHelper.GetClientIP(), initObj.UDID);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetEPGProgramRules(MediaId, programId, sSiteGUID, SiteHelper.GetClientIP(), initObj.UDID);
             }
             else
             {
@@ -135,9 +157,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
-
-                return _service.GetEPGLicensedLink(sSiteGUID, mediaFileID, EPGItemID, startTime, basicLink, SiteHelper.GetClientIP(), refferer, countryCd2, languageCode3, deviceName, formatType);
+                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetEPGLicensedLink(sSiteGUID, mediaFileID, EPGItemID, startTime, basicLink, SiteHelper.GetClientIP(), refferer, countryCd2, languageCode3, deviceName, formatType);
             }
             else
             {

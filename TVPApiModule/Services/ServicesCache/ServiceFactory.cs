@@ -12,7 +12,7 @@ namespace TVPApiModule.Services
     public static class ServiceFactory
     {        
 
-        public static BaseService GetService(int groupId, PlatformType platform, string url, eService serviceType)
+        public static BaseService GetService(int groupId, PlatformType platform, string url, eService serviceType, string serviceUrl)
         {
             BaseService service = null;
 
@@ -49,18 +49,15 @@ namespace TVPApiModule.Services
                     break;
                 default:
                     break;
-            }
-
-            //WSHttpBinding bind = new WSHttpBinding();
-            
+            }            
 
             if (service != null)
             {
                 service.m_groupID = groupId;
                 service.m_platform = platform;
-            }
-
-            //System.Web.HttpContext.Current.Items.Add("m_wsUserName"
+                service.serviceKey = serviceUrl;
+                service.m_ServiceType = serviceType;
+            }            
 
             return service;
         }

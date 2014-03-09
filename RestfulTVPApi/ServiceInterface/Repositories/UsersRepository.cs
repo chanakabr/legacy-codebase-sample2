@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Xml;
-using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
@@ -25,9 +22,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                return _service.GetUsersData(siteGuids);
+                return ServicesManager.UsersService(groupID, initObj.Platform).GetUsersData(siteGuids);
             }
             else
             {
@@ -41,9 +36,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                return _service.SetUserData(siteGuid, userBasicData, userDynamicData);
+                return ServicesManager.UsersService(groupID, initObj.Platform).SetUserData(siteGuid, userBasicData, userDynamicData);
             }
             else
             {
@@ -53,98 +46,58 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<PermittedSubscriptionContainer> GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid)
         {
-            List<PermittedSubscriptionContainer> retVal = null;
-
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                retVal = _service.GetUserPermitedSubscriptions(siteGuid);
-                //var response = _service.GetUserPermitedSubscriptions(siteGuid);
-
-                //if (response != null)
-                //    retVal = response.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);             
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return retVal;
         }
 
         public List<PermittedSubscriptionContainer> GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int totalItems)
         {
-            List<PermittedSubscriptionContainer> retVal = null;
-
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                retVal = _service.GetUserExpiredSubscriptions(siteGuid, totalItems);
-                //var response = _service.GetUserExpiredSubscriptions(siteGuid, totalItems);
-
-                //if (response != null)
-                //    retVal = response.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserExpiredSubscriptions(siteGuid, totalItems);                
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return retVal;
         }
 
         public List<PermittedMediaContainer> GetUserPermittedItems(InitializationObject initObj, string siteGuid)
         {
-            List<PermittedMediaContainer> res = null;
-
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                res = _service.GetUserPermittedItems(siteGuid);
-                //var permitted = _service.GetUserPermittedItems(siteGuid);
-
-                //if (permitted != null)
-                //    res = permitted.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(siteGuid);              
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return res;
         }
 
         public List<PermittedMediaContainer> GetUserExpiredItems(InitializationObject initObj, string siteGuid, int totalItems)
         {
-            List<PermittedMediaContainer> res = null;
-
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                res = _service.GetUserExpiredItems(siteGuid, totalItems);
-                //var expired = _service.GetUserExpiredItems(siteGuid, totalItems);
-
-                //if (expired != null)
-                //    res = expired.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserExpiredItems(siteGuid, totalItems);               
             }
             else
             {
                 throw new UnknownGroupException();
             }
-
-            return res;
         }
 
         public UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
@@ -153,9 +106,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                return _service.SignUp(userBasicData, userDynamicData, sPassword, sAffiliateCode);
+                return ServicesManager.UsersService(groupID, initObj.Platform).SignUp(userBasicData, userDynamicData, sPassword, sAffiliateCode);
             }
             else
             {
@@ -170,14 +121,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                List<FavoriteObject> favoritesObj = _service.GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
-
-                //if (favoritesObj != null)
-                //    favoritesObj = favoritesObj.OrderByDescending(r => r.update_date.Date).ThenByDescending(r => r.update_date.TimeOfDay).ToList();
-
-                return favoritesObj;
+                return ServicesManager.UsersService(groupID, initObj.Platform).GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
             }
             else
             {
@@ -191,9 +135,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
-
-                return _service.GetUserGroupRules(siteGuid);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetUserGroupRules(siteGuid);
             }
             else
             {
@@ -207,9 +149,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
-
-                return _service.SetUserGroupRule(siteGuid, ruleID, PIN, isActive);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).SetUserGroupRule(siteGuid, ruleID, PIN, isActive);
             }
             else
             {
@@ -223,9 +163,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
-
-                return _service.CheckParentalPIN(siteGuid, ruleID, PIN);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).CheckParentalPIN(siteGuid, ruleID, PIN);
             }
             else
             {
@@ -239,9 +177,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                return _service.ChangeUserPassword(sUN, sOldPass, sPass);
+                return ServicesManager.UsersService(groupID, initObj.Platform).ChangeUserPassword(sUN, sOldPass, sPass);
             }
             else
             {
@@ -255,9 +191,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                return _service.RenewUserPassword(sUN, sPass);
+                return ServicesManager.UsersService(groupID, initObj.Platform).RenewUserPassword(sUN, sPass);
             }
             else
             {
@@ -271,9 +205,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                return _service.ActivateAccount(sUserName, sToken);
+                return ServicesManager.UsersService(groupID, initObj.Platform).ActivateAccount(sUserName, sToken);
             }
             else
             {
@@ -287,9 +219,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                return _service.ResendActivationMail(sUserName, sNewPassword);
+                return ServicesManager.UsersService(groupID, initObj.Platform).ResendActivationMail(sUserName, sNewPassword);
             }
             else
             {
@@ -303,9 +233,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                return _service.RenewUserPIN(siteGuid, ruleID);
+                return ServicesManager.UsersService(groupID, initObj.Platform).RenewUserPIN(siteGuid, ruleID);
             }
             else
             {
@@ -319,9 +247,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                return _service.SetUserTypeByUserID(siteGuid, nUserTypeID);
+                return ServicesManager.UsersService(groupID, initObj.Platform).SetUserTypeByUserID(siteGuid, nUserTypeID);
             }
             else
             {
@@ -335,9 +261,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupId, initObj.Platform);
-
-                return _service.ActivateAccountByDomainMaster(masterUserName, userName, token);
+                return ServicesManager.UsersService(groupId, initObj.Platform).ActivateAccountByDomainMaster(masterUserName, userName, token);
             }
             else
             {
@@ -351,9 +275,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupId, initObj.Platform);
-
-                return _service.AddItemToList(siteGuid, itemObjects, itemType, listType);
+                return ServicesManager.UsersService(groupId, initObj.Platform).AddItemToList(siteGuid, itemObjects, itemType, listType);
             }
             else
             {
@@ -367,9 +289,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupId, initObj.Platform);
-
-                return _service.GetItemFromList(siteGuid, itemObjects, itemType, listType);
+                return ServicesManager.UsersService(groupId, initObj.Platform).GetItemFromList(siteGuid, itemObjects, itemType, listType);
             }
             else
             {
@@ -383,9 +303,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupId, initObj.Platform);
-
-                return _service.IsItemExistsInList(siteGuid, itemObjects, itemType, listType);
+                return ServicesManager.UsersService(groupId, initObj.Platform).IsItemExistsInList(siteGuid, itemObjects, itemType, listType);
             }
             else
             {
@@ -399,9 +317,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupId, initObj.Platform);
-
-                return _service.RemoveItemFromList(siteGuid, itemObjects, itemType, listType);
+                return ServicesManager.UsersService(groupId, initObj.Platform).RemoveItemFromList(siteGuid, itemObjects, itemType, listType);
             }
             else
             {
@@ -415,9 +331,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupId, initObj.Platform);
-
-                return _service.UpdateItemInList(siteGuid, itemObjects, itemType, listType);
+                return ServicesManager.UsersService(groupId, initObj.Platform).UpdateItemInList(siteGuid, itemObjects, itemType, listType);
             }
             else
             {
@@ -431,9 +345,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
-
-                return _service.GetPrepaidBalance(siteGuid, currencyCode);
+                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetPrepaidBalance(siteGuid, currencyCode);
             }
             else
             {
@@ -495,9 +407,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                return _service.GetUserTransactionHistory(siteGuid, start_index, pageSize);
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserTransactionHistory(siteGuid, start_index, pageSize);
             }
             else
             {
@@ -511,9 +421,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                return _service.CC_ChargeUserForPrePaid(siteGuid, price, currency, productCode, ppvModuleCode, initObj.UDID);
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).CC_ChargeUserForPrePaid(siteGuid, price, currency, productCode, ppvModuleCode, initObj.UDID);
             }
             else
             {
@@ -527,9 +435,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                return _service.GetUsersBillingHistory(siteGuids, startDate, endDate);
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUsersBillingHistory(siteGuids, startDate, endDate);
             }
             else
             {
@@ -557,9 +463,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiBillingService _service = new ApiBillingService(groupID, initObj.Platform);
-
-                return _service.GetLastBillingUserInfo(siteGuid, billingMethod);
+                return ServicesManager.BillingService(groupID, initObj.Platform).GetLastBillingUserInfo(siteGuid, billingMethod);
             }
             else
             {
@@ -573,9 +477,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiBillingService _service = new ApiBillingService(groupID, initObj.Platform);
-
-                return _service.GetClientMerchantSig(sParamaters);
+                return ServicesManager.BillingService(groupID, initObj.Platform).GetClientMerchantSig(sParamaters);
             }
             else
             {
@@ -591,9 +493,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiUsersService _service = new ApiUsersService(groupID, initObj.Platform);
-
-                List<FavoriteObject> favoriteObjects = _service.GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
+                List<FavoriteObject> favoriteObjects = ServicesManager.UsersService(groupID, initObj.Platform).GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
 
                 if (favoriteObjects != null)
                     result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.item_code == y.ToString()).Count() > 0)).ToList();
@@ -633,9 +533,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupID, initObj.Platform);
-
-                return _service.CancelSubscription(siteGuid, sSubscriptionID, sSubscriptionPurchaseID);
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).CancelSubscription(siteGuid, sSubscriptionID, sSubscriptionPurchaseID); 
             }
             else
             {
@@ -649,9 +547,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiNotificationService _service = new ApiNotificationService(groupId, initObj.Platform);
-
-                return _service.GetDeviceNotifications(siteGuid, initObj.UDID, notificationType == NotificationMessageType.All ? NotificationMessageType.Pull : notificationType, viewStatus, messageCount);
+                return ServicesManager.NotificationService(groupId, initObj.Platform).GetDeviceNotifications(siteGuid, initObj.UDID, notificationType == NotificationMessageType.All ? NotificationMessageType.Pull : notificationType, viewStatus, messageCount);
             }
             else
             {
@@ -665,9 +561,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiNotificationService _service = new ApiNotificationService(groupId, initObj.Platform);
-
-                return _service.SetNotificationMessageViewStatus(siteGuid, notificationRequestID, notificationMessageID, viewStatus);
+                return ServicesManager.NotificationService(groupId, initObj.Platform).SetNotificationMessageViewStatus(siteGuid, notificationRequestID, notificationMessageID, viewStatus);
             }
             else
             {
@@ -681,9 +575,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiNotificationService _service = new ApiNotificationService(groupId, initObj.Platform);
-
-                return _service.GetUserStatusSubscriptions(siteGuid);
+                return ServicesManager.NotificationService(groupId, initObj.Platform).GetUserStatusSubscriptions(siteGuid);
             }
             else
             {
@@ -697,7 +589,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                return new ApiApiService(groupID, initObj.Platform).CleanUserHistory(siteGuid, mediaIDs);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).CleanUserHistory(siteGuid, mediaIDs);
             }
             else
             {
@@ -711,7 +603,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                return new ApiApiService(groupID, initObj.Platform).GetUserStartedWatchingMedias(siteGuid, numOfItems);
+                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetUserStartedWatchingMedias(siteGuid, numOfItems);
             }
             else
             {
@@ -725,7 +617,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                return new ApiUsersService(groupID, initObj.Platform).SentNewPasswordToUser(sUserName);
+                return ServicesManager.UsersService(groupID, initObj.Platform).SentNewPasswordToUser(sUserName);
             }
             else
             {
@@ -740,8 +632,8 @@ namespace RestfulTVPApi.ServiceInterface
             if (groupID > 0)
             {
                 bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                
-                return new ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(siteGuid, initObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);
+
+                return ServicesManager.UsersService(groupID, initObj.Platform).IsUserLoggedIn(siteGuid, initObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);
             }
             else
             {
@@ -755,7 +647,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                return new ApiUsersService(groupID, initObj.Platform).SetUserDynamicData(siteGuid, sKey, sValue);
+                return ServicesManager.UsersService(groupID, initObj.Platform).SetUserDynamicData(siteGuid, sKey, sValue);
             }
             else
             {
@@ -787,7 +679,7 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                 
-                new ApiUsersService(groupID, initObj.Platform).SignOut(siteGuid, initObj.UDID, string.Empty, isSingleLogin);
+                ServicesManager.UsersService(groupID, initObj.Platform).SignOut(siteGuid, initObj.UDID, string.Empty, isSingleLogin);
             }
             else
             {
@@ -801,9 +693,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.GetAllFriendsWatched(siteGuid, maxResult);
+                return ServicesManager.SocialService(groupId, initObj.Platform).GetAllFriendsWatched(siteGuid, maxResult);                
             }
             else
             {
@@ -817,9 +707,7 @@ namespace RestfulTVPApi.ServiceInterface
            
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.DoUserAction(siteGuid, initObj.UDID, userAction, extraParams, socialPlatform, assetType, assetID);
+                return ServicesManager.SocialService(groupId, initObj.Platform).DoUserAction(siteGuid, initObj.UDID, userAction, extraParams, socialPlatform, assetType, assetID);                
             }
             else
             {
@@ -833,9 +721,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.GetFriendsActions(siteGuid, userActions, assetType, assetID, startIndex, numOfRecords, socialPlatform);
+                return ServicesManager.SocialService(groupId, initObj.Platform).GetFriendsActions(siteGuid, userActions, assetType, assetID, startIndex, numOfRecords, socialPlatform);
             }
             else
             {
@@ -849,9 +735,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.GetUserActions(siteGuid, userAction, assetType, assetID, startIndex, numOfRecords, socialPlatform);
+                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserActions(siteGuid, userAction, assetType, assetID, startIndex, numOfRecords, socialPlatform);
             }
             else
             {
@@ -865,9 +749,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.GetUserAllowedSocialPrivacyList(siteGuid);
+                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserAllowedSocialPrivacyList(siteGuid);                
             }
             else
             {
@@ -881,9 +763,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.GetUserExternalActionShare(siteGuid, userAction, socialPlatform);
+                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserExternalActionShare(siteGuid, userAction, socialPlatform);
             }
             else
             {
@@ -897,9 +777,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.GetUserFriends(siteGuid);
+                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserFriends(siteGuid);
             }
             else
             {
@@ -913,9 +791,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.GetUserInternalActionPrivacy(siteGuid, userAction, socialPlatform);
+                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserInternalActionPrivacy(siteGuid, userAction, socialPlatform);
             }
             else
             {
@@ -929,9 +805,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.GetUserSocialPrivacy(siteGuid, socialPlatform, userAction);
+                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserSocialPrivacy(siteGuid, socialPlatform, userAction);
             }
             else
             {
@@ -945,9 +819,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.SetUserExternalActionShare(siteGuid, userAction, socialPlatform, actionPrivacy);
+                return ServicesManager.SocialService(groupId, initObj.Platform).SetUserExternalActionShare(siteGuid, userAction, socialPlatform, actionPrivacy);
             }
             else
             {
@@ -961,9 +833,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiSocialService _service = new ApiSocialService(groupId, initObj.Platform);
-
-                return _service.SetUserInternalActionPrivacy(siteGuid, userAction, socialPlatform, actionPrivacy);
+                return ServicesManager.SocialService(groupId, initObj.Platform).SetUserInternalActionPrivacy(siteGuid, userAction, socialPlatform, actionPrivacy);
             }
             else
             {
@@ -977,10 +847,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
-
-                return _service.AD_GetCustomDataID(siteGuid, price, currencyCode3, assetId, ppvModuleCode, campaignCode, couponCode, paymentMethod, SiteHelper.GetClientIP(), countryCd2, languageCode3, deviceName, assetType);
-            }
+                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).AD_GetCustomDataID(siteGuid, price, currencyCode3, assetId, ppvModuleCode, campaignCode, couponCode, paymentMethod, SiteHelper.GetClientIP(), countryCd2, languageCode3, deviceName, assetType);}
             else
             {
                 throw new UnknownGroupException();
@@ -993,9 +860,7 @@ namespace RestfulTVPApi.ServiceInterface
             
             if (groupId > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
-
-                return _service.GetCustomDataID(siteGuid, price, currencyCode3, assetId, ppvModuleCode, campaignCode, couponCode, paymentMethod, SiteHelper.GetClientIP(), countryCd2, languageCode3, deviceName, assetType, overrideEndDate);
+                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetCustomDataID(siteGuid, price, currencyCode3, assetId, ppvModuleCode, campaignCode, couponCode, paymentMethod, SiteHelper.GetClientIP(), countryCd2, languageCode3, deviceName, assetType, overrideEndDate);
             }
             else
             {
@@ -1009,9 +874,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiConditionalAccessService _service = new ApiConditionalAccessService(groupId, initObj.Platform);
-
-                return _service.InApp_ChargeUserForMediaFile(sSiteGUID, price, currency, productCode, ppvModuleCode, initObj.UDID, receipt);
+                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).InApp_ChargeUserForMediaFile(sSiteGUID, price, currency, productCode, ppvModuleCode, initObj.UDID, receipt);                
             }
             else
             {

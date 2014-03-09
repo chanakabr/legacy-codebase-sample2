@@ -442,6 +442,10 @@
       <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
       <Name>Localization</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TVPLibs\Logger\Logger.csproj">
+      <Project>{72228ef8-6afa-4c0c-9c8a-59eddac688fb}</Project>
+      <Name>Logger</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>

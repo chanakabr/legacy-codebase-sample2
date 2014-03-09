@@ -44,7 +44,8 @@ namespace RestfulTVPApi.ServiceInterface
             {
                 foreach (int subID in subIDs)
                 {
-                    var priceObj = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false);
+
+                    var priceObj = ServicesManager.PricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false);
 
                     res.Add(new SubscriptionPrice
                     {
@@ -70,7 +71,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                res = new ApiPricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).product_code;
+                res = ServicesManager.PricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).product_code;
             }
             else
             {
@@ -88,7 +89,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                ApiPricingService _service = new ApiPricingService(groupId, initObj.Platform);
+                ApiPricingService _service = ServicesManager.PricingService(groupId, initObj.Platform);
 
                 foreach (int subID in subIDs)
                 {
@@ -109,7 +110,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupId > 0)
             {
-                return new ApiConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPricesWithCoupon(sSubscriptions, sSiteGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPricesWithCoupon(sSubscriptions, sSiteGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
             }
             else
             {

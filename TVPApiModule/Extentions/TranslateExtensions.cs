@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVPApiModule.Objects;
+using TVPPro.SiteManager.Objects;
 
 namespace TVPApiModule.Extentions
 {
@@ -43,8 +44,9 @@ namespace TVPApiModule.Extentions
                     retVal.user.basic_data.first_name = response.m_user.m_oBasicData.m_sFirstName;
                     retVal.user.basic_data.last_name = response.m_user.m_oBasicData.m_sLastName;
                     retVal.user.basic_data.phone = response.m_user.m_oBasicData.m_sPhone;
-
-                    retVal.user.basic_data.state = response.m_user.m_oBasicData.m_State.ToApiObject();
+                    
+                    if (retVal.user.basic_data.state != null)
+                        retVal.user.basic_data.state = response.m_user.m_oBasicData.m_State.ToApiObject();
 
                     retVal.user.basic_data.user_name = response.m_user.m_oBasicData.m_sUserName;
                     retVal.user.basic_data.zip = response.m_user.m_oBasicData.m_sZip;
@@ -419,7 +421,7 @@ namespace TVPApiModule.Extentions
         //    return response;
         //}
 
-        public static TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject ToApiObject(this TVPPro.SiteManager.TvinciPlatform.api.EPGMultiChannelProgrammeObject response)
+        public static TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject ToApiObject(this TVPPro.SiteManager.Objects.EPGMultiChannelProgrammeObject response)
         {
             TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject retVal = new TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject();
 
@@ -1316,7 +1318,7 @@ namespace TVPApiModule.Extentions
             TVPApiModule.Objects.Responses.UIData retVal = new TVPApiModule.Objects.Responses.UIData();
 
             retVal.color_code = response.ColorCode;
-            retVal.pic_id = response.picID;
+            //retVal.pic_id = response.picID; // TODO: Check what are the changes regarding this parameter
 
             return retVal;
         }

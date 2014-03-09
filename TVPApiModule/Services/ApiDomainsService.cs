@@ -14,6 +14,7 @@ namespace TVPApiModule.Services
         #region Variables
         private static ILog logger = LogManager.GetLogger(typeof(ApiDomainsService));
 
+        #region Old Code - Will be removed later
         //private TVPPro.SiteManager.TvinciPlatform.Domains.module m_Module;
 
         //private string m_wsUserName = string.Empty;
@@ -21,6 +22,7 @@ namespace TVPApiModule.Services
 
         //private int m_groupID;
         //private PlatformType m_platform;
+        #endregion
 
         #endregion
 
@@ -42,6 +44,18 @@ namespace TVPApiModule.Services
 
         #endregion
 
+        #region Properties
+
+        protected TVPPro.SiteManager.TvinciPlatform.Domains.module Domains
+        {
+            get
+            {
+                return (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module);
+            }
+        }
+
+        #endregion
+
         //#region Public Static Functions
 
         //public static ApiDomainsService Instance(int groupId, PlatformType platform)
@@ -51,32 +65,18 @@ namespace TVPApiModule.Services
 
         //#endregion
 
-        public object Execute(Func<object> func)
-        {
-            try
-            {
-                return func();
-            }
-            catch
-            {
-                return func();
-            }
-        }
-
-
         public TVPApiModule.Objects.Responses.DomainResponseObject AddUserToDomain(int domainID, string masterSiteGuid, int AddedUserGuid)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, int.Parse(masterSiteGuid), false);
-                if (res != null)
-                    domain = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : AddUserToDomain, Error Message: {0} Parameters: AddedUserGuid: {1}, masterSiteGuid: {2}", ex.Message, AddedUserGuid, masterSiteGuid);
-            }
+
+            domain = Execute(() =>
+                {
+                    var res = Domains.AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, int.Parse(masterSiteGuid), false);
+                    if (res != null)
+                        domain = res.ToApiObject();
+
+                    return domain;
+                }) as DomainResponseObject;
 
             return domain;
         }
@@ -85,16 +85,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, userGuidToRemove);
-                if (res != null)
-                    domain = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : RemoveUserFromDomain, Error Message: {0} Parameters: iDomainID: {1}, userGuidToRemove: {2}", ex.Message, iDomainID, userGuidToRemove);
-            }
+            domain = Execute(() =>
+                {
+                    var res = Domains.RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, userGuidToRemove);
+                    if (res != null)
+                        domain = res.ToApiObject();
+
+                    return domain;
+                }) as DomainResponseObject;
 
             return domain;
         }
@@ -103,16 +101,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
-            try
+            domain = Execute(() =>
             {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).AddDeviceToDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID, sDeviceName, iDeviceBrandID);
+                var res = Domains.AddDeviceToDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID, sDeviceName, iDeviceBrandID);
                 if (res != null)
                     domain = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : AddDeviceToDomain, Error Message: {0} Parameters: iDomainID: {1}, sUDID: {2}, sDeviceName: {3}, iDeviceBrandID: {4}", ex.Message, iDomainID, sUDID, sDeviceName, iDeviceBrandID);
-            }
+
+                return domain;
+            }) as DomainResponseObject;
 
             return domain;
         }
@@ -121,16 +117,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).RemoveDeviceFromDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID);
-                if (res != null)
-                    domain = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : AddDeviceToDomain, Error Message: {0} Parameters: iDomainID: {1}, sUDID: {2}, sDeviceName: {3}, iDeviceBrandID: {4}", ex.Message, iDomainID, sUDID);
-            }
+            domain = Execute(() =>
+                {
+                    var res = Domains.RemoveDeviceFromDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID);
+                    if (res != null)
+                        domain = res.ToApiObject();
+
+                    return domain;
+                }) as DomainResponseObject;
 
             return domain;
         }
@@ -139,16 +133,14 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).ChangeDeviceDomainStatus(m_wsUserName, m_wsPassword, iDomainID, sUDID, bActive);
-                if (res != null)
-                    domain = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : ChangeDeviceDomainStatus, Error Message: {0} Parameters: iDomainID: {1}, bActive: {2}", ex.Message, iDomainID, sUDID, bActive);
-            }
+            domain = Execute(() =>
+                {
+                    var res = Domains.ChangeDeviceDomainStatus(m_wsUserName, m_wsPassword, iDomainID, sUDID, bActive);
+                    if (res != null)
+                        domain = res.ToApiObject();
+
+                    return domain;
+                }) as DomainResponseObject;
 
             return domain;
         }
@@ -159,11 +151,7 @@ namespace TVPApiModule.Services
 
             domain = Execute(() =>
                 {
-                    //TVPApiModule.Objects.Responses.Domain domain = null;
-
-
-                    //var res = m_Module.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
-                    var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
+                    var res = Domains.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
                     if (res != null)
                         domain = res.ToApiObject();
 
@@ -171,38 +159,20 @@ namespace TVPApiModule.Services
                 }) as TVPApiModule.Objects.Responses.Domain;
 
             return domain;
-
-            //TVPApiModule.Objects.Responses.Domain domain = null;
-
-            //try
-            //{
-            //    //var res = m_Module.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
-            //    var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
-            //    if (res != null)
-            //        domain = res.ToApiObject();
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.ErrorFormat("Error calling webservice protocol : GetDomainInfo, Error Message: {0} Parameters: iDomainID: {1}", ex.Message, iDomainID);
-            //}
-
-            //return domain;
         }
 
         public TVPApiModule.Objects.Responses.DomainResponseObject SetDomainInfo(int iDomainID, string sDomainName, string sDomainDescription)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject domain = null;
 
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).SetDomainInfo(m_wsUserName, m_wsPassword, iDomainID, sDomainName, sDomainDescription);
-                if (res != null)
-                    domain = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SetDomainInfo, Error Message: {0} Parameters: iDomainID: {1}, sDomainName: {2}, sDomainDescription: {3}", ex.Message, iDomainID, sDomainName, sDomainDescription);
-            }
+            domain = Execute(() =>
+                {
+                    var res = Domains.SetDomainInfo(m_wsUserName, m_wsPassword, iDomainID, sDomainName, sDomainDescription);
+                    if (res != null)
+                        domain = res.ToApiObject();
+
+                    return domain;
+                }) as DomainResponseObject;
 
             return domain;
         }
@@ -211,26 +181,24 @@ namespace TVPApiModule.Services
         {
             List<DeviceDomain> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).GetDeviceDomains(m_wsUserName, m_wsPassword, udid);
-
-                if (response != null)
+            retVal = Execute(() =>
                 {
-                    IEnumerable<TVPApiModule.Objects.Responses.Domain> domains = response.Where(d => d != null).Select(d => d.ToApiObject());
+                    var response = Domains.GetDeviceDomains(m_wsUserName, m_wsPassword, udid);
 
-                    retVal = domains.Select(m => new DeviceDomain()
+                    if (response != null)
                     {
-                        domain_id = m.domain_id,
-                        domain_name = m.name,
-                        site_guid = m.master_guids[0].ToString()
-                    }).ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetDeviceDomains, Error Message: {0} Parameters: udid: {1}", ex.Message, udid);
-            }
+                        IEnumerable<TVPApiModule.Objects.Responses.Domain> domains = response.Where(d => d != null).Select(d => d.ToApiObject());
+
+                        retVal = domains.Select(m => new DeviceDomain()
+                        {
+                            domain_id = m.domain_id,
+                            domain_name = m.name,
+                            site_guid = m.master_guids[0].ToString()
+                        }).ToList();
+                    }
+
+                    return retVal;
+                }) as List<DeviceDomain>;
 
             return retVal;
         }
@@ -239,14 +207,10 @@ namespace TVPApiModule.Services
         {
             string pin = string.Empty;
 
-            try
-            {
-                pin = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).GetPINForDevice(m_wsUserName, m_wsPassword, udid, devBrandID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetPINForDevice, Error Message: {0} Parameters: udid: {1}, brand: {2}", ex.Message, udid, devBrandID);
-            }
+            pin = Execute(() =>
+                {
+                    return Domains.GetPINForDevice(m_wsUserName, m_wsPassword, udid, devBrandID);
+                }) as string;
 
             return pin;
         }
@@ -254,16 +218,15 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.DeviceResponseObject RegisterDeviceByPIN(string udid, int domainID, string pin)
         {
             TVPApiModule.Objects.Responses.DeviceResponseObject device = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).RegisterDeviceToDomainWithPIN(m_wsUserName, m_wsPassword, pin, domainID, string.Empty);
-                if (res != null)
-                    device = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : RegisterDeviceByPIN, Error Message: {0} Parameters: udid: {1}, pin: {2}", ex.Message, udid, pin);
-            }
+
+            device = Execute(() =>
+                {
+                    var res = Domains.RegisterDeviceToDomainWithPIN(m_wsUserName, m_wsPassword, pin, domainID, string.Empty);
+                    if (res != null)
+                        device = res.ToApiObject();
+
+                    return device;
+                }) as DeviceResponseObject;
 
             return device;
         }
@@ -271,16 +234,15 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.DomainResponseObject ResetDomain(int domainID)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).ResetDomain(m_wsUserName, m_wsPassword, domainID);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : RegisterDeviceByPIN, Error Message: {0} Parameters: domainID: {1}", ex.Message, domainID);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Domains.ResetDomain(m_wsUserName, m_wsPassword, domainID);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as DomainResponseObject;
 
             return response;
         }
@@ -288,31 +250,26 @@ namespace TVPApiModule.Services
         public bool SetDeviceInfo(string udid, string deviceName)
         {
             bool response = false;
-            try
-            {
-                response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).SetDeviceInfo(m_wsUserName, m_wsPassword, udid, deviceName);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SetDeviceInfo, Error Message: {0} Parameters: udid: {1}", ex.Message, udid);
-            }
 
+            response = Convert.ToBoolean(Execute(() =>
+                {
+                    return Domains.SetDeviceInfo(m_wsUserName, m_wsPassword, udid, deviceName);                    
+                }));
             return response;
         }
 
         public TVPApiModule.Objects.Responses.DomainResponseObject AddDomain(string domainName, string domainDesc, int masterGuid)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).AddDomain(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : AddDomain, Error Message: {0} Parameters: masterGuid: {1}", ex.Message, masterGuid);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Domains.AddDomain(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as DomainResponseObject;
 
             return response;
         }
@@ -320,76 +277,81 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.DomainResponseObject AddDomainWithCoGuid(string domainName, string domainDesc, int masterGuid, string CoGuid)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).AddDomainWithCoGuid(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid, CoGuid);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : AddDomainWithCoGuid, Error Message: {0} Parameters: masterGuid: {1}", ex.Message, masterGuid);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Domains.AddDomainWithCoGuid(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid, CoGuid);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as DomainResponseObject;
+
             return response;
         }
 
         public string GetDomainCoGuid(int nDomainID)
         {
             string resp = string.Empty;
-            try
-            {
-                //resp = m_Module.GetDomainCoGuid(m_wsUserName, m_wsPassword, nDomainID);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetDomainCoGuid, Error Message: {0} Parameters: masterGuid: {1}", ex.Message, nDomainID);
-            }
+
+            resp = Execute(() =>
+                {
+                    try
+                    {
+                        //resp = m_Module.GetDomainCoGuid(m_wsUserName, m_wsPassword, nDomainID);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorFormat("Error calling webservice protocol : GetDomainCoGuid, Error Message: {0} Parameters: masterGuid: {1}", ex.Message, nDomainID);
+                    }
+                    return resp;
+                }) as string;
+
             return resp;
         }
 
         public TVPApiModule.Objects.Responses.DomainResponseObject GetDomainByCoGuid(string coGuid)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject response = null;
-            try
-            {
-                var res = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).GetDomainByCoGuid(m_wsUserName, m_wsPassword, coGuid);
-                if (res != null)
-                    response = res.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetDomainByCoGuid, Error Message: {0} Parameters: coGuid: {1}", ex.Message, coGuid);
-            }
+
+            response = Execute(() =>
+                {
+                    var res = Domains.GetDomainByCoGuid(m_wsUserName, m_wsPassword, coGuid);
+                    if (res != null)
+                        response = res.ToApiObject();
+
+                    return response;
+                }) as DomainResponseObject;
+
             return response;
         }
 
         public int GetDomainIDByCoGuid(string coGuid)
         {
             int domainID = 0;
-            try
-            {
-                domainID = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).GetDomainIDByCoGuid(m_wsUserName, m_wsPassword, coGuid);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : GetDomainIDByCoGuid, Error Message: {0} Parameters: coGuid: {1}", ex.Message, coGuid);
-            }
+
+            domainID = Convert.ToInt32(Execute(() =>
+                {
+                    domainID = Domains.GetDomainIDByCoGuid(m_wsUserName, m_wsPassword, coGuid);
+                    return domainID;
+                }));
+
             return domainID;
         }
 
         public TVPApiModule.Objects.Responses.DomainResponseObject SubmitAddUserToDomainRequest(string siteGuid, string masterUsername)
         {
             TVPApiModule.Objects.Responses.DomainResponseObject res = null;
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).SubmitAddUserToDomainRequest(m_wsUserName, m_wsPassword, int.Parse(siteGuid), masterUsername);
-                if (response != null)
-                    res = response.ToApiObject();
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : SubmitAddUserToDomainRequest, Error Message: {0} Parameters: siteGuid: {1}", ex.Message, siteGuid);
-            }
+
+            res = Execute(() =>
+                {
+                    var response = Domains.SubmitAddUserToDomainRequest(m_wsUserName, m_wsPassword, int.Parse(siteGuid), masterUsername);
+                        if (response != null)
+                            res = response.ToApiObject();
+                    
+                    return res;
+                }) as DomainResponseObject;
+
             return res;
         }
 
@@ -397,14 +359,12 @@ namespace TVPApiModule.Services
         {
             TVPApiModule.Objects.Responses.DomainResponseStatus response = TVPApiModule.Objects.Responses.DomainResponseStatus.UnKnown;
 
-            try
-            {
-                response = (TVPApiModule.Objects.Responses.DomainResponseStatus)(m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).RemoveDomain(m_wsUserName, m_wsPassword, domainID);
-            }
-            catch (Exception e)
-            {
-                logger.ErrorFormat("Error in RemoveDomain, Error : {0} Parameters : Domain ID: {1}", e.Message, domainID);
-            }
+            response = (TVPApiModule.Objects.Responses.DomainResponseStatus)Enum.Parse(typeof(TVPApiModule.Objects.Responses.DomainResponseStatus), Execute(() =>
+                {
+                    response = (TVPApiModule.Objects.Responses.DomainResponseStatus)Domains.RemoveDomain(m_wsUserName, m_wsPassword, domainID);
+                    
+                    return response;
+                }).ToString());
 
             return response;
         }
@@ -413,24 +373,16 @@ namespace TVPApiModule.Services
         {
             List<int> retVal = null;
 
-            try
-            {
-                var response = (m_Module as TVPPro.SiteManager.TvinciPlatform.Domains.module).GetDomainIDsByOperatorCoGuid(m_wsUserName, m_wsPassword, operatorCoGuid);
-                
-                if (response != null)
-                    retVal = response.ToList();
-            }
-            catch (Exception e)
-            {
-                logger.ErrorFormat("Error in GetDomainIDsByOperatorCoGuid, Error : {0} Parameters : operatorCoGuid: {1}", e.Message, operatorCoGuid);
-            }
+            retVal = Execute(() =>
+                {
+                    var response = Domains.GetDomainIDsByOperatorCoGuid(m_wsUserName, m_wsPassword, operatorCoGuid);
+                    if (response != null)
+                        retVal = response.ToList();
+
+                    return retVal;
+                }) as List<int>;
 
             return retVal;
-        }
-
-        public void Test()
-        {
-            //Assembly assembly = Assembly.LoadFrom(
-        }
+        }        
     }
 }

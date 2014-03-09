@@ -4,7 +4,7 @@ using RestfulTVPApi.ServiceModel;
 namespace RestfulTVPApi.ServiceInterface
 {
 
-    //[RequiresAuthentication]
+    [RequiresAuthentication]
     [RequiresInitializationObject]
     public class DomainService : Service
     {
@@ -38,7 +38,7 @@ namespace RestfulTVPApi.ServiceInterface
         //}
 
         public object Get(GetDomainInfoRequest request)
-        {
+        {            
             return _repository.GetDomainInfo(request.InitObj, request.domain_id);
         }
 
@@ -186,11 +186,7 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.RemoveUserFromDomain(request.InitObj, request.site_guid, request.domain_id);
         }
 
-        #endregion
-
-
-
-        
+        #endregion        
 
         #endregion
     }
