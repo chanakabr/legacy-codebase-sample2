@@ -2118,7 +2118,7 @@ namespace ConditionalAccess
                             nMaxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
                             sCustomData = GetCustomDataForMPPRenewal(theSub, AppUsageModule, p, sSubscriptionCode,
-                                sSiteGUID, dPrice, sCustomData, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                         }
                         else
