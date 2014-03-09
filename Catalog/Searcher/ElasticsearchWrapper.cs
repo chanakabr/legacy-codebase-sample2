@@ -42,8 +42,23 @@ namespace Catalog
             int nParentGroupID = oGroup.m_nParentGroupID;
 
             ESMediaQueryBuilder queryParser = new ESMediaQueryBuilder(nGroupID, oSearch);
-            queryParser.PageIndex = oSearch.m_nPageIndex;
-            queryParser.PageSize = oSearch.m_nPageSize;
+
+
+            int nPageIndex = 0;
+            int nPageSize = 0;
+            if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
+                          || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+            {
+                nPageIndex = oSearch.m_nPageIndex;
+                nPageSize = oSearch.m_nPageSize;
+                queryParser.PageIndex = 0;
+                queryParser.PageSize = 0;
+            }
+            else
+            {
+                queryParser.PageIndex = oSearch.m_nPageIndex;
+                queryParser.PageSize = oSearch.m_nPageSize;
+            }
 
             queryParser.QueryType = (oSearch.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
 
@@ -78,6 +93,16 @@ namespace Catalog
 
                             Dictionary<int, SearchResult> dItems = oRes.m_resultIDs.ToDictionary(item => item.assetID);
                             oRes.m_resultIDs.Clear();
+
+                            int nValidNumberOfMediasRange = nPageSize;
+                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(lMediaIds.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                            {
+                                if (nValidNumberOfMediasRange > 0)
+                                {
+                                    lMediaIds = lMediaIds.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                                }
+                            }
+
                             SearchResult oTemp;
                             foreach (int mediaID in lMediaIds)
                             {
@@ -198,7 +223,6 @@ namespace Catalog
 
                     queryBuilder.m_nGroupID = searchObj.m_nGroupId;
                     searchObj.m_nPageSize = 0;
-                    searchObj.m_sMediaTypes = sMediaTypes;
                     queryBuilder.oSearchObject = searchObj;
                     queryBuilder.QueryType = (searchObj.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
                     tempQuery = queryBuilder.BuildChannelFilteredQuery();

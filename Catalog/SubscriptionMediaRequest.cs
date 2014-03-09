@@ -53,21 +53,10 @@ namespace Catalog
                 if (groupInCache != null)
                 {
                     List<int> channelIds = Catalog.GetSubscriptionChannelIds(groupInCache.m_nParentGroupID, request.m_nSubscriptionID);
-                    List<Channel> allChannels = Utils.GetChannelsFromCache(request.m_nGroupID, channelIds);
-
+                    List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                     if (channelIds != null && channelIds.Count > 0)
                     {
-                        #region  Get Channel Object per channelID
-                        // Buils search Object per channelId call Lucene to return true/false result
-                        ConcurrentDictionary<int, Channel> dChannel = groupInCache.m_oGroupChannels;
-                        foreach (int channelID in channelIds)
-                        {
-                            if (dChannel.ContainsKey(channelID))
-                                allChannels.Add(dChannel[channelID]);
-                        }
-                        #endregion
-
                         if (allChannels.Count > 0)
                         {
                             List<MediaSearchObj> channelsSearchObjects = new List<MediaSearchObj>();

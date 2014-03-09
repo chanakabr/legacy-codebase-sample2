@@ -73,7 +73,7 @@ namespace Catalog
                         if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                         {
                             // Buils search Object per channelId call Searcher to return true/false result
-                            List<Channel> allChannels = Utils.GetChannelsFromCache(request.m_nGroupID, channelIds);
+                            List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                             //    Build search object per channel
                             if (allChannels != null && allChannels.Count > 0)
