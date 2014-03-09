@@ -10,14 +10,9 @@ using System.Web;
 namespace TVinciShared
 {
     public class CouchBaseManipulator : DBManipulator
-    {
-        public static int DoTheWork(ref EpgCB epg, Dictionary<int, string> dMetaTyps, Dictionary<int, string> dTagTyps)
-        {
-            return DoTheWork("", ref epg, dMetaTyps, dTagTyps);           
-        }
-
+    {       
         //updates the epg object and returns its ID 
-        public static int DoTheWork(string sConnectionKey, ref EpgCB epg, Dictionary<int, string> dMetaTyps, Dictionary<int, string> dTagTyps)
+        public static int DoTheWork(ref EpgCB epg, Dictionary<int, string> dMetaTyps, Dictionary<int, string> dTagTyps)
         {
             int nID = 0;
             NameValueCollection coll = HttpContext.Current.Request.Form;
@@ -256,8 +251,7 @@ namespace TVinciShared
                         }
 
                         else if (sFieldName.Trim().ToLower() == "name" && (sType == "string" || sType == "long_string"))
-                        {
-                            bValid = validateParam("string", sVal, -1, -1);
+                        {                            
                             epg.Name = DBStrEncode(sVal);
                         }
                         else if (sFieldName.Trim().ToLower() == "start_date" && sType == "datetime")
@@ -281,13 +275,11 @@ namespace TVinciShared
 
                         }
                         else if (sFieldName.Trim().ToLower() == "description" && (sType == "string" || sType == "long_string"))
-                        {
-                            bValid = validateParam("string", sVal, -1, -1);
+                        {                           
                             epg.Description = DBStrEncode(sVal);
                         }
                         else if (sFieldName.Trim().ToLower() == "epg_identifier" && (sType == "string" || sType == "long_string"))
-                        {
-                            bValid = validateParam("string", sVal, -1, -1);
+                        {                          
                             epg.EpgIdentifier = DBStrEncode(sVal);
                         }
                         else if (sFieldName.Trim().ToLower() == "media_id" && sType == "int")
@@ -340,24 +332,7 @@ namespace TVinciShared
             string sDirectory = "";
             if (coll[nCounter.ToString() + "_directory"] != null)
                 sDirectory = coll[nCounter.ToString() + "_directory"].ToString();
-
-            string ratioIndex = "";
-            if (coll[nCounter.ToString() + "_ratioIndex"] != null)
-            {
-                ratioIndex = coll[nCounter.ToString() + "_ratioIndex"].ToString();
-                Logger.Logger.Log("Ratio index found", "Ratio index is " + ratioIndex, "Ratio");
-            }
-
-            string selectedRatioVal = "";
-            if (coll[ratioIndex + "_val"] != null && coll[ratioIndex + "_val"].Trim().ToString() != "")
-            {
-                selectedRatioVal = coll[ratioIndex + "_val"].Trim().ToString();
-                Logger.Logger.Log("Selected Ratio Found", "Selected Ratio is :" + selectedRatioVal, "Ratio");
-            }
-            else
-            {
-                Logger.Logger.Log("Selected Ratio Not Found", "ratio index is :" + ratioIndex, "Ratio");
-            } 
+                        
             #endregion
 
             //check if the file is an image file
@@ -399,45 +374,22 @@ namespace TVinciShared
                     theFile.SaveAs(sTmpImage);
                     UploadPicToGroup(nGroupID, sTmpImage);
 
-                    #region Resize according to Ratio                        
+                    #region Upload different sizes                        
                     int nI = 0;
                     bool bCont1 = true;
                     while (bCont1 && sPicBaseName != "")
                     {
                         if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
                             coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
-                        {
-                            bool isResize = true;
-                            string sRatio = string.Empty;
+                        {                           
                             string sWidth = coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].ToString();
                             string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
                             string sEndName = coll[nCounter.ToString() + "_picDim_endname_" + nI.ToString()].ToString();
                             string sCropName = coll[nCounter.ToString() + "_crop_" + nI.ToString()].ToString();
                             string sTmpImage1 = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
-                            if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
-                            coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
-                            {
-                                sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
-                                Logger.Logger.Log("Ratio found", "Ratio is :" + sRatio, "Ratio");
-                                if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
-                                {
-                                    Logger.Logger.Log("Ratio un-matched", sTmpImage1, "Ratio");
-                                    isResize = false;
-                                }
-                                else
-                                {
-                                    Logger.Logger.Log("Ratio matched", sTmpImage1, "Ratio");
-                                }
-                            }
-                            else
-                            {
-                                Logger.Logger.Log("Ratio not found", sTmpImage1, "Ratio");
-                            }
-                            if (isResize)
-                            {
-                                ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
-                                UploadPicToGroup(nGroupID, sTmpImage);
-                            }
+                            
+                            ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
+                            UploadPicToGroup(nGroupID, sTmpImage);                            
                             nI++;
                         }
                         else
