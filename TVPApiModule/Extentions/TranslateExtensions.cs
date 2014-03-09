@@ -45,7 +45,8 @@ namespace TVPApiModule.Extentions
                     retVal.user.basic_data.last_name = response.m_user.m_oBasicData.m_sLastName;
                     retVal.user.basic_data.phone = response.m_user.m_oBasicData.m_sPhone;
                     
-                    retVal.user.basic_data.state = response.m_user.m_oBasicData.m_State.ToApiObject();
+                    if (retVal.user.basic_data.state != null)
+                        retVal.user.basic_data.state = response.m_user.m_oBasicData.m_State.ToApiObject();
 
                     retVal.user.basic_data.user_name = response.m_user.m_oBasicData.m_sUserName;
                     retVal.user.basic_data.zip = response.m_user.m_oBasicData.m_sZip;

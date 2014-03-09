@@ -50,11 +50,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);
-                //var response = _service.GetUserPermitedSubscriptions(siteGuid);
-
-                //if (response != null)
-                //    retVal = response.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);             
             }
             else
             {
@@ -68,12 +64,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserExpiredSubscriptions(siteGuid, totalItems);
-                
-                //var response = _service.GetUserExpiredSubscriptions(siteGuid, totalItems);
-
-                //if (response != null)
-                //    retVal = response.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserExpiredSubscriptions(siteGuid, totalItems);                
             }
             else
             {
@@ -87,12 +78,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(siteGuid);
-                
-                //var permitted = _service.GetUserPermittedItems(siteGuid);
-
-                //if (permitted != null)
-                //    res = permitted.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(siteGuid);              
             }
             else
             {
@@ -106,11 +92,7 @@ namespace RestfulTVPApi.ServiceInterface
 
             if (groupID > 0)
             {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserExpiredItems(siteGuid, totalItems);
-                //var expired = _service.GetUserExpiredItems(siteGuid, totalItems);
-
-                //if (expired != null)
-                //    res = expired.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserExpiredItems(siteGuid, totalItems);               
             }
             else
             {
@@ -140,8 +122,6 @@ namespace RestfulTVPApi.ServiceInterface
             if (groupID > 0)
             {
                 return ServicesManager.UsersService(groupID, initObj.Platform).GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
-                //if (favoritesObj != null)
-                //    favoritesObj = favoritesObj.OrderByDescending(r => r.update_date.Date).ThenByDescending(r => r.update_date.TimeOfDay).ToList();
             }
             else
             {

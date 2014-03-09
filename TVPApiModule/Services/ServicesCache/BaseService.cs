@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Logger;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web;
 using TVPApiModule.Context;
 using TVPApiModule.Objects;
 
@@ -61,17 +63,21 @@ namespace TVPApiModule.Services
         public object Execute(Func<object> funcToExecute)
         {
             object result = null;
-
+            BaseLog executionLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
         Operate:
             {
+                executionLog.Method = funcToExecute.Method.Name;
+                executionLog.UserAgent = HttpContext.Current.Request.UserAgent;
+                executionLog.IP = HttpContext.Current.Request.UserHostAddress;
                 try
                 {
                     result = funcToExecute();
                     m_FailOverCounter = 0;
-                    // TODO: Write a log that indicates the function succeeded running - get the function name
+                    executionLog.Info(string.Format("Function {0} execution succeeded", executionLog.Method), true);
                 }
                 catch (TimeoutException timeout) // Catches services operations exceptions
                 {
+                    executionLog.Error(string.Format("Service failed to operate {0} due to error: {1}", executionLog.Method, timeout.Message), true);
                     m_FailOverCounter++;
                     if (m_FailOverCounter < ServicesManager.Instance.FailOverLimit)
                     {
@@ -93,6 +99,8 @@ namespace TVPApiModule.Services
                     else
                     {
                         // TODO: Write Log that we reached the limit of failures
+                        executionLog.Error(string.Format("Service reached the limit of attemps. Service reset is invoked"), true);
+
                         // Reset Service
                         lock (this.lockObject)
                         {
@@ -102,7 +110,7 @@ namespace TVPApiModule.Services
                 }
                 catch (Exception ex) // Catches logic exceptions from backend
                 {
-                    // TODO: Write log exception message
+                    executionLog.Error(string.Format("Error occured in {0} call due to the following error: {1}", executionLog.Method, ex.Message), true);
                 }
             }
 
