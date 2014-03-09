@@ -502,7 +502,7 @@ namespace DAL
         public static DataSet Get_M1GroupParameters(int? nGroupID, string appID)
         {
             ODBCWrapper.StoredProcedure spGetM1GroupParameters = new ODBCWrapper.StoredProcedure("Get_M1GroupParameters");
-            spGetM1GroupParameters.SetConnectionKey("CONNECTION_STRING");
+            spGetM1GroupParameters.SetConnectionKey("BILLING_CONNECTION_STRING");
             spGetM1GroupParameters.AddNullableParameter<int?>("@GroupID", nGroupID);
             spGetM1GroupParameters.AddNullableParameter<string>("@AppID", appID);
 
