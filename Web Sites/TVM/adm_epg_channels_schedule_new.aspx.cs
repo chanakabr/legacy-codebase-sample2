@@ -185,14 +185,16 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
     {
         Dictionary<int, string> result = new Dictionary<int, string>();        
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += " select ID, name from";
         if (isMeta)
         {
-            selectQuery += " select ID, name from epg_metas_types where status=1 and type = 2 and";
+            selectQuery += "epg_metas_types";
         }
         else
         {
-            selectQuery += " select ID, name from EPG_tags_types where status=1 and ";
+            selectQuery += "EPG_tags_types";
         }
+        selectQuery += "where status=1 and";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
 
         if (!isMeta)
