@@ -380,7 +380,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Does a user requested action")]
-        public string DoUserAction(InitializationObject initObj, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
+        public DoSocialActionResponse DoUserAction(InitializationObject initObj, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "DoUserAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
@@ -388,7 +388,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.DoUserAction(initObj.SiteGuid, initObj.UDID, userAction, extraParams, socialPlatform, assetType, assetID).ToString();
+                    return service.DoUserAction(initObj.SiteGuid, initObj.UDID, userAction, extraParams, socialPlatform, assetType, assetID);
                 }
                 catch (Exception ex)
                 {
@@ -396,7 +396,7 @@ namespace TVPApiServices
                 }
             }
             HttpContext.Current.Items.Add("Error", "Unknown group");
-            return SocialActionResponseStatus.ERROR.ToString();
+            return new DoSocialActionResponse(){ m_eActionResponseStatusExtern = SocialActionResponseStatus.ERROR, m_eActionResponseStatusIntern = SocialActionResponseStatus.ERROR};
         }
 
         [WebMethod(EnableSession = true, Description = "Gets User Facebook Action Privacy")]

@@ -53,7 +53,7 @@ namespace TVPApiServices
         UserSocialActionObject[] GetFriendsActions(InitializationObject initObj, string[] userActions, eAssetType assetType ,int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform);
 
         [OperationContract]
-        string DoUserAction(InitializationObject initObj, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID);
+        DoSocialActionResponse DoUserAction(InitializationObject initObj, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID);
 
         [OperationContract]
         string GetUserExternalActionShare(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform);
