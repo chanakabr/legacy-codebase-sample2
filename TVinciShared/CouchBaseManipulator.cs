@@ -459,7 +459,7 @@ namespace TVinciShared
             }
         }
 
-        private static string getEpgPicUrl(int nID)
+        public static string getEpgPicUrl(int nID)
         {
             string sResult = "";
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
