@@ -150,7 +150,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Remove device from domain")]
-        public DomainResponseObject RemoveDeviceFromDomain(InitializationObject initObj, int domainID, string sDeviceName, int iDeviceBrandID)
+        public DomainResponseObject RemoveDeviceFromDomain(InitializationObject initObj, int domainID, string sDeviceName, int iDeviceBrandID, string sUdid)
         {
             DomainResponseObject resDomain = null;
 
@@ -160,7 +160,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, initObj.UDID);
+                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, sUdid);
                 }
                 catch (Exception ex)
                 {
