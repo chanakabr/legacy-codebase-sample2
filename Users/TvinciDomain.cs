@@ -255,14 +255,6 @@ namespace Users
             //New domain
             Domain domain = DomainFactory.GetDomain(nGroupID, nDomainID);
 
-            // If given username and user adding the device is not Master
-            if ((domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0) &&
-                (!domain.m_masterGUIDs.Contains(nUserID) && !domain.m_masterGUIDs.Contains(nUserID)))
-            {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.ActionUserNotMaster);
-                return oDomainResponseObject;
-            }
-
             Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
 
             // If domain is restricted and action user is the master, just add the device
