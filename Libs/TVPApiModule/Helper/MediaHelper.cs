@@ -590,7 +590,7 @@ namespace TVPApi
         public static List<Media> GetPeopleWhoWatchedList(InitializationObject initObj, long mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID)
         {
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByMediaType(mediaType);
-            return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.PeopleWhoWatched, OrderBy.None);
+            return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, account.BaseGroupID, LoaderType.PeopleWhoWatched, OrderBy.None);
         }
 
         public static List<Media> GetUserSocialMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int groupID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction socialAction, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
