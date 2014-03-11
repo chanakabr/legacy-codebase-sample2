@@ -327,7 +327,7 @@ namespace Tvinci.Core.DAL
 
         public static void Insert_NewMediaEoh(int nWatcherID, string sSessionID, int nGroupID, int nOwnerGroupID, int nMediaID, int nMediaFileID, int nBillingTypeID, int nCDNID, int nDuration, int nCountryID, int nPLayerID,    
                                               int nFirstPlayCounter, int nPlayCounter, int nLoadCounter, int nPauseCounter, int nStopCounter, int nFullScreenCounter,int nExitFullScreenCounter, int nSendToFriendCounter,
-                                              int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID, int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID                                              
+                                              int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID, int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID,int nSwooshCounter                                              
                                              )  
         
         {                                                                                                         
@@ -364,6 +364,7 @@ namespace Tvinci.Core.DAL
             spNewMediaEoh.AddParameter("@SiteGuid", sSiteGuid);
             spNewMediaEoh.AddParameter("@DeviceUdID", sDeviceUdID);
             spNewMediaEoh.AddParameter("@PlayCycleID", sPlayCycleID);
+            spNewMediaEoh.AddParameter("@SwooshCounter", nSwooshCounter);
 
             spNewMediaEoh.ExecuteNonQuery();
         }
