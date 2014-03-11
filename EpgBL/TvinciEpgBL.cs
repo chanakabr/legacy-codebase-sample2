@@ -32,10 +32,15 @@ namespace EpgBL
 
                 for (int i = 0; i < 3 && !bRes; i++)
                 {
-                    ulong nNewID = m_oEpgCouchbase.IDGenerator("epgid");
-                    newEpgItem.EpgID = nNewID;
-                    epgID = nNewID;
+                    //ulong nNewID = m_oEpgCouchbase.IDGenerator("epgid");
+                    //newEpgItem.EpgID = nNewID;
+                    //epgID = nNewID;
+                    //bRes = m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+
+                    ulong nNewID = newEpgItem.EpgID;
                     bRes = m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+
+                    Logger.Logger.Log("InsertCBEpg", string.Format("insert result  CB ", bRes), "InsertCBEpg");
                 }
 
             }
