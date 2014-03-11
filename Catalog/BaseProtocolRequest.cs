@@ -129,7 +129,7 @@ namespace Catalog
 
         protected void GetEndDateLanguageDeviceID(BaseRequest oBaseRequest)
         {
-            if (m_oFilter != null)
+            if (oBaseRequest.m_oFilter != null)
             {
                 sEndDate = ProtocolsFuncs.GetFinalEndDateField(oBaseRequest.m_oFilter.m_bUseFinalDate);
                 if (!string.IsNullOrEmpty(oBaseRequest.m_oFilter.m_sDeviceId))

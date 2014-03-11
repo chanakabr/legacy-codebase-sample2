@@ -302,18 +302,6 @@ namespace Users
             int nDeviceID = int.Parse(device.m_id);
 
 
-            //New domain
-            Domain domain = new Domain();
-            bInit = bInit && domain.Initialize(m_nGroupID, masterUser.m_domianID);
-
-            if (!bInit)
-            {
-                resp.m_oDomain = domain;
-                resp.m_oDomainResponseStatus = DomainResponseStatus.DeviceNotExists;
-                return resp;
-            }
-
-
             int nDomainDeviceID = 0;
             int nTokenDeviceID = DAL.DomainDal.GetDeviceIDByDomainActivationToken(m_nGroupID, sToken, ref nDomainDeviceID);
 
@@ -326,7 +314,18 @@ namespace Users
 
 
             string sNewGuid = Guid.NewGuid().ToString();
-            bool isActivated = DAL.DomainDal.UpdateDeviceDomainActivationToken(m_nGroupID, nDomainDeviceID, sToken, sNewGuid);
+            int res = DAL.DomainDal.UpdateDeviceDomainActivationToken(m_nGroupID, nDomainDeviceID, nDeviceID, sToken, sNewGuid);
+
+            //New domain
+            Domain domain = new Domain();
+            bInit = bInit && domain.Initialize(m_nGroupID, masterUser.m_domianID);
+
+            if (!bInit)
+            {
+                resp.m_oDomain = domain;
+                resp.m_oDomainResponseStatus = DomainResponseStatus.DomainNotInitialized;
+                return resp;
+            }
 
             int nActivationStatus = DAL.DomainDal.GetDomainDeviceActivateStatus(m_nGroupID, nDeviceID);
 

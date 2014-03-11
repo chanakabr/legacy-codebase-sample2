@@ -1520,7 +1520,7 @@ namespace DAL
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                selectQuery += "SELECT ID, DEVICE_ID FROM DOMAINS_DEVICES WITH (NOLOCK) WHERE STATUS=1 AND";
+                selectQuery += "SELECT ID, DEVICE_ID FROM DOMAINS_DEVICES WITH (NOLOCK) WHERE STATUS=3 AND";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
@@ -1547,38 +1547,19 @@ namespace DAL
             return nDeviceID;
         }
 
-        public static bool UpdateDeviceDomainActivationToken(int nGroupID, int nDomainsDevicesID, string sToken, string sNewToken)
+        public static int UpdateDeviceDomainActivationToken(int nGroupID, int nDomainsDevicesID, int nDeviceID, string sToken, string sNewToken)
         {
-            bool isActivated = false;
+            ODBCWrapper.StoredProcedure spUpdateDeviceActivation = new ODBCWrapper.StoredProcedure("Update_DeviceActivation");
+            spUpdateDeviceActivation.SetConnectionKey("USERS_CONNECTION_STRING");
+            spUpdateDeviceActivation.AddParameter("@domainsDevicesID", nDomainsDevicesID);
+            spUpdateDeviceActivation.AddParameter("@deviceID", nDeviceID);
+            spUpdateDeviceActivation.AddParameter("@groupID", nGroupID);
+            spUpdateDeviceActivation.AddParameter("@token", sToken);
+            spUpdateDeviceActivation.AddParameter("@newToken", sNewToken);
 
-            try
-            {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("domains_devices");
-                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+            int rowsAffected = spUpdateDeviceActivation.ExecuteReturnValue<int>();
 
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATE_STATUS", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken); //System.Guid.NewGuid().ToString());
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("user_state", "=", nUserState);
-                updateQuery += " where ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nDomainsDevicesID);
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
-                updateQuery += " and status=1";
-
-                isActivated = updateQuery.Execute();
-
-                updateQuery.Finish();
-                updateQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return isActivated;
+            return rowsAffected;
         }
 
         public static int GetDomainDeviceActivateStatus(int nGroupID, int nDeviceID)

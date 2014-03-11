@@ -215,7 +215,7 @@ namespace Catalog
                  * Foreach media search object, create filtered query.
                  * Add the query's filter to the grouped filter so that we can then create a single request
                  * containing all the channels that we want.
-                 */ 
+                 */
                 foreach (MediaSearchObj searchObj in oSearch)
                 {
                     if (searchObj == null)
@@ -233,14 +233,14 @@ namespace Catalog
                     }
                 }
 
-                tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize};
+                tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize };
                 tempQuery.ESSort.Add(new ESOrderObj() { m_eOrderDir = oOrderObj.m_eOrderDir, m_sOrderValue = FilteredQuery.GetESSortValue(oOrderObj) });
                 tempQuery.Filter = new QueryFilter() { FilterSettings = groupedFilters };
-                
+
                 string sSearchQuery = tempQuery.ToString();
 
 
-                
+
                 string sRetVal = m_oESApi.Search(oGroup.m_nParentGroupID.ToString(), ES_MEDIA_TYPE, ref sSearchQuery);
 
                 lSearchResults = DecodeAssetSearchJsonObject(sRetVal, ref nTotalItems);
@@ -251,7 +251,7 @@ namespace Catalog
                     lSortedMedias.m_resultIDs = new List<SearchResult>();
 
                     lSortedMedias.n_TotalItems = nTotalItems;
-                    
+
 
                     if ((oOrderObj.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oOrderObj.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) || oOrderObj.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
                     {
@@ -275,7 +275,7 @@ namespace Catalog
                     }
                 }
             }
-            DateTime dtEnd= DateTime.Now;
+            DateTime dtEnd = DateTime.Now;
 
             double totalMilli = (dtEnd - dtStart).TotalMilliseconds;
             Logger.Logger.Log("Info", "SearchSubscriptionMedias took " + totalMilli + " milliseconds", "Elasticsearch");
@@ -732,7 +732,7 @@ namespace Catalog
                     string definition = string.Empty;
                     for (int i = 0; i < length; i++)
                     {
-                        if(TVinciShared.JSONUtils.TryGetJSONToken(docs[i], orderedPathDownTheJSONTree, ref definition) && definition.Length > 0)
+                        if (TVinciShared.JSONUtils.TryGetJSONToken(docs[i], orderedPathDownTheJSONTree, ref definition) && definition.Length > 0)
                             res.Add(definition);
                         definition = string.Empty;
                     }
@@ -746,8 +746,8 @@ namespace Catalog
         }
 
         public Dictionary<long, bool> ValidateMediaIDsInChannels(int nGroupID, List<long> distinctMediaIDs,
-            List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
-            List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
+                List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
+                List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
         {
             Dictionary<long, bool> res = null;
             if (distinctMediaIDs != null && distinctMediaIDs.Count > 0)
@@ -759,7 +759,7 @@ namespace Catalog
                 ESMediaQueryBuilder queryBuilder = new ESMediaQueryBuilder(nGroupID, searchObj);
                 string sQuery = queryBuilder.GetDocumentsByIdsQuery(distinctMediaIDs, new OrderObj() { m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID });
 
-                if (string.IsNullOrEmpty(sQuery))
+                if (!string.IsNullOrEmpty(sQuery))
                 {
                     string sESAnswer = m_oESApi.Search(nGroupID + "", ES_MEDIA_TYPE, ref sQuery);
                     if (sESAnswer.Length > 0)
@@ -777,6 +777,7 @@ namespace Catalog
 
             return null;
         }
+
 
         private void InitializeDictionary(List<long> distinctMediaIDs, ref Dictionary<long, bool> dict)
         {

@@ -40,7 +40,7 @@ namespace EpgBL
                     ulong nNewID = newEpgItem.EpgID;
                     bRes = m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
 
-                    Logger.Logger.Log("InsertCBEpg", string.Format("insert result  CB ", bRes), "InsertCBEpg");
+                    Logger.Logger.Log("InsertCBEpg", string.Format("insert result  CB id={0} result ={1}",nNewID, bRes), "InsertCBEpg");
                 }
 
             }
