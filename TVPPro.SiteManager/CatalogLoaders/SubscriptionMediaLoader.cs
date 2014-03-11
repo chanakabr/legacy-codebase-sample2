@@ -62,12 +62,13 @@ namespace TVPPro.SiteManager.CatalogLoaders
             };
             if (MediaTypes != null && MediaTypes.Count > 0)
             {
-                StringBuilder sbTypes = new StringBuilder();
-                foreach (int type in MediaTypes)
-                {
-                    sbTypes.AppendFormat("{0};", type.ToString());
-                }
-                ((SubscriptionMediaRequest)m_oRequest).m_sMediaType = sbTypes.ToString();
+                string sbTypes = String.Join(";", MediaTypes.Select(type => type.ToString()).ToArray());
+                //StringBuilder sbTypes = new StringBuilder();
+                //foreach (int type in MediaTypes)
+                //{
+                //    sbTypes.AppendFormat("{0};", type.ToString());
+                //}
+                ((SubscriptionMediaRequest)m_oRequest).m_sMediaType = sbTypes;
             }
         }
 
