@@ -2290,8 +2290,8 @@ namespace Catalog
                 else
                 {
                     // site guid exists. let's fetch operator id from DB.
-                    int nOperatorID = Utils.GetOperatorIDBySiteGuid(oMediaRequest.m_nGroupID, lSiteGuid);
-                    if (nOperatorID == 0)
+                    operatorID = Utils.GetOperatorIDBySiteGuid(oMediaRequest.m_nGroupID, lSiteGuid);
+                    if (operatorID == 0)
                     {
                         throw new Exception("IPNO Filtering. No operator ID extracted from DB");
                     }
@@ -2299,7 +2299,7 @@ namespace Catalog
                     {
                         // we have operator id
                         res = true;
-                        List<long> channelsOfIPNO = GroupsCache.Instance.GetOperatorChannelIDs(oMediaRequest.m_nGroupID, nOperatorID);
+                        List<long> channelsOfIPNO = GroupsCache.Instance.GetOperatorChannelIDs(oMediaRequest.m_nGroupID, operatorID);
                         List<long> allChannelsOfAllIPNOs = GroupsCache.Instance.GetDistinctAllOperatorsChannels(oMediaRequest.m_nGroupID);
                         if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
                         {

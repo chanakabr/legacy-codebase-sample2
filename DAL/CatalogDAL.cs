@@ -828,7 +828,10 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-              return ds.Tables[0];
+            if (ds != null)
+                return ds.Tables[0];
+
+            return null;
 
         }
 
