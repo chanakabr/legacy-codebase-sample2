@@ -206,10 +206,13 @@ namespace EpgFeeder
                             AddDateRange(dProgStartDate);
 
                             InsertProgramSchedule(program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate);
-                            EpgCB newEpgItem = InsertProgramScheduleCB(program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);
+                            ProgramID = GetProgramIDByEPGIdentifier(EPGGuid);
+                            ulong uProgramID = (ulong)ProgramID;
+
+                            EpgCB newEpgItem = InsertProgramScheduleCB(uProgramID, program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);
                             #endregion
 
-                            ProgramID = GetProgramIDByEPGIdentifier(EPGGuid);
+                           
 
                             if (ProgramID > 0)
                             {
@@ -405,15 +408,17 @@ namespace EpgFeeder
                 Logger.Logger.Log("InsertProgramSchedule", string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), LogFileName);
             }
         }
-        private EpgCB InsertProgramScheduleCB(string program_desc_english, string program_desc_chinese, string episode_no, string syp, string syp_chi,
+        private EpgCB InsertProgramScheduleCB(ulong uProgramID, string program_desc_english, string program_desc_chinese, string episode_no, string syp, string syp_chi,
             int channelID, string EPGGuid, DateTime dProgStartDate, DateTime dProgEndDate, XmlNode progItem)
         {
             ulong epgID = 0;
             EpgCB newEpgItem = new EpgCB();
             try
             {   
-                BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId)); 
+                BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId));
 
+                Logger.Logger.Log("InsertProgramScheduleCB", string.Format("EpgID '{0}' ", uProgramID), LogFileName);
+                newEpgItem.EpgID = uProgramID;
                 newEpgItem.ChannelID = channelID;
                 newEpgItem.Name = string.Format("{0} {1} {2}", program_desc_english, program_desc_chinese, episode_no);
                 newEpgItem.Description = string.Format("{0} {1}", syp, syp_chi);

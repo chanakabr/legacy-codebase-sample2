@@ -310,6 +310,8 @@ namespace EpgFeeder
 
                 #region Insert EpgProgram Doc To CB
                 newEpgItem = new EpgCB();
+                ulong uProgramID = (ulong)ProgramID;
+                newEpgItem.EpgID = uProgramID;
                 newEpgItem.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(channelID);
                 newEpgItem.Name = progItem.title;
                 if (!string.IsNullOrEmpty(progItem.desc))
