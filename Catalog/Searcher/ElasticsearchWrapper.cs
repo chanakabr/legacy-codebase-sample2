@@ -498,26 +498,32 @@ namespace Catalog
                 return null;
             }
 
-            List<string> epgIndexAliases = GetEpgExistingAliases(group.m_nParentGroupID, oSearch.m_dStartDate.AddDays(-1), oSearch.m_dEndDate);
+            List<string> lRouting = new List<string>();
 
-            if (epgIndexAliases.Count > 0)
+            DateTime dTempDate = oSearch.m_dStartDate;
+            while (dTempDate <= oSearch.m_dEndDate)
             {
-                ESEpgQueryBuilder queryBuilder = new ESEpgQueryBuilder() { m_oEpgSearchObj = oSearch };
-                string sQuery = queryBuilder.BuildEpgAutoCompleteQuery();
-
-                string sEpgAliases = epgIndexAliases.Aggregate((current, next) => current + "," + next);
-
-                string searchRes = m_oESApi.Search(sEpgAliases, ES_EPG_TYPE, ref sQuery);
-
-                int nTotalRecords = 0;
-                List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
-
-                if (lDocs != null)
-                {
-                    resultFinalList = lDocs.Select(doc => doc.name).ToList();
-                    resultFinalList = resultFinalList.Distinct().OrderBy(q => q).ToList<string>();
-                }
+                lRouting.Add(dTempDate.ToString("yyyyMMdd"));
+                dTempDate = dTempDate.AddDays(1);
             }
+
+
+            ESEpgQueryBuilder queryBuilder = new ESEpgQueryBuilder() { m_oEpgSearchObj = oSearch };
+            string sQuery = queryBuilder.BuildEpgAutoCompleteQuery();
+
+
+            string sGroupAlias = string.Format("{0}_epg", group.m_nParentGroupID);
+            string searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
+
+            int nTotalRecords = 0;
+            List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
+
+            if (lDocs != null)
+            {
+                resultFinalList = lDocs.Select(doc => doc.name).ToList();
+                resultFinalList = resultFinalList.Distinct().OrderBy(q => q).ToList<string>();
+            }
+
 
             return resultFinalList;
         }
