@@ -37,7 +37,7 @@ namespace Tvinci.Data.Loaders
                         m_oClient = null;
                     }
 
-                    FailOverManager.Instance.SafeModeStarted += () => { if (m_oClient != null) m_oClient.Close(); };
+                    FailOverManager.Instance.SafeModeStarted += () => { if (m_oClient != null) m_oClient.Close(); m_oClient = null; };
                     FailOverManager.Instance.SafeModeEnded += () => { if (m_oClient == null) m_oClient = new IserviceClient(string.Empty, m_EndPoint); };
                 }
             }            
