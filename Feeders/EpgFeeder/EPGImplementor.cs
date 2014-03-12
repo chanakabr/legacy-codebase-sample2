@@ -12,6 +12,7 @@ using Tvinci.Core.DAL;
 using System.Text.RegularExpressions;
 using System.Configuration;
 using EpgBL;
+using TvinciImporter;
 
 
 namespace EpgFeeder
@@ -686,6 +687,22 @@ namespace EpgFeeder
             if (ArabicRegex.IsMatch(s))
                 return Language.Arabic;
             return Language.English;
+        }
+
+
+        protected virtual bool UpdateEpgIndex(List<ulong> epgIDs, int nGroupID, ApiObjects.eAction action)
+        {
+            bool result = false;
+            try
+            {
+                result = ImporterImpl.UpdateEpgIndex(epgIDs, nGroupID, action);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "EpgFeeder");
+                return false;
+            }
         }
         #endregion
 

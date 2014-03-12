@@ -176,10 +176,16 @@ namespace EpgFeeder
                     List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
 
                     EPGDateRang = new List<DateTime>();
+                    
+                    string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
+                    int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package); 
+                    int nCount = 0;
+                    List<ulong> ulProgram =  new List<ulong>();
                     foreach (XmlNode node in xmlnodelist)
                     {
                         try
                         {
+                            nCount++;
                             Guid EPGGuid = Guid.NewGuid();
 
                             #region Basic xml Data
@@ -209,9 +215,25 @@ namespace EpgFeeder
                             ProgramID = GetProgramIDByEPGIdentifier(EPGGuid);
                             ulong uProgramID = (ulong)ProgramID;
 
-                            EpgCB newEpgItem = InsertProgramScheduleCB(uProgramID, program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);
+                            EpgCB newEpgItem = InsertProgramScheduleCB(uProgramID, program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);                          
                             #endregion
 
+                            #region Insert EpgProgram ES
+
+                            if (nCount >= nCountPackage)
+                            {                                
+                                int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                                bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
+                                
+                                ulProgram = new List<ulong>();
+                                nCount = 0;
+                            }
+                            else
+                            {
+                                ulProgram.Add(uProgramID);
+                            }
+                            
+                            #endregion
                            
 
                             if (ProgramID > 0)

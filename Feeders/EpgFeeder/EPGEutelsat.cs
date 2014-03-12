@@ -231,9 +231,13 @@ namespace EpgFeeder
 
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
 
-
+            string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
+            int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+            int nCount = 0;
+            List<ulong> ulProgram = new List<ulong>();			
             foreach (var progItem in prog)
             {
+                nCount++;
                 DateTime dProgStartDate = DateTime.MinValue;
                 DateTime dProgEndDate = DateTime.MinValue;
                 if (!Utils.ParseEPGStrToDate(progItem.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(progItem.stop, ref dProgEndDate))
@@ -344,6 +348,23 @@ namespace EpgFeeder
                 ulong epgID = 0;                              
                 bool bInsert = oEpgBL.InsertEpg(newEpgItem, out epgID);
                 #endregion 
+                
+                #region Insert EpgProgram ES
+
+                if (nCount >= nCountPackage)
+                {
+                    int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                    bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
+
+                    ulProgram = new List<ulong>();
+                    nCount = 0;
+                }
+                else
+                {
+                    ulProgram.Add(uProgramID);
+                }
+
+                #endregion
 
                 #region Upload Picture
 
