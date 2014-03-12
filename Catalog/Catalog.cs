@@ -931,7 +931,7 @@ namespace Catalog
         #region Build search Object for search Related
 
         /*Build the right MediaSearchRequest for a Search Related Media */
-        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes)
+        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid)
         {
             try
             {
@@ -949,6 +949,7 @@ namespace Catalog
                 if (ds == null)
                     return null;
                 oMediasRequest.m_nGroupID = nGroupID;
+                oMediasRequest.m_sSiteGuid = sSiteGuid;
                 if (ds.Tables.Count == 4)
                 {
                     if (ds.Tables[1] != null) // basic details
