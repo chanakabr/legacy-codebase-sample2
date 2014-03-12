@@ -1414,6 +1414,11 @@ namespace Catalog
             return Update(lMediaIds, nGroupId, eObjectType.Media, eAction, eObjectType.Media);
         }
 
+        public static bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
+        {
+            return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
+        }  
+
         public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
         {
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction, eObjectType.Channel);
@@ -1430,6 +1435,29 @@ namespace Catalog
                 if (group != null)
                 {
                     ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eUpdatedObjectType, eAction);
+
+                    if (data != null)
+                    {
+                        BaseQueue queue = new CatalogQueue();
+                        bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, eObjectType.ToString()));
+                    }
+                }
+            }
+
+            return bIsUpdateIndexSucceeded;
+        }
+
+        private static bool UpdateEpg(List<int> lIds, int nGroupId, eObjectType eObjectType, eAction eAction)
+        {
+            bool bIsUpdateIndexSucceeded = false;
+
+            if (lIds != null && lIds.Count > 0)
+            {
+                Group group = GroupsCache.Instance.GetGroup(nGroupId);
+
+                if (group != null)
+                {
+                    ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eObjectType, eAction);
 
                     if (data != null)
                     {
