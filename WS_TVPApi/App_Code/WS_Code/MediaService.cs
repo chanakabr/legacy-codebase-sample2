@@ -2381,9 +2381,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Multi EPG Channels")]
-        public EPGMultiChannelProgrammeObject[] GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
+        public List<EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet)
         {
-            EPGMultiChannelProgrammeObject[] sRet = null;
+            List<EPGMultiChannelProgrammeObject> sRet = new List<EPGMultiChannelProgrammeObject>();
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetEPGMultiChannelProgram", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2411,7 +2411,10 @@ namespace TVPApiServices
 
                     loader.DeviceId = initObj.UDID;
                     loader.SiteGuid = initObj.SiteGuid;
-                    sRet = (loader.Execute() as List<EPGMultiChannelProgrammeObject>).ToArray();
+                    foreach (EPGMultiChannelProgrammeObject epg in (loader.Execute() as List<BaseObject>))
+                    {
+                        sRet.Add(epg);
+                    }
                 }
                 catch (Exception ex)
                 {
