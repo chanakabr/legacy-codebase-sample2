@@ -117,7 +117,26 @@ namespace Catalog
                     }
                     else
                     {
-                        medias = OrderMediaBySlidingWindow(channelSearchObject.m_oOrder.m_eOrderBy, channelSearchObject.m_oOrder.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channelSearchObject.m_oOrder.m_dSlidingWindowStartTimeField);
+                        //medias = OrderMediaBySlidingWindow(channelSearchObject.m_oOrder.m_eOrderBy, channelSearchObject.m_oOrder.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channelSearchObject.m_oOrder.m_dSlidingWindowStartTimeField);
+                        medias = OrderMediaBySlidingWindow(channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField.AddHours(2));
+
+                        nTotalItems = 0;
+
+                        if (medias != null && medias.Count > 0)
+                        {
+                            nTotalItems = medias.Count;
+                            Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
+                            lMediaRes.Clear();
+                            foreach (int item in medias)
+                            {
+                                if (dMediaRes.ContainsKey(item))
+                                    lMediaRes.Add(dMediaRes[item]);
+                            }
+                        }
+                        else
+                        {
+                            lMediaRes.Clear();
+                        }
                     }
 
                     if (channel.m_nChannelTypeID == 2)

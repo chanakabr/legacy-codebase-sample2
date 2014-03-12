@@ -447,9 +447,7 @@ namespace ElasticSearch.Searcher
 
             filter.AddChild(mediaIdTerms);
             FillFilterSettings(ref oQueryFilter, filter);
-            oQueryFilter.FilterSettings = filter;
-
-
+            
             sQuery.Append("{");
 
             string sSort = GetSort(oOrder, false);
