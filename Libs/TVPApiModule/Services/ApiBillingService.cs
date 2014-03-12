@@ -68,6 +68,22 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        public TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail GetLastBillingTypeUserInfo(string sSiteGuid)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail lastBillingInfo = null;
+            try
+            {
+                lastBillingInfo = m_Module.GetLastBillingTypeUserInfo(m_wsUserName, m_wsPassword,sSiteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetLastBillingTypeUserInfo, Error Message: {0}, params: sSiteGuid: {1}", ex.Message, sSiteGuid);
+            }
+
+            return lastBillingInfo;
+        }
+
         #endregion
     }
 }

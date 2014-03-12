@@ -83,6 +83,32 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "")]
+        public AdyenBillingDetail GetLastBillingTypeUserInfo(InitializationObject initObj, string sSiteGuid)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetClientMerchantSig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetLastBillingTypeUserInfo(sSiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
         #endregion
     }
 }
