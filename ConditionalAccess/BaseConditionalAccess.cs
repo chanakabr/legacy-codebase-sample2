@@ -228,26 +228,7 @@ namespace ConditionalAccess
             retVal.m_sTaxVal = tax.ToString();
             retVal.m_sTaxSubtotal = taxTotalDIsc.ToString();
             retVal.m_sTaxAmount = taxDisc.ToString();
-            //TVinciShared.MailTemplateEngine mt = new TVinciShared.MailTemplateEngine();
-            //string sFilePath = HttpContext.Current.Server.MapPath("");
-            //sFilePath += "/mailTemplates/" + m_sPurchaseMailTemplate;
-            //mt.Init(sFilePath);
-            //mt.Replace("FIRSTNAME", sFirstName);
-            //mt.Replace("LASTNAME", sLastName);
-            //mt.Replace("ITEMNAME", sItemName);
-            //mt.Replace("PAYMENTMETHOD", sPaymentMethod);
-            //mt.Replace("DATEOFPURCHASE", sDateOfPurchase);
-            //mt.Replace("RECNUMBER", sRecNumner);
-            //mt.Replace("PRICE", sPrice);
 
-
-            ////string sActivation = "";
-            ////if (sActivation != "")
-            ////{
-            ////mt.Replace("ACTIVATION", "UserName=" + sUserName + "&Token=" + sActivation);
-            ////}
-            //string sMailData = mt.GetAsString();
-            //return sMailData;
             return retVal;
         }
         /// <summary>
@@ -5015,7 +4996,7 @@ namespace ConditionalAccess
                         {
                             if (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
                             {
-                                if (p.m_dPrice != 0)
+                                if (p.m_dPrice != 0 || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
                                 {
                                     sIP = "1.1.1.1";
                                     sWSUserName = string.Empty;
@@ -5098,6 +5079,7 @@ namespace ConditionalAccess
             }
             return retVal;
         }
+
         /// <summary>
         /// PU Get PPV Popup Payment Method URL
         /// </summary>
@@ -8559,6 +8541,17 @@ namespace ConditionalAccess
             {
                 Logger.Logger.Log("UpdatePurchaseIDInExternalBillingTable", string.Format("Unexpected error. Billing transaction ID: {0} , Purchase ID: {1} , BaseConditionalAccess is: {2} , Billing Provider: {3} , External transaction ID: {4}", lBillingTransactionID, lPurchaseID, this.GetType().Name, nBillingProvider, nExternalTransactionID), "BaseConditionalAccess");
             }
+        }
+
+        protected bool IsPreviewModuleInGroupIDCostsZero()
+        {
+            string sKeyOfMinPrice = String.Concat("PreviewModuleMinPrice", m_nGroupID);
+            double dMinPriceForPreviewModule = Utils.DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE;
+            string sValInConfig = Utils.GetValueFromConfig(sKeyOfMinPrice);
+            if (sValInConfig.Length > 0 && double.TryParse(sValInConfig, out dMinPriceForPreviewModule))
+                return dMinPriceForPreviewModule == 0d;
+            return false;
+
         }
 
     }
