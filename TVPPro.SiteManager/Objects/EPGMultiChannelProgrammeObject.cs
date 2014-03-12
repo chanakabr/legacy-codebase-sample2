@@ -6,7 +6,7 @@ using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace TVPPro.SiteManager.Objects
 {
-    public class EPGMultiChannelProgrammeObject
+    public class EPGMultiChannelProgrammeObject : BaseObject 
     {
         public string EPG_CHANNEL_ID { get; set; }
 

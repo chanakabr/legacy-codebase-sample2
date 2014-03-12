@@ -62,10 +62,10 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         protected virtual object Process()
         {
-            List<EPGMultiChannelProgrammeObject> retVal = null;
+            List<BaseObject> retVal = null;
             if (m_oResponse != null && ((EpgResponse)m_oResponse).programsPerChannel != null)
             {
-                retVal = new List<EPGMultiChannelProgrammeObject>();
+                retVal = new List<BaseObject>();
                 foreach (var progIDs in ((EpgResponse)m_oResponse).programsPerChannel)
                 {
                     EPGMultiChannelProgrammeObject epgMultiChannelProgrammeObject = new EPGMultiChannelProgrammeObject();
