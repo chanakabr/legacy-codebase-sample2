@@ -33,6 +33,7 @@ namespace Catalog
 
         internal const int DEFAULT_PWWAWP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PWLALP_MAX_RESULTS_SIZE = 8;
+        internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
         /*Get All Relevant Details About Media (by id) , 
          Use Stored Procedure */
         public static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex)

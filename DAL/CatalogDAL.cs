@@ -1025,5 +1025,21 @@ namespace Tvinci.Core.DAL
             return new List<int>(0);
         }
 
+        public static DataTable Get_IPersonalRecommended(int nGroupID, string sSiteGuid, int nTop, int nOperatorID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_IPersonalRecommended");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@Top", nTop);
+            sp.AddParameter("@OperatorID", nOperatorID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
     }
 }
