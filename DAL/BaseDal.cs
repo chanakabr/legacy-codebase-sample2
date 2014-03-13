@@ -8,6 +8,9 @@ namespace Tvinci.Core.DAL
 {
     public abstract class BaseDal
     {
+        internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // must match the fictive end date
+        // which ODBCWrapper.Utils.GetDateSafeVal returns.
+
         public static DataTable GetGroupsTree(long groupID)
         {
             return GetGroupsTree(groupID, string.Empty);

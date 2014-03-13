@@ -103,10 +103,12 @@
     <Compile Include="DomainFactory.cs" />
     <Compile Include="EutelsatDomain.cs" />
     <Compile Include="EutelsatUsers.cs" />
+    <Compile Include="HomeNetwork.cs" />
     <Compile Include="MCMailImpl.cs" />
     <Compile Include="Encrypters\MD5Encrypter.cs" />
     <Compile Include="Encrypters\SHA1Encrypter.cs" />
     <Compile Include="MediaCorpUsers.cs" />
+    <Compile Include="NetworkResponseObject.cs" />
     <Compile Include="OAuthUtil.cs" />
     <Compile Include="OSamlUtils.cs" />
     <Compile Include="Saml\LoginSamlA.cs" />
