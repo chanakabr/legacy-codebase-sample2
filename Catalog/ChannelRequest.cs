@@ -118,7 +118,7 @@ namespace Catalog
                     else
                     {
                         //medias = OrderMediaBySlidingWindow(channelSearchObject.m_oOrder.m_eOrderBy, channelSearchObject.m_oOrder.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channelSearchObject.m_oOrder.m_dSlidingWindowStartTimeField);
-                        medias = OrderMediaBySlidingWindow(channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField.AddHours(2));
+                        medias = OrderMediaBySlidingWindow(channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
 
                         nTotalItems = 0;
 
