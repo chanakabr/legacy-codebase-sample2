@@ -40,8 +40,7 @@ namespace Catalog
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            CheckSignature(oBaseRequest);
-            GetEndDateLanguageDeviceID(oBaseRequest);
+            CheckSignature(oBaseRequest);           
             return ExecuteProtocol(oBaseRequest);
         }
 
