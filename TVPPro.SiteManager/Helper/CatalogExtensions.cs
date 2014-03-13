@@ -102,8 +102,16 @@ namespace TVPPro
                 retVal.Append("Programs:");
                 foreach (var program in programs)
                 {
-                    retVal.AppendLine();
-                    retVal.AppendFormat("ProgramID = {0}, UpdateDate = {1}", program.m_nID, program.m_dUpdateDate);
+                    if (program != null)
+                    {
+                        retVal.AppendLine();
+                        retVal.AppendFormat("ProgramID = {0}, UpdateDate = {1}", program.m_nID, program.m_dUpdateDate);
+                    }
+                    else
+                    {
+                        retVal.AppendLine();
+                        retVal.AppendFormat("null");
+                    }
                 }
                 retVal.Remove(retVal.Length - 1, 1);
             }
@@ -119,8 +127,16 @@ namespace TVPPro
                 retVal.Append("Programs:");
                 foreach (ProgramObj program in response.m_lObj)
                 {
-                    retVal.AppendLine();
-                    retVal.AppendFormat("ProgramID = {0}, UpdateDate = {1}", program.m_nID, program.m_dUpdateDate);
+                    if (program != null)
+                    {
+                        retVal.AppendLine();
+                        retVal.AppendFormat("ProgramID = {0}, UpdateDate = {1}", program.m_nID, program.m_dUpdateDate);
+                    }
+                    else
+                    {
+                        retVal.AppendLine();
+                        retVal.AppendFormat("null");
+                    }
                 }
                 retVal.Remove(retVal.Length - 1, 1);
             }
