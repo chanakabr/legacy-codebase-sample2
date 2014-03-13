@@ -2690,7 +2690,10 @@ namespace TVPApiServices
             retVal = new List<EPGChannelProgrammeObject>();
             foreach (ProgramObj p in loaderResult)
             {
-                retVal.Add(p.m_oProgram);
+                if (p != null)
+                    retVal.Add(p.m_oProgram);
+                else
+                    retVal.Add(null);
             }
 
             return retVal;
