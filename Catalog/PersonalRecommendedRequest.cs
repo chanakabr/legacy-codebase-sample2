@@ -20,98 +20,153 @@ namespace Catalog
      * this group of groupID
      * *******************************************************************/
     [DataContract]
-    public class PersonalRecommendedRequest : BaseRequest, IRequestImp
+    public class PersonalRecommendedRequest : BaseProtocolRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public PersonalRecommendedRequest() : base()
+
+        public PersonalRecommendedRequest()
+            : base()
         {
         }
 
         public PersonalRecommendedRequest(PersonalRecommendedRequest p)
-            : base(p.m_nPageSize, p.m_nPageIndex, p.m_sUserIP, p.m_nGroupID, p.m_oFilter, p.m_sSignature, p.m_sSignString)
+            : base(p.m_nPageSize, p.m_nPageIndex, p.m_sUserIP, p.m_nGroupID, p.m_oFilter, p.m_sSignature, p.m_sSignString, p.m_sSiteGuid)
         {
-            m_sSiteGuid = p.m_sSiteGuid;         
         }
 
-        public BaseResponse GetResponse(BaseRequest oBaseRequest)
+        private MediaRelatedRequest GetMediaRelatedReqObj(PersonalRecommendedRequest request, int nMediaID)
         {
+            MediaRelatedRequest oMediaRelatedRequest = new MediaRelatedRequest();
+            oMediaRelatedRequest.m_nGroupID = request.m_nGroupID;
+            oMediaRelatedRequest.m_nMediaID = nMediaID;
+            oMediaRelatedRequest.m_nPageIndex = request.m_nPageIndex;
+            oMediaRelatedRequest.m_nPageSize = request.m_nPageSize;
+            oMediaRelatedRequest.m_sSignString = request.m_sSignString;
+            oMediaRelatedRequest.m_sSignature = request.m_sSignature;
+            oMediaRelatedRequest.m_sUserIP = request.m_sUserIP;
+            oMediaRelatedRequest.m_oFilter = request.m_oFilter;
+            oMediaRelatedRequest.m_sSiteGuid = request.m_sSiteGuid;
+
+            return oMediaRelatedRequest;
+        }
+
+        private List<SearchResult> HandleGetRelated(PersonalRecommendedRequest request, int nMediaID)
+        {
+            MediaRelatedRequest oMediaRelatedRequest = GetMediaRelatedReqObj(request, nMediaID);
+            MediaIdsResponse relatedResponse = (MediaIdsResponse)oMediaRelatedRequest.GetResponse((BaseRequest)oMediaRelatedRequest);
+            if (relatedResponse == null)
+                throw new Exception("MediaRelatedRequest's response is null");
+
+            return relatedResponse.m_nMediaIds;
+
+        }
+
+        private List<SearchResult> HandleMostViewed(DataTable dt)
+        {
+            int length = dt.Rows.Count;
+            List<SearchResult> lMedias = new List<SearchResult>(length);
+            for (int i = 0; i < length; i++)
+            {
+                SearchResult oMediaRes = new SearchResult();
+                oMediaRes.assetID = Utils.GetIntSafeVal(dt.Rows[i], "media_id");
+                string sUpdateDate = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["Update_Date"]);
+                if (sUpdateDate.Length > 0)
+                {
+                    oMediaRes.UpdateDate = System.Convert.ToDateTime(sUpdateDate);
+                }
+
+                lMedias.Add(oMediaRes);
+            }
+
+            return lMedias;
+        }
+
+        protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, int nOperatorID, List<List<string>> jsonizedChannelsDefinitions, ref ISearcher initializedSearcher)
+        {
+            List<SearchResult> lMedias = null;
             try
             {
-                PersonalRecommendedRequest request = (PersonalRecommendedRequest)oBaseRequest;
-                MediaIdsResponse response = new MediaIdsResponse();
-                SearchResult oMediaRes;
-                List<SearchResult> lMedias = new List<SearchResult>();
-
-                string xmlresult = "";
-                xmlresult = SerializeToXML<PersonalRecommendedRequest>(request);
-
-                _logger.Info(xmlresult);
-                _logger.Info(string.Format("{0}: {1}", "PersonalRecommendedRequest Start At", DateTime.Now));
-
+                PersonalRecommendedRequest request = oBaseRequest as PersonalRecommendedRequest;
                 if (request == null)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new Exception("Request object is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                _logger.Info(String.Concat(request.ToString(), " started at: ", DateTime.UtcNow, " ipno flow"));
 
-                DataTable dt = CatalogDAL.Get_PersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize);
+                DataTable dt = CatalogDAL.Get_IPersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize, nOperatorID);
 
-                if (dt != null)
+                if (dt != null && dt.Columns != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    if (dt.Columns != null && dt.Rows != null && dt.Rows.Count > 0)
+                    if (ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["getRelated"]) == 1)
                     {
-                        if (dt.Rows[0]["getRelated"].ToString() == "1") // Call GetSearchRelated
-                        {
-                            MediaRelatedRequest oMediaRelatedRequest = new MediaRelatedRequest();
-                            oMediaRelatedRequest.m_nGroupID = request.m_nGroupID;
-                            oMediaRelatedRequest.m_nMediaID = Utils.GetIntSafeVal(dt.Rows[0],"media_id");
-                            oMediaRelatedRequest.m_nPageIndex = request.m_nPageIndex;
-                            oMediaRelatedRequest.m_nPageSize = request.m_nPageSize;
-                            oMediaRelatedRequest.m_sSignString = request.m_sSignString;
-                            oMediaRelatedRequest.m_sSignature = request.m_sSignature;
-                            oMediaRelatedRequest.m_sUserIP = request.m_sUserIP;
-                            oMediaRelatedRequest.m_oFilter = request.m_oFilter;
-                            BaseResponse oBaseResponse =  oMediaRelatedRequest.GetResponse((BaseRequest)oMediaRelatedRequest);
-                            
-                            return oBaseResponse;                           
-                        }
-                        else //Retun last most viewd items
-                        {
-                            for (int i = 0; i < dt.Rows.Count; i++)
-                            {
-                                oMediaRes = new SearchResult();
-                                oMediaRes.assetID = Utils.GetIntSafeVal(dt.Rows[i],"media_id");
-                                if (!string.IsNullOrEmpty(dt.Rows[i]["Update_Date"].ToString()))
-                                {
-                                    oMediaRes.UpdateDate = System.Convert.ToDateTime(dt.Rows[i]["Update_Date"].ToString());
-                                }
-                                lMedias.Add(oMediaRes);
-                            }
-                            response.m_nTotalItems = lMedias.Count;
-                            response.m_nMediaIds = Utils.GetMediaForPaging(lMedias, request); 
-                            
-                            xmlresult = "no resultes";
-                            if (response != null)
-                            {
-                                xmlresult = SerializeToXML<MediaIdsResponse>(response);
-                            }
-                            _logger.Info(xmlresult);
-                            return (BaseResponse)response;
-                        }
+                        lMedias = HandleGetRelated(request, ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["media_id"]));
+                    }
+                    else 
+                    {
+                        //Return most viewed items and validate against ES they are still associated with the operator
+                        lMedias = HandleMostViewed(dt);
+                        lMedias = GetProtocolFinalResultsUsingSearcher(lMedias, ref initializedSearcher, jsonizedChannelsDefinitions, request.m_nGroupID);
                     }
                 }
-                return  (BaseResponse)response;
-               
+                else
+                {
+                    lMedias = new List<SearchResult>(0);
+                }
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                _logger.Error(this.ToString(), ex);
                 throw ex;
             }
+
+            return lMedias;
         }
 
+        protected override List<SearchResult> ExecuteNonIPNOProtocol(BaseRequest oBaseRequest)
+        {
+            List<SearchResult> lMedias = null;
+            try
+            {
+                PersonalRecommendedRequest request = (PersonalRecommendedRequest)oBaseRequest;
+                if (request == null)
+                    throw new Exception("Request object is null");
 
+                _logger.Info(String.Concat(request.ToString(), "started at: ", DateTime.UtcNow));
+
+                DataTable dt = CatalogDAL.Get_PersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize);
+
+                if (dt != null && dt.Columns != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    if (ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["getRelated"]) == 1)
+                    {
+                        lMedias = HandleGetRelated(request, ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["media_id"]));
+                    }
+                    else 
+                    {
+                        //Return most viewed items
+                        lMedias = HandleMostViewed(dt);
+                    }
+                }
+                else
+                {
+                    lMedias = new List<SearchResult>(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(this.ToString(), ex);
+                throw ex;
+            }
+
+            return lMedias;
+        }
+
+        protected override int GetProtocolMaxResultsSize()
+        {
+            int res = 0;
+            string resultsSize = Utils.GetWSURL("PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE");
+            if (resultsSize.Length > 0 && Int32.TryParse(resultsSize, out res))
+                return res;
+            return Catalog.DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE;
+        }
     }
 }
