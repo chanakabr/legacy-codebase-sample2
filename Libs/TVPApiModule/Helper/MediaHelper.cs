@@ -751,7 +751,11 @@ namespace TVPApi
                         Language = initObj.Locale.LocaleLanguage,
                         TagsMetas = tagsMetas,
                         CutWith = cutWith,
-                        SiteGuid = initObj.SiteGuid
+                        SiteGuid = initObj.SiteGuid,
+                        OrderObj = new OrderObj()
+                        {
+                            m_eOrderBy = 
+                        }
                     };
 
                     mediaInfo = channelLoader.Execute();
