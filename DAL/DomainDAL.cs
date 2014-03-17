@@ -1616,5 +1616,39 @@ namespace DAL
 
             return nActivationStatus;
         }
+
+        //check this!!!
+        public static bool IsSingleDomainEnvironment(int nGroupID)
+        {
+            bool isSingleDomainEnv = false;       
+            string sDomainEnv = ""; 
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                //selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                selectQuery += "select lm.ID, dm.description from Tvinci..groups_device_limitation_modules  lm (nolock), Users..lu_domain_environment dm (nolock) where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lm.group_ID", "=", nGroupID);
+                selectQuery += "and dm.ID = lm.environment_type";
+                
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        sDomainEnv = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "description", 0);
+                        if (sDomainEnv == "SUS")
+                            return isSingleDomainEnv = true;
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return isSingleDomainEnv;
+        }
     }
 }

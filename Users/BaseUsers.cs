@@ -47,6 +47,7 @@ namespace Users
         public abstract bool DoesUserNameExists(string sUserName);
         public abstract UserGroupRuleResponse CheckParentalPINToken(string sChangePinToken);
         public abstract UserGroupRuleResponse ChangeParentalPInCodeByToken(string sSiteGuid, int nUserRuleID, string sChangePinToken, string sCode);
+        public abstract DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID);
 
         public virtual bool WriteToLog(string sSiteGUID, string sMessage, string sWriter)
         {

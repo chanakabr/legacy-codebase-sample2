@@ -45,11 +45,31 @@ namespace Users
             }
             
             int newUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));
+            
             if (newUserID <= 0)
             {
                 resp.Initialize(ResponseStatus.ErrorOnSaveUser, u);
                 return resp;
             }
+
+
+            if (u.m_domianID <= 0)
+            {
+                //check if user needs a domain           
+                bool bDomainIsMandatory = !DAL.DomainDal.IsSingleDomainEnvironment(m_nGroupID);
+
+                if (bDomainIsMandatory) //add new domain             
+                {          
+                    DomainResponseObject dResp = base.AddNewDomain(oBasicData.m_sUserName, newUserID, m_nGroupID);
+                    if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
+                    {
+                        ResponseStatus ret = ResponseStatus.ErrorOnInitUser;//  add here a new status also?
+                        resp.Initialize(ret, u);
+                        return resp;
+                    }
+                }
+            }
+
 
             resp.m_user = u;
             

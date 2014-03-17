@@ -310,7 +310,13 @@ namespace Users
         //} 
         #endregion
 
-
+        //in case of Yes - the new domain is added seperatly, this is a dummy function
+        public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
+        {
+            DomainResponseObject dr = new DomainResponseObject();
+            dr.m_oDomainResponseStatus = DomainResponseStatus.OK;            
+            return dr;
+        }
        
 
 

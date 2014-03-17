@@ -193,36 +193,75 @@ namespace Users
             
             if (nActivationStatus != UserActivationState.Activated)
             {
-                UserResponseObject o = new UserResponseObject();
-                ResponseStatus ret = ResponseStatus.WrongPasswordOrUserName;
+                
+                if (nActivationStatus == UserActivationState.UserWIthNoDomain)
+                {
+                    //check if user needs a domain           
+                    bool bDomainIsMandatory = !DAL.DomainDal.IsSingleDomainEnvironment(nGroupID);
 
-                if (nUserID <= 0)
-                {
-                    ret = ResponseStatus.WrongPasswordOrUserName;
+                    //add new domain
+                    if (bDomainIsMandatory)
+                    {
+                        DomainResponseObject dResp = AddNewDomain(sUN, nUserID, nGroupID);
+                        if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
+                        {
+                            UserResponseObject o = new UserResponseObject();
+                            o.m_RespStatus = ResponseStatus.ErrorOnSaveUser; //add here a new status also?
+                            return o;
+                        }
+                    }
                 }
-                else if (nActivationStatus == UserActivationState.UserDoesNotExist)
+                else                                
                 {
-                    ret = ResponseStatus.UserDoesNotExist;
-                }
-                else if (nActivationStatus == UserActivationState.NotActivated) 
-                {
-                    ret = ResponseStatus.UserNotActivated;
-                }
-                else if (nActivationStatus == UserActivationState.NotActivatedByMaster)
-                {
-                    ret = ResponseStatus.UserNotMasterApproved;
-                }
-                else if (nActivationStatus == UserActivationState.UserRemovedFromDomain)
-                {
-                    ret = ResponseStatus.UserRemovedFromDomain;
-                }
+                    UserResponseObject o = new UserResponseObject();
+                    ResponseStatus ret = ResponseStatus.WrongPasswordOrUserName;
 
-                o.m_RespStatus = ret;
-                return o;
-            }
+                    if (nUserID <= 0)
+                    {
+                        ret = ResponseStatus.WrongPasswordOrUserName;
+                    }
+                    else if (nActivationStatus == UserActivationState.UserDoesNotExist)
+                    {
+                        ret = ResponseStatus.UserDoesNotExist;
+                    }
+                    else if (nActivationStatus == UserActivationState.NotActivated)
+                    {
+                        ret = ResponseStatus.UserNotActivated;
+                    }
+                    else if (nActivationStatus == UserActivationState.NotActivatedByMaster)
+                    {
+                        ret = ResponseStatus.UserNotMasterApproved;
+                    }
+                    else if (nActivationStatus == UserActivationState.UserRemovedFromDomain)
+                    {
+                        ret = ResponseStatus.UserRemovedFromDomain;
+                    }
 
+                    o.m_RespStatus = ret;
+                    return o;
+                }                
+            }            
+            
             return User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
+
+
+
+
+        public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
+        {
+            Users.BaseDomain t = null;               
+            Utils.GetBaseDomainsImpl(ref t, nGroupID);                
+            DomainResponseObject dr = t.AddDomain(sUN + "/Domain", sUN + "/Domain", nUserID, nGroupID, "");
+
+            if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
+            {
+                // Error adding to domain
+                Logger.Logger.Log("Add New Domain Error", "Domain = " + t.ToString(), "Domains");                
+            }
+            return dr;
+        }
+
 
         public override UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
@@ -232,25 +271,45 @@ namespace Users
 
             if (nActivationStatus != UserActivationState.Activated)
             {
-                UserResponseObject o = new UserResponseObject();
-                ResponseStatus ret = ResponseStatus.UserNotActivated;
+                if (nActivationStatus == UserActivationState.UserWIthNoDomain)
+                {
+                    //check if user needs a domain           
+                    bool bDomainIsMandatory = !DAL.DomainDal.IsSingleDomainEnvironment(nGroupID);
 
-                if (nActivationStatus == UserActivationState.NotActivatedByMaster)
-                {
-                    ret = ResponseStatus.UserNotMasterApproved;
+                    //add new domain
+                    if (bDomainIsMandatory)
+                    {
+                        DomainResponseObject dResp = AddNewDomain(sUN, siteGuid, nGroupID);
+                        if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
+                        {                           
+                            UserResponseObject o = new UserResponseObject();
+                            o.m_RespStatus = ResponseStatus.ErrorOnSaveUser; //add here a new status also?
+                            return o;
+                        }
+                    }
                 }
-                else if (nActivationStatus == UserActivationState.UserDoesNotExist)
+                else               
                 {
-                    ret = ResponseStatus.UserDoesNotExist;
-                }
-                else if (nActivationStatus == UserActivationState.UserRemovedFromDomain)
-                {
-                    ret = ResponseStatus.UserRemovedFromDomain;
-                }
+                    UserResponseObject o = new UserResponseObject();
+                    ResponseStatus ret = ResponseStatus.UserNotActivated;
 
-                o.m_RespStatus = ret;
-                return o;
-            }
+                    if (nActivationStatus == UserActivationState.NotActivatedByMaster)
+                    {
+                        ret = ResponseStatus.UserNotMasterApproved;
+                    }
+                    else if (nActivationStatus == UserActivationState.UserDoesNotExist)
+                    {
+                        ret = ResponseStatus.UserDoesNotExist;
+                    }
+                    else if (nActivationStatus == UserActivationState.UserRemovedFromDomain)
+                    {
+                        ret = ResponseStatus.UserRemovedFromDomain;
+                    }
+
+                    o.m_RespStatus = ret;
+                    return o;
+                }                
+            }            
 
             //bool bActivated = IsUserActivated(ref sUN, ref siteGuid);
             //if (bActivated == false)
@@ -262,7 +321,6 @@ namespace Users
             //}
 
             return User.SignIn(siteGuid, nMaxFailCount, nLockMinutes, m_nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
-
         }
 
         public override UserResponseObject SignInWithToken (string sToken, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
@@ -517,12 +575,31 @@ namespace Users
                     return resp;
                 }
             }
-            u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);
-            resp.m_user = u;
+            //the save includes the initialization of  u.m_domianID
+             int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);  
+           
+            
+            if (u.m_domianID <= 0)
+            {
+                //check if user needs a domain           
+                bool bDomainIsMandatory = !DAL.DomainDal.IsSingleDomainEnvironment(m_nGroupID);
+                                
+                if (bDomainIsMandatory)
+                { 
+                    //add new domain
+                    DomainResponseObject dResp = AddNewDomain(oBasicData.m_sUserName, nUserID, m_nGroupID);
+                    if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
+                    {
+                        ResponseStatus ret = ResponseStatus.ErrorOnSaveUser;//  add here a new status also?
+                        resp.Initialize(ret, u);                 
+                        return resp;
+                    }
+                }            
+            }
+            
+            CreateDefaultRules(u.m_sSiteGUID, m_nGroupID);            
 
-            CreateDefaultRules(u.m_sSiteGUID, m_nGroupID);
-
-            resp.m_RespStatus = ResponseStatus.OK;
+            resp.Initialize(ResponseStatus.OK, u);   
 
             string sNewsLetter = sDynamicData.GetValByKey("newsletter");
             if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true"))

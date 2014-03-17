@@ -53,7 +53,9 @@ namespace Users
         Activated = 0,
         NotActivated = 1,
         NotActivatedByMaster = 2,
-        UserRemovedFromDomain
+        UserRemovedFromDomain = 3,
+        UserWIthNoDomain  = 4
+
     }
 
     //public enum DeviceState
