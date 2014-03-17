@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
+using Facebook.Utility;
 using ODBCWrapper;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
@@ -26,6 +27,7 @@ using System.Configuration;
 using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Objects;
+using OrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj;
 
 namespace TVPApiServices
 {
@@ -155,7 +157,7 @@ namespace TVPApiServices
 
         //Get Channel medias
         [WebMethod(EnableSession = true, Description = "Get Channel medias with multiple filters")]
-        public List<Media> GetOrderedChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
+        public List<Media> GetOrderedChannelMultiFilter(InitializationObject initObj, long ChannelID, string picSize, int pageSize, int pageIndex, OrderObj orderObj, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
         {
             List<Media> lstMedia = null;
 
@@ -165,7 +167,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetOrderedChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, orderObj, tagsMetas, cutWith);
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj catalogOrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
+                    {
+                        m_eOrderBy = orderObj.m_eOrderBy,
+                        m_eOrderDir = orderObj.m_eOrderDir,
+                        m_sOrderValue = orderObj.m_sOrderValue
+                    };
+                    lstMedia = MediaHelper.GetOrderedChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, catalogOrderObj, tagsMetas, cutWith);
                 }
                 catch (Exception ex)
                 {
