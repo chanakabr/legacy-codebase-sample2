@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileUploadHandler", "FileUploadHandler\FileUploadHandler.csproj", "{82876744-9A82-4730-B9E0-29810B4CDE81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageResizeHandler", "ImageResizeHandler\ImageResizeHandler.csproj", "{EAD60549-3A6D-455C-ABAB-B2F29945B97F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteTasksCommon", "RemoteTasksCommon\RemoteTasksCommon.csproj", "{680B9D3B-E9DE-4D05-9280-F8E8B3128C48}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteTasksService", "RemoteTasksService\RemoteTasksService.csproj", "{77CCEA86-5E6D-4B60-9D25-EB1C1A0DE9B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{82876744-9A82-4730-B9E0-29810B4CDE81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82876744-9A82-4730-B9E0-29810B4CDE81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82876744-9A82-4730-B9E0-29810B4CDE81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82876744-9A82-4730-B9E0-29810B4CDE81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAD60549-3A6D-455C-ABAB-B2F29945B97F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAD60549-3A6D-455C-ABAB-B2F29945B97F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAD60549-3A6D-455C-ABAB-B2F29945B97F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAD60549-3A6D-455C-ABAB-B2F29945B97F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{680B9D3B-E9DE-4D05-9280-F8E8B3128C48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{680B9D3B-E9DE-4D05-9280-F8E8B3128C48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{680B9D3B-E9DE-4D05-9280-F8E8B3128C48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{680B9D3B-E9DE-4D05-9280-F8E8B3128C48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77CCEA86-5E6D-4B60-9D25-EB1C1A0DE9B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77CCEA86-5E6D-4B60-9D25-EB1C1A0DE9B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77CCEA86-5E6D-4B60-9D25-EB1C1A0DE9B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77CCEA86-5E6D-4B60-9D25-EB1C1A0DE9B0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

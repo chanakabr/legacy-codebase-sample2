@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="RemoteTasksService.Service" CodeBehind="Service.svc.cs" %>
