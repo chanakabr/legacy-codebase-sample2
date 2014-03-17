@@ -32,10 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ElasticSearch, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvmcore\ElasticSearch\bin\Debug\ElasticSearch.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -160,6 +156,10 @@
     <ProjectReference Include="..\..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\ElasticSearch\ElasticSearch.csproj">
+      <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
+      <Name>ElasticSearch</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\EpgBL\EpgBL.csproj">
       <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
