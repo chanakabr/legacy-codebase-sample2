@@ -314,6 +314,12 @@ namespace EpgFeeder
                         }
                     }
 
+                    if (nCount > 0 && ulProgram != null && ulProgram.Count > 0)
+                    {
+                        int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                        bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
+                    }
+
                     //start Upload proccess Queue
                     UploadQueue.UploadQueueHelper.SetJobsForUpload(int.Parse(s_GroupID));
 

@@ -404,6 +404,12 @@ namespace EpgFeeder
             List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
             EpgCB newEpgItem;            
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId));
+
+            string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
+            int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+            int nCount = 0;
+            List<ulong> ulProgram = new List<ulong>();		
+
             foreach (tvChannel item in m_TvChannels.channel)
             {
                 Int32 channelID = GetExistChannel(item.id);
@@ -478,10 +484,7 @@ namespace EpgFeeder
 
                 DeleteAllPrograms(channelID, prog);
 
-                string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-                int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
-                int nCount = 0;
-                List<ulong> ulProgram = new List<ulong>();				
+               		
 
                 foreach (var progItem in prog)
                 {
@@ -672,6 +675,13 @@ namespace EpgFeeder
                     #endregion
                 }
             }
+
+            if (nCount > 0 && ulProgram != null && ulProgram.Count > 0)
+            {
+                int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
+            }
+
             //start Upload proccess Queue
             UploadQueue.UploadQueueHelper.SetJobsForUpload(int.Parse(s_GroupID));
 
