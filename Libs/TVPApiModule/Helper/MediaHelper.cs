@@ -751,7 +751,12 @@ namespace TVPApi
                         Language = initObj.Locale.LocaleLanguage,
                         TagsMetas = tagsMetas,
                         CutWith = cutWith,
-                        SiteGuid = initObj.SiteGuid
+                        SiteGuid = initObj.SiteGuid,
+                        OrderObj = new OrderObj()
+                        {
+                            m_eOrderBy = CatalogHelper.GetCatalogOrderBy((TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy), orderBy.ToString())),
+                            m_eOrderDir = OrderDir.ASC
+                        },
                     };
 
                     mediaInfo = channelLoader.Execute();
