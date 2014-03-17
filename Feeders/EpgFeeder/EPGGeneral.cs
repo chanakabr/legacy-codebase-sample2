@@ -737,6 +737,10 @@ namespace EpgFeeder
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
             #endregion
 
+            #region Delete all existing programs in ES that have start/end dates within the new schedule
+            bool resDelete = Utils.DeleteEPGDocFromES(m_ParentGroupId, channelID, lDates);
+            #endregion
+
         }
 
 
