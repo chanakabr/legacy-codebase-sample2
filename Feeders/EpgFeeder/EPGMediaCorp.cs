@@ -135,6 +135,36 @@ namespace EpgFeeder
             }
             return res;
         }
+
+        private void DeleteProgramsByChannelAndDate(Int32 channelID, DateTime dProgStartDate)
+        {
+            DateTime dProgEndDate = dProgStartDate.AddDays(1).AddMilliseconds(-1);
+                       
+            #region Delete all existing programs in CB that have start/end dates within the new schedule
+            int nParentGroupID = int.Parse(m_ParentGroupId);
+            BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);
+            List<DateTime> lDates = new List<DateTime>() { dProgStartDate }; 
+
+            Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID), "EpgFeeder");
+
+            oEpgBL.RemoveGroupPrograms(lDates, channelID);
+            #endregion
+
+            #region Delete all existing programs in DB that have start/end dates within the new schedule
+
+            DeleteScheduleProgramByDate(channelID, dProgStartDate);
+            
+            #endregion
+
+            #region Delete all existing programs in ES that have start/end dates within the new schedule
+            bool resDelete = Utils.DeleteEPGDocFromES(m_ParentGroupId, channelID, lDates);
+            #endregion
+
+        }
+
+
+
+
         /// <summary>
         /// Save EPG schedule program from file name
         /// </summary>
@@ -181,6 +211,8 @@ namespace EpgFeeder
                     int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package); 
                     int nCount = 0;
                     List<ulong> ulProgram =  new List<ulong>();
+
+                  
                     foreach (XmlNode node in xmlnodelist)
                     {
                         try
@@ -204,6 +236,13 @@ namespace EpgFeeder
                             #region Set field mapping valus
                             SetMappingValues(FieldEntityMapping, node);
                             #endregion
+                            
+                            #region Delete Programs by channel + date                            
+                                
+                                DateTime dDate = ParseEPGStrToDate(schedule_date, "000000");// get all day start from 00:00:00
+                                DeleteProgramsByChannelAndDate(channelID, dDate);
+                            
+                            #endregion 
 
                             #region Insert EPG Program Schedule
 
@@ -408,12 +447,8 @@ namespace EpgFeeder
                 ODBCWrapper.InsertQuery insertProgQuery = new ODBCWrapper.InsertQuery("epg_channels_schedule");
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", string.Format("{0} {1} {2}", program_desc_english, program_desc_chinese, episode_no));
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", string.Format("{0} {1}", syp, syp_chi));
-
-
-
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", s_GroupID);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
-
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", EPGGuid);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", 0);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dProgStartDate);
