@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Tvinci.Core.DAL;
 using System.Data;
+using Logger;
 
 
 namespace DAL
@@ -1617,18 +1618,19 @@ namespace DAL
             return nActivationStatus;
         }
 
-        //check this!!!
+       
         public static bool IsSingleDomainEnvironment(int nGroupID)
         {
-            bool isSingleDomainEnv = false;       
+            bool isSingleDomainEnv = true;       
             string sDomainEnv = ""; 
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                //selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-                selectQuery += "select lm.ID, dm.description from Tvinci..groups_device_limitation_modules  lm (nolock), Users..lu_domain_environment dm (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lm.group_ID", "=", nGroupID);
-                selectQuery += "and dm.ID = lm.environment_type";
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                selectQuery += "select g.Max_Device_Limit , glimit.ID, dm.description from groups g (nolock)";
+                selectQuery += "inner Join groups_device_limitation_modules glimit (nolock) on glimit.ID = g.Max_Device_Limit";
+                selectQuery += "Inner Join lu_domain_environment dm (nolock) on dm.ID = glimit.environment_type where";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.ID", "=", nGroupID);         
                 
                 if (selectQuery.Execute("query", true) != null)
                 {
@@ -1636,8 +1638,8 @@ namespace DAL
                     if (nCount > 0)
                     {
                         sDomainEnv = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "description", 0);
-                        if (sDomainEnv == "SUS")
-                            return isSingleDomainEnv = true;
+                        if (sDomainEnv == "MUS")
+                            return isSingleDomainEnv = false;
                     }
                 }
                 selectQuery.Finish();
@@ -1646,6 +1648,7 @@ namespace DAL
             catch (Exception ex)
             {
                 HandleException(ex);
+                Logger.Logger.Log("exception in IsSingleDomainEnvironment with Group ID ", nGroupID.ToString() + " : " + ex.Message, "DomainDal");
             }
 
             return isSingleDomainEnv;
