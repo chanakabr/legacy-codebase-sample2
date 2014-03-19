@@ -138,8 +138,8 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         string sQuery = "select Description as txt,ID from lu_domain_environment"; 
         dr_env_type.SetSelectsQuery(sQuery);            
         dr_env_type.Initialize("Environment type", "adm_table_header_nbg", "FormInput", "environment_type", false);      
-        dr_env_type.SetConnectionKey("users_connection");
-        dr_env_type.SetDefaultVal(getDomainEnvironment(nGroupID));
+        //dr_env_type.SetConnectionKey("users_connection");
+        dr_env_type.SetDefaultVal(getDomainEnvironment(nGroupID, t));
         theRecord.AddRecord(dr_env_type);
 
         string sTable = theRecord.GetTableHTML("adm_device_limitation_modules_new.aspx?submited=1");
@@ -147,25 +147,31 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         return sTable;
     }
 
-    private string getDomainEnvironment(int nGroupID)
+    private string getDomainEnvironment(int nGroupID, object t)
     {
         string sDomainEnv = "";
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(); 
-        selectQuery += "select g.Max_Device_Limit , glimit.ID, dm.description from groups g (nolock)";
-        selectQuery += "inner Join groups_device_limitation_modules glimit (nolock) on glimit.ID = g.Max_Device_Limit";
-        selectQuery += "Inner Join Users..lu_domain_environment dm (nolock) on dm.ID = glimit.environment_type where";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.ID", "=", nGroupID);         
-                
-        if (selectQuery.Execute("query", true) != null)
+        if (t != null)
         {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            if (nCount > 0)
+            int nRowID = int.Parse(t.ToString());
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+          //  selectQuery.SetConnectionKey("CONNECTION_STRING");
+            selectQuery += "select glimit.ID, dm.description from groups g (nolock)";
+            selectQuery += "inner Join groups_device_limitation_modules glimit (nolock) on";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("glimit.ID", "=", nRowID);
+            selectQuery += "Inner Join lu_domain_environment dm (nolock) on dm.ID = glimit.environment_type where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.ID", "=", nGroupID);
+
+            if (selectQuery.Execute("query", true) != null)
             {
-                sDomainEnv = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "description", 0);
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    sDomainEnv = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "description", 0);
+                }
             }
+            selectQuery.Finish();
+            selectQuery = null;
         }
-        selectQuery.Finish();
-        selectQuery = null;
         return sDomainEnv;
     }
 }
