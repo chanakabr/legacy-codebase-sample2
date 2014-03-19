@@ -5,20 +5,19 @@ using System.Text;
 
 namespace ConditionalAccess
 {
-    public enum PriceReason
+    public enum PriceReason : int
     {
-        Error = 0,
-        PPVPurchased = 1,
-        Free = 2,
-        ForPurchaseSubscriptionOnly = 3,
-        SubscriptionPurchased = 4,
-        ForPurchase = 5,
-        UnKnown = 6,
-        SubscriptionPurchasedWrongCurrency = 7,
-        PrePaidPurchased = 8,
-        GeoCommerceBlocked = 9,
-        EntitledToPreviewModule = 10,
-        FirstDeviceLimitation = 11
+        PPVPurchased = 0,
+        Free = 1,
+        ForPurchaseSubscriptionOnly = 2,
+        SubscriptionPurchased = 3,
+        ForPurchase = 4,
+        UnKnown = 5,
+        SubscriptionPurchasedWrongCurrency = 6,
+        PrePaidPurchased = 7,
+        GeoCommerceBlocked = 8,
+        EntitledToPreviewModule = 9,
+        FirstDeviceLimitation =10
     }
 
     public enum BillingItemsType
