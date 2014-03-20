@@ -129,8 +129,11 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
     }
 
     static public string GetWSURL(string sKey)
-    {        
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
+    {
+        if (ConfigurationManager.AppSettings[sKey] != null &&
+            ConfigurationManager.AppSettings[sKey].ToString() != "")
+            return ConfigurationManager.AppSettings[sKey].ToString();
+        return "";
     }
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
@@ -145,11 +148,14 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
         string sWSURL = GetWSURL("conditionalaccess_ws");
         if (sWSURL != "")
             p.Url = sWSURL;
-        ca_ws.BillingTransactionsResponse ret = p.GetUserBillingHistory(sWSUserName, sWSPass, Session["user_id"].ToString(), 0, 1000);
-        if (ret.m_nTransactionsCount > 1000)
-            ret = p.GetUserBillingHistory(sWSUserName, sWSPass, Session["user_id"].ToString(), 0, ret.m_nTransactionsCount);
 
-        ca_ws.PermittedSubscriptionContainer[] perSubs = p.GetUserPermittedSubscriptions(sWSUserName, sWSPass, Session["user_id"].ToString());
+        string user = Session["user_id"].ToString();
+
+        ca_ws.BillingTransactionsResponse ret = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, 1000);
+        if (ret.m_nTransactionsCount > 1000)
+            ret = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, ret.m_nTransactionsCount);
+
+        ca_ws.PermittedSubscriptionContainer[] perSubs = p.GetUserPermittedSubscriptions(sWSUserName, sWSPass, user);
 
         DataTable d = new DataTable();
         Int32 n = 0;
@@ -168,7 +174,7 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
         d.Columns.Add(PageUtils.GetColumn("Canstrech", n));
         d.Columns.Add(PageUtils.GetColumn("BasePurchasedID", n));
         d.Columns.Add(PageUtils.GetColumn("Canrenew", n));
-        
+
         Int32 nCount = ret.m_nTransactionsCount;
         for (int i = 0; i < nCount; i++)
         {
@@ -178,7 +184,7 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
             tmpRow["Type"] = ret.m_Transactions[i].m_eItemType.ToString();
             tmpRow["PurchasedItemCode"] = ret.m_Transactions[i].m_sPurchasedItemCode.ToString();
             tmpRow["BasePurchasedID"] = ret.m_Transactions[i].m_nPurchaseID;
-            
+
             tmpRow["Item Name"] = ret.m_Transactions[i].m_sPurchasedItemName + " (" + ret.m_Transactions[i].m_sPurchasedItemCode + ")";
             try
             {
@@ -217,6 +223,7 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
             {
                 bool bSubExist = false;
                 bool bSubRenewable = false;
+                bool bIsRecurring = false;
                 if (perSubs != null)
                 {
                     for (int j = 0; j < perSubs.Length; j++)
@@ -225,15 +232,16 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
                         {
                             bSubExist = true;
                             bSubRenewable = perSubs[j].m_bRecurringStatus;
+                            bIsRecurring = perSubs[j].m_bIsSubRenewable;
                         }
                     }
                 }
-                if (ret.m_Transactions[i].m_bIsRecurring == true && ret.m_Transactions[i].m_dtEndDate > DateTime.UtcNow && bSubRenewable == true && bSubExist == true)
+                if (bIsRecurring == true && ret.m_Transactions[i].m_dtEndDate > DateTime.UtcNow && bSubRenewable == true && bSubExist == true)
                     tmpRow["Cancancel"] = "1";
                 else
                     tmpRow["Cancancel"] = "0";
 
-                if (ret.m_Transactions[i].m_bIsRecurring == true && ret.m_Transactions[i].m_dtEndDate > DateTime.UtcNow && bSubRenewable == false && bSubExist == true)
+                if (bIsRecurring == true && ret.m_Transactions[i].m_dtEndDate > DateTime.UtcNow && bSubRenewable == false && bSubExist == true)
                     tmpRow["Canrenew"] = "1";
                 else
                     tmpRow["Canrenew"] = "0";
@@ -250,25 +258,25 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
         theTable.AddHiddenField("Canrenew");
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("javascript:StopSubRenewals", "Stop renewals", "Cancancel=1");
-            linkColumn1.AddQueryStringValue("user_id", Session["user_id"].ToString());
+            linkColumn1.AddQueryStringValue("user_id", user);
             linkColumn1.AddQueryStringValue("sub_code", "field=PurchasedItemCode");
             linkColumn1.AddQueryStringValue("purchase_id", "field=BasePurchasedID");
             theTable.AddLinkColumn(linkColumn1);
         }
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("javascript:RenewSubRenewals", "Activate renewals", "Canrenew=1");
-            linkColumn1.AddQueryStringValue("user_id", Session["user_id"].ToString());
+            linkColumn1.AddQueryStringValue("user_id", user);
             linkColumn1.AddQueryStringValue("sub_code", "field=PurchasedItemCode");
             linkColumn1.AddQueryStringValue("purchase_id", "field=BasePurchasedID");
             theTable.AddLinkColumn(linkColumn1);
         }
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("javascript:StrechSub", "Stretch", "Canstrech=1");
-            linkColumn1.AddQueryStringValue("user_id", Session["user_id"].ToString());
+            linkColumn1.AddQueryStringValue("user_id", user);
             linkColumn1.AddQueryStringValue("sub_code", "field=PurchasedItemCode");
             linkColumn1.AddQueryStringValue("purchase_id", "field=BasePurchasedID");
             linkColumn1.AddQueryStringValue("sub_renewable", "field=Cancancel");
-            
+
             theTable.AddLinkColumn(linkColumn1);
         }
     }
