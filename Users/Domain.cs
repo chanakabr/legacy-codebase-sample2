@@ -950,41 +950,41 @@ namespace Users
                 m_UsersIDs.Add(nUserID);
                 m_PendingUsersIDs.Add(nUserID);
 
-                bool saved = false;
-
                 // Update user's email to its Master's if empty
                 //
                 if (string.IsNullOrEmpty(sNewEmail))
                 {
+                    bool saved = false;
+
                     UserBasicData uBasic = new UserBasicData();
                     bool initBasic = uBasic.Initialize(nUserID, nGroupID);
                     uBasic.m_sEmail = masterUser.m_oBasicData.m_sEmail;
                     saved = uBasic.Save(nUserID);
-                }
 
-                if (!saved)
-                {
-                    return (new DomainResponseObject(this, DomainResponseStatus.Error));
+                    if (!saved)
+                    {
+                        return (new DomainResponseObject(this, DomainResponseStatus.RequestFailed));
+                    }
                 }
 
                 // Now we can send the activation mail to the Master
                 if (!string.IsNullOrEmpty(sActivationToken))
                 {
                     TvinciAPI.AddUserMailRequest sMailRequest = GetAddUserMailRequest(nGroupID,
-                                                                                    masterUser.m_oBasicData.m_sFirstName,
-                                                                                    masterUser.m_oBasicData.m_sUserName,
-                                                                                    masterUser.m_oBasicData.m_sEmail,
-                                                                                    sNewUsername,
-                                                                                    sNewFirstName,
-                                                                                    sActivationToken);
+                                                                                                masterUser.m_oBasicData.m_sFirstName,
+                                                                                                masterUser.m_oBasicData.m_sUserName,
+                                                                                                masterUser.m_oBasicData.m_sEmail,
+                                                                                                sNewUsername,
+                                                                                                sNewFirstName,
+                                                                                                sActivationToken);
 
                     if (sMailRequest != null)
                     {
                         bool sendingMailResult = Utils.SendMail(nGroupID, sMailRequest);
-                        return (new DomainResponseObject(this, DomainResponseStatus.OK));
+                        return (new DomainResponseObject(this, DomainResponseStatus.RequestSent));
                     }
 
-                    return (new DomainResponseObject(this, DomainResponseStatus.Error));
+                    return (new DomainResponseObject(this, DomainResponseStatus.RequestFailed));
                 }
             }
 
