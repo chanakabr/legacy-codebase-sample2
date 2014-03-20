@@ -347,7 +347,6 @@ namespace ConditionalAccess
             {
 
                 //Cellular_ChargeUser
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "HandleCellularChargeUser", "billing", sUserIP, ref sWSUsername, ref sWSPassword);
                 return bm.Cellular_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sExtraParams);
 
             }
