@@ -4,13 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Configuration;
 using System.Data;
+using DAL;
 
 namespace Users
 {
     public class Utils
     {
         public const int USER_COGUID_LENGTH = 15;
-
+        internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the
+        // default result of GetDateSafeVal in ODBCWrapper.Utils
 
         static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers t)
         {
@@ -304,7 +306,6 @@ namespace Users
 
         static public bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)
         {
-            //string sCoGuid = user.m_oBasicData.m_CoGuid;
 
             if (string.IsNullOrEmpty(sCoGuid))
             {
@@ -364,6 +365,38 @@ namespace Users
                 return false;
             }
 
+        }
+
+        internal static List<HomeNetwork> GetHomeNetworksOfDomain(long lDomainID, int nGroupID)
+        {
+            List<HomeNetwork> res = null;
+
+            DataTable dt = DomainDal.Get_DomainHomeNetworks(lDomainID, nGroupID);
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                int length = dt.Rows.Count;
+                res = new List<HomeNetwork>(length);
+                for (int i = 0; i < length; i++)
+                {
+                    HomeNetwork hn = new HomeNetwork();
+                    hn.UID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NETWORK_ID"]);
+                    if (string.IsNullOrEmpty(hn.UID))
+                        continue;
+                    hn.Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NAME"]);
+                    hn.Description = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["DESCRIPTION"]);
+                    hn.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["IS_ACTIVE"]) != 0;
+                    hn.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["CREATE_DATE"]);
+
+                    res.Add(hn);
+                }
+            }
+            else
+            {
+                res = new List<HomeNetwork>(0);
+            }
+
+            return res;
         }
     }
 }
