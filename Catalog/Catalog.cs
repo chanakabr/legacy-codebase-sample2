@@ -1553,28 +1553,44 @@ namespace Catalog
                 EpgSearchObj searcherEpgSearch = new EpgSearchObj();
                 _logger.InfoFormat("BuildEpgSearchObject groupID = {0},search = {1}, dates {2}-{3} ", request.m_nGroupID, request.m_sSearch, request.m_dStartDate, request.m_dEndDate);
 
-                searcherEpgSearch.m_bSearchAnd = false; //Search by OR 
-                searcherEpgSearch.m_bDesc = true;
-                searcherEpgSearch.m_sOrderBy = "start_date";
+                searcherEpgSearch.m_bExact = request.m_bExact;
                 searcherEpgSearch.m_dEndDate = request.m_dEndDate;
                 searcherEpgSearch.m_dStartDate = request.m_dStartDate;
-                List<EpgSearchValue> esvList = new List<EpgSearchValue>();
+
+                //deafult values for OrderBy object 
+                searcherEpgSearch.m_bDesc = true;
+                searcherEpgSearch.m_sOrderBy = "start_date";
+
+                //List<EpgSearchValue> esvList = new List<EpgSearchValue>();
                 string sVal = string.Empty;
 
-                //Get all tags and meta for group
-                GetGroupsTagsAndMetas(request.m_nGroupID, ref lSearchList);
-                if (lSearchList == null)
-                    return null;
-                foreach (string item in lSearchList)
+                List<SearchValue> dAnd = new List<SearchValue>();
+                List<SearchValue> dOr = new List<SearchValue>();
+                if (request.m_bExact) // free text search - based on  Exact tags and metas 
                 {
-                    if (bWhiteSpace)
-                        sVal = request.m_sSearch.Replace(' ', '_');
-                    else
-                        sVal = request.m_sSearch;
-                    esvList.Add(new EpgSearchValue(item, sVal));
+                    EpgSearchAddParams(request, ref dAnd, ref dOr);
                 }
+                else  // free text search - based on  metas/tags "isSearchable" setting 
+                {
+                    searcherEpgSearch.m_bSearchAnd = false; //Search by OR 
+                    //Get all tags and meta for group
+                    GetGroupsTagsAndMetas(request.m_nGroupID, ref lSearchList);
+                    if (lSearchList == null)
+                        return null;
+                    foreach (string item in lSearchList)
+                    {
+                        if (bWhiteSpace)
+                            sVal = request.m_sSearch.Replace(' ', '_');
+                        else
+                            sVal = request.m_sSearch;
+                        dOr.Add(new SearchValue(item, sVal));
+                    }
+                }
+                //initialize the search list with And / Or values
+                searcherEpgSearch.m_lSearchOr = dOr;
+                searcherEpgSearch.m_lSearchAnd = dAnd;
 
-                searcherEpgSearch.m_lSearch = esvList;
+
                 // get parent group by request.m_nGroupID
                 Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
                 if (group != null)
@@ -1593,6 +1609,35 @@ namespace Catalog
                 return null;
             }
         }
+        
+        /*Build Full search object*/
+        private static void EpgSearchAddParams(EpgSearchRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
+        {
+            if (request.m_AndList != null)
+            {
+                foreach (KeyValue andKeyValue in request.m_AndList)
+                {
+                    SearchValue search = new SearchValue();
+                    search.m_sKey = andKeyValue.m_sKey;
+                    search.m_lValue = new List<string> { andKeyValue.m_sValue };
+                    search.m_sValue = andKeyValue.m_sValue;
+                    m_dAnd.Add(search);
+                }
+            }
+
+            if (request.m_OrList != null)
+            {
+                foreach (KeyValue orKeyValue in request.m_OrList)
+                {
+                    SearchValue search = new SearchValue();
+                    search.m_sKey = orKeyValue.m_sKey;
+                    search.m_lValue = new List<string> { orKeyValue.m_sValue };
+                    search.m_sValue = orKeyValue.m_sValue;
+                    m_dOr.Add(search);
+                }
+            }
+        }
+
 
         private static void GetGroupsTagsAndMetas(int nGroupID, ref  List<string> lSearchList)
         {
