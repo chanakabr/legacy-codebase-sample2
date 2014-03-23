@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using Tvinci.Core.DAL;
-using Logger;
 
 
 namespace DAL
@@ -1299,8 +1298,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                HandleException(ex);
-                Logger.Logger.Log("exception in GetUserActivationState with user ID ", nUserID.ToString() + " : " + ex.Message, "UsersDal");
+                HandleException(ex);               
                 res = (-2);
             }
 

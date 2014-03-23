@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using Tvinci.Core.DAL;
 using System.Data;
-using Logger;
-
+using ApiObjects;
 
 namespace DAL
 {
@@ -1621,34 +1620,30 @@ namespace DAL
        
         public static bool IsSingleDomainEnvironment(int nGroupID)
         {
-            bool isSingleDomainEnv = true;       
-            string sDomainEnv = ""; 
+            bool isSingleDomainEnv = true;     
             try
-            {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-                selectQuery += "select g.Max_Device_Limit , glimit.ID, dm.description from groups g (nolock)";
-                selectQuery += "inner Join groups_device_limitation_modules glimit (nolock) on glimit.ID = g.Max_Device_Limit";
-                selectQuery += "Inner Join lu_domain_environment dm (nolock) on dm.ID = glimit.environment_type where";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.ID", "=", nGroupID);         
-                
-                if (selectQuery.Execute("query", true) != null)
+            {               
+                ODBCWrapper.StoredProcedure spGetDomainEnvironment = new ODBCWrapper.StoredProcedure("GET_DomainEnvironment");
+                spGetDomainEnvironment.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spGetDomainEnvironment.AddParameter("@groupID", nGroupID);                    
+                DataSet ds = spGetDomainEnvironment.ExecuteDataSet();
+
+                if ((ds != null) && (ds.Tables.Count != 0) && (ds.Tables[0].DefaultView.Count != 0))
                 {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
+                    DataRow dr = ds.Tables[0].DefaultView[0].Row;
+                    if (dr != null)
                     {
-                        sDomainEnv = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "description", 0);
-                        if (sDomainEnv == "MUS")
+                        string sDomainEnv = ODBCWrapper.Utils.GetSafeStr(dr, "description");
+                        DomianEnvironmentType eType = (DomianEnvironmentType)Enum.Parse(typeof(DomianEnvironmentType), sDomainEnv, true);
+                        if (eType == ApiObjects.DomianEnvironmentType.MUS)
                             return isSingleDomainEnv = false;
                     }
                 }
-                selectQuery.Finish();
-                selectQuery = null;
             }
+
             catch (Exception ex)
-            {
-                HandleException(ex);
-                Logger.Logger.Log("exception in IsSingleDomainEnvironment with Group ID ", nGroupID.ToString() + " : " + ex.Message, "DomainDal");
+            {  
+            
             }
 
             return isSingleDomainEnv;

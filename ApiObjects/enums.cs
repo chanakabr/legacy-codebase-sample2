@@ -135,4 +135,10 @@ namespace ApiObjects
         [EnumMember]
         SubscriptionRemovedFromOperator = 3
     }
+
+    public enum DomianEnvironmentType
+    {
+        SUS,
+        MUS
+    }
 }
