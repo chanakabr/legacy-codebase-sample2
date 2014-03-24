@@ -617,7 +617,6 @@
       </s:complexType>
       <s:simpleType name="PriceReason">
         <s:restriction base="s:string">
-          <s:enumeration value="Error" />
           <s:enumeration value="PPVPurchased" />
           <s:enumeration value="Free" />
           <s:enumeration value="ForPurchaseSubscriptionOnly" />
