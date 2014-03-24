@@ -1233,6 +1233,7 @@ namespace DAL
                     else
                     {
                         res = UserActivationState.UserDoesNotExist; // (-1);
+
                         return res;
                     }
                 }
@@ -1240,8 +1241,8 @@ namespace DAL
                 selectQuery.Finish();
                 selectQuery = null;
 
-                if (res == UserActivationState.NotActivated) { return res; }
 
+                if (res == UserActivationState.NotActivated) { return res; }
 
                 // If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
                 //
@@ -1281,7 +1282,7 @@ namespace DAL
                         }
 
                     }
-                    else
+                    else //user does not have a Domain
                     {
                         res = UserActivationState.UserNotInDomain; //res = (-1);
                     }

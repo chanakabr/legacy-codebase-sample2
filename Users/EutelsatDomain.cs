@@ -326,15 +326,8 @@ namespace Users
                 oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.Error);
             }
 
-            //New domain
+            // Initialize domain
             Domain domain = InitializeDomain(nGroupID, nDomainID);
-
-            //// If given user is not in the domain
-            //if ((domain.m_UsersIDs != null && domain.m_UsersIDs.Count > 0) && (!domain.m_UsersIDs.Contains(nUserID)))
-            //{
-            //    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
-            //    return oDomainResponseObject;
-            //}
 
             Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
 
@@ -363,10 +356,7 @@ namespace Users
             DomainResponseObject oDomainResponseObject;
 
             //New domain
-            Domain domain = InitializeDomain(m_nGroupID, nDomainID);  //new Domain();
-
-            //Init The Domain
-            //bool bInit = InitializeDomain(m_nGroupID, nDomainID, ref domain);
+            Domain domain = InitializeDomain(m_nGroupID, nDomainID);
 
             //Remove Device from Domain
             DomainResponseStatus eDomainResponseStatus = domain.RemoveDeviceFromDomain(sDeviceUDID);
@@ -382,9 +372,6 @@ namespace Users
 
             //New domain
             Domain domain = InitializeDomain(m_nGroupID, nDomainID); //new Domain();
-
-            //Init The Domain
-            //bool bInit = InitializeDomain(m_nGroupID, nDomainID, ref domain);
 
             // Change DeVice data
             DomainResponseStatus eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
@@ -411,57 +398,7 @@ namespace Users
                 //domain.m_DomainStatus = DomainStatus.Error;
                 return (new DomainResponseObject(null, DomainResponseStatus.DomainNotInitialized));
             }
-
-            //Check if UserID is valid
-            if ((!User.IsUserValid(nGroupID, nUserID)))
-            {
-                domain.m_DomainStatus = DomainStatus.Error;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-            }
-
-            //int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
-            //if (nUserDomainID <= 0)
-            //{
-            //    domain.m_DomainStatus = DomainStatus.UserNotInDomain;
-            //    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
-            //    return oDomainResponseObject;
-            //}
-
-            Dictionary<int, int> dTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
-
-            // User validations
-            if (dTypedUserIDs == null || dTypedUserIDs.Count == 0)
-            {
-                // Try to remove anyway (maybe user is inactive or pending)
-                DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
-
-                domain.m_DomainStatus = DomainStatus.Error;
-                oDomainResponseObject = new DomainResponseObject(domain, res);  //DomainResponseStatus.NoUsersInDomain);
-                return oDomainResponseObject;
-            }
-
-            if (!dTypedUserIDs.ContainsKey(nUserID))
-            {
-                // Try to remove anyway (maybe user is inactive)
-                DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
-
-                domain.m_DomainStatus = DomainStatus.UserNotInDomain;
-                oDomainResponseObject = new DomainResponseObject(domain, res);  //DomainResponseStatus.UserNotExistsInDomain);
-                return oDomainResponseObject;
-            }
-            
-            // Check master and default users
-            KeyValuePair<int, int> masterUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Master);
-            KeyValuePair<int, int> defaultUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Household);
-
-            if (masterUserKV.Equals(default(KeyValuePair<int, int>)) || masterUserKV.Key <= 0 || 
-                (nUserID == masterUserKV.Key || nUserID == defaultUserKV.Key))
-            {
-                domain.m_DomainStatus = DomainStatus.Error;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-                return oDomainResponseObject;
-            }
-                      
+                     
 
             //Delete the User from Domain
             DomainResponseStatus eDomainResponseStatus = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
