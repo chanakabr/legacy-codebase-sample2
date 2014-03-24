@@ -16,16 +16,17 @@ namespace Notifiers
         override public void NotifyChange(string sSubscriptionID)
         {
             string errorMessage = "";
-            NotifyChange(sSubscriptionID, ref errorMessage, true);
+            int create0update1assign2 = 1;  // default action is update 
+            NotifyChange(sSubscriptionID, ref errorMessage, create0update1assign2);
         }
 
-        override public void NotifyChange(string sSubscriptionID, bool update)
+        override public void NotifyChange(string sSubscriptionID, int create0update1assign2)
         {
             string errorMessage = "";
-            NotifyChange(sSubscriptionID, ref errorMessage, update);
+            NotifyChange(sSubscriptionID, ref errorMessage, create0update1assign2);
         }
 
-        override public void NotifyChange(string sSubscriptionID, ref string errorMessage, bool update)
+        override public void NotifyChange(string sSubscriptionID, ref string errorMessage, int create0update1assign2)
         {
             //WS_3SS.Service t = new Notifiers.tikle_ws.Service();
             //string sTikleWSURL = Utils.GetWSURL("tikle_ws");
@@ -34,7 +35,7 @@ namespace Notifiers
             
             //Logger.Logger.Log("Notify", sSubscriptionID + " : "  + resp.ResultDetail, "subscriptions_notifier");
 
-            EutelsatProductNotificationResponse resp = MakeProductNotification(sSubscriptionID, update);
+            EutelsatProductNotificationResponse resp = MakeProductNotification(sSubscriptionID, create0update1assign2);
 
             errorMessage = "";
             
@@ -49,13 +50,28 @@ namespace Notifiers
         }
 
 
-        protected EutelsatProductNotificationResponse MakeProductNotification(string sSubscriptionID, bool update)
+        protected EutelsatProductNotificationResponse MakeProductNotification(string sSubscriptionID, int create0update1assign2)
         {
 
             EutelsatProductNotificationResponse res = new EutelsatProductNotificationResponse();
             res.success = false;
 
-            string sWSURL       = Utils.GetWSURL("Eutelsat_ProductBase") + (update ? "/update" : "/create");
+            string sWSURL = Utils.GetWSURL("Eutelsat_ProductBase"); //+(update ? "/update" : "/create");
+
+            switch (create0update1assign2)
+            {
+                case 0:
+                    sWSURL += "/create";
+                    break;
+                case 2:
+                    sWSURL += "/assign";
+                    break;
+                case 1:
+                default:
+                    sWSURL += "/update";
+                    break;
+            }
+
             string sWSUsername  = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
             string sWSPassword  = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
 

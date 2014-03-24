@@ -19,13 +19,14 @@ namespace Notifiers
             NotifyChange(sSubscriptionID, ref response);
         }
 
-        override public void NotifyChange(string sSubscriptionID, bool update = true)
+        override public void NotifyChange(string sSubscriptionID, int create0update1assign2)
         {
             string response = "";
-            NotifyChange(sSubscriptionID, ref response);
+            NotifyChange(sSubscriptionID, ref response, create0update1assign2);
         }
 
-        override public void NotifyChange(string sSubscriptionID, ref string response, bool update = true)
+        //override public void NotifyChange(string sSubscriptionID, ref string response, bool update = true)
+        override public void NotifyChange(string sSubscriptionID, ref string response, int create0update1assign2 = 1)
         {
             tikle_ws.Service t = new Notifiers.tikle_ws.Service();
             string sTikleWSURL = Utils.GetWSURL("tikle_ws");
