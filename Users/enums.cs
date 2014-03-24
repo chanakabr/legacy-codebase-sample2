@@ -25,7 +25,7 @@ namespace Users
         UserNotMasterApproved = 15,
         ErrorOnInitUser = 16,
         ErrorOnSaveUser = 17,
-        UserRemovedFromDomain = 18,
+        UserNotIndDomain = 18,
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20
     }
@@ -53,7 +53,7 @@ namespace Users
         Activated = 0,
         NotActivated = 1,
         NotActivatedByMaster = 2,
-        UserRemovedFromDomain
+        UserNotInDomain = 3
     }
 
     //public enum DeviceState

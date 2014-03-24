@@ -329,20 +329,12 @@ namespace Users
             //New domain
             Domain domain = InitializeDomain(nGroupID, nDomainID);
 
-            // If given user adding the device is not Master
-            if ((domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0) && (!domain.m_masterGUIDs.Contains(nUserID)))
-            {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.ActionUserNotMaster);
-                return oDomainResponseObject;
-            }
-
-            // If given user is not in the domain
-            if ((domain.m_UsersIDs != null && domain.m_UsersIDs.Count > 0) && (!domain.m_UsersIDs.Contains(nUserID)))
-            {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
-                return oDomainResponseObject;
-            }
-
+            //// If given user is not in the domain
+            //if ((domain.m_UsersIDs != null && domain.m_UsersIDs.Count > 0) && (!domain.m_UsersIDs.Contains(nUserID)))
+            //{
+            //    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
+            //    return oDomainResponseObject;
+            //}
 
             Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
 
@@ -406,68 +398,75 @@ namespace Users
             // Create new response
             DomainResponseObject oDomainResponseObject;
 
+            if (nDomainID <= 0 || nUserID <= 0)
+            {
+                return (new DomainResponseObject(null, DomainResponseStatus.UnKnown));
+            }
+
             //Init the Domain
             Domain domain = InitializeDomain(nGroupID, nDomainID);
-            //New domain
-            //Domain domain = new Domain();
 
-            //Check if UserGuid is valid
-            if ((!User.IsUserValid(nGroupID, nUserID)) || (nDomainID <= 0))
+            if (domain == null)
+            {
+                //domain.m_DomainStatus = DomainStatus.Error;
+                return (new DomainResponseObject(null, DomainResponseStatus.DomainNotInitialized));
+            }
+
+            //Check if UserID is valid
+            if ((!User.IsUserValid(nGroupID, nUserID)))
             {
                 domain.m_DomainStatus = DomainStatus.Error;
                 oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
             }
 
-            int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
-
-            if (nUserDomainID <= 0)
-            {
-                domain.m_DomainStatus = DomainStatus.UserNotInDomain;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
-                return oDomainResponseObject;
-            }
+            //int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
+            //if (nUserDomainID <= 0)
+            //{
+            //    domain.m_DomainStatus = DomainStatus.UserNotInDomain;
+            //    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
+            //    return oDomainResponseObject;
+            //}
 
             Dictionary<int, int> dTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
 
             // User validations
             if (dTypedUserIDs == null || dTypedUserIDs.Count == 0)
             {
-                // Try to remove anyway (maybe user is inactive)
+                // Try to remove anyway (maybe user is inactive or pending)
                 DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
 
                 domain.m_DomainStatus = DomainStatus.Error;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.NoUsersInDomain);
+                oDomainResponseObject = new DomainResponseObject(domain, res);  //DomainResponseStatus.NoUsersInDomain);
                 return oDomainResponseObject;
             }
+
             if (!dTypedUserIDs.ContainsKey(nUserID))
             {
                 // Try to remove anyway (maybe user is inactive)
                 DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
 
                 domain.m_DomainStatus = DomainStatus.UserNotInDomain;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
+                oDomainResponseObject = new DomainResponseObject(domain, res);  //DomainResponseStatus.UserNotExistsInDomain);
                 return oDomainResponseObject;
             }
             
-            // Master is always first
-            int masterUserID = dTypedUserIDs.First(ut => ut.Value == (int)UserDomainType.Master).Key;
-            if (masterUserID <= 0)
+            // Check master and default users
+            KeyValuePair<int, int> masterUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Master);
+            KeyValuePair<int, int> defaultUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Household);
+
+            if (masterUserKV.Equals(default(KeyValuePair<int, int>)) || masterUserKV.Key <= 0 || 
+                (nUserID == masterUserKV.Key || nUserID == defaultUserKV.Key))
             {
                 domain.m_DomainStatus = DomainStatus.Error;
                 oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
                 return oDomainResponseObject;
             }
-
-            //bool bInit = InitializeDomain(nGroupID, nDomainID, masterUserID, ref domain);
-
-            if (domain == null)
-            {
-                domain.m_DomainStatus = DomainStatus.Error;
-                return (new DomainResponseObject(domain, DomainResponseStatus.Error));
-            }
+                      
 
             //Delete the User from Domain
             DomainResponseStatus eDomainResponseStatus = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
+            
+            domain = InitializeDomain(nGroupID, nDomainID);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
             return oDomainResponseObject;
@@ -486,7 +485,7 @@ namespace Users
             return new DeviceResponseObject(device, eRetVal);
         }
 
-        public override DomainResponseObject ResetDomain(int nDomainID)
+        public override DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType = 0)
         {
             // Create new response
             DomainResponseObject oDomainResponseObject;
@@ -494,11 +493,8 @@ namespace Users
             //New domain
             Domain domain = InitializeDomain(m_nGroupID, nDomainID); //new Domain();
 
-            // Init Domain
-            //bool bInit = InitializeDomain(m_nGroupID, nDomainID, ref domain);
-
             //Reset the domain
-            DomainResponseStatus eDomainResponseStatus = domain.ResetDomain();
+            DomainResponseStatus eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
 
             //Re-Init domain to return updated data
             domain = InitializeDomain(m_nGroupID, nDomainID);

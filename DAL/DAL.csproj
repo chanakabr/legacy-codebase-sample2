@@ -55,6 +55,7 @@
     <Compile Include="BaseDal.cs" />
     <Compile Include="BillingDAL.cs" />
     <Compile Include="ConditionalAccessDAL.cs" />
+    <Compile Include="enums.cs" />
     <Compile Include="ProtocolsFuncsDAL.cs" />
     <Compile Include="TvmDAL.cs" />
     <Compile Include="UtilsDAL.cs" />

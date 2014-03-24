@@ -160,9 +160,9 @@ namespace Users
             List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
             string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
 
-            int activStatus = DAL.UsersDal.GetUserActivationState(arrGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(arrGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
 
-            return (UserActivationState)activStatus;
+            return activStatus;
         }
 
         public override UserResponseObject CheckUserPassword(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins)
@@ -200,21 +200,24 @@ namespace Users
                 {
                     ret = ResponseStatus.WrongPasswordOrUserName;
                 }
-                else if (nActivationStatus == UserActivationState.UserDoesNotExist)
+                else switch (nActivationStatus)
                 {
-                    ret = ResponseStatus.UserDoesNotExist;
-                }
-                else if (nActivationStatus == UserActivationState.NotActivated) 
-                {
-                    ret = ResponseStatus.UserNotActivated;
-                }
-                else if (nActivationStatus == UserActivationState.NotActivatedByMaster)
-                {
-                    ret = ResponseStatus.UserNotMasterApproved;
-                }
-                else if (nActivationStatus == UserActivationState.UserRemovedFromDomain)
-                {
-                    ret = ResponseStatus.UserRemovedFromDomain;
+                    case UserActivationState.UserDoesNotExist:
+                        ret = ResponseStatus.UserDoesNotExist;
+                        break;
+
+                    case UserActivationState.NotActivated:
+                        o.m_user = new User(nGroupID, nUserID);
+                        ret = ResponseStatus.UserNotActivated;
+                        break;
+
+                    case UserActivationState.NotActivatedByMaster:
+                        o.m_user = new User(nGroupID, nUserID);
+                        ret = ResponseStatus.UserNotMasterApproved;
+                        break;
+                    case UserActivationState.UserNotInDomain:
+                        ret = ResponseStatus.UserNotIndDomain;
+                        break;
                 }
 
                 o.m_RespStatus = ret;
@@ -235,17 +238,28 @@ namespace Users
                 UserResponseObject o = new UserResponseObject();
                 ResponseStatus ret = ResponseStatus.UserNotActivated;
 
-                if (nActivationStatus == UserActivationState.NotActivatedByMaster)
+                if (siteGuid <= 0)
                 {
-                    ret = ResponseStatus.UserNotMasterApproved;
+                    ret = ResponseStatus.WrongPasswordOrUserName;
                 }
-                else if (nActivationStatus == UserActivationState.UserDoesNotExist)
+                else switch (nActivationStatus)
                 {
-                    ret = ResponseStatus.UserDoesNotExist;
-                }
-                else if (nActivationStatus == UserActivationState.UserRemovedFromDomain)
-                {
-                    ret = ResponseStatus.UserRemovedFromDomain;
+                    case UserActivationState.UserDoesNotExist:
+                        ret = ResponseStatus.UserDoesNotExist;
+                        break;
+
+                    case UserActivationState.NotActivated:
+                        o.m_user = new User(nGroupID, siteGuid);
+                        ret = ResponseStatus.UserNotActivated;
+                        break;
+
+                    case UserActivationState.NotActivatedByMaster:
+                        o.m_user = new User(nGroupID, siteGuid);
+                        ret = ResponseStatus.UserNotMasterApproved;
+                        break;
+                    case UserActivationState.UserNotInDomain:
+                        ret = ResponseStatus.UserNotIndDomain;
+                        break;
                 }
 
                 o.m_RespStatus = ret;

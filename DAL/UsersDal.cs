@@ -1188,9 +1188,9 @@ namespace DAL
         ///      3 - user removed from domain
         ///      
         /// </returns>
-        public static int GetUserActivationState(string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
+        public static UserActivationState GetUserActivationState(string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
         {
-            int res = (-2);
+            UserActivationState res = UserActivationState.Error;    // int res = (-2);
 
             try
             {
@@ -1211,7 +1211,6 @@ namespace DAL
                 }
 
                 selectQuery += " AND GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
-                //selectQuery += "AND GROUP_ID " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
 
                 if (selectQuery.Execute("query", true) != null)
                 {
@@ -1227,13 +1226,13 @@ namespace DAL
 
                         bool isActive           = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
 
-                        res                     = isActive ? 0 : 1;
+                        res = isActive ? UserActivationState.Activated : UserActivationState.NotActivated; // 0 : 1;
 
                         //if (!isActive) { return res; }
                     }
                     else
                     {
-                        res = (-1);
+                        res = UserActivationState.UserDoesNotExist; // (-1);
                         return res;
                     }
                 }
@@ -1241,7 +1240,7 @@ namespace DAL
                 selectQuery.Finish();
                 selectQuery = null;
 
-                if (res == 1) { return res; }
+                if (res == UserActivationState.NotActivated) { return res; }
 
 
                 // If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
@@ -1274,17 +1273,17 @@ namespace DAL
 
                         if (nStatus != 2)
                         {
-                            res = isActive1 ? 0 : 2;
+                            res = isActive1 ? UserActivationState.Activated : UserActivationState.NotActivatedByMaster; // 0 : 2;
                         }
                         else
                         {
-                            res = 3;
+                            res = UserActivationState.UserNotInDomain;
                         }
 
                     }
                     else
                     {
-                        res = (-1);
+                        res = UserActivationState.UserNotInDomain; //res = (-1);
                     }
                 }
 
@@ -1296,7 +1295,7 @@ namespace DAL
             {
                 HandleException(ex);
 
-                res = (-2);
+                res = UserActivationState.Error; // (-2);
             }
 
             return res;

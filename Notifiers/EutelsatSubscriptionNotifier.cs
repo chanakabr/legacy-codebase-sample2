@@ -15,10 +15,17 @@ namespace Notifiers
 
         override public void NotifyChange(string sSubscriptionID)
         {
-            NotifyChange(sSubscriptionID, true);
+            string errorMessage = "";
+            NotifyChange(sSubscriptionID, ref errorMessage, true);
         }
 
         override public void NotifyChange(string sSubscriptionID, bool update)
+        {
+            string errorMessage = "";
+            NotifyChange(sSubscriptionID, ref errorMessage, update);
+        }
+
+        override public void NotifyChange(string sSubscriptionID, ref string errorMessage, bool update)
         {
             //WS_3SS.Service t = new Notifiers.tikle_ws.Service();
             //string sTikleWSURL = Utils.GetWSURL("tikle_ws");
@@ -27,18 +34,26 @@ namespace Notifiers
             
             //Logger.Logger.Log("Notify", sSubscriptionID + " : "  + resp.ResultDetail, "subscriptions_notifier");
 
-            EutelsatTransactionResponse resp = MakeProductNotification(sSubscriptionID, update);
+            EutelsatProductNotificationResponse resp = MakeProductNotification(sSubscriptionID, update);
 
-            Logger.Logger.Log("Notify", sSubscriptionID + " : " + resp.Message, "subscriptions_notifier");
+            errorMessage = "";
+            
+            if (!resp.success)
+            {
+                string[] errors = resp.errors.Select(e => "type: " + e.error_type + "; error: " + e.error_message).ToArray();
+                errorMessage = string.Join("\n",  errors);
+            }
+
+            Logger.Logger.Log("Notify", sSubscriptionID + " : " + (resp.success ? "notification success" : errorMessage), "subscriptions_notifier");
             
         }
 
 
-        protected EutelsatTransactionResponse MakeProductNotification(string sSubscriptionID, bool update)
+        protected EutelsatProductNotificationResponse MakeProductNotification(string sSubscriptionID, bool update)
         {
 
-            EutelsatTransactionResponse res = new EutelsatTransactionResponse();
-            res.Success = false;
+            EutelsatProductNotificationResponse res = new EutelsatProductNotificationResponse();
+            res.success = false;
 
             string sWSURL       = Utils.GetWSURL("Eutelsat_ProductBase") + (update ? "/update" : "/create");
             string sWSUsername  = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
@@ -93,29 +108,11 @@ namespace Notifiers
 
             if (isGoodUri)
             {
-                res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatTransactionResponse;
-                //object 3ssRes = Utils.MakeJsonRequest(checkTvodUrl, 
+                res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatProductNotificationResponse;
             }
 
             return res;
         }
-
-
-        //public static EutelsatTransactionResponse MakeJsonRequest(Uri requestUri, string wsUsername, string wsPassword, string jsonContent = "")
-        //{
-        //    try
-        //    {
-        //        string sRes = TVinciShared.WS_Utils.SendXMLHttpReq(requestUri.OriginalString, jsonContent, "", "application/json", "UserName", wsUsername, "Password", wsPassword);
-        //        object objResponse = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(EutelsatTransactionResponse));
-
-        //        return (EutelsatTransactionResponse)objResponse;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //    }
-
-        //    return null;
-        //}
 
     }
 }

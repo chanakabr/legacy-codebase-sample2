@@ -18,6 +18,8 @@ namespace Notifiers
 
         abstract public void NotifyChange(string sSubscriptionID, bool update);
 
+        abstract public void NotifyChange(string sSubscriptionID, ref string errorMessage, bool update);
+
         protected Int32 m_nGroupID;
     }
 }

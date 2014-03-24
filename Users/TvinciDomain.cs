@@ -27,22 +27,20 @@ namespace Users
 
         public override DomainResponseObject GetDomainByCoGuid(string coGuid, int nGroupID)
         {
-            int nDomainID = GetDomainIDByCoGuid(coGuid);
-
-            //Create new domain
-            Domain domain = new Domain();
             // Create new response
             DomainResponseObject oDomainResponseObject;
 
+            int nDomainID = GetDomainIDByCoGuid(coGuid);
+
             if (nDomainID <= 0)
             {
-                domain.m_DomainStatus = DomainStatus.Error;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+                //domain.m_DomainStatus = DomainStatus.Error;
+                oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.DomainNotExists);
 
                 return oDomainResponseObject;
             }
 
-            domain = DomainFactory.GetDomain(nGroupID, nDomainID);  //domain = GetDomainInfo(nDomainID, nGroupID);
+            Domain domain = DomainFactory.GetDomain(nGroupID, nDomainID);  //domain = GetDomainInfo(nDomainID, nGroupID);
             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
             return oDomainResponseObject;
@@ -255,14 +253,6 @@ namespace Users
             //New domain
             Domain domain = DomainFactory.GetDomain(nGroupID, nDomainID);
 
-            // If given username and user adding the device is not Master
-            if ((domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0) &&
-                (!domain.m_masterGUIDs.Contains(nUserID) && !domain.m_masterGUIDs.Contains(nUserID)))
-            {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.ActionUserNotMaster);
-                return oDomainResponseObject;
-            }
-
             Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
 
             // If domain is restricted and action user is the master, just add the device
@@ -276,6 +266,14 @@ namespace Users
 
                 return oDomainResponseObject;
             }
+
+            //// If given username and user adding the device is not Master
+            //if ((domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0) &&
+            //    (!domain.m_masterGUIDs.Contains(nUserID) && !domain.m_masterGUIDs.Contains(nUserID)))
+            //{
+            //    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.ActionUserNotMaster);
+            //    return oDomainResponseObject;
+            //}
 
             DomainResponseStatus eDomainResponseStatus1 = domain.SubmitAddDeviceToDomainRequest(nGroupID, sUDID, sDeviceName, ref device);
 
@@ -334,7 +332,9 @@ namespace Users
 
 
             string sNewGuid = Guid.NewGuid().ToString();
-            bool isActivated = DAL.DomainDal.UpdateDeviceDomainActivationToken(m_nGroupID, nDomainDeviceID, sToken, sNewGuid);
+            int rows = DAL.DomainDal.UpdateDeviceDomainActivationToken(m_nGroupID, nDomainDeviceID, nDeviceID, sToken, sNewGuid);
+
+            bool isActivated = rows > 0;
 
             int nActivationStatus = DAL.DomainDal.GetDomainDeviceActivateStatus(m_nGroupID, nDeviceID);
 
@@ -536,19 +536,36 @@ namespace Users
             return new DeviceResponseObject(device, eRetVal);
         }
 
-        public override DomainResponseObject ResetDomain(int nDomainID)
+        //public override DomainResponseObject ResetDomain(int nDomainID)
+        //{
+        //    return ResetDomain(nDomainID, 0);
+
+            //New domain
+            //Domain domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
+
+            //// Create new response
+            //DomainResponseObject oDomainResponseObject;
+
+            ////Reset the domain
+            //DomainResponseStatus eDomainResponseStatus = domain.ResetDomain();
+
+            ////Re-Init domain to return updated data
+            //domain.Initialize(m_nGroupID, nDomainID);
+            //oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
+
+            //return oDomainResponseObject;
+        //}
+
+        public override DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType = 0)
         {
             //New domain
             Domain domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
-            //Domain domain = new Domain();
+
             // Create new response
             DomainResponseObject oDomainResponseObject;
 
-            //Init The Domain
-            //domain.Initialize(m_nGroupID, nDomainID);
-
             //Reset the domain
-            DomainResponseStatus eDomainResponseStatus = domain.ResetDomain();
+            DomainResponseStatus eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
 
             //Re-Init domain to return updated data
             domain.Initialize(m_nGroupID, nDomainID);
@@ -566,6 +583,37 @@ namespace Users
             bool res = domain.Update();
 
             return res;
+        }
+
+        public override DomainResponseObject ChangeDomainMaster(int nDomainID, int nCurrentMasterID, int nNewMasterID)
+        {
+            //New domain
+            Domain domain = new Domain();
+
+            // Create new response
+            DomainResponseObject oDomainResponseObject;
+
+            //Check if user IDs are valid
+            if (!User.IsUserValid(m_nGroupID, nCurrentMasterID) || !User.IsUserValid(m_nGroupID, nNewMasterID))
+            {
+                domain.m_DomainStatus = DomainStatus.Error;
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+            }
+
+            //Init The Domain
+            domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
+
+            // No change required, return OK 
+            if (nNewMasterID == nCurrentMasterID)
+            {
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
+            }
+
+
+            DomainResponseStatus eDomainResponseStatus = domain.ChangeDomainMaster(m_nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
+            oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
+
+            return oDomainResponseObject;
         }
 
         //public override DomainResponseObject SetDomainActive(int nDomainID, bool bActive)

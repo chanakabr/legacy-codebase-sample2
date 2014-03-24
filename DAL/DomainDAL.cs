@@ -20,6 +20,8 @@ namespace DAL
         private const string SP_GET_DOMAIN_IDS_BY_OPERATOR_COGUID   = "sp_GetDomainIDsByOperatorCoGuid";
         private const string SP_GET_DEVICE_DOMAIN_DATA              = "Get_DeviceDomainData";
         private const string SP_GET_DOMAIN_COGUID                   = "Get_DomainCoGuid";
+        private const string SP_GET_DOMAIN_COGUID_BY_SITEGUID       = "Get_DomainCoGuidBySiteGuid";
+        private const string SP_GET_DEVICE_ID_AND_BRAND_BY_PIN      = "Get_DeviceIDAndBrandByPIN";
 
         //private const string SP_UPDATE_USER_IN_DOMAIN             = "Update_UserInDomain";
         private const string SP_INSERT_USER_TO_DOMAIN               = "sp_InsertUserToDomain";
@@ -28,6 +30,7 @@ namespace DAL
         private const string SP_UPDATE_SET_USER_STATUS_IN_DOMAIN    = "Update_SetUserStatusInDomain";
         private const string SP_UPDATE_SET_DEVICE_STATUS_IN_DOMAIN  = "Update_SetDeviceStatusInDomain";
         private const string SP_UPDATE_DOMAIN_DATA                  = "Update_DomainData";
+        private const string SP_UPDATE_SWITCH_DOMAIN_MASTER         = "Update_SwitchDomainMaster";
 
         private const string SP_REMOVE_DOMAIN                       = "sp_RemoveDomain";
         private const string SP_RESET_DOMAIN_FREQUENCY              = "sp_ResetDomainFrequency";
@@ -149,25 +152,43 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                ODBCWrapper.StoredProcedure spGetDeviceIDandBrandByPIN = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_ID_AND_BRAND_BY_PIN);
+                spGetDeviceIDandBrandByPIN.SetConnectionKey("USERS_CONNECTION_STRING");
+                spGetDeviceIDandBrandByPIN.AddParameter("@groupID", nGroupID);
+                spGetDeviceIDandBrandByPIN.AddParameter("@PIN", sPIN);
 
-                selectQuery += "select device_id, device_brand_id from devices WITH (nolock) where status=1 and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PIN", "=", sPIN);
-                selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-                if (selectQuery.Execute("query", true) != null)
+                DataSet ds = spGetDeviceIDandBrandByPIN.ExecuteDataSet();
+
+                if ((ds != null) && (ds.Tables[0].DefaultView.Count > 0))
                 {
-                    int nCount = selectQuery.Table("query").DefaultView.Count;
+                    int nCount = ds.Tables[0].DefaultView.Count;
                     if (nCount > 0)
                     {
-                        sUDID = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "device_id", 0); // selectQuery.Table("query").DefaultView[0].Row["device_id"].ToString();
-                        nBrandID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_brand_id", 0); // int.Parse(selectQuery.Table("query").DefaultView[0].Row["device_brand_id"].ToString());
+                        DataRow dr = ds.Tables[0].DefaultView[0].Row;
+                        sUDID = ODBCWrapper.Utils.GetSafeStr(dr["device_id"]);
+                        nBrandID = ODBCWrapper.Utils.GetIntSafeVal(dr, "device_brand_id");
                     }
                 }
 
-                selectQuery.Finish();
-                selectQuery = null;
+                //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                //selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                //selectQuery += "select device_id, device_brand_id from devices WITH (nolock) where status=3 and";
+                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PIN", "=", sPIN);
+                //selectQuery += "and";
+                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                //if (selectQuery.Execute("query", true) != null)
+                //{
+                //    int nCount = selectQuery.Table("query").DefaultView.Count;
+                //    if (nCount > 0)
+                //    {
+                //        sUDID = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "device_id", 0); // selectQuery.Table("query").DefaultView[0].Row["device_id"].ToString();
+                //        nBrandID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_brand_id", 0); // int.Parse(selectQuery.Table("query").DefaultView[0].Row["device_brand_id"].ToString());
+                //    }
+                //}
+
+                //selectQuery.Finish();
+                //selectQuery = null;
 
                 res = true;
             }
@@ -678,7 +699,7 @@ namespace DAL
             return res;
         }
 
-        public static bool ResetDomain(int nDomainID, int nGroupID)
+        public static bool ResetDomain(int nDomainID, int nGroupID, int nFrequencyType = 0)
         {
             try
             {
@@ -690,6 +711,7 @@ namespace DAL
                 spResetDomainFrequency.AddParameter("@groupID", nGroupID);
                 spResetDomainFrequency.AddParameter("@status", 2);
                 spResetDomainFrequency.AddParameter("@isActive", 2);
+                spResetDomainFrequency.AddParameter("@freqType", nFrequencyType);
 
                 DataTable dtResult = spResetDomainFrequency.Execute();
 
@@ -740,7 +762,7 @@ namespace DAL
             return true;
         }
 
-        public static bool SetDomainFlag(int domainId, int val, DateTime dt)
+        public static bool SetDomainFlag(int domainId, int val, DateTime dt, int deviceFlag = 1)
         {
             bool res = false;
 
@@ -749,7 +771,16 @@ namespace DAL
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("domains");
                 updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Frequency_flag", "=", val);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Frequency_last_action", "=", dt);
+
+                if (deviceFlag == 1)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Frequency_last_action", "=", dt);
+                }
+                else
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("User_Frequency_last_action", "=", dt);
+                }
+
                 updateQuery += " WHERE ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", domainId);
 
@@ -981,7 +1012,8 @@ namespace DAL
                                             ref int nFrequencyFlag,
                                             ref int nDeviceMinPeriodId,
                                             ref int nUserMinPeriodId,
-                                            ref DateTime dFrequencyLastAction,
+                                            ref DateTime dDeviceFrequencyLastAction,
+                                            ref DateTime dUserFrequencyLastAction,
                                             ref string sCoGuid,
                                             ref int nDomainRestriction)
         {
@@ -1012,10 +1044,7 @@ namespace DAL
                         return false;
                     }
 
-                    //int nDomainID = int.Parse(ds.Tables[0].DefaultView[i].Row["DOMAIN_ID"].ToString());
-
-
-                    dFrequencyLastAction    = ODBCWrapper.Utils.GetDateSafeVal(dr["FREQUENCY_LAST_ACTION"]); // ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "Frequency_last_action", 0);
+                    //dFrequencyLastAction    = ODBCWrapper.Utils.GetDateSafeVal(dr["FREQUENCY_LAST_ACTION"]); // ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "Frequency_last_action", 0);
 
                     sName                   = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                     sDescription            = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
@@ -1029,8 +1058,9 @@ namespace DAL
                     nDeviceMinPeriodId      = GetGroupDeviceMinPeriodId(nGroupID);
                     nUserMinPeriodId        = GetGroupUserMinPeriodId(nGroupID);
                     sCoGuid                 = ODBCWrapper.Utils.GetSafeStr(dr,"COGUID");
-                    dFrequencyLastAction    = ODBCWrapper.Utils.GetDateSafeVal(dr, "FREQUENCY_LAST_ACTION");
-                    nDomainRestriction      = ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
+                    dDeviceFrequencyLastAction = ODBCWrapper.Utils.GetDateSafeVal(dr, "FREQUENCY_LAST_ACTION");
+                    dUserFrequencyLastAction   = ODBCWrapper.Utils.GetDateSafeVal(dr, "USER_FREQUENCY_LAST_ACTION");
+                    nDomainRestriction         = ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
 
                     res = true;
 
@@ -1520,7 +1550,7 @@ namespace DAL
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                selectQuery += "SELECT ID, DEVICE_ID FROM DOMAINS_DEVICES WITH (NOLOCK) WHERE STATUS=1 AND";
+                selectQuery += "SELECT ID, DEVICE_ID FROM DOMAINS_DEVICES WITH (NOLOCK) WHERE STATUS=3";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
@@ -1547,38 +1577,51 @@ namespace DAL
             return nDeviceID;
         }
 
-        public static bool UpdateDeviceDomainActivationToken(int nGroupID, int nDomainsDevicesID, string sToken, string sNewToken)
+        public static int UpdateDeviceDomainActivationToken(int nGroupID, int nDomainsDevicesID, int nDeviceID, string sToken, string sNewToken)
         {
-            bool isActivated = false;
+            ODBCWrapper.StoredProcedure spUpdateDeviceActivation = new ODBCWrapper.StoredProcedure("Update_DeviceActivation");
+            spUpdateDeviceActivation.SetConnectionKey("USERS_CONNECTION_STRING");
+            spUpdateDeviceActivation.AddParameter("@domainsDevicesID", nDomainsDevicesID);
+            spUpdateDeviceActivation.AddParameter("@deviceID", nDeviceID);
+            spUpdateDeviceActivation.AddParameter("@groupID", nGroupID);
+            spUpdateDeviceActivation.AddParameter("@token", sToken);
+            spUpdateDeviceActivation.AddParameter("@newToken", sNewToken);
 
-            try
-            {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("domains_devices");
-                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+            int rowsAffected = spUpdateDeviceActivation.ExecuteReturnValue<int>();
 
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATE_STATUS", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken); //System.Guid.NewGuid().ToString());
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("user_state", "=", nUserState);
-                updateQuery += " where ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nDomainsDevicesID);
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
-                updateQuery += " and status=1";
+            return rowsAffected;
 
-                isActivated = updateQuery.Execute();
 
-                updateQuery.Finish();
-                updateQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+            //bool isActivated = false;
 
-            return isActivated;
+            //try
+            //{
+            //    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("domains_devices");
+            //    updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            //    //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATE_STATUS", "=", 1);
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken); //System.Guid.NewGuid().ToString());
+            //    //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("user_state", "=", nUserState);
+            //    updateQuery += " where ";
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            //    updateQuery += " and ";
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nDomainsDevicesID);
+            //    updateQuery += " and ";
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
+            //    updateQuery += " and status=1";
+
+            //    isActivated = updateQuery.Execute();
+
+            //    updateQuery.Finish();
+            //    updateQuery = null;
+            //}
+            //catch (Exception ex)
+            //{
+            //    HandleException(ex);
+            //}
+
+            //return isActivated;
         }
 
         public static int GetDomainDeviceActivateStatus(int nGroupID, int nDeviceID)
@@ -1615,6 +1658,21 @@ namespace DAL
             }
 
             return nActivationStatus;
+        }
+
+        public static int SwitchDomainMaster(int nGroupID, int nDomainID, int nCurrentMasterID, int nNewMasterID)
+        {
+            ODBCWrapper.StoredProcedure spSwitchDomainMaster = new ODBCWrapper.StoredProcedure(SP_UPDATE_SWITCH_DOMAIN_MASTER);
+            spSwitchDomainMaster.SetConnectionKey("USERS_CONNECTION_STRING");
+            spSwitchDomainMaster.AddParameter("@domainID", nDomainID);
+            spSwitchDomainMaster.AddParameter("@groupID", nGroupID);
+            spSwitchDomainMaster.AddParameter("@oldMasterID", nCurrentMasterID);
+            spSwitchDomainMaster.AddParameter("@newMasterID", nNewMasterID);
+
+            int rowsAffected = spSwitchDomainMaster.ExecuteReturnValue<int>();
+
+            return rowsAffected;
+
         }
     }
 }
