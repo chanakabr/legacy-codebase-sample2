@@ -87,42 +87,6 @@ namespace Catalog
             return isRemovingChannelSucceded;
         }
 
-        /// <summary>
-        /// This function returns list of channel ids which are in/not in cache
-        /// </summary>
-        /// <param name="channelIds"></param>
-        /// <param name="nGroupID"></param>
-        /// <param name="group"></param>
-        /// <param name="bAreExistingChannels">Defines whether to check that the channels are in/not in cache
-        ///                                    True - look for channels which are in cache
-        ///                                    False - look for channels which are not in cache
-        /// </param>
-        /// <returns>Channel ids</returns>
-        internal List<int> GetIncludedOrNotIncludedChannelsIdsFromCache(List<int> channelIds, int nGroupID, out Group group, bool bAreExistingChannels)
-        {
-            IEnumerable<int> lChannelIdsInCache = null;
-            List<int> lReturnedChannelIdsFromCache = null;
-            group = null;
-            m_GroupByParentGroupId.TryGetValue(nGroupID, out group);
-
-            if (group == null)
-            {
-                group = this.GetGroup(nGroupID);
-            }
-
-            if (group != null)
-            {
-                lChannelIdsInCache = from id in channelIds
-                                     where m_GroupByParentGroupId[nGroupID].m_oGroupChannels.ContainsKey(id) == bAreExistingChannels
-                                     select id;
-
-                if (lChannelIdsInCache != null)
-                    lReturnedChannelIdsFromCache = lChannelIdsInCache.ToList<int>();
-            }
-
-            return lReturnedChannelIdsFromCache;
-        }
-
         internal void InsertChannels(List<Channel> lChannels, int groupId)
         {
             if (lChannels != null)
@@ -162,28 +126,46 @@ namespace Catalog
         }
 
         /// <summary>
-        /// This function gets channel objects from cache by given channel ids and parent group id
+        /// This function gets channel objects from cache or from DB by given channel ids and parent group id
         /// </summary>
         /// <param name="channelIds">Channels ids for Channel objects building</param>
         /// <param name="nOwnerGroup">Parent group id</param>
         /// <returns>Channel objects</returns>
-        internal List<Channel> GetChannelsFromCache(List<int> channelIds, int nOwnerGroup)
+        public List<Channel> GetChannelsFromCache(List<int> channelIds, int nOwnerGroup)
         {
-            List<Channel> lExistingChannels = null;
-            Group groupInCache;
-            List<int> existingChannelIdsInCache = this.GetIncludedOrNotIncludedChannelsIdsFromCache(channelIds, nOwnerGroup, out groupInCache, true);
-            if (groupInCache != null && existingChannelIdsInCache != null && existingChannelIdsInCache.Count > 0)
+            List<Channel> lRes = null;
+
+            // get all channel existing in Cache
+
+            Group groupInCache = GroupsCache.Instance.GetGroup(nOwnerGroup);
+
+            if (groupInCache != null && channelIds != null && channelIds.Count > 0)
             {
-                lExistingChannels = new List<Channel>();
-                IEnumerable<Channel> existingChannels = from id in existingChannelIdsInCache
-                                                        where groupInCache.m_oGroupChannels.ContainsKey(id)
-                                                        select groupInCache.m_oGroupChannels[id];
+                lRes = new List<Channel>();
+                Channel oChannel;
+                foreach (int channelID in channelIds)
+                {
+                    if (groupInCache.m_oGroupChannels.TryGetValue(channelID, out oChannel))
+                    {
+                        lRes.Add(oChannel);
+                    }
+                }
 
-                if (existingChannels != null)
-                    lExistingChannels = existingChannels.ToList<Channel>();
+                //get all channels from DB
+                var channelsNotInCache = channelIds.Where(id => !lRes.Any(existId => existId.m_nChannelID == id));
+                if (channelsNotInCache != null)
+                {
+                    List<int> lNotIncludedInCache = channelsNotInCache.ToList<int>();
+                    if (lNotIncludedInCache.Count > 0)
+                    {
+                        List<Channel> lNewCreatedChannels = ChannelRepository.GetChannels(lNotIncludedInCache, groupInCache);
+                        //add the channels from DB to cache 
+                        GroupsCache.Instance.InsertChannels(lNewCreatedChannels, groupInCache.m_nParentGroupID);
+                        lRes.AddRange(lNewCreatedChannels);
+                    }
+                }
             }
-
-            return lExistingChannels;
+            return lRes;
         }
 
         public bool RemoveGroup(int groupId)

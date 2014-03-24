@@ -33,7 +33,7 @@ namespace Catalog
         public DateTime m_dStartDate;
         [DataMember]
         public DateTime m_dEndDate;
-        
+
         [DataMember]
         public List<long> m_oEPGChannelIDs;
 
@@ -53,7 +53,7 @@ namespace Catalog
         }
 
         public EpgSearchRequest(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString, List<long> epgChannelIDs,
-                    List<KeyValue> andList, List<KeyValue> orList)
+            List<KeyValue> andList, List<KeyValue> orList) 
             : base(nPageSize, nPageIndex, string.Empty, nGroupID, null, sSignature, sSignString)
         {
             Initialize(bSearchAnd, sSearch, dStartDate, dEndDate, epgChannelIDs, andList, orList);
@@ -163,6 +163,7 @@ namespace Catalog
             sb.Append(String.Concat(" Search Text: ", m_sSearch));
             sb.Append(String.Concat(" Start Date: ", m_dStartDate != null ? m_dStartDate.ToString() : "null"));
             sb.Append(String.Concat(" End Date: ", m_dEndDate != null ? m_dEndDate.ToString() : "null"));
+            // sb.Append(String.Concat(" Program ID: ", m_nProgramID));
             sb.Append(" EPG Channel IDs: ");
             if (m_oEPGChannelIDs != null && m_oEPGChannelIDs.Count > 0)
             {

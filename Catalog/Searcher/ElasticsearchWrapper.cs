@@ -42,8 +42,23 @@ namespace Catalog
             int nParentGroupID = oGroup.m_nParentGroupID;
 
             ESMediaQueryBuilder queryParser = new ESMediaQueryBuilder(nGroupID, oSearch);
-            queryParser.PageIndex = oSearch.m_nPageIndex;
-            queryParser.PageSize = oSearch.m_nPageSize;
+
+
+            int nPageIndex = 0;
+            int nPageSize = 0;
+            if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
+                          || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+            {
+                nPageIndex = oSearch.m_nPageIndex;
+                nPageSize = oSearch.m_nPageSize;
+                queryParser.PageIndex = 0;
+                queryParser.PageSize = 0;
+            }
+            else
+            {
+                queryParser.PageIndex = oSearch.m_nPageIndex;
+                queryParser.PageSize = oSearch.m_nPageSize;
+            }
 
             queryParser.QueryType = (oSearch.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
 
@@ -78,6 +93,16 @@ namespace Catalog
 
                             Dictionary<int, SearchResult> dItems = oRes.m_resultIDs.ToDictionary(item => item.assetID);
                             oRes.m_resultIDs.Clear();
+
+                            int nValidNumberOfMediasRange = nPageSize;
+                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(lMediaIds.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                            {
+                                if (nValidNumberOfMediasRange > 0)
+                                {
+                                    lMediaIds = lMediaIds.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                                }
+                            }
+
                             SearchResult oTemp;
                             foreach (int mediaID in lMediaIds)
                             {
@@ -190,7 +215,7 @@ namespace Catalog
                  * Foreach media search object, create filtered query.
                  * Add the query's filter to the grouped filter so that we can then create a single request
                  * containing all the channels that we want.
-                 */ 
+                 */
                 foreach (MediaSearchObj searchObj in oSearch)
                 {
                     if (searchObj == null)
@@ -198,7 +223,6 @@ namespace Catalog
 
                     queryBuilder.m_nGroupID = searchObj.m_nGroupId;
                     searchObj.m_nPageSize = 0;
-                    searchObj.m_sMediaTypes = sMediaTypes;
                     queryBuilder.oSearchObject = searchObj;
                     queryBuilder.QueryType = (searchObj.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
                     tempQuery = queryBuilder.BuildChannelFilteredQuery();
@@ -209,14 +233,14 @@ namespace Catalog
                     }
                 }
 
-                tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize};
+                tempQuery = new FilteredQuery() { PageIndex = nPageIndex, PageSize = nPageSize };
                 tempQuery.ESSort.Add(new ESOrderObj() { m_eOrderDir = oOrderObj.m_eOrderDir, m_sOrderValue = FilteredQuery.GetESSortValue(oOrderObj) });
                 tempQuery.Filter = new QueryFilter() { FilterSettings = groupedFilters };
-                
+
                 string sSearchQuery = tempQuery.ToString();
 
 
-                
+
                 string sRetVal = m_oESApi.Search(oGroup.m_nParentGroupID.ToString(), ES_MEDIA_TYPE, ref sSearchQuery);
 
                 lSearchResults = DecodeAssetSearchJsonObject(sRetVal, ref nTotalItems);
@@ -227,7 +251,7 @@ namespace Catalog
                     lSortedMedias.m_resultIDs = new List<SearchResult>();
 
                     lSortedMedias.n_TotalItems = nTotalItems;
-                    
+
 
                     if ((oOrderObj.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oOrderObj.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) || oOrderObj.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
                     {
@@ -251,7 +275,7 @@ namespace Catalog
                     }
                 }
             }
-            DateTime dtEnd= DateTime.Now;
+            DateTime dtEnd = DateTime.Now;
 
             double totalMilli = (dtEnd - dtStart).TotalMilliseconds;
             Logger.Logger.Log("Info", "SearchSubscriptionMedias took " + totalMilli + " milliseconds", "Elasticsearch");
@@ -498,26 +522,32 @@ namespace Catalog
                 return null;
             }
 
-            List<string> epgIndexAliases = GetEpgExistingAliases(group.m_nParentGroupID, oSearch.m_dStartDate.AddDays(-1), oSearch.m_dEndDate);
+            List<string> lRouting = new List<string>();
 
-            if (epgIndexAliases.Count > 0)
+            DateTime dTempDate = oSearch.m_dStartDate;
+            while (dTempDate <= oSearch.m_dEndDate)
             {
-                ESEpgQueryBuilder queryBuilder = new ESEpgQueryBuilder() { m_oEpgSearchObj = oSearch };
-                string sQuery = queryBuilder.BuildEpgAutoCompleteQuery();
-
-                string sEpgAliases = epgIndexAliases.Aggregate((current, next) => current + "," + next);
-
-                string searchRes = m_oESApi.Search(sEpgAliases, ES_EPG_TYPE, ref sQuery);
-
-                int nTotalRecords = 0;
-                List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
-
-                if (lDocs != null)
-                {
-                    resultFinalList = lDocs.Select(doc => doc.name).ToList();
-                    resultFinalList = resultFinalList.Distinct().OrderBy(q => q).ToList<string>();
-                }
+                lRouting.Add(dTempDate.ToString("yyyyMMdd"));
+                dTempDate = dTempDate.AddDays(1);
             }
+
+
+            ESEpgQueryBuilder queryBuilder = new ESEpgQueryBuilder() { m_oEpgSearchObj = oSearch };
+            string sQuery = queryBuilder.BuildEpgAutoCompleteQuery();
+
+
+            string sGroupAlias = string.Format("{0}_epg", group.m_nParentGroupID);
+            string searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
+
+            int nTotalRecords = 0;
+            List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
+
+            if (lDocs != null)
+            {
+                resultFinalList = lDocs.Select(doc => doc.name).ToList();
+                resultFinalList = resultFinalList.Distinct().OrderBy(q => q).ToList<string>();
+            }
+
 
             return resultFinalList;
         }
@@ -708,7 +738,7 @@ namespace Catalog
                     string definition = string.Empty;
                     for (int i = 0; i < length; i++)
                     {
-                        if(TVinciShared.JSONUtils.TryGetJSONToken(docs[i], orderedPathDownTheJSONTree, ref definition) && definition.Length > 0)
+                        if (TVinciShared.JSONUtils.TryGetJSONToken(docs[i], orderedPathDownTheJSONTree, ref definition) && definition.Length > 0)
                             res.Add(definition);
                         definition = string.Empty;
                     }
@@ -722,8 +752,8 @@ namespace Catalog
         }
 
         public Dictionary<long, bool> ValidateMediaIDsInChannels(int nGroupID, List<long> distinctMediaIDs,
-            List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
-            List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
+                List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
+                List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
         {
             Dictionary<long, bool> res = null;
             if (distinctMediaIDs != null && distinctMediaIDs.Count > 0)
@@ -735,7 +765,7 @@ namespace Catalog
                 ESMediaQueryBuilder queryBuilder = new ESMediaQueryBuilder(nGroupID, searchObj);
                 string sQuery = queryBuilder.GetDocumentsByIdsQuery(distinctMediaIDs, new OrderObj() { m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID });
 
-                if (string.IsNullOrEmpty(sQuery))
+                if (!string.IsNullOrEmpty(sQuery))
                 {
                     string sESAnswer = m_oESApi.Search(nGroupID + "", ES_MEDIA_TYPE, ref sQuery);
                     if (sESAnswer.Length > 0)
@@ -753,6 +783,7 @@ namespace Catalog
 
             return null;
         }
+
 
         private void InitializeDictionary(List<long> distinctMediaIDs, ref Dictionary<long, bool> dict)
         {

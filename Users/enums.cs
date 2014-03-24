@@ -59,17 +59,6 @@ namespace Users
 
     }
 
-    //public enum DeviceState
-    //{
-    //    UnKnown = 0, // Initial device status
-    //    Error = 1, // Error
-    //    NotExists = 2, // Device not in devices table or is in table but status<>1
-    //    NotActive = 3, // Device in devices table and status=1 but active<>1
-    //    Active = 4, // Device in devices table and status=1 & active=1 (domains_devcies status not known);
-    //    NotRegistered = 5, // Device in devices table and status=1 & active=1 but in domains_devices no record with status=1 & active=1
-    //    Registered = 6, // Device in devices table and status=1 & active=1 and in domains_devices there's a record with status=1 & active=1
-    //}
-
     public enum DeviceState
     {
         UnKnown = 0,     // Initial device status
@@ -103,22 +92,6 @@ namespace Users
         DeviceMasterRestricted = 2,
         DeviceUserMasterRestricted = 3
     }
-
-    //public enum DomainState
-    //{
-    //    UnKnown,
-    //    Error,
-    //    NotExists,
-    //    Exists
-    //}
-
-    //public enum DomainStatus
-    //{
-    //    UnKnown,
-    //    Error,
-    //    NotExists,
-    //    Exists
-    //}
 
 
     public enum DomainResponseStatus
@@ -189,5 +162,16 @@ namespace Users
     {
         Users = 1,
         Domains,
+    }
+
+    public enum NetworkResponseStatus : byte
+    {
+        OK = 0,
+        QuantityLimitation = 1,
+        FrequencyLimitation = 2,
+        NetworkExists = 3,
+        NetworkDoesNotExist = 4,
+        InvalidInput = 5,
+        Error = 6
     }
 }

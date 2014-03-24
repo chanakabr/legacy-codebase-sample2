@@ -329,13 +329,6 @@ namespace Users
             //New domain
             Domain domain = InitializeDomain(nGroupID, nDomainID);
 
-            // If given user adding the device is not Master
-            if ((domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0) && (!domain.m_masterGUIDs.Contains(nUserID)))
-            {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.ActionUserNotMaster);
-                return oDomainResponseObject;
-            }
-
             // If given user is not in the domain
             if ((domain.m_UsersIDs != null && domain.m_UsersIDs.Count > 0) && (!domain.m_UsersIDs.Contains(nUserID)))
             {

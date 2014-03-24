@@ -87,6 +87,8 @@ namespace Users
 
         protected int                   m_minUserPeriodId;
 
+        public List<HomeNetwork> m_homeNetworks;
+
         #endregion
 
 
@@ -109,6 +111,8 @@ namespace Users
 
             m_DomainStatus = DomainStatus.UnKnown;
             m_DomainRestriction = DomainRestriction.DeviceMasterRestricted;
+
+            m_homeNetworks = new List<HomeNetwork>();
 
         }
 
@@ -172,38 +176,12 @@ namespace Users
             m_DefaultUsersIDs = new List<int>();
 
             DomainResponseStatus res = AddUserToDomain(m_nGroupID, m_nDomainID, nMasterGuID, nMasterGuID, UserDomainType.Master);
-            //DomainResponseStatus res = AddUserToDomain(m_nGroupID, m_nDomainID, nMasterGuID, nMasterGuID, true); //AddUserToDomain(m_nGroupID, m_nDomainID, nMasterGuID, true);
 
             if (res == DomainResponseStatus.OK)
             {
                 m_UsersIDs = new List<int>();
                 m_UsersIDs.Add(nMasterGuID);
             }
-
-            // Add Monkey User 
-            //TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService();
-            //string sIP = "1.1.1.1";
-            //string sWSUserName = "";
-            //string sWSPass = "";
-            //TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
-            //string sWSURL = Utils.GetWSURL("users_ws");
-            //if (sWSURL != "")
-            //{
-            //    u.Url = sWSURL;
-            //}
-
-            //ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
-            //if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
-            //{
-            //    ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
-            //    ret.m_sRecieptCode = "";
-            //    ret.m_sStatusDescription = "Cant charge an unknown user";
-
-            //    return ret;
-            //}
-
-            //u.Dispose();
-
 
             return this;
         }
@@ -225,7 +203,7 @@ namespace Users
             int statusRes = DAL.DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
 
             return DomainResponseStatus.DomainNotExists;
-            //return (statusRes == 2) ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            
 
         }
 
@@ -255,6 +233,8 @@ namespace Users
             DomainResponseStatus dStatus =  GetUserList(nDomainID, nGroupID);   // OK or NoUsersInDomain
             int numOfDevices = GetDeviceList();
 
+            m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID);
+
             m_DomainStatus = (dStatus == DomainResponseStatus.OK) ? DomainStatus.OK : DomainStatus.Error;
 
             return (m_DomainStatus == DomainStatus.OK);
@@ -282,6 +262,8 @@ namespace Users
             // Init Devices
             m_deviceFamilies = InitializeDeviceFamilies(m_deviceLimitationModule, nGroupID);
             int devCount = GetDeviceList(false);
+
+            m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID);
 
             m_DomainStatus = DomainStatus.OK;
 
@@ -315,6 +297,8 @@ namespace Users
             // Device families (limits) are per sub-account
             m_deviceFamilies = InitializeDeviceFamilies(m_deviceLimitationModule, nSubGroupID);
             GetDeviceList(false);
+
+            m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID);
 
             m_DomainStatus = DomainStatus.OK;
             return true;
@@ -360,19 +344,6 @@ namespace Users
 
             return eRetVal;
         
-
-            //}
-            //else if (m_totalNumOfDevices >= m_nLimit)
-            //{
-            //    eRetVal = DomainResponseStatus.ExceededLimit;
-            //}
-            //container = GetDeviceContainer(device.m_deviceFamilyID);
-            //else if (container != null && container.GetActivatedDeviceCount() >= container.m_deviceLimit)
-            //{
-            //    eRetVal = DomainResponseStatus.ExceededLimit;
-            //}
-
-            //return eRetVal;
         }
 
         public DomainResponseStatus AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string deviceName, int brandID, ref Device device)
@@ -420,7 +391,6 @@ namespace Users
             int nDeviceID = 0;
             // Get row id from domains_devices
             int nDomainsDevicesID = DAL.DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
-            //int nDomainsDevicesID = DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
 
             //New Device Domain Connection
             if (nDomainsDevicesID == 0)
@@ -430,7 +400,7 @@ namespace Users
                 int deviceID = device.Save(1);
 
                 int domainDeviceRecordID = DAL.DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 1, 1);
-                //bool inserted = DAL.DomainDal.InsertToDomainsDevices(deviceID, m_nDomainID, m_nGroupID, 1, 1);
+                
 
                 if (domainDeviceRecordID > 0)
                 {
@@ -438,8 +408,7 @@ namespace Users
                     container.AddDeviceInstance(device);
 
                     m_deviceFamilies.Add(container);
-                    
-                    //m_Devices.Add(device);
+
                     m_totalNumOfDevices++;
 
                     eRetVal = DomainResponseStatus.OK;
@@ -462,7 +431,6 @@ namespace Users
                         eRetVal = DomainResponseStatus.OK;
                         device.m_domainID = nDomainID;
                         int deviceID = device.Save(1);
-                        //GetDeviceList();
                     }
                 }
                 else
@@ -560,8 +528,7 @@ namespace Users
             DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
 
             DeviceContainer container = null;
-            Device device = GetDomainDevice(sUDID, ref container);
-            // device.Initialize(udid, nDomainID, m_nGroupID);
+            Device device = GetDomainDevice(sUDID, ref container);           
 
             int enableInt = 1;
             DeviceState eNewDeviceState = DeviceState.Activated;
@@ -629,7 +596,6 @@ namespace Users
             int numOfUsers = m_UsersIDs.Count;
 
             Dictionary<int, int> dbTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
-            //List<int> domainUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
 
 
             // If domain has no users, insert new Master user
@@ -638,7 +604,7 @@ namespace Users
             int isActive = 1;
 
             if ((dbTypedUserIDs == null || dbTypedUserIDs.Count == 0) &&
-                (nUserID == nMasterUserGuid))  // && (userType == UserDomainType.Master)))
+                (nUserID == nMasterUserGuid)) 
             {
                 int inserted = DAL.DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int)userType, status, isActive, nMasterUserGuid);
 
@@ -647,7 +613,7 @@ namespace Users
                     m_UsersIDs.Add(nUserID);
                     m_masterGUIDs.Add(nUserID);
 
-                    m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;  //m_UsersIDs.Count; //m_totalNumOfUsers++;
+                    m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
                     eDomainResponseStatus = DomainResponseStatus.OK;
 
                     return DomainResponseStatus.OK;
@@ -672,11 +638,11 @@ namespace Users
 
 
             // Check if user already exists in domain (active or pending)
-            int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);  //IsUserExistsInDomain(nGroupID, nDomainID, nUserGuid);
+            int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
 
             if (nUserDomainID > 0)  // If user exists, update its status to active
             {
-                int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID);  //UpdateUserInDomain(nUserGuid, nDomainID, nGroupID, nUserDomainID);
+                int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID);
 
                 if (rowsAffected < 1)
                 {
@@ -688,34 +654,6 @@ namespace Users
                 }
 
                 return eDomainResponseStatus;
-
-                #region Commented
-                //ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_domains");
-                ////updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Status", "=", 1);
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Is_Active", "=", 1);
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_MASTER", "=", nIsMaster);
-                //updateQuery += "where";
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserGuid);
-                //updateQuery += "and";
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", nDomainID);
-                //updateQuery += "and";
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                //updateQuery += "and";
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserDomainID);
-
-
-                //if (updateQuery.Execute() == false)
-                //{
-                //    eDomainResponseStatus = DomainResponseStatus.Error;
-                //}
-                //else
-                //{
-                //    eDomainResponseStatus = GetUserList(nDomainID, nGroupID);
-                //}
-                //updateQuery.Finish();
-                //updateQuery = null;
-                #endregion
             }
 
 
@@ -732,11 +670,7 @@ namespace Users
                 }
             }
 
-            //int isMaster = Convert.ToInt32(bIsMaster);  //Convert.ToInt32(nUserID == nMasterUserGuid);
-            //int status = 1;
-            //int isActive = 1;
             int inserted1 = DAL.DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int)userType, status, isActive, nMasterUserGuid);
-            //int inserted = DAL.DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, isMaster, status, isActive, nMasterUserGuid);
 
             if (inserted1 > 0)
             {
@@ -756,43 +690,13 @@ namespace Users
                         break;
                 }
 
-                m_totalNumOfUsers = m_UsersIDs.Count;   // -m_MonkeyUsersIDs.Count;  //m_UsersIDs.Count; //m_totalNumOfUsers++;
+                m_totalNumOfUsers = m_UsersIDs.Count;
                 eDomainResponseStatus = DomainResponseStatus.OK;
             }
             else
             {
                 eDomainResponseStatus = DomainResponseStatus.Error;
             }
-
-            #region Commented
-            //ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("users_domains");
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserGuid);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", nDomainID);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_MASTER", "=", nIsMaster);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Status", "=", 1);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Is_Active", "=", 1);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
-
-            //insertQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-
-            //if (insertQuery.Execute())
-            //{
-            //    //User user = new User();
-            //    //user.Initialize(nUserGuid, nGroupID);
-
-            //    m_UsersIDs.Add(nUserGuid);
-            //    eDomainResponseStatus = DomainResponseStatus.OK;
-            //}
-            //else
-            //{
-            //    eDomainResponseStatus = DomainResponseStatus.Error;
-            //}
-
-            //insertQuery.Finish();
-            //insertQuery = null;
-            #endregion
-
 
             return eDomainResponseStatus;
         }
@@ -809,13 +713,13 @@ namespace Users
             {
                 if (lDomainIDs.Count == 1 && lDomainIDs[0] == nDomainID)
                 {
-                    int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, null, 0, 0);  //UpdateUserInDomain(nUserGuid, nDomainID, nGroupID, nUserDomainID);
+                    int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, null, 0, 0);
                     lDomainIDs = DAL.UsersDal.GetUserDomainIDs(nGroupID, nUserID);
                 }
                 else if ((!lDomainIDs.Contains<int>(nDomainID)) || (lDomainIDs.Count > 1))
                 {
                     // The user belongs to other domain(s), maybe pending activation
-                    return DomainResponseStatus.UserExistsInOtherDomains;   //return new DomainResponseObject(this, DomainResponseStatus.UserExistsInOtherDomains);
+                    return DomainResponseStatus.UserExistsInOtherDomains;
                 }
             }
 
@@ -903,11 +807,6 @@ namespace Users
                 return (new DomainResponseObject(this, DomainResponseStatus.Error));
             }
 
-
-            // The user is not in the domain
-            //if (lDomainIDs == null || lDomainIDs.Count == 0)   //if (nUserDomainID <= 0)
-            //{
-
             //Check if exceeded limit for users
             DomainResponseStatus responseStatus = CheckUserLimit(nDomainID, nUserID);
             if (responseStatus == DomainResponseStatus.ExceededUserLimit || responseStatus == DomainResponseStatus.UserNotAllowed)
@@ -920,7 +819,6 @@ namespace Users
             string sNewUsername = string.Empty;
             string sNewFirstName = string.Empty;
             string sNewEmail = string.Empty;
-            //string sActivationToken = string.Empty;
 
             using (DataTable dtUserBasicData = DAL.UsersDal.GetUserBasicData(nUserID))
             {
@@ -932,7 +830,6 @@ namespace Users
                         sNewUsername    = dtUserBasicData.DefaultView[0].Row["USERNAME"].ToString();
                         sNewFirstName   = dtUserBasicData.DefaultView[0].Row["FIRST_NAME"].ToString();
                         sNewEmail       = dtUserBasicData.DefaultView[0].Row["EMAIL_ADD"].ToString();
-                        //sActivationToken = dtUserBasicData.DefaultView[0].Row["ACTIVATION_TOKEN"].ToString();
                     }
                 }
             }
@@ -950,41 +847,41 @@ namespace Users
                 m_UsersIDs.Add(nUserID);
                 m_PendingUsersIDs.Add(nUserID);
 
-                bool saved = false;
-
                 // Update user's email to its Master's if empty
                 //
                 if (string.IsNullOrEmpty(sNewEmail))
                 {
+                    bool saved = false;
+
                     UserBasicData uBasic = new UserBasicData();
                     bool initBasic = uBasic.Initialize(nUserID, nGroupID);
                     uBasic.m_sEmail = masterUser.m_oBasicData.m_sEmail;
                     saved = uBasic.Save(nUserID);
-                }
 
-                if (!saved)
-                {
-                    return (new DomainResponseObject(this, DomainResponseStatus.Error));
+                    if (!saved)
+                    {
+                        return (new DomainResponseObject(this, DomainResponseStatus.RequestFailed));
+                    }
                 }
 
                 // Now we can send the activation mail to the Master
                 if (!string.IsNullOrEmpty(sActivationToken))
                 {
                     TvinciAPI.AddUserMailRequest sMailRequest = GetAddUserMailRequest(nGroupID,
-                                                                                    masterUser.m_oBasicData.m_sFirstName,
-                                                                                    masterUser.m_oBasicData.m_sUserName,
-                                                                                    masterUser.m_oBasicData.m_sEmail,
-                                                                                    sNewUsername,
-                                                                                    sNewFirstName,
-                                                                                    sActivationToken);
+                                                                                                masterUser.m_oBasicData.m_sFirstName,
+                                                                                                masterUser.m_oBasicData.m_sUserName,
+                                                                                                masterUser.m_oBasicData.m_sEmail,
+                                                                                                sNewUsername,
+                                                                                                sNewFirstName,
+                                                                                                sActivationToken);
 
                     if (sMailRequest != null)
                     {
                         bool sendingMailResult = Utils.SendMail(nGroupID, sMailRequest);
-                        return (new DomainResponseObject(this, DomainResponseStatus.OK));
+                        return (new DomainResponseObject(this, DomainResponseStatus.RequestSent));
                     }
 
-                    return (new DomainResponseObject(this, DomainResponseStatus.Error));
+                    return (new DomainResponseObject(this, DomainResponseStatus.RequestFailed));
                 }
             }
 
@@ -1037,8 +934,6 @@ namespace Users
         {
             List<string> retVal = new List<string>();
 
-            //List<int> domainUsers = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
-            //List<string> retVal = DAL.UsersDal.GetDomainUsers(nDomainID, nGroupID);
             int status = 1;
             int isActive = 1;
             Dictionary<int, int> dbTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);           
@@ -1137,32 +1032,6 @@ namespace Users
             {
                 return DomainResponseStatus.DomainNotInitialized;
             }
-
-            //User masterUser = new User();
-            //int nMasterID = masterUser.InitializeByUsername(sMasterUsername, nGroupID);
-
-            //if (nMasterID <= 0)
-            //{
-            //    return DomainResponseStatus.UserNotAllowed;
-            //}
-
-            // Let's try to find the domain of this master
-            //int nDomainID = masterUser.m_domianID;
-
-            // No domain - no luck :(
-            //if (nDomainID <= 0)
-            //{
-            //    return DomainResponseStatus.UnKnown;
-            //}
-
-            // Found domain, but username is not a master 
-            //if (!masterUser.m_isDomainMaster)
-            //{
-            //    return DomainResponseStatus.ActionUserNotMaster;
-            //}
-
-            // Domain found, let's initialize it (users, device families, ...)
-            //bool init = Initialize(nGroupID, nDomainID);
 
             if (m_UsersIDs == null || m_UsersIDs.Count == 0)
             {
@@ -1314,7 +1183,7 @@ namespace Users
                     if (container != null)
                     {
                         container.AddDeviceInstance(device);
-                        //m_Devices.Add(device);
+                        
                         if (device.m_state == DeviceState.Activated)
                         {
                             m_totalNumOfDevices++;
@@ -1406,54 +1275,6 @@ namespace Users
             return eRetVal;
         }
 
-        #region Commented
-        /// <summary>
-        /// Get the Domain Deafult device limit according to Group configurations
-        /// </summary>
-        /// <param name="nGroupID"></param>
-        /// <returns>the default limit</returns>
-        //protected int GetDomainDefaultDeviceLimitID(int nGroupID, ref int defaultDeviceLimit, ref int defaultUserLimit)
-        //{
-        //    int retVal = DAL.DomainDal.GetDomainDefaultLimitsID(nGroupID, ref defaultDeviceLimit, ref defaultUserLimit);
-        //    return retVal;
-        //}
-
-        /// <summary>
-        /// Check if User is assign to Domain
-        /// </summary>
-        /// <param name="nGroupID"></param>
-        /// <param name="nDomainID"></param>
-        /// <param name="nUserGuid"></param>
-        /// <returns>True if User is assign to Domain</returns>
-        //protected int IsUserExistsInDomain(int nGroupID, int nDomainID, int nUserGuid)
-        //{
-        //    int nUserDomainID = 0;
-
-        //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        //    //selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-
-        //    selectQuery += "select id from users_domains where ";
-        //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", nDomainID);
-        //    selectQuery += "and";
-        //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-        //    selectQuery += "and";
-        //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserGuid);
-        //    if (selectQuery.Execute("query", true) != null)
-        //    {
-        //        int nCount = selectQuery.Table("query").DefaultView.Count;
-        //        if (nCount > 0)
-        //        {
-        //            nUserDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-        //        }
-        //    }
-
-        //    selectQuery.Finish();
-        //    selectQuery = null;
-
-        //    return nUserDomainID;
-        //}
-        #endregion
-
 
         protected DeviceContainer GetDeviceContainer(int deviceFamilyID)
         {
@@ -1474,18 +1295,6 @@ namespace Users
 
 
         /// <summary>
-        /// Check if name for Domain is already exists 
-        /// </summary>
-        /// <param name="sName"></param>
-        /// <param name="nGroupID"></param>
-        /// <returns>True if name is exists</returns>
-        //protected bool IsDomainNameExists(string sName, int nGroupID)
-        //{
-        //    bool isExists = DAL.DomainDal.DoesDomainNameExist(sName, nGroupID);
-        //    return isExists;
-        //}
-
-        /// <summary>
         /// set Domain Object name, description and limit,
         /// according to DomainId and GroupID
         /// </summary>
@@ -1493,7 +1302,6 @@ namespace Users
         /// <param name="nGroupID"></param>
         /// <returns>true if Query is valid</returns>
         protected bool GetDomainSettings(int nDomainID, int nGroupID)
-        // ref string sName, ref string sDescription, ref int nDeviceLimitationModule, ref int nDeviceLimit, ref int nUserLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag, ref int nMinPeriodId)
         {
             DateTime dFrequencyLastAction = new DateTime(2000, 1, 1);
 
@@ -1570,7 +1378,6 @@ namespace Users
             {
                 eRetVal = DomainResponseStatus.ExceededLimit;
             }
-            //container = GetDeviceContainer(device.m_deviceFamilyID);
             else if (container != null && container.GetActivatedDeviceCount() >= container.m_deviceLimit)
             {
                 eRetVal = DomainResponseStatus.ExceededLimit;

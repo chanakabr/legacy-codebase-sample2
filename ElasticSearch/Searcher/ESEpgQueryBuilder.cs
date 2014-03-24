@@ -31,25 +31,54 @@ namespace ElasticSearch.Searcher
         {
             string sResult = string.Empty;
 
-            if(m_oEpgSearchObj == null)
+            if (m_oEpgSearchObj == null)
                 return sResult;
 
             ESWildcard wildCard;
             BoolQuery mainBooleanQuery = new BoolQuery();
             BoolQuery textBooleanQuery = new BoolQuery();
-            BoolQuery bQuerySingle;
+
+            BoolQuery textBooleanQueryOR = new BoolQuery();
+            BoolQuery textBooleanQueryAnd = new BoolQuery();
+
+            //BoolQuery bQuerySingle;
             FilteredQuery filteredQuery = new FilteredQuery();
 
-            foreach (var kvp in m_oEpgSearchObj.m_lSearch)
+            //And OR List search rexts
+            foreach (var kvp in m_oEpgSearchObj.m_lSearchOr)
             {
-                bQuerySingle = new BoolQuery();
-                wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(kvp.m_sKey), Value = string.Format("*{0}*", Common.Utils.EscapeValues(kvp.m_sValue)) };
-                bQuerySingle.AddChild(wildCard, CutWith.AND);
+                //bQuerySingle = new BoolQuery();
+                if (!m_oEpgSearchObj.m_bExact)
+                {
+                    wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(kvp.m_sKey), Value = string.Format("*{0}*", Common.Utils.EscapeValues(kvp.m_sValue)) };
+                }
+                else
+                {
+                    wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(kvp.m_sValue)) };
+                }
+                //bQuerySingle.AddChild(wildCard, CutWith.AND);
 
-                textBooleanQuery.AddChild(bQuerySingle, m_oEpgSearchObj.m_eInterCutWith);
+                textBooleanQueryOR.AddChild(wildCard, CutWith.OR);
             }
 
-            mainBooleanQuery.AddChild(textBooleanQuery, CutWith.AND);
+            mainBooleanQuery.AddChild(textBooleanQueryOR, CutWith.AND);
+
+            if (m_oEpgSearchObj.m_bExact && m_oEpgSearchObj != null && m_oEpgSearchObj.m_lSearchAnd.Count > 0)
+            {
+                foreach (var kvp in m_oEpgSearchObj.m_lSearchAnd)
+                {
+                    //bQuerySingle = new BoolQuery();
+                    wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(kvp.m_sValue)) };
+
+                    //bQuerySingle.AddChild(wildCard, CutWith.AND);
+
+                    textBooleanQueryAnd.AddChild(wildCard, CutWith.AND);
+                }
+
+                mainBooleanQuery.AddChild(textBooleanQueryAnd, CutWith.AND);
+            }
+
+
             filteredQuery.Query = mainBooleanQuery;
 
             QueryFilter filter = new QueryFilter();
@@ -63,12 +92,12 @@ namespace ElasticSearch.Searcher
             minStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sStartMin));
             minStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sStartMax));
 
-            ESRange maxStartDateRange = new ESRange(false){Key = "end_date"};
+            ESRange maxStartDateRange = new ESRange(false) { Key = "end_date" };
             maxStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sStartDate));
 
             ESTerm isActiveTerm = new ESTerm(true) { Key = "is_active", Value = "1" };
 
-            
+
             filterComposite.AddChild(minStartDateRange);
             filterComposite.AddChild(maxStartDateRange);
             filterComposite.AddChild(isActiveTerm);

@@ -406,7 +406,7 @@ namespace Users
             {
                 string sNewDevicePIN = GenerateNewPIN();
                 m_pin = sNewDevicePIN;
-                nDeviceID = Save(0, 3); // Returns device ID, 0 otherwise
+                nDeviceID = Save(0, 1); // Returns device ID, 0 otherwise  
                 if (nDeviceID != 0)
                 {
                     return sNewDevicePIN;
