@@ -68,9 +68,7 @@ public partial class adm_batch_upload_upload : System.Web.UI.Page
 
     private string GetWSURL(string key)
     {
-        if (ConfigurationManager.AppSettings[key] != null && ConfigurationManager.AppSettings[key].ToString() != "")
-            return ConfigurationManager.AppSettings[key].ToString();
-        return "";
+        return TVinciShared.WS_Utils.GetTcmConfigValue(key);
     }
 
     protected void UploadExcel(object sender, EventArgs e)

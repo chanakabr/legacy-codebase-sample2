@@ -12,6 +12,7 @@ using Tvinci.Core.DAL;
 using System.Text.RegularExpressions;
 using System.Configuration;
 using EpgBL;
+using TvinciImporter;
 
 
 namespace EpgFeeder
@@ -687,6 +688,22 @@ namespace EpgFeeder
                 return Language.Arabic;
             return Language.English;
         }
+
+
+        protected virtual bool UpdateEpgIndex(List<ulong> epgIDs, int nGroupID, ApiObjects.eAction action)
+        {
+            bool result = false;
+            try
+            {
+                result = ImporterImpl.UpdateEpgIndex(epgIDs, nGroupID, action);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "EpgFeeder");
+                return false;
+            }
+        }
         #endregion
 
         #region Private Methods
@@ -1242,6 +1259,10 @@ namespace EpgFeeder
             Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID), "EpgFeeder");
 
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
+            #endregion
+
+            #region Delete all existing programs in ES that have start/end dates within the new schedule
+            bool resDelete = Utils.DeleteEPGDocFromES(m_ParentGroupId, channelID, lDates);
             #endregion
         }      
     }

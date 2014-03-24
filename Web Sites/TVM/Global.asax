@@ -13,8 +13,8 @@
     }
 
     void Application_BeginRequest(object sender, EventArgs e)
-    {
-        string sAppStatus = System.Configuration.ConfigurationManager.AppSettings["APP_STATE"];
+    {             
+        string sAppStatus = TVinciShared.WS_Utils.GetTcmConfigValue("APP_STATE");
         if (sAppStatus == "version_upload")
         {
             if (Request.RawUrl.ToUpper().IndexOf("VERSION_UPLOAD.HTM") == -1 &&
