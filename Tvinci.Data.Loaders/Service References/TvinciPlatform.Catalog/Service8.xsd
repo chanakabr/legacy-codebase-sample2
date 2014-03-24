@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://webservices.dev/Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:simpleType name="Language">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="English" />
-      <xs:enumeration value="Hebrew" />
-      <xs:enumeration value="Russian" />
-      <xs:enumeration value="Arabic" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="Language" nillable="true" type="tns:Language" />
+  <xs:import schemaLocation="http://192.168.16.176/webservices/catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
   <xs:simpleType name="EpgSearchType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="ByDate" />
@@ -24,6 +15,15 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="StatsType" nillable="true" type="tns:StatsType" />
+  <xs:simpleType name="Language">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="English" />
+      <xs:enumeration value="Hebrew" />
+      <xs:enumeration value="Russian" />
+      <xs:enumeration value="Arabic" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Language" nillable="true" type="tns:Language" />
   <xs:complexType name="EPGChannelProgrammeObject">
     <xs:sequence>
       <xs:element minOccurs="0" name="CREATE_DATE" nillable="true" type="xs:string" />

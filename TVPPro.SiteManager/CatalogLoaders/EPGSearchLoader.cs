@@ -22,16 +22,32 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public DateTime EndTime { get; set; }
         public string SearchText { get; set; }
         public List<long> EPGChannelIDs { get; set; }
+        public List<KeyValue> AndList { get; set; }
+        public List<KeyValue> OrList { get; set; }
+        public bool Exact { get; set; }
 
 
         #region Constructors
 
-        public EPGSearchLoader(int groupID, string userIP, int pageSize, int pageIndex, string searchText, DateTime startTime, DateTime endTime)
+        public EPGSearchLoader(int groupID, string userIP, int pageSize, int pageIndex, DateTime startTime, DateTime endTime)
             : base(groupID, userIP, pageSize, pageIndex)
         {
-            SearchText = searchText;
             StartTime = startTime;
             EndTime = endTime;
+        }
+
+        public EPGSearchLoader(int groupID, string userIP, int pageSize, int pageIndex, string searchText, DateTime startTime, DateTime endTime)
+            : this(groupID, userIP, pageSize, pageIndex, startTime, endTime)
+        {
+            SearchText = searchText;
+        }
+
+        public EPGSearchLoader(int groupID, string userIP, int pageSize, int pageIndex, List<KeyValue> andList, List<KeyValue> orList, bool exact, DateTime startTime, DateTime endTime)
+            : this(groupID, userIP, pageSize, pageIndex, startTime, endTime)
+        {
+            AndList = andList;
+            OrList = orList;
+            Exact = exact;
         }
 
         public EPGSearchLoader(string userName, string userIP, int pageSize, int pageIndex, string searchText, DateTime startTime, DateTime endTime)
@@ -49,8 +65,11 @@ namespace TVPPro.SiteManager.CatalogLoaders
             {
                 m_sSearch = SearchText,
                 m_dEndDate = EndTime,
-                m_dStartDate = StartTime,
-                m_oEPGChannelIDs = EPGChannelIDs
+                m_dStartDate = StartTime, 
+                m_oEPGChannelIDs = EPGChannelIDs,
+                m_AndList = AndList,
+                m_OrList = OrList,
+                m_bExact = Exact,
             };
         }
 
