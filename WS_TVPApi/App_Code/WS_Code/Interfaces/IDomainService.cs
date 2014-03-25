@@ -69,5 +69,17 @@ namespace TVPApiServices
 
         [OperationContract]
         DomainResponseObject ConfirmDeviceByDomainMaster(InitializationObject initObj, string udid, string masterUn, string token);
+
+        [OperationContract]
+        NetworkResponseObject AddHomeNetworkToDomain(InitializationObject initObj, string networkId, string networkName, string networkDesc);
+
+        [OperationContract]
+        NetworkResponseObject UpdateDomainHomeNetwork(InitializationObject initObj, string networkId, string networkName, string networkDesc, bool isActive);
+
+        [OperationContract]
+        NetworkResponseObject RemoveDomainHomeNetwork(InitializationObject initObj, string networkId);
+
+        [OperationContract]
+        HomeNetwork[] GetDomainHomeNetworks(InitializationObject initObj);
     }
 }
