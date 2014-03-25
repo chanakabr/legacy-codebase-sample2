@@ -2809,5 +2809,51 @@ namespace TVPApiServices
             return retVal;
         }
 
+        [WebMethod(EnableSession = true, Description = "Search Epg using an 'Or' list and an 'and' list. Key-Value pairs of tags and metas are expected in the lists. Between the two lists an AND logic will be implemented. ")]
+        public List<EPGChannelProgrammeObject> SearchEPGByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex)
+        {
+            List<EPGChannelProgrammeObject> retVal = null;
+            List<BaseObject> loaderResult = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchMediaByAndOrList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    int language = TextLocalizationManager.Instance.GetTextLocalization(groupID, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
+                    DateTime _startTime, _endTime;
+
+                    _startTime = DateTime.UtcNow.AddDays(-int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    _endTime = DateTime.UtcNow.AddDays(int.Parse(ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+
+                    loaderResult = new APIEPGSearchLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, andList, orList, true, _startTime, _endTime)
+                    {
+                        Culture = initObj.Locale.LocaleLanguage,
+                        SiteGuid = initObj.SiteGuid
+                    }.Execute() as List<BaseObject>;
+
+                    retVal = new List<EPGChannelProgrammeObject>();
+                    foreach (ProgramObj p in loaderResult)
+                    {
+                        if (p != null)
+                            retVal.Add(p.m_oProgram);
+                        else
+                            retVal.Add(null);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return retVal;
+        }
+
     }
 }

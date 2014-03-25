@@ -33,6 +33,12 @@ namespace TVPApiModule.CatalogLoaders
         {
             Platform = platform;
         }
+
+        public APIEPGSearchLoader(int groupID, string platform, string userIP, int pageSize, int pageIndex, List<KeyValue> andList, List<KeyValue> orList, bool exact, DateTime startTime, DateTime endTime)
+            : base(groupID, userIP, pageSize, pageIndex, andList, orList, exact, startTime, endTime)
+        {
+            Platform = platform;
+        }
         #endregion
 
     }
