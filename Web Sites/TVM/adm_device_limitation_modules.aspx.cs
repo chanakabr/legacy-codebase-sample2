@@ -59,8 +59,10 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        theTable += "select a.is_active,a.id as id,a.NAME as 'Name', a.max_limit as 'Limit',  lmp.DESCRIPTION as 'Frequency', a.concurrent_max_limit as 'Concurrent Limit', a.status " + 
-                "from groups_device_limitation_modules a with (nolock) left join lu_min_periods lmp with (nolock) on a.freq_period_id = lmp.ID where ";
+        theTable += "select a.is_active, a.id as id, a.NAME as 'Name', a.max_limit as 'Limit', lmp.DESCRIPTION as 'Frequency', a.concurrent_max_limit as 'Concurrent Limit', a.status,";
+        theTable += "env.description as 'Environment Type' from groups_device_limitation_modules a with (nolock) left join lu_min_periods lmp ";
+        theTable += "with (nolock) on a.freq_period_id = lmp.ID inner Join lu_domain_environment env on env.ID = a.environment_type where ";
+
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
         theTable += "and (";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.STATUS", "=", 1);
@@ -76,6 +78,7 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
         theTable.AddHiddenField("status");
         theTable.AddActivationField("groups_device_limitation_modules");
         theTable.AddHiddenField("is_active");
+        theTable.AddHiddenField("environment_type");      
 
         DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_device_management.aspx", "Device Families", "");
         linkColumn1.AddQueryStringValue("limit_module_id", "field=id");

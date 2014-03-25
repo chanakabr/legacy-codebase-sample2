@@ -404,6 +404,12 @@ namespace EpgFeeder
             List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
             EpgCB newEpgItem;            
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId));
+
+            string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
+            int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+            int nCount = 0;
+            List<ulong> ulProgram = new List<ulong>();		
+
             foreach (tvChannel item in m_TvChannels.channel)
             {
                 Int32 channelID = GetExistChannel(item.id);
@@ -478,8 +484,11 @@ namespace EpgFeeder
 
                 DeleteAllPrograms(channelID, prog);
 
+               		
+
                 foreach (var progItem in prog)
                 {
+                    nCount++;
                     DateTime dProgStartDate = DateTime.MinValue;
                     DateTime dProgEndDate = DateTime.MinValue;
                     if (!ParseEPGStrToDate(progItem.start, ref dProgStartDate) || !ParseEPGStrToDate(progItem.stop, ref dProgEndDate))
@@ -556,6 +565,8 @@ namespace EpgFeeder
 
                     #region Insert EpgProgram Doc To CB
                     newEpgItem = new EpgCB();
+                    ulong uProgramID = (ulong)ProgramID;
+                    newEpgItem.EpgID = uProgramID;
                     newEpgItem.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(channelID);
 
                     progTitle = "";
@@ -614,6 +625,22 @@ namespace EpgFeeder
                     bool bInsert = oEpgBL.InsertEpg(newEpgItem, out epgID);
                     #endregion
 
+                    #region Insert EpgProgram ES
+
+                    if (nCount >= nCountPackage)
+                    {
+                        int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                        bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
+
+                        ulProgram = new List<ulong>();
+                        nCount = 0;
+                    }
+                    else
+                    {
+                        ulProgram.Add(uProgramID);
+                    }
+
+                    #endregion
 
                     #region Upload Picture
 
@@ -648,6 +675,13 @@ namespace EpgFeeder
                     #endregion
                 }
             }
+
+            if (nCount > 0 && ulProgram != null && ulProgram.Count > 0)
+            {
+                int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
+            }
+
             //start Upload proccess Queue
             UploadQueue.UploadQueueHelper.SetJobsForUpload(int.Parse(s_GroupID));
 
@@ -701,6 +735,10 @@ namespace EpgFeeder
             Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID), "EpgFeeder");
 
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
+            #endregion
+
+            #region Delete all existing programs in ES that have start/end dates within the new schedule
+            bool resDelete = Utils.DeleteEPGDocFromES(m_ParentGroupId, channelID, lDates);
             #endregion
 
         }

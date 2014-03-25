@@ -56,7 +56,6 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 Int32 nPPVModuleID = DBManipulator.DoTheWork("pricing_connection");
-                UpdateUsageModules(nPPVModuleID, LoginManager.GetLoginGroupID());
                 Session["ppv_module_id"] = nPPVModuleID.ToString();
                 Int32 nLangID = int.Parse(Session["lang_id"].ToString());
                 string sCode3 = Session["lang_code"].ToString();
@@ -76,16 +75,16 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
                 selectQuery.Finish();
                 selectQuery = null;
 
-                Int32 nIter = 1;
+                Int32 nIter = 6;
                 string sLang = "";
-                
-                if (int.Parse(Session["lang_id"].ToString()) != GetMainLang(ref sLang , ref sMainCode3))
+
+                if (int.Parse(Session["lang_id"].ToString()) != GetMainLang(ref sLang, ref sMainCode3))
                     nIter = 0;
                 string sDesc = "";
                 sDesc = Request.Form[nIter.ToString() + "_val"].ToString();
                 nIter++;
 
-                if (nPPVModuleDesc != 0) 
+                if (nPPVModuleDesc != 0)
                 {
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_descriptions");
                     updateQuery.SetConnectionKey("pricing_connection");
@@ -155,81 +154,6 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
         m_sLangMenu = GetLangMenu(nGroupID);
     }
 
-    protected void UpdateUsageModules(int ppvID, int groupID)
-    {
-        if (Session["ppv_usage_modules"] != null && Session["ppv_usage_modules"] is List<UMObj>)
-        {
-            List<int> tempIDs = new List<int>();
-            List<UMObj> newUMs = Session["ppv_usage_modules"] as List<UMObj>;
-            List<int> oldUMs = BuildPPVUMs(ppvID, groupID, true);
-            foreach (UMObj newObj in newUMs)
-            {
-                int newID = int.Parse(newObj.m_id);
-                tempIDs.Add(newID);
-                if (oldUMs.Contains(newID))
-                {
-                    UpdateUsageModule(newID, ppvID, newObj.m_orderNum);
-                }
-                else
-                {
-                    InsertUsageModule(newID, ppvID, newObj.m_orderNum, groupID);
-                }
-
-            }
-            foreach (int oldID in oldUMs)
-            {
-                if (!tempIDs.Contains(oldID))
-                {
-                    RemoveUsageModule(oldID, ppvID);
-                }
-            }
-        }
-    }
-
-    protected void RemoveUsageModule(int umID, int ppvID)
-    {
-        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_usage_modules");
-        updateQuery.SetConnectionKey("pricing_connection");
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
-        updateQuery += " where ";
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ppv_id", "=", ppvID);
-        updateQuery += " and ";
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("usage_module_id", "=", umID);
-        updateQuery.Execute();
-        updateQuery.Finish();
-        updateQuery = null;
-    }
-
-    protected void UpdateUsageModule(int umID, int ppvID, int order_num)
-    {
-        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_usage_modules");
-        updateQuery.SetConnectionKey("pricing_connection");
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("order_num", "=", order_num);
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
-        updateQuery += " where ";
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ppv_id", "=", ppvID);
-        updateQuery += " and ";
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("usage_module_id", "=", umID);
-        updateQuery.Execute();
-        updateQuery.Finish();
-        updateQuery = null;
-    }
-
-    protected void InsertUsageModule(int umID, int subID, int order_num, int groupID)
-    {
-        ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ppv_usage_modules");
-        insertQuery.SetConnectionKey("pricing_connection");
-        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ppv_id", subID);
-        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("usage_module_id", "=", umID);
-        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("order_num", "=", order_num);
-        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
-        insertQuery.Execute();
-        insertQuery.Finish();
-        insertQuery = null;
-    }
-
     protected string GetLangMenu(Int32 nGroupID)
     {
         try
@@ -238,7 +162,7 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
             Int32 nCount = 0;
             string sMainLang = "";
             string sCode3 = "";
-            Int32 nMainLangID = GetMainLang(ref sMainLang , ref sCode3);
+            Int32 nMainLangID = GetMainLang(ref sMainLang, ref sCode3);
 
             string sOnOff = "on";
             if (nMainLangID != int.Parse(Session["lang_id"].ToString()))
@@ -282,7 +206,7 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
             }
             selectQuery1.Finish();
             selectQuery1 = null;
-
+            Logger.Logger.Log("Languages", sTemp, "Languages");
             return sTemp;
         }
         catch
@@ -294,15 +218,18 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
 
     protected void GetLangMenu()
     {
+        Logger.Logger.Log("Languages Response", m_sLangMenu, "Languages");
+
         Response.Write(m_sLangMenu);
     }
 
     protected void GetMainMenu()
     {
+        Logger.Logger.Log("Languages Response", "GetMainMenu", "Languages");
         Response.Write(m_sMenu);
     }
-    
-    static protected Int32 GetMainLang(ref string sMainLang , ref string sCode)
+
+    static protected Int32 GetMainLang(ref string sMainLang, ref string sCode)
     {
         Int32 nLangID = 0;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -330,7 +257,7 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
         {
             string sMainLang = "";
             string sCode3 = "";
-            Int32 nLangID = GetMainLang(ref sMainLang , ref sCode3);
+            Int32 nLangID = GetMainLang(ref sMainLang, ref sCode3);
             object sSubName = ODBCWrapper.Utils.GetTableSingleVal("ppv_descriptions", "description", "language_code3", "=", sMainLang, "pricing_connection");
             if (sSubName != null && sSubName != DBNull.Value)
                 sRet += "(" + sSubName.ToString() + ")";
@@ -346,9 +273,14 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
         Response.Write(m_sSubMenu);
     }
 
+
+
     static protected string GetWSURL()
     {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
+        if (ConfigurationManager.AppSettings["pricing_ws"] != null &&
+            ConfigurationManager.AppSettings["pricing_ws"].ToString() != "")
+            return ConfigurationManager.AppSettings["pricing_ws"].ToString();
+        return "";
     }
 
     protected System.Data.DataTable GetBaseDT()
@@ -385,156 +317,6 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
         return sRet;
     }
 
-    protected List<int> BuildPPVUMs(int ppvID, int groupID, bool alsoUnActive)
-    {
-        List<int> retVal = new List<int>();
-        List<UMObj> umList = new List<UMObj>();
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery.SetConnectionKey("pricing_connection");
-        selectQuery += "select um.id, um.name, pum.order_num from usage_modules um, ppv_usage_modules pum where pum.usage_module_id = um.id and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("pum.ppv_id", "=", ppvID);
-        selectQuery += " and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("um.group_id", "=", groupID);
-        if (!alsoUnActive)
-        {
-            selectQuery += " and pum.is_active = 1 and pum.status = 1";
-        }
-        selectQuery += "order by pum.order_num";
-        if (selectQuery.Execute("query", true) != null)
-        {
-            int count = selectQuery.Table("query").DefaultView.Count;
-            if (count > 0)
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    string title = selectQuery.Table("query").DefaultView[i].Row["Name"].ToString();
-                    string description = string.Empty;
-                    string uID = selectQuery.Table("query").DefaultView[i].Row["id"].ToString();
-                    int orderNum = int.Parse(selectQuery.Table("query").DefaultView[i].Row["order_num"].ToString());
-                    UMObj umObj = new UMObj(uID, title, description, true, orderNum);
-                    umList.Add(umObj);
-                    retVal.Add(int.Parse(uID));
-                }
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-        Session["ppv_usage_modules"] = umList;
-        return retVal;
-    }
-
-    public string changeItemStatus(string sID, string sAction, string index)
-    {
-        string retVal = string.Empty;
-        if (Session["ppv_usage_modules"] != null && Session["ppv_usage_modules"] is List<UMObj>)
-        {
-            List<UMObj> umObjList = Session["ppv_usage_modules"] as List<UMObj>;
-            switch (sAction.ToLower())
-            {
-                case "remove":
-                    {
-                        for (int i = 0; i < umObjList.Count; i++)
-                        {
-                            UMObj obj = umObjList[i];
-                            if (obj.m_id.Equals(sID))
-                            {
-                                umObjList.Remove(obj);
-                                break;
-                            }
-                        }
-                        Session["ppv_usage_modules"] = umObjList;
-                        break;
-                    }
-                case "add":
-                    {
-                        UMObj obj = new UMObj(sID, string.Empty, string.Empty, true, int.Parse(index));
-                        int newOrder = int.Parse(index);
-
-                        foreach (UMObj umObj in umObjList)
-                        {
-                            int oldOrder = umObj.m_orderNum;
-
-                            if (oldOrder >= newOrder)
-                            {
-                                umObj.m_orderNum++;
-                            }
-
-                        }
-                        umObjList.Insert(int.Parse(index), obj);
-                        umObjList.Sort();
-                        Session["ppv_usage_modules"] = umObjList;
-                        break;
-                    }
-            }
-        }
-        return retVal;
-    }
-
-    public string initDualObj()
-    {
-        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-
-        string sRet = "";
-        sRet += "Uage Modules included in PPV Module";
-        sRet += "~~|~~";
-        sRet += "Available Usage Modules";
-        sRet += "~~|~~";
-        sRet += "<root>";
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery.SetConnectionKey("pricing_connection");
-        selectQuery += "select * from usage_modules where is_active=1 and status=1 and ";
-        Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-        if (nCommerceGroupID == 0)
-            nCommerceGroupID = nLogedInGroupID;
-        selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-        selectQuery += " and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("type", "=", 1);
-        List<int> ppvUMsIDs = null;
-        if (Session["ppv_module_id"] != null && !string.IsNullOrEmpty(Session["ppv_module_id"].ToString()))
-        {
-            ppvUMsIDs = BuildPPVUMs(int.Parse(Session["ppv_module_id"].ToString()), nCommerceGroupID, false);
-        }
-        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
-            {
-                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
-                string sGroupID = selectQuery.Table("query").DefaultView[i].Row["group_ID"].ToString();
-                string sTitle = "";
-                if (selectQuery.Table("query").DefaultView[i].Row["NAME"] != null &&
-                    selectQuery.Table("query").DefaultView[i].Row["NAME"] != DBNull.Value)
-                    sTitle = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
-                string sDescription = "";
-                /*
-                if (selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != null &&
-                    selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != DBNull.Value)
-                    sDescription = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
-                 */
-                if (ppvUMsIDs == null || (ppvUMsIDs != null && !ppvUMsIDs.Contains(int.Parse(sID))))
-                {
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"false\" />";
-                }
-            }
-            if (Session["ppv_usage_modules"] != null && Session["ppv_usage_modules"] != null)
-            {
-                int subID = int.Parse(Session["ppv_module_id"].ToString());
-                List<UMObj> umObjList = Session["ppv_usage_modules"] as List<UMObj>;
-                foreach (UMObj obj in umObjList)
-                {
-                    sRet += "<item id=\"" + obj.m_id + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(obj.m_title, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(obj.m_description, true) + "\" inList=\"true\" />";
-                }
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-
-
-        sRet += "</root>";
-        return sRet;
-    }
-
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
         if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
@@ -546,131 +328,145 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
         if (Session["ppv_module_id"] != null && Session["ppv_module_id"].ToString() != "" && int.Parse(Session["ppv_module_id"].ToString()) != 0)
             t = Session["ppv_module_id"];
         string sBack = "adm_ppv_modules.aspx?search_save=1";
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("ppv_modules", "adm_table_pager", sBack, "", "ID", t, string.Empty, "");
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("ppv_modules", "adm_table_pager", sBack, "", "ID", t, sBack, "");
         theRecord.SetConnectionKey("pricing_connection");
         string sMainLang = "";
         string sMainCode = "";
         if (int.Parse(Session["lang_id"].ToString()) == GetMainLang(ref sMainLang, ref sMainCode))
         {
-            //DataRecordDropDownField dr_sub_price_codes = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, false);
-            //dr_sub_price_codes.SetFieldType("string");
-            //System.Data.DataTable priceCodesDT = GetBaseDT();
-            //string sWSUserName = "";
-            //string sWSPass = "";
+            DataRecordDropDownField dr_sub_price_codes = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, false);
+            dr_sub_price_codes.SetFieldType("string");
+            System.Data.DataTable priceCodesDT = GetBaseDT();
+            string sWSUserName = "";
+            string sWSPass = "";
 
-            //string sIP = "1.1.1.1";
-            //TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetPriceCodeList", "pricing", sIP, ref sWSUserName, ref sWSPass);
-            //TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-            //string sWSURL = GetWSURL();
-            //if (sWSURL != "")
-            //    m.Url = sWSURL;
+            string sIP = "1.1.1.1";
+            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetPriceCodeList", "pricing", sIP, ref sWSUserName, ref sWSPass);
+            TvinciPricing.mdoule m = new TvinciPricing.mdoule();
+            string sWSURL = GetWSURL();
+            if (sWSURL != "")
+                m.Url = sWSURL;
 
-            //TvinciPricing.PriceCode[] oModules = m.GetPriceCodeList(sWSUserName, sWSPass);
-            //if (oModules != null)
-            //{
-            //    for (int i = 0; i < oModules.Length; i++)
-            //    {
-            //        System.Data.DataRow tmpRow = null;
-            //        tmpRow = priceCodesDT.NewRow();
-            //        tmpRow["ID"] = oModules[i].m_nObjectID;
-            //        tmpRow["txt"] = oModules[i].m_sCode;
-            //        /*
-            //        TvinciPricing.LanguageContainer[] lang = oModules[i].m_sDescription;
-            //        if (lang != null)
-            //        {
-            //            string sMainLang = GetMainLang();
-            //            for (int j = 0; j < lang.Length; j++)
-            //            {
-            //                if (lang[j].m_sLanguageCode3 == sMainLang)
-            //                    tmpRow["txt"] += "(" + lang[j].m_sValue + ")";
-            //            }
-            //        }
-            //         */
-            //        priceCodesDT.Rows.InsertAt(tmpRow, 0);
-            //        priceCodesDT.AcceptChanges();
-            //    }
-            //}
+            TvinciPricing.PriceCode[] oModules = m.GetPriceCodeList(sWSUserName, sWSPass, string.Empty, string.Empty, string.Empty);
+            if (oModules != null)
+            {
+                for (int i = 0; i < oModules.Length; i++)
+                {
+                    System.Data.DataRow tmpRow = null;
+                    tmpRow = priceCodesDT.NewRow();
+                    tmpRow["ID"] = oModules[i].m_nObjectID;
+                    tmpRow["txt"] = oModules[i].m_sCode;
+                    /*
+                    TvinciPricing.LanguageContainer[] lang = oModules[i].m_sDescription;
+                    if (lang != null)
+                    {
+                        string sMainLang = GetMainLang();
+                        for (int j = 0; j < lang.Length; j++)
+                        {
+                            if (lang[j].m_sLanguageCode3 == sMainLang)
+                                tmpRow["txt"] += "(" + lang[j].m_sValue + ")";
+                        }
+                    }
+                     */
+                    priceCodesDT.Rows.InsertAt(tmpRow, 0);
+                    priceCodesDT.AcceptChanges();
+                }
+            }
 
             DataRecordShortTextField dr_domain = new DataRecordShortTextField("ltr", true, 60, 128);
             dr_domain.Initialize("Code", "adm_table_header_nbg", "FormInput", "Name", true);
             theRecord.AddRecord(dr_domain);
 
-            //    dr_sub_price_codes.SetSelectsDT(priceCodesDT);
-            //    dr_sub_price_codes.Initialize("Price Code", "adm_table_header_nbg", "FormInput", "PRICE_CODE", true);
-            //    dr_sub_price_codes.SetDefault(0);
-            //    theRecord.AddRecord(dr_sub_price_codes);
+            dr_sub_price_codes.SetSelectsDT(priceCodesDT);
+            dr_sub_price_codes.Initialize("Price Code", "adm_table_header_nbg", "FormInput", "PRICE_CODE", true);
+            dr_sub_price_codes.SetDefault(0);
+            theRecord.AddRecord(dr_sub_price_codes);
 
 
-           
+            DataRecordDropDownField dr_sub_usage_module = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, false);
+            dr_sub_usage_module.SetFieldType("string");
+            System.Data.DataTable usageModuleCodesDT = GetBaseDT();
 
-            //    DataRecordDropDownField dr_disc = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
-            //    dr_disc.SetFieldType("string");
-            //    System.Data.DataTable discCodesDT = GetBaseDT();
-            //    sWSUserName = "";
-            //    sWSPass = "";
+            TvinciPricing.UsageModule[] oUMCodes = m.GetUsageModuleList(sWSUserName, sWSPass, string.Empty, string.Empty, string.Empty);
+            if (oUMCodes != null)
+            {
+                for (int i = 0; i < oUMCodes.Length; i++)
+                {
+                    System.Data.DataRow tmpRow = null;
+                    tmpRow = usageModuleCodesDT.NewRow();
+                    tmpRow["ID"] = oUMCodes[i].m_nObjectID;
+                    tmpRow["txt"] = oUMCodes[i].m_sVirtualName;
+                    usageModuleCodesDT.Rows.InsertAt(tmpRow, 0);
+                    usageModuleCodesDT.AcceptChanges();
+                }
+            }
+            dr_sub_usage_module.SetSelectsDT(usageModuleCodesDT);
+            dr_sub_usage_module.Initialize("Usage Module", "adm_table_header_nbg", "FormInput", "USAGE_MODULE_CODE", true);
+            dr_sub_usage_module.SetDefault(0);
+            theRecord.AddRecord(dr_sub_usage_module);
 
-            //    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetDiscountsModuleListForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
-            //    TvinciPricing.DiscountModule[] oDiscCodes = m.GetDiscountsModuleListForAdmin(sWSUserName, sWSPass);
-            //    if (oDiscCodes != null)
-            //    {
-            //        for (int i = 0; i < oDiscCodes.Length; i++)
-            //        {
-            //            System.Data.DataRow tmpRow = null;
-            //            tmpRow = discCodesDT.NewRow();
-            //            tmpRow["ID"] = oDiscCodes[i].m_nObjectID;
-            //            tmpRow["txt"] = oDiscCodes[i].m_sCode;
-            //            discCodesDT.Rows.InsertAt(tmpRow, 0);
-            //            discCodesDT.AcceptChanges();
-            //        }
-            //    }
-            //    dr_disc.SetSelectsDT(discCodesDT);
-            //    dr_disc.Initialize("Discounts", "adm_table_header_nbg", "FormInput", "DISCOUNT_MODULE_CODE", false);
-            //    dr_disc.SetNoSelectStr("---");
-            //    dr_disc.SetDefault(0);
-            //    theRecord.AddRecord(dr_disc);
+            DataRecordDropDownField dr_disc = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
+            dr_disc.SetFieldType("string");
+            System.Data.DataTable discCodesDT = GetBaseDT();
 
-            //    DataRecordDropDownField dr_coupons_group = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
-            //    dr_coupons_group.SetFieldType("string");
-            //    System.Data.DataTable CouponsGroupDT = GetBaseDT();
-            //    sWSUserName = "";
-            //    sWSPass = "";
+            TvinciPricing.DiscountModule[] oDiscCodes = m.GetDiscountsModuleListForAdmin(sWSUserName, sWSPass);
+            if (oDiscCodes != null)
+            {
+                for (int i = 0; i < oDiscCodes.Length; i++)
+                {
+                    System.Data.DataRow tmpRow = null;
+                    tmpRow = discCodesDT.NewRow();
+                    tmpRow["ID"] = oDiscCodes[i].m_nObjectID;
+                    tmpRow["txt"] = oDiscCodes[i].m_sCode;
+                    discCodesDT.Rows.InsertAt(tmpRow, 0);
+                    discCodesDT.AcceptChanges();
+                }
+            }
+            dr_disc.SetSelectsDT(discCodesDT);
+            dr_disc.Initialize("Discounts", "adm_table_header_nbg", "FormInput", "DISCOUNT_MODULE_CODE", false);
+            dr_disc.SetNoSelectStr("---");
+            dr_disc.SetDefault(0);
+            theRecord.AddRecord(dr_disc);
 
-            //    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetCouponGroupListForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
-            //    TvinciPricing.CouponsGroup[] oCouponsGroup = m.GetCouponGroupListForAdmin(sWSUserName, sWSPass);
-            //    if (oCouponsGroup != null)
-            //    {
-            //        for (int i = 0; i < oCouponsGroup.Length; i++)
-            //        {
-            //            System.Data.DataRow tmpRow = null;
-            //            tmpRow = CouponsGroupDT.NewRow();
-            //            tmpRow["ID"] = int.Parse(oCouponsGroup[i].m_sGroupCode);
-            //            tmpRow["txt"] = oCouponsGroup[i].m_sGroupName;
-            //            TvinciPricing.LanguageContainer[] lang = oCouponsGroup[i].m_sDescription;
-            //            if (lang != null)
-            //            {
-            //                string sCode3 = "";
-            //                Int32 nLangID = GetMainLang(ref sMainLang, ref sCode3);
-            //                for (int j = 0; j < lang.Length; j++)
-            //                {
-            //                    if (lang[j].m_sLanguageCode3 == sMainLang)
-            //                        tmpRow["txt"] += "(" + lang[j].m_sValue + ")";
-            //                }
-            //            }
-            //            CouponsGroupDT.Rows.InsertAt(tmpRow, 0);
-            //            CouponsGroupDT.AcceptChanges();
-            //        }
-            //    }
-            //    dr_coupons_group.SetSelectsDT(CouponsGroupDT);
-            //    dr_coupons_group.Initialize("Coupon Group", "adm_table_header_nbg", "FormInput", "COUPON_GROUP_CODE", false);
-            //    dr_coupons_group.SetNoSelectStr("---");
-            //    //dr_coupons_group.SetDefault(0);
-            //    theRecord.AddRecord(dr_coupons_group);
+            DataRecordDropDownField dr_coupons_group = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
+            dr_coupons_group.SetFieldType("string");
+            System.Data.DataTable CouponsGroupDT = GetBaseDT();
+            
+            TvinciPricing.CouponsGroup[] oCouponsGroup = m.GetCouponGroupListForAdmin(sWSUserName, sWSPass);
+            if (oCouponsGroup != null)
+            {
+                for (int i = 0; i < oCouponsGroup.Length; i++)
+                {
+                    System.Data.DataRow tmpRow = null;
+                    tmpRow = CouponsGroupDT.NewRow();
+                    tmpRow["ID"] = int.Parse(oCouponsGroup[i].m_sGroupCode);
+                    tmpRow["txt"] = oCouponsGroup[i].m_sGroupName;
+                    TvinciPricing.LanguageContainer[] lang = oCouponsGroup[i].m_sDescription;
+                    if (lang != null)
+                    {
+                        string sCode3 = "";
+                        Int32 nLangID = GetMainLang(ref sMainLang, ref sCode3);
+                        for (int j = 0; j < lang.Length; j++)
+                        {
+                            if (lang[j].m_sLanguageCode3 == sMainLang)
+                                tmpRow["txt"] += "(" + lang[j].m_sValue + ")";
+                        }
+                    }
+                    CouponsGroupDT.Rows.InsertAt(tmpRow, 0);
+                    CouponsGroupDT.AcceptChanges();
+                }
+            }
+            dr_coupons_group.SetSelectsDT(CouponsGroupDT);
+            dr_coupons_group.Initialize("Coupon Group", "adm_table_header_nbg", "FormInput", "COUPON_GROUP_CODE", false);
+            dr_coupons_group.SetNoSelectStr("---");
+            //dr_coupons_group.SetDefault(0);
+            theRecord.AddRecord(dr_coupons_group);
 
-            //    DataRecordBoolField dr_is_recurring = new DataRecordBoolField(true);
-            //    dr_is_recurring.Initialize("Subscription Only", "adm_table_header_nbg", "FormInput", "SUBSCRIPTION_ONLY", false);
-            //    theRecord.AddRecord(dr_is_recurring);
-            //}
+            DataRecordBoolField dr_is_recurring = new DataRecordBoolField(true);
+            dr_is_recurring.Initialize("Subscription Only", "adm_table_header_nbg", "FormInput", "SUBSCRIPTION_ONLY", false);
+            theRecord.AddRecord(dr_is_recurring);
         }
+
         DataRecordLongTextField dr_Description = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_Description.Initialize("Title", "adm_table_header_nbg", "FormInput", "", false);
         if (Session["ppv_module_id"] != null && Session["ppv_module_id"].ToString() != "0")
@@ -681,77 +477,12 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
             dr_Description.SetValue("");
         theRecord.AddRecord(dr_Description);
 
-        DataRecordDropDownField dr_sub_usage_module = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, false);
-        dr_sub_usage_module.SetFieldType("string");
-        System.Data.DataTable usageModuleCodesDT = GetBaseDT();
-
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery.SetConnectionKey("pricing_connection");
-        selectQuery += "select * from usage_modules where is_active=1 and status=1 and ";
-        Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-        if (nCommerceGroupID == 0)
-            nCommerceGroupID = LoginManager.GetLoginGroupID();
-        selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-        selectQuery += " and (";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("type", "=", 1);
-        selectQuery += " or ";
-        selectQuery += " type is null)";
-
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
-            {
-                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
-
-                string sTitle = "";
-                if (selectQuery.Table("query").DefaultView[i].Row["NAME"] != null &&
-                    selectQuery.Table("query").DefaultView[i].Row["NAME"] != DBNull.Value)
-                    sTitle = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
-                System.Data.DataRow tmpRow = null;
-                tmpRow = usageModuleCodesDT.NewRow();
-                tmpRow["ID"] = sID;
-                tmpRow["txt"] = sTitle;
-                usageModuleCodesDT.Rows.InsertAt(tmpRow, 0);
-                usageModuleCodesDT.AcceptChanges();
-                /*
-                if (selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != null &&
-                    selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != DBNull.Value)
-                    sDescription = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
-                 */
-
-            }
-        }
-        //TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetUsageModuleList", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
-        //TvinciPricing.UsageModule[] oUMCodes = m.GetUsageModuleList(sWSUserName, sWSPass);
-        //if (oUMCodes != null)
-        //{
-        //    for (int i = 0; i < oUMCodes.Length; i++)
-        //    {
-        //        System.Data.DataRow tmpRow = null;
-        //        tmpRow = usageModuleCodesDT.NewRow();
-        //        tmpRow["ID"] = oUMCodes[i].m_nObjectID;
-        //        tmpRow["txt"] = oUMCodes[i].m_sVirtualName;
-        //        usageModuleCodesDT.Rows.InsertAt(tmpRow, 0);
-        //        usageModuleCodesDT.AcceptChanges();
-        //    }
-        //}
-        dr_sub_usage_module.SetSelectsDT(usageModuleCodesDT);
-        dr_sub_usage_module.Initialize("Usage Module", "adm_table_header_nbg", "FormInput", "USAGE_MODULE_CODE", true);
-        dr_sub_usage_module.SetDefault(0);
-        theRecord.AddRecord(dr_sub_usage_module);
-
-        DataRecordCheckBoxField dr_FirstDeviceLimitation = new DataRecordCheckBoxField(true);
-        dr_FirstDeviceLimitation.Initialize("First Device Limitation", "adm_table_header_nbg", "FormInput", "FirstDeviceLimitation", false);
-        theRecord.AddRecord(dr_FirstDeviceLimitation);
-
-
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
 
-        string sTable = theRecord.GetTableHTML("adm_ppv_modules_new.aspx?submited=1", false);
+        string sTable = theRecord.GetTableHTML("adm_ppv_modules_new.aspx?submited=1");
 
         return sTable;
     }
