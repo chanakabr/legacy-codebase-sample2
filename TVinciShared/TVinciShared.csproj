@@ -143,6 +143,10 @@
       <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj">
       <Project>{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}</Project>
       <Name>LLNWMediaVault</Name>
@@ -150,10 +154,6 @@
     <ProjectReference Include="..\CachingManager\CachingManager.csproj">
       <Project>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</Project>
       <Name>CachingManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DAL\DAL.csproj">
-      <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
-      <Name>DAL</Name>
     </ProjectReference>
     <ProjectReference Include="..\Logger\Logger.csproj">
       <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>

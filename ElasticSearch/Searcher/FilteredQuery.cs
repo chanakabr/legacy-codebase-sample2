@@ -16,12 +16,14 @@ namespace ElasticSearch.Searcher
         public int PageIndex { get; set; }
         public List<string> ReturnFields { get; protected set; }
         public List<ESOrderObj> ESSort { get; protected set; }
+        public bool m_bIsRoot { get; set; }
 
-        public FilteredQuery()
+        public FilteredQuery(bool bIsRoot = true)
         {
             ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"epg_id\"", "\"name\", \"cache_date\"" };
             ESSort = new List<ESOrderObj>();
             string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
+            m_bIsRoot = bIsRoot;
 
             if (!int.TryParse(sMaxResults, out MAX_RESULTS))
                 MAX_RESULTS = 100000;
@@ -33,17 +35,16 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sbFilteredQuery = new StringBuilder();
 
-            if (PageSize <= 0)
+            if (PageSize < 0)
                 PageSize = MAX_RESULTS;
 
             int fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
 
-            sbFilteredQuery.Append("{");
+            if(m_bIsRoot)
+                sbFilteredQuery.Append("{");
+
             sbFilteredQuery.AppendFormat(" \"size\": {0}, ", PageSize);
             sbFilteredQuery.AppendFormat(" \"from\": {0}, ", fromIndex);
-
-
-
 
             if (ReturnFields.Count > 0)
             {
@@ -68,9 +69,11 @@ namespace ElasticSearch.Searcher
 
                 sbFilteredQuery.Append("], ");
             }
-  
-          string sSort = GetSort(ESSort, false);
-            sbFilteredQuery.AppendFormat("{0}, ", sSort); 
+
+            string sSort = GetSort(ESSort, false);
+            
+            if (!string.IsNullOrEmpty(sSort))
+                sbFilteredQuery.AppendFormat("{0}, ", sSort);
 
             sbFilteredQuery.Append("\"query\": { \"filtered\": {");
 
@@ -81,7 +84,7 @@ namespace ElasticSearch.Searcher
                 if (!string.IsNullOrEmpty(sQuery))
                 {
                     lQueryFilter.Add(string.Format(" \"query\": {0}", sQuery));
-                    
+
                 }
             }
 
@@ -95,7 +98,10 @@ namespace ElasticSearch.Searcher
             }
 
             sbFilteredQuery.Append(lQueryFilter.Aggregate((current, next) => current + "," + next));
-            sbFilteredQuery.Append("}}}");
+            sbFilteredQuery.Append("}}");
+
+            if (m_bIsRoot)
+                sbFilteredQuery.Append("}");
 
             sResult = sbFilteredQuery.ToString();
 
@@ -105,28 +111,34 @@ namespace ElasticSearch.Searcher
 
         private string GetSort(List<ESOrderObj> lOrderObj, bool bOrderByScore)
         {
-            StringBuilder sSort = new StringBuilder();
-            sSort.Append(" \"sort\": [{");
-
-            foreach (ESOrderObj oOrderObj in lOrderObj)
+            string sRes = string.Empty;
+            if (lOrderObj != null && lOrderObj.Count > 0)
             {
-                if (oOrderObj.m_sOrderValue != string.Empty)
+                StringBuilder sSort = new StringBuilder();
+                sSort.Append(" \"sort\": [{");
+
+                foreach (ESOrderObj oOrderObj in lOrderObj)
                 {
-                    sSort.AppendFormat(" \"{0}\": ", oOrderObj.m_sOrderValue.ToLower());
-                    sSort.Append(" {");
-                    sSort.AppendFormat("\"order\": \"{0}\"", oOrderObj.m_eOrderDir.ToString().ToLower());
-                    sSort.Append("}");
+                    if (oOrderObj.m_sOrderValue != string.Empty)
+                    {
+                        sSort.AppendFormat(" \"{0}\": ", oOrderObj.m_sOrderValue.ToLower());
+                        sSort.Append(" {");
+                        sSort.AppendFormat("\"order\": \"{0}\"", oOrderObj.m_eOrderDir.ToString().ToLower());
+                        sSort.Append("}");
+                    }
                 }
+                sSort.Append("}");
+
+                //we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
+                if (bOrderByScore)
+                    sSort.Append(", \"_score\"");
+
+                sSort.Append(" ]");
+
+                sRes = sSort.ToString();
             }
-            sSort.Append("}");
 
-            //we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
-            if (bOrderByScore)
-                sSort.Append(", \"_score\"");
-
-            sSort.Append(" ]");
-
-            return sSort.ToString();
+            return sRes;
         }
 
 

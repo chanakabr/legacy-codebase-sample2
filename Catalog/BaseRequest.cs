@@ -44,7 +44,7 @@ namespace Catalog
     [KnownType(typeof(EPGProgramsByScidsRequest))]
     [KnownType(typeof(EPGProgramsByProgramsIdentefierRequest))]
     [KnownType(typeof(EPGSearchContentRequest))]
-  
+    [KnownType(typeof(ChannelViewsRequest))]
 
     [DataContract]
     public class BaseRequest

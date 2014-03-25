@@ -1165,18 +1165,22 @@ namespace Catalog
         public static int GetCountryIDByIP(string sIP)
         {
             int retCountryID = 0;
-            long nIPVal = 0;
-            string[] splited = sIP.Split('.');
 
-            if (splited != null && splited.Length >= 3)
+            if (!string.IsNullOrEmpty(sIP))
             {
-                nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-            }
+                long nIPVal = 0;
+                string[] splited = sIP.Split('.');
 
-            DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
-            if (dtCountry != null && dtCountry.Rows.Count > 0)
-            {
-                retCountryID = Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
+                if (splited != null && splited.Length >= 3)
+                {
+                    nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
+                }
+
+                DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
+                if (dtCountry != null && dtCountry.Rows.Count > 0)
+                {
+                    retCountryID = Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
+                }
             }
             return retCountryID;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Catalog
 {
@@ -20,31 +21,46 @@ namespace Catalog
 
 
     [DataContract]
+    [Serializable]
+    [JsonObject("comment")]
     public class Comments
     {
         [DataMember]
+        [JsonIgnore]
         public Int32 Id;
         [DataMember]
+        [JsonProperty("asset_id")]
         public Int32 m_nAssetID;
         [DataMember]
+        [JsonProperty("writer")]
         public string m_sWriter;
         [DataMember]
+        [JsonProperty("language_id")]
         public int m_nLang;
         [DataMember]
+        [JsonIgnore]
         public string m_sLangName;
         [DataMember]
+        [JsonProperty("header")]
         public string m_sHeader;
         [DataMember]
+        [JsonProperty("sub_header")]
         public string m_sSubHeader;
         [DataMember]
+        [JsonProperty("text")]
         public string m_sContentText;
         [DataMember]
+        [JsonProperty("date")]
+        [JsonConverter(typeof(ApiObjects.JsonSerializers.BaseTimeConverter))]
         public DateTime m_dCreateDate;
         [DataMember]
+        [JsonProperty("site_guid")]
         public string m_sSiteGuid;
         [DataMember]
+        [JsonIgnore]
         public string m_sUserPicURL;
-
+        [JsonProperty("asset_type")]
+        public string m_sAssetType;
 
         public Comments()
         {

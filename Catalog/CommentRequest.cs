@@ -52,9 +52,45 @@ namespace Catalog
 
             bool bInsert = this.PostComment(oBaseRequest);
 
+            if (bInsert)
+            {
+                bool b = WriteCommentToES(cr);
+            }
+
             response.eStatusComment = bInsert ? StatusComment.SUCCESS : StatusComment.FAIL;
 
             return (BaseResponse)response;
+        }
+
+        private bool WriteCommentToES(CommentRequest oCommentReq)
+        {
+            bool bResult = false;
+
+            Group group = GroupsCache.Instance.GetGroup(oCommentReq.m_nGroupID);
+
+            if (group != null)
+            {
+                Comments comment = new Comments()
+                {
+                    m_dCreateDate = DateTime.UtcNow,
+                    m_nAssetID = oCommentReq.m_nAssetID,
+                    m_sContentText = oCommentReq.m_sContentText,
+                    m_sHeader = oCommentReq.m_sHeader,
+                    m_sSubHeader = oCommentReq.m_sSubHeader,
+                    m_sSiteGuid = oCommentReq.m_sSiteGuid,
+                    m_sWriter = oCommentReq.m_sWriter,
+                    m_nLang = oCommentReq.m_oFilter.m_nLanguage,
+                    m_sAssetType = (oCommentReq is MediaCommentRequest) ? "media" : "epg"
+                };
+
+                string sJson = Newtonsoft.Json.JsonConvert.SerializeObject(comment);
+                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+                Guid guid = Guid.NewGuid();
+                
+                bResult = esApi.InsertRecord("statistics", "stats", guid.ToString(), sJson);
+            }
+
+            return bResult;
         }
 
         abstract protected bool PostComment(BaseRequest oBaseRequest);

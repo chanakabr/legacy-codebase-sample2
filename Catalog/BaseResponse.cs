@@ -29,7 +29,8 @@ namespace Catalog
     [KnownType(typeof(EpgResponse))]
 	[KnownType(typeof(AssetStatsResponse))]
     [KnownType(typeof(EpgProgramsResponse))]
-
+    [KnownType(typeof(ChannelViewsResponse))]
+    
     public class BaseResponse
     {  
         

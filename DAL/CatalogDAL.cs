@@ -1022,5 +1022,60 @@ namespace Tvinci.Core.DAL
             return new List<int>(0);
         }
 
+        public static void InsertOrUpdate_ChannelsLiveViews(ApiObjects.Statistics.ChannelBucket bucket, int nChannelId, int nGroupId)
+        {
+            ODBCWrapper.StoredProcedure spChannelLiveViewsInsertOrUpdate = new ODBCWrapper.StoredProcedure("InsertOrUpdate_ChannelsLiveViews");
+            spChannelLiveViewsInsertOrUpdate.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            spChannelLiveViewsInsertOrUpdate.AddParameter("@ChannelId", nChannelId);
+            spChannelLiveViewsInsertOrUpdate.AddParameter("@GroupId", nGroupId);
+            spChannelLiveViewsInsertOrUpdate.AddParameter("@CurrentViews", bucket.PreviousViews);
+            spChannelLiveViewsInsertOrUpdate.AddParameter("@NextViews", bucket.CurrentViews);
+            spChannelLiveViewsInsertOrUpdate.AddParameter("@UpdateDate", bucket.CurrentDate);
+
+            spChannelLiveViewsInsertOrUpdate.ExecuteNonQuery();
+        }
+
+        public static DataTable Get_MediaTypeIdByMediaId(int nMediaId)
+        {
+            DataTable mediaTypeIdtable = null;
+            ODBCWrapper.StoredProcedure spMediaTypeIdByMediaId = new ODBCWrapper.StoredProcedure("Get_MediaTypeIdByMediaId");
+            spMediaTypeIdByMediaId.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spMediaTypeIdByMediaId.AddParameter("@MediaId", nMediaId);
+
+
+            try
+            {
+                DataSet dsMediaTypeId = spMediaTypeIdByMediaId.ExecuteDataSet();
+
+                if (dsMediaTypeId != null && dsMediaTypeId.Tables != null)
+                {
+                    mediaTypeIdtable = dsMediaTypeId.Tables[0];
+                }
+            }
+            catch
+            {
+                mediaTypeIdtable = null;
+            }
+
+            return mediaTypeIdtable;
+        }
+
+
+        public static DataTable GetChannelViewsResult(int nGroupId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetChannelViewsResult = new ODBCWrapper.StoredProcedure("Get_SortedChannelsViewsByParentGroupId");
+            spGetChannelViewsResult.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            spGetChannelViewsResult.AddParameter("@GroupId", nGroupId);
+
+            DataSet ds = spGetChannelViewsResult.ExecuteDataSet();
+
+            if (ds != null)
+                dt = ds.Tables[0];
+
+            return dt;
+        }
     }
 }

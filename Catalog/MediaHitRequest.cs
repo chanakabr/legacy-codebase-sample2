@@ -12,6 +12,8 @@ using Logger;
 using TVinciShared;
 using DAL;
 using Tvinci.Core.DAL;
+using Catalog.Statistics;
+using ApiObjects.Statistics;
 
 namespace Catalog
 {
@@ -20,6 +22,8 @@ namespace Catalog
     public class MediaHitRequest : BaseRequest, IRequestImp
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly string INDEX = "statistics";
+        private static readonly string TYPE = "stats";
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -94,8 +98,14 @@ namespace Catalog
             string sSessionID = string.Empty; 
             int nPlayerID = 0;
             int nPlatform = 0;
-
             MediaPlayActions action;
+
+            LinearViews linearView = new LinearViews();
+            if (this.m_oMediaPlayRequestData != null)
+            {
+                WriteLiveViewsToES(m_oMediaPlayRequestData);
+                //bool bIsUpdateOrWriteSucceeded = linearView.UpdateOrWriteBuckets(DateTime.UtcNow, this.m_oMediaPlayRequestData.m_nMediaID, this.m_nGroupID, this.m_oMediaPlayRequestData.m_sMediaTypeId);
+            }
 
             if (this.m_oMediaPlayRequestData.m_nLoc > 0)
             {
@@ -136,6 +146,36 @@ namespace Catalog
             }
             oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT); 
             return oMediaHitResponse;         
+        }
+
+        private bool WriteLiveViewsToES(MediaPlayRequestData requestData)
+        {
+            bool bRes = false;
+            Group group = GroupsCache.Instance.GetGroup(this.m_nGroupID);
+
+            if (group != null && requestData.m_nMediaID != 0)
+            {
+                MediaPlayActions action;
+                bool resultParse = Enum.TryParse(requestData.m_sAction.ToUpper().Trim(), out action);
+
+                string sMediaTypeFromConfig = Utils.GetWSURL(string.Format("LinearTypeId_{0}", group.m_nParentGroupID));
+                if (!string.IsNullOrEmpty(sMediaTypeFromConfig) && sMediaTypeFromConfig.Equals(requestData.m_sMediaTypeId) && resultParse && (action == MediaPlayActions.PLAY || action == MediaPlayActions.FIRST_PLAY))
+                {
+                    ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
+
+                    MediaView view = new MediaView() { GroupID = group.m_nParentGroupID, MediaType = requestData.m_sMediaTypeId, Date = DateTime.UtcNow, MediaID = requestData.m_nMediaID, Action = action.ToString(), Location = requestData.m_nLoc };
+
+                    string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(view);
+
+                    if (oESApi.IndexExists(INDEX) && !string.IsNullOrEmpty(sJsonView))
+                    {
+                        Guid guid = Guid.NewGuid();
+                        bRes = oESApi.InsertRecord(INDEX, TYPE, guid.ToString(), sJsonView);
+                    }
+                }
+            }
+
+            return bRes;
         }
 
 

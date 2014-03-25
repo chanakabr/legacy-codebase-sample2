@@ -15,6 +15,7 @@ using Tvinci.Core.DAL;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DAL;
+using ElasticSearch.Searcher;
 
 namespace Catalog
 {
@@ -572,5 +573,74 @@ namespace Catalog
 
         }
 
+        internal static List<ChannelViewsResult> GetChannelViewsResult(int nGroupID)
+        {
+            List<ChannelViewsResult> channelViews = new List<ChannelViewsResult>();
+
+            #region Define Facet Query
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
+
+            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
+            filter.AddChild(new ESTerm(true) { Key = "group_id", Value = nGroupID.ToString() });
+
+            #region define date filter
+            ESRange dateRange = new ESRange(false) { Key = "date" };
+            string sMax = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            string sMin= DateTime.UtcNow.AddSeconds(-30.0).ToString("yyyyMMddHHmmss");
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+            filter.AddChild(dateRange);
+            #endregion
+
+            #region define action filter
+            ESTerms esActionTerm = new ESTerms(false) { Key = "action" };
+            esActionTerm.Value.Add(MediaPlayActions.FIRST_PLAY.ToString());
+            esActionTerm.Value.Add(MediaPlayActions.PLAY.ToString());
+            filter.AddChild(esActionTerm);
+            #endregion
+
+            filteredQuery.Filter.FilterSettings = filter;
+
+            ESTermsFacet facet = new ESTermsFacet("channel_views", "media_id", 100000);
+            facet.Query = filteredQuery;
+            #endregion
+
+            string sFacetQuery = facet.ToString();
+
+            //Search
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+            string retval = esApi.Search("statistics", "stats", ref sFacetQuery);
+
+            if (!string.IsNullOrEmpty(retval))
+            {
+                //Get facet results
+                Dictionary<string, Dictionary<string, int>> dFacets = ESTermsFacet.FacetResults(ref retval);
+
+                if (dFacets != null && dFacets.Count > 0)
+                {
+                    Dictionary<string, int> dFacetResult;
+                    //retrieve channel_views facet results
+                    dFacets.TryGetValue("channel_views", out dFacetResult);
+
+                    if (dFacetResult != null && dFacetResult.Count > 0)
+                    {
+                        foreach (string sFacetKey in dFacetResult.Keys)
+                        {
+                            int count = dFacetResult[sFacetKey];
+
+                            int nChannelID;
+                            if (int.TryParse(sFacetKey, out nChannelID))
+                            {
+                                channelViews.Add(new ChannelViewsResult(nChannelID, count));
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            return channelViews;
+        }
     }
 }

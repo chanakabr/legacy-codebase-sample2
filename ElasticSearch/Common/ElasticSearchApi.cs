@@ -447,6 +447,41 @@ namespace ElasticSearch.Common
             return res;
         }
 
+        //public static List<ESSearchResults> DecodeESResults(List<string> lReturnFields, ref string sResultJson)
+        //{
+        //    List<ESSearchResults> lResults = new List<ESSearchResults>();
+
+        //    if (!string.IsNullOrEmpty(sResultJson))
+        //    {
+        //        try
+        //        {
+        //            var jsonObj = JObject.Parse(sResultJson);
+
+        //            if (jsonObj != null)
+        //            {
+        //                JToken tempToken;
+        //                int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+        //                if (totalItems > 0)
+        //                {
+        //                    lResults = jsonObj.SelectToken("hits.hits").Select(item => new ESSearchResults
+        //                    {
+
+        //                        index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
+        //                        type = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken),
+        //                        id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
+        //                        results = lReturnFields.Select(field => new KeyValuePair<string,string>(field, ((tempToken = item.SelectToken(string.Concat("fields.",field))) == null ? string.Empty : (string)tempToken))).ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value)
+        //                    }).ToList();
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), "BuzzFeeder");
+        //        }
+        //    }
+        //    return lResults;
+        //}
+
 
         private string BuildDirectIDsQuery<T>(List<T> oIDsList, int nNumOfResultsToReturn)
         {
@@ -672,8 +707,5 @@ namespace ElasticSearch.Common
             public int totalNumOfItems { get; set; }
             public List<ElasticSearchApi.ESAssetDocument> documents { get; set; }
         }
-
-
-
     }
 }
