@@ -33,30 +33,22 @@ namespace FileUploadHandler
             else
                 url = "ftp://" + m_sAddress + "/" + m_sPrefix + "/" + fileName;
 
-            try
+            FtpWebRequest ftpWebRequest = (FtpWebRequest)WebRequest.Create(new Uri(url));
+
+            ftpWebRequest.Method = WebRequestMethods.Ftp.UploadFile;
+            ftpWebRequest.Credentials = new NetworkCredential(m_sUserName, m_sPass);
+            ftpWebRequest.UsePassive = true;
+            ftpWebRequest.KeepAlive = false;
+            ftpWebRequest.UseBinary = true;
+            ftpWebRequest.Timeout = 240000;
+
+            byte[] fileContents = Convert.FromBase64String(file);
+
+            ftpWebRequest.ContentLength = fileContents.Length;
+
+            using (Stream requestStream = ftpWebRequest.GetRequestStream())
             {
-                FtpWebRequest ftpWebRequest = (FtpWebRequest)WebRequest.Create(new Uri(url));
-            
-                ftpWebRequest.Method = WebRequestMethods.Ftp.UploadFile;
-                ftpWebRequest.Credentials = new NetworkCredential(m_sUserName, m_sPass);
-                ftpWebRequest.UsePassive = true;
-                ftpWebRequest.KeepAlive = false;
-                ftpWebRequest.UseBinary = true;
-                ftpWebRequest.Timeout = 240000;
-
-                byte[] fileContents = Convert.FromBase64String(file);
-
-                ftpWebRequest.ContentLength = fileContents.Length;
-
-                using (Stream requestStream = ftpWebRequest.GetRequestStream())
-                {
-                    requestStream.Write(fileContents, 0, fileContents.Length);
-                }
-            }
-            catch (Exception ex)
-            {
-                //Write log
-                throw ex;
+                requestStream.Write(fileContents, 0, fileContents.Length);
             }
         }
     }

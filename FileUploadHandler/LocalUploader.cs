@@ -11,17 +11,9 @@ namespace FileUploadHandler
 
         public override void Upload(string file, string fileName)
         {
-            try
-            {
-                byte[] bytes = Convert.FromBase64String(file);
+            byte[] bytes = Convert.FromBase64String(file);
 
-                File.WriteAllBytes(System.Web.Hosting.HostingEnvironment.ApplicationPhysicalPath + fileName, bytes);
-            }
-            catch (Exception ex)
-            {
-                //write log
-                throw ex;
-            }
+            File.WriteAllBytes(System.Web.Hosting.HostingEnvironment.ApplicationPhysicalPath + fileName, bytes);
         }
     }
 }

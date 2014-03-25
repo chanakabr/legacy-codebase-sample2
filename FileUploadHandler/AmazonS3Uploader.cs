@@ -23,51 +23,37 @@ namespace FileUploadHandler
 
         public override void Upload(string file, string fileName)
         {
-            //Logger.Logger.Log("Upload - Start.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "AmazonUploader");
+            byte[] bytes = Convert.FromBase64String(file);
 
-            try
+            using (MemoryStream ms = new MemoryStream(bytes))
             {
-                byte[] bytes = Convert.FromBase64String(file);
+                AmazonS3Config amazonS3Config = new AmazonS3Config();
 
-                using (MemoryStream ms = new MemoryStream(bytes))
+                if (!string.IsNullOrEmpty(m_sRegion))
+                    amazonS3Config.RegionEndpoint = RegionEndpoint.GetBySystemName(m_sRegion);
+
+                using (IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
                 {
-                    AmazonS3Config amazonS3Config = new AmazonS3Config();
+                    PutObjectRequest request = new PutObjectRequest();
 
-                    if (!string.IsNullOrEmpty(m_sRegion))
-                        amazonS3Config.RegionEndpoint = RegionEndpoint.GetBySystemName(m_sRegion);
-                        
-                    using (IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
+                    request.InputStream = ms;
+                    request.BucketName = m_sAddress;
+                    request.Key = m_sPrefix + "/" + fileName;
+                    request.CannedACL = S3CannedACL.PublicRead;
+
+                    PutObjectResponse putObjectResponse = client.PutObject(request);
+
+                    using (var md5Hasher = MD5.Create())
                     {
-                        PutObjectRequest request = new PutObjectRequest();
+                        StringBuilder sb = new StringBuilder();
 
-                        request.InputStream = ms;
-                        request.BucketName = m_sAddress;
-                        request.Key = m_sPrefix + "/" + fileName;
-                        request.CannedACL = S3CannedACL.PublicRead;
-                        
-                        PutObjectResponse putObjectResponse = client.PutObject(request);
+                        foreach (Byte b in md5Hasher.ComputeHash(bytes))
+                            sb.Append(b.ToString("x2").ToLower());
 
- 
-                        using (var md5Hasher = MD5.Create())
-                        {
-                            StringBuilder sb = new StringBuilder();
-
-                            foreach (Byte b in md5Hasher.ComputeHash(bytes))
-                                sb.Append(b.ToString("x2").ToLower());
-
-                            if (putObjectResponse.ETag.Replace("\"", string.Empty) != sb.ToString())
-                                throw new Exception("Failed to copy file to Amazon S3");
-                        }
+                        if (putObjectResponse.ETag.Replace("\"", string.Empty) != sb.ToString())
+                            throw new Exception("Failed to copy file to Amazon S3");
                     }
                 }
-
-                //Logger.Logger.Log("Upload - Finish.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "AmazonUploader");
-            }
-            catch (Exception ex)
-            {
-                //Write Log
-                throw ex;
-                //Logger.Logger.Log("Upload - Error.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, "AmazonUploader");
             }
         }
     }

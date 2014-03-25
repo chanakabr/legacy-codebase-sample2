@@ -12,11 +12,11 @@ namespace RemoteTasksService
         {
             switch (taskType.ToLower())
             {
-                case "resize_image":
+                case "tasks.resize_image":
 
                     return new ImageResizeHandler.TaskHandler();
 
-                case "upload_file":
+                case "tasks.upload_image":
 
                     return new FileUploadHandler.TaskHandler();
             }
