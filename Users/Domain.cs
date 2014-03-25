@@ -310,7 +310,7 @@ namespace Users
         /// <param name="nGroupID"></param>
         /// <param name="nDomainID"></param>
         /// <param name="nUserGuid"></param>
-        public DomainResponseStatus RemoveUserFromDomain(int nGroupID, int nDomainID, int nUserGuid)
+        public DomainResponseStatus RemoveUserFromDomain(int nGroupID, int nDomainID, int nUserID)
         {
             DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
 
@@ -321,25 +321,73 @@ namespace Users
                 return eRetVal;
             }
 
-
-            int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserGuid, false);
-
+            int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
             if (nUserDomainID <= 0)
             {
                 eRetVal = DomainResponseStatus.UserNotExistsInDomain;
                 return eRetVal;
             }
 
+
+            //Check if UserID is valid
+            if ((!User.IsUserValid(nGroupID, nUserID)))
+            {
+                eRetVal = DomainResponseStatus.InvalidUser;
+                return eRetVal;
+            }
+
+            Dictionary<int, int> dTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
+
+            // User validations
+            if (dTypedUserIDs == null || dTypedUserIDs.Count == 0)
+            {
+                // Try to remove anyway (maybe user is inactive or pending)
+                //DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
+
+                eRetVal = DomainResponseStatus.NoUsersInDomain;
+                return eRetVal;
+
+                //domain.m_DomainStatus = DomainStatus.Error;
+                //oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.NoUsersInDomain);
+                //return oDomainResponseObject;
+            }
+
+            //if (!dTypedUserIDs.ContainsKey(nUserID))
+            //{
+            //    // Try to remove anyway (maybe user is inactive or pending)
+            //    DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
+
+            //    domain.m_DomainStatus = DomainStatus.UserNotInDomain;
+            //    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
+            //    return oDomainResponseObject;
+            //}
+
+            // Check master and default users
+            KeyValuePair<int, int> masterUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Master);
+            KeyValuePair<int, int> defaultUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Household);
+
+            if (masterUserKV.Equals(default(KeyValuePair<int, int>)) || masterUserKV.Key <= 0 ||
+                (nUserID == masterUserKV.Key || nUserID == defaultUserKV.Key))
+            {
+                eRetVal = DomainResponseStatus.UserNotAllowed;
+                return eRetVal;
+
+                //domain.m_DomainStatus = DomainStatus.Error;
+                //oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+                //return oDomainResponseObject;
+            }
+
+
             try
             {
                 int nStatus = 2;
-                int nIsActive = 0;
-                int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserGuid, nDomainID, nGroupID, nUserDomainID, nStatus, nIsActive);
+                int nIsActive = 2;
+                int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID, nStatus, nIsActive);
 
                 if (rowsAffected > 0)
                 {
                     SetDomainFlag(nDomainID, 1, false);
-                    eRetVal = RemoveUserFromList(nUserGuid);
+                    eRetVal = RemoveUserFromList(nUserID);
                 }
                 else
                 {

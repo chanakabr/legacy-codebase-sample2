@@ -92,10 +92,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheServerNotifier.cs" />
+    <Compile Include="CBTableWebEditor.cs" />
     <Compile Include="CertificateTruster.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="ConcurrentUtils.cs" />
     <Compile Include="CookieUtils.cs" />
+    <Compile Include="CouchBaseManipulator.cs" />
     <Compile Include="CSVReader.cs" />
     <Compile Include="DateUtils.cs" />
     <Compile Include="DBChunkUpdater.cs" />

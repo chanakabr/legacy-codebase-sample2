@@ -65,6 +65,7 @@ namespace Catalog
 
         protected override List<SearchResult> ExecuteNonIPNOProtocol(BaseRequest oRequest)
         {
+            GetEndDateLanguageDeviceID(oRequest);
             DataTable dt = CatalogDAL.Get_PWLALProtocol(m_nGroupID, m_nMediaID, m_sSiteGuid, m_nSocialAction,
                 m_nSocialPlatform, m_nMediaFileID,
                 m_nCountryID, nLanguageID, sEndDate, nDeviceID);
@@ -75,6 +76,7 @@ namespace Catalog
         {
             int nGroupID = 0, nMediaID = 0, nSocialAction = 0, nSocialPlatform = 0, nMediaFileID = 0, nCountryID = 0;
             string sSiteGuid = string.Empty;
+            GetEndDateLanguageDeviceID(oRequest);
             GetProtocolData(oRequest, ref nGroupID, ref m_nMediaID, ref sSiteGuid, ref nSocialAction, ref nSocialPlatform,
                 ref nMediaFileID, ref nCountryID);
             DataTable dt = CatalogDAL.Get_IPWLALProtocol(nGroupID, nMediaID, sSiteGuid, nSocialAction,

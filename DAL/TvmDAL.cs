@@ -290,6 +290,30 @@ namespace DAL
 
             return dPackage;
         }
+
+
+        public static List<KeyValuePair<string,string>> GetMediaDescription(List<string> lEpgIdentifier)
+        {
+            List<KeyValuePair<string, string>> lMediaDescription = new  List<KeyValuePair<string,string>>(); 
+            KeyValuePair<string, string> keyValuePair;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaDescription");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<string>("@EpgIdentifier", lEpgIdentifier, "key");
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+                    keyValuePair = new KeyValuePair<string,string>(row["epg_identifier"].ToString(), row["media_description"].ToString());
+
+                    lMediaDescription.Add(keyValuePair);
+                }
+                return lMediaDescription;
+            }
+
+            return null;
+        }
     }
     
 }

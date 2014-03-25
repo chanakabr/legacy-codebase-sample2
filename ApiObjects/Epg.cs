@@ -47,6 +47,8 @@ namespace ApiObjects
         public string CoGuid { get; set; }
         [JsonProperty("pic_url", NullValueHandling = NullValueHandling.Ignore)]
         public string PicUrl { get; set; }
+        [JsonProperty("pic_id")]
+        public int PicID { get; set; }
 
         [JsonProperty("basic")]
         public EpgBasicData BasicData { get; protected set; }
@@ -63,13 +65,14 @@ namespace ApiObjects
         public EpgCB()
         {
             EpgID = 0;
+            EpgIdentifier = string.Empty;
             isActive = false;
             Status = 2;
             Type = "epg";
             CreateDate = DateTime.MinValue;
             UpdateDate = DateTime.MinValue;
             PicUrl = string.Empty;
-            
+            PicID = 0;
             GroupID = 0;
             ParentGroupID = 0;
             ChannelID = 0;

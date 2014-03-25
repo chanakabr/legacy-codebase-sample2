@@ -32,10 +32,15 @@ namespace EpgBL
 
                 for (int i = 0; i < 3 && !bRes; i++)
                 {
-                    ulong nNewID = m_oEpgCouchbase.IDGenerator("epgid");
-                    newEpgItem.EpgID = nNewID;
-                    epgID = nNewID;
+                    //ulong nNewID = m_oEpgCouchbase.IDGenerator("epgid");
+                    //newEpgItem.EpgID = nNewID;
+                    //epgID = nNewID;
+                    //bRes = m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+
+                    ulong nNewID = newEpgItem.EpgID;
                     bRes = m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+
+                    Logger.Logger.Log("InsertCBEpg", string.Format("insert result  CB id={0} result ={1}",nNewID, bRes), "InsertCBEpg");
                 }
 
             }
@@ -65,8 +70,9 @@ namespace EpgBL
 
             if (doc != null)
             {
-                doc.Status = 2;
-                bRes = this.UpdateEpg(doc);
+                bRes = m_oEpgCouchbase.DeleteProgram(id.ToString());                
+                //doc.Status = 2;
+                //bRes = this.UpdateEpg(doc);
             }
 
             return bRes;
@@ -115,11 +121,12 @@ namespace EpgBL
 
             if (lExisitingPrograms != null && lExisitingPrograms.Count > 0)
             {
+                List<ulong> lEpgIDs = new List<ulong>();
                 foreach (EpgCB epg in lExisitingPrograms)
                 {
-                    epg.Status = 2;
-                    UpdateEpg(epg);
+                    lEpgIDs.Add(epg.EpgID);                    
                 }
+                this.RemoveEpg(lEpgIDs);
             }
         }
 
@@ -182,8 +189,11 @@ namespace EpgBL
         public List<EpgCB> GetChannelPrograms(int nPageSize, int nStartIndex, int nChannelID, DateTime? fromUTCDay, DateTime? toUTCDay)
         {
             List<EpgCB> lRes = null;
-
-            if (fromUTCDay.HasValue) //fromUTCDay <= start_date < MaxValue
+            if (fromUTCDay.HasValue && toUTCDay.HasValue)
+            {
+                lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(nPageSize, nStartIndex, nChannelID, fromUTCDay.Value, toUTCDay.Value, false);
+            }
+            else if (fromUTCDay.HasValue) //fromUTCDay <= start_date < MaxValue
             {
                 lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(nPageSize, nStartIndex, nChannelID, fromUTCDay.Value, DateTime.MaxValue, false);
             }

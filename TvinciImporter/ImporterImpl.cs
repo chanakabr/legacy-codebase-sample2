@@ -4205,5 +4205,68 @@ namespace TvinciImporter
 
             return res;
         }
+
+
+        public static bool UpdateEpgIndex(List<ulong> lepgIds, int nGroupId, eAction eAction)
+        {
+            bool isUpdateIndexSucceeded = false;
+
+            string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
+            if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
+            {
+                using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+                {
+                    WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+
+                    try
+                    {
+                        if (lepgIds != null && lepgIds.Count > 0 && nGroupId > 0)
+                        {
+                            string sWSURL = GetCatalogUrl(nGroupId);
+                            if (!string.IsNullOrEmpty(sWSURL))
+                            {
+                                string[] addresses = sWSURL.Split(';');
+                                int[] ids = new int[lepgIds.Count];
+                                int i = 0;
+
+                                foreach (ulong item in lepgIds)
+                                {
+                                    ids[i] = int.Parse(item.ToString());
+                                    i++;
+                                }
+
+                                foreach (string endPointAddress in addresses)
+                                {
+                                    try
+                                    {
+                                        client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
+                                        isUpdateIndexSucceeded = client.UpdateEpgIndex(ids, nGroupId, eAction);
+                                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        updateIndexLog.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", endPointAddress, ex.Message));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        updateIndexLog.Error(string.Format("{0} process failed due to the following error: {1}", MethodInfo.GetCurrentMethod().Name, ex.Message));
+                    }
+                    finally
+                    {
+                        if (client != null)
+                        {
+                            client.Close();
+                        }
+                    }
+                }
+            }
+
+            return isUpdateIndexSucceeded;
+        }
     }
 }

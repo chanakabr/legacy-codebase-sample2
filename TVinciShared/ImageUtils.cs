@@ -122,6 +122,39 @@ namespace TVinciShared
             return retVal;
         }
 
+        static public string GetDateImageNameEpg(int epgPicID, ref bool bIsNew)
+        {
+            string retVal = string.Empty;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += " select ep.base_url from EPG_pics ep where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", epgPicID);
+            selectQuery += " and ep.status = 1";
+            selectQuery.SetCachedSec(0);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int count = selectQuery.Table("query").DefaultView.Count;
+                if (count > 0)
+                {
+                    retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString();
+                    if (retVal.IndexOf('.') > 0)
+                    {
+                        retVal = retVal.Substring(0, retVal.IndexOf('.'));
+                        Logger.Logger.Log("BaseURL", string.Format("epg Pic ID:{0}, base:{1}", epgPicID, retVal), "GetDateImageName");
+                    }
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            if (string.IsNullOrEmpty(retVal))
+            {
+                retVal = GetDateImageName();
+                bIsNew = true;
+            }
+
+            return retVal;
+        }
+
         static public ImageFormat GetFileFormat(string sPath)
         {
             string sFileExt = "";
@@ -445,7 +478,7 @@ namespace TVinciShared
                         sPicBaseName = sPicBaseName.Substring(nStart);
                     sPicBaseName += ".jpg";
                 }
-                string sTmpImage = sBasePath + "/pics/" + sPicBaseName;
+                string sTmpImage = sBasePath + "\\pics\\" + sPicBaseName;
                 //Uri uri = new Uri("http://maps.google.com/staticmap?center=45.728220,4.830321&zoom=8&size=200x200&maptype=roadmap&key=ABQIAAAAaHAby4XeLCIadFkAUW4vmRSkJGe9mG57rOapogjk9M-sm4TzXxR2I7bi2Qkj-opZe16CdmDs7_dNrQ");
 
                 HttpWebRequest httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);

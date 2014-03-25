@@ -370,9 +370,19 @@ namespace Users
         {
             DomainResponseObject oDomainResponseObject;
 
+            if (nDomainID <= 0 || nUserGUID <= 0)
+            {
+                return (new DomainResponseObject(null, DomainResponseStatus.UnKnown));
+            }
+
             //Init the Domain
-            //New domain
             Domain domain = DomainFactory.GetDomain(nGroupID, nDomainID);
+
+            if (domain == null)
+            {
+                return (new DomainResponseObject(null, DomainResponseStatus.DomainNotInitialized));
+            }
+
 
             //Delete the User from Domain
             

@@ -216,6 +216,16 @@ namespace Users
             return userID;
         }
 
+
+        public void UpdateDynamicData(UserDynamicData oDynamicData, Int32 nGroupID)
+        {
+            if (m_sSiteGUID != "")
+            {
+                m_oDynamicData = oDynamicData;            
+                SaveDynamicData(nGroupID);
+            }
+        }
+
         public static int GetNextGUID()
         {
             int retVal = 0;
@@ -488,6 +498,33 @@ namespace Users
             }
 
             return nID;
+        }
+
+
+        public bool SaveDynamicData(int nGroupID)
+        {
+            bool saved = false;
+            if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
+            {
+                int nID = int.Parse(m_sSiteGUID);
+                saved = m_oDynamicData.Save(nID);                
+            }
+
+            try
+            {
+                Notifiers.BaseUsersNotifier t = null;
+                Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, nGroupID);
+
+                if (t != null)
+                {
+                    t.NotifyChange(m_sSiteGUID);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("exception", m_sSiteGUID + " : " + ex.Message, "users_notifier");
+            }
+            return saved;
         }
 
         static public bool Hit(string sSiteGUID)

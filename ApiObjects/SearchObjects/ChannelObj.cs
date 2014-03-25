@@ -170,11 +170,13 @@ namespace ApiObjects.SearchObjects
         [SlidingWindowSupported]
         VIEWS = -7,
         [EnumMember]
+        [SlidingWindowSupported]
         RATING = -8,
         [EnumMember]
         [SlidingWindowSupported]
         VOTES_COUNT = -80,
         [EnumMember]
+        [SlidingWindowSupported]
         LIKE_COUNTER = -9,
         [EnumMember]
         START_DATE = -10,

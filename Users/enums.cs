@@ -117,7 +117,8 @@ namespace Users
         DomainNotInitialized = 19,
         RequestSent = 20,
         DeviceNotConfirmed = 21,
-        RequestFailed = 22
+        RequestFailed = 22,
+        InvalidUser = 23
     }
 
     public enum DeviceResponseStatus

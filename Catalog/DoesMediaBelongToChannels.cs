@@ -63,7 +63,7 @@ namespace Catalog
                 {
                     Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);                    
                     List<int> channelIds = request.m_lChannelIDs;
-                    List<Channel> allChannels = Utils.GetChannelsFromCache(request.m_nGroupID, request.m_lChannelIDs);
+                    List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                     if (groupInCache != null && allChannels != null && allChannels.Count > 0)
                     {

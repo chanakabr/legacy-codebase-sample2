@@ -96,6 +96,7 @@ namespace Catalog
             int nFormatID = 0;
             int nBillingTypeID = 0;
             int nPlatform = 0;
+            int nSwhoosh = 0;
 
             MediaPlayActions mediaMarkAction;
             int.TryParse(this.m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
@@ -118,7 +119,7 @@ namespace Catalog
                 bool isError = false;
                 bool isConcurrent = false;
                 HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
-                                      ref nFirstPlay, ref sPlayCycleKey, ref isConcurrent, ref isError);
+                                      ref nFirstPlay, ref sPlayCycleKey, ref isConcurrent, ref isError, ref nSwhoosh);
 
                 if (isError == true)
                 {
@@ -138,7 +139,7 @@ namespace Catalog
            
             if (this.m_oMediaPlayRequestData.m_nMediaID != 0)
             {
-                if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0)
+                if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0)
                 {
                     if (string.IsNullOrEmpty(sPlayCycleKey))
                     {
@@ -146,7 +147,7 @@ namespace Catalog
                     }        
                     CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, this.m_nGroupID, nOwnerGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID,
                                                   nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, this.m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform,
-                                                  this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey);  
+                                                  this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);  
                  }
             }
 
@@ -171,7 +172,7 @@ namespace Catalog
         }
 
         private void HandleMediaPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause, ref int nFinish, ref int nFull, ref int nExitFull,
-                                           ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref string sPlayCycleKey, ref bool isConcurrent, ref bool isError)  
+                                           ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref string sPlayCycleKey, ref bool isConcurrent, ref bool isError, ref int nSwoosh)  
                                            
         {
             if (this.m_oMediaPlayRequestData.m_nMediaID != 0)
@@ -274,6 +275,12 @@ namespace Catalog
                         CatalogDAL.Insert_NewMediaFileVideoQuality(0, siteGuid, string.Empty, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
                                                                    this.m_oMediaPlayRequestData.m_nAvgBitRate, this.m_oMediaPlayRequestData.m_nCurrentBitRate, this.m_oMediaPlayRequestData.m_nTotalBitRate,
                                                                    0, 0, nPlatform, nCountryID, status, this.m_nGroupID);
+                        break;
+                    }
+                case MediaPlayActions.SWOOSH:
+                    {
+                        nSwoosh = 1;
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID);
                         break;
                     }
             }
