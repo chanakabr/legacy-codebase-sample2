@@ -4858,13 +4858,13 @@
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://webservices.dev/API/api.asmx" />
+      <soap:address location="http://192.168.16.176/webservices/api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://webservices.dev/API/api.asmx" />
+      <soap12:address location="http://192.168.16.176/webservices/api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://webservices.dev/API/api.asmx" />
+      <http:address location="http://192.168.16.176/webservices/api/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

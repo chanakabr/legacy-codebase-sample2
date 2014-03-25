@@ -742,10 +742,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://webservices.dev/API/api.asmx">
+    <WebReferenceUrl Include="http://192.168.16.176/webservices/api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.api\</RelPath>
-      <UpdateFromURL>http://webservices.dev/API/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.16.176/webservices/api/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -797,10 +797,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://webservices.prd.tvinci.tve.yeseng.co.il/users_v2_1_1/module.asmx">
+    <WebReferenceUrl Include="http://192.168.16.176/webservices/users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Users\</RelPath>
-      <UpdateFromURL>http://webservices.prd.tvinci.tve.yeseng.co.il/users_v2_1_1/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.16.176/webservices/users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
