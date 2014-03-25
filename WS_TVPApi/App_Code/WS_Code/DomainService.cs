@@ -596,7 +596,7 @@ namespace TVPApiServices
         }
 
 
-        [WebMethod(EnableSession = true, Description = "Adds Homenetwork to domain")]
+        [WebMethod(EnableSession = true, Description = "Adds Home network to domain")]
         public NetworkResponseObject AddHomeNetworkToDomain(InitializationObject initObj, string networkId, string networkName, string networkDesc)
         {
             NetworkResponseObject network = null;
@@ -638,7 +638,7 @@ namespace TVPApiServices
             return network;
         }
 
-        [WebMethod(EnableSession = true, Description = "Adds home network to domain")]
+        [WebMethod(EnableSession = true, Description = "Removes domain's home network")]
         public NetworkResponseObject RemoveDomainHomeNetwork(InitializationObject initObj, string networkId)
         {
             NetworkResponseObject network = null;
@@ -659,6 +659,7 @@ namespace TVPApiServices
             return network;
         }
 
+        [WebMethod(EnableSession = true, Description = "Gets the domain's home networks")]
         public HomeNetwork[] GetDomainHomeNetworks(InitializationObject initObj)
         {
             HomeNetwork[] homeNetworks = null;
