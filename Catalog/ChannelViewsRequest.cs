@@ -32,7 +32,6 @@ namespace Catalog
 
             try
             {
-                ApiObjects.SearchObjects.ISearcher searcher = Bootstrapper.GetInstance<ApiObjects.SearchObjects.ISearcher>();
                 List<ChannelViewsResult> channelViewsResult = Utils.GetChannelViewsResult(request.m_nGroupID);
 
                 if (channelViewsResult != null)

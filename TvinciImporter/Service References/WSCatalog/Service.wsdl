@@ -5,8 +5,8 @@
       <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd0" />
       <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
       <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
       <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
     </xsd:schema>
   </wsdl:types>
@@ -64,6 +64,12 @@
   <wsdl:message name="Iservice_UpdateOperator_OutputMessage">
     <wsdl:part name="parameters" element="UpdateOperatorResponse" />
   </wsdl:message>
+  <wsdl:message name="Iservice_UpdateEpgIndex_InputMessage">
+    <wsdl:part name="parameters" element="UpdateEpgIndex" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_UpdateEpgIndex_OutputMessage">
+    <wsdl:part name="parameters" element="UpdateEpgIndexResponse" />
+  </wsdl:message>
   <wsdl:portType name="Iservice">
     <wsdl:operation name="InjestAdiData">
       <wsdl:input wsaw:Action="urn:Iservice/InjestAdiData" message="Iservice_InjestAdiData_InputMessage" />
@@ -100,6 +106,10 @@
     <wsdl:operation name="UpdateOperator">
       <wsdl:input wsaw:Action="urn:Iservice/UpdateOperator" message="Iservice_UpdateOperator_InputMessage" />
       <wsdl:output wsaw:Action="urn:Iservice/UpdateOperatorResponse" message="Iservice_UpdateOperator_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateEpgIndex">
+      <wsdl:input wsaw:Action="urn:Iservice/UpdateEpgIndex" message="Iservice_UpdateEpgIndex_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/UpdateEpgIndexResponse" message="Iservice_UpdateEpgIndex_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>

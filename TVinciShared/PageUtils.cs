@@ -543,6 +543,28 @@ namespace TVinciShared
             selectQuery = null;
         }
 
+
+        static public void AddCutCroptDimentionsEpg(ref DataRecordUploadField dr_upload)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select eps.width, eps.height from EPG_pics_sizes eps where eps.status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("eps.GROUP_ID", "=", LoginManager.GetLoginGroupID());
+            dr_upload.AddPicDimension(90, 65, "tn", true);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    Int32 nWidth = int.Parse(selectQuery.Table("query").DefaultView[i].Row["width"].ToString());
+                    Int32 nHeight = int.Parse(selectQuery.Table("query").DefaultView[i].Row["height"].ToString());               
+                    string sNameEnd = nWidth.ToString() + "X" + nHeight.ToString();                  
+                    dr_upload.AddPicDimension(nWidth, nHeight, sNameEnd, false);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+
         static public string GetPreHeader()
         {
             try

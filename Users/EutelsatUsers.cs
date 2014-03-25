@@ -45,17 +45,23 @@ namespace Users
             }
             
             int newUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));
+            
             if (newUserID <= 0)
             {
                 resp.Initialize(ResponseStatus.ErrorOnSaveUser, u);
                 return resp;
             }
 
-            resp.m_user = u;
+            if (u.m_domianID <= 0)
+            {
+                bool bValidDomainStatus = base.CheckAddDomain(ref resp, u, oBasicData.m_sUserName, newUserID);
+            }
+            else
+            {
+                resp.Initialize(ResponseStatus.OK, u);
+            }          
             
-            //CreateDefaultRules(u.m_sSiteGUID, m_nGroupID);
-
-            resp.m_RespStatus = ResponseStatus.OK;
+            //CreateDefaultRules(u.m_sSiteGUID, m_nGroupID);           
 
             string sNewsLetter = sDynamicData.GetValByKey("newsletter");
             if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true"))

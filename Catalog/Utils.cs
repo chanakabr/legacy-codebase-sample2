@@ -502,42 +502,6 @@ namespace Catalog
             return lMediaRes;
 
         }
-        //Receives group id and channels ids and return all channels from cache (if channels are not in cache, they will be loaded from DB)
-        public static List<Channel> GetChannelsFromCache(int nGroupID, List<int> lChannelIDs)
-        {
-            List<Channel> lRes = null;
-
-            Group groupInCache = GroupsCache.Instance.GetGroup(nGroupID);
-
-            if (groupInCache != null && lChannelIDs != null && lChannelIDs.Count > 0)
-            {
-                lRes = new List<Channel>();
-
-                List<Channel> lExistingChannels = GroupsCache.Instance.GetChannelsFromCache(lChannelIDs, groupInCache.m_nParentGroupID);
-                if (lExistingChannels != null && lExistingChannels.Count > 0)
-                {
-                    lRes.AddRange(lExistingChannels);
-
-                    var existingIds = from channel in lExistingChannels
-                                      select channel.m_nChannelID;
-
-                    var result = lChannelIDs.Where(id => !existingIds.Any(existId => existId == id));
-                    if (result != null)
-                        lChannelIDs = result.ToList<int>();
-                }
-
-                List<int> lNotIncludedInCache = GroupsCache.Instance.GetIncludedOrNotIncludedChannelsIdsFromCache(lChannelIDs, groupInCache.m_nParentGroupID, out groupInCache, false);
-
-                if (lNotIncludedInCache != null && lNotIncludedInCache.Count > 0)
-                {
-                    List<Channel> lNewCreatedChannels = ChannelRepository.GetChannels(lNotIncludedInCache, groupInCache);
-                    GroupsCache.Instance.InsertChannels(lNewCreatedChannels, groupInCache.m_nParentGroupID);
-                    lRes.AddRange(lNewCreatedChannels);
-                }
-            }
-
-            return lRes;
-        }
 
         public static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
         {

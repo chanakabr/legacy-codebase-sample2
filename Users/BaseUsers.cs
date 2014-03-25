@@ -5,6 +5,7 @@ using System.Text;
 using System.Data;
 using DAL;
 using Logger;
+using ApiObjects;
 
 namespace Users
 {
@@ -46,6 +47,7 @@ namespace Users
         public abstract bool DoesUserNameExists(string sUserName);
         public abstract UserGroupRuleResponse CheckParentalPINToken(string sChangePinToken);
         public abstract UserGroupRuleResponse ChangeParentalPInCodeByToken(string sSiteGuid, int nUserRuleID, string sChangePinToken, string sCode);
+        public abstract DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID);
 
         public virtual bool WriteToLog(string sSiteGUID, string sMessage, string sWriter)
         {
@@ -244,10 +246,13 @@ namespace Users
         public abstract bool ClearUserOfflineItems(Int32 nGroupID, string sSiteGuid);
         #endregion
 
-        public virtual bool SetUserDynamicData(string sSiteGUID, string sType, string sValue)
+        public virtual bool SetUserDynamicData(string sSiteGUID, List<KeyValuePair> lKeyValue, UserResponseObject uro)
         {
-            int index = -1;
-            UserResponseObject uro = GetUserData(sSiteGUID);
+
+            if (uro == null)
+            {
+                uro = GetUserData(sSiteGUID);
+            }
 
             if (uro.m_RespStatus != ResponseStatus.OK || uro.m_user == null || uro.m_user.m_oDynamicData == null)
                 return false;
@@ -257,36 +262,87 @@ namespace Users
                 uro.m_user.m_oDynamicData.m_sUserData = new UserDynamicDataContainer[0];
             }
 
-            for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length; i++)
+            bool hasChanged = false; //indicates if there is a need to update the dynamic data           
+            List<UserDynamicDataContainer> newPairs = new List<UserDynamicDataContainer>();
+
+            foreach (KeyValuePair pair in lKeyValue)
             {
-                if (uro.m_user.m_oDynamicData.m_sUserData[i].m_sDataType == sType)
+                bool exists = false;//indicates if the pair exists inside the current dynamic data or not
+                for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length && !exists; i++)
                 {
-                    index = i;
-                    break;
+                    if (uro.m_user.m_oDynamicData.m_sUserData[i].m_sDataType == pair.key)
+                    {
+                        exists = true;
+                        if (uro.m_user.m_oDynamicData.m_sUserData[i].m_sValue != pair.value) //change the value only if it has changed
+                        {
+                            uro.m_user.m_oDynamicData.m_sUserData[i].m_sValue = pair.value;
+                            hasChanged = true;
+                        }
+                    }
+                }
+                if (!exists)
+                {                    
+                    UserDynamicDataContainer ud = new UserDynamicDataContainer();
+                    ud.m_sDataType = pair.key;
+                    ud.m_sValue = pair.value;
+                    newPairs.Add(ud);
                 }
             }
 
-            if (index != -1)
-            {
-                uro.m_user.m_oDynamicData.m_sUserData[index].m_sValue = sValue;
-                uro.m_user.Update(uro.m_user.m_oBasicData, uro.m_user.m_oDynamicData, m_nGroupID);
+            if (hasChanged && newPairs.Count == 0)
+            {             
+                uro.m_user.UpdateDynamicData(uro.m_user.m_oDynamicData, m_nGroupID);
             }
-            else
+            else if (newPairs.Count > 0)
             {
                 UserDynamicData newUdd = new UserDynamicData();
-                newUdd.m_sUserData = new UserDynamicDataContainer[uro.m_user.m_oDynamicData.m_sUserData.Length + 1];
-                for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length; i++)
+                newUdd.m_sUserData = new UserDynamicDataContainer[uro.m_user.m_oDynamicData.m_sUserData.Length + newPairs.Count];
+
+                int preLength = uro.m_user.m_oDynamicData.m_sUserData.Length;
+                for (int i = 0; i < preLength; i++)//copy all elments that are not new
                 {
                     newUdd.m_sUserData[i] = uro.m_user.m_oDynamicData.m_sUserData[i];
                 }
-
-                UserDynamicDataContainer ud = new UserDynamicDataContainer();
-                ud.m_sDataType = sType;
-                ud.m_sValue = sValue;
-                newUdd.m_sUserData[uro.m_user.m_oDynamicData.m_sUserData.Length] = ud;
-
-                uro.m_user.Update(uro.m_user.m_oBasicData, newUdd, m_nGroupID);
+                for (int j = 0; j < newPairs.Count; j++)//add the new pairs
+                {
+                    newUdd.m_sUserData[j + preLength] = newPairs[j];
+                }                       
+                uro.m_user.UpdateDynamicData(newUdd, m_nGroupID);
             }
+
+
+           #region Old Code
+         //for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length; i++)
+         //   {
+         //       if (uro.m_user.m_oDynamicData.m_sUserData[i].m_sDataType == sType)
+         //       {
+         //           index = i;
+         //           break;
+         //       }
+         //   }
+
+         //   if (index != -1)
+         //   {
+         //       uro.m_user.m_oDynamicData.m_sUserData[index].m_sValue = sValue;
+         //       uro.m_user.Update(uro.m_user.m_oBasicData, uro.m_user.m_oDynamicData, m_nGroupID);
+         //   }
+         //   else
+         //   {
+         //       UserDynamicData newUdd = new UserDynamicData();
+         //       newUdd.m_sUserData = new UserDynamicDataContainer[uro.m_user.m_oDynamicData.m_sUserData.Length + 1];
+         //       for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length; i++)
+         //       {
+         //           newUdd.m_sUserData[i] = uro.m_user.m_oDynamicData.m_sUserData[i];
+         //       }
+
+         //       UserDynamicDataContainer ud = new UserDynamicDataContainer();
+         //       ud.m_sDataType = sType;
+         //       ud.m_sValue = sValue;
+         //       newUdd.m_sUserData[uro.m_user.m_oDynamicData.m_sUserData.Length] = ud;
+
+         //       uro.m_user.Update(uro.m_user.m_oBasicData, newUdd, m_nGroupID); 
+	#endregion
+
 
             return true;
         }

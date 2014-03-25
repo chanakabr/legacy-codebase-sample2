@@ -1233,7 +1233,7 @@ namespace DAL
                     }
                     else
                     {
-                        res = (-1);
+                        res = (-1); //UserDoesNotExist
                         return res;
                     }
                 }
@@ -1241,7 +1241,11 @@ namespace DAL
                 selectQuery.Finish();
                 selectQuery = null;
 
-                if (res == 1) { return res; }
+                if (res == 1) { return res; } //NotActivated
+
+
+
+                //check if the user has a domain 
 
 
                 // If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
@@ -1274,17 +1278,17 @@ namespace DAL
 
                         if (nStatus != 2)
                         {
-                            res = isActive1 ? 0 : 2;
+                            res = isActive1 ? 0 : 2; 
                         }
                         else
                         {
-                            res = 3;
+                            res = 3; //UserRemovedFromDomain
                         }
 
                     }
-                    else
+                    else //user does not have a Domain
                     {
-                        res = (-1);
+                        res = 4;
                     }
                 }
 
@@ -1294,8 +1298,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                HandleException(ex);
-
+                HandleException(ex);               
                 res = (-2);
             }
 

@@ -162,6 +162,25 @@ namespace ElasticSearch.Common
             return bResult;
         }
 
+        public bool DeleteDocsByQuery(string sIndex, string sType, ref string sQuery)
+        {
+            bool bResult = true;
+            try
+            {
+                string sUrl = string.Format("{0}/{1}/{2}/_query", ES_URL, sIndex, sType);
+                int nStatus = 0;
+
+                string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
+                bResult = (nStatus == 200) ? true : false;
+
+                return bResult;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public List<string> GetAliases(string sIndex)
         {
             List<string> lAliases = new List<string>();

@@ -33,6 +33,7 @@ namespace Catalog
 
         internal const int DEFAULT_PWWAWP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PWLALP_MAX_RESULTS_SIZE = 8;
+        internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
         /*Get All Relevant Details About Media (by id) , 
          Use Stored Procedure */
         public static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex)
@@ -931,7 +932,7 @@ namespace Catalog
         #region Build search Object for search Related
 
         /*Build the right MediaSearchRequest for a Search Related Media */
-        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes)
+        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid)
         {
             try
             {
@@ -949,6 +950,7 @@ namespace Catalog
                 if (ds == null)
                     return null;
                 oMediasRequest.m_nGroupID = nGroupID;
+                oMediasRequest.m_sSiteGuid = sSiteGuid;
                 if (ds.Tables.Count == 4)
                 {
                     if (ds.Tables[1] != null) // basic details
@@ -1415,15 +1417,20 @@ namespace Catalog
         #region UPDATE
         public static bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction)
         {
-            return Update(lMediaIds, nGroupId, eObjectType.Media, eAction, eObjectType.Media);
+            return Update(lMediaIds, nGroupId, eObjectType.Media, eAction);
         }
+
+        public static bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
+        {
+            return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
+        }  
 
         public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
         {
-            return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction, eObjectType.Channel);
+            return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction);
         }
-
-        private static bool Update(List<int> lIds, int nGroupId, eObjectType eUpdatedObjectType, eAction eAction, eObjectType eObjectType)
+       
+        private static bool Update(List<int> lIds, int nGroupId, eObjectType eUpdatedObjectType, eAction eAction)
         {
             bool bIsUpdateIndexSucceeded = false;
 
@@ -1434,6 +1441,30 @@ namespace Catalog
                 if (group != null)
                 {
                     ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eUpdatedObjectType, eAction);
+
+                    if (data != null)
+                    {
+                        BaseQueue queue = new CatalogQueue();
+                        bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, eUpdatedObjectType.ToString()));
+                    }
+                }
+            }
+
+            return bIsUpdateIndexSucceeded;
+        }
+
+       
+        private static bool UpdateEpg(List<int> lIds, int nGroupId, eObjectType eObjectType, eAction eAction)
+        {
+            bool bIsUpdateIndexSucceeded = false;
+
+            if (lIds != null && lIds.Count > 0)
+            {
+                Group group = GroupsCache.Instance.GetGroup(nGroupId);
+
+                if (group != null)
+                {
+                    ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eObjectType, eAction);
 
                     if (data != null)
                     {
@@ -1527,28 +1558,44 @@ namespace Catalog
                 EpgSearchObj searcherEpgSearch = new EpgSearchObj();
                 _logger.InfoFormat("BuildEpgSearchObject groupID = {0},search = {1}, dates {2}-{3} ", request.m_nGroupID, request.m_sSearch, request.m_dStartDate, request.m_dEndDate);
 
-                searcherEpgSearch.m_bSearchAnd = false; //Search by OR 
-                searcherEpgSearch.m_bDesc = true;
-                searcherEpgSearch.m_sOrderBy = "start_date";
+                searcherEpgSearch.m_bExact = request.m_bExact;
                 searcherEpgSearch.m_dEndDate = request.m_dEndDate;
                 searcherEpgSearch.m_dStartDate = request.m_dStartDate;
-                List<EpgSearchValue> esvList = new List<EpgSearchValue>();
+
+                //deafult values for OrderBy object 
+                searcherEpgSearch.m_bDesc = true;
+                searcherEpgSearch.m_sOrderBy = "start_date";
+
+                //List<EpgSearchValue> esvList = new List<EpgSearchValue>();
                 string sVal = string.Empty;
 
-                //Get all tags and meta for group
-                GetGroupsTagsAndMetas(request.m_nGroupID, ref lSearchList);
-                if (lSearchList == null)
-                    return null;
-                foreach (string item in lSearchList)
+                List<SearchValue> dAnd = new List<SearchValue>();
+                List<SearchValue> dOr = new List<SearchValue>();
+                if (request.m_bExact) // free text search - based on  Exact tags and metas 
                 {
-                    if (bWhiteSpace)
-                        sVal = request.m_sSearch.Replace(' ', '_');
-                    else
-                        sVal = request.m_sSearch;
-                    esvList.Add(new EpgSearchValue(item, sVal));
+                    EpgSearchAddParams(request, ref dAnd, ref dOr);
                 }
+                else  // free text search - based on  metas/tags "isSearchable" setting 
+                {
+                    searcherEpgSearch.m_bSearchAnd = false; //Search by OR 
+                    //Get all tags and meta for group
+                    GetGroupsTagsAndMetas(request.m_nGroupID, ref lSearchList);
+                    if (lSearchList == null)
+                        return null;
+                    foreach (string item in lSearchList)
+                    {
+                        if (bWhiteSpace)
+                            sVal = request.m_sSearch.Replace(' ', '_');
+                        else
+                            sVal = request.m_sSearch;
+                        dOr.Add(new SearchValue(item, sVal));
+                    }
+                }
+                //initialize the search list with And / Or values
+                searcherEpgSearch.m_lSearchOr = dOr;
+                searcherEpgSearch.m_lSearchAnd = dAnd;
 
-                searcherEpgSearch.m_lSearch = esvList;
+
                 // get parent group by request.m_nGroupID
                 Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
                 if (group != null)
@@ -1567,6 +1614,35 @@ namespace Catalog
                 return null;
             }
         }
+        
+        /*Build Full search object*/
+        private static void EpgSearchAddParams(EpgSearchRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
+        {
+            if (request.m_AndList != null)
+            {
+                foreach (KeyValue andKeyValue in request.m_AndList)
+                {
+                    SearchValue search = new SearchValue();
+                    search.m_sKey = andKeyValue.m_sKey;
+                    search.m_lValue = new List<string> { andKeyValue.m_sValue };
+                    search.m_sValue = andKeyValue.m_sValue;
+                    m_dAnd.Add(search);
+                }
+            }
+
+            if (request.m_OrList != null)
+            {
+                foreach (KeyValue orKeyValue in request.m_OrList)
+                {
+                    SearchValue search = new SearchValue();
+                    search.m_sKey = orKeyValue.m_sKey;
+                    search.m_lValue = new List<string> { orKeyValue.m_sValue };
+                    search.m_sValue = orKeyValue.m_sValue;
+                    m_dOr.Add(search);
+                }
+            }
+        }
+
 
         private static void GetGroupsTagsAndMetas(int nGroupID, ref  List<string> lSearchList)
         {
@@ -2294,8 +2370,8 @@ namespace Catalog
                 else
                 {
                     // site guid exists. let's fetch operator id from DB.
-                    int nOperatorID = Utils.GetOperatorIDBySiteGuid(oMediaRequest.m_nGroupID, lSiteGuid);
-                    if (nOperatorID == 0)
+                    operatorID = Utils.GetOperatorIDBySiteGuid(oMediaRequest.m_nGroupID, lSiteGuid);
+                    if (operatorID == 0)
                     {
                         throw new Exception("IPNO Filtering. No operator ID extracted from DB");
                     }
@@ -2303,7 +2379,7 @@ namespace Catalog
                     {
                         // we have operator id
                         res = true;
-                        List<long> channelsOfIPNO = GroupsCache.Instance.GetOperatorChannelIDs(oMediaRequest.m_nGroupID, nOperatorID);
+                        List<long> channelsOfIPNO = GroupsCache.Instance.GetOperatorChannelIDs(oMediaRequest.m_nGroupID, operatorID);
                         List<long> allChannelsOfAllIPNOs = GroupsCache.Instance.GetDistinctAllOperatorsChannels(oMediaRequest.m_nGroupID);
                         if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
                         {

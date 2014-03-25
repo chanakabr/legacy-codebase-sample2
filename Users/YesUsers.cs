@@ -7,6 +7,7 @@ using System.IO;
 using System.Xml;
 using System.Web.Script.Serialization;
 using System.Configuration;
+using ApiObjects;
 
 namespace Users
 {
@@ -115,8 +116,19 @@ namespace Users
                     return o;
                 }
             }
+            else
+            {
+                //get the dynamic data from yes and update it in DB
+                UserDynamicData userDynamic = GetUserDynamicData(yesUserData);
+                List<KeyValuePair> lKeyValue = new List<KeyValuePair>();
+                foreach (UserDynamicDataContainer container in userDynamic.m_sUserData)
+                {                   
+                    KeyValuePair kvp = new KeyValuePair(container.m_sDataType, container.m_sValue);
+                    lKeyValue.Add(kvp);
+                }
 
-           
+                SetUserDynamicData(userInfo.m_user.m_sSiteGUID, lKeyValue, userInfo);
+            }           
             
             // Check if Domain exist
             string domainCoGuid = string.Empty;
@@ -297,6 +309,16 @@ namespace Users
         //    return base.SignIn(sUN, sUN.ToLower(), nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         //} 
         #endregion
+
+        //in case of Yes - the new domain is added seperatly, this is a dummy function
+        public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
+        {
+            DomainResponseObject dr = new DomainResponseObject();
+            dr.m_oDomainResponseStatus = DomainResponseStatus.OK;            
+            return dr;
+        }
+       
+
 
         private void GetUserContentInfo(ref string subject, string value, Dictionary<string, string> userInfo)
         {

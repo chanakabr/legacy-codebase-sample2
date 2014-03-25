@@ -327,7 +327,7 @@ namespace Tvinci.Core.DAL
 
         public static void Insert_NewMediaEoh(int nWatcherID, string sSessionID, int nGroupID, int nOwnerGroupID, int nMediaID, int nMediaFileID, int nBillingTypeID, int nCDNID, int nDuration, int nCountryID, int nPLayerID,    
                                               int nFirstPlayCounter, int nPlayCounter, int nLoadCounter, int nPauseCounter, int nStopCounter, int nFullScreenCounter,int nExitFullScreenCounter, int nSendToFriendCounter,
-                                              int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID, int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID                                              
+                                              int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID, int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID,int nSwooshCounter                                              
                                              )  
         
         {                                                                                                         
@@ -364,6 +364,7 @@ namespace Tvinci.Core.DAL
             spNewMediaEoh.AddParameter("@SiteGuid", sSiteGuid);
             spNewMediaEoh.AddParameter("@DeviceUdID", sDeviceUdID);
             spNewMediaEoh.AddParameter("@PlayCycleID", sPlayCycleID);
+            spNewMediaEoh.AddParameter("@SwooshCounter", nSwooshCounter);
 
             spNewMediaEoh.ExecuteNonQuery();
         }
@@ -828,7 +829,10 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-              return ds.Tables[0];
+            if (ds != null)
+                return ds.Tables[0];
+
+            return null;
 
         }
 
@@ -1022,60 +1026,21 @@ namespace Tvinci.Core.DAL
             return new List<int>(0);
         }
 
-        public static void InsertOrUpdate_ChannelsLiveViews(ApiObjects.Statistics.ChannelBucket bucket, int nChannelId, int nGroupId)
+        public static DataTable Get_IPersonalRecommended(int nGroupID, string sSiteGuid, int nTop, int nOperatorID)
         {
-            ODBCWrapper.StoredProcedure spChannelLiveViewsInsertOrUpdate = new ODBCWrapper.StoredProcedure("InsertOrUpdate_ChannelsLiveViews");
-            spChannelLiveViewsInsertOrUpdate.SetConnectionKey("MAIN_CONNECTION_STRING");
+            StoredProcedure sp = new StoredProcedure("Get_IPersonalRecommended");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@Top", nTop);
+            sp.AddParameter("@OperatorID", nOperatorID);
 
-            spChannelLiveViewsInsertOrUpdate.AddParameter("@ChannelId", nChannelId);
-            spChannelLiveViewsInsertOrUpdate.AddParameter("@GroupId", nGroupId);
-            spChannelLiveViewsInsertOrUpdate.AddParameter("@CurrentViews", bucket.PreviousViews);
-            spChannelLiveViewsInsertOrUpdate.AddParameter("@NextViews", bucket.CurrentViews);
-            spChannelLiveViewsInsertOrUpdate.AddParameter("@UpdateDate", bucket.CurrentDate);
+            DataSet ds = sp.ExecuteDataSet();
 
-            spChannelLiveViewsInsertOrUpdate.ExecuteNonQuery();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
         }
 
-        public static DataTable Get_MediaTypeIdByMediaId(int nMediaId)
-        {
-            DataTable mediaTypeIdtable = null;
-            ODBCWrapper.StoredProcedure spMediaTypeIdByMediaId = new ODBCWrapper.StoredProcedure("Get_MediaTypeIdByMediaId");
-            spMediaTypeIdByMediaId.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spMediaTypeIdByMediaId.AddParameter("@MediaId", nMediaId);
-
-
-            try
-            {
-                DataSet dsMediaTypeId = spMediaTypeIdByMediaId.ExecuteDataSet();
-
-                if (dsMediaTypeId != null && dsMediaTypeId.Tables != null)
-                {
-                    mediaTypeIdtable = dsMediaTypeId.Tables[0];
-                }
-            }
-            catch
-            {
-                mediaTypeIdtable = null;
-            }
-
-            return mediaTypeIdtable;
-        }
-
-
-        public static DataTable GetChannelViewsResult(int nGroupId)
-        {
-            DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetChannelViewsResult = new ODBCWrapper.StoredProcedure("Get_SortedChannelsViewsByParentGroupId");
-            spGetChannelViewsResult.SetConnectionKey("MAIN_CONNECTION_STRING");
-
-            spGetChannelViewsResult.AddParameter("@GroupId", nGroupId);
-
-            DataSet ds = spGetChannelViewsResult.ExecuteDataSet();
-
-            if (ds != null)
-                dt = ds.Tables[0];
-
-            return dt;
-        }
     }
 }

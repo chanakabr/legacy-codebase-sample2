@@ -182,8 +182,6 @@
     <Compile Include="Searcher\ElasticsearchWrapper.cs" />
     <Compile Include="Searcher\Helper.cs" />
     <Compile Include="Searcher\LuceneWrapper.cs" />
-    <Compile Include="Statistics\BucketCache.cs" />
-    <Compile Include="Statistics\LinearViews.cs" />
     <Compile Include="SubscriptionContainingMediaRequest.cs" />
     <Compile Include="SubscriptionMediaRequest.cs" />
     <Compile Include="TagMeta.cs" />

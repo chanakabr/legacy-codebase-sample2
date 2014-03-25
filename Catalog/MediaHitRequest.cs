@@ -12,7 +12,6 @@ using Logger;
 using TVinciShared;
 using DAL;
 using Tvinci.Core.DAL;
-using Catalog.Statistics;
 using ApiObjects.Statistics;
 
 namespace Catalog
@@ -98,14 +97,9 @@ namespace Catalog
             string sSessionID = string.Empty; 
             int nPlayerID = 0;
             int nPlatform = 0;
-            MediaPlayActions action;
+            int nSwhoosh = 0;
 
-            LinearViews linearView = new LinearViews();
-            if (this.m_oMediaPlayRequestData != null)
-            {
-                WriteLiveViewsToES(m_oMediaPlayRequestData);
-                //bool bIsUpdateOrWriteSucceeded = linearView.UpdateOrWriteBuckets(DateTime.UtcNow, this.m_oMediaPlayRequestData.m_nMediaID, this.m_nGroupID, this.m_oMediaPlayRequestData.m_sMediaTypeId);
-            }
+            MediaPlayActions action;
 
             if (this.m_oMediaPlayRequestData.m_nLoc > 0)
             {
@@ -116,19 +110,37 @@ namespace Catalog
             {
                 int.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
             }
+            
+            Group oGroup = GroupsCache.Instance.GetGroup(mediaHitRequest.m_nGroupID);
+            bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
 
+            //we only record channel/series views on hits that are of type play/first_play actions
+            if (oGroup != null && resultParse && (action == MediaPlayActions.PLAY || action == MediaPlayActions.FIRST_PLAY))
+            {
+                string sMediaTypeFromConfig = Utils.GetWSURL(string.Format("LinearTypeId_{0}", oGroup.m_nParentGroupID));
+                if (!string.IsNullOrEmpty(sMediaTypeFromConfig))
+                {
+                    string[] lSplitMediaTypes = sMediaTypeFromConfig.Split('|');
+                    if (lSplitMediaTypes.Contains(mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId))
+                    {
+                        MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId, Action = mediaHitRequest.m_oMediaPlayRequestData.m_sAction, Date = DateTime.UtcNow };
+                        WriteLiveViewsToES(view);
+                    }
+                }
+            }
             int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
+            
             Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
                                      ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID);
 
-            string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform , nCountryID);                      
+            string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);                      
 
             CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, this.m_nGroupID, nOwnerGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
                                           nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser,
-                                          nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey);
+                                          nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
 
 
-            bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
+            
 
             if (!resultParse || (resultParse == true && action != MediaPlayActions.BITRATE_CHANGE))
             {
@@ -148,36 +160,24 @@ namespace Catalog
             return oMediaHitResponse;         
         }
 
-        private bool WriteLiveViewsToES(MediaPlayRequestData requestData)
+        private bool WriteLiveViewsToES(MediaView oMediaView )
         {
             bool bRes = false;
-            Group group = GroupsCache.Instance.GetGroup(this.m_nGroupID);
+            ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
 
-            if (group != null && requestData.m_nMediaID != 0)
+            string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
+
+            if (oESApi.IndexExists(INDEX) && !string.IsNullOrEmpty(sJsonView))
             {
-                MediaPlayActions action;
-                bool resultParse = Enum.TryParse(requestData.m_sAction.ToUpper().Trim(), out action);
+                Guid guid = Guid.NewGuid();
 
-                string sMediaTypeFromConfig = Utils.GetWSURL(string.Format("LinearTypeId_{0}", group.m_nParentGroupID));
-                if (!string.IsNullOrEmpty(sMediaTypeFromConfig) && sMediaTypeFromConfig.Equals(requestData.m_sMediaTypeId) && resultParse && (action == MediaPlayActions.PLAY || action == MediaPlayActions.FIRST_PLAY))
-                {
-                    ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
+                bRes = oESApi.InsertRecord(INDEX, TYPE, guid.ToString(), sJsonView);
 
-                    MediaView view = new MediaView() { GroupID = group.m_nParentGroupID, MediaType = requestData.m_sMediaTypeId, Date = DateTime.UtcNow, MediaID = requestData.m_nMediaID, Action = action.ToString(), Location = requestData.m_nLoc };
-
-                    string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(view);
-
-                    if (oESApi.IndexExists(INDEX) && !string.IsNullOrEmpty(sJsonView))
-                    {
-                        Guid guid = Guid.NewGuid();
-                        bRes = oESApi.InsertRecord(INDEX, TYPE, guid.ToString(), sJsonView);
-                    }
-                }
+                if (!bRes)
+                    _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", INDEX, TYPE, sJsonView));
             }
 
             return bRes;
         }
-
-
     }
 }

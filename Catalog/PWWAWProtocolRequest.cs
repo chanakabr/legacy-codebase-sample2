@@ -56,6 +56,7 @@ namespace Catalog
         {
             int nGroupID = 0, nMediaID = 0, nCountryID = 0;
             string sSiteGuid = string.Empty;
+            GetEndDateLanguageDeviceID(oBaseRequest);
             GetProtocolData(oBaseRequest, ref nGroupID, ref nMediaID, ref sSiteGuid, ref nCountryID);
             DataTable dt = CatalogDAL.Get_PWWAWProtocol(nGroupID, nMediaID, sSiteGuid,
                     nCountryID, nLanguageID, sEndDate, nDeviceID);
@@ -67,6 +68,7 @@ namespace Catalog
         {
             int nGroupID = 0, nMediaID = 0, nCountryID = 0;
             string sSiteGuid = string.Empty;
+            GetEndDateLanguageDeviceID(oBaseRequest);
             GetProtocolData(oBaseRequest, ref nGroupID, ref nMediaID, ref sSiteGuid, ref nCountryID);
             DataTable dt = CatalogDAL.Get_IPWWAWProtocol(nGroupID, nMediaID, sSiteGuid,
                 nCountryID, nLanguageID, sEndDate, nDeviceID, nOperatorID);
