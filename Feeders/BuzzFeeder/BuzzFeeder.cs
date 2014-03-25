@@ -40,7 +40,7 @@ namespace BuzzFeeder
             string sGroupID; 
             string sBuzzerType; // series/channels
             string actionType; //comments/likes/follows etc.
-            string[] mediaTypes;
+            string[] assetTypes;
             string[] actions;
 
             string[] splitString = m_sParameters.Split('|');

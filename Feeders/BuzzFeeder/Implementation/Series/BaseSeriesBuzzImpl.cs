@@ -13,9 +13,9 @@ namespace BuzzFeeder.Implementation.Series
 {
     public abstract class BaseSeriesBuzzImpl : BaseBuzzImpl
     {
-        
-        public BaseSeriesBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, List<string> lActions, List<string> lMediaTypes)
-            : base(nGroupID, dtPeriod, tsInterval, lActions, lMediaTypes)
+
+        public BaseSeriesBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, List<string> lActions, List<string> lAssetTypes)
+            : base(nGroupID, dtPeriod, tsInterval, lActions, lAssetTypes)
         {
         }
 
@@ -81,7 +81,7 @@ namespace BuzzFeeder.Implementation.Series
             ESExists seriesNameExists = new ESExists() { Value = ESMediaFields.TAGS_FILL.Fill("series name") };
 
             ESTerms mediaTypeTerms = new ESTerms(true) { Key = ESMediaFields.MEDIA_TYPE_ID };
-            mediaTypeTerms.Value.AddRange(m_lMediaTypes);
+            mediaTypeTerms.Value.AddRange(m_lAssetTypes);
 
             ESRange startDateRange = new ESRange(false) { Key = ESMediaFields.START_DATE };
             startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_dtTimePeriod.ToString("yyyyMMddHHmmss")));

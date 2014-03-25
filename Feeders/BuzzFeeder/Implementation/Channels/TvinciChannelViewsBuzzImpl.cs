@@ -13,8 +13,8 @@ namespace BuzzFeeder.Implementation.Channels
     {
         
         protected readonly string m_sGroupKey;
-        public TvinciChannelViewsBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, List<string> lActions, List<string> lMediaTypes)
-            : base(nGroupID, dtPeriod, dtInterval, lActions, lMediaTypes)
+        public TvinciChannelViewsBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, List<string> lActions, List<string> lAssetTypes)
+            : base(nGroupID, dtPeriod, dtInterval, lActions, lAssetTypes)
         {
             m_sGroupKey = string.Concat(m_nGroupID, "_channel_views_stats");
         }

@@ -11,8 +11,8 @@ namespace BuzzFeeder.Implementation.Channels
     {
         private readonly string m_sGroupKey;
 
-        public TvinciChannelCommentsBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, List<string> lActions, List<string> lMediaTypes)
-            : base(nGroupID, dtPeriod, dtInterval, lActions, lMediaTypes)
+        public TvinciChannelCommentsBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, List<string> lActions, List<string> lAssetTypes)
+            : base(nGroupID, dtPeriod, dtInterval, lActions, lAssetTypes)
         {
             m_sGroupKey = string.Concat(m_nGroupID, "_channel_comments_stats");
         }

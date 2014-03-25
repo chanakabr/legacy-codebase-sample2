@@ -17,7 +17,7 @@ namespace BuzzFeeder
         protected int m_nGroupID;
         protected DateTime m_dtTimePeriod;
         protected TimeSpan m_tsInterval;
-        protected List<string> m_lMediaTypes;
+        protected List<string> m_lAssetTypes;
         protected List<string> m_lActions;
 
         protected Dictionary<string, ItemsStats> m_dCurrentBuzzCount;
@@ -28,12 +28,12 @@ namespace BuzzFeeder
         protected BuzzCalculator.BuzzCalculator m_oBuzzCalc;
         #endregion
 
-        public BaseBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, List<string> lActions, List<string> lMediaTypes)
+        public BaseBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, List<string> lActions, List<string> lAssetTypes)
         {
             m_nGroupID = nGroupID;
             m_dtTimePeriod = dtPeriod;
             m_tsInterval = tsInterval;
-            m_lMediaTypes = lMediaTypes;
+            m_lAssetTypes = lAssetTypes;
             m_lActions = lActions;
             m_dCurrentBuzzCount = new Dictionary<string, ItemsStats>();
             m_dPreviousBuzzCount = new Dictionary<string, ItemsStats>();
@@ -140,12 +140,12 @@ namespace BuzzFeeder
             ESTerms actions = new ESTerms(false) { Key = "action" };
             actions.Value.AddRange(m_lActions);
 
-            ESTerms mediaTypes = new ESTerms(false) { Key = "media_type" };
-            mediaTypes.Value.AddRange(m_lMediaTypes);
+            ESTerms assetTypes = new ESTerms(false) { Key = "asset_type" };
+            assetTypes.Value.AddRange(m_lAssetTypes);
 
             filterParent.AddChild(groupIdTerm);
             filterParent.AddChild(actions);
-            filterParent.AddChild(mediaTypes);
+            filterParent.AddChild(assetTypes);
 
             groupedFacet.Query.Filter.FilterSettings = filterParent;
 

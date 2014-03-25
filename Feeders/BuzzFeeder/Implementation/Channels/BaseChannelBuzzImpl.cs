@@ -12,8 +12,8 @@ namespace BuzzFeeder.Implementation.Channels
 {
     public abstract class BaseChannelBuzzImpl : BaseBuzzImpl
     {
-        public BaseChannelBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, List<string> lActions, List<string> lMediaTypes)
-            : base(nGroupID, dtPeriod, dtInterval, lActions, lMediaTypes)
+        public BaseChannelBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, List<string> lActions, List<string> lAssetTypes)
+            : base(nGroupID, dtPeriod, dtInterval, lActions, lAssetTypes)
         {
 
         }
@@ -54,7 +54,7 @@ namespace BuzzFeeder.Implementation.Channels
             ESTerm isActiveTerm = new ESTerm(true) { Key = ESMediaFields.IS_ACTIVE, Value = "1" };
 
             ESTerms mediaTypeTerms = new ESTerms(true) { Key = ESMediaFields.MEDIA_TYPE_ID };
-            mediaTypeTerms.Value.AddRange(m_lMediaTypes);
+            mediaTypeTerms.Value.AddRange(m_lAssetTypes);
 
             ESRange startDateRange = new ESRange(false) { Key = ESMediaFields.START_DATE};
             startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_dtTimePeriod.ToString(ESMediaFields.DATE_FORMAT)));

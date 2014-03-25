@@ -8,8 +8,8 @@ namespace BuzzFeeder.Implementation.Channels
     public class TvinciChannelLikesBuzzImpl : BaseChannelBuzzImpl
     {
           private readonly string m_sGroupKey;
-          public TvinciChannelLikesBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, List<string> lActions, List<string> lMediaTypes)
-            : base(nGroupID, dtPeriod, dtInterval, lActions, lMediaTypes)
+          public TvinciChannelLikesBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, List<string> lActions, List<string> lAssetTypes)
+              : base(nGroupID, dtPeriod, dtInterval, lActions, lAssetTypes)
         {
             m_sGroupKey = string.Concat(m_nGroupID, "_channel_likes_stats");
         }

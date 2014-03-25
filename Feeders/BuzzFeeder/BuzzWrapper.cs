@@ -20,13 +20,13 @@ namespace BuzzFeeder
         private int nSBIMin = 50;
 
 
-        private List<string> m_lMediaTypes;
+        private List<string> m_lAssetTypes;
         private int m_nGroupID;
 
-        public BuzzWrapper(int nGroupID, List<string> lMediaTypes)
+        public BuzzWrapper(int nGroupID, List<string> lAssetTypes)
         {
             m_dActivities = new Dictionary<string, BuzzActivity>();
-            m_lMediaTypes = lMediaTypes;
+            m_lAssetTypes = lAssetTypes;
             m_nGroupID = nGroupID;
         }
 
@@ -120,7 +120,7 @@ namespace BuzzFeeder
             ESTerm groupTerm = new ESTerm(true) { Key = ESMediaFields.GROUP_ID, Value = m_nGroupID.ToString() };
             ESTerm isActiveTerm = new ESTerm(true) { Key = ESMediaFields.IS_ACTIVE, Value = "1" };
             ESTerms mediaTypeTerms = new ESTerms(true) { Key = ESMediaFields.MEDIA_TYPE_ID };
-            mediaTypeTerms.Value.AddRange(m_lMediaTypes);
+            mediaTypeTerms.Value.AddRange(m_lAssetTypes);
 
             filter.AddChild(isActiveTerm);
             filter.AddChild(mediaTypeTerms);
