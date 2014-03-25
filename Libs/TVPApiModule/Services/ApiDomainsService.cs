@@ -148,6 +148,70 @@ namespace TVPApiModule.Services
             return domain;
         }
 
+        public NetworkResponseObject AddHomeNetworkToDomain(long domainId, string networkId, string networkName, string networkDesc)
+        {
+            NetworkResponseObject network = null;
+
+            try
+            {
+                network = m_Module.AddHomeNetworkToDomain(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDesc); 
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : AddHomeNetworkToDomain, Error Message: {0} Parameters: domainId: {1}, networkId: {2}, networkName: {3}, networkDesc: {4}", ex.Message, domainId, networkId, networkName, networkDesc);
+            }
+
+            return network;
+        }
+
+        public NetworkResponseObject UpdateDomainHomeNetwork(long domainId, string networkId, string networkName, string networkDesc, bool isActive)
+        {
+            NetworkResponseObject network = null;
+
+            try
+            {
+                network = m_Module.UpdateDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDesc, isActive);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : UpdateDomainHomeNetwork, Error Message: {0} Parameters: domainId: {1}, networkId: {2}, networkName: {3}, networkDesc: {4}, isActive: {5}", ex.Message, domainId, networkId, networkName, networkDesc, isActive);
+            }
+
+            return network;
+        }
+
+        public NetworkResponseObject RemoveDomainHomeNetwork(long domainId, string networkId)
+        {
+            NetworkResponseObject network = null;
+
+            try
+            {
+                network = m_Module.RemoveDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : RemoveDomainHomeNetwork, Error Message: {0} Parameters: domainId: {1}, networkId: {2}", ex.Message, domainId, networkId);
+            }
+
+            return network;
+        }
+
+        public HomeNetwork[] GetDomainHomeNetworks(long domainId)
+        {
+            HomeNetwork[] homeNetworks = null;
+
+            try
+            {
+                homeNetworks = m_Module.GetDomainHomeNetworks(m_wsUserName, m_wsPassword, domainId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainHomeNetworks, Error Message: {0} Parameters: domainId: {1}", ex.Message, domainId);
+            }
+
+            return homeNetworks;
+        }
+
         public DomainResponseObject RemoveDeviceToDomain(int iDomainID, string sUDID)
         {
             DomainResponseObject domain = null;
@@ -423,5 +487,9 @@ namespace TVPApiModule.Services
 
             return deviceInfo;
         }
+
+        
+
+
     }
 }

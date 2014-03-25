@@ -594,5 +594,89 @@ namespace TVPApiServices
             }
             return domain;
         }
+
+
+        [WebMethod(EnableSession = true, Description = "Adds Homenetwork to domain")]
+        public NetworkResponseObject AddHomeNetworkToDomain(InitializationObject initObj, string networkId, string networkName, string networkDesc)
+        {
+            NetworkResponseObject network = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "AddHomeNetworkToDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    network = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).AddHomeNetworkToDomain(Convert.ToInt64(initObj.DomainID), networkId, networkName, networkDesc);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return network;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Updates the home network's state")]
+        public NetworkResponseObject UpdateDomainHomeNetwork(InitializationObject initObj, string networkId, string networkName, string networkDesc, bool isActive)
+        {
+            NetworkResponseObject network = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "UpdateDomainHomeNetwork", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    network = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).UpdateDomainHomeNetwork(Convert.ToInt64(initObj.DomainID), networkId, networkName, networkDesc, isActive);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return network;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Adds home network to domain")]
+        public NetworkResponseObject RemoveDomainHomeNetwork(InitializationObject initObj, string networkId)
+        {
+            NetworkResponseObject network = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "RemoveDomainHomeNetwork", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    network = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).RemoveDomainHomeNetwork(Convert.ToInt64(initObj.DomainID), networkId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return network;
+        }
+
+        public HomeNetwork[] GetDomainHomeNetworks(InitializationObject initObj)
+        {
+            HomeNetwork[] homeNetworks = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainHomeNetworks", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    homeNetworks = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).GetDomainHomeNetworks(Convert.ToInt64(initObj.DomainID));
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return homeNetworks;
+        }
     }
 }
