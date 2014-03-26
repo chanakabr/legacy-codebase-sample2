@@ -8,6 +8,7 @@ using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
 using System.Text;
 using System.Threading;
+using System.Configuration;
 using RemoteTasksCommon;
 
 namespace RemoteTasksService
@@ -22,7 +23,7 @@ namespace RemoteTasksService
 
             try
             {
-                ITaskHandler taskHandler = TaskHandlerFactory.GetHandler(request.task);
+                ITaskHandler taskHandler = (ITaskHandler)Activator.CreateInstance(Type.GetType(string.Format("{0}.TaskHandler, {0}", ConfigurationManager.AppSettings[request.task])));
 
                 response.retval = taskHandler.HandleTask(request.data);
                 response.status = "success";
