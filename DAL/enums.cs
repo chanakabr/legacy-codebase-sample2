@@ -12,7 +12,9 @@ namespace DAL
         Activated = 0,
         NotActivated = 1,
         NotActivatedByMaster = 2,
-        UserNotInDomain = 3         // Or removed 
+        UserRemovedFromDomain = 3,
+        UserNotInDomain = 4         // Or removed 
+        
     }
     
 }

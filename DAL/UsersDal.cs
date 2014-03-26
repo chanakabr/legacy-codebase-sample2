@@ -1278,7 +1278,7 @@ namespace DAL
                         }
                         else
                         {
-                            res = UserActivationState.UserNotInDomain;
+                            res = UserActivationState.UserRemovedFromDomain;
                         }
 
                     }
