@@ -59,10 +59,11 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        theTable += "select a.is_active, a.id as id, a.NAME as 'Name', a.max_limit as 'Limit', lmp.DESCRIPTION as 'Frequency', a.concurrent_max_limit as 'Concurrent Limit', a.status,";
-        theTable += "env.description as 'Environment Type' from groups_device_limitation_modules a with (nolock) left join lu_min_periods lmp ";
-        theTable += "with (nolock) on a.freq_period_id = lmp.ID inner Join lu_domain_environment env on env.ID = a.environment_type where ";
-
+        theTable += "select a.is_active,a.id as id,a.NAME as 'Name', a.max_limit as 'Limit',  q1.DESCRIPTION as 'Frequency', a.concurrent_max_limit as 'Concurrent Limit', a.status, a.Home_network_quantity as 'Home networks limit', q2.DESCRIPTION as 'Home network frequency' env.description as 'Environment Type'";
+        theTable += "from groups_device_limitation_modules a with (nolock) ";
+        theTable += "left join (select lmp1.ID, lmp1.description from lu_min_periods lmp1 with (nolock)) q1 on (q1.ID=a.freq_period_id or a.freq_period_id is NULL) ";
+        theTable += "left join (select lmp2.ID, lmp2.description from lu_min_periods lmp2 with (nolock)) q2 on (q2.ID=a.Home_Network_Frequency or a.Home_Network_Frequency is NULL) ";
+        theTable += "inner join lu_domain_environment with (nolock) env on env.ID = a.environment_type where ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
         theTable += "and (";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.STATUS", "=", 1);
