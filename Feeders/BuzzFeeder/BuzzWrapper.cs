@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Extensions;
+using ApiObjects.Statistics;
 
 namespace BuzzFeeder
 {

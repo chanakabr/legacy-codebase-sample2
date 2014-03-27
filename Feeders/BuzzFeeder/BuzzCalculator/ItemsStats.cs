@@ -59,16 +59,4 @@ namespace BuzzFeeder.BuzzCalculator
         }
     }
 
-    [Serializable]
-    public class BuzzWeightedAverScore
-    {
-        [JsonProperty("weighted_average_score")]
-        public double WeightedAverageScore;
-        [JsonProperty("normalized_weighted_average_score")]
-        public double NormalizedWeightedAverageScore;
-        [JsonProperty("update_date")]
-        [JsonConverter(typeof(ApiObjects.JsonSerializers.BaseTimeConverter))]
-        public DateTime UpdateDate;
-
-    }
 }
