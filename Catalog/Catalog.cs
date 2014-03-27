@@ -1108,7 +1108,7 @@ namespace Catalog
 
         #region Media play processing (media mrak, media hit)
 
-        public static void GetMediaPlayData(int nMediaID, int nMediaFileID, ref int nOwnerGroupID, ref int nCDNID, ref int nQualityID, ref int nFormatID, ref int nBillingTypeID)
+        public static void GetMediaPlayData(int nMediaID, int nMediaFileID, ref int nOwnerGroupID, ref int nCDNID, ref int nQualityID, ref int nFormatID, ref int nBillingTypeID, ref int nMediaTypeID)
         {
             DataTable dtPlayData = CatalogDAL.Get_MediaPlayData(nMediaID, nMediaFileID);
             if (dtPlayData != null && dtPlayData.Rows.Count > 0)
@@ -1116,7 +1116,8 @@ namespace Catalog
                 nOwnerGroupID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "group_id");
                 nCDNID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "streaming_suplier_id");
                 nQualityID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_quality_id");
-                nFormatID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_type_id");
+                nFormatID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_file_type_id");
+                nMediaTypeID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_type_id");
                 nBillingTypeID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "billing_type_id");
             }
         }

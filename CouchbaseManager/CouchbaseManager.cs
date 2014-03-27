@@ -9,7 +9,7 @@ using Couchbase.Configuration;
 
 namespace CouchbaseManager
 {
-    public enum eCouchbaseBucket { DEFAULT = 0, NOTIFICATION = 1, SOCIALHUB = 2, SOCIALFRIENDS = 3, EPG = 4 }
+    public enum eCouchbaseBucket { DEFAULT = 0, NOTIFICATION = 1, SOCIALHUB = 2, SOCIALFRIENDS = 3, EPG = 4, STATISTICS = 5 }
 
     public class CouchbaseManager
     {
@@ -76,6 +76,7 @@ namespace CouchbaseManager
                 case eCouchbaseBucket.SOCIALHUB:
                 case eCouchbaseBucket.SOCIALFRIENDS:
                 case eCouchbaseBucket.EPG:
+                case eCouchbaseBucket.STATISTICS:
                 case eCouchbaseBucket.DEFAULT:
                     var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
                     oRes = new CouchbaseClient(socialBucketSection);

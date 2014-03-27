@@ -91,6 +91,7 @@ namespace Catalog
             int nOwnerGroupID = 0;
             int nQualityID = 0;
             int nFormatID = 0;
+            int nMediaTypeID = 0;
             int nBillingTypeID = 0;        
             int nBrowser = 0;           
             int nWatcherID = 0;           
@@ -110,28 +111,29 @@ namespace Catalog
             {
                 int.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
             }
+
+                        int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
             
+            Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
+
             Group oGroup = GroupsCache.Instance.GetGroup(mediaHitRequest.m_nGroupID);
             bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
 
             //we only record channel/series views on hits that are of type play/first_play actions
             if (oGroup != null && resultParse && (action == MediaPlayActions.PLAY || action == MediaPlayActions.FIRST_PLAY))
             {
-                string sMediaTypeFromConfig = Utils.GetWSURL(string.Format("LinearTypeId_{0}", oGroup.m_nParentGroupID));
+                string sMediaTypeFromConfig = Utils.GetWSURL(string.Format("LinearTypeId_{0}", oGroup.m_nParentGroupID)); 
+
                 if (!string.IsNullOrEmpty(sMediaTypeFromConfig))
                 {
                     string[] lSplitMediaTypes = sMediaTypeFromConfig.Split('|');
                     if (lSplitMediaTypes.Contains(mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId))
                     {
                         MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId, Action = mediaHitRequest.m_oMediaPlayRequestData.m_sAction, Date = DateTime.UtcNow };
-                        WriteLiveViewsToES(view);
+                        WriteLiveViewsToES(view);                       
                     }
                 }
             }
-            int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
-            
-            Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
-                                     ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID);
 
             string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);                      
 

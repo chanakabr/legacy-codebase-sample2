@@ -94,6 +94,7 @@ namespace Catalog
             int nOwnerGroupID = 0;
             int nQualityID = 0;
             int nFormatID = 0;
+            int nMediaTypeID = 0;
             int nBillingTypeID = 0;
             int nPlatform = 0;
             int nSwhoosh = 0;
@@ -110,7 +111,7 @@ namespace Catalog
             }
             int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
             Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
-                                     ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID);
+                                     ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
           
             bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction);
 

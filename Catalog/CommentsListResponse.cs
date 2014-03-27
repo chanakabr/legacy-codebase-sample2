@@ -61,9 +61,12 @@ namespace Catalog
         public string m_sUserPicURL;
         [JsonProperty("asset_type")]
         public string m_sAssetType;
+        [JsonProperty("action")]
+        public string m_Action;
 
         public Comments()
         {
+            m_Action = "comment"; //defult value - comment
         }
     }
 }

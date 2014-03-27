@@ -45,6 +45,7 @@ namespace Catalog
     [KnownType(typeof(EPGProgramsByProgramsIdentefierRequest))]
     [KnownType(typeof(EPGSearchContentRequest))]
     [KnownType(typeof(ChannelViewsRequest))]
+    [KnownType(typeof(BuzzMeterRequest))]
 
     [DataContract]
     public class BaseRequest

@@ -18,7 +18,7 @@ namespace DalCB
     public class EpgDal_Couchbase
     {
         private static readonly string sEndMaxValue = @"\uefff";
-        private static readonly string CB_EPG_DESGIN = GetValFromConfig("cb_epg_design");
+        private static readonly string CB_EPG_DESGIN = Utils.GetValFromConfig("cb_epg_design");
 
         CouchbaseClient m_oClient;
         private int m_nGroupID;
@@ -298,11 +298,7 @@ namespace DalCB
             return lRes;
         }
 
-        public static string GetValFromConfig(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
- 
-        }
+
 
     }
 }

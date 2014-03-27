@@ -98,6 +98,8 @@
     <Compile Include="BaseEpg.cs" />
     <Compile Include="BaseProtocolRequest.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="BuzzMeterRequest.cs" />
+    <Compile Include="BuzzMeterResponse.cs" />
     <Compile Include="ChannelsContainingMediaRequest.cs" />
     <Compile Include="ChannelsContainingMediaResponse.cs" />
     <Compile Include="BaseMediaSearchRequest.cs" />
@@ -297,6 +299,10 @@
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
       <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
       <Name>QueueWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StaticticsBL\StaticticsBL.csproj">
+      <Project>{798abf79-9cc5-4d97-bac3-de1f9b016ec2}</Project>
+      <Name>StaticticsBL</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
