@@ -482,6 +482,40 @@ namespace Users
             return res;
         }
 
+        public override DomainResponseObject ChangeDomainMaster(int nDomainID, int nCurrentMasterID, int nNewMasterID)
+        {
+            //New domain
+            Domain domain = new Domain();
+
+            // Create new response
+            DomainResponseObject oDomainResponseObject;
+
+            //Check if user IDs are valid
+            if (!User.IsUserValid(m_nGroupID, nCurrentMasterID) || !User.IsUserValid(m_nGroupID, nNewMasterID))
+            {
+                domain.m_DomainStatus = DomainStatus.Error;
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+            }
+
+            //Init The Domain
+            domain = InitializeDomain(m_nGroupID, nDomainID);
+
+            // No change required, return OK 
+            if (nNewMasterID == nCurrentMasterID)
+            {
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
+            }
+
+
+            DomainResponseStatus eDomainResponseStatus = domain.ChangeDomainMaster(m_nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
+
+            domain = InitializeDomain(m_nGroupID, nDomainID);
+            oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
+
+            return oDomainResponseObject;
+        }
+
+
         protected static Domain InitializeDomain(int nGroupID, int nDomainID)
         {
             string sDomainCoGuid = DAL.DomainDal.GetDomainCoGuid(nDomainID, null);
