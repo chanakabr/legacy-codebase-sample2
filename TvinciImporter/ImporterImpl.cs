@@ -4140,7 +4140,7 @@ namespace TvinciImporter
                 {
                     try
                     {
-                        client = GetWCFSvc("catalogUrl");
+                        client = GetWCFSvc("WS_Catalog");
                         if (lChannelIds != null && lChannelIds.Count > 0 && nGroupId > 0)
                         {
                             string sWSURL = GetCatalogUrl(nGroupId);
@@ -4201,8 +4201,8 @@ namespace TvinciImporter
                 {
                     string[] addresses = sWSURL.Split(';');
                     if (addresses != null && addresses.Length > 0)
-                    {                 
-                        client = GetWCFSvc("catalogUrl");
+                    {
+                        client = GetWCFSvc("WS_Catalog");
                         int length = addresses.Length;
                         for (int i = 0; i < length; i++)
                         {
@@ -4249,7 +4249,7 @@ namespace TvinciImporter
                 {
                     try
                     {
-                        client = GetWCFSvc("catalogUrl");
+                        client = GetWCFSvc("WS_Catalog");
                         if (lepgIds != null && lepgIds.Count > 0 && nGroupId > 0)
                         {
                             string sWSURL = GetCatalogUrl(nGroupId);
