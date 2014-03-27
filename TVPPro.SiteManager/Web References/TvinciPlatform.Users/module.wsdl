@@ -47,7 +47,7 @@
           <s:enumeration value="UserNotMasterApproved" />
           <s:enumeration value="ErrorOnInitUser" />
           <s:enumeration value="ErrorOnSaveUser" />
-          <s:enumeration value="UserRemovedFromDomain" />
+          <s:enumeration value="UserNotIndDomain" />
           <s:enumeration value="TokenNotFound" />
           <s:enumeration value="UserAlreadyMasterApproved" />
           <s:enumeration value="UserWithNoDomain" />

@@ -67,6 +67,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private System.Threading.SendOrPostCallback ResetDomainOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ResetDomainFrequencyOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback ChangeDomainMasterOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetDomainIDsByOperatorCoGuidOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDeviceInfoOperationCompleted;
@@ -179,6 +183,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public event ResetDomainCompletedEventHandler ResetDomainCompleted;
+        
+        /// <remarks/>
+        public event ResetDomainFrequencyCompletedEventHandler ResetDomainFrequencyCompleted;
+        
+        /// <remarks/>
+        public event ChangeDomainMasterCompletedEventHandler ChangeDomainMasterCompleted;
         
         /// <remarks/>
         public event GetDomainIDsByOperatorCoGuidCompletedEventHandler GetDomainIDsByOperatorCoGuidCompleted;
@@ -875,6 +885,78 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             if ((this.ResetDomainCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.ResetDomainCompleted(this, new ResetDomainCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/ResetDomainFrequency", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DomainResponseObject ResetDomainFrequency(string sWSUserName, string sWSPassword, int nDomainID, int nFrequencyType) {
+            object[] results = this.Invoke("ResetDomainFrequency", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nDomainID,
+                        nFrequencyType});
+            return ((DomainResponseObject)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ResetDomainFrequencyAsync(string sWSUserName, string sWSPassword, int nDomainID, int nFrequencyType) {
+            this.ResetDomainFrequencyAsync(sWSUserName, sWSPassword, nDomainID, nFrequencyType, null);
+        }
+        
+        /// <remarks/>
+        public void ResetDomainFrequencyAsync(string sWSUserName, string sWSPassword, int nDomainID, int nFrequencyType, object userState) {
+            if ((this.ResetDomainFrequencyOperationCompleted == null)) {
+                this.ResetDomainFrequencyOperationCompleted = new System.Threading.SendOrPostCallback(this.OnResetDomainFrequencyOperationCompleted);
+            }
+            this.InvokeAsync("ResetDomainFrequency", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nDomainID,
+                        nFrequencyType}, this.ResetDomainFrequencyOperationCompleted, userState);
+        }
+        
+        private void OnResetDomainFrequencyOperationCompleted(object arg) {
+            if ((this.ResetDomainFrequencyCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ResetDomainFrequencyCompleted(this, new ResetDomainFrequencyCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/ChangeDomainMaster", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DomainResponseObject ChangeDomainMaster(string sWSUserName, string sWSPassword, int nDomainID, int nCurrentMasterID, int nNewMasterID) {
+            object[] results = this.Invoke("ChangeDomainMaster", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nDomainID,
+                        nCurrentMasterID,
+                        nNewMasterID});
+            return ((DomainResponseObject)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ChangeDomainMasterAsync(string sWSUserName, string sWSPassword, int nDomainID, int nCurrentMasterID, int nNewMasterID) {
+            this.ChangeDomainMasterAsync(sWSUserName, sWSPassword, nDomainID, nCurrentMasterID, nNewMasterID, null);
+        }
+        
+        /// <remarks/>
+        public void ChangeDomainMasterAsync(string sWSUserName, string sWSPassword, int nDomainID, int nCurrentMasterID, int nNewMasterID, object userState) {
+            if ((this.ChangeDomainMasterOperationCompleted == null)) {
+                this.ChangeDomainMasterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnChangeDomainMasterOperationCompleted);
+            }
+            this.InvokeAsync("ChangeDomainMaster", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nDomainID,
+                        nCurrentMasterID,
+                        nNewMasterID}, this.ChangeDomainMasterOperationCompleted, userState);
+        }
+        
+        private void OnChangeDomainMasterOperationCompleted(object arg) {
+            if ((this.ChangeDomainMasterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ChangeDomainMasterCompleted(this, new ChangeDomainMasterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2097,6 +2179,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         RequestFailed,
+        
+        /// <remarks/>
+        InvalidUser,
     }
     
     /// <remarks/>
@@ -2580,6 +2665,58 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         private object[] results;
         
         internal ResetDomainCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DomainResponseObject Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DomainResponseObject)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    public delegate void ResetDomainFrequencyCompletedEventHandler(object sender, ResetDomainFrequencyCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ResetDomainFrequencyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ResetDomainFrequencyCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DomainResponseObject Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DomainResponseObject)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    public delegate void ChangeDomainMasterCompletedEventHandler(object sender, ChangeDomainMasterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ChangeDomainMasterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ChangeDomainMasterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
