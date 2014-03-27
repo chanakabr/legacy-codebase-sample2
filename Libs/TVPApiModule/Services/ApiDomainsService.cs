@@ -488,7 +488,21 @@ namespace TVPApiModule.Services
             return deviceInfo;
         }
 
-        
+        public DomainResponseObject ChangeDomainMaster(int domainID, int currentMasterID, int newMasterID)
+        {
+            DomainResponseObject domain = null;
+
+            try
+            {
+                domain = m_Module.ChangeDomainMaster(m_wsUserName, m_wsPassword, domainID, currentMasterID, newMasterID);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error in ChangeDomainMaster, Error : {0} Parameters : domainID: {1}, : currentMasterID : {2}, newMasterID : {3}", ex.Message, domainID, currentMasterID, newMasterID);
+            }
+
+            return domain;
+        }
 
 
     }

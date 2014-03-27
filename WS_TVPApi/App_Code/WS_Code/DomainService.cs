@@ -679,5 +679,26 @@ namespace TVPApiServices
             }
             return homeNetworks;
         }
+
+        [WebMethod(EnableSession = true, Description = "Change the domain master")]
+        public DomainResponseObject ChangeDomainMaster(InitializationObject initObj, int currentMasterID, int newMasterID)
+        {
+            DomainResponseObject domain = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "ChangeDomainMaster", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).ChangeDomainMaster(initObj.DomainID, currentMasterID, newMasterID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return domain;
+        }
     }
 }

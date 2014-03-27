@@ -81,5 +81,8 @@ namespace TVPApiServices
 
         [OperationContract]
         HomeNetwork[] GetDomainHomeNetworks(InitializationObject initObj);
+
+        [OperationContract]
+        DomainResponseObject ChangeDomainMaster(InitializationObject initObj, int currentMasterID, int newMasterID);
     }
 }
