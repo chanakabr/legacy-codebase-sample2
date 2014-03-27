@@ -277,10 +277,7 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
 
     static protected string GetWSURL()
     {
-        if (ConfigurationManager.AppSettings["pricing_ws"] != null &&
-            ConfigurationManager.AppSettings["pricing_ws"].ToString() != "")
-            return ConfigurationManager.AppSettings["pricing_ws"].ToString();
-        return "";
+        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
     }
 
     protected System.Data.DataTable GetBaseDT()
@@ -476,6 +473,10 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
         else
             dr_Description.SetValue("");
         theRecord.AddRecord(dr_Description);
+
+        DataRecordCheckBoxField dr_FirstDeviceLimitation = new DataRecordCheckBoxField(true);
+        dr_FirstDeviceLimitation.Initialize("First Device Limitation", "adm_table_header_nbg", "FormInput", "FirstDeviceLimitation", false);
+        theRecord.AddRecord(dr_FirstDeviceLimitation);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
