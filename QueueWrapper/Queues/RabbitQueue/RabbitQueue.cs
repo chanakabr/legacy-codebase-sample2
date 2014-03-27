@@ -40,8 +40,7 @@ namespace QueueWrapper
 
                     if (configData != null)
                     {
-                        RabbitConnection.Instance.Publish(configData, sDataToIndex);
-                        bIsEnqueueSucceeded = true;
+                        bIsEnqueueSucceeded = RabbitConnection.Instance.Publish(configData, sDataToIndex);
                     }
                 }
             }

@@ -121,15 +121,21 @@ namespace Logger
 
             string sMessageToWrite = loggingEvent.MessageObject.ToString();
 
-            //ConnectionHelper.Instance.Write(this.Exchange, this.Queue, loggingEvent.MessageObject.ToString(), this.RoutingKey, this.HostName, this.Password);
-            bool bIsPublishSucceeded = RabbitConnection.Instance.Publish(
-                new RabbitConfigurationData(this.Exchange, this.Queue, this.RoutingKey, this.HostName, this.Password, this.ExchangeType, this.VirtualHost, this.Username, this.Port),
-                sMessageToWrite);
+            bool bIsPublishSucceeded = false;
+
+            if (!string.IsNullOrEmpty(this.HostName) && !string.IsNullOrEmpty(this.Username) && !string.IsNullOrEmpty(this.Password) && !string.IsNullOrEmpty(this.Port)
+                && !string.IsNullOrEmpty(this.RoutingKey) && !string.IsNullOrEmpty(this.Exchange))
+            {
+                bIsPublishSucceeded = RabbitConnection.Instance.Publish(
+                    new RabbitConfigurationData(this.Exchange, this.Queue, this.RoutingKey, this.HostName, this.Password, this.ExchangeType, this.VirtualHost, this.Username, this.Port),
+                    sMessageToWrite);
+            }
 
             if (!bIsPublishSucceeded)
             {
-                Logger.Log("AMQP Write Fail", sMessageToWrite, "Logger");
-            }
+                string countError = RabbitConnection.Instance.GetQueueFailCounter() == RabbitConnection.Instance.GetQueueFailCountLimit() ? "Reached the limit of queue failures" : string.Format("Num of writing failures: {0}", RabbitConnection.Instance.GetQueueFailCounter());
+                Logger.Log("AMQP Write Fail", string.Format("{0}, msg: {1}", countError, sMessageToWrite), "Logger");
+            }            
         }
 
         #endregion
