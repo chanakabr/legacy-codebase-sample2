@@ -3952,7 +3952,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = GetConfigVal("CATALOG_WCF");
+            string sCatalogURL = GetConfigVal("WS_Catalog");
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
