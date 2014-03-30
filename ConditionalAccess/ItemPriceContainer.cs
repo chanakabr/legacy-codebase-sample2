@@ -51,6 +51,24 @@ namespace ConditionalAccess
 
     }
 
+    public class CollectionsPricesContainer
+    {
+        public string m_sCollectionCode;
+        public TvinciPricing.Price m_oPrice;
+        public PriceReason m_PriceReason;
+
+        public CollectionsPricesContainer()
+        { }
+
+        public void Initialize(string sCollectionCode, TvinciPricing.Price oPrice, PriceReason ePriceReason)
+        {
+            m_sCollectionCode   = sCollectionCode;
+            m_oPrice            = oPrice;
+            m_PriceReason       = ePriceReason;
+        }
+
+    }
+
     public class PrePaidPricesContainer
     {
         public string m_sPrePaidCode;

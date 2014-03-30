@@ -3980,6 +3980,15 @@ namespace ConditionalAccess
             return GetUserPermittedSubscriptions(intUsersList, false, 0);
         }
         /// <summary>
+        /// Get Domain Permitted Collections
+        /// </summary>
+        public virtual PermittedCollectionContainer[] GetDomainPermittedCollections(int nDomainID)
+        {
+            List<int> intUsersList = GetDomainsUsers(nDomainID);
+
+            return GetUserPermittedCollections(intUsersList, false, 0);
+        }
+        /// <summary>
         /// Get User Permitted Items
         /// </summary>
         public virtual PermittedMediaContainer[] GetUserPermittedItems(string sSiteGUID)
@@ -4066,6 +4075,61 @@ namespace ConditionalAccess
         public virtual PermittedSubscriptionContainer[] GetUserPermittedSubscriptions(string sSiteGUID)
         {
             return GetUserPermittedSubscriptions(new List<int>() { int.Parse(sSiteGUID) }, false, 0);
+        }
+        /// <summary>
+        /// Get User Permitted Collections
+        /// </summary>
+        public virtual PermittedCollectionContainer[] GetUserPermittedCollections(string sSiteGUID)
+        {
+            return GetUserPermittedCollections(new List<int>() { int.Parse(sSiteGUID) }, false, 0);
+        }
+        /// <summary>
+        /// Get User Permitted Collections
+        /// </summary>
+        public virtual PermittedCollectionContainer[] GetUserPermittedCollections(List<int> lUsersIDs, bool isExpired, int numOfItems)
+        {
+            PermittedCollectionContainer[] ret = null;
+            DataTable allCollectionsPurchases = DAL.ConditionalAccessDAL.Get_UsersPermittedCollections(lUsersIDs, isExpired);
+
+            if (allCollectionsPurchases != null)
+            {
+                Int32 nCount = allCollectionsPurchases.Rows.Count;
+                if (numOfItems != 0 && numOfItems < nCount)
+                {
+                    nCount = numOfItems;
+                }
+                if (nCount > 0)
+                {
+                    ret = new PermittedCollectionContainer[nCount];
+                }
+                int i = 0;
+                foreach (DataRow dataRow in allCollectionsPurchases.Rows)
+                {
+                    string sCollectionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["COLLECTION_CODE"]);
+                    Int32 nMaxUses         = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
+                    Int32 nCurrentUses     = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
+                    int billingTransID     = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
+
+                    DateTime dEnd           = ODBCWrapper.Utils.GetDateSafeVal(dataRow["END_DATE"]);
+                    DateTime dCurrent       = ODBCWrapper.Utils.GetDateSafeVal(dataRow["cDate"]);
+                    DateTime dCreateDate    = ODBCWrapper.Utils.GetDateSafeVal(dataRow["CREATE_DATE"]);
+                    DateTime dLastViewDate  = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
+
+                    if (isExpired && nMaxUses != 0 && nCurrentUses >= nMaxUses)
+                    {
+                        dEnd = dLastViewDate;
+                    }
+
+                    Int32 nID               = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
+                    PaymentMethod payMet    = GetBillingTransMethod(billingTransID);
+                    string sDeviceUDID      = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
+                    PermittedCollectionContainer pcc = new PermittedCollectionContainer();
+                    pcc.Initialize(sCollectionCode, dEnd, dCurrent, dLastViewDate, dCreateDate, nID, payMet, sDeviceUDID);
+                    ret[i] = pcc;
+                    ++i;
+                }
+            }
+            return ret;
         }
         /// <summary>
         /// Get User Permitted Subscriptions
@@ -5467,28 +5531,29 @@ namespace ConditionalAccess
         }
 
         /// <summary>
-        /// Credit Card Charge User For Subscription
+        /// Credit Card Charge User For Bundle
         /// </summary>
-        public virtual TvinciBilling.BillingResponse CC_ChargeUserForSubscription(string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP, string sExtraParams,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV)
+        public virtual TvinciBilling.BillingResponse CC_ChargeUserForBundle(string sSiteGUID, double dPrice, string sCurrency, string sBundleCode, string sCouponCode, string sUserIP, string sExtraParams,
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV, eBundleType bundleType)
         {
-            return CC_BaseChargeUserForSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, sExtraParams, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bDummy, sPaymentMethodID, sEncryptedCVV);
+            return CC_BaseChargeUserForBundle(sSiteGUID, dPrice, sCurrency, sBundleCode, sCouponCode, sUserIP, sExtraParams, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bDummy, sPaymentMethodID, sEncryptedCVV, bundleType);
         }
 
-        protected TvinciBilling.BillingResponse CC_BaseChargeUserForSubscription
-           (string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP, string sExtraParams,
-           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV)
+        protected TvinciBilling.BillingResponse CC_BaseChargeUserForBundle
+           (string sSiteGUID, double dPrice, string sCurrency, string sBundleCode, string sCouponCode, string sUserIP, string sExtraParams,
+           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV, eBundleType bundleType)
         {
             TvinciBilling.BillingResponse ret = new ConditionalAccess.TvinciBilling.BillingResponse();
-            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnown;
-            ret.m_sRecieptCode = string.Empty;
-            ret.m_sStatusDescription = string.Empty;
+            ret.m_oStatus                     = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnown;
+            ret.m_sRecieptCode                = string.Empty;
+            ret.m_sStatusDescription          = string.Empty;
 
-            TvinciUsers.UsersService u = null;
-            TvinciBilling.module bm = null;
+            TvinciBilling.module bm     = null;
+            TvinciUsers.UsersService u  = null;
+            
             try
             {
-                Logger.Logger.Log("CC_BaseChargeUserForSubscription", string.Format("Entering CC_BaseChargeUserForSubscription try block. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3} , Payment Method: {4} , Dummy: {5}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP, sPaymentMethodID, bDummy.ToString().ToLower()), GetLogFilename());
+                Logger.Logger.Log("CC_BaseChargeUserForBundle", string.Format("Entering CC_BaseChargeUserForBundle try block. Site Guid: {0} , Bundle Code: {1} , Coupon Code: {2} , User IP: {3} , Payment Method: {4} , Dummy: {5}", sSiteGUID, sBundleCode, sCouponCode, sUserIP, sPaymentMethodID, bDummy.ToString().ToLower()), GetLogFilename());
                 long lSiteGuid = 0;
                 if (sSiteGUID.Length == 0 || !Int64.TryParse(sSiteGUID, out lSiteGuid) || lSiteGuid == 0)
                 {
@@ -5521,13 +5586,32 @@ namespace ConditionalAccess
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
                             ret.m_sStatusDescription = "Coupon not valid";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase subscription(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
+                            WriteToUserLog(sSiteGUID, "While trying to purchase Bundle(CC): " + sBundleCode + " error returned: " + ret.m_sStatusDescription);
                             return ret;
                         }
 
-                        PriceReason theReason = PriceReason.UnKnown;
-                        TvinciPricing.Subscription theSub = null;
-                        TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        PriceReason theReason             = PriceReason.UnKnown;
+                        TvinciPricing.Price p             = null;
+                        TvinciPricing.PPVModule theBundle = null;
+
+                        switch (bundleType)
+                        {
+                            case eBundleType.SUBSCRIPTION:
+                            {
+                                TvinciPricing.Subscription theSub = null;
+                                p           = Utils.GetSubscriptionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                theBundle   = theSub;
+                                break;
+                            }
+                            case eBundleType.COLLECTION:
+                            {
+                                TvinciPricing.Collection theCol = null;
+                                p = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
+                                theBundle = theCol;
+                                break;
+                            }
+                        }
+
                         if (bDummy && p != null)
                         {
                             dPrice = p.m_dPrice;
@@ -5538,49 +5622,32 @@ namespace ConditionalAccess
                         {
                             if (bDummy || (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
                             {
-                                string sCustomData = string.Empty;
-
-                                bool bIsRecurring = theSub.m_bIsRecurring;
-                                Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
-
                                 if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                 {
                                     sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
                                 }
-                                //Create the Custom Data
-                                sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
-                                    sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, bIsEntitledToPreviewModule ? theSub.m_oPreviewModule.m_nID + "" : string.Empty);
 
-
-                                Logger.Logger.Log("CustomData", string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
-
-                                if (p.m_dPrice != 0 || bDummy)
+                                switch (bundleType)
                                 {
-                                    sWSUserName = string.Empty;
-                                    sWSPass = string.Empty;
+                                    case eBundleType.SUBSCRIPTION:
+                                    {
+                                        sWSUserName = string.Empty;
+                                        sWSPass     = string.Empty;
 
-                                    InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
+                                        InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
 
-                                    ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
-                                        sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
-                                        bDummy, bIsEntitledToPreviewModule, ref bm);
+                                        ret = ExecuteCCSubscriprionPurchaseFlow(theBundle as TvinciPricing.Subscription, sBundleCode, sSiteGUID, dPrice, sCurrency, sCouponCode,
+                                                                    sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bIsEntitledToPreviewModule, bDummy, sExtraParams,
+                                                                    sPaymentMethodID, sEncryptedCVV, p, ref bm);
+                                        break;
+                                    }
+                                    case eBundleType.COLLECTION:
+                                    {
+                                        // TBD
+                                        break;
+                                    }
                                 }
-                                if ((p.m_dPrice == 0 && !string.IsNullOrEmpty(sCouponCode)) || bIsEntitledToPreviewModule)
-                                {
-                                    ret.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
-                                }
-                                if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
-                                {
-                                    long lBillingTransactionID = 0;
-                                    long lPurchaseID = 0;
-                                    HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency, sCouponCode,
-                                        sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sSubscriptionCode, sCustomData,
-                                        bIsRecurring, ref lBillingTransactionID, ref lPurchaseID);
-                                }
-                                else
-                                {
-                                    WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
-                                }
+                                
                             }
                             else
                             {
@@ -5618,7 +5685,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(", Site Guid: ", sSiteGUID));
                 sb.Append(String.Concat(", Price: ", dPrice));
                 sb.Append(String.Concat(", Currency: ", sCurrency));
-                sb.Append(String.Concat(", Subscription Code: ", sSubscriptionCode));
+                sb.Append(String.Concat(", Subscription Code: ", sBundleCode));
                 sb.Append(String.Concat(", Coupon Code: ", sCouponCode));
                 sb.Append(String.Concat(", User IP: ", sUserIP));
                 sb.Append(String.Concat(", Extra Params: ", sExtraParams));
@@ -5627,7 +5694,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(", Device Name: ", sDEVICE_NAME));
                 sb.Append(String.Concat(", Dummy: ", bDummy.ToString().ToLower()));
                 Logger.Logger.Log("CC_BaseChargeUserForSubscription", sb.ToString(), GetLogFilename());
-                WriteToUserLog(sSiteGUID, string.Format("While trying to purchase subscription id: {0} , Exception occurred.", sSubscriptionCode));
+                WriteToUserLog(sSiteGUID, string.Format("While trying to purchase subscription id: {0} , Exception occurred.", sBundleCode));
                 #endregion
                 long lBillingID = 0;
                 if (ret.m_oStatus != TvinciBilling.BillingResponseStatus.Success || ret.m_sRecieptCode.Length == 0 || !Int64.TryParse(ret.m_sRecieptCode, out lBillingID) || lBillingID == 0)
@@ -5655,31 +5722,96 @@ namespace ConditionalAccess
             return ret;
         }
 
+        private TvinciBilling.BillingResponse ExecuteCCSubscriprionPurchaseFlow(TvinciPricing.Subscription theSub, string sBundleCode, string sSiteGUID, double dPrice,
+                                    string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
+                                    bool bIsEntitledToPreviewModule, bool bDummy, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, TvinciPricing.Price p,
+                                    ref TvinciBilling.module bm)
+        {
+            string sCustomData                  = string.Empty;
+            TvinciBilling.BillingResponse ret   = null;
 
-        ///// <summary>
-        ///// Credit Card Charge User For Subscription
-        ///// </summary>
-        //public virtual TvinciBilling.BillingResponse ChargeUserForSubscription_2(string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP, string sExtraParams,
-        //    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, int nBillingProvider)
-        //{
+            //Create the Custom Data
+            sCustomData = GetCustomDataForSubscription(theSub, null, sBundleCode, string.Empty, sSiteGUID, dPrice, sCurrency,
+                sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, bIsEntitledToPreviewModule ? theSub.m_oPreviewModule.m_nID + "" : string.Empty);
 
-        //    TvinciBilling.BillingResponse result = null;
-        //    eBillingProvider bp = ConditionalAccess.Utils.GetBiilingProvider(nBillingProvider);
-        //    if (bp != eBillingProvider.Unknown)
-        //    {
-        //        result = BaseChargeUserForSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, sExtraParams, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bDummy, bp);              
-        //    }
-        //    else
-        //    {
-        //        result = new TvinciBilling.BillingResponse();
-        //        result.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnownBillingProvider;
-        //        result.m_sStatusDescription = "Unknown billing provider";
-        //    }
-        //    return result;
+            Logger.Logger.Log("CustomData", string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
 
-        //    return BaseChargeUserForSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, sExtraParams, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bDummy, bp);
-        //}
+            bool bIsRecurring = theSub.m_bIsRecurring;
+            Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
+            
+            string sWSUserName      = string.Empty;
+            string sWSPass          = string.Empty;
 
+            if (p.m_dPrice != 0 || bDummy)
+            {
+                ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
+                    sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
+                    bDummy, bIsEntitledToPreviewModule, ref bm);
+            }
+            if ((p.m_dPrice == 0 && !string.IsNullOrEmpty(sCouponCode)) || bIsEntitledToPreviewModule)
+            {
+                ret.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
+            }
+            if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
+            {
+                long lBillingTransactionID = 0;
+                long lPurchaseID = 0;
+                HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency, sCouponCode,
+                    sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
+                    bIsRecurring, ref lBillingTransactionID, ref lPurchaseID);
+            }
+            else
+            {
+                WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sBundleCode + " error returned: " + ret.m_sStatusDescription);
+            }
+
+            return ret;
+        }
+
+        private TvinciBilling.BillingResponse ExecuteCCCollectionPurchaseFlow(TvinciPricing.Subscription theSub, string sBundleCode, string sSiteGUID, double dPrice,
+                                    string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
+                                    bool bIsEntitledToPreviewModule, bool bDummy, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, TvinciPricing.Price p,
+                                    ref TvinciBilling.module bm)
+        {
+            string sCustomData = string.Empty;
+            TvinciBilling.BillingResponse ret = null;
+
+            //Create the Custom Data
+            //sCustomData = GetCustomDataForSubscription(theSub, null, sBundleCode, string.Empty, sSiteGUID, dPrice, sCurrency,
+            //    sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, bIsEntitledToPreviewModule ? theSub.m_oPreviewModule.m_nID + "" : string.Empty);
+
+            Logger.Logger.Log("CustomData", string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
+
+            if (p.m_dPrice != 0 || bDummy)
+            {
+                string sWSUserName  = string.Empty;
+                string sWSPass      = string.Empty;
+
+                InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
+
+                //ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
+                //    sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
+                //    bDummy, bIsEntitledToPreviewModule, ref bm);
+            }
+            if ((p.m_dPrice == 0 && !string.IsNullOrEmpty(sCouponCode)) || bIsEntitledToPreviewModule)
+            {
+                ret.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
+            }
+            if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
+            {
+                long lBillingTransactionID = 0;
+                long lPurchaseID = 0;
+                //HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency, sCouponCode,
+                //    sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
+                //    bIsRecurring, ref lBillingTransactionID, ref lPurchaseID);
+            }
+            else
+            {
+                WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sBundleCode + " error returned: " + ret.m_sStatusDescription);
+            }
+
+            return ret;
+        }
 
         /// <summary>
         /// Get Subscriptions Prices 
@@ -5712,6 +5844,34 @@ namespace ConditionalAccess
             }
             return ret;
         }
+
+        /// <summary>
+        /// Get Collections Prices 
+        /// </summary>
+        public virtual CollectionsPricesContainer[] GetCollectionsPrices(string[] sCollections, string sUserGUID, string sCouponCode,
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        {
+            CollectionsPricesContainer[] ret = null;
+            Int32 nCount = sCollections.Length;
+            if (nCount > 0)
+                ret = new CollectionsPricesContainer[nCount];
+
+            for (int i = 0; i < nCount; i++)
+            {
+                string sColCode = sCollections[i];
+                PriceReason theReason = PriceReason.UnKnown;
+                TvinciPricing.Collection collection = null;
+                TvinciPricing.Price price = null;
+
+                price = Utils.GetCollectionFinalPrice(m_nGroupID, sColCode, sUserGUID, sCouponCode, ref theReason, ref collection, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
+
+                CollectionsPricesContainer cont = new CollectionsPricesContainer();
+                cont.Initialize(sColCode, price, theReason);
+                ret[i] = cont;
+            }
+            return ret;
+        }
+
         /// <summary>
         /// 
         /// </summary>

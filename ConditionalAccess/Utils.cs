@@ -981,13 +981,8 @@ namespace ConditionalAccess
                 theReason = PriceReason.GeoCommerceBlocked;
                 return null;
             }
-
-
-
-
-
-
         }
+
         //***********************************************
         static public TvinciPricing.Price GetSubscriptionFinalPrice(Int32 nGroupID, string sSubCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Subscription theSub,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
@@ -1050,6 +1045,65 @@ namespace ConditionalAccess
                 }
             } // end using
             return p;
+        }
+
+        static public TvinciPricing.Price GetCollectionFinalPrice(Int32 nGroupID, string sColCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Collection theCol,
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
+        {
+            TvinciPricing.Price price   = null;
+            string sIP                  = "1.1.1.1";
+            string sWSUserName          = string.Empty;
+            string sWSPass              = string.Empty;
+            TvinciPricing.Collection collection = null;
+            using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
+            {
+                if (GetWSURL("pricing_ws").Length > 0)
+                    m.Url = GetWSURL("pricing_ws");
+                string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                if (CachingManager.CachingManager.Exist("GetCollectionData" + sColCode + "_" + nGroupID.ToString() + sLocaleForCache) == true)
+                    collection = (TvinciPricing.Collection)(CachingManager.CachingManager.GetCachedData("GetCollectionData" + sColCode + "_" + nGroupID.ToString() + sLocaleForCache));
+                else
+                {
+                    TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetCollectionData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                    collection = m.GetCollectionData(sWSUserName, sWSPass, sColCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                    CachingManager.CachingManager.SetCachedData("GetSubscriptionData" + sColCode + "_" + nGroupID.ToString() + sLocaleForCache, collection, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                }
+                theCol = TVinciShared.ObjectCopier.Clone<TvinciPricing.Collection>((TvinciPricing.Collection)(collection));
+                if (collection == null)
+                {
+                    theReason = PriceReason.UnKnown;
+                    return null;
+                }
+
+                if (collection.m_oCollectionPriceCode != null)
+                    price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(collection.m_oCollectionPriceCode.m_oPrise));
+                theReason = PriceReason.ForPurchase;
+
+                List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, nGroupID);
+
+                DataTable dt = DAL.ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode);
+
+                if (dt != null)
+                {
+                    Int32 nCount = dt.Rows.Count;
+                    if (nCount > 0)
+                    {
+                        price.m_dPrice = 0.0;
+                        theReason = PriceReason.CollectionPurchased;
+                    }
+                }
+                if (theReason != PriceReason.CollectionPurchased)
+                {
+                    TvinciPricing.CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<TvinciPricing.CouponsGroup>((TvinciPricing.CouponsGroup)(theCol.m_oCouponsGroup));
+                    if (theCol.m_oExtDisountModule != null)
+                    {
+                        TvinciPricing.DiscountModule externalDisount = TVinciShared.ObjectCopier.Clone<TvinciPricing.DiscountModule>((TvinciPricing.DiscountModule)(theCol.m_oExtDisountModule));
+                        price = GetPriceAfterDiscount(price, externalDisount, 1);
+                    }
+                    price = CalculateCouponDiscount(ref price, couponGroups, sCouponCode, nGroupID);
+                }
+            } // end using
+            return price;
         }
 
         static public TvinciPricing.Price GetPrePaidFinalPrice(Int32 nGroupID, string sPrePaidCode, string sSiteGUID, ref PriceReason theReason, ref TvinciPricing.PrePaidModule thePrePaid,

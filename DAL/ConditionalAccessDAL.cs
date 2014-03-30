@@ -611,6 +611,20 @@ namespace DAL
             return null;
         }
 
+        public static DataTable Get_UsersPermittedCollections(List<int> usersIds, bool isExpired)
+        {
+            ODBCWrapper.StoredProcedure spGet_UsersPermittedCollections = new ODBCWrapper.StoredProcedure("Get_UsersPermittedCollections");
+            spGet_UsersPermittedCollections.SetConnectionKey("CONNECTION_STRING");
+            spGet_UsersPermittedCollections.AddIDListParameter<int>("@UserIDs", usersIds, "Id");
+            spGet_UsersPermittedCollections.AddParameter("@isExpired", isExpired);
+
+            DataSet ds = spGet_UsersPermittedCollections.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
         public static DataTable Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
         {
             ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_MediaFileByID");
@@ -721,6 +735,20 @@ namespace DAL
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.AddParameter("@subscriptionCode", subscriptionCode);
 
             DataSet ds = spGet_SubscriptionBySubscriptionCodeAndUserIDs.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_CollectionByCollectionCodeAndUserIDs(List<int> UserIDs, string collectionCode)
+        {
+            ODBCWrapper.StoredProcedure spGet_CollectionByCollectionCodeAndUserIDs = new ODBCWrapper.StoredProcedure("Get_CollectionByCollectionCodeAndUserIDs");
+            spGet_CollectionByCollectionCodeAndUserIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_CollectionByCollectionCodeAndUserIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
+            spGet_CollectionByCollectionCodeAndUserIDs.AddParameter("@subscriptionCode", collectionCode);
+
+            DataSet ds = spGet_CollectionByCollectionCodeAndUserIDs.ExecuteDataSet();
 
             if (ds != null)
                 return ds.Tables[0];

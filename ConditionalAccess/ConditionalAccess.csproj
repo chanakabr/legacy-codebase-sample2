@@ -85,6 +85,7 @@
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PermittedCollectionContainer.cs" />
     <Compile Include="UserBillingTransactionResponse.cs" />
     <Compile Include="Eutelsat3SSObjects.cs" />
     <Compile Include="EutelsatConditionalAccess.cs" />
@@ -239,6 +240,9 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <None Include="Web References\TvinciPricing\Collection.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciPricing\PreviewModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -291,10 +295,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciBilling_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_pricing/module.asmx">
+    <WebReferenceUrl Include="http://localhost/TVMPricing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPricing\</RelPath>
-      <UpdateFromURL>http://localhost/WS_pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/TVMPricing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

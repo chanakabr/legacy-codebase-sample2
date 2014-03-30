@@ -195,13 +195,28 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_ChannelsBySubscription(int nGroupID, int nSubscriptionID)
         {
-            ODBCWrapper.StoredProcedure spUserSocial = new ODBCWrapper.StoredProcedure("Get_ChannelsBySubscription");            
-            spUserSocial.SetConnectionKey("MAIN_US_CONNECTION_STRING");
+            ODBCWrapper.StoredProcedure spCatalog = new ODBCWrapper.StoredProcedure("Get_ChannelsBySubscription");
+            spCatalog.SetConnectionKey("MAIN_US_CONNECTION_STRING");
 
-            spUserSocial.AddParameter("@GroupID", nGroupID);
-            spUserSocial.AddParameter("@SubscriptionID", nSubscriptionID);
+            spCatalog.AddParameter("@GroupID", nGroupID);
+            spCatalog.AddParameter("@SubscriptionID", nSubscriptionID);
 
-            DataSet ds = spUserSocial.ExecuteDataSet();
+            DataSet ds = spCatalog.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_ChannelsByCollection(int nGroupID, int nCollectionID)
+        {
+            ODBCWrapper.StoredProcedure spCatalog = new ODBCWrapper.StoredProcedure("Get_ChannelsByCollection");
+            spCatalog.SetConnectionKey("MAIN_US_CONNECTION_STRING");
+
+            spCatalog.AddParameter("@GroupID", nGroupID);
+            spCatalog.AddParameter("@CollectionID", nCollectionID);
+
+            DataSet ds = spCatalog.ExecuteDataSet();
 
             if (ds != null)
                 return ds.Tables[0];
