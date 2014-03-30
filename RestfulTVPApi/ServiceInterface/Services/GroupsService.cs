@@ -25,12 +25,12 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetGroupOperatorsRequest request)
         {
-            return _repository.GetGroupOperators(request.InitObj, request.scope);
+            return _repository.GetGroupOperators(request);
         }
 
         public object Get(GetGroupRulesRequest request)
         {
-            return _repository.GetGroupRules(request.InitObj);
+            return _repository.GetGroupRules(request);
         }
 
         #endregion

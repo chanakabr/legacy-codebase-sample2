@@ -11,236 +11,94 @@ using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Manager;
 using TVPApiModule.Context;
 using TVPApiModule.Helper;
+using RestfulTVPApi.ServiceModel;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public class UsersRepository : IUsersRepository
     {
-        public List<UserResponseObject> GetUsersData(InitializationObject initObj, string siteGuids)
+        public List<UserResponseObject> GetUsersData(GetUsersDataRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).GetUsersData(siteGuids);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).GetUsersData(request.site_guids);
         }
 
-        public UserResponseObject SetUserData(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData)
+        public UserResponseObject SetUserData(SetUserDataRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).SetUserData(siteGuid, userBasicData, userDynamicData);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).SetUserData(request.site_guid, request.user_basic_data, request.user_dynamic_data);
         }
 
-        public List<PermittedSubscriptionContainer> GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid)
+        public List<PermittedSubscriptionContainer> GetUserPermitedSubscriptions(GetUserPermitedSubscriptionsRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermitedSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserPermitedSubscriptions(siteGuid);             
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUserPermitedSubscriptions(request.site_guid);       
         }
 
-        public List<PermittedSubscriptionContainer> GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int totalItems)
+        public List<PermittedSubscriptionContainer> GetUserExpiredSubscriptions(GetUserExpiredSubscriptionsRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserExpiredSubscriptions(siteGuid, totalItems);                
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUserExpiredSubscriptions(request.site_guid, request.page_size);
         }
 
-        public List<PermittedMediaContainer> GetUserPermittedItems(InitializationObject initObj, string siteGuid)
+        public List<PermittedMediaContainer> GetUserPermittedItems(GetUserPermittedItemsRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermittedItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserPermittedItems(siteGuid);              
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUserPermittedItems(request.site_guid);   
         }
 
-        public List<PermittedMediaContainer> GetUserExpiredItems(InitializationObject initObj, string siteGuid, int totalItems)
+        public List<PermittedMediaContainer> GetUserExpiredItems(GetUserExpiredItemsRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserExpiredItems(siteGuid, totalItems);               
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUserExpiredItems(request.site_guid, request.page_size);               
         }
 
-        public UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
+        public UserResponseObject SignUp(SignUpRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignUp", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).SignUp(userBasicData, userDynamicData, sPassword, sAffiliateCode);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).SignUp(request.user_basic_data, request.user_dynamic_data, request.password, request.affiliate_code);
         }
 
         //Ofir - Should DomainID passed as param?
-        public List<FavoriteObject> GetUserFavorites(InitializationObject initObj, string siteGuid)
+        public List<FavoriteObject> GetUserFavorites(GetUserFavoritesRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserFavorites", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).GetUserFavorites(request.site_guid, string.Empty, request.InitObj.DomainID, string.Empty);            
         }
 
-        public List<GroupRule> GetUserGroupRules(InitializationObject initObj, string siteGuid)
+        public List<GroupRule> GetUserGroupRules(GetUserGroupRulesRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetUserGroupRules(siteGuid);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).GetUserGroupRules(request.site_guid);
         }
 
-        public bool SetUserGroupRule(InitializationObject initObj, string siteGuid, int ruleID, string PIN, int isActive)
+        public bool SetUserGroupRule(SetUserGroupRuleRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserGroupRule", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ApiApiService(groupID, initObj.Platform).SetUserGroupRule(siteGuid, ruleID, PIN, isActive);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).SetUserGroupRule(request.site_guid, request.rule_id, request.pin, request.is_active);            
         }
 
-        public bool CheckGroupRule(InitializationObject initObj, string siteGuid, int ruleID, string PIN)
+        public bool CheckGroupRule(CheckGroupRuleRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "CheckGroupRule", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ApiApiService(groupID, initObj.Platform).CheckParentalPIN(siteGuid, ruleID, PIN);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).CheckParentalPIN(request.site_guid, request.rule_id, request.pin);            
         }
 
-        public UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass)
+        public UserResponseObject ChangeUserPassword(ChangeUserPasswordRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ChangeUserPassword", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).ChangeUserPassword(sUN, sOldPass, sPass);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).ChangeUserPassword(request.user_name, request.old_password, request.new_password);            
         }
 
-        public UserResponseObject RenewUserPassword(InitializationObject initObj, string sUN, string sPass)
+        public UserResponseObject RenewUserPassword(RenewUserPasswordRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RenewUserPassword", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).RenewUserPassword(sUN, sPass);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).RenewUserPassword(request.user_name, request.password);            
         }
 
-        public UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken)
+        public UserResponseObject ActivateAccount(ActivateAccountRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActivateAccount", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).ActivateAccount(sUserName, sToken);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).ActivateAccount(request.user_name, request.token);            
         }
 
-        public bool ResendActivationMail(InitializationObject initObj, string sUserName, string sNewPassword)
+        public bool ResendActivationMail(ResendActivationMailRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ResendActivationMail", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).ResendActivationMail(sUserName, sNewPassword);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).ResendActivationMail(request.user_name, request.password);            
         }
 
-        public eResponseStatus RenewUserPIN(InitializationObject initObj, string siteGuid, int ruleID)
+        public eResponseStatus RenewUserPIN(RenewUserPINRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RenewUserPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).RenewUserPIN(siteGuid, ruleID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).RenewUserPIN(request.site_guid, request.rule_id);            
         }
 
+        // TODO: Create a SetUserTypeByUserIDRequest object, modify the function/interface/UserService
         public eResponseStatus SetUserTypeByUserID(InitializationObject initObj, string siteGuid, int nUserTypeID)
         {
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserTypeByUserID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -255,631 +113,256 @@ namespace RestfulTVPApi.ServiceInterface
             }
         }
 
-        public UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token)
+        public UserResponseObject ActivateAccountByDomainMaster(ActivateAccountByDomainMasterRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ActivateAccountByDomainMaster", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.UsersService(groupId, initObj.Platform).ActivateAccountByDomainMaster(masterUserName, userName, token);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).ActivateAccountByDomainMaster(request.master_user_name, request.user_name, request.token);            
         }
 
-        public bool AddItemToList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public bool AddItemToList(AddItemToListRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "AddItemToList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.UsersService(groupId, initObj.Platform).AddItemToList(siteGuid, itemObjects, itemType, listType);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).AddItemToList(request.site_guid, request.item_objects, request.item_type, request.list_type);            
         }
 
-        public List<UserItemList> GetItemFromList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public List<UserItemList> GetItemFromList(GetItemFromListRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemFromList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.UsersService(groupId, initObj.Platform).GetItemFromList(siteGuid, itemObjects, itemType, listType);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            };
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).GetItemFromList(request.site_guid, request.item_objects, request.item_type, request.list_type);            
         }
 
-        public List<KeyValuePair> IsItemExistsInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public List<KeyValuePair> IsItemExistsInList(IsItemExistsInListRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsItemExistsInList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.UsersService(groupId, initObj.Platform).IsItemExistsInList(siteGuid, itemObjects, itemType, listType);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).IsItemExistsInList(request.site_guid, request.item_objects, request.item_type, request.list_type);            
         }
 
-        public bool RemoveItemFromList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public bool RemoveItemFromList(RemoveItemFromListRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "RemoveItemFromList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.UsersService(groupId, initObj.Platform).RemoveItemFromList(siteGuid, itemObjects, itemType, listType);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).RemoveItemFromList(request.site_guid, request.item_objects, request.item_type, request.list_type);            
         }
 
-        public bool UpdateItemInList(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType)
+        public bool UpdateItemInList(UpdateItemInListRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "UpdateItemInList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.UsersService(groupId, initObj.Platform).UpdateItemInList(siteGuid, itemObjects, itemType, listType);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).UpdateItemInList(request.site_guid, request.item_objects, request.item_type, request.list_type);            
         }
 
-        public List<string> GetPrepaidBalance(InitializationObject initObj, string siteGuid, string currencyCode)
+        public List<string> GetPrepaidBalance(GetPrepaidBalanceRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetPrepaidBalance", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetPrepaidBalance(siteGuid, currencyCode);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetPrepaidBalance(request.site_guid, request.currency_code);            
         }
 
-        public List<Media> GetLastWatchedMediasByPeriod(InitializationObject initObj, string siteGuid, string picSize, int periodBefore, MediaHelper.ePeriod byPeriod)
+        public List<Media> GetLastWatchedMediasByPeriod(GetLastWatchedMediasByPeriodRequest request)
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastWatchedMediasByPeriod", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                List<Media> lstAllMedias = new TVPApiModule.CatalogLoaders.APIPersonalLastWatchedLoader(siteGuid, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 100, 0, picSize).Execute() as List<Media>;
+            List<Media> lstAllMedias = new TVPApiModule.CatalogLoaders.APIPersonalLastWatchedLoader(request.site_guid, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, 100, 0, request.pic_size).Execute() as List<Media>;
 
                 if (lstAllMedias != null)
                 {
                     lstMedia = (from media in lstAllMedias
                                 where
-                                    (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.last_watch_date).TotalDays >= 0 &&
-                                    (DateTime.Now.AddDays((double)byPeriod * periodBefore * -1) - (DateTime)media.last_watch_date).TotalDays <= (periodBefore + 1) * (int)byPeriod
+                                    (DateTime.Now.AddDays((double)request.by_period * request.period_before * -1) - (DateTime)media.last_watch_date).TotalDays >= 0 &&
+                                    (DateTime.Now.AddDays((double)request.by_period * request.period_before * -1) - (DateTime)media.last_watch_date).TotalDays <= (request.period_before + 1) * (int)request.by_period
                                 select media).ToList<Media>();
                 }
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            
             return lstMedia;
         }
 
-        public List<Media> GetUserSocialMedias(InitializationObject initObj, string siteGuid, int socialPlatform, int socialAction, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetUserSocialMedias(GetUserSocialMediasRequest request)
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                lstMedia = new APIUserSocialMediaLoader(siteGuid, socialAction, socialPlatform, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+            lstMedia = new APIUserSocialMediaLoader(request.site_guid, request.social_action, request.social_platform, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size)
                 {
                     //UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
                 }.Execute() as List<Media>;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            
             return lstMedia;
         }
 
-        public BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, string siteGuid, int start_index, int pageSize)
+        public BillingTransactionsResponse GetUserTransactionHistory(GetUserTransactionHistoryRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserTransactionHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUserTransactionHistory(siteGuid, start_index, pageSize);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUserTransactionHistory(request.site_guid, request.page_number, request.page_size);
         }
 
-        public BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, string siteGuid, double price, string currency, string productCode, string ppvModuleCode)
+        public BillingResponse CC_ChargeUserForPrePaid(CC_ChargeUserForPrePaidRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "CC_ChargeUserForPrePaid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).CC_ChargeUserForPrePaid(siteGuid, price, currency, productCode, ppvModuleCode, initObj.UDID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CC_ChargeUserForPrePaid(request.site_guid, request.price, request.currency, request.product_code, request.ppv_module_code, request.InitObj.UDID);
         }
 
-        public List<UserBillingTransactionsResponse> GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate)
+        public List<UserBillingTransactionsResponse> GetUsersBillingHistory(GetUsersBillingHistoryRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUsersBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetUsersBillingHistory(siteGuids, startDate, endDate);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUsersBillingHistory(request.site_guids, request.start_date, request.end_date);            
         }
 
-        public List<Media> GetUserItems(InitializationObject initObj, string siteGuid, UserItemType itemType, string picSize, int pageSize, int start_index)
+        public List<Media> GetUserItems(GetUserItemsRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserItems", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return MediaHelper.GetUserItems(initObj.Platform, siteGuid, initObj.DomainID, initObj.UDID, initObj.Locale.LocaleLanguage, itemType, picSize, pageSize, start_index, groupID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return MediaHelper.GetUserItems(request.InitObj.Platform, request.site_guid, request.InitObj.DomainID, request.InitObj.UDID, request.InitObj.Locale.LocaleLanguage, request.item_type, request.pic_size, request.page_size, request.page_number, request.GroupID);            
         }
 
-        public AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, string siteGuid, int billingMethod)
+        public AdyenBillingDetail GetLastBillingUserInfo(GetLastBillingUserInfoRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastBillingUserInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.BillingService(groupID, initObj.Platform).GetLastBillingUserInfo(siteGuid, billingMethod);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.BillingService(request.GroupID, request.InitObj.Platform).GetLastBillingUserInfo(request.site_guid, request.billing_method);            
         }
 
-        public string GetClientMerchantSig(InitializationObject initObj, string sParamaters)
+        public string GetClientMerchantSig(GetClientMerchantSigRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetClientMerchantSig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.BillingService(groupID, initObj.Platform).GetClientMerchantSig(sParamaters);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.BillingService(request.GroupID, request.InitObj.Platform).GetClientMerchantSig(request.paramaters);            
         }
 
-        public List<KeyValuePair<int, bool>> AreMediasFavorite(InitializationObject initObj, string siteGuid, List<int> mediaIds)
+        public List<KeyValuePair<int, bool>> AreMediasFavorite(AreMediasFavoriteRequest request)
         {
             List<KeyValuePair<int, bool>> result = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AreMediasFavorite", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                List<FavoriteObject> favoriteObjects = ServicesManager.UsersService(groupID, initObj.Platform).GetUserFavorites(siteGuid, string.Empty, initObj.DomainID, string.Empty);
+            List<FavoriteObject> favoriteObjects = ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).GetUserFavorites(request.site_guid, string.Empty, request.InitObj.DomainID, string.Empty);
 
                 if (favoriteObjects != null)
-                    result = mediaIds.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.item_code == y.ToString()).Count() > 0)).ToList();
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+                    result = request.media_ids.Select(y => new KeyValuePair<int, bool>(y, favoriteObjects.Where(x => x.item_code == y.ToString()).Count() > 0)).ToList();
+            
             return result;
         }
 
-        public List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string siteGuid, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
+        public List<Media> GetRecommendedMediasByTypes(GetRecommendedMediasByTypesRequest request)
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendedMediasByTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                lstMedia = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(siteGuid, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+            lstMedia = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(request.site_guid, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size)
                 {
                     //UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
                 }.Execute() as List<Media>;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            
             return lstMedia;
         }
 
-        public bool CancelSubscription(InitializationObject initObj, string siteGuid, string sSubscriptionID, int sSubscriptionPurchaseID)
+        public bool CancelSubscription(CancelSubscriptionRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "CancelSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).CancelSubscription(siteGuid, sSubscriptionID, sSubscriptionPurchaseID); 
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelSubscription(request.site_guid, request.subscription_id, request.subscription_purchase_id);             
         }
 
-        public List<Notification> GetDeviceNotifications(InitializationObject initObj, string siteGuid, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount)
+        public List<Notification> GetDeviceNotifications(GetDeviceNotificationsRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceNotifications", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int? message_count = request.page_size > 0 ? new Nullable<int>(request.page_size) : null;
 
-            if (groupId > 0)
-            {
-                return ServicesManager.NotificationService(groupId, initObj.Platform).GetDeviceNotifications(siteGuid, initObj.UDID, notificationType == NotificationMessageType.All ? NotificationMessageType.Pull : notificationType, viewStatus, messageCount);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.NotificationService(request.GroupID, request.InitObj.Platform).GetDeviceNotifications(request.site_guid, request.InitObj.UDID, request.notification_type == NotificationMessageType.All ? NotificationMessageType.Pull : request.notification_type, request.view_status, message_count);            
         }
 
-        public bool SetNotificationMessageViewStatus(InitializationObject initObj, string siteGuid, Nullable<long> notificationRequestID, Nullable<long> notificationMessageID, NotificationMessageViewStatus viewStatus)
+        public bool SetNotificationMessageViewStatus(SetNotificationMessageViewStatusRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetNotificationMessageViewStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.NotificationService(groupId, initObj.Platform).SetNotificationMessageViewStatus(siteGuid, notificationRequestID, notificationMessageID, viewStatus);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.NotificationService(request.GroupID, request.InitObj.Platform).SetNotificationMessageViewStatus(request.site_guid, request.notification_request_id, request.notification_message_id, request.view_status);            
         }
 
-        public List<TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj, string siteGuid)
+        public List<TagMetaPairArray> GetUserStatusSubscriptions(GetUserStatusSubscriptionsRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserStatusSubscriptions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.NotificationService(groupId, initObj.Platform).GetUserStatusSubscriptions(siteGuid);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.NotificationService(request.GroupID, request.InitObj.Platform).GetUserStatusSubscriptions(request.site_guid);            
         }
 
-        public bool CleanUserHistory(InitializationObject initObj, string siteGuid, int[] mediaIDs)
+        public bool CleanUserHistory(ClearUserHistoryRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "CleanUserHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ApiApiService(groupID, initObj.Platform).CleanUserHistory(siteGuid, mediaIDs);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).CleanUserHistory(request.site_guid, request.media_ids);            
         }
 
-        public List<string> GetUserStartedWatchingMedias(InitializationObject initObj, string siteGuid, int numOfItems)
+        public List<string> GetUserStartedWatchingMedias(GetUserStartedWatchingMediasRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserStartedWatchingMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetUserStartedWatchingMedias(siteGuid, numOfItems);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).GetUserStartedWatchingMedias(request.site_guid, request.page_size);            
         }
 
-        public bool SendNewPassword(InitializationObject initObj, string sUserName)
+        public bool SendNewPassword(SendNewPasswordRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SendNewPassword", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).SentNewPasswordToUser(sUserName);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).SentNewPasswordToUser(request.user_name);
         }
 
-        public bool IsUserSignedIn(InitializationObject initObj, string siteGuid)
+        public bool IsUserSignedIn(IsUserSignedInRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsUserSignedIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            bool isSingleLogin = Utils.GetIsSingleLoginValue(request.GroupID, request.InitObj.Platform);
 
-            if (groupID > 0)
-            {
-                bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-
-                return ServicesManager.UsersService(groupID, initObj.Platform).IsUserLoggedIn(siteGuid, initObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).IsUserLoggedIn(request.site_guid, request.InitObj.UDID, string.Empty, SiteHelper.GetClientIP(), isSingleLogin);            
         }
 
-        public bool SetUserDynamicData(InitializationObject initObj, string siteGuid, string sKey, string sValue)
+        public bool SetUserDynamicData(SetUserDynamicDataRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetUserDynamicData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).SetUserDynamicData(siteGuid, sKey, sValue);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).SetUserDynamicData(request.site_guid, request.key, request.value);            
         }
 
-        public ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password)
+        public ApiUsersService.LogInResponseData SignIn(SignInRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            IImplementation impl = WSUtils.GetImplementation(request.GroupID, request.InitObj);
 
-            if (groupID > 0)
-            {
-                IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                
-                return impl.SignIn(userName, password);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return impl.SignIn(request.user_name, request.password);
         }
 
-        public void SignOut(InitializationObject initObj, string siteGuid)
+        public void SignOut(SignOutRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            bool isSingleLogin = Utils.GetIsSingleLoginValue(request.GroupID, request.InitObj.Platform);
 
-            if (groupID > 0)
-            {
-                bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                
-                ServicesManager.UsersService(groupID, initObj.Platform).SignOut(siteGuid, initObj.UDID, string.Empty, isSingleLogin);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).SignOut(request.user_name, request.InitObj.UDID, string.Empty, isSingleLogin);            
         }
 
-        public List<FriendWatchedObject> GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult)
+        public List<FriendWatchedObject> GetAllFriendsWatched(GetAllFriendsWatchedRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAllFriendsWatched", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetAllFriendsWatched(siteGuid, maxResult);                
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetAllFriendsWatched(request.site_guid, request.page_size);                            
         }
 
-        public SocialActionResponseStatus DoUserAction(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID)
+        public SocialActionResponseStatus DoUserAction(DoUserActionRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "DoUserAction", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-           
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).DoUserAction(siteGuid, initObj.UDID, userAction, extraParams, socialPlatform, assetType, assetID);                
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).DoUserAction(request.site_guid, request.InitObj.UDID, request.user_action, request.extra_params, request.social_platform, request.asset_type, request.asset_id);
         }
 
-        public List<UserSocialActionObject> GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public List<UserSocialActionObject> GetFriendsActions(GetFriendsActionsRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFriendsActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetFriendsActions(siteGuid, userActions, assetType, assetID, startIndex, numOfRecords, socialPlatform);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetFriendsActions(request.site_guid, request.user_actions, request.asset_type, request.asset_id, request.page_number, request.page_size, request.social_platform);            
         }
 
-        public List<UserSocialActionObject> GetUserActions(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public List<UserSocialActionObject> GetUserActions(GetUserActionsRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserActions(siteGuid, userAction, assetType, assetID, startIndex, numOfRecords, socialPlatform);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserActions(request.site_guid, request.user_action, request.asset_type, request.asset_id, request.page_number, request.page_size, request.social_platform);            
         }
 
-        public List<eSocialPrivacy> GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid)
+        public List<eSocialPrivacy> GetUserAllowedSocialPrivacyList(GetUserAllowedSocialPrivacyListRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserAllowedSocialPrivacyList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserAllowedSocialPrivacyList(siteGuid);                
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserAllowedSocialPrivacyList(request.site_guid);                            
         }
 
-        public eSocialActionPrivacy GetUserExternalActionShare(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public eSocialActionPrivacy GetUserExternalActionShare(GetUserExternalActionShareRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExternalActionShare", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserExternalActionShare(siteGuid, userAction, socialPlatform);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserExternalActionShare(request.site_guid, request.user_action, request.social_platform);            
         }
 
-        public List<string> GetUserFriends(InitializationObject initObj, string siteGuid)
+        public List<string> GetUserFriends(GetUserFriendsRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserFriends", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserFriends(siteGuid);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserFriends(request.site_guid);            
         }
 
-        public eSocialActionPrivacy GetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)
+        public eSocialActionPrivacy GetUserInternalActionPrivacy(GetUserInternalActionPrivacyRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserInternalActionPrivacy(siteGuid, userAction, socialPlatform);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserInternalActionPrivacy(request.site_guid, request.user_action, request.social_platform);            
         }
 
-        public eSocialPrivacy GetUserSocialPrivacy(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction)
+        public eSocialPrivacy GetUserSocialPrivacy(GetUserSocialPrivacyRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetUserSocialPrivacy(siteGuid, socialPlatform, userAction);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUserSocialPrivacy(request.site_guid, request.social_platform, request.user_action);            
         }
 
-        public bool SetUserExternalActionShare(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eSocialActionPrivacy actionPrivacy)
+        public bool SetUserExternalActionShare(SetUserExternalActionShareRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserExternalActionShare", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).SetUserExternalActionShare(siteGuid, userAction, socialPlatform, actionPrivacy);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).SetUserExternalActionShare(request.site_guid, request.user_action, request.social_platform, request.social_action_privacy);            
         }
 
-        public bool SetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eSocialActionPrivacy actionPrivacy)
+        public bool SetUserInternalActionPrivacy(SetUserInternalActionPrivacyRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).SetUserInternalActionPrivacy(siteGuid, userAction, socialPlatform, actionPrivacy);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).SetUserInternalActionPrivacy(request.site_guid, request.user_action, request.social_platform, request.social_action_privacy);            
         }
 
-        public int AD_GetCustomDataID(InitializationObject initObj, string siteGuid, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string countryCd2, string languageCode3, string deviceName, int assetType)
+        public int AD_GetCustomDataID(AD_GetCustomDataIDRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "AD_GetCustomDataID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).AD_GetCustomDataID(siteGuid, price, currencyCode3, assetId, ppvModuleCode, campaignCode, couponCode, paymentMethod, SiteHelper.GetClientIP(), countryCd2, languageCode3, deviceName, assetType);}
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).AD_GetCustomDataID(request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, SiteHelper.GetClientIP(), request.country_code, request.language_code, request.device_name, request.asset_type);
         }
 
-        public int GetCustomDataID(InitializationObject initObj, string siteGuid, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string countryCd2, string languageCode3, string deviceName, int assetType, string overrideEndDate)
+        public int GetCustomDataID(GetCustomDataIDRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCustomDataID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetCustomDataID(siteGuid, price, currencyCode3, assetId, ppvModuleCode, campaignCode, couponCode, paymentMethod, SiteHelper.GetClientIP(), countryCd2, languageCode3, deviceName, assetType, overrideEndDate);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetCustomDataID(request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, SiteHelper.GetClientIP(), request.country_code, request.language_code, request.device_name, request.asset_type, request.override_end_date);            
         }
 
-        public BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode, string receipt)
+        public BillingResponse InApp_ChargeUserForMediaFile(InApp_ChargeUserForMediaFileRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "InApp_ChargeUserForMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).InApp_ChargeUserForMediaFile(sSiteGUID, price, currency, productCode, ppvModuleCode, initObj.UDID, receipt);                
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).InApp_ChargeUserForMediaFile(request.site_guid, request.price, request.currency, request.product_code, request.ppv_module_code, request.InitObj.UDID, request.receipt);                            
         }
     }
 }

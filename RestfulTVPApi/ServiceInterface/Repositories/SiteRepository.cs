@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestfulTVPApi.ServiceModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -16,114 +17,60 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class SiteRepository : ISiteRepository
     {
-        public Menu GetFooter(InitializationObject initObj, long ID)
+        public Menu GetFooter(GetFooterRequest request)
         {
             Menu retMenu = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetFooter", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                retMenu = MenuHelper.GetFooterByID(initObj.Platform, initObj.Locale, ID, groupID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            retMenu = MenuHelper.GetFooterByID(request.InitObj.Platform, request.InitObj.Locale, request.footer_id, request.GroupID);
+            
             return retMenu;
         }
 
-        public PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID)
+        public PageGallery GetGallery(GetGalleryRequest request)
         {
             PageGallery retPageGallery = null;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPageGalleries", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                //Ofir - tell irena to change this
-                //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
-                //retPageGallery = PageGalleryHelper.GetGalleryByID(initObj.Platform, initObj.Locale, galleryID, PageID, groupID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            
+            //Ofir - tell irena to change this
+            //ODBCWrapper.Connection.GetDefaultConnectionStringMethod = ConnectionHelper.GetClientConnectionString;
+            //retPageGallery = PageGalleryHelper.GetGalleryByID(request.InitObj.Platform, request.InitObj.Locale, request.gallery_id, request.page_id, request.GroupID);            
 
             return retPageGallery;
         }
 
-        public List<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index)
+        public List<GalleryItem> GetGalleryContent(GetGalleryContentRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return PageGalleryHelper.GetGalleryContent(initObj.Platform, initObj.Locale, ID, PageID, picSize, groupID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return PageGalleryHelper.GetGalleryContent(request.InitObj.Platform, request.InitObj.Locale, request.gallery_id, request.page_id, request.pic_size, request.GroupID);
         }
 
-        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> GetGalleryItemContent(GetGalleryItemContentRequest request)
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGalleryContent", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                //Ofir = What??????
+            //Ofir = What??????
                 //XXX: Patch for ximon
-                if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)
-                    pageIndex = pageIndex / pageSize;
+                if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && request.GroupID == 109 && request.InitObj.Platform == PlatformType.iPad)
+                    request.page_number = request.page_number / request.page_size;
 
-                lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj.Platform, initObj.UDID, initObj.Locale, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, null);//orderBy);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+                lstMedia = PageGalleryHelper.GetGalleryItemContent(request.InitObj.Platform, request.InitObj.UDID, request.InitObj.Locale, request.page_id, request.gallery_id, request.item_id, request.pic_size, request.GroupID, request.page_size, request.page_number, null);//request.orderBy);
+            
             return lstMedia;
         }
 
-        public Menu GetMenu(InitializationObject initObj, long ID)
+        public Menu GetMenu(GetMenuRequest request)
         {
             Menu retMenu = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMenu", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                //retMenu = MenuHelper.GetMenuByID(initObj, ID, groupID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            //retMenu = MenuHelper.GetMenuByID(request.InitObj, request.menu_id, request.GroupID);            
 
             return retMenu;
         }
 
-        public PageContext GetPage(InitializationObject initObj, long ID, bool withMenu, bool withFooter)
+        public PageContext GetPage(GetPageRequest request)
         {
             PageContext retPageContext = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                retPageContext = PageDataHelper.GetPageContextByID(initObj.Platform, groupID, initObj.Locale, ID, withMenu, withFooter);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            retPageContext = PageDataHelper.GetPageContextByID(request.InitObj.Platform, request.GroupID, request.InitObj.Locale, request.page_id, request.with_menu, request.with_footer);
+            
             return retPageContext;
         }
     }

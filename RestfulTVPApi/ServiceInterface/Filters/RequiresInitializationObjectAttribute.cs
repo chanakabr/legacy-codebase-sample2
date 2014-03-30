@@ -16,6 +16,8 @@ using TVPApi;
 using RestfulTVPApi.ServiceInterface;
 using RestfulTVPApi.ServiceModel;
 using TVPApiModule.Objects;
+using TVPApiModule.Helper;
+using TVPPro.SiteManager.Helper;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -48,12 +50,24 @@ namespace RestfulTVPApi.ServiceInterface
                     ms.Position = 0;
 
                     BaseRequest.InitObj = (InitializationObject)new BinaryFormatter().Deserialize(ms);
+
+                    BaseRequest.GroupID = ConnectionHelper.GetGroupID("tvpapi", reqDto.GetType().Name, BaseRequest.InitObj.ApiUser, BaseRequest.InitObj.ApiPass, SiteHelper.GetClientIP());
+                }
+
+                if (BaseRequest.GroupID <= 0)
+                {
+                    throw new UnknownGroupException();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                if (ex is UnknownGroupException)
+                {
+                    throw ex;
+                }
+
                 throw new HttpError(HttpStatusCode.BadRequest, "Invalid Token");
-            }
+            }          
         }
     }
 }

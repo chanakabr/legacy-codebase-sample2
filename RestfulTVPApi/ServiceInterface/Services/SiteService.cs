@@ -25,32 +25,32 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetFooterRequest request)
         {
-            return _repository.GetFooter(request.InitObj, request.footer_id);
+            return _repository.GetFooter(request);
         }
 
         public object Get(GetGalleryRequest request)
         {
-            return _repository.GetGallery(request.InitObj, request.gallery_id, request.page_id);
+            return _repository.GetGallery(request);
         }
 
         public object Get(GetGalleryContentRequest request)
         {
-            return _repository.GetGalleryContent(request.InitObj, request.gallery_id, request.page_id, request.pic_size, request.page_size, request.page_number);
+            return _repository.GetGalleryContent(request);
         }
 
         public object Get(GetGalleryItemContentRequest request)
         {
-            return _repository.GetGalleryItemContent(request.InitObj, request.item_id, request.gallery_id, request.page_id, request.pic_size, request.page_size, request.page_number, request.order_by);
+            return _repository.GetGalleryItemContent(request);
         }
 
         public object Get(GetMenuRequest request)
         {
-            return _repository.GetMenu(request.InitObj, request.menu_id);
+            return _repository.GetMenu(request);
         }
 
         public object Get(GetPageRequest request)
         {
-            return _repository.GetPage(request.InitObj, request.page_id, request.with_menu, request.with_footer);
+            return _repository.GetPage(request);
         }
 
         #endregion

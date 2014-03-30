@@ -24,22 +24,22 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetChannelMultiFilterRequest request)
         {
-            return _repository.GetChannelMultiFilter(request.InitObj, request.channel_id, request.pic_size, request.page_size, request.page_number, request.order_by, request.order_dir, request.tags_metas, request.cut_with);
+            return _repository.GetChannelMultiFilter(request);
         }
 
         public object Get(GetChannelsListRequest request)
         {
-            return _repository.GetChannelsList(request.InitObj, request.pic_size);
+            return _repository.GetChannelsList(request);
         }
 
         public object Get(GetCategoryRequest request)
         {
-            return _repository.GetCategory(request.InitObj, request.category_id);
+            return _repository.GetCategory(request);
         }
 
         public object Get(GetFullCategoryRequest request)
         {
-            return _repository.GetFullCategory(request.InitObj, request.category_id, request.pic_size);
+            return _repository.GetFullCategory(request);
         }
 
         #endregion

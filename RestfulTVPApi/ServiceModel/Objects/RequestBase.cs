@@ -13,6 +13,8 @@ namespace RestfulTVPApi.ServiceModel
 
         [ApiMember(Name = "X-Init-Object", Description = "Initialization Object", ParameterType = "header", DataType = SwaggerType.String, IsRequired = true)]
         public InitializationObject InitObj { get; set; }
+        
+        public int GroupID { get; set; }
     }
 
     public abstract class PagingRequest : RequestBase

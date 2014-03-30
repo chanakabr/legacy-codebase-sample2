@@ -7,17 +7,18 @@ using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Context;
+using RestfulTVPApi.ServiceModel;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public interface IChannelsRepository
     {
-        List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApiModule.Context.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith);
+        List<Media> GetChannelMultiFilter(GetChannelMultiFilterRequest request);
 
-        List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize);
+        List<Channel> GetChannelsList(GetChannelsListRequest request);
 
-        Category GetCategory(InitializationObject initObj, int categoryID);
+        Category GetCategory(GetCategoryRequest request);
 
-        Category GetFullCategory(InitializationObject initObj, int categoryID, string picSize);
+        Category GetFullCategory(GetFullCategoryRequest request);
     }
 }
