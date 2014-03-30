@@ -14,8 +14,8 @@ namespace BuzzFeeder.Implementation.Series
     public abstract class BaseSeriesBuzzImpl : BaseBuzzImpl
     {
 
-        public BaseSeriesBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, List<string> lActions, List<string> lAssetTypes)
-            : base(nGroupID, dtPeriod, tsInterval, lActions, lAssetTypes)
+        public BaseSeriesBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, int Weight, List<string> lActions, List<string> lAssetTypes, List<int> lFormulaWeights)
+            : base(nGroupID, dtPeriod, tsInterval, Weight, lActions, lAssetTypes, lFormulaWeights)
         {
         }
 
@@ -61,7 +61,7 @@ namespace BuzzFeeder.Implementation.Series
 
             try
             {
-                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.DEFAULT);
+                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.STATISTICS);
                 bool bRes = client.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, GetGroupKey(), dItemsStats);
             }
             catch (Exception ex)

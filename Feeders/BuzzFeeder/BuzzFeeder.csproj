@@ -59,7 +59,7 @@
     <Compile Include="BuzzCalculator\ItemsStats.cs" />
     <Compile Include="BuzzWrapper.cs" />
     <Compile Include="Implementation\Channels\BaseChannelBuzzImpl.cs" />
-    <Compile Include="Implementation\Channels\TvinciChannelFollowsBuzzImpl.cs" />
+    <Compile Include="Implementation\Channels\TvinciChannelFavoritesBuzzImpl.cs" />
     <Compile Include="Implementation\Channels\TvinciChannelCommentsBuzzImpl.cs" />
     <Compile Include="Implementation\Channels\TvinciChannelLikesBuzzImpl.cs" />
     <Compile Include="Implementation\Series\BaseSeriesBuzzImpl.cs" />
@@ -67,7 +67,7 @@
     <Compile Include="BuzzFeeder.cs" />
     <Compile Include="BaseBuzzImpl.cs" />
     <Compile Include="Implementation\Series\TvinciSeriesCommentsBuzzImpl.cs" />
-    <Compile Include="Implementation\Series\TvinciSeriesFollowsBuzzImpl.cs" />
+    <Compile Include="Implementation\Series\TvinciSeriesFavoritesBuzzImpl.cs" />
     <Compile Include="Implementation\Series\TvinciSeriesLikesBuzzImpl.cs" />
     <Compile Include="Implementation\Series\TvinciSeriesViewsBuzzImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

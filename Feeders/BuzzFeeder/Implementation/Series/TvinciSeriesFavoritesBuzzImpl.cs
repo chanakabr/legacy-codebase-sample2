@@ -5,14 +5,14 @@ using System.Text;
 
 namespace BuzzFeeder.Implementation.Series
 {
-    public class TvinciSeriesViewsBuzzImpl : BaseSeriesBuzzImpl
+    public class TvinciSeriesFavoritesBuzzImpl : BaseSeriesBuzzImpl
     {
         private readonly string m_sGroupKey;
 
-        public TvinciSeriesViewsBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, int Weight, List<string> lActions, List<string> lAssetTypes, List<int> lFormulaWeights)
+        public TvinciSeriesFavoritesBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, int Weight, List<string> lActions, List<string> lAssetTypes, List<int> lFormulaWeights)
             : base(nGroupID, dtPeriod, tsInterval, Weight, lActions, lAssetTypes, lFormulaWeights)
         {
-            m_sGroupKey = string.Concat(m_nGroupID, "_series_views_stats");
+            m_sGroupKey = string.Concat(m_nGroupID, "_series_favorites_stats");
         }
 
         protected override string GetGroupKey()

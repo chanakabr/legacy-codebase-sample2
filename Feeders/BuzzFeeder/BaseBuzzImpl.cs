@@ -19,25 +19,24 @@ namespace BuzzFeeder
         protected TimeSpan m_tsInterval;
         protected List<string> m_lAssetTypes;
         protected List<string> m_lActions;
-
+        public int Weight { get; protected set; }
         protected Dictionary<string, ItemsStats> m_dCurrentBuzzCount;
-
         protected Dictionary<string, ItemsStats> m_dPreviousBuzzCount;
         protected ElasticSearch.Common.ElasticSearchApi m_oESApi;
-
         protected BuzzCalculator.BuzzCalculator m_oBuzzCalc;
         #endregion
 
-        public BaseBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, List<string> lActions, List<string> lAssetTypes)
+        public BaseBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, int nWeight, List<string> lActions, List<string> lAssetTypes, List<int> lFormulaWeights)
         {
             m_nGroupID = nGroupID;
             m_dtTimePeriod = dtPeriod;
             m_tsInterval = tsInterval;
             m_lAssetTypes = lAssetTypes;
             m_lActions = lActions;
+            Weight = nWeight;
             m_dCurrentBuzzCount = new Dictionary<string, ItemsStats>();
             m_dPreviousBuzzCount = new Dictionary<string, ItemsStats>();
-            m_oBuzzCalc = new BuzzCalculator.BuzzCalculator();
+            m_oBuzzCalc = new BuzzCalculator.BuzzCalculator(lFormulaWeights);
             m_oESApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 
@@ -69,7 +68,7 @@ namespace BuzzFeeder
 
             try
             {
-                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.DEFAULT);
+                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.STATISTICS);
 
                 string key = string.Concat(GetGroupKey(), "_", id);
 
@@ -91,7 +90,7 @@ namespace BuzzFeeder
 
             try
             {
-                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.DEFAULT);
+                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.STATISTICS);
                 string json = client.Get<string>(GetGroupKey());
 
                 var retval = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, ItemsStats>>(json);
@@ -184,7 +183,7 @@ namespace BuzzFeeder
 
             try
             {
-                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.DEFAULT);
+                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.STATISTICS);
                 string groupKey = GetGroupKey();
                 List<string> lKeys = new List<string>();
 

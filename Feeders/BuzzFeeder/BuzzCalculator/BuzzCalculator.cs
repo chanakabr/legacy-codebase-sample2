@@ -8,9 +8,12 @@ namespace BuzzFeeder.BuzzCalculator
     public class BuzzCalculator
     {
 
-        public BuzzCalculator()
+        public BuzzCalculator(List<int> lFormulaWeights)
         {
+            m_lFormualWeights = lFormulaWeights;
         }
+
+        protected List<int> m_lFormualWeights;
 
         public Dictionary<string, ItemsStats> m_dCurBuzzCount { get; set; }
         public Dictionary<string, ItemsStats> m_dPrevBuzzCount { get; set; }
@@ -29,11 +32,10 @@ namespace BuzzFeeder.BuzzCalculator
             InitItemStats();
 
             CalculateItemPeriodicalGrowth();
-
             CalculateDeltaFromAverage(m_nCurSampleGroupAverage);
-
             CalculateRelativePeriocialGrowth();
             CalculateCumulativePeriocialGrowth();
+            CalculateRelativePeriocialGrowth();
         }
 
         private void InitItemStats()
@@ -146,7 +148,13 @@ namespace BuzzFeeder.BuzzCalculator
             }
         }
 
-       
+        protected void CalculateActivityMeasurement()
+        {
+            foreach (var item in m_dItemStats.Values)
+            {
+                item.nActivityMeasurement = (m_lFormualWeights[0] * item.nPeriodicalGrowth) + (m_lFormualWeights[1] * item.nDeltaFromGroupAverage) + (m_lFormualWeights[2] * item.nRelativePeriodicalGrowth) + (m_lFormualWeights[3] * item.nRelativeCumulativeGrowth);
+            }
+        }
 
    
     }

@@ -12,8 +12,8 @@ namespace BuzzFeeder.Implementation.Channels
 {
     public abstract class BaseChannelBuzzImpl : BaseBuzzImpl
     {
-        public BaseChannelBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, List<string> lActions, List<string> lAssetTypes)
-            : base(nGroupID, dtPeriod, dtInterval, lActions, lAssetTypes)
+        public BaseChannelBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan dtInterval, int Weight, List<string> lActions, List<string> lAssetTypes, List<int> lFormulaWeights)
+            : base(nGroupID, dtPeriod, dtInterval, Weight, lActions, lAssetTypes, lFormulaWeights)
         {
 
         }
@@ -84,7 +84,7 @@ namespace BuzzFeeder.Implementation.Channels
 
             try
             {
-                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.DEFAULT);
+                Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.STATISTICS);
 
                 string groupKey = GetGroupKey();
                 string key;

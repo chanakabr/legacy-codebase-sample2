@@ -13,25 +13,23 @@ namespace BuzzFeeder
 {
     public class BuzzWrapper
     {
-
-        protected Dictionary<string, BuzzActivity> m_dActivities;
+        protected Dictionary<string, BaseBuzzImpl> m_dActivities;
 
         //take all info from config file/DB !!!!!!!!!!!!!!!!!!
         private int nSBIMax = 99;
         private int nSBIMin = 50;
-
 
         private List<string> m_lAssetTypes;
         private int m_nGroupID;
 
         public BuzzWrapper(int nGroupID, List<string> lAssetTypes)
         {
-            m_dActivities = new Dictionary<string, BuzzActivity>();
+            m_dActivities = new Dictionary<string, BaseBuzzImpl>();
             m_lAssetTypes = lAssetTypes;
             m_nGroupID = nGroupID;
         }
 
-        public void AddActivity(eBuzzActivityTypes eActivityType, BuzzActivity activity)
+        public void AddActivity(eBuzzActivityTypes eActivityType, BaseBuzzImpl activity)
         {
             if (activity != null)
             {
@@ -43,7 +41,7 @@ namespace BuzzFeeder
         {
             #region calculate buzz
             Task[] buzzTasks = new Task[m_dActivities.Count];
-            BuzzActivity[] activities = m_dActivities.Values.ToArray();
+            BaseBuzzImpl[] activities = m_dActivities.Values.ToArray();
 
             int nViewsSum = 0;
             for (int i = 0; i < activities.Length; i++)
@@ -53,8 +51,7 @@ namespace BuzzFeeder
                 buzzTasks[i] = Task.Factory.StartNew(
                     (index) =>
                     {
-                        if (activities[(int)index].BuzzImpl != null)
-                            activities[(int)index].BuzzImpl.CalcBuzz();
+                        activities[(int)index].CalcBuzz();
 
                     }, i);
             }
@@ -73,10 +70,10 @@ namespace BuzzFeeder
                 double itemSum = 0.0;
                 foreach (var activity in activities)
                 {
-                    var item = activity.BuzzImpl.GetItem(mediaID);
+                    var item = activity.GetItem(mediaID);
 
                     if(item != null)
-                        itemSum += item.nSampleCount * activity.Weight;
+                        itemSum += item.nActivityMeasurement * activity.Weight;
                 }
 
                 itemSum /= nViewsSum;
@@ -93,7 +90,7 @@ namespace BuzzFeeder
             //calculate normalization factor
             double factor = (nSBIMax - nSBIMin) / (nMaxSum - nMinSum);
 
-            Couchbase.CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.DEFAULT);
+            Couchbase.CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.STATISTICS);
 
             #region Calculate normalized weighted average score and update CB
             BuzzWeightedAverScore score = new BuzzWeightedAverScore() { UpdateDate = DateTime.UtcNow };
@@ -139,16 +136,5 @@ namespace BuzzFeeder
         }
     }
 
-
-
-    public enum eBuzzActivityTypes { VIEWS, LIKES, COMMENTS, FOLLOWS};
-
-    public class BuzzActivity
-    {
-        public int Weight;
-        public BaseBuzzImpl BuzzImpl;
-        public BuzzActivity()
-        {
-        }
-    }
+    public enum eBuzzActivityTypes { VIEWS, LIKES, COMMENTS, FAVORITES};
 }

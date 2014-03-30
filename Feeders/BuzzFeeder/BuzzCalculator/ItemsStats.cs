@@ -23,6 +23,8 @@ namespace BuzzFeeder.BuzzCalculator
         public double nSampleCount;
         [JsonProperty("cumulative_count")]
         public double nSampleCumulativeCount;
+        [JsonProperty("activity_measurement")]
+        public double nActivityMeasurement;
 
         public ItemsStats()
         {
@@ -33,6 +35,7 @@ namespace BuzzFeeder.BuzzCalculator
             nSampleCount = 0;
             nSampleCumulativeCount = 0;
             sMediaID = string.Empty;
+            nActivityMeasurement = 0.0;
         }
 
         public static ItemsStats MergeItems(ItemsStats bucketA, ItemsStats bucketB)
