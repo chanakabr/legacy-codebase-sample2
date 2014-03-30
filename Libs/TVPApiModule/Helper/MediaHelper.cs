@@ -157,7 +157,12 @@ namespace TVPApi
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
 
-            
+            if (mediaInfo != null && mediaInfo.Item.Count > 0)
+            {
+                dsItemInfo.ItemRow row = mediaInfo.Item.Rows[0] as dsItemInfo.ItemRow;
+                if (row != null)
+                    retVal.Add(new Media(row, initObj, groupID, true, mediaInfo.Item.Count));
+            }
 
             return retVal;
         }
