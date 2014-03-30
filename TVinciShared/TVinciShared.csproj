@@ -126,6 +126,7 @@
     <Compile Include="ProtocolsFuncs.cs" />
     <Compile Include="ScheualerManager.cs" />
     <Compile Include="UMObj.cs" />
+    <Compile Include="UploadConfig.cs" />
     <Compile Include="Web References\Lucene_WCF\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

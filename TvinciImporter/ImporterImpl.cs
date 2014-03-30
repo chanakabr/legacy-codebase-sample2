@@ -14,6 +14,7 @@ using DAL;
 using ApiObjects;
 using Logger;
 using System.Reflection;
+using QueueWrapper;
 
 namespace TvinciImporter
 {
@@ -2035,87 +2036,226 @@ namespace TvinciImporter
             return nPicID;
         }
 
+        //static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        //{
+        //    //return DownloadPic_old(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+
+        //    Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
+        //    if (sPic.Trim() == "")
+        //    {
+        //        return 0;
+        //    }
+        //    string sBasePath = GetBasePath(nGroupID);
+        //    sBasePath = string.Format("{0}\\pics\\{1}", sBasePath, nGroupID);
+
+        //    Logger.Logger.Log("File download", "Base Path is " + sBasePath, "DownloadFile");
+
+        //    string sPicsBasePath = string.Empty;
+
+        //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+        //    selectQuery += "select PICS_REMOTE_BASE_URL from groups (nolock) where";
+        //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
+
+        //    if (selectQuery.Execute("query", true) != null)
+        //    {
+        //        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+        //        if (nCount > 0)
+        //        {
+        //            sPicsBasePath = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
+        //        }
+        //    }
+
+        //    selectQuery.Finish();
+        //    selectQuery = null;
+
+        //    char[] delim = { '/' };
+        //    string[] splited1 = sPic.Split(delim);
+        //    string sPicBaseName1 = splited1[splited1.Length - 1];
+        //    if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
+        //    {
+        //        Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
+        //        Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
+        //        if (nEnd != 4)
+        //            sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
+        //        else
+        //            sPicBaseName1 = sPicBaseName1.Substring(nStart);
+        //        sPicBaseName1 += ".jpg";
+        //    }
+
+        //    string sPicName = sMediaName;
+
+        //    if (!Directory.Exists(sBasePath))
+        //    {
+        //        Directory.CreateDirectory(sBasePath);
+        //    }
+
+        //    Int32 nPicID = 0;
+
+        //    string sUploadedFileExt = "";
+        //    int nExtractPos = sPic.LastIndexOf(".");
+        //    if (nExtractPos > 0)
+        //        sUploadedFileExt = sPic.Substring(nExtractPos);
+
+        //    string sPicBaseName = string.Empty;
+        //    if (ratioID > 0)
+        //    {
+        //        sPicBaseName = TVinciShared.ImageUtils.GetDateImageName(nMediaID);
+        //    }
+        //    if (string.IsNullOrEmpty(sPicBaseName))
+        //    {
+        //        sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+        //    }
+
+        //    List<ImageManager.ImageObj> images = new List<ImageManager.ImageObj>();
+        //    if (bSetMediaThumb)
+        //    {
+        //        ImageManager.ImageObj tnImage = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.THUMB, 90, 65, sUploadedFileExt);
+        //        ImageManager.ImageObj fullImage = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.FULL, 0, 0, sUploadedFileExt);
+
+        //        images.Add(tnImage);
+        //        images.Add(fullImage);
+        //    }
+
+        //    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        //    selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
+        //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+        //    if (ratioID > 0)
+        //    {
+        //        selectQuery += " and ";
+        //        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
+        //    }
+        //    if (selectQuery.Execute("query", true) != null)
+        //    {
+        //        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+        //        for (int i = 0; i < nCount; i++)
+        //        {
+        //            int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
+        //            int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
+
+        //            ImageManager.ImageObj image = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.SIZE, nWidth, nHeight, sUploadedFileExt);
+        //            images.Add(image);
+        //        }
+        //    }
+        //    selectQuery.Finish();
+        //    selectQuery = null;
+
+        //    bool downloadRes = ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPic, sBasePath, images, sPicBaseName, sUploadedFileExt);
+        //    if (!downloadRes)
+        //    {
+        //        ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPicsBasePath + "/" + sPic, sBasePath, images, sPicBaseName, sUploadedFileExt);
+        //    }
+        //    if (downloadRes)
+        //    {
+        //        foreach (ImageManager.ImageObj image in images)
+        //        {
+        //            if (image.eResizeStatus == ImageManager.ResizeStatus.SUCCESS)
+        //            {
+        //                UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, image.ToString());
+        //            }
+        //        }
+        //        nPicID = InsertNewPic(sMediaName, sPic, sPicBaseName + sUploadedFileExt, nGroupID);
+        //    }
+
+        //    if (nPicID != 0)
+        //    {
+        //        IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, nPicID, false);
+        //        if (bSetMediaThumb == true)
+        //        {
+        //            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+        //            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+        //            updateQuery += " where ";
+        //            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+        //            updateQuery.Execute();
+        //            updateQuery.Finish();
+        //            updateQuery = null;
+        //        }
+        //        //the media type id is invalid here
+        //        EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH");
+        //    }
+        //    return nPicID;
+        //}
+
         static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
-            //return DownloadPic_old(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
-
+            int nPicID = 0;
             Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
             if (sPic.Trim() == "")
             {
+                Logger.Logger.Log("File download", "picture name is empty. mediaID: " + nMediaID.ToString(), "DownloadFile");
                 return 0;
             }
-            string sBasePath = GetBasePath(nGroupID);
-            sBasePath = string.Format("{0}\\pics\\{1}", sBasePath, nGroupID);
 
-            Logger.Logger.Log("File download", "Base Path is " + sBasePath, "DownloadFile");
+            string sPicNewName = getNewUninqueName(ratioID, nMediaID); //the unique name
+            string[] sPicSizes = getPicSizes(bSetMediaThumb, nGroupID, ratioID);         
+            string sBasePath = GetBasePath(nGroupID); //the path where the images should be uplaoded
 
-            string sPicsBasePath = string.Empty;
-
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-
-            selectQuery += "select PICS_REMOTE_BASE_URL from groups (nolock) where";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
-
-            if (selectQuery.Execute("query", true) != null)
+            #region generate PictureData          
+            List<object> args = new List<object>();
+            //check for Http and if it is missing, insert the the remotePicsURL
+            if (sPic.ToLower().Trim().StartsWith("http://") == false && sPic.ToLower().Trim().StartsWith("https://") == false)
             {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
+                string picPath = getRemotePicsURL(nGroupID);
+                picPath += sPic;
+                sPic = picPath; //insert the new full path to sPic
+            }
+            args.Add(sPic);//the full url from which the picture should be taken
+            args.Add(sPicNewName);
+            args.Add(sPicSizes);
+            UploadConfig upConfig = new UploadConfig();
+            upConfig.setUploadConfig(nGroupID);
+            args.Add(upConfig);
+            args.Add(sBasePath);
+            string id = Guid.NewGuid().ToString();
+
+            ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, args);
+            Logger.Logger.Log("File download", "Picture will be downloaded from: " + sPic + "to:" + sBasePath, "DownloadFile"); 
+            #endregion
+
+            //update the Queue with picture data
+            if (data != null)
+            {
+                BaseQueue queue = new PictureQueue();
+                string task = TVinciShared.WS_Utils.GetTcmConfigValue("routingKey"); 
+                bool bIsUpdateSucceeded = queue.Enqueue(data, task);
+            }             
+
+            //insert new Picture to DB 
+            string sUploadedFileExt = getUploadedPicExt(sPic);
+            nPicID = InsertNewPic(sMediaName, sPic, sPicNewName + sUploadedFileExt, nGroupID);          
+
+            if (nPicID != 0)
+            {
+                #region handle pic tags and update the media files
+                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, nPicID, false);
+                if (bSetMediaThumb == true)
                 {
-                    sPicsBasePath = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
                 }
+                //the media type id is invalid here
+                EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH"); 
+                #endregion
             }
-
-            selectQuery.Finish();
-            selectQuery = null;
-
-            char[] delim = { '/' };
-            string[] splited1 = sPic.Split(delim);
-            string sPicBaseName1 = splited1[splited1.Length - 1];
-            if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
-            {
-                Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
-                Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
-                if (nEnd != 4)
-                    sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
-                else
-                    sPicBaseName1 = sPicBaseName1.Substring(nStart);
-                sPicBaseName1 += ".jpg";
-            }
-
-            string sPicName = sMediaName;
-
-            if (!Directory.Exists(sBasePath))
-            {
-                Directory.CreateDirectory(sBasePath);
-            }
-
-            Int32 nPicID = 0;
-
-            string sUploadedFileExt = "";
-            int nExtractPos = sPic.LastIndexOf(".");
-            if (nExtractPos > 0)
-                sUploadedFileExt = sPic.Substring(nExtractPos);
-
-            string sPicBaseName = string.Empty;
-            if (ratioID > 0)
-            {
-                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName(nMediaID);
-            }
-            if (string.IsNullOrEmpty(sPicBaseName))
-            {
-                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
-            }
-
-            List<ImageManager.ImageObj> images = new List<ImageManager.ImageObj>();
+            return nPicID;
+        }
+        
+        private static string[] getPicSizes(bool bSetMediaThumb, int nGroupID, int ratioID)
+        {
+            string [] str;
+            List<string> lString = new List<string>();
             if (bSetMediaThumb)
             {
-                ImageManager.ImageObj tnImage = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.THUMB, 90, 65, sUploadedFileExt);
-                ImageManager.ImageObj fullImage = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.FULL, 0, 0, sUploadedFileExt);
-
-                images.Add(tnImage);
-                images.Add(fullImage);
+                lString.Add("full");
+                lString.Add("tn");
             }
 
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
@@ -2132,47 +2272,57 @@ namespace TvinciImporter
                     int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
                     int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
 
-                    ImageManager.ImageObj image = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.SIZE, nWidth, nHeight, sUploadedFileExt);
-                    images.Add(image);
+                    string size = nWidth + "x" + nHeight;
+                    lString.Add(size);                   
                 }
             }
             selectQuery.Finish();
             selectQuery = null;
 
-            bool downloadRes = ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPic, sBasePath, images, sPicBaseName, sUploadedFileExt);
-            if (!downloadRes)
-            {
-                ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPicsBasePath + "/" + sPic, sBasePath, images, sPicBaseName, sUploadedFileExt);
-            }
-            if (downloadRes)
-            {
-                foreach (ImageManager.ImageObj image in images)
-                {
-                    if (image.eResizeStatus == ImageManager.ResizeStatus.SUCCESS)
-                    {
-                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, image.ToString());
-                    }
-                }
-                nPicID = InsertNewPic(sMediaName, sPic, sPicBaseName + sUploadedFileExt, nGroupID);
-            }
+            str = lString.ToArray();
+            return str;
+        }
 
-            if (nPicID != 0)
+        private static string getRemotePicsURL(int nGroupID)
+        {
+            string sRemotePicsURL = string.Empty;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select PICS_REMOTE_BASE_URL from groups (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
             {
-                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, nPicID, false);
-                if (bSetMediaThumb == true)
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
                 {
-                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
-                    updateQuery += " where ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
-                    updateQuery.Execute();
-                    updateQuery.Finish();
-                    updateQuery = null;
+                    sRemotePicsURL = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
                 }
-                //the media type id is invalid here
-                EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH");
             }
-            return nPicID;
+            selectQuery.Finish();
+            selectQuery = null;
+            return sRemotePicsURL;
+        }
+
+        private static string getUploadedPicExt(string sPic)
+        {
+            string sUploadedFileExt = string.Empty;
+            int nExtractPos = sPic.LastIndexOf(".");
+            if (nExtractPos > 0)
+                sUploadedFileExt = sPic.Substring(nExtractPos);
+            return sUploadedFileExt;
+        }
+
+        private static string getNewUninqueName(int ratioID, int nMediaID)
+        {
+            string sPicBaseName = string.Empty;
+            if (ratioID > 0)
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName(nMediaID);
+            }
+            if (string.IsNullOrEmpty(sPicBaseName))
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+            }
+            return sPicBaseName;
         }
 
         static private string GetBasePath(int nGroupID)
@@ -4268,5 +4418,5 @@ namespace TvinciImporter
 
             return isUpdateIndexSucceeded;
         }
-    }
+    }   
 }

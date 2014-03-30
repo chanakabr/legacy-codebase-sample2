@@ -478,7 +478,8 @@ namespace TVinciShared
                         sPicBaseName = sPicBaseName.Substring(nStart);
                     sPicBaseName += ".jpg";
                 }
-                string sTmpImage = sBasePath + "\\pics\\" + sPicBaseName;
+                //   string sTmpImage = sBasePath + "\\pics\\" + sPicBaseName;
+                string sTmpImage = sBasePath + "/pics/" + sPicBaseName;
                 //Uri uri = new Uri("http://maps.google.com/staticmap?center=45.728220,4.830321&zoom=8&size=200x200&maptype=roadmap&key=ABQIAAAAaHAby4XeLCIadFkAUW4vmRSkJGe9mG57rOapogjk9M-sm4TzXxR2I7bi2Qkj-opZe16CdmDs7_dNrQ");
 
                 HttpWebRequest httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
