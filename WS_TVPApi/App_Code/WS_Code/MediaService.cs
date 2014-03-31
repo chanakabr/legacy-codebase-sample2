@@ -2323,9 +2323,9 @@ namespace TVPApiServices
                     loader.DeviceId = initObj.UDID;
                     loader.SiteGuid = initObj.SiteGuid;
 
-                    var loaderRes = loader.Execute() as List<EPGMultiChannelProgrammeObject>;
+                    var loaderRes = loader.Execute() as List<BaseObject>;
                     if (loaderRes != null && loaderRes.Count() > 0)
-                        sRet = loaderRes[0].EPGChannelProgrammeObject.ToArray();
+                        sRet = (loaderRes[0] as EPGMultiChannelProgrammeObject).EPGChannelProgrammeObject.ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -2372,9 +2372,9 @@ namespace TVPApiServices
                     loader.DeviceId = initObj.UDID;
                     loader.SiteGuid = initObj.SiteGuid;
 
-                    var loaderRes = loader.Execute() as List<EPGMultiChannelProgrammeObject>;
+                    var loaderRes = loader.Execute() as List<BaseObject>;
                     if (loaderRes != null && loaderRes.Count() > 0)
-                        sRet = loaderRes[0].EPGChannelProgrammeObject.ToArray();
+                        sRet = (loaderRes[0] as EPGMultiChannelProgrammeObject).EPGChannelProgrammeObject.ToArray();
                 }
                 catch (Exception ex)
                 {
