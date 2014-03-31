@@ -1042,5 +1042,16 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+        public static int Get_MediaTypeIdByMediaId(int nMediaID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaTypeIdByMediaId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            sp.AddParameter("@MediaId", nMediaID);
+
+            int result = sp.ExecuteReturnValue<int>();
+            return result;
+        }
+
     }
 }
