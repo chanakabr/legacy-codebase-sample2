@@ -160,7 +160,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, sUdid);
+                    if (!string.IsNullOrEmpty(sUdid))
+                        resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, sUdid);
+                    else
+                        resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
