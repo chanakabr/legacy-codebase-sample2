@@ -284,10 +284,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciAPI_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_BILLING/module.asmx">
+    <WebReferenceUrl Include="http://localhost/TVMBilling/module.asmx">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\TvinciBilling\</RelPath>
-      <UpdateFromURL>http://localhost/WS_BILLING/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/TVMBilling/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

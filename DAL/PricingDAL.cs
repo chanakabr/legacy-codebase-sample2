@@ -54,22 +54,6 @@ namespace DAL
             return ds;
         }
 
-        public static DataSet Get_CollectionData(int nGroupID, int? nIsActive, int? nCollectionID = null, string sProductCode = null, List<int> userTypesIDsList = null, int? nTopRows = null)
-        {
-            ODBCWrapper.StoredProcedure spCollectionData = new ODBCWrapper.StoredProcedure("GetCollectionData");
-            spCollectionData.SetConnectionKey("pricing_connection");
-
-            spCollectionData.AddParameter("@GroupID", nGroupID);
-            spCollectionData.AddParameter("@IsActive", nIsActive);
-            spCollectionData.AddParameter("@SubscriptionID", nCollectionID);
-            spCollectionData.AddParameter("@ProductCode", sProductCode);
-            spCollectionData.AddIDListParameter("@UserTypesIdList", userTypesIDsList, "id");
-            spCollectionData.AddParameter("@TopRows", nTopRows);
-
-            DataSet ds = spCollectionData.ExecuteDataSet();
-            return ds;
-        }
-
         public static DataTable Get_PreviewModuleData(int nGroupID, long nPreviewModuleID)
         {
             ODBCWrapper.StoredProcedure spPreviewModuleData = new ODBCWrapper.StoredProcedure("Get_PreviewModuleData");
@@ -325,6 +309,22 @@ namespace DAL
         public static List<long> Get_SubscriptionChannelIDs(int nGroupID, int nSubscriptionID)
         {
             return Get_SubscriptionChannelIDs(nGroupID, nSubscriptionID, string.Empty);
+        }
+
+        public static DataSet Get_CollectionData(int nGroupID, int? nIsActive, int? nCollectionID = null, string sProductCode = null, List<int> userTypesIDsList = null, int? nTopRows = null)
+        {
+            ODBCWrapper.StoredProcedure spCollectionData = new ODBCWrapper.StoredProcedure("GetCollectionData");
+            spCollectionData.SetConnectionKey("pricing_connection");
+
+            spCollectionData.AddParameter("@GroupID", nGroupID);
+            spCollectionData.AddParameter("@IsActive", nIsActive);
+            spCollectionData.AddParameter("@SubscriptionID", nCollectionID);
+            spCollectionData.AddParameter("@ProductCode", sProductCode);
+            spCollectionData.AddIDListParameter("@UserTypesIdList", userTypesIDsList, "id");
+            spCollectionData.AddParameter("@TopRows", nTopRows);
+
+            DataSet ds = spCollectionData.ExecuteDataSet();
+            return ds;
         }
 
     }
