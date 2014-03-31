@@ -325,7 +325,7 @@ namespace ConditionalAccess
 
                         if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
                         {
-                            HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID, true, 0);
+                            HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID, true, 0, 0);
 
                             int transactionID = int.Parse(ret.m_sRecieptCode);
 
@@ -801,7 +801,7 @@ namespace ConditionalAccess
 
             if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
             {
-                HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0);
+                HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
 
                 int nIsRecurring = 0;
                 int nIsRecurringStatus = (bIsRecurring == true) ? 1 : 0;

@@ -1107,6 +1107,45 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
+        public static long Insert_NewMColPurchase(long lGroupID, string sCollectionCode, string sSiteGuid,
+            double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
+            string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs,
+            long lBillingTransactionID, DateTime dtCollectionStartDate, DateTime dtCollectionEndDate,
+            DateTime dtCreateAndUpdateDate, string sConnKey)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@GroupID", lGroupID);
+            sp.AddParameter("@CollectionCode", sCollectionCode);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@CustomData", sCustomData);
+            sp.AddParameter("@NumOfUses", 0);
+            sp.AddParameter("@MaxNumOfUses", lMaxNumOfUses);
+            sp.AddParameter("@ViewLifeCycleSecs", lViewLifeCycleSecs);
+            sp.AddParameter("@LastViewDate", DBNull.Value); // make sure it is correct
+            sp.AddParameter("@StartDate", dtCollectionStartDate);
+            sp.AddParameter("@IsActive", 1);
+            sp.AddParameter("@EndDate", dtCollectionEndDate);
+            sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
+            sp.AddParameter("@Status", 1);
+            sp.AddParameter("@Price", dPrice);
+            sp.AddParameter("@CurrencyCode", sCurrencyCode);
+            sp.AddParameter("@UpdaterID", 0);
+            sp.AddParameter("@UpdateDate", dtCreateAndUpdateDate);
+            sp.AddParameter("@CreateDate", dtCreateAndUpdateDate);
+            sp.AddParameter("@PublishDate", DBNull.Value);
+            sp.AddParameter("@CountryCode", sCountryCode);
+            sp.AddParameter("@LanguageCode", sLanguageCode);
+            sp.AddParameter("@DeviceName", sDeviceName);
+            sp.AddParameter("@FailCount", 0);
+            sp.AddParameter("@CollectionMetadata", 0);
+            sp.AddParameter("@RelPp", DBNull.Value);
+            sp.AddParameter("@NotificationSent", 0);
+
+            return sp.ExecuteReturnValue<long>();
+
+        }
+
 
     }
 }
