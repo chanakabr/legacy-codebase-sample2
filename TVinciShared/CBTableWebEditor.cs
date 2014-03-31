@@ -199,8 +199,8 @@ namespace TVinciShared
 
             if (m_theDataTable == null || m_theDataTable.Rows == null || m_theDataTable.Rows.Count == 0)
             {
-                    return "";             
-            }            
+                return "";
+            }
 
             if (bEnterToSession == true)
             {
@@ -221,7 +221,7 @@ namespace TVinciShared
 
             if (nEndPage > nPages)
                 nEndPage = nPages;
-           
+
             double dPages = (double)nPages / m_nPageSize;
             nPages = (Int32)dPages + 1;
             if (dPages == (Int32)dPages && nPages > 1)
@@ -622,7 +622,7 @@ namespace TVinciShared
                 if (m_bWithOrderNum2 == true)
                 {
                     Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row[m_sOrderNumFieldName2].ToString());
-                   Int32 nOrderNum = int.Parse(m_theDataTable.DefaultView[pageIndx].Row[m_sOrderNumFiledToChange2].ToString());
+                    Int32 nOrderNum = int.Parse(m_theDataTable.DefaultView[pageIndx].Row[m_sOrderNumFiledToChange2].ToString());
                     sTable.Append("<td valign=\"top\" nowrap id=\"" + m_sOrderNumFiledToChange2 + "_" + nID.ToString() + "\" align=\"center\" nowrap=\"nowrap\"  style=\"margin: 0 0 0 0; padding: 0 0 0 0;\">");
                     sTable.Append("<table cellpadding=\"0\" cellspacing=\"0\" >");
                     sTable.Append("<tr>");
@@ -639,7 +639,7 @@ namespace TVinciShared
                     DataRecordMediaViewerField dv = new DataRecordMediaViewerField("", nID);
                     dv.VideoTable(m_sVideoTable);
                     dv.Initialize("Video", "adm_table_header_nbg", "FormInput", "STREAMING_CODE", false);
-                    string sFLV = dv.GetPlayerSmallFrame();                   
+                    string sFLV = dv.GetPlayerSmallFrame();
                     sTable.Append("<td>");
                     sTable.Append(sFLV);
                     sTable.Append("</td>");
@@ -759,7 +759,7 @@ namespace TVinciShared
                 if (m_bWithActivation == true)
                 {
                     Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
-                   Int32 nActive = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["IS_ACTIVE"].ToString());
+                    Int32 nActive = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["IS_ACTIVE"].ToString());
                     sTable.Append("<td nowrap id=\"activation_" + nID.ToString() + "\">");
                     if (nActive == 1)
                     {
@@ -781,7 +781,7 @@ namespace TVinciShared
                 {
                     Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
                     string sRemarks = m_theDataTable.DefaultView[pageIndx].Row["editor_remarks"].ToString();
-                    sTable.Append("<td nowrap>");                  
+                    sTable.Append("<td nowrap>");
                     sTable.Append("<img style='cursor: pointer;' src='");
                     sTable.Append("images/info_btn.gif");
                     sTable.Append("' onmouseover='javascript:openLocalWindow(\"" + HttpContext.Current.Server.HtmlEncode(sRemarks.Replace("\r\n", "<br\\>").Replace("\"", "").Replace("'", "").Trim()) + "\");' onclick='return false;' onmouseout='closeCollDiv(\"\");'");
@@ -794,9 +794,9 @@ namespace TVinciShared
                     string sUpdaterName = "";
                     string sCreateSate = "";
                     string sUpdateSate = "";
-                    string sPublishSate = "";                    
+                    string sPublishSate = "";
                     sTable.Append("<td nowrap>");
-      
+
                     sTable.Append("<img style='cursor: pointer;' src='");
                     sTable.Append("images/history_btn.gif");
                     sTable.Append("' onmouseover='javascript:openTechDetails(\"" + sUpdaterName + "\",\"" + sCreateSate + "\",\"" + sUpdateSate + "\",\"" + sPublishSate + "\");' onmouseout='closeCollDiv(\"\");' onclick='return false;'");
@@ -1025,7 +1025,7 @@ namespace TVinciShared
         }
 
         public void Finish()
-        {          
+        {
             if (m_theDataTable != null)
             {
                 m_theDataTable.Dispose();
@@ -1034,7 +1034,7 @@ namespace TVinciShared
         }
 
         public string OpenCSV()
-        {  
+        {
             if (m_theDataTable == null)
             {
                 return "";

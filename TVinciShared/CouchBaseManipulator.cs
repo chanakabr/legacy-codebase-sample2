@@ -10,7 +10,7 @@ using System.Web;
 namespace TVinciShared
 {
     public class CouchBaseManipulator : DBManipulator
-    {       
+    {
         //updates the epg object and returns its ID 
         public static int DoTheWork(ref EpgCB epg, Dictionary<int, string> dMetaTyps, Dictionary<int, string> dTagTyps)
         {
@@ -21,23 +21,23 @@ namespace TVinciShared
                 HttpContext.Current.Session["error_msg"] = "missing table name - cannot update";
                 EndOfAction();
             }
-                   
+
             if (epg == null)
             {
-                epg = new EpgCB(); 
+                epg = new EpgCB();
                 epg.CreateDate = DateTime.UtcNow;
-            }           
+            }
 
             setBasicEpgData(ref coll, ref epg);
             setEpgMeta(ref coll, ref epg, dMetaTyps);
             setEpgTags(ref coll, ref epg, dTagTyps);
 
-            nID = (int)epg.EpgID;            
+            nID = (int)epg.EpgID;
             EndOfAction();
             return nID;
         }
 
-        private static void setEpgTags (ref NameValueCollection coll, ref EpgCB epg, Dictionary<int, string> tagTypes)
+        private static void setEpgTags(ref NameValueCollection coll, ref EpgCB epg, Dictionary<int, string> tagTypes)
         {
             int nCounter = 0;
             try
@@ -51,56 +51,56 @@ namespace TVinciShared
                         string sVal = "";
                         if (coll[nCounter.ToString() + "_val"] != null)
                         {
-                            sVal = coll[nCounter.ToString() + "_val"].ToString();                           
+                            sVal = coll[nCounter.ToString() + "_val"].ToString();
                             if (sVal != "" && coll[nCounter.ToString() + "_extra_field_val"] != null)
+                            {
+                                string sExtraVal = coll[nCounter.ToString() + "_extra_field_val"].ToString();
+                                if (sExtraVal != "")
                                 {
-                                    string sExtraVal = coll[nCounter.ToString() + "_extra_field_val"].ToString();
-                                    if (sExtraVal != "")
+                                    int nTagTypeID = int.Parse(sExtraVal);
+                                    if (tagTypes.ContainsKey(nTagTypeID))//verify the tag type is in DB
                                     {
-                                        int nTagTypeID = int.Parse(sExtraVal);
-                                        if (tagTypes.ContainsKey(nTagTypeID))//verify the tag type is in DB
+                                        char[] t = { ';' };
+                                        string[] splitedStr = sVal.Split(t); //split between different tag values
+                                        List<string> lValues = new List<string>();
+                                        for (int i = 0; i < splitedStr.Length; i++)
                                         {
-                                            char[] t = { ';' };
-                                            string[] splitedStr = sVal.Split(t); //split between different tag values
-                                            List<string> lValues = new List<string>();
-                                            for (int i = 0; i < splitedStr.Length; i++)
+                                            if (splitedStr[i] != "")
                                             {
-                                                if (splitedStr[i] != "")
+                                                lValues.Add(splitedStr[i]);
+                                                if (!doesTagValueExist(nTagTypeID, splitedStr[i]))
                                                 {
-                                                    lValues.Add(splitedStr[i]);
-                                                    if (!doesTagValueExist(nTagTypeID, splitedStr[i]))
-                                                    {
-                                                        insertTagValue(nTagTypeID, splitedStr[i]);//enter new value to tags table
-                                                    }
+                                                    insertTagValue(nTagTypeID, splitedStr[i]);//enter new value to tags table
                                                 }
                                             }
-                                            
-                                            string sTagType = tagTypes[nTagTypeID].ToLower();
-                                            if (!epg.Tags.ContainsKey(sTagType) && lValues.Count > 0)
-                                            {
-                                                epg.Tags.Add(sTagType, lValues); //add the new tagtype to the epg, with its values
-                                            }
+                                        }
+
+                                        string sTagType = tagTypes[nTagTypeID].ToLower();
+                                        if (!epg.Tags.ContainsKey(sTagType) && lValues.Count > 0)
+                                        {
+                                            epg.Tags.Add(sTagType, lValues); //add the new tagtype to the epg, with its values
+                                        }
+                                        else
+                                        {
+                                            if (lValues.Count > 0)
+                                                epg.Tags[sTagType] = lValues;//add the values
                                             else
-                                            {
-                                                if (lValues.Count > 0)
-                                                    epg.Tags[sTagType] = lValues;//add the values
-                                                else
-                                                    epg.Tags.Remove(sTagType); //remove the entire tagType from the epg
-                                            }
-                                        }                                         
+                                                epg.Tags.Remove(sTagType); //remove the entire tagType from the epg
+                                        }
                                     }
                                 }
                             }
                         }
-                        nCounter++;
                     }
+                    nCounter++;
                 }
-
-                catch (Exception ex)
-                {
-                    Logger.Logger.Log("Exception", ex.Message + " || On function: setEpgTags with epg ID :" + epg.EpgID, "Exceptions");
-                }               
             }
+
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", ex.Message + " || On function: setEpgTags with epg ID :" + epg.EpgID, "Exceptions");
+            }
+        }
 
         private static bool doesTagValueExist(int nTagTypeId, string sVal)
         {
@@ -138,9 +138,9 @@ namespace TVinciShared
             insertQuery.Finish();
             return result;
         }
-        
+
         private static void setEpgMeta(ref NameValueCollection coll, ref EpgCB epg, Dictionary<int, string> metaTypes)
-        { 
+        {
             int nCounter = 0;
             try
             {
@@ -150,7 +150,7 @@ namespace TVinciShared
                         break;
                     string sVal = "";
                     if (coll[nCounter.ToString() + "_val"] != null)
-                        sVal = coll[nCounter.ToString() + "_val"].ToString();                    
+                        sVal = coll[nCounter.ToString() + "_val"].ToString();
                     if (coll[nCounter.ToString() + "_ext"] != null)
                     {
                         string sExtID = coll[nCounter.ToString() + "_ext"].ToString();
@@ -176,21 +176,21 @@ namespace TVinciShared
                                 }
                             }
                         }
-                    } 
+                    }
                     nCounter++;
                 }
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("Exception", ex.Message + " || On function: setEpgMeta with epg ID :" + epg.EpgID, "Exceptions");
-            } 
+            }
         }
 
         private static void setBasicEpgData(ref NameValueCollection coll, ref EpgCB epg)
         {
             int nGroupID = LoginManager.GetLoginGroupID();
-            int nCount = coll.Count;  
-            int nCounter = 0;   
+            int nCount = coll.Count;
+            int nCounter = 0;
             bool bValid = true;
 
             epg.UpdateDate = DateTime.UtcNow;
@@ -198,111 +198,111 @@ namespace TVinciShared
             epg.Status = 1;
 
             try
+            {
+                while (nCounter < nCount)
                 {
-                    while (nCounter < nCount)
+                    if (coll[nCounter.ToString() + "_type"] == null || bValid == false)
+                        break;
+
+                    string sType = coll[nCounter.ToString() + "_type"].ToString();
+
+                    string sVal = "";
+                    if (coll[nCounter.ToString() + "_val"] != null)
+                        sVal = coll[nCounter.ToString() + "_val"].ToString();
+
+                    string sFieldName = "";
+                    if (coll[nCounter.ToString() + "_field"] != null)
+                        sFieldName = coll[nCounter.ToString() + "_field"].ToString();
+
+                    if (sFieldName == "")
                     {
-                        if (coll[nCounter.ToString() + "_type"] == null || bValid == false)
-                            break;
-
-                        string sType = coll[nCounter.ToString() + "_type"].ToString();
-
-                        string sVal = "";
-                        if (coll[nCounter.ToString() + "_val"] != null)
-                            sVal = coll[nCounter.ToString() + "_val"].ToString();
-                        
-                        string sFieldName = "";
-                        if (coll[nCounter.ToString() + "_field"] != null)
-                            sFieldName = coll[nCounter.ToString() + "_field"].ToString();
-
-                        if (sFieldName == "")
-                        {
-                            nCounter++;
-                            continue;
-                        }
-               
-                        if (sFieldName.Trim().ToLower() == "group_id")
-                        {
-                            bool bBelongs = false;
-                            int nQueryGroupID = 0;
-                            if (sVal != "")
-                                nQueryGroupID = int.Parse(sVal);
-                            if (nQueryGroupID != 0 && nQueryGroupID != nGroupID)
-                            {
-                                if (nGroupID != 0)
-                                    PageUtils.DoesGroupIsParentOfGroup(nGroupID, nQueryGroupID, ref bBelongs);
-                            }
-                            else
-                                bBelongs = true;
-
-                            if (bBelongs == false)
-                            {
-                                LoginManager.LogoutFromSite("login.html");
-                                return;
-                            }
-                            epg.GroupID = nGroupID;
-                            epg.ParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
-                        }
-                        if (sFieldName.Trim().ToLower() == "epg_channel_id" && sType == "int")
-                        {
-                            bValid = validateParam("int", sVal, -1, -1);
-                            int nChannelID = 0;
-                            if (int.TryParse(sVal, out nChannelID))
-                                epg.ChannelID = nChannelID;
-                        }
-
-                        else if (sFieldName.Trim().ToLower() == "name" && (sType == "string" || sType == "long_string"))
-                        {                            
-                            epg.Name = DBStrEncode(sVal);
-                        }
-                        else if (sFieldName.Trim().ToLower() == "start_date" && sType == "datetime")
-                        {
-                            epg.StartDate = getDateTime(sVal, nCounter, ref  coll, ref bValid);
-                        }
-                        else if (sFieldName.Trim().ToLower() == "end_date" && sType == "datetime")
-                        {
-                            epg.EndDate = getDateTime(sVal, nCounter, ref  coll, ref bValid);
-                        }
-                        else if (sFieldName.Trim().ToLower() == "pic_id" && sType == "int")
-                        {
-                            bValid = validateParam("int", sVal, -1, -1);
-                            int nPicID = 0;
-                            int.TryParse(sVal, out nPicID);
-                            epg.PicID = nPicID;
-                            if (nPicID != 0)
-                            {
-                                epg.PicUrl = getEpgPicUrl(nPicID);
-                            }
-
-                        }
-                        else if (sFieldName.Trim().ToLower() == "description" && (sType == "string" || sType == "long_string"))
-                        {                           
-                            epg.Description = DBStrEncode(sVal);
-                        }
-                        else if (sFieldName.Trim().ToLower() == "epg_identifier" && (sType == "string" || sType == "long_string"))
-                        {                          
-                            epg.EpgIdentifier = DBStrEncode(sVal);
-                        }
-                        else if (sFieldName.Trim().ToLower() == "media_id" && sType == "int")
-                        {
-                            bValid = validateParam("int", sVal, -1, -1);
-                            int nMediaID = 0;
-                            int.TryParse(sVal, out nMediaID);
-                            epg.ExtraData.MediaID = nMediaID;
-                        }
-                        else if (sType == "file")
-                        {
-                            doTheWorkOnFile(nCounter, nGroupID, ref coll, ref bValid, ref epg);
-                        }
-
-                        nCounter++;                                
+                        nCounter++;
+                        continue;
                     }
+
+                    if (sFieldName.Trim().ToLower() == "group_id")
+                    {
+                        bool bBelongs = false;
+                        int nQueryGroupID = 0;
+                        if (sVal != "")
+                            nQueryGroupID = int.Parse(sVal);
+                        if (nQueryGroupID != 0 && nQueryGroupID != nGroupID)
+                        {
+                            if (nGroupID != 0)
+                                PageUtils.DoesGroupIsParentOfGroup(nGroupID, nQueryGroupID, ref bBelongs);
+                        }
+                        else
+                            bBelongs = true;
+
+                        if (bBelongs == false)
+                        {
+                            LoginManager.LogoutFromSite("login.html");
+                            return;
+                        }
+                        epg.GroupID = nGroupID;
+                        epg.ParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
+                    }
+                    if (sFieldName.Trim().ToLower() == "epg_channel_id" && sType == "int")
+                    {
+                        bValid = validateParam("int", sVal, -1, -1);
+                        int nChannelID = 0;
+                        if (int.TryParse(sVal, out nChannelID))
+                            epg.ChannelID = nChannelID;
+                    }
+
+                    else if (sFieldName.Trim().ToLower() == "name" && (sType == "string" || sType == "long_string"))
+                    {
+                        epg.Name = DBStrEncode(sVal);
+                    }
+                    else if (sFieldName.Trim().ToLower() == "start_date" && sType == "datetime")
+                    {
+                        epg.StartDate = getDateTime(sVal, nCounter, ref  coll, ref bValid);
+                    }
+                    else if (sFieldName.Trim().ToLower() == "end_date" && sType == "datetime")
+                    {
+                        epg.EndDate = getDateTime(sVal, nCounter, ref  coll, ref bValid);
+                    }
+                    else if (sFieldName.Trim().ToLower() == "pic_id" && sType == "int")
+                    {
+                        bValid = validateParam("int", sVal, -1, -1);
+                        int nPicID = 0;
+                        int.TryParse(sVal, out nPicID);
+                        epg.PicID = nPicID;
+                        if (nPicID != 0)
+                        {
+                            epg.PicUrl = getEpgPicUrl(nPicID);
+                        }
+
+                    }
+                    else if (sFieldName.Trim().ToLower() == "description" && (sType == "string" || sType == "long_string"))
+                    {
+                        epg.Description = DBStrEncode(sVal);
+                    }
+                    else if (sFieldName.Trim().ToLower() == "epg_identifier" && (sType == "string" || sType == "long_string"))
+                    {
+                        epg.EpgIdentifier = DBStrEncode(sVal);
+                    }
+                    else if (sFieldName.Trim().ToLower() == "media_id" && sType == "int")
+                    {
+                        bValid = validateParam("int", sVal, -1, -1);
+                        int nMediaID = 0;
+                        int.TryParse(sVal, out nMediaID);
+                        epg.ExtraData.MediaID = nMediaID;
+                    }
+                    else if (sType == "file")
+                    {
+                        doTheWorkOnFile(nCounter, nGroupID, ref coll, ref bValid, ref epg);
+                    }
+
+                    nCounter++;
                 }
-                catch (Exception ex)
-                {
-                    Logger.Logger.Log("Exception", ex.Message + " || On function: setEpgMeta with epg ID :" + epg.EpgID, "Exceptions");
-                    LoginManager.LogoutFromSite("login.html");
-                    return;
-                }         
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", ex.Message + " || On function: setEpgMeta with epg ID :" + epg.EpgID, "Exceptions");
+                LoginManager.LogoutFromSite("login.html");
+                return;
+            }
         }
 
         private static void doTheWorkOnFile(int nCounter, int nGroupID, ref NameValueCollection coll, ref bool bValid, ref EpgCB epg)
@@ -332,17 +332,17 @@ namespace TVinciShared
             string sDirectory = "";
             if (coll[nCounter.ToString() + "_directory"] != null)
                 sDirectory = coll[nCounter.ToString() + "_directory"].ToString();
-                        
+
             #endregion
 
             //check if the file is an image file
             bool bIsImage = false;
-            
+
             if (sIsImage.Trim().ToUpper() == "TRUE")
                 bIsImage = true;
 
             if (theFile != null && theFile.FileName != "")
-            {                
+            {
                 //check if this is a VALID image file
                 bValid = false;
                 if (bIsImage == true && theFile.ContentType.StartsWith("image"))
@@ -353,7 +353,7 @@ namespace TVinciShared
                 if (bValid == true)
                 {
                     //get the name of the file, or generate it if needed                   
-                    sPicBaseName = ImageUtils.GetDateImageNameEpg(epg.PicID, ref bIsNew);                    
+                    sPicBaseName = ImageUtils.GetDateImageNameEpg(epg.PicID, ref bIsNew);
 
                     //check if the Directory exists and if not generate it
                     if (!Directory.Exists(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString()))
@@ -367,36 +367,36 @@ namespace TVinciShared
                     if (nExtractPos > 0)
                         sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
 
-                    
+
                     string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
                     bool bExists = System.IO.File.Exists(sTmpImage);
 
                     theFile.SaveAs(sTmpImage);
                     UploadPicToGroup(nGroupID, sTmpImage);
 
-                    #region Upload different sizes                        
+                    #region Upload different sizes
                     int nI = 0;
                     bool bCont1 = true;
                     while (bCont1 && sPicBaseName != "")
                     {
                         if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
                             coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
-                        {                           
+                        {
                             string sWidth = coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].ToString();
                             string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
                             string sEndName = coll[nCounter.ToString() + "_picDim_endname_" + nI.ToString()].ToString();
                             string sCropName = coll[nCounter.ToString() + "_crop_" + nI.ToString()].ToString();
                             string sTmpImage1 = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
-                            
+
                             ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
-                            UploadPicToGroup(nGroupID, sTmpImage);                            
+                            UploadPicToGroup(nGroupID, sTmpImage);
                             nI++;
                         }
                         else
                             bCont1 = false;
-                    } 
+                    }
                     #endregion
-                    
+
                     epg.PicUrl = sPicBaseName + sUploadedFileExt;
                     updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid);
                 }
@@ -409,7 +409,7 @@ namespace TVinciShared
             //check if this is an existing epg_Pic and update it
             if (bIsNew && bValid && coll["id"] != null && coll["id"].ToString() != "")
             {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("EPG_pics");                
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("EPG_pics");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("BASE_URL", "=", sUrl);
@@ -425,7 +425,7 @@ namespace TVinciShared
             }
             else //insert a new Epg_pic
             {
-                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("EPG_pics");               
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("EPG_pics");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BASE_URL", "=", sUrl);
@@ -506,7 +506,7 @@ namespace TVinciShared
                 bValid = false;
                 return DateTime.MinValue;
             }
-        }      
+        }
 
         private static string GetWSURL(string key)
         {

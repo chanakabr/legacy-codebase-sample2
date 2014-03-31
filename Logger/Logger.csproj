@@ -164,7 +164,6 @@
   <ItemGroup>
     <Content Include="login.html" />
     <None Include="Log4Net.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\il.co.smscenter.www\SendMessage.disco" />

@@ -94,7 +94,7 @@ namespace ConditionalAccess
                     selectQuery.SetConnectionKey(connectionKey);
                 }
                 selectQuery.SetCachedSec(0);
-                selectQuery += "select * from groups_parameters where status=1 and is_active=1 and ";
+                selectQuery += "select * from groups_parameters with (nolock) where status=1 and is_active=1 and ";
                 //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
                 selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
                 selectQuery += " order by id desc";
@@ -195,7 +195,7 @@ namespace ConditionalAccess
             double tax = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("billing_connection");
-            selectQuery += " select tax_value from groups_parameters where ";
+            selectQuery += " select tax_value from groups_parameters with (nolock) where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
             if (selectQuery.Execute("query", true) != null)
             {
@@ -250,7 +250,7 @@ namespace ConditionalAccess
         {
             Int32 nLangID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select l.NAME,l.CODE3,l.id from groups g,lu_languages l where l.id=g.language_id and  ";
+            selectQuery += "select l.NAME,l.CODE3,l.id from groups g with (nolock), lu_languages l with (nolock) where l.id=g.language_id and  ";
             selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
             if (selectQuery.Execute("query", true) != null)
@@ -2205,7 +2205,7 @@ namespace ConditionalAccess
                 #endregion
 
                 // increment fail count
-                ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(nPurchaseID, true, 0);
+                ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(nPurchaseID, true, 0, "CA_CONNECTION_STRING");
 
                 // set billing response
                 res.m_oStatus = TvinciBilling.BillingResponseStatus.Fail;
@@ -2231,12 +2231,12 @@ namespace ConditionalAccess
                 {
                     // card is expired. there is no point to continue trying renewing the mpp for this user.
                     // hence, we set the fail count to maximum.
-                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"));
+                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"), "CA_CONNECTION_STRING");
                 }
                 else
                 {
                     // failed to renew. increase fail count by one.
-                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, true, 0);
+                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, true, 0, "CA_CONNECTION_STRING");
                 }
             }
         }
@@ -2247,7 +2247,7 @@ namespace ConditionalAccess
 
             // user does not exist. there is no point to continue trying renewing the mpp.
             // hence, we set the fail count to maximum
-            ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"));
+            ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"), "CA_CONNECTION_STRING");
 
             res.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnownUser;
             res.m_sStatusDescription = "User does not exist";
