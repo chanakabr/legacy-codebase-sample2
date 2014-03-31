@@ -411,6 +411,12 @@ namespace Users
         public override List<Domain> GetDeviceDomains(string udid)
         {
             List<Domain> retVal = null;
+
+            if (string.IsNullOrEmpty(udid))
+            {
+                return null;
+            }
+
             int deviceID = Device.GetDeviceIDByUDID(udid, m_nGroupID);
             if (deviceID > 0)
             {
