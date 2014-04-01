@@ -124,7 +124,10 @@ namespace EpgBL
                 List<ulong> lEpgIDs = new List<ulong>();
                 foreach (EpgCB epg in lExisitingPrograms)
                 {
-                    lEpgIDs.Add(epg.EpgID);                    
+                    if (epg != null)
+                    {
+                        lEpgIDs.Add(epg.EpgID);
+                    }
                 }
                 this.RemoveEpg(lEpgIDs);
             }
