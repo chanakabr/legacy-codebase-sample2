@@ -504,6 +504,28 @@ namespace DAL
 
         }
 
+        public static List<int> GetOperatorUsers(int nOperatorID, List<int> nUserIDs)
+        {
+            List<int> operatorUsersList = new List<int>();
+
+            ODBCWrapper.StoredProcedure spGetUsersToOperator = new ODBCWrapper.StoredProcedure("Get_UsersToOperator");
+            spGetUsersToOperator.SetConnectionKey("USERS_CONNECTION_STRING");
+            spGetUsersToOperator.AddParameter("@operatorID", nOperatorID);
+            spGetUsersToOperator.AddIDListParameter("@userIDs", nUserIDs, "Id");
+            DataSet ds = spGetUsersToOperator.ExecuteDataSet();
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null)
+            {
+                DataTable dtOperatorUsers = ds.Tables[0];
+                foreach (DataRow rowOperatorUser in dtOperatorUsers.Rows)
+                {
+                    int nOperatorUserID = ODBCWrapper.Utils.GetIntSafeVal(rowOperatorUser["user_id"]);
+                    operatorUsersList.Add(nOperatorUserID);
+                }
+            }
+
+            return operatorUsersList;
+        }
+
         public static int SetUserStatusInDomain(int nUserGuid, int nDomainID, int nGroupID, int? nUserDomainID = null, int nStatus = 1, int nIsActive = 1)
         {
             ODBCWrapper.StoredProcedure spUpdateSetUserStatusInDomain = new ODBCWrapper.StoredProcedure(SP_UPDATE_SET_USER_STATUS_IN_DOMAIN);
@@ -824,6 +846,17 @@ namespace DAL
             }
 
             return devicesIDs;
+        }
+
+        public static DataTable GetDevicesToUser(int nSiteGuid)
+        {
+            ODBCWrapper.StoredProcedure spGetDevicesToUser = new ODBCWrapper.StoredProcedure("Get_DevicesToUser");
+            spGetDevicesToUser.SetConnectionKey("USERS_CONNECTION_STRING");
+            spGetDevicesToUser.AddParameter("@userID", nSiteGuid);
+            DataSet ds = spGetDevicesToUser.ExecuteDataSet();
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
         }
 
         public static List<string[]> InitializeDeviceFamilies(int nDomainLimitID, int nGroupID)

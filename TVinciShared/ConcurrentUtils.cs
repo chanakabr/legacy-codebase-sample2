@@ -1,7 +1,9 @@
-﻿using System;
+﻿using ApiObjects.MediaMarks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Tvinci.Core.DAL;
 
 namespace TVinciShared
 {
@@ -86,40 +88,27 @@ namespace TVinciShared
         static public int GetConcurrentCount(int nGroupID, int nDomainID, string sUDID, ref int nFamilyConcurrentCount, int nDeviceFamilyID = 0)
         {
             int nConcurrent = 0;
-            nFamilyConcurrentCount = 0;
-
-            if (nDomainID <= 0)
-            {
-                return nConcurrent;
-            }
-
             Dictionary<string, TimeSpan> dictDeviceUpdateDate = DAL.ProtocolsFuncsDal.GetLastMediaMarks(nDomainID, MILLISEC_THRESHOLD);
+            var positions = CatalogDAL.GetDomainLastPositions(nDomainID, MILLISEC_THRESHOLD);
+ 
+            if (positions == null)
+                return 0;
+ 
+            //Counting total 
+            nConcurrent = positions.Where(x => x.UDID != sUDID && x.CreatedAt.AddMilliseconds(MILLISEC_THRESHOLD) > DateTime.UtcNow).Count();
 
-            if (dictDeviceUpdateDate == null || dictDeviceUpdateDate.Count == 0)
-            {
-                return nConcurrent;
-            }
-
-            for (int i = 0; i < dictDeviceUpdateDate.Keys.Count; i++)
-            {
-                string sLastUDID = dictDeviceUpdateDate.Keys.ElementAt<string>(i);
-                TimeSpan ts = dictDeviceUpdateDate[sLastUDID];
-
-                if (string.Compare(sUDID, sLastUDID, true) != 0 && ts.TotalMilliseconds < MILLISEC_THRESHOLD)
-                {
-                    nConcurrent++;
-
-                    int nDeviceBrandID = 0;
-                    int nCurrentDeviceFamilyID = DAL.DeviceDal.GetDeviceFamilyID(nGroupID, sLastUDID, ref nDeviceBrandID);
-
-                    if ((nDeviceFamilyID > 0) && (nDeviceFamilyID == nCurrentDeviceFamilyID))
-                    {
-                        nFamilyConcurrentCount++;
-                    }
-                }
-            }
-
-            return nConcurrent;
-        }
+            //Counting per family
+            foreach (UserMediaMark m in positions.Where(x=> x.UDID != sUDID))
+             {
+                int nDeviceBrandID = 0;
+                int nCurrentDeviceFamilyID = DAL.DeviceDal.GetDeviceFamilyID(nGroupID, m.UDID, ref nDeviceBrandID);
+ 
+                if ((nDeviceFamilyID > 0) && (nDeviceFamilyID == nCurrentDeviceFamilyID))                
+                    nFamilyConcurrentCount++;                
+            }           
+ 
+             return nConcurrent;     
+         }
+       
     }
 }

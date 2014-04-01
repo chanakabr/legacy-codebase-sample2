@@ -1137,31 +1137,15 @@ namespace Catalog
 
         public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID)
         {
-            if (string.IsNullOrEmpty(sSiteGUID) || nMediaID == 0)
-            {
+            int opID = 0;
+            bool isMaster = false;
+            int domainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
+
+
+            if (domainID == 0)
                 return;
-            }
 
-            int nID = 0;
-            DateTime dNow = DateTime.Now;
-
-            bool isPC = sUDID.Contains("PC||") ? true : false;
-            DataTable dt = CatalogDAL.Get_UserMediaMark(nGroupID, nMediaID, sSiteGUID, isPC, sUDID);
-
-            if (dt != null)
-            {
-                Int32 nCount = dt.Rows.Count;
-                if (nCount > 0)
-                {
-                    nID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
-                    dNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "dNow");
-                }
-            }
-
-            int nUpdateOrInsert = (nID == 0 ? 1 : 2);  // 1-insert , 2-update
-            int nSiteGuid = 0;
-            bool resultParse = int.TryParse(sSiteGUID, out nSiteGuid);
-            CatalogDAL.UpdateOrInsert_UsersMediaMark(nID, nSiteGuid, sUDID, nMediaID, nGroupID, nPlayTime, nUpdateOrInsert);
+            CatalogDAL.UpdateOrInsert_UsersMediaMark(domainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
         }
 
         public static int GetCountryIDByIP(string sIP)
@@ -2485,6 +2469,15 @@ namespace Catalog
             }
 
             return res;
+        }
+
+        public static int GetLastPosition(int mediaID, int userID)
+        {
+
+            if (mediaID == 0 || userID == 0)
+                return 0;
+
+            return CatalogDAL.GetLastPosition(mediaID, userID);
         }
 
     }
