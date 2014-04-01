@@ -168,6 +168,18 @@ namespace kabel
 
         private string stopField;
 
+        private string liveTVOutOfHomeField;
+
+        private string catchupOutOfHomeField;
+
+        private string catchupInHomeField;
+
+        private string timeShiftingField;
+
+        private string highlightField;
+
+        private tvProgrammeSubtitles subtitlesField;
+
         /// <remarks/>
         public string title
         {
@@ -452,6 +464,57 @@ namespace kabel
                 this.stopField = value;
             }
         }
+
+
+        [System.Xml.Serialization.XmlElementAttribute("LiveTV_Out-of-Home")]
+        public string liveTVOutOfHome
+        {
+            get { return liveTVOutOfHomeField; }
+            set { liveTVOutOfHomeField = value; }
+        }
+
+        [System.Xml.Serialization.XmlElementAttribute("Catch-Up_Out-of-Home")]
+        public string catchupOutOfHome
+        {
+            get { return catchupOutOfHomeField; }
+            set { catchupOutOfHomeField = value; }
+        }
+
+        [System.Xml.Serialization.XmlElementAttribute("Catch-Up_inHome")]
+        public string catchupInHome
+        {
+            get { return catchupInHomeField; }
+            set { catchupInHomeField = value; }
+        }
+
+        [System.Xml.Serialization.XmlElementAttribute("Timeshifting")]
+        public string timeShifting
+        {
+            get { return timeShiftingField; }
+            set { timeShiftingField = value; }
+        }
+
+        [System.Xml.Serialization.XmlElementAttribute("Highlighted")]
+        public string highlighted
+        {
+            get { return highlightField; }
+            set { highlightField = value; }
+        }
+
+
+
+        public tvProgrammeSubtitles subtitles
+        {
+            get
+            {
+                return this.subtitlesField;
+            }
+            set
+            {
+                this.subtitlesField = value;
+            }
+        }
+
     }
 
     /// <remarks/>
@@ -759,4 +822,37 @@ namespace kabel
             }
         }
     }
+
+
+
+
+    /// <remarks/>
+    //[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    public partial class tvProgrammeSubtitles
+    {
+
+        private string typeField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string type
+        {
+            get
+            {
+                return this.typeField;
+            }
+            set
+            {
+                this.typeField = value;
+            }
+        }
+
+
+    }
+
+
 }

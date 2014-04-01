@@ -264,13 +264,7 @@ namespace EpgFeeder
                         insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", progItem.desc);
                     }
                 }
-                else if (progItem.subtitle != null)
-                {
-                    if (!string.IsNullOrEmpty(progItem.subtitle))
-                    {
-                        insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", progItem.subtitle);
-                    }
-                }
+                
 
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", s_GroupID);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
@@ -322,10 +316,7 @@ namespace EpgFeeder
                 {
                     newEpgItem.Description = progItem.desc;
                 }
-                else if (!string.IsNullOrEmpty(progItem.subtitle))
-                {
-                    newEpgItem.Description = progItem.subtitle;
-                }
+                
                 newEpgItem.GroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);               
                 newEpgItem.ParentGroupID = groupID;                
                 newEpgItem.EpgIdentifier = EPGGuid.ToString();               
@@ -460,9 +451,9 @@ namespace EpgFeeder
             foreach (var progItem in prog)
             {
                 Utils.ParseEPGStrToDate(progItem.start, ref dProgStartDate);
-                if (!lDates.Contains(dProgStartDate))
+                if (!lDates.Contains(dProgStartDate.Date))
                 {
-                    lDates.Add(dProgStartDate);
+                    lDates.Add(dProgStartDate.Date);
                 }
             }
 
@@ -502,9 +493,12 @@ namespace EpgFeeder
                                 if (node.episodenum != null && node.episodenum.Value != null)
                                 {
                                     string[] wordsSeEp = node.episodenum.Value.Split('.');
-                                    string[] numOfNum = wordsSeEp[1].Split('/');
-                                    string finelValue = numOfNum[0] == "" ? "" : (int.Parse(numOfNum[0]) + 1).ToString();
-                                    FieldEntityMapping[i].Value.Add(finelValue);
+                                    if (wordsSeEp.Length > 1)
+                                    {
+                                        string[] numOfNum = wordsSeEp[1].Split('/');
+                                        string finelValue = numOfNum[0] == "" ? "" : (int.Parse(numOfNum[0]) + 1).ToString();
+                                        FieldEntityMapping[i].Value.Add(finelValue);
+                                    }
                                 }
                                 break;
                             }
@@ -516,6 +510,63 @@ namespace EpgFeeder
                                     string[] numOfNum = wordsSeEp[0].Split('/');
                                     string finelValue = numOfNum[0] == "" ? "" : (int.Parse(numOfNum[0]) + 1).ToString();
                                     FieldEntityMapping[i].Value.Add(finelValue);
+                                }
+                                break;
+                            }
+                        case "episode number system":
+                            {
+                                if (node.episodenum != null && node.episodenum.system != null)
+                                {
+                                    if (node.episodenum.system != "")
+                                        FieldEntityMapping[i].Value.Add(node.episodenum.system);
+                                }
+                                break;
+                            }
+                        case "total episodes":
+                            {
+                                if (node.episodenum != null && node.episodenum.system != null)
+                                {
+                                    string[] wordsSeEp = node.episodenum.Value.Split('.');
+                                    if (wordsSeEp.Length > 1)
+                                    {
+                                        string[] numOfNum = wordsSeEp[1].Split('/');
+                                        if (numOfNum.Length > 1)
+                                        {
+                                            string finelValue = numOfNum[1] == "" ? "" : (int.Parse(numOfNum[1])).ToString();
+                                            FieldEntityMapping[i].Value.Add(finelValue);
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        case "episode part":
+                            {
+                                if (node.episodenum != null && node.episodenum.system != null)
+                                {
+                                    string[] wordsSeEp = node.episodenum.Value.Split('.');
+                                    if (wordsSeEp.Length > 2)
+                                    {
+                                        string[] numOfNum = wordsSeEp[2].Split('/');
+                                        string finelValue = numOfNum[0] == "" ? "" : (int.Parse(numOfNum[0]) + 1).ToString();
+                                        FieldEntityMapping[i].Value.Add(finelValue);
+                                    }
+                                }
+                                break;
+                            }
+                        case "number of parts":
+                            {
+                                if (node.episodenum != null && node.episodenum.system != null)
+                                {
+                                    string[] wordsSeEp = node.episodenum.Value.Split('.');
+                                    if (wordsSeEp.Length > 2)
+                                    {
+                                        string[] numOfNum = wordsSeEp[2].Split('/');
+                                        if (numOfNum.Length > 1)
+                                        {
+                                            string finelValue = numOfNum[1] == "" ? "" : (int.Parse(numOfNum[1])+1).ToString();
+                                            FieldEntityMapping[i].Value.Add(finelValue);
+                                        }
+                                    }
                                 }
                                 break;
                             }
@@ -631,6 +682,15 @@ namespace EpgFeeder
                                 }
                                 break;
                             }
+                        case "category":
+                            {
+                                if (node.category != null && node.category.Length > 0)
+                                {
+                                    for (int j = 0; j < node.category.Length; j++)
+                                        FieldEntityMapping[i].Value.Add(node.category[j]);
+                                }
+                                break;
+                            }
                         case "year":
                             {
                                 if (node.date != null)
@@ -676,6 +736,55 @@ namespace EpgFeeder
                                 if (node.Downloadable != null)
                                 {
                                     FieldEntityMapping[i].Value.Add(node.Downloadable);
+                                }
+                                break;
+                            }
+                        case "subtitles":
+                            {
+                                if (node.subtitles != null && node.subtitles.type != null)
+                                {
+                                    FieldEntityMapping[i].Value.Add(node.subtitles.type);
+                                }
+                                break;
+                            }
+                        case "livetvoutofhome":
+                            {
+                                if (node.liveTVOutOfHome != null)
+                                {
+                                    FieldEntityMapping[i].Value.Add(node.liveTVOutOfHome);
+                                }
+                                break;
+                            }
+                        case "catchupoutofhome":
+                            {
+                                if (node.catchupOutOfHome != null)
+                                {
+                                    FieldEntityMapping[i].Value.Add(node.catchupOutOfHome);
+                                }
+                                break;
+                            }
+                        case "catchupinhome":
+                            {
+                                if (node.catchupInHome != null)
+                                {
+                                    FieldEntityMapping[i].Value.Add(node.catchupInHome);
+                                }
+                                break;
+                            }
+                        case "timeshifting":
+                            {
+                                if (node.timeShifting != null)
+                                {
+                                    FieldEntityMapping[i].Value.Add(node.timeShifting);
+                                }
+                                break;
+                            }
+
+                        case "highlight":
+                            {
+                                if (node.highlighted != null)
+                                {
+                                    FieldEntityMapping[i].Value.Add(node.highlighted);
                                 }
                                 break;
                             }
