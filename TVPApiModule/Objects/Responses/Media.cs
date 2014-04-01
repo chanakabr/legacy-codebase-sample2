@@ -67,22 +67,22 @@ namespace TVPApiModule.Objects.Responses
 
         private readonly ILog logger = LogManager.GetLogger(typeof(Media));
 
-        public string media_id;
-        public string media_name;
-        public string media_type_id;
-        public string media_type_name;
-        public double rating;
-        public int view_counter;
-        public string description;
-        public DateTime creation_date;
-        public DateTime? last_watch_date;
-        public DateTime start_date;
-        public DateTime catalog_start_date;
-        public string pic_url;
-        public string url;
-        public string mediaWeb_link;
-        public string duration;
-        public string file_id;
+        public string media_id { get; set; }
+        public string media_name { get; set; }
+        public string media_type_id { get; set; }
+        public string media_type_name { get; set; }
+        public double rating { get; set; }
+        public int view_counter { get; set; }
+        public string description { get; set; }
+        public DateTime creation_date { get; set; }
+        public DateTime? last_watch_date { get; set; }
+        public DateTime start_date { get; set; }
+        public DateTime catalog_start_date { get; set; }
+        public string pic_url { get; set; }
+        public string url { get; set; }
+        public string mediaWeb_link { get; set; }
+        public string duration { get; set; }
+        public string file_id { get; set; }
         private List<TagMetaPair> m_tags;
         private List<TagMetaPair> m_metas;
         private List<File> m_files;
@@ -92,14 +92,14 @@ namespace TVPApiModule.Objects.Responses
 
         private List<ExtIDPair> m_externalIDs;
 
-        //public DynamicData mediaDynamicData;
-        public string sub_duration;
-        public string sub_file_format;
-        public string sub_file_id;
-        public string sub_url;
-        public string geo_block;
-        public long total_items;
-        public int? like_counter;
+        public string sub_duration { get; set; }
+        public string sub_file_format { get; set; }
+        public string sub_file_id { get; set; }
+        public string sub_url { get; set; }
+        public string geo_block { get; set; }
+        public long total_items { get; set; }
+        public int? like_counter { get; set; }
+
 
         public List<TagMetaPair> tags
         {
