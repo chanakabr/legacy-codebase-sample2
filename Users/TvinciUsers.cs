@@ -607,6 +607,8 @@ namespace Users
             {
                 //add new domain
                 DomainResponseObject dResp = AddNewDomain(sUserName, nUserID, m_nGroupID);
+                u.m_domianID = dResp.m_oDomain.m_nDomainID;
+
                 if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
                 {
                     resp.Initialize(ResponseStatus.UserWithNoDomain, u);
