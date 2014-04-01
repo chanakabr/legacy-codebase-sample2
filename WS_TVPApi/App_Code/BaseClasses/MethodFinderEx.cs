@@ -493,6 +493,7 @@ public partial class MethodFinder
                 if (MethodParam.Equals(typeof(string))) return string.Empty;
                 if (MethodParam.IsValueType && MethodParam.IsPrimitive) return Activator.CreateInstance(MethodParam, false);
                 //throw new Exception(string.Format("Error with '{0}' parameter.", methodName));
+                return null;
             }
         }
 
