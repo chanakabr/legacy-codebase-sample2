@@ -47,6 +47,9 @@ namespace Users
         LoggedOut = 4
     }
 
+    /// <summary>
+    /// Has to correspond exactly to DAL\enums.cs. Please verify if changes were made!!!
+    /// </summary>
     public enum UserActivationState
     {
         Error = -2,
@@ -54,7 +57,7 @@ namespace Users
         Activated = 0,
         NotActivated = 1,
         NotActivatedByMaster = 2,
-        UserNotInDomain = 3,
+        UserNotInDomain = 3,        // removed from domain
         UserWIthNoDomain  = 4
     }
 

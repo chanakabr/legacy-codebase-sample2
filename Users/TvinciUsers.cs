@@ -221,7 +221,8 @@ namespace Users
                         ret = ResponseStatus.UserNotIndDomain;
                         break;
 
-                    case UserActivationState.UserWIthNoDomain:                
+                    case UserActivationState.UserWIthNoDomain:
+                        //ret = ResponseStatus.UserWithNoDomain;
                         bool bValidDomainStat = CheckAddDomain(ref o, null, sUN, nUserID);
                         if (!bValidDomainStat)
                             return o;
@@ -287,6 +288,7 @@ namespace Users
                             ret = ResponseStatus.UserNotIndDomain;
                             break;
                         case UserActivationState.UserWIthNoDomain:
+                            //ret = ResponseStatus.UserNotIndDomain;
                             bool bValidDomainStat = CheckAddDomain(ref o, null, sUN, siteGuid);
                             if (!bValidDomainStat)
                                 return o;
@@ -603,6 +605,7 @@ namespace Users
             {
                 //add new domain
                 DomainResponseObject dResp = AddNewDomain(sUserName, nUserID, m_nGroupID);
+                u.m_domianID = dResp.m_oDomain.m_nDomainID;                
                 if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
                 {
                     resp.Initialize(ResponseStatus.UserWithNoDomain, u);

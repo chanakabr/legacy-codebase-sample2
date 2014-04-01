@@ -1186,11 +1186,12 @@ namespace DAL
         ///      1 - user not activated 
         ///      2 - user not activated by master
         ///      3 - user removed from domain
+        ///      4 - user without domain 
         ///      
         /// </returns>
-        public static UserActivationState GetUserActivationState(string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
+        public static DALUserActivationState GetUserActivationState(string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
         {
-            UserActivationState res = UserActivationState.Error;    // int res = (-2);
+            DALUserActivationState res = DALUserActivationState.Error;    // int res = (-2);
 
             try
             {
@@ -1226,13 +1227,13 @@ namespace DAL
 
                         bool isActive           = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
 
-                        res = isActive ? UserActivationState.Activated : UserActivationState.NotActivated; // 0 : 1;
+                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated; // 0 : 1;
 
                         //if (!isActive) { return res; }
                     }
                     else
                     {
-                        res = UserActivationState.UserDoesNotExist; // (-1);
+                        res = DALUserActivationState.UserDoesNotExist; // (-1);
 
                         return res;
                     }
@@ -1242,7 +1243,7 @@ namespace DAL
                 selectQuery = null;
 
 
-                if (res == UserActivationState.NotActivated) { return res; }
+                if (res == DALUserActivationState.NotActivated) { return res; }
 
                 // If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
                 //
@@ -1274,17 +1275,17 @@ namespace DAL
 
                         if (nStatus != 2)
                         {
-                            res = isActive1 ? UserActivationState.Activated : UserActivationState.NotActivatedByMaster; // 0 : 2;
+                            res = isActive1 ? DALUserActivationState.Activated : DALUserActivationState.NotActivatedByMaster; // 0 : 2;
                         }
                         else
                         {
-                            res = UserActivationState.UserNotInDomain;
+                            res = DALUserActivationState.UserRemovedFromDomain;
                         }
 
                     }
                     else //user does not have a Domain
                     {
-                        res = UserActivationState.UserNotInDomain; //res = (-1);
+                        res = DALUserActivationState.UserWIthNoDomain; //res = (-1);
                     }
                 }
 
@@ -1296,7 +1297,7 @@ namespace DAL
             {
                 HandleException(ex);
 
-                res = UserActivationState.Error; // (-2);
+                res = DALUserActivationState.Error; // (-2);
             }
 
             return res;
