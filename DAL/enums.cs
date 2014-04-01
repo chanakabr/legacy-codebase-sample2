@@ -5,7 +5,10 @@ using System.Text;
 
 namespace DAL
 {
-    public enum UserActivationState
+
+    // Must correspond exactly to Users\enums.cs. Please verify if changes were made!!!
+    //
+    public enum DALUserActivationState
     {
         Error = -2,
         UserDoesNotExist = -1,
@@ -13,8 +16,7 @@ namespace DAL
         NotActivated = 1,
         NotActivatedByMaster = 2,
         UserRemovedFromDomain = 3,
-        UserNotInDomain = 4         // Or removed 
-        
+        UserWIthNoDomain = 4
     }
     
 }

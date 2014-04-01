@@ -1013,10 +1013,10 @@ namespace DAL
             sp.ExecuteNonQuery();
         }
 
-        public static void Update_MPPFailCountByPurchaseID(long lPurchaseID, bool bTrueForIncrementingByOneFalseForSettingNewValue, int nNewValue, string sConnKey)
+        public static void Update_MPPFailCountByPurchaseID(long lPurchaseID, bool bTrueForIncrementingByOneFalseForSettingNewValue, int nNewValue)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPFailCountByPurchaseID");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@PurchaseID", lPurchaseID);
             if (bTrueForIncrementingByOneFalseForSettingNewValue)
             {
@@ -1030,11 +1030,6 @@ namespace DAL
             }
 
             sp.ExecuteNonQuery();
-        }
-
-        public static void Update_MPPFailCountByPurchaseID(long lPurchaseID, bool bTrueForIncrementingByOneFalseForSettingNewValue, int nNewValue)
-        {
-            Update_MPPFailCountByPurchaseID(lPurchaseID, bTrueForIncrementingByOneFalseForSettingNewValue, nNewValue, string.Empty);
         }
 
         public static string Get_FirstDeviceUsedByPPVModule(int nMediaFileID, string sPPVModuleCode, List<int> usersList, out int numofRowsReturned)

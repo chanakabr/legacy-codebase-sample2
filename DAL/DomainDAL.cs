@@ -1728,7 +1728,8 @@ namespace DAL
             sp.AddParameter("@Name", sName);
             sp.AddParameter("@Description", sDesc);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
-            sp.AddParameter("@IsDelete", !bTrueForDeactivationFalseForDeletion);
+            sp.AddParameter("@IsActive", false);
+            sp.AddParameter("@Status", (byte)(bTrueForDeactivationFalseForDeletion ? 1 : 2));
 
             return sp.ExecuteReturnValue<bool>();
         }

@@ -14,8 +14,6 @@ using DAL;
 using ApiObjects;
 using Logger;
 using System.Reflection;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
 
 namespace TvinciImporter
 {
@@ -3692,7 +3690,7 @@ namespace TvinciImporter
                         sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";                       
                         
                         // Update record in Catalog (see the flow inside Update Index
-                      bool resultMQ = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update);
+                        bool resultMQ = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update);
                         // update notification 
                         UpdateNotificationsRequests(nGroupID, nMediaID);
                     }
@@ -3909,7 +3907,6 @@ namespace TvinciImporter
                         }
                     }
                 }
-           
             }
             catch (Exception ex)
             {
@@ -3919,7 +3916,7 @@ namespace TvinciImporter
             {
                 client.Close();
             }
-            
+
             return bUpdate;
         }
 
@@ -3952,7 +3949,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = GetConfigVal("WS_Catalog");
+            string sCatalogURL = GetConfigVal("CATALOG_WCF");
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -4030,49 +4027,21 @@ namespace TvinciImporter
         {
            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
-
-
-        #region create client to WCF service
-
-        internal static class BindingFactory
-        {
-            internal static Binding CreateInstance()
-            {
-                BasicHttpBinding binding = new BasicHttpBinding();
-                binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
-                binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
-                binding.UseDefaultWebProxy = true;
-                return binding;
-            }
-
-        }
-
-        internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
-        {
-            string siteUrl = GetConfigVal(sSiteUrl); 
-            Uri serviceUri = new Uri(siteUrl);
-            EndpointAddress endpointAddress = new EndpointAddress(serviceUri);
-
-            //Create the binding here
-            Binding binding = BindingFactory.CreateInstance();
-            WSCatalog.IserviceClient client = new WSCatalog.IserviceClient(binding, endpointAddress);
-            return client;
-        }
-        #endregion
-
+        
         public static bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction)
         {
             bool isUpdateIndexSucceeded = false;
-           
+
              string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
              if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
              {
+
                  using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
                  {
-                     WSCatalog.IserviceClient client = null;
+                     WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+
                      try
                      {
-                         client = GetWCFSvc("WS_Catalog");
                          if (lMediaIds != null && lMediaIds.Count > 0 && nGroupId > 0)
                          {
                              string sWSURL = GetCatalogUrl(nGroupId);
@@ -4135,12 +4104,13 @@ namespace TvinciImporter
             string sUseElasticSearch = GetConfigVal("indexer");
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES"))
             {
-                WSCatalog.IserviceClient client = null;
+                WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+
                 using (BaseLog updateChannelLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
                 {
                     try
                     {
-                        client = GetWCFSvc("WS_Catalog");
+
                         if (lChannelIds != null && lChannelIds.Count > 0 && nGroupId > 0)
                         {
                             string sWSURL = GetCatalogUrl(nGroupId);
@@ -4202,7 +4172,7 @@ namespace TvinciImporter
                     string[] addresses = sWSURL.Split(';');
                     if (addresses != null && addresses.Length > 0)
                     {
-                        client = GetWCFSvc("WS_Catalog");
+                        client = new WSCatalog.IserviceClient();
                         int length = addresses.Length;
                         for (int i = 0; i < length; i++)
                         {
@@ -4244,12 +4214,12 @@ namespace TvinciImporter
             string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {
-                WSCatalog.IserviceClient client = null;
                 using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
                 {
+                    WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+
                     try
                     {
-                        client = GetWCFSvc("WS_Catalog");
                         if (lepgIds != null && lepgIds.Count > 0 && nGroupId > 0)
                         {
                             string sWSURL = GetCatalogUrl(nGroupId);
