@@ -5029,14 +5029,142 @@ namespace ConditionalAccess
     string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
     string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            return GetSubscriptionCustomDataID(sSiteGUID, dPrice,
+            return GetBundleCustomDataID(sSiteGUID, dPrice,
             sCurrency, sSubscriptionCode, sCampaignCode, sCouponCode, sPaymentMethod, sUserIP,
-            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty);
+            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty, eBundleType.SUBSCRIPTION);
         }
 
-        public virtual int GetSubscriptionCustomDataID(string sSiteGUID, double dPrice,
-            string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEnddate, string sPreviewModuleID)
+        //public virtual int GetSubscriptionCustomDataID(string sSiteGUID, double dPrice,
+        //    string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
+        //    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEnddate, string sPreviewModuleID)
+        //{
+        //    int retVal = 0;
+        //    long lSiteGuid = 0;
+        //    if (sSiteGUID.Length == 0 || !Int64.TryParse(sSiteGUID, out lSiteGuid) || lSiteGuid == 0)
+        //    {
+        //        retVal = 0;
+        //    }
+        //    else
+        //    {
+        //        TvinciUsers.UsersService u = null;
+        //        TvinciPricing.mdoule m = null;
+        //        try
+        //        {
+        //            Logger.Logger.Log("GetSubscriptionCustomDataID", GetGetCustomDataLogMsg("Subscription", sSiteGUID, dPrice, 0, 0, sSubscriptionCode, sCouponCode, sPaymentMethod, sUserIP, sPreviewModuleID), GetLogFilename());
+        //            u = new ConditionalAccess.TvinciUsers.UsersService();
+        //            string sIP = "1.1.1.1";
+        //            string sWSUserName = string.Empty;
+        //            string sWSPass = string.Empty;
+        //            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
+        //            string sWSURL = Utils.GetWSURL("users_ws");
+        //            if (sWSURL.Length > 0)
+        //                u.Url = sWSURL;
+
+        //            ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+        //            if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+        //            {
+        //                retVal = 0;
+        //            }
+        //            else
+        //            {
+
+        //                PriceReason theReason = PriceReason.UnKnown;
+        //                TvinciPricing.Subscription theSub = null;
+        //                TvinciPricing.Campaign relevantCamp = null;
+
+
+        //                TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+        //                if (theReason == PriceReason.ForPurchase || theReason == PriceReason.EntitledToPreviewModule)
+        //                {
+        //                    if (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
+        //                    {
+        //                        if (p.m_dPrice != 0 || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
+        //                        {
+        //                            sIP = "1.1.1.1";
+        //                            sWSUserName = string.Empty;
+        //                            sWSPass = string.Empty;
+
+        //                            m = new global::ConditionalAccess.TvinciPricing.mdoule();
+        //                            sWSURL = Utils.GetWSURL("pricing_ws");
+        //                            if (sWSURL.Length > 0)
+        //                                m.Url = sWSURL;
+
+        //                            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+
+        //                            if (!string.IsNullOrEmpty(sCampaignCode))
+        //                            {
+        //                                int nCampaignCode = int.Parse(sCampaignCode);
+        //                                relevantCamp = m.GetCampaignData(sWSUserName, sWSPass, nCampaignCode);
+        //                            }
+        //                            string sCustomData = GetCustomDataForSubscription(theSub, relevantCamp, sSubscriptionCode, sCampaignCode, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEnddate, sPreviewModuleID);
+
+        //                            retVal = Utils.AddCustomData(sCustomData);
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        retVal = 0;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    if (theReason == PriceReason.Free)
+        //                    {
+        //                        retVal = 0;
+        //                    }
+        //                    if (theReason == PriceReason.SubscriptionPurchased)
+        //                    {
+        //                        retVal = 0;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            #region Logging
+        //            StringBuilder sb = new StringBuilder(String.Concat("Exception msg: ", ex.Message));
+        //            sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
+        //            sb.Append(String.Concat(" Price: ", dPrice));
+        //            sb.Append(String.Concat(" Currency: ", sCurrency));
+        //            sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
+        //            sb.Append(String.Concat(" Campaign Code: ", sCampaignCode));
+        //            sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
+        //            sb.Append(String.Concat(" Payment Method: ", sPaymentMethod));
+        //            sb.Append(String.Concat(" User IP: ", sUserIP));
+        //            sb.Append(String.Concat(" Country Code: ", sCountryCd));
+        //            sb.Append(String.Concat(" Language Code: ", sLANGUAGE_CODE));
+        //            sb.Append(String.Concat(" Device Name: ", sDEVICE_NAME));
+        //            sb.Append(String.Concat(" Override End Date: ", sOverrideEnddate));
+        //            sb.Append(String.Concat(" Preview Module ID: ", sPreviewModuleID));
+        //            sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().ToString()));
+        //            sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
+        //            Logger.Logger.Log("GetSubscriptionCustomDataID", sb.ToString(), GetLogFilename());
+        //            #endregion
+        //            retVal = 0;
+
+        //        }
+        //        finally
+        //        {
+        //            #region Disposing
+        //            if (u != null)
+        //            {
+        //                u.Dispose();
+        //                u = null;
+        //            }
+        //            if (m != null)
+        //            {
+        //                m.Dispose();
+        //                m = null;
+        //            }
+        //            #endregion
+        //        }
+        //    }
+        //    return retVal;
+        //}
+
+        public virtual int GetBundleCustomDataID(string sSiteGUID, double dPrice,
+            string sCurrency, string sBundleCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEnddate, string sPreviewModuleID, eBundleType bundleType)
         {
             int retVal = 0;
             long lSiteGuid = 0;
@@ -5050,7 +5178,7 @@ namespace ConditionalAccess
                 TvinciPricing.mdoule m = null;
                 try
                 {
-                    Logger.Logger.Log("GetSubscriptionCustomDataID", GetGetCustomDataLogMsg("Subscription", sSiteGUID, dPrice, 0, 0, sSubscriptionCode, sCouponCode, sPaymentMethod, sUserIP, sPreviewModuleID), GetLogFilename());
+                    Logger.Logger.Log("GetBundleCustomDataID", GetGetCustomDataLogMsg("Bundle", sSiteGUID, dPrice, 0, 0, sBundleCode, sCouponCode, sPaymentMethod, sUserIP, sPreviewModuleID), GetLogFilename());
                     u = new ConditionalAccess.TvinciUsers.UsersService();
                     string sIP = "1.1.1.1";
                     string sWSUserName = string.Empty;
@@ -5069,16 +5197,34 @@ namespace ConditionalAccess
                     {
 
                         PriceReason theReason = PriceReason.UnKnown;
-                        TvinciPricing.Subscription theSub = null;
+                        TvinciPricing.PPVModule theBundle   = null;
                         TvinciPricing.Campaign relevantCamp = null;
+                        TvinciPricing.Price price           = null;
 
+                        switch (bundleType)
+                        {
+                            case eBundleType.SUBSCRIPTION:
+                            {
+                                TvinciPricing.Subscription theSub = null;
+                                price       = Utils.GetSubscriptionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                theBundle   = theSub;
+                                break;
+                            }
+                            case eBundleType.COLLECTION:
+                            {
+                                TvinciPricing.Collection theCol = null;
+                                price       = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "");
+                                theBundle   = theCol;
+                                break;
+                            }
+                        }
 
-                        TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                         
                         if (theReason == PriceReason.ForPurchase || theReason == PriceReason.EntitledToPreviewModule)
                         {
-                            if (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
+                            if (price != null && price.m_dPrice == dPrice && price.m_oCurrency.m_sCurrencyCD3 == sCurrency)
                             {
-                                if (p.m_dPrice != 0 || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
+                                if (price.m_dPrice != 0 || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
                                 {
                                     sIP = "1.1.1.1";
                                     sWSUserName = string.Empty;
@@ -5096,7 +5242,24 @@ namespace ConditionalAccess
                                         int nCampaignCode = int.Parse(sCampaignCode);
                                         relevantCamp = m.GetCampaignData(sWSUserName, sWSPass, nCampaignCode);
                                     }
-                                    string sCustomData = GetCustomDataForSubscription(theSub, relevantCamp, sSubscriptionCode, sCampaignCode, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEnddate, sPreviewModuleID);
+
+                                    string sCustomData = string.Empty;
+
+                                    switch (bundleType)
+                                    {
+                                        case eBundleType.SUBSCRIPTION:
+                                        {
+                                            sCustomData = GetCustomDataForSubscription(theBundle as TvinciPricing.Subscription, relevantCamp, sBundleCode, sCampaignCode, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEnddate, sPreviewModuleID);
+                                            break;
+                                        }
+                                        case eBundleType.COLLECTION:
+                                        {
+                                            sCustomData = GetCustomDataForCollection(theBundle as TvinciPricing.Collection, sBundleCode, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEnddate);
+                                            break;
+                                        }
+                                    }
+
+                                    
 
                                     retVal = Utils.AddCustomData(sCustomData);
                                 }
@@ -5116,6 +5279,10 @@ namespace ConditionalAccess
                             {
                                 retVal = 0;
                             }
+                            if (theReason == PriceReason.CollectionPurchased)
+                            {
+                                retVal = 0;
+                            }
                         }
                     }
                 }
@@ -5126,7 +5293,7 @@ namespace ConditionalAccess
                     sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
                     sb.Append(String.Concat(" Price: ", dPrice));
                     sb.Append(String.Concat(" Currency: ", sCurrency));
-                    sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
+                    sb.Append(String.Concat(" Bundle Code: ", sBundleCode));
                     sb.Append(String.Concat(" Campaign Code: ", sCampaignCode));
                     sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
                     sb.Append(String.Concat(" Payment Method: ", sPaymentMethod));
@@ -5138,7 +5305,7 @@ namespace ConditionalAccess
                     sb.Append(String.Concat(" Preview Module ID: ", sPreviewModuleID));
                     sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().ToString()));
                     sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-                    Logger.Logger.Log("GetSubscriptionCustomDataID", sb.ToString(), GetLogFilename());
+                    Logger.Logger.Log("GetBundleCustomDataID", sb.ToString(), GetLogFilename());
                     #endregion
                     retVal = 0;
 
@@ -7073,7 +7240,7 @@ namespace ConditionalAccess
             }
             sb.Append("</mnou>");
             sb.AppendFormat("<u id=\"{0}\"/>", sSiteGUID);
-            sb.AppendFormat("<s>{0}</s>", sCollectionCode);
+            sb.AppendFormat("<cID>{0}</cID>", sCollectionCode);
             sb.AppendFormat("<cc>{0}</cc>", sCouponCode);
             sb.Append("<oed>");
             sb.Append(sOverrideEndDate);

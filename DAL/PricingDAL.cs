@@ -87,7 +87,7 @@ namespace DAL
 
         }
 
-        public static void Insert_NewCouponUse(string sSiteGuid, long lCouponID, long lGroupID, long lMediaFileID, long lSubscriptionCode, long lPrePaidCode)
+        public static void Insert_NewCouponUse(string sSiteGuid, long lCouponID, long lGroupID, long lMediaFileID, long lSubscriptionCode, long lPrePaidCode, long nCollectionCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCouponUse");
             sp.SetConnectionKey("pricing_connection");
@@ -100,6 +100,7 @@ namespace DAL
             sp.AddParameter("@SubscriptionCode", lSubscriptionCode);
             sp.AddParameter("@PrePaidCode", lPrePaidCode);
             sp.AddParameter("@UpdateDate", dtToWriteToDB);
+            sp.AddParameter("@CollectionCode", nCollectionCode);
             sp.ExecuteNonQuery();
         }
 
