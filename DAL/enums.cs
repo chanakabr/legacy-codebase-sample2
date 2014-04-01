@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DAL
 {
-    // Has to correspond exactly to Users\enums.cs. Please verify if changes were made!!!
+    // Must correspond exactly to Users\enums.cs. Please verify if changes were made!!!
     //
     public enum DALUserActivationState
     {

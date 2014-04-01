@@ -35,13 +35,12 @@ namespace Users
 
             if (nDomainID <= 0)
             {
-                //domain.m_DomainStatus = DomainStatus.Error;
                 oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.DomainNotExists);
 
                 return oDomainResponseObject;
             }
 
-            Domain domain = DomainFactory.GetDomain(nGroupID, nDomainID);  //domain = GetDomainInfo(nDomainID, nGroupID);
+            Domain domain = DomainFactory.GetDomain(nGroupID, nDomainID);
 
             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
@@ -127,7 +126,6 @@ namespace Users
 
             //New domain
             Domain domain = DomainFactory.GetDomain(sDomainName, sDomainDescription, nGroupID, nDomainID);
-
 
             //Update the domain fields
             bool updated = domain.Update();

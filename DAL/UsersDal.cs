@@ -1191,7 +1191,7 @@ namespace DAL
         /// </returns>
         public static DALUserActivationState GetUserActivationState(string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
         {
-            DALUserActivationState res = DALUserActivationState.Error;    // int res = (-2);
+            DALUserActivationState res = DALUserActivationState.Error;
 
             try
             {
@@ -1227,13 +1227,11 @@ namespace DAL
 
                         bool isActive           = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
 
-                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated; // 0 : 1;
-
-                        //if (!isActive) { return res; }
+                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;
                     }
                     else
                     {
-                        res = DALUserActivationState.UserDoesNotExist; // (-1);
+                        res = DALUserActivationState.UserDoesNotExist;
 
                         return res;
                     }
@@ -1275,7 +1273,7 @@ namespace DAL
 
                         if (nStatus != 2)
                         {
-                            res = isActive1 ? DALUserActivationState.Activated : DALUserActivationState.NotActivatedByMaster; // 0 : 2;
+                            res = isActive1 ? DALUserActivationState.Activated : DALUserActivationState.NotActivatedByMaster;
                         }
                         else
                         {
@@ -1285,7 +1283,7 @@ namespace DAL
                     }
                     else //user does not have a Domain
                     {
-                        res = DALUserActivationState.UserWIthNoDomain; //res = (-1);
+                        res = DALUserActivationState.UserWIthNoDomain;
                     }
                 }
 
@@ -1297,7 +1295,7 @@ namespace DAL
             {
                 HandleException(ex);
 
-                res = DALUserActivationState.Error; // (-2);
+                res = DALUserActivationState.Error;
             }
 
             return res;

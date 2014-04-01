@@ -217,13 +217,14 @@ namespace Users
                         ret = ResponseStatus.UserNotMasterApproved;
                         break;
 
-                    case UserActivationState.UserNotInDomain:
+                    case UserActivationState.UserRemovedFromDomain:
+                        o.m_user = new User(nGroupID, nUserID);
                         ret = ResponseStatus.UserNotIndDomain;
                         break;
 
                     case UserActivationState.UserWIthNoDomain:
-                        //ret = ResponseStatus.UserWithNoDomain;
-                        bool bValidDomainStat = CheckAddDomain(ref o, null, sUN, nUserID);
+                        o.m_user = new User(nGroupID, nUserID);
+                        bool bValidDomainStat = CheckAddDomain(ref o, o.m_user, sUN, nUserID);
                         if (!bValidDomainStat)
                             return o;
                             break;
@@ -284,12 +285,13 @@ namespace Users
                             o.m_user = new User(nGroupID, siteGuid);
                             ret = ResponseStatus.UserNotMasterApproved;
                             break;
-                        case UserActivationState.UserNotInDomain:
+                        case UserActivationState.UserRemovedFromDomain:
+                            o.m_user = new User(nGroupID, siteGuid);
                             ret = ResponseStatus.UserNotIndDomain;
                             break;
                         case UserActivationState.UserWIthNoDomain:
-                            //ret = ResponseStatus.UserNotIndDomain;
-                            bool bValidDomainStat = CheckAddDomain(ref o, null, sUN, siteGuid);
+                            o.m_user = new User(nGroupID, siteGuid);
+                            bool bValidDomainStat = CheckAddDomain(ref o,o.m_user, sUN, siteGuid);
                             if (!bValidDomainStat)
                                 return o;
                             break;
@@ -605,7 +607,7 @@ namespace Users
             {
                 //add new domain
                 DomainResponseObject dResp = AddNewDomain(sUserName, nUserID, m_nGroupID);
-                u.m_domianID = dResp.m_oDomain.m_nDomainID;                
+                u.m_domianID = dResp.m_oDomain.m_nDomainID;
                 if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
                 {
                     resp.Initialize(ResponseStatus.UserWithNoDomain, u);
