@@ -335,12 +335,14 @@ namespace ElasticSearch.Searcher
                 BoolQuery oOrBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
                 BoolQuery oMultiFilterBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
 
+                BoolQuery oBoolAndORQuery = new BoolQuery();
+                oBoolAndORQuery.AddChild(oAndBoolQuery, CutWith.AND);
+                oBoolAndORQuery.AddChild(oOrBoolQuery, CutWith.AND);
+
                 BoolQuery oBoolQuery = new BoolQuery();
-                oBoolQuery.AddChild(oAndBoolQuery, CutWith.OR);
-                oBoolQuery.AddChild(oOrBoolQuery, CutWith.OR);
+                oBoolQuery.AddChild(oBoolAndORQuery, CutWith.OR);
                 oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.OR);
                 
-
                 if (!string.IsNullOrEmpty(oSearchObject.m_sDescription))
                 {
                     oBoolQuery.AddChild(new ESWildcard(){ Key = "description", Value = string.Format("*{0}*", oSearchObject.m_sDescription) }, CutWith.OR);
