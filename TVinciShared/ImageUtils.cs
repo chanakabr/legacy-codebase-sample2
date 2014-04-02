@@ -11,6 +11,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
+using System.Collections.Generic;
+using QueueWrapper;
 
 namespace TVinciShared
 {
@@ -93,26 +95,29 @@ namespace TVinciShared
         static public string GetDateImageName(int mediaID)
         {
             string retVal = string.Empty;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += " select p.base_url, m.id from pics p, media m where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.id", "=", mediaID);
-            selectQuery += " and p.id = m.media_pic_id and p.status = 1";
-            selectQuery.SetCachedSec(0);
-            if (selectQuery.Execute("query", true) != null)
+            if (mediaID > 0)
             {
-                int count = selectQuery.Table("query").DefaultView.Count;
-                if (count > 0)
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += " select p.base_url, m.id from pics p, media m where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.id", "=", mediaID);
+                selectQuery += " and p.id = m.media_pic_id and p.status = 1";
+                selectQuery.SetCachedSec(0);
+                if (selectQuery.Execute("query", true) != null)
                 {
-                    retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString();
-                    if (retVal.IndexOf('.') > 0)
+                    int count = selectQuery.Table("query").DefaultView.Count;
+                    if (count > 0)
                     {
-                        retVal = retVal.Substring(0, retVal.IndexOf('.'));
-                        Logger.Logger.Log("BaseURL", string.Format("media:{0}, base:{1}", mediaID, retVal), "GetDateImageName");
+                        retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString();
+                        if (retVal.IndexOf('.') > 0)
+                        {
+                            retVal = retVal.Substring(0, retVal.IndexOf('.'));
+                            Logger.Logger.Log("BaseURL", string.Format("media:{0}, base:{1}", mediaID, retVal), "GetDateImageName");
+                        }
                     }
                 }
+                selectQuery.Finish();
+                selectQuery = null;
             }
-            selectQuery.Finish();
-            selectQuery = null;
             
             if (string.IsNullOrEmpty(retVal))
             {
@@ -531,6 +536,46 @@ namespace TVinciShared
                 Logger.Logger.Log("Exception", sURL + " " + ex.Message + " " + ex.InnerException, "DownloadFile");
                 return "";
             }
+        }
+
+
+        public static string GetFileExt(string sFileName)
+        {
+            string sFileExt = string.Empty;
+            int nExtractPos = sFileName.LastIndexOf(".");
+            if (nExtractPos > 0)
+                sFileExt = sFileName.Substring(nExtractPos);
+            return sFileExt;
+        }
+
+
+        public static bool SendPictureDataToQueue(string sFullUrlDownload, string sNewName, string sBasePath, string [] sPicSizes, int nGroupID)
+        {
+            bool bIsUpdateSucceeded = false;
+            List<object> args = new List<object>();
+
+            args.Add(sFullUrlDownload);//the full url from which the picture should be taken
+            args.Add(sNewName);
+            args.Add(sPicSizes);
+
+            UploadConfig upConfig = new UploadConfig();
+            upConfig.setUploadConfig(nGroupID);
+            args.Add(upConfig);
+
+            args.Add(sBasePath);
+            string id = Guid.NewGuid().ToString();
+            ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, args);
+            Logger.Logger.Log("File download", "Picture will be downloaded from: " + sFullUrlDownload + "to:" + sBasePath, "DownloadFile");
+
+            //update the Queue with picture data
+            if (data != null)
+            {
+                BaseQueue queue = new PictureQueue();
+                string task = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyPicture");                
+                bIsUpdateSucceeded = queue.Enqueue(data, task);                
+            }
+            Logger.Logger.Log("File download", "file was downloaded successfully :" + bIsUpdateSucceeded, "DownloadFile");
+            return bIsUpdateSucceeded;
         }
 
     }

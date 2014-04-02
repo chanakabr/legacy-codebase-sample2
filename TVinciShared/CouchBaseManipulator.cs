@@ -310,7 +310,7 @@ namespace TVinciShared
 
             #region intialize string values from 'coll'
             bool bIsNew = false;
-            string sPicBaseName = "";
+            string sPicName = "";
             string sBasePath = HttpContext.Current.Server.MapPath("");
             string sPicUploaderPath = GetWSURL("pic_uploader_path");
             if (!string.IsNullOrEmpty(sPicUploaderPath))
@@ -343,61 +343,42 @@ namespace TVinciShared
 
             if (theFile != null && theFile.FileName != "")
             {
-                //check if this is a VALID image file
-                bValid = false;
+                //check if this is a VALID image file               
                 if (bIsImage == true && theFile.ContentType.StartsWith("image"))
                 {
                     bValid = true;
-                }
-
-                if (bValid == true)
-                {
+              
                     //get the name of the file, or generate it if needed                   
-                    sPicBaseName = ImageUtils.GetDateImageNameEpg(epg.PicID, ref bIsNew);
+                    sPicName = ImageUtils.GetDateImageNameEpg(epg.PicID, ref bIsNew);
 
-                    //check if the Directory exists and if not generate it
-                    if (!Directory.Exists(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString()))
-                    {
-                        Directory.CreateDirectory(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString());
-                    }
+                    List<string> lSizes = new List<string>();
+                    lSizes.Add("full");
 
-                    //get the file extension from the file
                     sUploadedFile = theFile.FileName;
-                    int nExtractPos = sUploadedFile.LastIndexOf(".");
-                    if (nExtractPos > 0)
-                        sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
+                    sUploadedFileExt = ImageUtils.GetFileExt(sUploadedFile);     //get the file extension from the file                   
 
-
-                    string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
-                    bool bExists = System.IO.File.Exists(sTmpImage);
-
-                    theFile.SaveAs(sTmpImage);
-                    UploadPicToGroup(nGroupID, sTmpImage);
-
-                    #region Upload different sizes
-                    int nI = 0;
-                    bool bCont1 = true;
-                    while (bCont1 && sPicBaseName != "")
+                    #region generate sizes list
+                    int count = 0;
+                    bool bCont = true;
+                    while (bCont && sPicName != "")
                     {
-                        if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
-                            coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
+                        if (coll[nCounter.ToString() + "_picDim_width_" + count.ToString()] != null &&
+                            coll[nCounter.ToString() + "_picDim_width_" + count.ToString()].Trim().ToString() != "")
                         {
-                            string sWidth = coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].ToString();
-                            string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
-                            string sEndName = coll[nCounter.ToString() + "_picDim_endname_" + nI.ToString()].ToString();
-                            string sCropName = coll[nCounter.ToString() + "_crop_" + nI.ToString()].ToString();
-                            string sTmpImage1 = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
-
-                            ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName), true);
-                            UploadPicToGroup(nGroupID, sTmpImage);
-                            nI++;
+                            string sWidth = coll[nCounter.ToString() + "_picDim_width_" + count.ToString()].ToString();
+                            string sHeight = coll[nCounter.ToString() + "_picDim_height_" + count.ToString()].ToString();
+                            lSizes.Add(sWidth + "X" + sHeight);
+                            count++;
                         }
                         else
-                            bCont1 = false;
+                            bCont = false;
                     }
+                    string[] sPicSizes = lSizes.ToArray();
                     #endregion
+                                       
+                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicName, sBasePath, sPicSizes, nGroupID); //send to Rabbit
 
-                    epg.PicUrl = sPicBaseName + sUploadedFileExt;
+                    epg.PicUrl = sPicName + sUploadedFileExt;
                     updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid);
                 }
             }

@@ -16,6 +16,7 @@ namespace QueueWrapper
         private string m_sQueue = string.Empty;
         private string m_sVirtualHost = string.Empty;
         private string m_sExchangeType = string.Empty;
+        private string m_sType = string.Empty;
 
         #region CTOR
 
@@ -23,6 +24,15 @@ namespace QueueWrapper
         {
             ReadRabbitParameters();
         }
+
+
+        //the parameter will ensure that the config values are the ones relevent for the speceific Queue Type 
+        public RabbitQueue(string sType)
+        {
+            m_sType = sType;
+            ReadRabbitParameters();
+        }
+
 
         #endregion
 
@@ -106,11 +116,23 @@ namespace QueueWrapper
             m_sUserName = Utils.GetConfigValue("userName");
             m_sPassword = Utils.GetConfigValue("password");
             m_sPort = Utils.GetConfigValue("port");
-            m_sRoutingKey = Utils.GetConfigValue("routingKey");
-            m_sExchange = Utils.GetConfigValue("exchange");
-            m_sQueue = Utils.GetConfigValue("queue");
-            m_sVirtualHost = Utils.GetConfigValue("virtualHost");
-            m_sExchangeType = Utils.GetConfigValue("exchangeType");
+
+            if (m_sType == string.Empty)
+            {   
+                m_sRoutingKey = Utils.GetConfigValue("routingKey");
+                m_sExchange = Utils.GetConfigValue("exchange");
+                m_sQueue = Utils.GetConfigValue("queue");
+                m_sVirtualHost = Utils.GetConfigValue("virtualHost");
+                m_sExchangeType = Utils.GetConfigValue("exchangeType");
+            }
+            else if (m_sType == "picture")
+            {
+                m_sRoutingKey = Utils.GetConfigValue("routingKeyPicture");
+                m_sExchange = Utils.GetConfigValue("exchangePicture");
+                m_sQueue = Utils.GetConfigValue("queuePicture");
+                m_sVirtualHost = Utils.GetConfigValue("virtualHostPicture");
+                m_sExchangeType = Utils.GetConfigValue("exchangeTypePicture");
+            }
         }
 
         private RabbitConfigurationData CreateRabbitConfigurationData()
