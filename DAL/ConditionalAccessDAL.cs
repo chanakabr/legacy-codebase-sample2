@@ -714,6 +714,21 @@ namespace DAL
             return null;
         }
 
+        public static DataTable Get_AllCollectionsInfoByUsersIDs(List<int> UserIDs, List<int> nFileTypes)
+        {
+            ODBCWrapper.StoredProcedure spGet_AllCollectionsInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllCollectionsInfoByUsersIDs");
+            spGet_AllCollectionsInfoByUsersIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllCollectionsInfoByUsersIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
+            spGet_AllCollectionsInfoByUsersIDs.AddIDListParameter<int>("@fileTypesList", nFileTypes, "Id");
+
+
+            DataSet ds = spGet_AllCollectionsInfoByUsersIDs.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
         public static DataTable Get_AllSubscriptionInfoByUsersIDs(List<int> UserIDs)
         {
             ODBCWrapper.StoredProcedure spGet_AllSubscriptionInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllSubscriptionInfoByUsersIDs");

@@ -804,13 +804,14 @@ namespace ConditionalAccess
                         PriceReason theReason = PriceReason.UnKnown;
 
                         TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection   relevantCol = null;
                         TvinciPricing.PrePaidModule relevantPP = null;
 
                         TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                         TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                         if (thePPVModule != null)
                         {
-                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                             if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
                             {
                                 if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
@@ -2878,7 +2879,7 @@ namespace ConditionalAccess
                 return string.Empty;
             }
             Logger.Logger.Log("LicensedLink", "Device Recognized for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
-            //MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
+
             MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sUserIP);
             if (prices.Length == 0)
             {
@@ -2891,7 +2892,7 @@ namespace ConditionalAccess
                 return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
             }
 
-            if (prices[0].m_oItemPrices[0].m_oPrice.m_dPrice == 0 && (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PrePaidPurchased))
+            if (prices[0].m_oItemPrices[0].m_oPrice.m_dPrice == 0 && (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PrePaidPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.CollectionPurchased))
             {
                 Logger.Logger.Log("LicensedLink", "Purchased for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
                 if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink) == true)
@@ -2940,10 +2941,14 @@ namespace ConditionalAccess
                 sCOUNTRY_CODE = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
             }
 
+            int nReleventCollectionID = 0;
+
+            int.TryParse(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, out nReleventCollectionID);
+
             HandleCouponUses(price.m_oItemPrices[0].m_relevantSub, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID,
             price.m_oItemPrices[0].m_oPrice.m_dPrice, price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3,
             nMediaFileID, couponCode, sUserIP,
-            sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, false, 0, 0);
+            sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, false, 0, nReleventCollectionID);
 
             Int32 nRelPP = 0;
             //Get relevant PrePaid
@@ -2954,12 +2959,12 @@ namespace ConditionalAccess
 
             List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID);
 
-            if (price.m_oItemPrices[0].m_relevantSub == null)
+            if (price.m_oItemPrices[0].m_relevantSub == null && price.m_oItemPrices[0].m_relevantCol == null)
             {
                 string sPPVMCd = price.m_oItemPrices[0].m_sPPVModuleCode;
-                Int32 nIsCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, sSiteGUID, nMediaFileID, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
+                Int32 nIsCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, sSiteGUID, nMediaFileID, null, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
                 //ppv_uses
-                UpdatePPVUses(nMediaFileID, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID, nIsCreditDownloaded, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP);
+                UpdatePPVUses(nMediaFileID, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID, nIsCreditDownloaded, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID);
                 //ppv_purchases
                 Int32 nPPVID = 0;
                 string sRelSub = "";
@@ -2978,37 +2983,25 @@ namespace ConditionalAccess
                     }
 
                     UpdatePPVPurchases(nMediaFileID, sSiteGUID, nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                    if (String.IsNullOrEmpty(sRelSub) == false)
-                    {
-                        /*
-                        //Send Subscription Uses Notification
-                        HandleSubscriptionUsesNotification(nMediaFileID, sRelSub, sSiteGUID);
-
-                        nIsCreditDownloaded = SUB_DoesCreditNeedToDownloaded(sRelSub, sSiteGUID, nMediaFileID);
-                        UpdateSubscriptionUses(nMediaFileID, sRelSub, sSiteGUID, nIsCreditDownloaded, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP);
-                        //subscriptions_purchases
-                        if (nIsCreditDownloaded == 1)
-                            UpdateSubscriptionPurchases(sRelSub, sSiteGUID);
-                        */
-                    }
                 }
             }
-            else
+            else if (price.m_oItemPrices[0].m_relevantCol == null)
             {
                 //Send Subscription Uses Notification
                 HandleSubscriptionUsesNotification(nMediaFileID, price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID);
 
-                Int32 nIsCreditDownloaded = SUB_DoesCreditNeedToDownloaded(price.m_oItemPrices[0].m_relevantSub, sSiteGUID, nMediaFileID, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
+                Int32 nIsCreditDownloaded = Utils.Bundle_DoesCreditNeedToDownloaded(price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nMediaFileID, m_nGroupID, eBundleType.SUBSCRIPTION) == true ? 1 : 0;
                 //subscriptions_uses
 
                 UpdateSubscriptionUses(nMediaFileID, price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nIsCreditDownloaded, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP);
                 //subscriptions_purchases
                 if (nIsCreditDownloaded == 1)
+                {
                     UpdateSubscriptionPurchases(price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID);
+                }
 
-                Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded("s: " + price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_relevantSub, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
-                UpdatePPVUses(nMediaFileID, "s: " + price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nIsCreditDownloaded1, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP);
+                Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded("s: " + price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_relevantSub, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
+                UpdatePPVUses(nMediaFileID, "s: " + price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nIsCreditDownloaded1, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID);
                 Int32 nPPVID = 0;
                 if (nIsCreditDownloaded1 == 1)
                 {
@@ -3022,6 +3015,37 @@ namespace ConditionalAccess
                             price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP);
 
                         nPPVID = GetActivePPVPurchaseID(nMediaFileID, sSiteGUID, ref sRelSub, lUsersIds);
+                    }
+
+                    UpdatePPVPurchases(nMediaFileID, sSiteGUID, nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
+                }
+            }
+            else
+            {
+                Int32 nIsCreditDownloaded = Utils.Bundle_DoesCreditNeedToDownloaded(price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nMediaFileID, m_nGroupID, eBundleType.COLLECTION) == true ? 1 : 0;
+
+                //collections_uses
+                UpdateCollectionUses(nMediaFileID, price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nIsCreditDownloaded, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP);
+                if (nIsCreditDownloaded == 1)
+                {
+                    UpdateCollectionPurchases(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, sSiteGUID);
+                }
+
+                Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded("c: " + price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, sSiteGUID, nMediaFileID, null, price.m_oItemPrices[0].m_relevantCol, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
+                UpdatePPVUses(nMediaFileID, "c: " + price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, sSiteGUID, nIsCreditDownloaded1, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID);
+                Int32 nPPVID = 0;
+                if (nIsCreditDownloaded1 == 1)
+                {
+                    string sRelCol = "";
+                    nPPVID = GetActivePPVPurchaseID(nMediaFileID, sSiteGUID, ref sRelCol, lUsersIds);
+
+                    if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
+                    {
+                        InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
+                            price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelCol, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME,
+                            price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP);
+
+                        nPPVID = GetActivePPVPurchaseID(nMediaFileID, sSiteGUID, ref sRelCol, lUsersIds);
                     }
 
                     UpdatePPVPurchases(nMediaFileID, sSiteGUID, nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
@@ -3180,6 +3204,19 @@ namespace ConditionalAccess
         }
 
         /// <summary>
+        /// Update Susbscription Purchase
+        /// </summary>
+        protected void UpdateCollectionPurchases(string sColCd, string sSiteGUID)
+        {
+            ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
+            directQuery += "update collections_purchases set NUM_OF_USES=NUM_OF_USES+1,LAST_VIEW_DATE=getdate() where ";
+            directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", GetActiveCollectionPurchaseID(sColCd, sSiteGUID));
+            directQuery.Execute();
+            directQuery.Finish();
+            directQuery = null;
+        }
+
+        /// <summary>
         /// Get Active PPv Purchase ID 
         /// </summary>
         protected Int32 GetActivePPVPurchaseID(Int32 nMediaFileID, string sSiteGUID, ref string sRelSub, List<int> lUsersIds)
@@ -3223,10 +3260,35 @@ namespace ConditionalAccess
             selectQuery = null;
             return nRet;
         }
+
+        /// <summary>
+        /// Get Active Collection Purchase ID
+        /// </summary>
+        protected Int32 GetActiveCollectionPurchaseID(string sColCd, string sSiteGUID)
+        {
+            Int32 nRet = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select ID from collections_purchases where is_active=1 and status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+            selectQuery += " and (MAX_NUM_OF_USES>=NUM_OF_USES OR MAX_NUM_OF_USES=0) and START_DATE<getdate() and (end_date is null or end_date>getdate()) and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COLLECTION_CODE", "=", sColCd);
+            selectQuery += " and ";
+            selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
         /// <summary>
         /// PPV Does Credit Need To Downloaded
         /// </summary>
-        protected Int32 PPV_DoesCreditNeedToDownloaded(string sPPVMCd, string sSiteGUID, Int32 nMediaFileID, TvinciPricing.Subscription theSub, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, List<int> lUsersIds)
+        protected Int32 PPV_DoesCreditNeedToDownloaded(string sPPVMCd, string sSiteGUID, Int32 nMediaFileID, TvinciPricing.Subscription theSub, TvinciPricing.Collection theCol, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, List<int> lUsersIds)
         {
             Int32 nIsCreditDownloaded = 1;
             Int32 nViewLifeCycle = 0;
@@ -3293,9 +3355,13 @@ namespace ConditionalAccess
 
                 nViewLifeCycle = ppvModule.m_oUsageModule.m_tsViewLifeCycle;
             }
-            else if (theSub.m_oSubscriptionUsageModule != null)
+            else if (theSub != null && theSub.m_oSubscriptionUsageModule != null)
             {
                 nViewLifeCycle = theSub.m_oSubscriptionUsageModule.m_tsViewLifeCycle;
+            }
+            else if (theCol != null && theCol.m_oCollectionUsageModule != null)
+            {
+                nViewLifeCycle = theCol.m_oCollectionUsageModule.m_tsViewLifeCycle;
             }
 
             DataTable dtPPVUses = DAL.ConditionalAccessDAL.Get_allDomainsPPVUses(lUsersIds, m_nGroupID, nMediaFileID);
@@ -3329,31 +3395,6 @@ namespace ConditionalAccess
             Int32 nIsCreditDownloaded = 1;
             Int32 nViewLifeCycle = 0;
             int OfflineStatus = 0;
-            #region Old Code
-            /*
-            string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-
-            TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
-            string sWSURL = Utils.GetWSURL("pricing_ws");
-            if (sWSURL != "")
-                m.Url = sWSURL;
-
-
-            TvinciPricing.Subscription theSub = null;
-
-            if (CachingManager.CachingManager.Exist("GetSubscriptionData" + sSubCd + "_" + m_nGroupID.ToString()) == true)
-                theSub = (TvinciPricing.Subscription)(CachingManager.CachingManager.GetCachedData("GetSubscriptionData" + sSubCd + "_" + m_nGroupID.ToString()));
-            else
-            {
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetSubscriptionData", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sSubCd, String.Empty, String.Empty, String.Empty, false);
-                CachingManager.CachingManager.SetCachedData("GetSubscriptionData" + sSubCd + "_" + m_nGroupID.ToString(), theSub, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-            }
-            */
-            #endregion
-
 
             #region Check if the file is offline type
             ODBCWrapper.DataSetSelectQuery selectOfflineQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -3436,9 +3477,31 @@ namespace ConditionalAccess
             insertQuery = null;
         }
         /// <summary>
+        /// Update Subscription Uses
+        /// </summary>
+        protected void UpdateCollectionUses(Int32 nMediaFileID, string sCollectionCode, string sSiteGUID, Int32 nIsCreditDownloaded, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, Int32 nRelPP)
+        {
+            ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("collections_uses");
+
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COLLECTION_CODE", "=", sCollectionCode);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_CREDIT_DOWNLOADED", "=", nIsCreditDownloaded);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCOUNTRY_CODE);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pre_paid", "=", nRelPP);
+            insertQuery.Execute();
+            insertQuery.Finish();
+            insertQuery = null;
+        }
+        /// <summary>
         /// Update PPV Uses
         /// </summary>
-        protected void UpdatePPVUses(Int32 nMediaFileID, string sPPVModuleCode, string sSiteGUID, Int32 nIsCreditDownloaded, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, Int32 nRelPP)
+        protected void UpdatePPVUses(Int32 nMediaFileID, string sPPVModuleCode, string sSiteGUID, Int32 nIsCreditDownloaded, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, Int32 nRelPP, Int32 nRel_Box_Set)
         {
             ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ppv_uses");
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
@@ -3563,11 +3626,12 @@ namespace ConditionalAccess
                         {
                             PriceReason theReason = PriceReason.UnKnown;
                             TvinciPricing.Subscription relevantSub = null;
+                            TvinciPricing.Collection   relevantCol = null;
                             TvinciPricing.PrePaidModule relevantPP = null;
 
                             TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                             TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                             if (theReason == PriceReason.ForPurchase)
                             {
                                 if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
@@ -4634,13 +4698,14 @@ namespace ConditionalAccess
                             PriceReason theReason = PriceReason.UnKnown;
 
                             TvinciPricing.Subscription relevantSub = null;
+                            TvinciPricing.Collection   relevantCol = null;
                             TvinciPricing.PrePaidModule relevantPP = null;
 
                             TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                             TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                             if (thePPVModule != null)
                             {
-                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                                 if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0) || bDummy)
                                 {
                                     if (bDummy || (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
@@ -4859,6 +4924,7 @@ namespace ConditionalAccess
                     {
                         PriceReason theReason = PriceReason.UnKnown;
                         TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection   relevantCol = null;
                         TvinciPricing.PrePaidModule relevantPP = null;
                         TvinciPricing.Campaign relevantCamp = null;
                         TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
@@ -4870,7 +4936,7 @@ namespace ConditionalAccess
                         }
                         if (thePPVModule != null)
                         {
-                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                             if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
                             {
                                 if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
@@ -5034,133 +5100,17 @@ namespace ConditionalAccess
             sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty, eBundleType.SUBSCRIPTION);
         }
 
-        //public virtual int GetSubscriptionCustomDataID(string sSiteGUID, double dPrice,
-        //    string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
-        //    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEnddate, string sPreviewModuleID)
-        //{
-        //    int retVal = 0;
-        //    long lSiteGuid = 0;
-        //    if (sSiteGUID.Length == 0 || !Int64.TryParse(sSiteGUID, out lSiteGuid) || lSiteGuid == 0)
-        //    {
-        //        retVal = 0;
-        //    }
-        //    else
-        //    {
-        //        TvinciUsers.UsersService u = null;
-        //        TvinciPricing.mdoule m = null;
-        //        try
-        //        {
-        //            Logger.Logger.Log("GetSubscriptionCustomDataID", GetGetCustomDataLogMsg("Subscription", sSiteGUID, dPrice, 0, 0, sSubscriptionCode, sCouponCode, sPaymentMethod, sUserIP, sPreviewModuleID), GetLogFilename());
-        //            u = new ConditionalAccess.TvinciUsers.UsersService();
-        //            string sIP = "1.1.1.1";
-        //            string sWSUserName = string.Empty;
-        //            string sWSPass = string.Empty;
-        //            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
-        //            string sWSURL = Utils.GetWSURL("users_ws");
-        //            if (sWSURL.Length > 0)
-        //                u.Url = sWSURL;
-
-        //            ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
-        //            if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
-        //            {
-        //                retVal = 0;
-        //            }
-        //            else
-        //            {
-
-        //                PriceReason theReason = PriceReason.UnKnown;
-        //                TvinciPricing.Subscription theSub = null;
-        //                TvinciPricing.Campaign relevantCamp = null;
-
-
-        //                TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-        //                if (theReason == PriceReason.ForPurchase || theReason == PriceReason.EntitledToPreviewModule)
-        //                {
-        //                    if (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
-        //                    {
-        //                        if (p.m_dPrice != 0 || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
-        //                        {
-        //                            sIP = "1.1.1.1";
-        //                            sWSUserName = string.Empty;
-        //                            sWSPass = string.Empty;
-
-        //                            m = new global::ConditionalAccess.TvinciPricing.mdoule();
-        //                            sWSURL = Utils.GetWSURL("pricing_ws");
-        //                            if (sWSURL.Length > 0)
-        //                                m.Url = sWSURL;
-
-        //                            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
-
-        //                            if (!string.IsNullOrEmpty(sCampaignCode))
-        //                            {
-        //                                int nCampaignCode = int.Parse(sCampaignCode);
-        //                                relevantCamp = m.GetCampaignData(sWSUserName, sWSPass, nCampaignCode);
-        //                            }
-        //                            string sCustomData = GetCustomDataForSubscription(theSub, relevantCamp, sSubscriptionCode, sCampaignCode, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEnddate, sPreviewModuleID);
-
-        //                            retVal = Utils.AddCustomData(sCustomData);
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        retVal = 0;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    if (theReason == PriceReason.Free)
-        //                    {
-        //                        retVal = 0;
-        //                    }
-        //                    if (theReason == PriceReason.SubscriptionPurchased)
-        //                    {
-        //                        retVal = 0;
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            #region Logging
-        //            StringBuilder sb = new StringBuilder(String.Concat("Exception msg: ", ex.Message));
-        //            sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
-        //            sb.Append(String.Concat(" Price: ", dPrice));
-        //            sb.Append(String.Concat(" Currency: ", sCurrency));
-        //            sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
-        //            sb.Append(String.Concat(" Campaign Code: ", sCampaignCode));
-        //            sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
-        //            sb.Append(String.Concat(" Payment Method: ", sPaymentMethod));
-        //            sb.Append(String.Concat(" User IP: ", sUserIP));
-        //            sb.Append(String.Concat(" Country Code: ", sCountryCd));
-        //            sb.Append(String.Concat(" Language Code: ", sLANGUAGE_CODE));
-        //            sb.Append(String.Concat(" Device Name: ", sDEVICE_NAME));
-        //            sb.Append(String.Concat(" Override End Date: ", sOverrideEnddate));
-        //            sb.Append(String.Concat(" Preview Module ID: ", sPreviewModuleID));
-        //            sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().ToString()));
-        //            sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-        //            Logger.Logger.Log("GetSubscriptionCustomDataID", sb.ToString(), GetLogFilename());
-        //            #endregion
-        //            retVal = 0;
-
-        //        }
-        //        finally
-        //        {
-        //            #region Disposing
-        //            if (u != null)
-        //            {
-        //                u.Dispose();
-        //                u = null;
-        //            }
-        //            if (m != null)
-        //            {
-        //                m.Dispose();
-        //                m = null;
-        //            }
-        //            #endregion
-        //        }
-        //    }
-        //    return retVal;
-        //}
+        /// <summary>
+        /// Get Subscription Custom Data ID
+        /// </summary>
+        public virtual int GetCollectionCustomDataID(string sSiteGUID, double dPrice,
+    string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
+    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        {
+            return GetBundleCustomDataID(sSiteGUID, dPrice,
+            sCurrency, sSubscriptionCode, sCampaignCode, sCouponCode, sPaymentMethod, sUserIP,
+            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty, eBundleType.COLLECTION);
+        }
 
         public virtual int GetBundleCustomDataID(string sSiteGUID, double dPrice,
             string sCurrency, string sBundleCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
@@ -5406,13 +5356,14 @@ namespace ConditionalAccess
                     {
                         PriceReason theReason = PriceReason.UnKnown;
                         TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection   relevantCol = null;
                         TvinciPricing.PrePaidModule relevantPP = null;
 
                         TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                         TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                         if (thePPVModule != null)
                         {
-                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                             if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
                             {
                                 if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
@@ -6156,7 +6107,8 @@ namespace ConditionalAccess
                     double dLowest = -1;
                     TvinciPricing.Price pLowest = null;
                     PriceReason theLowestReason = PriceReason.UnKnown;
-                    TvinciPricing.Subscription relevantLowestSub = null;
+                    TvinciPricing.Subscription  relevantLowestSub = null;
+                    TvinciPricing.Collection    relevantLowestCol = null;
                     TvinciPricing.PrePaidModule relevantLowestPrePaid = null;
                     string sProductCode = string.Empty;
                     for (int j = 0; j < ppvModules.Length; j++)
@@ -6164,14 +6116,15 @@ namespace ConditionalAccess
                         string sPPVCode = ppvModules[j].m_sObjectCode;
                         PriceReason theReason = PriceReason.UnKnown;
                         TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection   relevantCol = null;
                         TvinciPricing.PrePaidModule relevantPrePaid = null;
 
-                        TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP);
+                        TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP);
                         sProductCode = oModules[i].m_sProductCode;
                         if (bOnlyLowest == false)
                         {
                             itemPriceCont[j] = new ItemPriceContainer();
-                            itemPriceCont[j].Initialize(p, ppvModules[j].m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].m_sDescription, theReason, relevantSub, ppvModules[j].m_bSubscriptionOnly, relevantPrePaid, sFirstDeviceNameFound);
+                            itemPriceCont[j].Initialize(p, ppvModules[j].m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].m_sDescription, theReason, relevantSub, relevantCol, ppvModules[j].m_bSubscriptionOnly, relevantPrePaid, sFirstDeviceNameFound);
                         }
                         else
                         {
@@ -6182,6 +6135,7 @@ namespace ConditionalAccess
                                 pLowest = p;
                                 theLowestReason = theReason;
                                 relevantLowestSub = relevantSub;
+                                relevantLowestCol = relevantCol;
                                 relevantLowestPrePaid = relevantPrePaid;
                             }
                         }
@@ -6189,7 +6143,7 @@ namespace ConditionalAccess
                     if (ppvModules.Length > 0 && bOnlyLowest == true)
                     {
                         itemPriceCont[0] = new ItemPriceContainer();
-                        itemPriceCont[0].Initialize(pLowest, ppvModules[nLowestIndex].m_oPriceCode.m_oPrise, ppvModules[nLowestIndex].m_sObjectCode, ppvModules[nLowestIndex].m_sDescription, theLowestReason, relevantLowestSub, ppvModules[nLowestIndex].m_bSubscriptionOnly, relevantLowestPrePaid, sFirstDeviceNameFound);
+                        itemPriceCont[0].Initialize(pLowest, ppvModules[nLowestIndex].m_oPriceCode.m_oPrise, ppvModules[nLowestIndex].m_sObjectCode, ppvModules[nLowestIndex].m_sDescription, theLowestReason, relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].m_bSubscriptionOnly, relevantLowestPrePaid, sFirstDeviceNameFound);
                     }
                     mf.Initialize(nMediaFileID, itemPriceCont, sProductCode);
                 }
@@ -7372,13 +7326,14 @@ namespace ConditionalAccess
                     {
                         PriceReason theReason = PriceReason.UnKnown;
                         TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection   relevantCol = null;
                         TvinciPricing.PrePaidModule relevantPP = null;
 
                         TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                         TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                         if (thePPVModule != null)
                         {
-                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                             if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
                             {
                                 if ((p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
@@ -8565,13 +8520,14 @@ namespace ConditionalAccess
                             PriceReason theReason = PriceReason.UnKnown;
 
                             TvinciPricing.Subscription relevantSub = null;
+                            TvinciPricing.Collection   relevantCol = null;
                             TvinciPricing.PrePaidModule relevantPP = null;
 
                             TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                             TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                             if (thePPVModule != null)
                             {
-                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                                 if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0) || bDummy)
                                 {
                                     if (bDummy || (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
