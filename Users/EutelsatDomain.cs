@@ -101,6 +101,7 @@ namespace Users
                 bool sent = eUsers.SendWelcomePasswordMail(userResp);
 
                 oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
+                return oDomainResponseObject;
             }
 
             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
