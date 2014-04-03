@@ -15,7 +15,8 @@ namespace BuzzFeeder
 
         private BuzzWrapper m_oBuzzWrapper;
         private List<string> m_lAssetTypes;
-
+        private string m_sSeriesTagType;
+        private string[] m_sSeriesMediaTypeId;
 
         public BuzzFeeder(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
@@ -78,10 +79,36 @@ namespace BuzzFeeder
 
                 if (m_lAssetTypes.Count > 0)
                 {
-                    m_oBuzzWrapper = new BuzzWrapper(m_nGroupID, m_lAssetTypes);
-                    for (int i = 4; i < splitString.Length; i++)
+                    bool bSuccess = true;
+
+                    if (sBuzzerType == "series")
                     {
-                        AddBuzzActivityFromParam(sBuzzerType, splitString[i]);
+                        if (splitString.Length < 7)
+                        {
+                            Logger.Logger.Log("Error", "series is missing series tag type / series media type id", "BuzzFeeder");
+                            bSuccess = false;
+                        }
+                        else
+                        {
+                            m_sSeriesTagType = splitString[4];
+                            m_sSeriesMediaTypeId = splitString[5].Split('#');
+
+                            if (m_sSeriesMediaTypeId.Length == 0 || m_sSeriesMediaTypeId.Length == 0)
+                            {
+                                bSuccess = false;
+                                Logger.Logger.Log("Error", "series series tag type/series media type id are empty", "BuzzFeeder");
+                            }
+
+                        }
+                    }
+
+                    m_oBuzzWrapper = new BuzzWrapper(m_nGroupID, m_lAssetTypes);
+                    if (bSuccess)
+                    {
+                        for (int i = 4; i < splitString.Length; i++)
+                        {
+                            AddBuzzActivityFromParam(sBuzzerType, splitString[i]);
+                        }
                     }
                 }
                 else
@@ -168,16 +195,16 @@ namespace BuzzFeeder
                 switch (eActivityType)
                 {
                     case eBuzzActivityTypes.COMMENTS:
-                        oRes = new TvinciSeriesCommentsBuzzImpl(m_nGroupID, m_dtCurTime, m_tsInterval, nWeight, lActions.ToList(), m_lAssetTypes.ToList(), lWeights);
+                        oRes = new TvinciSeriesCommentsBuzzImpl(m_nGroupID, m_sSeriesTagType, m_sSeriesMediaTypeId, m_dtCurTime, m_tsInterval, nWeight, lActions.ToList(), m_lAssetTypes.ToList(), lWeights);
                         break;
                     case eBuzzActivityTypes.FAVORITES:
-                        oRes = new TvinciSeriesFavoritesBuzzImpl(m_nGroupID, m_dtCurTime, m_tsInterval, nWeight, lActions.ToList(), m_lAssetTypes.ToList(), lWeights);
+                        oRes = new TvinciSeriesFavoritesBuzzImpl(m_nGroupID, m_sSeriesTagType, m_sSeriesMediaTypeId, m_dtCurTime, m_tsInterval, nWeight, lActions.ToList(), m_lAssetTypes.ToList(), lWeights);
                         break;
                     case eBuzzActivityTypes.LIKES:
-                        oRes = new TvinciSeriesLikesBuzzImpl(m_nGroupID, m_dtCurTime, m_tsInterval, nWeight, lActions.ToList(), m_lAssetTypes.ToList(), lWeights);
+                        oRes = new TvinciSeriesLikesBuzzImpl(m_nGroupID, m_sSeriesTagType, m_sSeriesMediaTypeId, m_dtCurTime, m_tsInterval, nWeight, lActions.ToList(), m_lAssetTypes.ToList(), lWeights);
                         break;
                     case eBuzzActivityTypes.VIEWS:
-                        oRes = new TvinciSeriesViewsBuzzImpl(m_nGroupID, m_dtCurTime, m_tsInterval, nWeight, lActions.ToList(), m_lAssetTypes.ToList(), lWeights);
+                        oRes = new TvinciSeriesViewsBuzzImpl(m_nGroupID, m_sSeriesTagType, m_sSeriesMediaTypeId, m_dtCurTime, m_tsInterval, nWeight, lActions.ToList(), m_lAssetTypes.ToList(), lWeights);
                         break;
                 }
             }

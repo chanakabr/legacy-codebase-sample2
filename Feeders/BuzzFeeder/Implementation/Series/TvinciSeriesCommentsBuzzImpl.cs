@@ -9,8 +9,8 @@ namespace BuzzFeeder.Implementation.Series
     {
         private readonly string m_sGroupKey;
 
-        public TvinciSeriesCommentsBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, int Weight, List<string> lActions, List<string> lAssetTypes, List<int> lFormulaWeights)
-            : base(nGroupID, dtPeriod, tsInterval, Weight, lActions, lAssetTypes, lFormulaWeights)
+        public TvinciSeriesCommentsBuzzImpl(int nGroupID, string sSeriesTagType, string[] lSeriesMediaTypeId, DateTime dtPeriod, TimeSpan tsInterval, int Weight, List<string> lActions, List<string> lAssetTypes, List<int> lFormulaWeights)
+            : base(nGroupID, sSeriesTagType, lSeriesMediaTypeId, dtPeriod, tsInterval, Weight, lActions, lAssetTypes, lFormulaWeights)
         {
             m_sGroupKey = string.Concat(m_nGroupID, "_series_comments_stats");
         }

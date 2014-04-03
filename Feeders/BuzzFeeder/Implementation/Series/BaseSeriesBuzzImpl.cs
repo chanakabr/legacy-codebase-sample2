@@ -14,41 +14,67 @@ namespace BuzzFeeder.Implementation.Series
     public abstract class BaseSeriesBuzzImpl : BaseBuzzImpl
     {
 
-        public BaseSeriesBuzzImpl(int nGroupID, DateTime dtPeriod, TimeSpan tsInterval, int Weight, List<string> lActions, List<string> lAssetTypes, List<int> lFormulaWeights)
+        protected string m_sSeriesTagType;
+        protected string[] m_lSeriesMediaTypeId;
+        protected Dictionary<string, string> m_dGroupSeriesByName;
+
+        public BaseSeriesBuzzImpl(int nGroupID, string lSeriesTagType, string[] lSeriesMediaTypeId, DateTime dtPeriod, TimeSpan tsInterval, int Weight, List<string> lActions, List<string> lAssetTypes, List<int> lFormulaWeights)
             : base(nGroupID, dtPeriod, tsInterval, Weight, lActions, lAssetTypes, lFormulaWeights)
         {
+            m_sSeriesTagType = lSeriesTagType;
+            m_lSeriesMediaTypeId = lSeriesMediaTypeId;
+            m_dGroupSeriesByName = new Dictionary<string, string>();
         }
 
         protected override void PreProcess()
         {
             Dictionary<string, BuzzCalculator.ItemsStats> dSeriesBucket = new Dictionary<string, ItemsStats>();
-            List<Hits> lHits= GetSeries();
+            List<Hits> lSeriesHits = GetGroupSeries();
 
-            if (lHits != null && lHits.Count > 0)
+            if (lSeriesHits != null && lSeriesHits.Count > 0)
             {
-                string seriesName, id;
-                foreach (Hits hit in lHits)
+                foreach (Hits hit in lSeriesHits)
                 {
-                    id = hit.Id;
-                    hit.Fields.TryGetValue("series_name", out seriesName);
-                    if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(seriesName))
+                    if (string.IsNullOrEmpty(hit.Id) && hit.Fields.ContainsKey("name"))
                     {
-                        if (!dSeriesBucket.ContainsKey(seriesName))
-                            dSeriesBucket[seriesName] = new ItemsStats() { sMediaID = seriesName };
-
-                        if (m_dCurrentBuzzCount.ContainsKey(id))
-                        {
-                            dSeriesBucket[seriesName] = ItemsStats.MergeItems(dSeriesBucket[seriesName], m_dCurrentBuzzCount[id]);
-                        }
+                        m_dGroupSeriesByName[hit.Fields["name"]] = hit.Id;
                     }
                 }
             }
 
-            foreach (string seriesName in dSeriesBucket.Keys)
+            List<Hits> lEpisodeHits= GetEpisodesSerieName();
+
+            if (lEpisodeHits != null && lEpisodeHits.Count > 0)
             {
-                if (m_dPreviousBuzzCount.ContainsKey(seriesName))
+                string seriesName, id, seriesId;
+                foreach (Hits hit in lEpisodeHits)
                 {
-                    dSeriesBucket[seriesName].nSampleCumulativeCount += m_dPreviousBuzzCount[seriesName].nSampleCumulativeCount;
+                    id = hit.Id;
+                    hit.Fields.TryGetValue(m_sSeriesTagType, out seriesName);
+                    if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(seriesName))
+                    {
+                        if (m_dGroupSeriesByName.ContainsKey(seriesName))
+                        {
+                            seriesId = m_dGroupSeriesByName[seriesName];
+
+                            if (!dSeriesBucket.ContainsKey(seriesId))
+                                dSeriesBucket[seriesId] = new ItemsStats() { sMediaID = seriesId };
+
+                            if (m_dCurrentBuzzCount.ContainsKey(id))
+                            {
+                                dSeriesBucket[seriesId] = ItemsStats.MergeItems(dSeriesBucket[seriesId], m_dCurrentBuzzCount[id]);
+                            }
+                        }
+                        
+                    }
+                }
+            }
+
+            foreach (string seriesMediaId in dSeriesBucket.Keys)
+            {
+                if (m_dPreviousBuzzCount.ContainsKey(seriesMediaId))
+                {
+                    dSeriesBucket[seriesMediaId].nSampleCumulativeCount += m_dPreviousBuzzCount[seriesMediaId].nSampleCumulativeCount;
                 }
             }
 
@@ -69,7 +95,42 @@ namespace BuzzFeeder.Implementation.Series
             }
         }
 
-        protected List<Hits> GetSeries()
+        protected List<Hits> GetGroupSeries()
+        {
+            FilteredQuery filteredQuery = new FilteredQuery() { PageIndex = 0, PageSize = 100000 };
+            filteredQuery.ReturnFields.Clear();
+            filteredQuery.ReturnFields.Add(ESMediaFields.TAGS_FILL.Fill("name"));
+
+
+            FilterCompositeType filter = new FilterCompositeType(ApiObjects.SearchObjects.CutWith.AND);
+            ESTerm isActiveTerm = new ESTerm(true) { Key = ESMediaFields.IS_ACTIVE, Value = "1" };
+
+            ESTerms mediaTypeTerms = new ESTerms(true) { Key = ESMediaFields.MEDIA_TYPE_ID };
+            mediaTypeTerms.Value.AddRange(m_lSeriesMediaTypeId);
+
+            ESRange startDateRange = new ESRange(false) { Key = ESMediaFields.START_DATE };
+            startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_dtTimePeriod.ToString("yyyyMMddHHmmss")));
+
+            ESRange endDateRange = new ESRange(false) { Key = ESMediaFields.START_DATE };
+            endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, (m_dtTimePeriod - m_tsInterval).ToString("yyyyMMddHHmmss")));
+
+            filter.AddChild(isActiveTerm);
+            filter.AddChild(mediaTypeTerms);
+            filter.AddChild(startDateRange);
+            filter.AddChild(endDateRange);
+
+            filteredQuery.Filter = new QueryFilter() { FilterSettings = filter };
+
+            string sQueryJson = filteredQuery.ToString();
+
+            string retval = m_oESApi.Search(m_nGroupID.ToString(), ESMediaFields.MEDIA, ref sQueryJson);
+
+            ESSearchResult searchResult = new ESSearchResult(retval);
+
+            return searchResult.GetHits().Hits;
+        }
+
+        protected List<Hits> GetEpisodesSerieName()
         {
             FilteredQuery filteredQuery = new FilteredQuery() { PageIndex = 0, PageSize = 100000 };
             filteredQuery.ReturnFields.Clear();
