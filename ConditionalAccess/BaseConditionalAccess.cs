@@ -2829,7 +2829,7 @@ namespace ConditionalAccess
                 }
             }
             return isDeviceRecognized;
-        }   
+        }
 
 
 
@@ -5554,21 +5554,14 @@ namespace ConditionalAccess
 
                                 Logger.Logger.Log("CustomData", string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
 
-                                if (p.m_dPrice != 0 || bDummy)
-                                {
-                                    sWSUserName = string.Empty;
-                                    sWSPass = string.Empty;
+                                sWSUserName = string.Empty;
+                                sWSPass = string.Empty;
 
-                                    InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
+                                InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
 
-                                    ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
-                                        sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
-                                        bDummy, bIsEntitledToPreviewModule, ref bm);
-                                }
-                                if ((p.m_dPrice == 0 && !string.IsNullOrEmpty(sCouponCode)) || bIsEntitledToPreviewModule)
-                                {
-                                    ret.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
-                                }
+                                ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
+                                    sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
+                                    bDummy, bIsEntitledToPreviewModule, ref bm);
                                 if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
                                 {
                                     long lBillingTransactionID = 0;
@@ -5626,6 +5619,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(", Language Code: ", sLANGUAGE_CODE));
                 sb.Append(String.Concat(", Device Name: ", sDEVICE_NAME));
                 sb.Append(String.Concat(", Dummy: ", bDummy.ToString().ToLower()));
+                sb.Append(String.Concat(", this is: ", this.GetType().Name));
                 Logger.Logger.Log("CC_BaseChargeUserForSubscription", sb.ToString(), GetLogFilename());
                 WriteToUserLog(sSiteGUID, string.Format("While trying to purchase subscription id: {0} , Exception occurred.", sSubscriptionCode));
                 #endregion
