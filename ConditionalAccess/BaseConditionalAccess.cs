@@ -52,6 +52,16 @@ namespace ConditionalAccess
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
             long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID);
+
+        /*
+         * This method was created in order to solve a bug in the flow of ChargeUserForMediaFile in Cinepolis.
+         * 1. Cinepolis does not dummy charge their user. All transactions are recorded in their billing gateway,
+         *    including transactions for the price of zero.
+         * 2. However, since it is not a dummy charge (dummy charge is when you skip the step of contacting the billing gateway)
+         *    the flow in the mentioned method did not reach the step where it contacts the billing gateway.
+         * 3. This patch resolves this situation without changing any billing logic related to different customers.
+         */ 
+        protected abstract bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid);
         #endregion
 
         protected BaseConditionalAccess() { }
@@ -4487,7 +4497,10 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        bool bIsCouponValid = false;
+                        bool bIsCouponUsedAndValid = false;
+                        bIsCouponValid = Utils.IsCouponValid(m_nGroupID, sCouponCode);
+                        if (!bIsCouponValid)
                         {
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -4495,6 +4508,8 @@ namespace ConditionalAccess
                             WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             return ret;
                         }
+
+                        bIsCouponUsedAndValid = bIsCouponValid && !string.IsNullOrEmpty(sCouponCode);
 
                         sIP = "1.1.1.1";
                         sWSUserName = string.Empty;
@@ -4558,6 +4573,7 @@ namespace ConditionalAccess
                             if (thePPVModule != null)
                             {
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                bDummy = RecalculateDummyIndicatorForChargeMediaFile(bDummy, theReason, bIsCouponUsedAndValid);
                                 if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0) || bDummy)
                                 {
                                     if (bDummy || (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
