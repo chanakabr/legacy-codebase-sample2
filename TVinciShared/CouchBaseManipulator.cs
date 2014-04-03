@@ -310,14 +310,7 @@ namespace TVinciShared
 
             #region intialize string values from 'coll'
             bool bIsNew = false;
-            string sPicName = "";
-            string sBasePath = HttpContext.Current.Server.MapPath("");
-            string sPicUploaderPath = GetWSURL("pic_uploader_path");
-            if (!string.IsNullOrEmpty(sPicUploaderPath))
-            {
-                sBasePath = sPicUploaderPath;
-            }
-
+            string sPicName = "";   
             string sFileObjName = nCounter.ToString() + "_val";
             HttpPostedFile theFile = HttpContext.Current.Request.Files[sFileObjName];
             string sUploadedFile = "";
@@ -376,7 +369,7 @@ namespace TVinciShared
                     string[] sPicSizes = lSizes.ToArray();
                     #endregion
                                        
-                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicName, sBasePath, sPicSizes, nGroupID); //send to Rabbit
+                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicName, sPicSizes, nGroupID); //send to Rabbit
 
                     epg.PicUrl = sPicName + sUploadedFileExt;
                     updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid);

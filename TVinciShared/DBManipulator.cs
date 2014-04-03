@@ -375,7 +375,7 @@ namespace TVinciShared
                                     }
 
                                     string[] sPicSizes = lSizes.ToArray();
-                                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sBasePath, sPicSizes, nGroupID);//send to Rabbit
+                                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sPicSizes, nGroupID);//send to Rabbit
                                 }
                             }
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", sPicBaseName + sUploadedFileExt);
@@ -1475,7 +1475,7 @@ namespace TVinciShared
                                     }
 
                                     string[] sPicSizes = lSizes.ToArray();
-                                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sBasePath, sPicSizes, nGroupID);//send to Rabbit
+                                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sPicSizes, nGroupID);//send to Rabbit
                                 }
                             }
                             if (bFirst == false)

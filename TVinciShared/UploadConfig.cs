@@ -9,24 +9,23 @@ namespace TVinciShared
     {
 
         #region Members
-        
-        public string m_sBasePath;
+
+        public string m_sType;
         public string m_sAddress;
         public string m_sUserName;
         public string m_sPass;
-        public string m_sPrefix;
-        public string m_sType;
+        public string m_sPrefix;       
         public string m_sRegion;
 
         #endregion
 
         public UploadConfig()
-        {           
+        {
+            m_sType = string.Empty;
             m_sAddress = string.Empty;
             m_sUserName = string.Empty;
             m_sPass = string.Empty;
-            m_sPrefix = string.Empty;
-            m_sType = string.Empty;
+            m_sPrefix = string.Empty;            
             m_sRegion = string.Empty;
         }
 
@@ -47,7 +46,7 @@ namespace TVinciShared
                     this.m_sPass = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "password", 0);
                     this.m_sPrefix = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "prefix", 0);
                     this.m_sRegion = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "region", 0);
-                    Uploader.UploaderImpl uploaderImpl = (Uploader.UploaderImpl)ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "uploader_type_id", 0);//change this? 
+                    Uploader.UploaderImpl uploaderImpl = (Uploader.UploaderImpl)ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "uploader_type_id", 0); 
                     this.m_sType = Enum.GetName(typeof(Uploader.UploaderImpl), uploaderImpl).ToLower();                   
                 }
             }

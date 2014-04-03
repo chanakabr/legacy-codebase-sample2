@@ -549,7 +549,7 @@ namespace TVinciShared
         }
 
 
-        public static bool SendPictureDataToQueue(string sFullUrlDownload, string sNewName, string sBasePath, string [] sPicSizes, int nGroupID)
+        public static bool SendPictureDataToQueue(string sFullUrlDownload, string sNewName, string [] sPicSizes, int nGroupID)
         {
             bool bIsUpdateSucceeded = false;
             List<object> args = new List<object>();
@@ -562,7 +562,9 @@ namespace TVinciShared
             upConfig.setUploadConfig(nGroupID);
             args.Add(upConfig);
 
+            string sBasePath = getRemotePicsURL(nGroupID);
             args.Add(sBasePath);
+
             string id = Guid.NewGuid().ToString();
             ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, args);
             Logger.Logger.Log("File download", "Picture will be downloaded from: " + sFullUrlDownload + "to:" + sBasePath, "DownloadFile");
@@ -576,6 +578,26 @@ namespace TVinciShared
             }
             Logger.Logger.Log("File download", "file was downloaded successfully :" + bIsUpdateSucceeded, "DownloadFile");
             return bIsUpdateSucceeded;
+        }
+
+        //get the url from which the pics are downloaded 
+        private static string getRemotePicsURL(int nGroupID)
+        {
+            string sRemotePicsURL = string.Empty;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select PICS_REMOTE_BASE_URL from groups (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    sRemotePicsURL = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return sRemotePicsURL;
         }
 
     }
