@@ -4563,28 +4563,25 @@ namespace ConditionalAccess
                                     if (bDummy || (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
                                     {
                                         string sCustomData = string.Empty;
-                                        if (p.m_dPrice != 0 || bDummy)
+                                        sWSUserName = string.Empty;
+                                        sWSPass = string.Empty;
+
+                                        InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
+
+                                        if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                         {
-                                            sWSUserName = string.Empty;
-                                            sWSPass = string.Empty;
-
-                                            InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
-
-                                            if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
-                                            {
-                                                sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
-                                            }
-
-                                            //Create the Custom Data
-                                            sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                                nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                                sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                                            Logger.Logger.Log("CustomData", sCustomData, "CustomData");
-
-                                            ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData,
-                                                1, 1, sExtraParameters, sPaymentMethodID, sEncryptedCVV, bDummy, false, ref bm);
+                                            sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
                                         }
+
+                                        //Create the Custom Data
+                                        sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
+                                            nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
+                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+
+                                        Logger.Logger.Log("CustomData", sCustomData, "CustomData");
+
+                                        ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData,
+                                            1, 1, sExtraParameters, sPaymentMethodID, sEncryptedCVV, bDummy, false, ref bm);
                                         if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
                                         {
                                             long lBillingTransactionID = 0;
@@ -4659,6 +4656,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Media ID: ", nMediaID));
                 sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
                 sb.Append(String.Concat(" User IP: ", sUserIP));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
                 Logger.Logger.Log("CC_BaseChargeUserForMediaFile", sb.ToString(), GetLogFilename());
                 WriteToUserLog(sSiteGUID, string.Format("Exception at CC_BaseChargeUserForMediaFile. Media File ID: {0} , Media ID: {1} , Coupon Code: {2}", nMediaFileID, nMediaID, sCouponCode));
