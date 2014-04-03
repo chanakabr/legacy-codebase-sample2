@@ -12,5 +12,7 @@ namespace StatisticsBL
 
 
         public abstract BuzzWeightedAverScore GetBuzzAverScore(string sKey);
+
+        public abstract Dictionary<string, BuzzWeightedAverScore> GetBuzzAverScore(List<int> lKey);
     }
 }

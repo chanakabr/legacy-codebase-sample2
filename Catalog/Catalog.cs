@@ -16,6 +16,8 @@ using ApiObjects.SearchObjects;
 using ApiObjects.MediaIndexingObjects;
 using QueueWrapper;
 using EpgBL;
+using StatisticsBL;
+using ApiObjects.Statistics;
 
 namespace Catalog
 {
@@ -2113,7 +2115,7 @@ namespace Catalog
                         else
                             ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate);
                         if (ds != null)
-                            resList = getMediaStatFromDataSet(ds, lAssetIDs);
+                            resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
                         else
                             sendLog = true;
                     }
@@ -2217,7 +2219,7 @@ namespace Catalog
             return resList;
         }
 
-        private static List<AssetStatsResult> getMediaStatFromDataSet(DataSet ds, List<int> mediaIDs)
+        private static List<AssetStatsResult> getMediaStatFromDataSet(DataSet ds, List<int> mediaIDs, int nGroupID)
         {
             using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
             {
@@ -2226,6 +2228,10 @@ namespace Catalog
                 AssetStatsResult mediaStat;
                 try
                 {
+                    //Complete BuzzMeter data from CB
+                    BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
+                    Dictionary<string, BuzzWeightedAverScore> lBM = staticticsBL.GetBuzzAverScore(mediaIDs);// need the assetid
+
                     //if the request was sent without dates, the select is only on 1 table
                     if (ds.Tables != null && ds.Tables.Count == 1)
                     {
@@ -2244,6 +2250,13 @@ namespace Catalog
                                     if (mediaStat.m_nVotes != 0)
                                         mediaStat.m_dRate = (double)sumVotes / mediaStat.m_nVotes;
                                     mediaStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
+
+                                    //BuzzMeter 
+                                    if (lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
+                                    {
+                                        mediaStat.m_buzzAverScore = lBM[mediaStat.m_nAssetID.ToString()];
+                                    }
+
                                     resList.Add(mediaStat);
                                 }
                             }
@@ -2309,6 +2322,15 @@ namespace Catalog
                                 }
                             }
                         }
+
+                        //BuzzMeter 
+                        foreach (KeyValuePair<int, AssetStatsResult> asset in resultDic)
+                        {
+                            if (lBM.ContainsKey(asset.Key.ToString()))
+                            {
+                                resultDic[asset.Key].m_buzzAverScore = lBM[asset.Key.ToString()];
+                            }
+                        }
                         resList = resultDic.Values.ToList();
                     }
                     else
@@ -2318,6 +2340,9 @@ namespace Catalog
                         log.Error(log.Message, false);
                         return null;
                     }
+
+
+                    
                 }
                 catch (Exception ex)
                 {

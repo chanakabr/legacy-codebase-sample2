@@ -24,5 +24,29 @@ namespace StatisticsBL
             oRes = (oRes != null) ? oRes : null;
             return oRes;
         }
+
+        public override Dictionary<string, BuzzWeightedAverScore> GetBuzzAverScore(List<int> lKey)
+        {
+            List<string> lFullKey = new List<string>(); //string.Concat("was_", sKey);
+            foreach (int key in lKey)
+            {
+                lFullKey.Add(string.Concat("was_", key.ToString()));
+            }
+            Dictionary<string , BuzzWeightedAverScore> otempRes = m_oMediaCouchbase.GetBuzzAverScore(lFullKey);
+            Dictionary<string, BuzzWeightedAverScore> oRes = null;
+            foreach (KeyValuePair<string , BuzzWeightedAverScore> BM in otempRes)
+            {
+                if (oRes == null)
+                {
+                    oRes = new Dictionary<string, BuzzWeightedAverScore>();
+                }
+                string key = BM.Key.Replace("was_","");
+                oRes.Add(key, BM.Value);
+            }
+
+
+            oRes = (oRes != null) ? oRes : null;
+            return oRes;
+        }
     }
 }
