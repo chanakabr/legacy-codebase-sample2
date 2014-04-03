@@ -459,57 +459,72 @@ namespace M1BL
         
         private bool SendFileViaFtp(string sFileName, string sFtpFolder)
         {
-# if DEBUG
-            return true;
-# endif
             bool result = true;
-            FileInfo fileInf = new FileInfo(sFileName);
-            string uri = "ftp://" + m_sFtpDirectory + "/" + sFtpFolder + "/" + fileInf.Name;
-            FtpWebRequest reqFTP;
-            reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
 
-            //reqFTP.EnableSsl = true;
-            //reqFTP.RequestUri.Port
-            reqFTP.Credentials = new NetworkCredential(m_sFtpUser , m_sFtpPassword);
-            //reqFTP.UsePassive = true;
-            reqFTP.KeepAlive = false;
-            reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
-            reqFTP.UseBinary = true;
-            reqFTP.ContentLength = fileInf.Length;
-            int buffLength = 2048;
-            byte[] buff = new byte[buffLength];
-            int contentLen;
-            FileStream fs = fileInf.OpenRead();
-            Stream strm = null;
             try
             {
-                strm = reqFTP.GetRequestStream();
-                contentLen = fs.Read(buff, 0, buffLength);
-                while (contentLen != 0)
-                {
-                    strm.Write(buff, 0, contentLen);
-                    contentLen = fs.Read(buff, 0, buffLength);
-                }
-                Logger.Logger.Log("Upload m1 cdr file to: " + m_sFtpDirectory + " with un: " + m_sFtpUser + ", pass: " + m_sFtpPassword, "finished", "FTPUpload");
 
+                FileInfo fileInf = new FileInfo(sFileName);
+                string uri = m_sFtpDirectory + "/" + sFtpFolder + "/" + fileInf.Name;
+
+                if (!uri.StartsWith("ftp:"))
+                {
+                    uri = "ftp://" + uri;
+                }
+
+                Logger.Logger.Log("Start", string.Format("file:{0}, ftp:{1}", fileInf.Name, uri), "M1_FTPUpload");
+
+                FtpWebRequest reqFTP;
+                reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+
+                //reqFTP.EnableSsl = true;
+                //reqFTP.RequestUri.Port
+                reqFTP.Credentials = new NetworkCredential(m_sFtpUser, m_sFtpPassword);
+                //reqFTP.UsePassive = true;
+                reqFTP.KeepAlive = false;
+                reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
+                reqFTP.UseBinary = true;
+                reqFTP.ContentLength = fileInf.Length;
+                int buffLength = 2048;
+                byte[] buff = new byte[buffLength];
+                int contentLen;
+                FileStream fs = fileInf.OpenRead();
+                Stream strm = null;
+                try
+                {
+                    strm = reqFTP.GetRequestStream();
+                    contentLen = fs.Read(buff, 0, buffLength);
+                    while (contentLen != 0)
+                    {
+                        strm.Write(buff, 0, contentLen);
+                        contentLen = fs.Read(buff, 0, buffLength);
+                    }
+                    Logger.Logger.Log("finished", string.Format("{0}", fileInf.Name), "M1_FTPUpload");
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Upload - Error", string.Format("file:{0}, ex:{1}", fileInf.Name, ex.Message), "M1_FTPUpload");
+                    result = false;
+                }
+
+                finally
+                {
+                    if (fs != null)
+                    {
+                        fs.Close();
+                    }
+                    if (strm != null)
+                    {
+                        strm.Close();
+                    }
+                }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error on upload m1 cdr file: " + sFileName, ",exception:" + ex.Message + " || " + ex.StackTrace, "M1_FTPUpload");
-                result = false;
+                Logger.Logger.Log("SendFileViaFtp - Error", string.Format("ex:{0}", ex.Message), "M1_FTPUpload");
             }
-
-            finally
-            {
-                if (fs != null)
-                {
-                    fs.Close();
-                }
-                if (strm != null)
-                {
-                    strm.Close();
-                }
-            }
+            
             return result;
         }
 
