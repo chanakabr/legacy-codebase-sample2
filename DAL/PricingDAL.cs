@@ -319,9 +319,8 @@ namespace DAL
 
             spCollectionData.AddParameter("@GroupID", nGroupID);
             spCollectionData.AddParameter("@IsActive", nIsActive);
-            spCollectionData.AddParameter("@SubscriptionID", nCollectionID);
+            spCollectionData.AddParameter("@CollectionID", nCollectionID);
             spCollectionData.AddParameter("@ProductCode", sProductCode);
-            spCollectionData.AddIDListParameter("@UserTypesIdList", userTypesIDsList, "id");
             spCollectionData.AddParameter("@TopRows", nTopRows);
 
             DataSet ds = spCollectionData.ExecuteDataSet();
