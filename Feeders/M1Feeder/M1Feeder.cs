@@ -21,6 +21,11 @@ namespace M1Feeder
         {
             InitParams(sParameters);
         }
+
+        public static ScheduledTasks.BaseTask GetInstance(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
+        {
+            return new M1Feeder(nTaskID, nIntervalInSec, sParameters);
+        }
         #endregion
 
         #region private Methods
