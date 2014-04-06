@@ -80,9 +80,11 @@ namespace BuzzFeeder
                 if (m_lAssetTypes.Count > 0)
                 {
                     bool bSuccess = true;
-
+                    int nStartIndex = 4;
                     if (sBuzzerType == "series")
                     {
+                        nStartIndex = 6;
+
                         if (splitString.Length < 7)
                         {
                             Logger.Logger.Log("Error", "series is missing series tag type / series media type id", "BuzzFeeder");
@@ -105,7 +107,7 @@ namespace BuzzFeeder
                     m_oBuzzWrapper = new BuzzWrapper(m_nGroupID, m_lAssetTypes);
                     if (bSuccess)
                     {
-                        for (int i = 4; i < splitString.Length; i++)
+                        for (int i = nStartIndex; i < splitString.Length; i++)
                         {
                             AddBuzzActivityFromParam(sBuzzerType, splitString[i]);
                         }
