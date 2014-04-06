@@ -174,4 +174,20 @@ namespace Users
         InvalidInput = 5,
         Error = 6
     }
+
+    public enum ValidationType : byte
+    {
+        Concurrency = 0,
+        Quantity = 1,
+        Frequency = 2
+    }
+
+    public enum LimitationType : byte
+    {
+        OK = 0,
+        ConcurrencyLimitation = 1,
+        QuantityLimitation = 2,
+        FrequencyLimitation = 3,
+        Unknown = 4
+    }
 }
