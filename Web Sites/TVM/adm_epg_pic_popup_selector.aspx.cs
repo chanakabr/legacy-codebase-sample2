@@ -203,7 +203,7 @@ public partial class adm_epg_pic_popup_selector : System.Web.UI.Page
         object t = null; ;
         if (Session["media_id"] != null)
             t = getPicID();
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("pics", "adm_table_pager", "adm_epg_pic_popup_selector.aspx", "", "ID", t, "javascript:window.close();", "pic_id");
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("EPG_pics", "adm_table_pager", "adm_epg_pic_popup_selector.aspx", "", "ID", t, "javascript:window.close();", "pic_id");
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
