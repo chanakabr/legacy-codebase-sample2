@@ -4030,7 +4030,7 @@ namespace TvinciImporter
            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
-        #region create client to WCF service
+    #region create client to WCF service
 
         internal static class BindingFactory
         {
@@ -4301,5 +4301,6 @@ namespace TvinciImporter
 
             return isUpdateIndexSucceeded;
         }
+    }
     }
 }
