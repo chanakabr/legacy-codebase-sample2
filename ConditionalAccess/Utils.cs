@@ -519,7 +519,7 @@ namespace ConditionalAccess
                 }
                 case eBundleType.COLLECTION:
                 {
-                    dt = DAL.ConditionalAccessDAL.Get_AllCollectionsInfoByUsersIDs(lUsersIds, nFileTypes.ToList<int>());
+                    dt = DAL.ConditionalAccessDAL.Get_AllCollectionInfoByUsersIDs(lUsersIds);
                     break;
                 }
             }

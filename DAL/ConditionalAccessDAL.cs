@@ -714,15 +714,14 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_AllCollectionsInfoByUsersIDs(List<int> UserIDs, List<int> nFileTypes)
+        public static DataTable Get_AllCollectionInfoByUsersIDs(List<int> UserIDs)
         {
-            ODBCWrapper.StoredProcedure spGet_AllCollectionsInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllCollectionsInfoByUsersIDs");
-            spGet_AllCollectionsInfoByUsersIDs.SetConnectionKey("CONNECTION_STRING");
-            spGet_AllCollectionsInfoByUsersIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
-            spGet_AllCollectionsInfoByUsersIDs.AddIDListParameter<int>("@fileTypesList", nFileTypes, "Id");
+            ODBCWrapper.StoredProcedure spGet_AllCollectionInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllCollectionInfoByUsersIDs");
+            spGet_AllCollectionInfoByUsersIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllCollectionInfoByUsersIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
 
 
-            DataSet ds = spGet_AllCollectionsInfoByUsersIDs.ExecuteDataSet();
+            DataSet ds = spGet_AllCollectionInfoByUsersIDs.ExecuteDataSet();
 
             if (ds != null)
                 return ds.Tables[0];
@@ -1128,7 +1127,7 @@ namespace DAL
             long lBillingTransactionID, DateTime dtCollectionStartDate, DateTime dtCollectionEndDate,
             DateTime dtCreateAndUpdateDate, string sConnKey)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
             sp.AddParameter("@GroupID", lGroupID);
             sp.AddParameter("@CollectionCode", sCollectionCode);
@@ -1153,9 +1152,6 @@ namespace DAL
             sp.AddParameter("@LanguageCode", sLanguageCode);
             sp.AddParameter("@DeviceName", sDeviceName);
             sp.AddParameter("@FailCount", 0);
-            sp.AddParameter("@CollectionMetadata", 0);
-            sp.AddParameter("@RelPp", DBNull.Value);
-            sp.AddParameter("@NotificationSent", 0);
 
             return sp.ExecuteReturnValue<long>();
 
