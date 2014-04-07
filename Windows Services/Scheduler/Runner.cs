@@ -90,7 +90,18 @@ namespace Scheduler
             Int32 nInterval = 0;
             try
             {
-                string sServer = ConfigurationManager.AppSettings["SERVER"].ToString();
+                //string sServer = ConfigurationManager.AppSettings["SERVER"].ToString();
+                string sServer = string.Empty;
+                try
+                {
+                    sServer = TCMClient.Settings.Instance.GetValue<string>("SERVER");
+                }
+                catch (Exception ex)
+                {
+                    sServer = string.Empty;
+                    Logger.Logger.Log("Scheduler Runner", "Key=SERVER," + ex.Message, "Tcm");
+                }
+
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select * from scheduled_tasks where RUN_STATUS=0 and RUN_DATE<getdate() and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("server", "=", sServer);
