@@ -1364,20 +1364,6 @@ namespace Users
             return eDomainResponseStatus;
         }
 
-        //protected bool SetDomainFlag(int domainId, int val)
-        //{
-        //    DateTime dt = DateTime.UtcNow;
-
-        //    bool res = DAL.DomainDal.SetDomainFlag(domainId, val, dt);
-
-        //    if (res)
-        //    {
-        //        m_NextActionFreq = dt;
-        //        return true;
-        //    }
-        //    else return false;
-        //}
-
         protected bool SetDomainFlag(int domainId, int val, bool deviceFlag = true)
         {
             DateTime dt = DateTime.UtcNow;
