@@ -84,5 +84,8 @@ namespace TVPApiServices
 
         [OperationContract]
         DomainResponseObject ChangeDomainMaster(InitializationObject initObj, int currentMasterID, int newMasterID);
+
+        [OperationContract]
+        DomainResponseObject ResetDomainFrequency(InitializationObject initObj, int frequencyType);
     }
 }
