@@ -406,6 +406,57 @@ namespace Users
                 candidate, existingNetwork, dtLastDeactivationDate, ref res);
         }
 
+        public virtual LimitationType ValidateLimitationModule(string sUDID, long lSiteGuid, long lDomainID, ValidationType eValidationType, Domain domain = null)
+        {
+            LimitationType res = LimitationType.Unknown;
+            if(domain == null)
+                domain = GetDomainForValidation(lSiteGuid, lDomainID);
+            if (domain != null)
+            {
+                switch (eValidationType)
+                {
+                    case ValidationType.Concurrency:
+                        {
+                            res = domain.ValidateConcurrency(sUDID);
+                            break;
+                        }
+                    case ValidationType.Frequency:
+                        {
+                            res = domain.ValidateFrequency(sUDID);
+                            break;
+                        }
+                    default:
+                        {
+                            // Quantity
+                            res = domain.ValidateQuantity(sUDID);
+                            break;
+                        }
+                }
+            } // end if
+
+            return res;
+        }
+
+        private Domain GetDomainForValidation(long lSiteGuid, long lDomainID)
+        {
+            Domain res = null;
+            if (lDomainID > 0)
+            {
+                res = DomainInitializer(m_nGroupID, (int) lDomainID);
+            }
+            if (res == null && lSiteGuid > 0)
+            {
+                bool tempIsMaster = false;
+                int tempOperatorID = 0;
+                int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster);
+                if (domainID < 1 || domainID == (int) lDomainID)
+                    return null;
+                res = DomainInitializer(m_nGroupID, domainID);
+            }
+
+            return res;
+        }
+
         #endregion
 
         #region Protected abstract
@@ -421,7 +472,7 @@ namespace Users
          * 07/04/2014
          * Initializing a domain in Eutelsat is different than in other customers.
          * 
-         */ 
+         */
         protected abstract Domain DomainInitializer(int nGroupID, int nDomainID);
 
         #endregion

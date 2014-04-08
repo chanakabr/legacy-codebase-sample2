@@ -74,7 +74,6 @@ namespace Users
 
         public DomainRestriction m_DomainRestriction;
 
-
         protected int m_deviceLimitationModule;
 
         protected int m_totalNumOfDevices;
@@ -86,6 +85,8 @@ namespace Users
         protected int m_minUserPeriodId;
 
         public List<HomeNetwork> m_homeNetworks;
+
+        public LimitationsManager m_oLimitationsManager;
 
         #endregion
 
@@ -111,6 +112,8 @@ namespace Users
             m_DomainRestriction = DomainRestriction.DeviceMasterRestricted;
 
             m_homeNetworks = new List<HomeNetwork>();
+
+            m_oLimitationsManager = new LimitationsManager();
 
         }
 
@@ -1566,6 +1569,21 @@ namespace Users
             }
 
             return retVal;
+        }
+
+        public LimitationType ValidateConcurrency(string sUDID)
+        {
+            return LimitationType.Unknown;
+        }
+
+        public LimitationType ValidateFrequency(string sUDID)
+        {
+            return LimitationType.Unknown;
+        }
+
+        public LimitationType ValidateQuantity(string sUDID)
+        {
+            return LimitationType.Unknown;
         }
 
         #endregion

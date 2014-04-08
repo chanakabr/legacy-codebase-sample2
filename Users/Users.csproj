@@ -103,6 +103,7 @@
     <Compile Include="DomainFactory.cs" />
     <Compile Include="EutelsatDomain.cs" />
     <Compile Include="EutelsatUsers.cs" />
+    <Compile Include="LimitationsManager.cs" />
     <Compile Include="MailFactory.cs" />
     <Compile Include="HomeNetwork.cs" />
     <Compile Include="MCMailImpl.cs" />
