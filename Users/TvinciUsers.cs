@@ -190,50 +190,55 @@ namespace Users
 
             //bool bActivated = IsUserActivated(ref sUN, ref nUserID);
             UserActivationState nActivationStatus = GetUserActivationStatus(ref sUN, ref nUserID);
+            
             //UserResponseObject o = new UserResponseObject();
             ResponseStatus ret = ResponseStatus.UserNotActivated;
 
-            if (nUserID <= 0)
+            if (nActivationStatus != UserActivationState.Activated)
             {
-                ret = ResponseStatus.WrongPasswordOrUserName;
-            }
-            else 
-            {
-                UserResponseObject o = new UserResponseObject();
 
-                switch (nActivationStatus)
+                if (nUserID <= 0)
                 {
-                    case UserActivationState.UserDoesNotExist:
-                        ret = ResponseStatus.UserDoesNotExist;
-                        break;
-
-                    case UserActivationState.NotActivated:
-                        o.m_user = new User(nGroupID, nUserID);
-                        ret = ResponseStatus.UserNotActivated;
-                        break;
-
-                    case UserActivationState.NotActivatedByMaster:
-                        o.m_user = new User(nGroupID, nUserID);
-                        ret = ResponseStatus.UserNotMasterApproved;
-                        break;
-
-                    case UserActivationState.UserRemovedFromDomain:
-                        o.m_user = new User(nGroupID, nUserID);
-                        ret = ResponseStatus.UserNotIndDomain;
-                        break;
-
-                    case UserActivationState.UserWIthNoDomain:
-                        o.m_user = new User(nGroupID, nUserID);
-                        bool bValidDomainStat = CheckAddDomain(ref o, o.m_user, sUN, nUserID);
-                        if (!bValidDomainStat)
-                            return o;
-                            break;
+                    ret = ResponseStatus.WrongPasswordOrUserName;
                 }
- 
-                o.m_RespStatus = ret;
-                return o;
+                else
+                {
+                    UserResponseObject o = new UserResponseObject();
+
+                    switch (nActivationStatus)
+                    {
+                        case UserActivationState.UserDoesNotExist:
+                            ret = ResponseStatus.UserDoesNotExist;
+                            break;
+
+                        case UserActivationState.NotActivated:
+                            o.m_user = new User(nGroupID, nUserID);
+                            ret = ResponseStatus.UserNotActivated;
+                            break;
+
+                        case UserActivationState.NotActivatedByMaster:
+                            o.m_user = new User(nGroupID, nUserID);
+                            ret = ResponseStatus.UserNotMasterApproved;
+                            break;
+
+                        case UserActivationState.UserRemovedFromDomain:
+                            o.m_user = new User(nGroupID, nUserID);
+                            ret = ResponseStatus.UserNotIndDomain;
+                            break;
+
+                        case UserActivationState.UserWIthNoDomain:
+                            o.m_user = new User(nGroupID, nUserID);
+                            bool bValidDomainStat = CheckAddDomain(ref o, o.m_user, sUN, nUserID);
+                            if (!bValidDomainStat)
+                                return o;
+                            break;
+                    }
+
+                    o.m_RespStatus = ret;
+                    return o;
+                }
             }
-           
+
             return User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
 
