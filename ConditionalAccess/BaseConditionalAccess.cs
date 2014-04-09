@@ -3031,8 +3031,8 @@ namespace ConditionalAccess
                     UpdateCollectionPurchases(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, sSiteGUID);
                 }
 
-                Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded(price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID, nMediaFileID, null, price.m_oItemPrices[0].m_relevantCol, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
-                UpdatePPVUses(nMediaFileID, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID, nIsCreditDownloaded1, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID);
+                Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded("b: " + price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, sSiteGUID, nMediaFileID, null, price.m_oItemPrices[0].m_relevantCol, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
+                UpdatePPVUses(nMediaFileID, "b: " + price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, sSiteGUID, nIsCreditDownloaded1, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID);
                 Int32 nPPVID = 0;
                 if (nIsCreditDownloaded1 == 1)
                 {
