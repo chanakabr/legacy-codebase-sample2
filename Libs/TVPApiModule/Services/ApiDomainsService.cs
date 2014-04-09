@@ -504,6 +504,22 @@ namespace TVPApiModule.Services
             return domain;
         }
 
+        public DomainResponseObject ResetDomainFrequency(int domainID, int frequencyType)
+        {
+            DomainResponseObject domain = null;
+
+            try
+            {
+                domain = m_Module.ResetDomainFrequency(m_wsUserName, m_wsPassword, domainID, frequencyType);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error in ResetDomainFrequency, Error : {0} Parameters : domainID: {1}, : frequencyType : {2}", ex.Message, domainID, frequencyType);
+            }
+
+            return domain;
+        }
+
 
     }
 }

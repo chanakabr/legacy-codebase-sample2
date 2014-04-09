@@ -703,5 +703,26 @@ namespace TVPApiServices
             }
             return domain;
         }
+
+        [WebMethod(EnableSession = true, Description = "Reset the domain frequency")]
+        public DomainResponseObject ResetDomainFrequency(InitializationObject initObj, int frequencyType)
+        {
+            DomainResponseObject domain = null;
+
+            int nGroupId = ConnectionHelper.GetGroupID("tvpapi", "ResetDomainFrequency", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (nGroupId > 0)
+            {
+                try
+                {
+                    domain = new TVPApiModule.Services.ApiDomainsService(nGroupId, initObj.Platform).ResetDomainFrequency(initObj.DomainID, frequencyType);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            return domain;
+        }
     }
 }
