@@ -221,9 +221,7 @@ namespace Users
             m_nGroupID = nGroupID;
             m_nDomainID = nDomainID;
 
-            bool domainExists = GetDomainSettings(nDomainID, nGroupID);
-
-            if (!domainExists)
+            if (!GetDomainSettings(nDomainID, nGroupID))
             {
                 m_DomainStatus = DomainStatus.Error;
                 return false;
@@ -249,27 +247,29 @@ namespace Users
         /// <param name="nDomainId">The DomainId</param>
         public bool Initialize(int nGroupID, int nDomainID)
         {
-            m_nGroupID = nGroupID;
-            m_nDomainID = nDomainID;
+            //m_nGroupID = nGroupID;
+            //m_nDomainID = nDomainID;
 
-            if (GetDomainSettings(nDomainID, nGroupID) == false)
-            {
-                m_DomainStatus = DomainStatus.DomainNotExists;
-                return false;
-            }
+            //if (!GetDomainSettings(nDomainID, nGroupID))
+            //{
+            //    m_DomainStatus = DomainStatus.DomainNotExists;
+            //    return false;
+            //}
 
-            // Init Users
-            DomainResponseStatus domainRes = GetUserList(nDomainID, nGroupID);
+            //// Init Users
+            //DomainResponseStatus domainRes = GetUserList(nDomainID, nGroupID);
 
-            // Init Devices
-            m_deviceFamilies = InitializeDeviceFamilies(m_deviceLimitationModule, nGroupID);
-            int devCount = GetDeviceList(false);
+            //// Init Devices
+            //m_deviceFamilies = InitializeDeviceFamilies(m_deviceLimitationModule, nGroupID);
+            //int devCount = GetDeviceList(false);
 
-            m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID);
+            //m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID);
 
-            m_DomainStatus = DomainStatus.OK;
+            //m_DomainStatus = DomainStatus.OK;
 
-            return true;
+            //return true;
+
+            return Initialize(string.Empty, string.Empty, nGroupID, nDomainID);
         }
 
         /// <summary>
@@ -287,7 +287,7 @@ namespace Users
             m_nGroupID = nGroupID;
             m_nDomainID = nDomainID;
 
-            if (GetDomainSettings(nDomainID, nGroupID) == false)
+            if (!GetDomainSettings(nDomainID, nGroupID))
             {
                 m_DomainStatus = DomainStatus.Error;
                 return false;

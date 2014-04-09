@@ -12,6 +12,7 @@ namespace Users
         public int m_deviceFamilyID;
         public int m_deviceLimit;
         public int m_deviceConcurrentLimit;
+        public LimitationsManager m_oLimitationsManager;
 
         public DeviceContainer()
         {
@@ -19,11 +20,12 @@ namespace Users
 
         public DeviceContainer(int id, string name, int limit, int nConcurrentLimit = 1)
         {
-            m_deviceFamilyID        = id;
-            m_deviceFamilyName      = name;
-            m_deviceLimit           = limit;
+            m_deviceFamilyID = id;
+            m_deviceFamilyName = name;
+            m_deviceLimit = limit;
             m_deviceConcurrentLimit = nConcurrentLimit;
-            m_DeviceInstances       = new List<Device>();
+            m_DeviceInstances = new List<Device>();
+            m_oLimitationsManager = new LimitationsManager();
         }
 
         public List<Device> DeviceInstances

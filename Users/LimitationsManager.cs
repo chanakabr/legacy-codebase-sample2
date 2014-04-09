@@ -1,87 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Users
 {
+    [DataContract]
     public class LimitationsManager
     {
-        private int _concurrency;
-        private int _quantity;
-        private int _frequency;
-        private bool _isHomeDevice;
+        [DataMember]
+        public int concurrency;
+        [DataMember]
+        public int quantity;
+        [DataMember]
+        public int frequency;
+        [DataMember]
+        private bool isHomeDevice;
 
         public LimitationsManager(int concurrency, int quantity, int frequency, bool isHomeDevice)
         {
-            Concurrency = concurrency;
-            Quantity = quantity;
-            Frequency = frequency;
-            IsHomeDevice = isHomeDevice;
+            this.concurrency = concurrency;
+            this.quantity = quantity;
+            this.frequency = frequency;
+            this.isHomeDevice = isHomeDevice;
         }
 
         public LimitationsManager(int concurrency, int quantity, int frequency)
         {
-            Concurrency = concurrency;
-            Quantity = quantity;
-            Frequency = frequency;
-            IsHomeDevice = false;
+            this.concurrency = concurrency;
+            this.quantity = quantity;
+            this.frequency = frequency;
+            this.isHomeDevice = false;
         }
 
         public LimitationsManager()
         {
-            Concurrency = 5; 
-            Quantity = 5;
-            Frequency = 1;
-            IsHomeDevice = false;
+            this.concurrency = 0;
+            this.quantity = 0;
+            this.frequency = 0;
+            this.isHomeDevice = false;
         }
 
-        public int Concurrency
-        {
-            get
-            {
-                return _concurrency;
-            }
-            private set
-            {
-                _concurrency = value;
-            }
-        }
-
-        public int Quantity
-        {
-            get
-            {
-                return _quantity;
-            }
-            private set
-            {
-                _quantity = value;
-            }
-        }
-
-        public int Frequency
-        {
-            get
-            {
-                return _frequency;
-            }
-            private set
-            {
-                _frequency = value;
-            }
-        }
-
-        public bool IsHomeDevice
-        {
-            get
-            {
-                return _isHomeDevice;
-            }
-            private set
-            {
-                _isHomeDevice = value;
-            }
-        }
     }
 }

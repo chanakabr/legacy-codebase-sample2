@@ -109,25 +109,6 @@ namespace Users
             return oDomainResponseObject;
         }
 
-        public override DomainResponseObject AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string sDeviceName, int nBrandID)
-        {
-            //New domain
-            Domain domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
-            
-            DomainResponseObject oDomainResponseObject;
-            
-            //Init The Domain
-
-            Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
-            bool init = device.Initialize(sUDID, sDeviceName);
-
-            //Add new Device to Domain
-            DomainResponseStatus eDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
-            oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
-            
-            return oDomainResponseObject;
-        }
-
         /// <summary>
         /// SubmitAddUserToDomainRequest
         /// </summary>

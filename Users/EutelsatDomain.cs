@@ -241,25 +241,6 @@ namespace Users
             return oDomainResponseObject;
         }
 
-        public override DomainResponseObject AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string sDeviceName, int nBrandID)
-        {
-            // Create new response
-            DomainResponseObject oDomainResponseObject;
-
-            //New domain
-            Domain domain = InitializeDomain(nGroupID, nDomainID);
-
-            Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
-            bool devInit = device.Initialize(sUDID);
-            device.m_deviceName = sDeviceName;
-
-            //Add new Device to Domain
-            DomainResponseStatus eDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
-            oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
-
-            return oDomainResponseObject;
-        }
-
         public override DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType = 0)
         {
             // Create new response

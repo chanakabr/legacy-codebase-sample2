@@ -29,14 +29,36 @@ namespace Users
 
         public abstract DomainResponseObject SubmitAddUserToDomainRequest(int nGroupID, int nUserGuid, string sMasterUsername);
 
-        public abstract DomainResponseObject AddDeviceToDomain(int nGroupID, int domainID, string sUDID, string sDeviceName, int nBrandID);
-
         public abstract DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType);
 
         public abstract DomainResponseObject ChangeDomainMaster(int nDomainID, int nCurrentMasterID, int nNewMasterID);
         #endregion
 
         #region Public Virtual
+
+        public virtual DomainResponseObject AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string sDeviceName, int nBrandID)
+        {
+            DomainResponseObject oDomainResponseObject = new DomainResponseObject();
+            oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
+
+            Domain domain = DomainInitializer(nGroupID, nDomainID);
+            if (domain == null)
+            {
+                oDomainResponseObject.m_oDomain = null;
+            }
+            else
+            {
+                oDomainResponseObject.m_oDomain = domain;
+                Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
+                if (device.Initialize(sUDID, sDeviceName))
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
+                }
+            }
+
+            return oDomainResponseObject;
+        }
+
         public virtual DomainResponseObject AddUserToDomain(int nGroupID, int nDomainID, int userGuid, int nMasterUserGuid, bool bIsMaster = false)
         {
             //New domain
