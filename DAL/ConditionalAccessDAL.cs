@@ -667,6 +667,22 @@ namespace DAL
 
         }
 
+        public static DataTable Get_allDomainsPPVUsesUsingCollection(List<int> usersList, int groupID, int MediaFileID, int nBoxsetID)
+        {
+            ODBCWrapper.StoredProcedure spGet_allDomainsPPVUsesUsingCollection = new ODBCWrapper.StoredProcedure("Get_allDomainsPPVUsesUsingCollection");
+            spGet_allDomainsPPVUsesUsingCollection.SetConnectionKey("CONNECTION_STRING");
+            spGet_allDomainsPPVUsesUsingCollection.AddIDListParameter<int>("@usersList", usersList, "Id");
+            spGet_allDomainsPPVUsesUsingCollection.AddParameter("@groupID", groupID);
+            spGet_allDomainsPPVUsesUsingCollection.AddParameter("@MediaFileID", MediaFileID);
+            spGet_allDomainsPPVUsesUsingCollection.AddParameter("@relCollectionID", nBoxsetID);
+
+            DataSet ds = spGet_allDomainsPPVUsesUsingCollection.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
         public static DataTable Get_allDomainsPPVUses(List<int> usersList, int groupID, int MediaFileID)
         {
             ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_allDomainsPPVUses");

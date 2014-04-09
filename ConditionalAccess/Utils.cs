@@ -389,6 +389,65 @@ namespace ConditionalAccess
             return nRet;
         }
 
+        /// <summary>
+        /// PPV Does Credit Need To Downloaded
+        /// </summary>
+        static public bool PPV_DoesCreditNeedToDownloadedUsingCollection(int groupID, Int32 nMediaFileID, List<int> lUsersIds, string sCollectionCode)
+        {
+            bool nIsCreditDownloaded    = true;
+            string sIP                  = "1.1.1.1";
+            string sWSUserName          = "";
+            string sWSPass              = "";
+
+            using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
+            {
+                string sWSURL = Utils.GetWSURL("pricing_ws");
+                if (sWSURL.Length > 0)
+                    m.Url = sWSURL;
+
+                TvinciPricing.UsageModule u     = null;
+                TvinciPricing.Collection theCol = null;
+
+                if (CachingManager.CachingManager.Exist("GetCollectionData" + sCollectionCode + "_" + groupID.ToString()) == true)
+                    theCol = (TvinciPricing.Collection)(CachingManager.CachingManager.GetCachedData("GetCollectionData" + sCollectionCode + "_" + groupID.ToString()));
+                else
+                {
+                    TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                    theCol = m.GetCollectionData(sWSUserName, sWSPass, sCollectionCode, String.Empty, String.Empty, String.Empty, false);
+                    CachingManager.CachingManager.SetCachedData("GetCollectionData" + sCollectionCode + "_" + groupID.ToString(), theCol, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                }
+
+                u = theCol.m_oCollectionUsageModule;
+
+                Int32 nViewLifeCycle = u.m_tsViewLifeCycle;
+
+                int nCollectionID = 0;
+                Int32.TryParse(sCollectionCode, out nCollectionID);
+                DataTable dtPPVUses = DAL.ConditionalAccessDAL.Get_allDomainsPPVUsesUsingCollection(lUsersIds, groupID, nMediaFileID, nCollectionID);
+
+                if (dtPPVUses != null)
+                {
+                    Int32 nCount = dtPPVUses.Rows.Count;
+                    if (nCount > 0)
+                    {
+                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["dNow"]);
+                        DateTime dUsed = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["CREATE_DATE"]);
+
+                        DateTime dEndDate = Utils.GetEndDateTime(dUsed, nViewLifeCycle);
+
+                        if (dNow < dEndDate)
+                            nIsCreditDownloaded = false;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return nIsCreditDownloaded;
+        }
+
         static public bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, string sSiteGUID, int mediaFileID, int groupID, eBundleType bundleType)
         {
 
@@ -573,6 +632,10 @@ namespace ConditionalAccess
                                 else if (bundleType == eBundleType.COLLECTION)
                                 {
                                     bundleValid = api.DoesMediaBelongToCollection(sWSUser, sWSPass, int.Parse(sCode), nFileTypes, mediaID, "");
+                                    if (bundleValid == true)
+                                    {
+                                        bundleValid = !PPV_DoesCreditNeedToDownloadedUsingCollection(groupID, mediaFileID, lUsersIds, sCode);
+                                    }
                                 }
                             }
                             catch (Exception ex)
@@ -1702,9 +1765,10 @@ namespace ConditionalAccess
                         return p;
 
                     //collections check
-                    TvinciPricing.Collection[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION) as TvinciPricing.Collection[];
+                    TvinciPricing.Collection[] relevantValidCollections = new Collection[1];
+                    relevantValidCollections[0] = (TvinciPricing.Collection)GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION)[0];
 
-                    if (relevantValidSubscriptions != null)
+                    if (relevantValidCollections != null)
                     {
                         List<TvinciPricing.Collection> priorityCollections = relevantValidCollections.ToList();
                         for (int i = 0; i < priorityCollections.Count; i++)
