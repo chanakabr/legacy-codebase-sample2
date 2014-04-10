@@ -342,9 +342,7 @@ namespace ElasticSearch.Common
                 {
                     if (!string.IsNullOrWhiteSpace(sMetaName))
                     {
-
-
-                        List<string> lMetaValues = oEpg.Tags[sMetaName];
+                        List<string> lMetaValues = oEpg.Metas[sMetaName];
                         if (lMetaValues != null && lMetaValues.Count > 0)
                         {
                             for (int i = 0; i < lMetaValues.Count; i++)

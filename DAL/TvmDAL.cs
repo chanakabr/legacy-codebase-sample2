@@ -78,13 +78,13 @@ namespace DAL
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("PRICING_CONNECTION");
 
-                selectQuery += "SELECT S.ID, S.COGUID, SN.DESCRIPTION AS 'TITLE', SD.DESCRIPTION, S.STATUS, COALESCE(PC.PRICE, 0) AS 'PRICE', LC.CODE3, S.START_DATE, S.END_DATE " + 
+                selectQuery += "SELECT S.ID, S.COGUID, SN.DESCRIPTION AS 'TITLE', SD.DESCRIPTION, S.IS_ACTIVE, COALESCE(PC.PRICE, 0) AS 'PRICE', LC.CODE3, S.START_DATE, S.END_DATE " + 
                                 "FROM SUBSCRIPTIONS S WITH (NOLOCK) " +
                                 "LEFT JOIN SUBSCRIPTION_NAMES SN WITH (NOLOCK) ON S.ID = SN.SUBSCRIPTION_ID " +
                                 "LEFT JOIN SUBSCRIPTION_DESCRIPTIONS SD WITH (NOLOCK) ON S.ID = SD.SUBSCRIPTION_ID " +
                                 "LEFT JOIN PRICE_CODES PC WITH (NOLOCK) ON S.SUB_PRICE_CODE = PC.ID " +
                                 "LEFT JOIN LU_CURRENCY LC WITH (NOLOCK) ON PC.CURRENCY_CD = LC.ID " +
-                                "WHERE S.IS_ACTIVE = 1 AND S.STATUS = 1 AND ";
+                                "WHERE S.STATUS = 1 AND ";
 
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("S.GROUP_ID", "=", nGroupID);
                 selectQuery += "AND";
@@ -98,7 +98,7 @@ namespace DAL
                         prodDict["ExternalProductID"]   = selectQuery.Table("query").DefaultView[0].Row["COGUID"].ToString();
                         prodDict["Title"]               = selectQuery.Table("query").DefaultView[0].Row["TITLE"].ToString();
                         prodDict["Description"]         = selectQuery.Table("query").DefaultView[0].Row["DESCRIPTION"].ToString();
-                        prodDict["Status"]              = selectQuery.Table("query").DefaultView[0].Row["STATUS"].ToString();
+                        prodDict["Status"]              = selectQuery.Table("query").DefaultView[0].Row["IS_ACTIVE"].ToString();
 
                         prodDict["PriceB2C"] = "0.0";
                         if (selectQuery.Table("query").DefaultView[0].Row["PRICE"] != null)
@@ -289,6 +289,30 @@ namespace DAL
             }
 
             return dPackage;
+        }
+
+
+        public static List<KeyValuePair<string,string>> GetMediaDescription(List<string> lEpgIdentifier)
+        {
+            List<KeyValuePair<string, string>> lMediaDescription = new  List<KeyValuePair<string,string>>(); 
+            KeyValuePair<string, string> keyValuePair;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaDescription");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<string>("@EpgIdentifier", lEpgIdentifier, "key");
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+                    keyValuePair = new KeyValuePair<string,string>(row["epg_identifier"].ToString(), row["media_description"].ToString());
+
+                    lMediaDescription.Add(keyValuePair);
+                }
+                return lMediaDescription;
+            }
+
+            return null;
         }
     }
     

@@ -62,27 +62,10 @@ namespace Catalog
                 response.m_nTotalItems = 0;
 
                 List<int> channelIds = Catalog.GetSubscriptionChannelIds(request.m_nGroupID, request.m_nSubscriptionID);
-                List<Channel> allChannels = Utils.GetChannelsFromCache(request.m_nGroupID, channelIds);
+                List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                 if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                 {
-                    #region  Get Channel Object per channelID
-                    // Buils search Object per channelId call Searcher to return true/false result
-                    ConcurrentDictionary<int, Channel> dChannels = groupInCache.m_oGroupChannels;
-                    if (dChannels != null)
-                    {
-                        foreach (int channelID in channelIds)
-                        {
-                            if (dChannels.ContainsKey(channelID))
-                                allChannels.Add(dChannels[channelID]);
-                        }
-                    }
-                    else
-                    {
-                        _logger.ErrorFormat("Could not load Channels from Group cache. GroupID={0}", request.m_nGroupID);                
-                    }
-                    #endregion
-
                     if (allChannels.Count > 0)
                     {
                         ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();

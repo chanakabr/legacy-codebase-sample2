@@ -15,10 +15,18 @@ namespace Notifiers
 
         override public void NotifyChange(string sSubscriptionID)
         {
-            NotifyChange(sSubscriptionID, true);
+            string errorMessage = "";
+            int create0update1assign2 = 1;  // default action is update 
+            NotifyChange(sSubscriptionID, ref errorMessage, create0update1assign2);
         }
 
-        override public void NotifyChange(string sSubscriptionID, bool update)
+        override public void NotifyChange(string sSubscriptionID, int create0update1assign2)
+        {
+            string errorMessage = "";
+            NotifyChange(sSubscriptionID, ref errorMessage, create0update1assign2);
+        }
+
+        override public void NotifyChange(string sSubscriptionID, ref string errorMessage, int create0update1assign2)
         {
             //WS_3SS.Service t = new Notifiers.tikle_ws.Service();
             //string sTikleWSURL = Utils.GetWSURL("tikle_ws");
@@ -27,20 +35,43 @@ namespace Notifiers
             
             //Logger.Logger.Log("Notify", sSubscriptionID + " : "  + resp.ResultDetail, "subscriptions_notifier");
 
-            EutelsatTransactionResponse resp = MakeProductNotification(sSubscriptionID, update);
+            EutelsatProductNotificationResponse resp = MakeProductNotification(sSubscriptionID, create0update1assign2);
 
-            Logger.Logger.Log("Notify", sSubscriptionID + " : " + resp.Message, "subscriptions_notifier");
+            errorMessage = "";
+            
+            if (!resp.success)
+            {
+                string[] errors = resp.errors.Select(e => "type: " + e.error_type + "; error: " + e.error_message).ToArray();
+                errorMessage = string.Join("\n",  errors);
+            }
+
+            Logger.Logger.Log("Notify", sSubscriptionID + " : " + (resp.success ? "notification success" : errorMessage), "subscriptions_notifier");
             
         }
 
 
-        protected EutelsatTransactionResponse MakeProductNotification(string sSubscriptionID, bool update)
+        protected EutelsatProductNotificationResponse MakeProductNotification(string sSubscriptionID, int create0update1assign2)
         {
 
-            EutelsatTransactionResponse res = new EutelsatTransactionResponse();
-            res.Success = false;
+            EutelsatProductNotificationResponse res = new EutelsatProductNotificationResponse();
+            res.success = false;
 
-            string sWSURL       = Utils.GetWSURL("Eutelsat_ProductBase") + (update ? "/update" : "/create");
+            string sWSURL = Utils.GetWSURL("Eutelsat_ProductBase"); //+(update ? "/update" : "/create");
+
+            switch (create0update1assign2)
+            {
+                case 0:
+                    sWSURL += "/create";
+                    break;
+                case 2:
+                    sWSURL += "/assign";
+                    break;
+                case 1:
+                default:
+                    sWSURL += "/update";
+                    break;
+            }
+
             string sWSUsername  = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
             string sWSPassword  = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
 
@@ -93,29 +124,11 @@ namespace Notifiers
 
             if (isGoodUri)
             {
-                res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatTransactionResponse;
-                //object 3ssRes = Utils.MakeJsonRequest(checkTvodUrl, 
+                res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatProductNotificationResponse;
             }
 
             return res;
         }
-
-
-        //public static EutelsatTransactionResponse MakeJsonRequest(Uri requestUri, string wsUsername, string wsPassword, string jsonContent = "")
-        //{
-        //    try
-        //    {
-        //        string sRes = TVinciShared.WS_Utils.SendXMLHttpReq(requestUri.OriginalString, jsonContent, "", "application/json", "UserName", wsUsername, "Password", wsPassword);
-        //        object objResponse = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(EutelsatTransactionResponse));
-
-        //        return (EutelsatTransactionResponse)objResponse;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //    }
-
-        //    return null;
-        //}
 
     }
 }

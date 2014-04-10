@@ -16,7 +16,9 @@ namespace Notifiers
 
         abstract public void NotifyChange(string sSubscriptionID);
 
-        abstract public void NotifyChange(string sSubscriptionID, bool update);
+        abstract public void NotifyChange(string sSubscriptionID, int create0update1assign2);
+
+        abstract public void NotifyChange(string sSubscriptionID, ref string errorMessage, int create0update1assign2);
 
         protected Int32 m_nGroupID;
     }

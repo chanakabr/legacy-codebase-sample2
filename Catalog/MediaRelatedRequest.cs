@@ -61,8 +61,10 @@ namespace Catalog
                 if (request == null || request.m_nMediaID == 0 || request.m_oFilter == null)
                     throw new Exception("request object is null or Required variables is null");
 
+                CheckSignature(request);
+
                 bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
-                oMediaRequest = Catalog.BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref oFilter, request.m_nGroupID, request.m_nMediaTypes);
+                oMediaRequest = Catalog.BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref oFilter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid);
 
                 oMediaRequest.m_oFilter     = oFilter;
                 oMediaRequest.m_nMediaID    = request.m_nMediaID;

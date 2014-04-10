@@ -56,6 +56,7 @@ namespace Catalog
         STOP = 2,
         PAUSE = 3,
         FIRST_PLAY = 4,
+        SWOOSH = 5,
         FULL_SCREEN = 6,
         SEND_TO_FRIEND = 7,
         LOAD = 8,

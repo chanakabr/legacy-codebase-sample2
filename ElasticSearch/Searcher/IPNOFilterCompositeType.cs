@@ -48,16 +48,19 @@ namespace ElasticSearch.Searcher
         {
             bool addExtraBraces = false;
 
-            if (jsonizedIPNOChannelsDefinitions != null && jsonizedIPNOChannelsDefinitions.Count > 0)
+            if (jsonizedIPNOChannelsDefinitions != null)
             {
                 StringBuilder sb = new StringBuilder(String.Concat("\"", cutWithOriginalQuery.ToString().ToLower(), "\":[{"));
                 sb.Append(String.Concat(this.OriginalFilterCompositeType.ToString(), "}"));
                 sb.Append(String.Concat(",{\"", cutWithSpecificIPNOAndAllIPNOs.ToString().ToLower(), "\":["));
-                TryOptimizeStringLength(cutWithBetweenIPNOChannelsDefinitions, isNotBeforeEachIPNOChannelDef,
-                    ref addExtraBraces, ref sb);
+                if (jsonizedIPNOChannelsDefinitions.Count > 0)
+                {
+                    TryOptimizeStringLength(cutWithBetweenIPNOChannelsDefinitions, isNotBeforeEachIPNOChannelDef,
+                        ref addExtraBraces, ref sb);
 
-                ConcatChannelsDefinitions(jsonizedIPNOChannelsDefinitions, addExtraBraces, ref sb);
-                sb.Append(String.Concat("]}", addExtraBraces ? "}," : ","));
+                    ConcatChannelsDefinitions(jsonizedIPNOChannelsDefinitions, addExtraBraces, ref sb);
+                    sb.Append(String.Concat("]}", addExtraBraces ? "}," : ","));
+                }
 
                 TryOptimizeStringLength(cutWithBetweenAllChannelsOfAllIPNOsDefinitions, isNotBeforeEachDefOfAllIPNOsChannelDef,
                     ref addExtraBraces, ref sb);

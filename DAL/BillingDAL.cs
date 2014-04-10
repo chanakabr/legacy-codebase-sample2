@@ -502,7 +502,7 @@ namespace DAL
         public static DataSet Get_M1GroupParameters(int? nGroupID, string appID)
         {
             ODBCWrapper.StoredProcedure spGetM1GroupParameters = new ODBCWrapper.StoredProcedure("Get_M1GroupParameters");
-            spGetM1GroupParameters.SetConnectionKey("CONNECTION_STRING");
+            spGetM1GroupParameters.SetConnectionKey("BILLING_CONNECTION_STRING");
             spGetM1GroupParameters.AddNullableParameter<int?>("@GroupID", nGroupID);
             spGetM1GroupParameters.AddNullableParameter<string>("@AppID", appID);
 
@@ -513,7 +513,7 @@ namespace DAL
         public static DataTable Get_M1Transactions(int nGroupID, int nTransactionStatus)
         {
             ODBCWrapper.StoredProcedure spGetM1Transactions = new ODBCWrapper.StoredProcedure("Get_M1Transactions");
-            spGetM1Transactions.SetConnectionKey("CONNECTION_STRING");
+            spGetM1Transactions.SetConnectionKey("BILLING_CONNECTION_STRING");
             spGetM1Transactions.AddParameter("@GroupID", nGroupID);
             spGetM1Transactions.AddParameter("@Status", nTransactionStatus);
 
@@ -527,7 +527,7 @@ namespace DAL
         public static int Insert_M1FileHistoryRecord(int nGroupID, int nItemType, int nFileCounter, string sFileName)  
         {
             ODBCWrapper.StoredProcedure spInsertM1File = new ODBCWrapper.StoredProcedure("Insert_M1FileHistoryRecord");
-            spInsertM1File.SetConnectionKey("CONNECTION_STRING");
+            spInsertM1File.SetConnectionKey("BILLING_CONNECTION_STRING");
             spInsertM1File.AddParameter("@GroupID", nGroupID);
             spInsertM1File.AddParameter("@ItemType", nItemType);
             spInsertM1File.AddParameter("@FileCounter", nFileCounter);
@@ -557,7 +557,7 @@ namespace DAL
         public static void UpdateM1Transactions(int nGroupID, List<int> transactionIDs, int nStatus, int nFileRefID)
         {
             ODBCWrapper.StoredProcedure spUpdateM1Transactions = new ODBCWrapper.StoredProcedure("Update_M1Transactions");
-            spUpdateM1Transactions.SetConnectionKey("CONNECTION_STRING");
+            spUpdateM1Transactions.SetConnectionKey("BILLING_CONNECTION_STRING");
             spUpdateM1Transactions.AddParameter("@GroupID", nGroupID);
             spUpdateM1Transactions.AddIDListParameter<int>("@M1TransactionsIDs", transactionIDs, "Id");
             spUpdateM1Transactions.AddParameter("@Status", nStatus);

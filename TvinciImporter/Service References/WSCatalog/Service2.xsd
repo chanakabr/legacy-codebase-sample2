@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
   <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
   <xs:element name="InjestAdiData">
     <xs:complexType>
@@ -152,6 +152,22 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="UpdateOperatorResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateEpgIndex">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lEpgIds" nillable="true" type="q12:ArrayOfint" />
+        <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="eAction" type="q13:eAction" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateEpgIndexResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="UpdateEpgIndexResult" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

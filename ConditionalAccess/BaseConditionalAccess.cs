@@ -94,7 +94,7 @@ namespace ConditionalAccess
                     selectQuery.SetConnectionKey(connectionKey);
                 }
                 selectQuery.SetCachedSec(0);
-                selectQuery += "select * from groups_parameters where status=1 and is_active=1 and ";
+                selectQuery += "select * from groups_parameters with (nolock) where status=1 and is_active=1 and ";
                 //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
                 selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
                 selectQuery += " order by id desc";
@@ -195,7 +195,7 @@ namespace ConditionalAccess
             double tax = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("billing_connection");
-            selectQuery += " select tax_value from groups_parameters where ";
+            selectQuery += " select tax_value from groups_parameters with (nolock) where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
             if (selectQuery.Execute("query", true) != null)
             {
@@ -228,26 +228,7 @@ namespace ConditionalAccess
             retVal.m_sTaxVal = tax.ToString();
             retVal.m_sTaxSubtotal = taxTotalDIsc.ToString();
             retVal.m_sTaxAmount = taxDisc.ToString();
-            //TVinciShared.MailTemplateEngine mt = new TVinciShared.MailTemplateEngine();
-            //string sFilePath = HttpContext.Current.Server.MapPath("");
-            //sFilePath += "/mailTemplates/" + m_sPurchaseMailTemplate;
-            //mt.Init(sFilePath);
-            //mt.Replace("FIRSTNAME", sFirstName);
-            //mt.Replace("LASTNAME", sLastName);
-            //mt.Replace("ITEMNAME", sItemName);
-            //mt.Replace("PAYMENTMETHOD", sPaymentMethod);
-            //mt.Replace("DATEOFPURCHASE", sDateOfPurchase);
-            //mt.Replace("RECNUMBER", sRecNumner);
-            //mt.Replace("PRICE", sPrice);
 
-
-            ////string sActivation = "";
-            ////if (sActivation != "")
-            ////{
-            ////mt.Replace("ACTIVATION", "UserName=" + sUserName + "&Token=" + sActivation);
-            ////}
-            //string sMailData = mt.GetAsString();
-            //return sMailData;
             return retVal;
         }
         /// <summary>
@@ -269,7 +250,7 @@ namespace ConditionalAccess
         {
             Int32 nLangID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select l.NAME,l.CODE3,l.id from groups g,lu_languages l where l.id=g.language_id and  ";
+            selectQuery += "select l.NAME,l.CODE3,l.id from groups g with (nolock), lu_languages l with (nolock) where l.id=g.language_id and  ";
             selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
             if (selectQuery.Execute("query", true) != null)
@@ -366,7 +347,6 @@ namespace ConditionalAccess
             {
 
                 //Cellular_ChargeUser
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "HandleCellularChargeUser", "billing", sUserIP, ref sWSUsername, ref sWSPassword);
                 return bm.Cellular_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sExtraParams);
 
             }
@@ -2118,7 +2098,7 @@ namespace ConditionalAccess
                             nMaxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
                             sCustomData = GetCustomDataForMPPRenewal(theSub, AppUsageModule, p, sSubscriptionCode,
-                                sSiteGUID, dPrice, sCustomData, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                         }
                         else
@@ -2251,12 +2231,12 @@ namespace ConditionalAccess
                 {
                     // card is expired. there is no point to continue trying renewing the mpp for this user.
                     // hence, we set the fail count to maximum.
-                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"));
+                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"), "CA_CONNECTION_STRING");
                 }
                 else
                 {
                     // failed to renew. increase fail count by one.
-                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, true, 0);
+                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, true, 0, "CA_CONNECTION_STRING");
                 }
             }
         }
@@ -2267,7 +2247,7 @@ namespace ConditionalAccess
 
             // user does not exist. there is no point to continue trying renewing the mpp.
             // hence, we set the fail count to maximum
-            ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"));
+            ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"), "CA_CONNECTION_STRING");
 
             res.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnownUser;
             res.m_sStatusDescription = "User does not exist";
@@ -5015,7 +4995,7 @@ namespace ConditionalAccess
                         {
                             if (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
                             {
-                                if (p.m_dPrice != 0)
+                                if (p.m_dPrice != 0 || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
                                 {
                                     sIP = "1.1.1.1";
                                     sWSUserName = string.Empty;
@@ -5098,6 +5078,7 @@ namespace ConditionalAccess
             }
             return retVal;
         }
+
         /// <summary>
         /// PU Get PPV Popup Payment Method URL
         /// </summary>
@@ -8559,6 +8540,17 @@ namespace ConditionalAccess
             {
                 Logger.Logger.Log("UpdatePurchaseIDInExternalBillingTable", string.Format("Unexpected error. Billing transaction ID: {0} , Purchase ID: {1} , BaseConditionalAccess is: {2} , Billing Provider: {3} , External transaction ID: {4}", lBillingTransactionID, lPurchaseID, this.GetType().Name, nBillingProvider, nExternalTransactionID), "BaseConditionalAccess");
             }
+        }
+
+        protected bool IsPreviewModuleInGroupIDCostsZero()
+        {
+            string sKeyOfMinPrice = String.Concat("PreviewModuleMinPrice", m_nGroupID);
+            double dMinPriceForPreviewModule = Utils.DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE;
+            string sValInConfig = Utils.GetValueFromConfig(sKeyOfMinPrice);
+            if (sValInConfig.Length > 0 && double.TryParse(sValInConfig, out dMinPriceForPreviewModule))
+                return dMinPriceForPreviewModule == 0d;
+            return false;
+
         }
 
     }

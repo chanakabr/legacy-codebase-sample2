@@ -12,8 +12,11 @@ namespace ApiObjects.SearchObjects
         public bool m_bSearchAnd;
         public bool m_bDesc;
         public string m_sOrderBy;
-     
-        public List<EpgSearchValue> m_lSearch { get; set; }  
+
+        public List<EpgSearchValue> m_lSearch { get; set; }
+        public bool m_bExact;
+        public List<SearchValue> m_lSearchOr { get; set; }
+        public List<SearchValue> m_lSearchAnd { get; set; }
 
         public DateTime m_dStartDate { get; set; }
         public DateTime m_dEndDate { get; set; }
@@ -21,7 +24,7 @@ namespace ApiObjects.SearchObjects
         public int m_nGroupID { get; set; }    // ParentGroup  
         public int m_nPageIndex { get; set; }
         public int m_nPageSize { get; set; }
-        public CutWith m_eInterCutWith { get; set; }       
+        public CutWith m_eInterCutWith { get; set; }
         public List<long> m_oEpgChannelIDs { get; set; }
 
         public EpgSearchObj()
@@ -36,23 +39,36 @@ namespace ApiObjects.SearchObjects
 
             m_bSearchAnd = false;
             m_bDesc = false;
+            m_bExact = false;
 
             m_eInterCutWith = CutWith.OR;
 
-            m_lSearch = new List<EpgSearchValue>();          
+            m_lSearch = new List<EpgSearchValue>();
+
+            m_lSearchOr = new List<SearchValue>();
+            m_lSearchAnd = new List<SearchValue>();
         }
 
-        public bool ContainSearchKey(string key, ref EpgSearchValue searchVal)
+        public bool ContainSearchKey(string key, ref SearchValue searchVal)
         {
-            foreach (EpgSearchValue item in this.m_lSearch)
+            foreach (SearchValue item in this.m_lSearchOr)
             {
                 if (item.m_sValue.ToLower() == key.ToLower())
                 {
-                    searchVal =  item;
+                    searchVal = item;
                     return true;
                 }
             }
-            searchVal = new EpgSearchValue();
+            foreach (SearchValue item in this.m_lSearchAnd)
+            {
+                if (item.m_sValue.ToLower() == key.ToLower())
+                {
+                    searchVal = item;
+                    return true;
+                }
+            }
+
+            searchVal = new SearchValue();
             return false;
         }
     }

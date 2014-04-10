@@ -1678,7 +1678,7 @@ namespace TVinciShared
             System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
             if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
             {
-                string sFailure = coll["failure_back_page"].ToString();
+               // string sFailure = coll["failure_back_page"].ToString();
                 if (coll["failure_back_page"] != null)
                     HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["failure_back_page"].ToString() + "';</script>");
                 else

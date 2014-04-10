@@ -328,7 +328,7 @@ namespace Tvinci.Core.DAL
 
         public static void Insert_NewMediaEoh(int nWatcherID, string sSessionID, int nGroupID, int nOwnerGroupID, int nMediaID, int nMediaFileID, int nBillingTypeID, int nCDNID, int nDuration, int nCountryID, int nPLayerID,    
                                               int nFirstPlayCounter, int nPlayCounter, int nLoadCounter, int nPauseCounter, int nStopCounter, int nFullScreenCounter,int nExitFullScreenCounter, int nSendToFriendCounter,
-                                              int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID, int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID                                              
+                                              int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID, int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID,int nSwooshCounter                                              
                                              )  
         
         {                                                                                                         
@@ -365,6 +365,7 @@ namespace Tvinci.Core.DAL
             spNewMediaEoh.AddParameter("@SiteGuid", sSiteGuid);
             spNewMediaEoh.AddParameter("@DeviceUdID", sDeviceUdID);
             spNewMediaEoh.AddParameter("@PlayCycleID", sPlayCycleID);
+            spNewMediaEoh.AddParameter("@SwooshCounter", nSwooshCounter);
 
             spNewMediaEoh.ExecuteNonQuery();
         }
@@ -829,7 +830,10 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-              return ds.Tables[0];
+            if (ds != null)
+                return ds.Tables[0];
+
+            return null;
 
         }
 
@@ -1023,22 +1027,23 @@ namespace Tvinci.Core.DAL
             return new List<int>(0);
         }
 
-        public DataTable MediaMetaTranslate(int nMediaID, int nLanguageID)
+        public static DataTable Get_IPersonalRecommended(int nGroupID, string sSiteGuid, int nTop, int nOperatorID)
         {
-            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("Get_IPersonalRecommended");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@Top", nTop);
+            sp.AddParameter("@OperatorID", nOperatorID);
+			
+			DataSet ds = sp.ExecuteDataSet();
 
-
-            return dt;
-        }
-
-        public DataTable MediaTagTranslate(int nTagID, int nLanguageID)
-        {
-            DataTable dt = null;
-
-
-            return dt;
-        }
-
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+				return ds.Tables[0];
+            
+			return null;
+		}
+		
         public static List<LanguageObj> GetGroupLanguages(int nGroupID)
         {
             List<LanguageObj> lLanguages = null;
@@ -1046,7 +1051,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupLanguages");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", nGroupID);
-
+			
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -1066,7 +1071,6 @@ namespace Tvinci.Core.DAL
                         tempLang.IsDefault = true;
                         lLanguages.Add(tempLang);
                     }
-
                 }
 
                 if (ds.Tables.Count > 1)
@@ -1120,6 +1124,5 @@ namespace Tvinci.Core.DAL
 
             return language;
         }
-
     }
 }

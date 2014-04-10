@@ -392,7 +392,7 @@ namespace ElasticSearch.Searcher
 
         private bool IsUseIPNOFiltering()
         {
-            return oSearchObject != null && oSearchObject.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt != null && oSearchObject.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt.Count > 0;
+            return oSearchObject != null && oSearchObject.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt != null && (oSearchObject.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt.Count > 0 || (oSearchObject.m_lOrMediaNotInAnyOfTheseChannelsDefinitions != null && oSearchObject.m_lOrMediaNotInAnyOfTheseChannelsDefinitions.Count > 0));
         }
 
         public string BuildMultiChannelQuery(List<MediaSearchObj> searchObj)
@@ -427,9 +427,7 @@ namespace ElasticSearch.Searcher
 
             filter.AddChild(mediaIdTerms);
             FillFilterSettings(ref oQueryFilter, filter);
-            oQueryFilter.FilterSettings = filter;
-
-
+            
             sQuery.Append("{");
 
             string sSort = GetSort(oOrder, false);

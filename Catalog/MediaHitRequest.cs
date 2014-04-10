@@ -94,6 +94,7 @@ namespace Catalog
             string sSessionID = string.Empty; 
             int nPlayerID = 0;
             int nPlatform = 0;
+            int nSwhoosh = 0;
 
             MediaPlayActions action;
 
@@ -115,7 +116,7 @@ namespace Catalog
 
             CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, this.m_nGroupID, nOwnerGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
                                           nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser,
-                                          nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey);
+                                          nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
 
 
             bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
