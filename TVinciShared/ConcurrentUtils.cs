@@ -88,7 +88,6 @@ namespace TVinciShared
         static public int GetConcurrentCount(int nGroupID, int nDomainID, string sUDID, ref int nFamilyConcurrentCount, int nDeviceFamilyID = 0)
         {
             int nConcurrent = 0;
-            Dictionary<string, TimeSpan> dictDeviceUpdateDate = DAL.ProtocolsFuncsDal.GetLastMediaMarks(nDomainID, MILLISEC_THRESHOLD);
             var positions = CatalogDAL.GetDomainLastPositions(nDomainID, MILLISEC_THRESHOLD);
  
             if (positions == null)
