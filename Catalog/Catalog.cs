@@ -2538,19 +2538,6 @@ namespace Catalog
                     }
                 }
             }
-            //if (oGroup.m_oGroupTags.ContainsValue(key))
-            //{
-            //    searchKey = string.Concat(TAGS, ".", key);
-            //}
-            //else if (oGroup.m_oMetasValuesByGroupId.ContainsKey(oGroup.m_nParentGroupID) && 
-            //    oGroup.m_oMetasValuesByGroupId[oGroup.m_nParentGroupID].ContainsValue(key))
-            //{
-            //    searchKey = string.Concat(METAS, ".", key);
-            //}
-            //else
-            //{
-            //    searchKey = key;
-            //}
 
             return searchKey;
         }
