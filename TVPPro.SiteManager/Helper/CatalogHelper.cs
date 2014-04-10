@@ -269,7 +269,7 @@ namespace TVPPro.SiteManager.Helper
             switch (orderBy)
             {
                 case TVPPro.SiteManager.Context.Enums.eOrderBy.None:
-                    retVal = OrderBy.CREATE_DATE;
+                    retVal = OrderBy.NONE;
                     break;
                 case TVPPro.SiteManager.Context.Enums.eOrderBy.Added:
                     retVal = OrderBy.CREATE_DATE;
