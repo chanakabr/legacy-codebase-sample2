@@ -266,7 +266,7 @@ namespace TvinciImporter
         {
             int retVal = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select id from device_rules where IS_ACTIVE = 1 and";
+            selectQuery += "select id from device_rules where IS_ACTIVE = 1 and STATUS = 1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sDeviceRule.Trim().ToLower());
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
@@ -2419,7 +2419,7 @@ namespace TvinciImporter
             string sPreRule, string sPostRule, string sBreakRule,
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage)
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
@@ -2463,6 +2463,7 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_OVERLAY_ID", "=", nOverlayAdCompany);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_OVERLAY_POINTS", "=", sOverlayPoints);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Product_Code", "=", sProductCode);
 
                 if (bAdsEnabled == true)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADS_ENABLED", "=", 1);
@@ -2982,20 +2983,20 @@ namespace TvinciImporter
                 string sMainValue = GetNodeValue(ref theItem, "");
 
                 Int32 nMetaID = GetBoolMetaIDByMetaName(nGroupID, sName);
-                try
+                if (nMetaID > 0)
                 {
+                    bExecute = true;
+                    int val = 0;
                     if (sMainValue.Trim().ToLower() == "1" || sMainValue.Trim().ToLower() == "true")
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", 1);
-                    else if (sMainValue.Trim().ToLower() == "0" || sMainValue.Trim().ToLower() == "false")
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", 0);
-                    else
-                        AddError(ref sError, "On processing boolean value: " + sName + " The values are not boolean ");
+                    {
+                        val = 1;
+                    }
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", val);
                 }
-                catch (Exception ex)
+                else
                 {
-                    AddError(ref sError, "On processing boolean value: " + sName + " exception: " + ex.Message);
+                    AddError(ref sError, "boolean value: " + sName + " not exsits");
                 }
-                bExecute = true;
             }
             updateQuery += " where ";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
@@ -3116,6 +3117,7 @@ namespace TvinciImporter
                 string sIsDefaultLanguage = GetItemParameterVal(ref theItem, "default");
                 string sOutputProtectionLevel = GetItemParameterVal(ref theItem, "output_protection_level");
                 int nIsDefaultLanguage = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
+                string sProductCode = GetItemParameterVal(ref theItem, "product_code");
 
                 bool bAdsEnabled = true;
                 if (sAdsEnabled.Trim().ToLower() == "false")
@@ -3146,7 +3148,7 @@ namespace TvinciImporter
                     EnterClipMediaFile(sFormat, nMediaID, 0, nGroupID, sQuality, sCDN, sCDNId, sCDNCode, sBillingType,
                         sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
                         bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
-                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage);
+                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode);
                 }
 
 
@@ -3498,9 +3500,9 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
-                updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 bool res = updateQuery.Execute();
-                Logger.Logger.Log("Ingest", "Update:" + res, "IngestLog");
+                Logger.Logger.Log("Update", string.Format("Media:{0} - {1}", nMediaID, res), "IngestLog");
+
                 updateQuery.Finish();
                 updateQuery = null;
             }
@@ -4043,7 +4045,7 @@ namespace TvinciImporter
                 return binding;
             }
 
-        }
+        }        
 
         internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
         {
@@ -4068,7 +4070,7 @@ namespace TvinciImporter
 
                 using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
                 {
-                    WSCatalog.IserviceClient client = null; 
+                    WSCatalog.IserviceClient client = null;
 
                     try
                     {
