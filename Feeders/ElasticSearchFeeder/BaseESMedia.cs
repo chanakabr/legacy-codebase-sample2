@@ -64,10 +64,13 @@ namespace ElasticSearchFeeder
                     }
                 }
                 //Get message queue
+                Logger.Logger.Log("Info", "Initializaing rabbit queue", "ESFeeder");
                 using (IQueueImpl oMessageQueue = QueueImplFactory.GetQueueImp(QueueWrapper.Enums.QueueType.RabbitQueue))
                 {
                     if (oMessageQueue != null)
                     {
+                        Logger.Logger.Log("Info", "Message queue initialized successfully", "ESFeeder");
+
                         string sGroupID = m_nGroupID.ToString();
                         IndexingData oMessage = null;
 
@@ -76,11 +79,13 @@ namespace ElasticSearchFeeder
                         bool bRetVal;
                         try
                         {
-                            while ((oMessage = oMessageQueue.Dequeue<IndexingData>(sGroupID, out sAckId)) != null)
-                            {
+                            Logger.Logger.Log("Info", string.Format("Attempting to read messages for queue {0}", m_sQueueName), "ESFeeder");
 
+                            while ((oMessage = oMessageQueue.Dequeue<IndexingData>(m_sQueueName, out sAckId)) != null)
+                            {
                                 if (oMessage.Ids != null && oMessage.Ids.Count > 0)
                                 {
+                                    Logger.Logger.Log("Info", string.Format("received message. objectType={0}; group_id={1}; action={2}; ids=[{3}]", oMessage.ObjectType.ToString(), oMessage.GroupId, oMessage.Action.ToString(), string.Join(",", oMessage.Ids)), "ESFeeder");
                                     try
                                     {
                                         bRetVal = false;
@@ -102,19 +107,29 @@ namespace ElasticSearchFeeder
                                         }
                                         if (bRetVal && !string.IsNullOrEmpty(sAckId))
                                         {
-                                            oMessageQueue.Ack(m_sQueueName, sAckId);
+                                            Logger.Logger.Log("Info", string.Format("Message handled successfully. Sending ack to queue {0} ack_id={1}",m_sQueueName, sAckId), "ESFeeder");
+                                            bool bAckSuccess = oMessageQueue.Ack(m_sQueueName, sAckId);
+                                            Logger.Logger.Log("Info", string.Format("Ack result from queue is {0}, for ack_id={1}", bAckSuccess, sAckId), "ESFeeder");
+                                        }
+                                        else
+                                        {
+                                            Logger.Logger.Log("Error", string.Format("Message handled with errors. asset_id=[{0}]; message ack_id={1}", string.Join(",", oMessage.Ids), sAckId), "ESFeeder");
                                         }
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.Logger.Log("Exception ", ex.Message, "ESFeeder");
+                                        Logger.Logger.Log("Error ", string.Format("Caught exception when performing action on message. ex={0};stack={1}", ex.Message, ex.StackTrace), "ESFeeder");
                                     }
+                                }
+                                else
+                                {
+                                    Logger.Logger.Log("Error", "Received message without ids", "ESFeeder");
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception on Dequeue", ex.Message, "ESFeeder");
+                            Logger.Logger.Log("Exception on Dequeue", string.Format("ex={0};stack={1}",ex.Message, ex.StackTrace), "ESFeeder");
                         }
                     }
                 }
@@ -142,7 +157,7 @@ namespace ElasticSearchFeeder
                         (index) =>
                         {
                             return Utils.GetEpgProgram(m_nGroupID, (int)index);
-                        }, i);
+                        }, lEpgIDs[i]);
                 }
 
                 Task.WaitAll(tPrograms);

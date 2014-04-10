@@ -83,7 +83,7 @@ namespace ElasticSearchFeeder
 
                     if (items.Length > 4)
                     {
-                        bool.TryParse(items[3], out bSwitchIndex);
+                        bSwitchIndex = (items[3].Equals("1")) ? true : false;
                         bRebuildIndex = (items[4].Equals("1")) ? true : false;
                     }
 

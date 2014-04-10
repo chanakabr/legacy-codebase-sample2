@@ -39,8 +39,9 @@ public class PermittedModule : IHttpModule
         HttpContext context = ((HttpApplication)sender).Context;
         HttpApplication application = sender as HttpApplication;
 
-        if (System.Configuration.ConfigurationManager.AppSettings["APP_STATE"] != null &&
-            System.Configuration.ConfigurationManager.AppSettings["APP_STATE"].ToString() == "moved_to_ny")
+        string sAppSateConfigValue = TVinciShared.WS_Utils.GetTcmConfigValue("APP_STATE");
+
+        if (!string.IsNullOrEmpty(sAppSateConfigValue) && sAppSateConfigValue == "moved_to_ny")
         {
             if (application.Request.Url.ToString().ToLower().EndsWith("moved.html") == false)
                 context.Server.Transfer("moved.html");
@@ -83,8 +84,10 @@ public class PermittedModule : IHttpModule
     {
         HttpContext context = ((HttpApplication)sender).Context;
         HttpApplication application = sender as HttpApplication;
-        if (System.Configuration.ConfigurationManager.AppSettings["APP_STATE"] != null &&
-            System.Configuration.ConfigurationManager.AppSettings["APP_STATE"].ToString() == "moved_to_ny")
+
+        string sAppSateConfigValue = TVinciShared.WS_Utils.GetTcmConfigValue("APP_STATE");
+
+        if (!string.IsNullOrEmpty(sAppSateConfigValue) && sAppSateConfigValue == "moved_to_ny")       
         {
             if (application.Request.Url.ToString().ToLower().EndsWith("moved.html") == false)
                 context.Server.Transfer("moved.html");
