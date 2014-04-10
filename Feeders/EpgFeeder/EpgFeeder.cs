@@ -71,24 +71,7 @@ namespace EpgFeeder
                                 oEPGFeed.Implementer.m_ParentGroupId = EPGLogic.GetParentGroupId(nGroupIdFromDB, sGroupID).ToString();
                             }
                         }
-                    }
-
-                    #region Write EPG to Queue
-                    //rabbit_queue_batch
-                    string sParentGroupId = oEPGFeed.Implementer.m_ParentGroupId;
-                    if (!string.IsNullOrEmpty(sParentGroupId) && datesWithChannelIds != null && datesWithChannelIds.Count > 0)
-                    {
-                        string sRouteKey = string.Format(@"{0}\{1}", sParentGroupId, eObjectType.EPG.ToString());
-
-                        foreach (DateTime epgChangedDate in datesWithChannelIds.Keys)
-                        {
-                            IndexingData data = new IndexingData(datesWithChannelIds[epgChangedDate].Distinct().ToList<int>(), int.Parse(sParentGroupId), eObjectType.EPG, eAction.Update, TVinciShared.DateUtils.DateTimeToUnixTimestamp(epgChangedDate));
-                            BaseQueue queue = new CatalogQueue();
-                            bool bIsUpdateIndexSucceeded = queue.Enqueue(data, sRouteKey);
-                        }
-                    }
-
-                    #endregion
+                    }                
                 }
             }
             catch (Exception ex)
