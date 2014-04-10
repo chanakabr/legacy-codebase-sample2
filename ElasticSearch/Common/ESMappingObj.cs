@@ -202,7 +202,8 @@ namespace ElasticSearch.Common
     {
         public eESFieldType type { get; set; }
         public string null_value { get; set; }
-        public string analyzer { get; set; }
+        public string search_analyzer { get; set; }
+        public string index_analyzer { get; set; }
         public string name { get; set; }
         public bool analyzed { get; set; }
         public bool store { get; set; }
@@ -211,8 +212,9 @@ namespace ElasticSearch.Common
         {
             type = eESFieldType.INTEGER;
             null_value = string.Empty;
-            analyzer = string.Empty;
             analyzed = false;
+            search_analyzer = string.Empty;
+            index_analyzer = string.Empty;
             store = true;
             name = string.Empty;
         }
@@ -235,8 +237,11 @@ namespace ElasticSearch.Common
 
             if (analyzed)
             {
-                if(!string.IsNullOrEmpty(analyzer))
-                    sb.AppendFormat(",\"analyzer\": \"{0}\"", analyzer);
+                if(!string.IsNullOrEmpty(search_analyzer))
+                    sb.AppendFormat(",\"search_analyzer\": \"{0}\"", search_analyzer);
+
+                if (!string.IsNullOrEmpty(index_analyzer))
+                    sb.AppendFormat(",\"index_analyzer\": \"{0}\"", index_analyzer);
             }
             else
             {

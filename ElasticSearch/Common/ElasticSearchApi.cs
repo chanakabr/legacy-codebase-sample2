@@ -546,34 +546,14 @@ namespace ElasticSearch.Common
 
         public static bool AnalyzerExists(string sAnalyzerName)
         {
-            bool bResult = false;
-            string temp;
-
-            if (dESAnalyzers.TryGetValue(sAnalyzerName, out temp))
-            {
-                bResult = true;
-            }
-            else if (!string.IsNullOrEmpty(GetAnalyzerDefinition(sAnalyzerName)))
-            {
-                bResult = true;
-            }
+            bool bResult = string.IsNullOrEmpty(GetAnalyzerDefinition(sAnalyzerName)) ? false : true;
 
             return bResult;
         }
 
         public static bool FilterExists(string sFilterName)
         {
-            bool bResult = false;
-            string temp;
-
-            if (dESFilters.TryGetValue(sFilterName, out temp))
-            {
-                bResult = true;
-            }
-            else if (!string.IsNullOrEmpty(GetFilterDefinition(sFilterName)))
-            {
-                bResult = true;
-            }
+            bool bResult = string.IsNullOrEmpty(GetFilterDefinition(sFilterName)) ? false : true;
 
             return bResult;
         }

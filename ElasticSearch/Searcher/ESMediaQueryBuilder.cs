@@ -177,16 +177,6 @@ namespace ElasticSearch.Searcher
                 oBoolQuery.AddChild(oOrBoolQuery, CutWith.OR);
                 oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.OR);
 
-
-                if (!string.IsNullOrEmpty(oSearchObject.m_sDescription))
-                {
-                    oBoolQuery.AddChild(new ESWildcard() { Key = "description", Value = string.Format("*{0}*", oSearchObject.m_sDescription) }, CutWith.OR);
-                }
-                if (!string.IsNullOrEmpty(oSearchObject.m_sName))
-                {
-                    oBoolQuery.AddChild(new ESWildcard() { Key = "name", Boost = 3.0f, Value = string.Format("*{0}*", oSearchObject.m_sName) }, CutWith.OR);
-                }
-
                 query.Query = oBoolQuery;
 
             }
@@ -336,19 +326,9 @@ namespace ElasticSearch.Searcher
                 BoolQuery oMultiFilterBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
 
                 BoolQuery oBoolQuery = new BoolQuery();
-                oBoolQuery.AddChild(oAndBoolQuery, CutWith.OR);
-                oBoolQuery.AddChild(oOrBoolQuery, CutWith.OR);
-                oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.OR);
-                
-
-                if (!string.IsNullOrEmpty(oSearchObject.m_sDescription))
-                {
-                    oBoolQuery.AddChild(new ESWildcard(){ Key = "description", Value = string.Format("*{0}*", oSearchObject.m_sDescription) }, CutWith.OR);
-                }
-                if (!string.IsNullOrEmpty(oSearchObject.m_sName))
-                {
-                    oBoolQuery.AddChild(new ESWildcard() { Key = "name", Boost = 3.0f, Value = string.Format("*{0}*", oSearchObject.m_sName) }, CutWith.OR);
-                }
+                oBoolQuery.AddChild(oAndBoolQuery, CutWith.AND);
+                oBoolQuery.AddChild(oOrBoolQuery, CutWith.AND);
+                oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.AND);
 
                 sQuery = oBoolQuery.ToString();
 
@@ -651,7 +631,7 @@ namespace ElasticSearch.Searcher
                                 foreach (string splitedValue in lSplitedValues)
                                 {
                                     tempBQ.AddChild(
-                                        new ESWildcard() { Key = sSearchKey, Value = string.Format("{0}*", splitedValue.ToLower()) },
+                                        new ESTerm(false) { Key = sSearchKey, Value = splitedValue },
                                         CutWith.AND
                                         );
                                 }

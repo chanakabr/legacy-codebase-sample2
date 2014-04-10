@@ -588,5 +588,22 @@ namespace Catalog
             return sResult;
         }
 
+        public static bool KeyInGroupTags(int nGroupID, string sTagType)
+        {
+            bool bRes = false;
+
+            Group group = GroupsCache.Instance.GetGroup(nGroupID);
+
+            if (group != null)
+            {
+                if (group.m_oGroupTags.ContainsValue(sTagType))
+                {
+                    bRes = true;
+                }
+            }
+
+            return bRes;
+        }
+
     }
 }
