@@ -190,12 +190,11 @@ namespace Users
 
             //bool bActivated = IsUserActivated(ref sUN, ref nUserID);
             UserActivationState nActivationStatus = GetUserActivationStatus(ref sUN, ref nUserID);
-            
-            //UserResponseObject o = new UserResponseObject();
-            ResponseStatus ret = ResponseStatus.UserNotActivated;
 
             if (nActivationStatus != UserActivationState.Activated)
             {
+                UserResponseObject o = new UserResponseObject();
+                ResponseStatus ret = ResponseStatus.UserNotActivated;
 
                 if (nUserID <= 0)
                 {
@@ -203,8 +202,6 @@ namespace Users
                 }
                 else
                 {
-                    UserResponseObject o = new UserResponseObject();
-
                     switch (nActivationStatus)
                     {
                         case UserActivationState.UserDoesNotExist:
@@ -233,9 +230,11 @@ namespace Users
                                 return o;
                             break;
                     }
-
-                    o.m_RespStatus = ret;
-                    return o;
+                    if (nActivationStatus != UserActivationState.UserWIthNoDomain)
+                    {
+                        o.m_RespStatus = ret;
+                        return o;
+                    }
                 }
             }
 
@@ -261,7 +260,7 @@ namespace Users
         public override UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             string sUN = string.Empty;
-            //UserResponseObject o = new UserResponseObject();
+            
             UserActivationState nActivationStatus = GetUserActivationStatus(ref sUN, ref siteGuid);
 
             if (nActivationStatus != UserActivationState.Activated)
@@ -280,12 +279,10 @@ namespace Users
                         case UserActivationState.UserDoesNotExist:
                             ret = ResponseStatus.UserDoesNotExist;
                             break;
-
                         case UserActivationState.NotActivated:
                             o.m_user = new User(nGroupID, siteGuid);
                             ret = ResponseStatus.UserNotActivated;
                             break;
-
                         case UserActivationState.NotActivatedByMaster:
                             o.m_user = new User(nGroupID, siteGuid);
                             ret = ResponseStatus.UserNotMasterApproved;
@@ -293,15 +290,17 @@ namespace Users
                         case UserActivationState.UserRemovedFromDomain:
                             o.m_user = new User(nGroupID, siteGuid);
                             ret = ResponseStatus.UserNotIndDomain;
-                            break;
+                            break;  
                         case UserActivationState.UserWIthNoDomain:
                             o.m_user = new User(nGroupID, siteGuid);
-                            bool bValidDomainStat = CheckAddDomain(ref o,o.m_user, sUN, siteGuid);
+                            bool bValidDomainStat = CheckAddDomain(ref o, o.m_user, sUN, siteGuid);
                             if (!bValidDomainStat)
                                 return o;
                             break;
-                    }
-
+                    }                   
+                }
+                if (nActivationStatus != UserActivationState.UserWIthNoDomain)
+                {                    
                     o.m_RespStatus = ret;
                     return o;
                 }                
@@ -612,7 +611,8 @@ namespace Users
             {
                 //add new domain
                 DomainResponseObject dResp = AddNewDomain(sUserName, nUserID, m_nGroupID);
-                u.m_domianID = dResp.m_oDomain.m_nDomainID;
+                if (dResp != null && dResp.m_oDomain != null)
+                    u.m_domianID = dResp.m_oDomain.m_nDomainID;
 
                 if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
                 {
