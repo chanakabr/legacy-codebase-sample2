@@ -431,7 +431,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForMediaFileUsingCC(iPrice, sCurrency, iFileID, sPPVModuleCode, clientIp, initObj.SiteGuid, initObj.UDID, sPaymentMethodID, sEncryptedCVV);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForMediaFileUsingCC(iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, clientIp, initObj.SiteGuid, initObj.UDID, sPaymentMethodID, sEncryptedCVV);
                 }
                 catch (Exception ex)
                 {

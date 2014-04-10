@@ -70,13 +70,13 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
-        public string ChargeUserForMediaFileUsingCC(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sUserGuid, string sUDID, string paymentMethodID, string encryptedCVV)
+        public string ChargeUserForMediaFileUsingCC(double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sCoupon, string sUserIP, string sUserGuid, string sUDID, string paymentMethodID, string encryptedCVV)
         {
             BillingResponse response = null;
 
             try
             {
-                response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, "", sUserIP, "", string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
+                response = m_Module.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, sUserGuid, iPrice, sCurrency, iFileID, sPPVModuleCode, sCoupon, sUserIP, "", string.Empty, string.Empty, sUDID, paymentMethodID, encryptedCVV);
             }
             catch (Exception ex)
             {
@@ -182,7 +182,7 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid,string sUDID, bool bOnlyLowest)
+        public MediaFileItemPricesContainer[] GetItemsPrice(int[] fileArray, string sSiteGuid, string sUDID, bool bOnlyLowest)
         {
             MediaFileItemPricesContainer[] response = null;
 
