@@ -514,5 +514,10 @@ namespace ConditionalAccess
             return res;
         }
 
+        protected override bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
+        {
+            return bIsCouponUsedAndValid && reason == PriceReason.Free;
+        }
+
     }
 }
