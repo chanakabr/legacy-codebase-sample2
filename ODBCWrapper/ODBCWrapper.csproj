@@ -206,8 +206,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{72228ef8-6afa-4c0c-9c8a-59eddac688fb}</Project>
+    <ProjectReference Include="..\..\TVinciCommon\Logger\Logger.csproj">
+      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
   </ItemGroup>
