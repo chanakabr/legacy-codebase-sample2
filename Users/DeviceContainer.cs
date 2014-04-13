@@ -103,13 +103,30 @@ namespace Users
             {
                 foreach (Device device in m_DeviceInstances)
                 {
-                    if (device.m_state == DeviceState.Activated)
+                    if (device.IsActivated())
                     {
                         retVal++;
                     }
                 }
             }
             return retVal;
+        }
+
+        public bool IsContainingDevice(Device device, ref bool bIsDeviceActivated)
+        {
+            if (m_DeviceInstances != null)
+            {
+                for (int i = 0; i < m_DeviceInstances.Count; i++)
+                {
+                    if (m_DeviceInstances[i].Equals(device))
+                    {
+                        bIsDeviceActivated = m_DeviceInstances[i].IsActivated();
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

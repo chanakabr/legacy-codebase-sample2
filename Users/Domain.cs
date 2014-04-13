@@ -344,25 +344,11 @@ namespace Users
             if (dTypedUserIDs == null || dTypedUserIDs.Count == 0)
             {
                 // Try to remove anyway (maybe user is inactive or pending)
-                //DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
 
                 eRetVal = DomainResponseStatus.NoUsersInDomain;
                 return eRetVal;
 
-                //domain.m_DomainStatus = DomainStatus.Error;
-                //oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.NoUsersInDomain);
-                //return oDomainResponseObject;
             }
-
-            //if (!dTypedUserIDs.ContainsKey(nUserID))
-            //{
-            //    // Try to remove anyway (maybe user is inactive or pending)
-            //    DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
-
-            //    domain.m_DomainStatus = DomainStatus.UserNotInDomain;
-            //    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
-            //    return oDomainResponseObject;
-            //}
 
             // Check master and default users
             KeyValuePair<int, int> masterUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Master);
@@ -374,9 +360,6 @@ namespace Users
                 eRetVal = DomainResponseStatus.UserNotAllowed;
                 return eRetVal;
 
-                //domain.m_DomainStatus = DomainStatus.Error;
-                //oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-                //return oDomainResponseObject;
             }
 
 
@@ -1173,7 +1156,6 @@ namespace Users
                 m_deviceFamilies.Add(container);
 
                 User masterUser = new User(nGroupID, m_masterGUIDs[0]);
-                //bool masterInit = masterUser.Initialize(this.m_masterGUIDs[0], nGroupID);
 
                 TvinciAPI.AddDeviceMailRequest sMailRequest = null;
 
@@ -1257,7 +1239,7 @@ namespace Users
         {
             List<string[]> dbDeviceFamilies = DAL.DomainDal.InitializeDeviceFamilies(nDomainLimitID, nGroupID);
 
-            List<DeviceContainer> deviceFamilies = new List<DeviceContainer>();
+            List<DeviceContainer> deviceFamilies = new List<DeviceContainer>(dbDeviceFamilies.Count);
 
             for (int i = 0; i < dbDeviceFamilies.Count; i++)
             {
@@ -1571,20 +1553,93 @@ namespace Users
             return retVal;
         }
 
-        public LimitationType ValidateConcurrency(string sUDID)
+        public LimitationType ValidateConcurrency(string sUDID, int nDeviceBrandID)
         {
-            return LimitationType.Unknown;
+            return LimitationType.Error;
         }
 
-        public LimitationType ValidateFrequency(string sUDID)
+        public LimitationType ValidateFrequency(string sUDID, int nDeviceBrandID)
         {
-            return LimitationType.Unknown;
+            return LimitationType.Error;
         }
 
-        public LimitationType ValidateQuantity(string sUDID)
+        public LimitationType ValidateQuantity(string sUDID, int nDeviceBrandID)
         {
-            return LimitationType.Unknown;
+            LimitationType res = LimitationType.Error;
+            Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID);
+            DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
+            if (dc == null)
+            {
+                // device type not allowed for this domain
+                res = LimitationType.DeviceTypeNotAllowed;
+            }
+            else
+            {
+                bool bIsDeviceActivated = false;
+                if (dc.IsContainingDevice(device, ref bIsDeviceActivated))
+                {
+                    if (bIsDeviceActivated)
+                    {
+                        // device is associated to this domain and activated
+                        res = LimitationType.DeviceAlreadyInDomain;
+                    }
+                    else
+                    {
+                        // device is associated to domain but not activated.
+                        res = CanAddToDeviceContainer(dc);
+                    }
+                }
+                else
+                {
+                    // the device is not associated to this domain. we need to validate it is not associated to different
+                    // domain in the same group
+                    if (Device.GetDeviceIDByUDID(device.m_deviceUDID, m_nGroupID) > 0)
+                    {
+                        // the device is associated to a different domain.
+                        res = LimitationType.DeviceNotAllowed;
+                    }
+                    else
+                    {
+                        res = CanAddToDeviceContainer(dc);
+                    }
+                }
+            }
+
+            return res;
         }
+
+        private LimitationType CanAddToDeviceContainer(DeviceContainer dc)
+        {
+            LimitationType res = LimitationType.QuantityLimitation;
+
+            int activatedDevices = dc.GetActivatedDeviceCount();
+            if (dc.m_oLimitationsManager.isHomeDevice)
+            {
+                // home device. we don't check quantity limitation against entire domain limitations.
+                if (activatedDevices >= dc.m_oLimitationsManager.quantity)
+                {
+                    res = LimitationType.QuantityLimitation;
+                }
+                else
+                {
+                    res = LimitationType.OK;
+                }
+            }
+            else
+            {
+                if (m_totalNumOfDevices >= m_oLimitationsManager.quantity || activatedDevices >= dc.m_oLimitationsManager.quantity)
+                {
+                    res = LimitationType.QuantityLimitation;
+                }
+                else
+                {
+                    res = LimitationType.OK;
+                }
+            }
+
+            return res;
+        }
+
 
         #endregion
 

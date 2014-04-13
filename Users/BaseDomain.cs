@@ -50,10 +50,8 @@ namespace Users
             {
                 oDomainResponseObject.m_oDomain = domain;
                 Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
-                if (device.Initialize(sUDID, sDeviceName))
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
-                }
+                device.Initialize(sUDID, sDeviceName);
+                oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
             }
 
             return oDomainResponseObject;
@@ -428,10 +426,10 @@ namespace Users
                 candidate, existingNetwork, dtLastDeactivationDate, ref res);
         }
 
-        public virtual LimitationType ValidateLimitationModule(string sUDID, long lSiteGuid, long lDomainID, ValidationType eValidationType, Domain domain = null)
+        public virtual LimitationType ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType, Domain domain = null)
         {
-            LimitationType res = LimitationType.Unknown;
-            if(domain == null)
+            LimitationType res = LimitationType.Error;
+            if (domain == null)
                 domain = GetDomainForValidation(lSiteGuid, lDomainID);
             if (domain != null)
             {
@@ -439,18 +437,18 @@ namespace Users
                 {
                     case ValidationType.Concurrency:
                         {
-                            res = domain.ValidateConcurrency(sUDID);
+                            res = domain.ValidateConcurrency(sUDID, nDeviceBrandID);
                             break;
                         }
                     case ValidationType.Frequency:
                         {
-                            res = domain.ValidateFrequency(sUDID);
+                            res = domain.ValidateFrequency(sUDID, nDeviceBrandID);
                             break;
                         }
                     default:
                         {
                             // Quantity
-                            res = domain.ValidateQuantity(sUDID);
+                            res = domain.ValidateQuantity(sUDID, nDeviceBrandID);
                             break;
                         }
                 }
@@ -464,14 +462,14 @@ namespace Users
             Domain res = null;
             if (lDomainID > 0)
             {
-                res = DomainInitializer(m_nGroupID, (int) lDomainID);
+                res = DomainInitializer(m_nGroupID, (int)lDomainID);
             }
             if (res == null && lSiteGuid > 0)
             {
                 bool tempIsMaster = false;
                 int tempOperatorID = 0;
                 int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster);
-                if (domainID < 1 || domainID == (int) lDomainID)
+                if (domainID < 1 || domainID == (int)lDomainID)
                     return null;
                 res = DomainInitializer(m_nGroupID, domainID);
             }

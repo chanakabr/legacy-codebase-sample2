@@ -16,7 +16,7 @@ namespace Users
         [DataMember]
         public int frequency;
         [DataMember]
-        private bool isHomeDevice;
+        public bool isHomeDevice;
 
         public LimitationsManager(int concurrency, int quantity, int frequency, bool isHomeDevice)
         {

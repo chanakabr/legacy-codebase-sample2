@@ -290,18 +290,20 @@ namespace Users
 
         static public bool SendMail(int nGroupID, TvinciAPI.MailRequestObj request)
         {
-            TvinciAPI.API client = new TvinciAPI.API();
-         
-            string sWSURL = Utils.GetWSURL("api_ws");
-            if (sWSURL != "")
-                client.Url = sWSURL;
+            using (TvinciAPI.API client = new TvinciAPI.API())
+            {
 
-            string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "Mailer", "API", sIP, ref sWSUserName, ref sWSPass);
-            bool result = client.SendMailTemplate(sWSUserName, sWSPass, request);
-            return result;
+                string sWSURL = Utils.GetWSURL("api_ws");
+                if (sWSURL.Length > 0)
+                    client.Url = sWSURL;
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
+                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "Mailer", "API", sIP, ref sWSUserName, ref sWSPass);
+                bool result = client.SendMailTemplate(sWSUserName, sWSPass, request);
+                return result;
+            }
         }
 
         static public bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)

@@ -188,6 +188,9 @@ namespace Users
         ConcurrencyLimitation = 1,
         QuantityLimitation = 2,
         FrequencyLimitation = 3,
-        Unknown = 4
+        DeviceTypeNotAllowed = 4,
+        DeviceAlreadyInDomain = 5,
+        DeviceNotAllowed = 6,
+        Error = 6
     }
 }
