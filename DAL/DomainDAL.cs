@@ -987,8 +987,8 @@ namespace DAL
                     nStatus                 = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
                     nIsActive               = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE");
                     nFrequencyFlag          = ODBCWrapper.Utils.GetIntSafeVal(dr, "FREQUENCY_FLAG");
-                    nDeviceMinPeriodId      = GetGroupDeviceMinPeriodId(nGroupID);
-                    nUserMinPeriodId        = GetGroupUserMinPeriodId(nGroupID);
+                    nDeviceMinPeriodId      = ODBCWrapper.Utils.GetIntSafeVal(dr, "DEVICE_MIN_PERIOD_ID");     //GetGroupDeviceMinPeriodId(nGroupID);
+                    nUserMinPeriodId        = ODBCWrapper.Utils.GetIntSafeVal(dr, "USER_MIN_PERIOD_ID");     //GetGroupUserMinPeriodId(nGroupID);
                     sCoGuid                 = ODBCWrapper.Utils.GetSafeStr(dr,"COGUID");
                     dDeviceFrequencyLastAction = ODBCWrapper.Utils.GetDateSafeVal(dr, "FREQUENCY_LAST_ACTION");
                     dUserFrequencyLastAction   = ODBCWrapper.Utils.GetDateSafeVal(dr, "USER_FREQUENCY_LAST_ACTION");
