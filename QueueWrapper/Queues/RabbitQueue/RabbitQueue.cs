@@ -1,0 +1,140 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace QueueWrapper
+{
+    public class RabbitQueue : IQueueImpl
+    {
+        private string m_sHostName = string.Empty;
+        private string m_sUserName = string.Empty;
+        private string m_sPassword = string.Empty;
+        private string m_sPort = string.Empty;
+        private string m_sRoutingKey = string.Empty;
+        private string m_sExchange = string.Empty;
+        private string m_sQueue = string.Empty;
+        private string m_sVirtualHost = string.Empty;
+        private string m_sExchangeType = string.Empty;
+
+        #region CTOR
+
+        public RabbitQueue()
+        {
+            ReadRabbitParameters();
+        }
+
+        #endregion
+
+        #region IQueuable Methods
+
+        public bool Enqueue(string sDataToIndex, string sRouteKey)
+        {
+            bool bIsEnqueueSucceeded = false;
+            try
+            {
+                if (!string.IsNullOrEmpty(sDataToIndex))
+                {
+                    RabbitConfigurationData configData = CreateRabbitConfigurationData();
+                    configData.RoutingKey = sRouteKey;
+
+                    if (configData != null)
+                    {
+                        bIsEnqueueSucceeded = RabbitConnection.Instance.Publish(configData, sDataToIndex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return bIsEnqueueSucceeded;
+        }
+
+        public T Dequeue<T>(string sQueueName, out string sAckId)
+        {
+            sAckId = string.Empty;
+
+            T sReturnedData = default(T);
+            string sMessage = string.Empty;
+
+            if (!string.IsNullOrEmpty(sQueueName))
+            {
+                RabbitConfigurationData configData = CreateRabbitConfigurationData();
+                if (configData != null)
+                {
+                    configData.QueueName = sQueueName;
+                    sMessage = RabbitConnection.Instance.Subscribe(configData, ref sAckId);
+
+                    if (!string.IsNullOrEmpty(sMessage))
+                    {
+                        sReturnedData = Utils.JsonToObject<T>(sMessage);
+                    }
+                }
+            }
+            else
+            {
+                // Write log ?
+            }
+
+            return sReturnedData;
+        }
+
+        public bool Ack(string sQueueName, string sAckId)
+        {
+            bool bResult = false;
+
+            RabbitConfigurationData configData = CreateRabbitConfigurationData();
+            if (configData != null)
+            {
+                configData.QueueName = sQueueName;
+                bResult = RabbitConnection.Instance.Ack(configData, sAckId);
+            }
+
+            return bResult;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void ReadRabbitParameters()
+        {
+            m_sHostName = Utils.GetConfigValue("hostName");
+            m_sUserName = Utils.GetConfigValue("userName");
+            m_sPassword = Utils.GetConfigValue("password");
+            m_sPort = Utils.GetConfigValue("port");
+            m_sRoutingKey = Utils.GetConfigValue("routingKey");
+            m_sExchange = Utils.GetConfigValue("exchange");
+            m_sQueue = Utils.GetConfigValue("queue");
+            m_sVirtualHost = Utils.GetConfigValue("virtualHost");
+            m_sExchangeType = Utils.GetConfigValue("exchangeType");
+        }
+
+        private RabbitConfigurationData CreateRabbitConfigurationData()
+        {
+
+            RabbitConfigurationData configData = null;
+
+            if (!string.IsNullOrEmpty(this.m_sHostName) && !string.IsNullOrEmpty(this.m_sUserName) && !string.IsNullOrEmpty(this.m_sPassword) && !string.IsNullOrEmpty(this.m_sPort)
+                && !string.IsNullOrEmpty(this.m_sRoutingKey) && !string.IsNullOrEmpty(this.m_sExchange) && !string.IsNullOrEmpty(this.m_sQueue) && !string.IsNullOrEmpty(this.m_sVirtualHost)
+                && !string.IsNullOrEmpty(this.m_sExchangeType))
+            {
+                configData = new RabbitConfigurationData(m_sExchange, m_sQueue, m_sRoutingKey, m_sHostName, m_sPassword, m_sExchangeType, m_sVirtualHost, m_sUserName, m_sPort);
+            }
+
+            return configData;
+        }
+
+        public void Dispose()
+        {
+            RabbitConnection.Instance.Dispose();
+        }
+
+        #endregion
+
+
+
+    }
+}
