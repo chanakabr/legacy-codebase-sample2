@@ -33,8 +33,9 @@
     <Reference Include="ApiObjects">
       <HintPath>.\ApiObjects.dll</HintPath>
     </Reference>
-    <Reference Include="RabbitMQ.Client">
-      <HintPath>..\..\TvmCore\External\RabbitMQ.Client.dll</HintPath>
+    <Reference Include="RabbitMQ.Client, Version=3.0.4.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -45,7 +46,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="TCMClient">
-      <HintPath>..\..\TvmCore\External\TCMClient.dll</HintPath>
+      <HintPath>..\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
