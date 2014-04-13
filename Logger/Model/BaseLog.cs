@@ -31,7 +31,7 @@ namespace Logger
                 return GetWSURL(sKey);
             }
         }
-       
+
         public string Method { get; set; }
         public string Severity { get; set; }
         public eLogType Type { get; set; }
@@ -42,6 +42,8 @@ namespace Logger
                 return Environment.MachineName;
             }
         }
+        public string UserAgent { get; set; }
+        public string IP { get; set; }
 
         #endregion
 
@@ -184,9 +186,11 @@ namespace Logger
                               "\"" + "Message" + "\"" + ":" + "\"" + "{5}" + "\"",
                               "\"" + "Type" + "\"" + ":" + "\"" + "{6}" + "\"",
                               "\"" + "Timespan" + "\"" + ":" + "{7}",
-                              "\"" + "HostName" + "\"" + ":" + "\"" + "{8}" + "\"" };
+                              "\"" + "HostName" + "\"" + ":" + "\"" + "{8}" + "\"",
+                              "\"" + "User Agent" + "\"" + ":" + "\"" + "{9}" + "\"",
+                              "\"" + "IP" + "\"" + ":" + "\"" + "{10}" + "\""};
 
-            string log = string.Format(string.Join(",", lines), DateTime.UtcNow.ToString(datePattern), this.Id, this.Service, this.Method, this.Severity, this.Message.Replace("\"", "''"), this.Type.ToString(), this.TimeSpan, this.HostName);
+            string log = string.Format(string.Join(",", lines), DateTime.UtcNow.ToString(datePattern), this.Id, this.Service, this.Method, this.Severity, this.Message.Replace("\"", "''"), this.Type.ToString(), this.TimeSpan, this.HostName, this.UserAgent, this.IP);
 
             log = log.PadLeft(log.Length + 1, '{');
             log = log.PadRight(log.Length + 1, '}');
@@ -203,10 +207,10 @@ namespace Logger
             try
             {
                 sWsUrl = GetValueFromConfig(sKey);
-                
+
                 if (string.IsNullOrEmpty(sWsUrl))
                 {
-                    sWsUrl = WS_URL_DEFAULT; 
+                    sWsUrl = WS_URL_DEFAULT;
                 }
             }
             catch
@@ -219,7 +223,7 @@ namespace Logger
 
         public static string GetValueFromConfig(string sKey)
         {
-           return Utils.GetTcmConfigValue(sKey);
+            return Utils.GetTcmConfigValue(sKey);
         }
     }
 }
