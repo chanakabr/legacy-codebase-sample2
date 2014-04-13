@@ -103,10 +103,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>..\External\log4net.dll</HintPath>
+      <HintPath>..\..\TvmCore\External\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="QueueWrapper">
+      <HintPath>..\QueueWrapper\bin\Debug\QueueWrapper.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client">
-      <HintPath>..\External\RabbitMQ.Client.dll</HintPath>
+      <HintPath>..\..\TvmCore\External\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -128,7 +131,7 @@
       <Name>System.XML</Name>
     </Reference>
     <Reference Include="TCMClient">
-      <HintPath>..\External\TCMClient.dll</HintPath>
+      <HintPath>..\..\TvmCore\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -218,12 +221,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
-      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
-      <Name>QueueWrapper</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
