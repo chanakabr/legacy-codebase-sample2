@@ -7966,8 +7966,13 @@ namespace ConditionalAccess
         private bool IsSkipOnFirstUsageModule(int nIndexOfUsageModule, bool bIsUsageModuleIsRenewable, int nTotalNumOfPayments, int nNumOfPayments, bool bIsPurchasedWithPreviewModule)
         {
             if (bIsPurchasedWithPreviewModule)
-                return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && (nTotalNumOfPayments % nNumOfPayments != 1);
-            return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && (nTotalNumOfPayments % nNumOfPayments != 0);
+            {
+                if (nNumOfPayments != 0)
+                    return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && nTotalNumOfPayments % nNumOfPayments != 1;
+                else
+                    return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && nTotalNumOfPayments == 2;
+            }
+            return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && (nNumOfPayments == 0 || nTotalNumOfPayments % nNumOfPayments != 0);
         }
 
         /*
