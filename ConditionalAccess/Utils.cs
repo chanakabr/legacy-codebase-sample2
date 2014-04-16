@@ -2197,7 +2197,7 @@ namespace ConditionalAccess
         {
             eStreamType streamType = eStreamType.HLS;
 
-            if ((sBaseLink.ToLower().Contains("ism")) && (sBaseLink.ToLower().Contains("Manifest")))
+            if ((sBaseLink.ToLower().Contains("ism")) && (sBaseLink.ToLower().Contains("manifest")))
             {
                 streamType = eStreamType.SS;
             }
