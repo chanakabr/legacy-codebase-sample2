@@ -12,6 +12,8 @@ namespace Users
         public int m_deviceFamilyID;
         public int m_deviceLimit;
         public int m_deviceConcurrentLimit;
+
+        [NonSerialized]
         public LimitationsManager m_oLimitationsManager;
 
         public DeviceContainer()

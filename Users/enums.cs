@@ -182,15 +182,4 @@ namespace Users
         Frequency = 2
     }
 
-    public enum LimitationType : byte
-    {
-        OK = 0,
-        ConcurrencyLimitation = 1,
-        QuantityLimitation = 2,
-        FrequencyLimitation = 3,
-        DeviceTypeNotAllowed = 4,
-        DeviceAlreadyInDomain = 5,
-        DeviceNotAllowed = 6,
-        Error = 6
-    }
 }

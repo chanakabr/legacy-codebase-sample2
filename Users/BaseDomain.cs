@@ -124,7 +124,7 @@ namespace Users
             // Create new response
             DomainResponseObject oDomainResponseObject;
 
-            // Change DeVice data
+            // Change Device data
             DomainResponseStatus eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
@@ -222,7 +222,7 @@ namespace Users
 
             Domain domain = DomainFactory.GetDomain(m_nGroupID, masterUser.m_domianID);
 
-            bInit = bInit && (domain != null);
+            bInit &= (domain != null);
 
             if (!bInit)
             {
@@ -233,8 +233,8 @@ namespace Users
 
             int nActivationStatus = DomainDal.GetDomainDeviceActivateStatus(m_nGroupID, nDeviceID);
 
-            resp.m_oDomain = (nActivationStatus == 1) ? domain : null;
-            resp.m_oDomainResponseStatus = (nActivationStatus == 1) ? DomainResponseStatus.OK : DomainResponseStatus.DeviceNotConfirmed;
+            resp.m_oDomain = nActivationStatus == 1 ? domain : null;
+            resp.m_oDomainResponseStatus = nActivationStatus == 1 ? DomainResponseStatus.OK : DomainResponseStatus.DeviceNotConfirmed;
 
             return resp;
         }
@@ -426,9 +426,9 @@ namespace Users
                 candidate, existingNetwork, dtLastDeactivationDate, ref res);
         }
 
-        public virtual LimitationType ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType, Domain domain = null)
+        public virtual DomainResponseStatus ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType, Domain domain = null)
         {
-            LimitationType res = LimitationType.Error;
+            DomainResponseStatus res = DomainResponseStatus.UnKnown;
             if (domain == null)
                 domain = GetDomainForValidation(lSiteGuid, lDomainID);
             if (domain != null)

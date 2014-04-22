@@ -86,6 +86,7 @@ namespace Users
 
         public List<HomeNetwork> m_homeNetworks;
 
+        [NonSerialized]
         public LimitationsManager m_oLimitationsManager;
 
         #endregion
@@ -422,8 +423,9 @@ namespace Users
             DeviceContainer container = GetDeviceContainer(device.m_deviceFamilyID);
 
             //Check if exceeded limit for the device type
-            DomainResponseStatus responseStatus = CheckDeviceLimit(device, container);
-            if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed)
+            DomainResponseStatus responseStatus = ValidateQuantity(sUDID, brandID, container, device);
+
+            if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed || responseStatus == DomainResponseStatus.DeviceAlreadyExists)
             {
                 eRetVal = responseStatus;
                 return eRetVal;
@@ -491,7 +493,9 @@ namespace Users
             DomainResponseStatus bRes = DomainResponseStatus.UnKnown;
 
             // if next allowed action is in future, return LimitationPeriod status
-            if (m_NextActionFreq >= DateTime.UtcNow)
+            // Since frequency is defined at domain level, and not in device family level, we can pass a fictive (0)
+            // device brand id to ValidateFrequency method
+            if (ValidateFrequency(sUDID, 0) == DomainResponseStatus.LimitationPeriod)
             {
                 bRes = DomainResponseStatus.LimitationPeriod;
                 return bRes;
@@ -572,8 +576,11 @@ namespace Users
         {
             DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
 
-
-            if ((!bIsEnable) && (m_NextActionFreq >= DateTime.UtcNow))
+            /*
+             * 1. Since frequency is defined at domain level and not in device family level we can pass a fictive (0)
+             * device brand id to ValidateFrequency method
+             */ 
+            if (!bIsEnable && ValidateFrequency(sUDID, 0) == DomainResponseStatus.LimitationPeriod)
             {
                 eDomainResponseStatus = DomainResponseStatus.LimitationPeriod;
                 return eDomainResponseStatus;
@@ -592,7 +599,7 @@ namespace Users
             }
             else
             {
-                eDomainResponseStatus = CheckDeviceLimit(device, container);
+                eDomainResponseStatus = ValidateQuantity(sUDID, device.m_deviceBrandID, container, device);
                 eNewDeviceState = DeviceState.Activated;
             }
 
@@ -768,7 +775,7 @@ namespace Users
                     int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, null, 0, 0);
                     lDomainIDs = DAL.UsersDal.GetUserDomainIDs(nGroupID, nUserID);
                 }
-                else if ((!lDomainIDs.Contains<int>(nDomainID)) || (lDomainIDs.Count > 1))
+                else if (!lDomainIDs.Contains<int>(nDomainID) || lDomainIDs.Count > 1)
                 {
                     // The user belongs to other domain(s), maybe pending activation
                     return DomainResponseStatus.UserExistsInOtherDomains;
@@ -1133,8 +1140,8 @@ namespace Users
             DeviceContainer container = GetDeviceContainer(device.m_deviceFamilyID);
 
             //Check if exceeded limit for the device type
-            DomainResponseStatus responseStatus = CheckDeviceLimit(device, container);
-            if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed)
+            DomainResponseStatus responseStatus = ValidateQuantity(sDeviceUdid, device.m_deviceBrandID, container, device);
+            if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed || responseStatus == DomainResponseStatus.DeviceAlreadyExists)
             {
                 return responseStatus;
             }
@@ -1227,7 +1234,7 @@ namespace Users
 
             int rowsAffected = DAL.DomainDal.SwitchDomainMaster(nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
 
-            return (rowsAffected > 0) ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            return rowsAffected > 0 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
         }
 
         #endregion
@@ -1483,30 +1490,6 @@ namespace Users
             return res;
         }
 
-        private DomainResponseStatus CheckDeviceLimit(Device device, DeviceContainer container)
-        {
-            DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
-
-            if (container == null)
-            {
-                eRetVal = DomainResponseStatus.DeviceTypeNotAllowed;
-            }
-            else if (m_totalNumOfDevices >= m_nDeviceLimit)
-            {
-                eRetVal = DomainResponseStatus.ExceededLimit;
-            }
-            else if (container != null && container.GetActivatedDeviceCount() >= container.m_deviceLimit)
-            {
-                eRetVal = DomainResponseStatus.ExceededLimit;
-            }
-            else
-            {
-                eRetVal = DomainResponseStatus.OK;
-            }
-
-            return eRetVal;
-        }
-
         private DomainResponseStatus CheckUserLimit(int nDomainID, int nUserGuid)
         {
             DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
@@ -1553,25 +1536,29 @@ namespace Users
             return retVal;
         }
 
-        public LimitationType ValidateConcurrency(string sUDID, int nDeviceBrandID)
+        public DomainResponseStatus ValidateConcurrency(string sUDID, int nDeviceBrandID)
         {
-            return LimitationType.Error;
+            return DomainResponseStatus.UnKnown;
         }
 
-        public LimitationType ValidateFrequency(string sUDID, int nDeviceBrandID)
+        public DomainResponseStatus ValidateFrequency(string sUDID, int nDeviceBrandID)
         {
-            return LimitationType.Error;
+            if (m_oLimitationsManager.nextActionFreqDate > DateTime.UtcNow)
+                return DomainResponseStatus.LimitationPeriod;
+            return DomainResponseStatus.OK;
         }
 
-        public LimitationType ValidateQuantity(string sUDID, int nDeviceBrandID)
+        public DomainResponseStatus ValidateQuantity(string sUDID, int nDeviceBrandID, DeviceContainer dc = null, Device device = null)
         {
-            LimitationType res = LimitationType.Error;
-            Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID);
-            DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
+            DomainResponseStatus res = DomainResponseStatus.UnKnown;
+            if(device == null)
+                device = new Device(sUDID, nDeviceBrandID, m_nGroupID);
+            if(dc == null)
+                dc = GetDeviceContainer(device.m_deviceFamilyID);
             if (dc == null)
             {
                 // device type not allowed for this domain
-                res = LimitationType.DeviceTypeNotAllowed;
+                res = DomainResponseStatus.DeviceTypeNotAllowed;
             }
             else
             {
@@ -1581,7 +1568,7 @@ namespace Users
                     if (bIsDeviceActivated)
                     {
                         // device is associated to this domain and activated
-                        res = LimitationType.DeviceAlreadyInDomain;
+                        res = DomainResponseStatus.DeviceAlreadyExists;
                     }
                     else
                     {
@@ -1596,7 +1583,7 @@ namespace Users
                     if (Device.GetDeviceIDByUDID(device.m_deviceUDID, m_nGroupID) > 0)
                     {
                         // the device is associated to a different domain.
-                        res = LimitationType.DeviceNotAllowed;
+                        res = DomainResponseStatus.DeviceExistsInOtherDomains;
                     }
                     else
                     {
@@ -1608,34 +1595,20 @@ namespace Users
             return res;
         }
 
-        private LimitationType CanAddToDeviceContainer(DeviceContainer dc)
+        private DomainResponseStatus CanAddToDeviceContainer(DeviceContainer dc)
         {
-            LimitationType res = LimitationType.QuantityLimitation;
+            DomainResponseStatus res = DomainResponseStatus.ExceededLimit;
 
             int activatedDevices = dc.GetActivatedDeviceCount();
-            if (dc.m_oLimitationsManager.isHomeDevice)
+            if (m_totalNumOfDevices >= m_oLimitationsManager.quantity || activatedDevices >= dc.m_oLimitationsManager.quantity)
             {
-                // home device. we don't check quantity limitation against entire domain limitations.
-                if (activatedDevices >= dc.m_oLimitationsManager.quantity)
-                {
-                    res = LimitationType.QuantityLimitation;
-                }
-                else
-                {
-                    res = LimitationType.OK;
-                }
+                res = DomainResponseStatus.ExceededLimit;
             }
             else
             {
-                if (m_totalNumOfDevices >= m_oLimitationsManager.quantity || activatedDevices >= dc.m_oLimitationsManager.quantity)
-                {
-                    res = LimitationType.QuantityLimitation;
-                }
-                else
-                {
-                    res = LimitationType.OK;
-                }
+                res = DomainResponseStatus.OK;
             }
+
 
             return res;
         }
