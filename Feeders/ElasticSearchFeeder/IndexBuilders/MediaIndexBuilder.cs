@@ -309,7 +309,7 @@ namespace ElasticSearchFeeder.IndexBuilders
             searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
-            searchObject.m_bUseStartDate = true;
+            searchObject.m_bUseStartDate = false;
             searchObject.m_bUseFinalEndDate = false;
 
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
