@@ -39,6 +39,7 @@ namespace ConditionalAccess
         Ideal = 5,
         Incaso = 6,
         Gift = 7,
+        ChangeSubscription = 8, 
         Visa = 20,
         MasterCard = 21,
         InApp = 200,
@@ -115,7 +116,7 @@ namespace ConditionalAccess
     {
        Unknown = 0,
        Adyen = 10,
-       Dummy = 11,
+       Dummy = 11,      
        Cinepolis = 17,
        M1 = 100
     }
@@ -125,5 +126,14 @@ namespace ConditionalAccess
         NotSentYet = 0,
         Received = 1,
         Failed = 2
+    }
+
+    public enum ChangeSubscriptionStatus
+    {
+        OK = 0,
+        UserNotExists = 1,
+        OldSubNotExists = 2,
+        NewSubNotExits = 3,
+        Error = 4
     }
 }
