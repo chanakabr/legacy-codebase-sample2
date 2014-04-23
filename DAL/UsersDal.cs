@@ -1188,7 +1188,7 @@ namespace DAL
         ///      3 - user removed from domain
         ///      
         /// </returns>
-        public static DALUserActivationState GetUserActivationState(string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
+        public static DALUserActivationState GetUserActivationState(int nParentGroupID, string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
         {
             DALUserActivationState res = DALUserActivationState.Error;
 
@@ -1226,7 +1226,12 @@ namespace DAL
 
                         bool isActive           = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
 
-                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;
+                        bool isActivationNeeded = GetIsActivationNeeded(nParentGroupID);
+                        if (isActivationNeeded)
+                            res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;
+                        else
+                            res = DALUserActivationState.Activated;
+                                              
                     }
                     else
                     {
