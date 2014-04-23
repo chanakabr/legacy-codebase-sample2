@@ -1217,35 +1217,34 @@ namespace DAL
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        nUserID                 = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                        sUserName               = selectQuery.Table("query").DefaultView[0].Row["USERNAME"].ToString();
+                        nUserID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
+                        sUserName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "USERNAME", 0);
 
-                        nActivateStatus         = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ACTIVATE_STATUS"].ToString());
-                        DateTime dCreateDate    = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["CREATE_DATE"]);
-                        DateTime dNow           = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["DNOW"]);
+                        nActivateStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ACTIVATE_STATUS", 0);
+                        DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "CREATE_DATE", 0);
+                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "DNOW", 0); 
 
-                        bool isActive           = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
+                        bool isActive = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
 
-                        bool isActivationNeeded = GetIsActivationNeeded(nParentGroupID);
-                        if (isActivationNeeded)
-                            res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;
-                        else
-                            res = DALUserActivationState.Activated;
-                                              
+                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;                 
                     }
                     else
                     {
                         res = DALUserActivationState.UserDoesNotExist;
-
-                        return res;
                     }
                 }
 
                 selectQuery.Finish();
                 selectQuery = null;
 
-
-                if (res == DALUserActivationState.NotActivated) { return res; }
+                if (res == DALUserActivationState.UserDoesNotExist || (res == DALUserActivationState.NotActivated && GetIsActivationNeeded(nParentGroupID)))
+                { 
+                    return res; 
+                }
+                else
+                {
+                    res = DALUserActivationState.Activated;
+                }
 
                 // If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
                 //
