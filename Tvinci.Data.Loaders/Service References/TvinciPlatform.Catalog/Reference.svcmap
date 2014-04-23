@@ -20,18 +20,18 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://192.168.16.176/webservices/catalog/service.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://stg.eu.tvinci.com:8030/catalog_v2_3/service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service5.xsd" MetadataType="Schema" ID="32417ee0-51e2-498d-b39e-d7e8cb44fea5" SourceId="1" SourceUrl="http://192.168.16.176/webservices/catalog/Service.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service6.xsd" MetadataType="Schema" ID="37c9e1dc-ee2c-44e4-907a-92e5394d56ac" SourceId="1" SourceUrl="http://192.168.16.176/webservices/catalog/Service.svc?xsd=xsd1" />
-    <MetadataFile FileName="Service7.xsd" MetadataType="Schema" ID="24a745d5-e658-4f63-802b-89175f7968ea" SourceId="1" SourceUrl="http://192.168.16.176/webservices/catalog/Service.svc?xsd=xsd4" />
-    <MetadataFile FileName="Service3.wsdl" MetadataType="Wsdl" ID="3ba720f0-c5b2-4dc6-8b11-171c97b80ba5" SourceId="1" SourceUrl="http://192.168.16.176/webservices/catalog/Service.svc?wsdl" />
-    <MetadataFile FileName="Service8.xsd" MetadataType="Schema" ID="1056dcb7-6d44-426a-9a39-76f49d5a0fd1" SourceId="1" SourceUrl="http://192.168.16.176/webservices/catalog/Service.svc?xsd=xsd5" />
-    <MetadataFile FileName="Service4.wsdl" MetadataType="Wsdl" ID="ba80afe5-8df3-4613-a322-826b33a6f74d" SourceId="1" SourceUrl="http://192.168.16.176/webservices/catalog/Service.svc?wsdl=wsdl0" />
-    <MetadataFile FileName="Service9.xsd" MetadataType="Schema" ID="505eee16-48e0-465c-94c3-4bea037affee" SourceId="1" SourceUrl="http://192.168.16.176/webservices/catalog/Service.svc?xsd=xsd3" />
-    <MetadataFile FileName="Service2.disco" MetadataType="Disco" ID="308d0c98-0426-45c3-87b3-0609b00fe993" SourceId="1" SourceUrl="http://192.168.16.176/webservices/catalog/Service.svc?disco" />
-    <MetadataFile FileName="Service10.xsd" MetadataType="Schema" ID="25f6e3d3-10ab-4fa6-9e31-cbc6d61b1ea1" SourceId="1" SourceUrl="http://192.168.16.176/webservices/catalog/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service5.xsd" MetadataType="Schema" ID="0ea0cae3-1063-4d73-8cdd-428ba0e73410" SourceId="1" SourceUrl="http://stg.eu.tvinci.com:8030/catalog_v2_3/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service6.xsd" MetadataType="Schema" ID="663d9beb-5bff-450c-b67f-32251aa5c2bd" SourceId="1" SourceUrl="http://stg.eu.tvinci.com:8030/catalog_v2_3/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service7.xsd" MetadataType="Schema" ID="6e7fc8d1-2da3-48bb-bd83-efaf782bb1a3" SourceId="1" SourceUrl="http://stg.eu.tvinci.com:8030/catalog_v2_3/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service8.xsd" MetadataType="Schema" ID="c8cf0cae-a6f0-4b7b-b931-02a78ce6edee" SourceId="1" SourceUrl="http://stg.eu.tvinci.com:8030/catalog_v2_3/Service.svc?xsd=xsd4" />
+    <MetadataFile FileName="Service3.wsdl" MetadataType="Wsdl" ID="625688fc-bb6b-4671-8b59-d4b9ba570c6e" SourceId="1" SourceUrl="http://stg.eu.tvinci.com:8030/catalog_v2_3/Service.svc?wsdl" />
+    <MetadataFile FileName="Service9.xsd" MetadataType="Schema" ID="e4947f6c-7da0-4909-b725-eaf939dffd46" SourceId="1" SourceUrl="http://stg.eu.tvinci.com:8030/catalog_v2_3/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service2.disco" MetadataType="Disco" ID="478c9e62-495e-4ab0-a696-24e7d10c99e3" SourceId="1" SourceUrl="http://stg.eu.tvinci.com:8030/catalog_v2_3/Service.svc?disco" />
+    <MetadataFile FileName="Service4.wsdl" MetadataType="Wsdl" ID="3fa66a33-a973-46d9-b45d-d836dd2072ce" SourceId="1" SourceUrl="http://stg.eu.tvinci.com:8030/catalog_v2_3/Service.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="Service10.xsd" MetadataType="Schema" ID="3f7ecf60-0e9c-48cb-bc8b-41ca007cc1e3" SourceId="1" SourceUrl="http://stg.eu.tvinci.com:8030/catalog_v2_3/Service.svc?xsd=xsd5" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
