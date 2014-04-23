@@ -134,10 +134,7 @@ public partial class adm_campaigns_new : System.Web.UI.Page
 
     static protected string GetWSURL()
     {
-        if (ConfigurationManager.AppSettings["pricing_ws"] != null &&
-            ConfigurationManager.AppSettings["pricing_ws"].ToString() != "")
-            return ConfigurationManager.AppSettings["pricing_ws"].ToString();
-        return "";
+        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)

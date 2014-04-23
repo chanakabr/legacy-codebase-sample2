@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s1="http://pricing.tvinci.com/" xmlns:s2="http://ca.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://pricing.tvinci.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s2="http://ca.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://ca.tvinci.com/">
       <s:import namespace="http://pricing.tvinci.com/" />
@@ -48,9 +48,28 @@
           <s:enumeration value="Ideal" />
           <s:enumeration value="Incaso" />
           <s:enumeration value="Gift" />
+          <s:enumeration value="Visa" />
+          <s:enumeration value="MasterCard" />
           <s:enumeration value="InApp" />
+          <s:enumeration value="M1" />
         </s:restriction>
       </s:simpleType>
+      <s:element name="GetDomainPermittedItems">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDomainPermittedItemsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainPermittedItemsResult" type="tns:ArrayOfPermittedMediaContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetUserExpiredItems">
         <s:complexType>
           <s:sequence>
@@ -114,6 +133,32 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetLicensedLinkResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetEPGLicensedLink">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nEPGItemID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+            <s:element minOccurs="0" maxOccurs="1" name="sBasicLink" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sRefferer" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nFormatType" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetEPGLicensedLinkResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetEPGLicensedLinkResult" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -209,19 +254,19 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetUserPermittedSubscriptions">
+      <s:element name="GetDomainPermittedSubscriptions">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetUserPermittedSubscriptionsResponse">
+      <s:element name="GetDomainPermittedSubscriptionsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetUserPermittedSubscriptionsResult" type="tns:ArrayOfPermittedSubscriptionContainer" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainPermittedSubscriptionsResult" type="tns:ArrayOfPermittedSubscriptionContainer" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -239,6 +284,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_dCurrentDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dLastViewDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dPurchaseDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dNextRenewalDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bRecurringStatus" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bIsSubRenewable" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nSubscriptionPurchaseID" type="s:int" />
@@ -247,6 +293,22 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceName" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetUserPermittedSubscriptions">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserPermittedSubscriptionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserPermittedSubscriptionsResult" type="tns:ArrayOfPermittedSubscriptionContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetUserExpiredSubscriptions">
         <s:complexType>
           <s:sequence>
@@ -300,24 +362,40 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetUserBillingHistory">
+      <s:element name="GetUsersBillingHistory">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="nStartIndex" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="nNumberOfItems" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="arrSiteGUIDs" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="dStartDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="dEndDate" type="s:dateTime" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetUserBillingHistoryResponse">
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetUsersBillingHistoryResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetUserBillingHistoryResult" type="tns:BillingTransactionsResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetUsersBillingHistoryResult" type="tns:ArrayOfUserBillingTransactionsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="ArrayOfUserBillingTransactionsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserBillingTransactionsResponse" nillable="true" type="tns:UserBillingTransactionsResponse" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserBillingTransactionsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGUID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_BillingTransactionResponse" type="tns:BillingTransactionsResponse" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="BillingTransactionsResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_Transactions" type="tns:ArrayOfBillingTransactionContainer" />
@@ -367,6 +445,58 @@
           <s:enumeration value="SubscriptionDateChanged" />
         </s:restriction>
       </s:simpleType>
+      <s:element name="GetDomainsBillingHistory">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="domainIDs" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="dStartDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="dEndDate" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetDomainsBillingHistoryResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainsBillingHistoryResult" type="tns:ArrayOfDomainBillingTransactionsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDomainBillingTransactionsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DomainBillingTransactionsResponse" nillable="true" type="tns:DomainBillingTransactionsResponse" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DomainBillingTransactionsResponse">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nDomainID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_BillingTransactionResponses" type="tns:ArrayOfUserBillingTransactionsResponse" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetUserBillingHistory">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nStartIndex" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nNumberOfItems" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserBillingHistoryResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserBillingHistoryResult" type="tns:BillingTransactionsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="RenewCancledSubscription">
         <s:complexType>
           <s:sequence>
@@ -463,6 +593,7 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="m_nMediaFileID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="m_oItemPrices" type="tns:ArrayOfItemPriceContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sProductCode" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfItemPriceContainer">
@@ -481,10 +612,12 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_relevantPP" type="s1:PrePaidModule" />
           <s:element minOccurs="0" maxOccurs="1" name="m_oPPVDescription" type="tns:ArrayOfLanguageContainer" />
           <s:element minOccurs="1" maxOccurs="1" name="m_couponStatus" type="s1:CouponsStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFirstDeviceNameFound" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="PriceReason">
         <s:restriction base="s:string">
+          <s:enumeration value="Error" />
           <s:enumeration value="PPVPurchased" />
           <s:enumeration value="Free" />
           <s:enumeration value="ForPurchaseSubscriptionOnly" />
@@ -493,6 +626,9 @@
           <s:enumeration value="UnKnown" />
           <s:enumeration value="SubscriptionPurchasedWrongCurrency" />
           <s:enumeration value="PrePaidPurchased" />
+          <s:enumeration value="GeoCommerceBlocked" />
+          <s:enumeration value="EntitledToPreviewModule" />
+          <s:enumeration value="FirstDeviceLimitation" />
         </s:restriction>
       </s:simpleType>
       <s:complexType name="ArrayOfLanguageContainer">
@@ -512,6 +648,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -533,18 +670,36 @@
             <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ArrayOfInt">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetItemsPricesResponse">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetItemsPricesResult" type="tns:ArrayOfMediaFileItemPricesContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemsPricesByIP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nMediaFiles" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bOnlyLowest" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemsPricesByIPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemsPricesByIPResult" type="tns:ArrayOfMediaFileItemPricesContainer" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -560,6 +715,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -567,6 +723,29 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetItemsPricesWithCouponsResult" type="tns:ArrayOfMediaFileItemPricesContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemsPricesWithCouponsByIP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nMediaFiles" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCouponCode" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bOnlyLowest" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemsPricesWithCouponsByIPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemsPricesWithCouponsByIPResult" type="tns:ArrayOfMediaFileItemPricesContainer" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -580,14 +759,10 @@
             <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ArrayOfString">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetSubscriptionsPricesResponse">
         <s:complexType>
           <s:sequence>
@@ -607,6 +782,27 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetSubscriptionsPricesByIP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSubscriptions" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionsPricesByIPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsPricesByIPResult" type="tns:ArrayOfSubscriptionsPricesContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetPrePaidPrices">
         <s:complexType>
           <s:sequence>
@@ -651,6 +847,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -658,6 +855,28 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsPricesWithCouponResult" type="tns:ArrayOfSubscriptionsPricesContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionsPricesWithCouponByIP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSubscriptions" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCouponCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionsPricesWithCouponByIPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsPricesWithCouponByIPResult" type="tns:ArrayOfSubscriptionsPricesContainer" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -671,6 +890,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -678,6 +898,27 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsPricesSTResult" type="tns:ArrayOfSubscriptionsPricesContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionsPricesSTByIP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSubscriptionsList" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionsPricesSTByIPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsPricesSTByIPResult" type="tns:ArrayOfSubscriptionsPricesContainer" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -723,6 +964,28 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetSubscriptionsPricesSTWithCouponByIP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSubscriptionsList" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCouponCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionsPricesSTWithCouponByIPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsPricesSTWithCouponByIPResult" type="tns:ArrayOfSubscriptionsPricesContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetItemsPricesST">
         <s:complexType>
           <s:sequence>
@@ -734,6 +997,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -744,7 +1008,29 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="CC_ChargeUserForSubscription">
+      <s:element name="GetItemsPricesSTByIP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sMediaFilesCommaSeperated" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bOnlyLowest" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sClientIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemsPricesSTByIPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemsPricesSTByIPResult" type="tns:ArrayOfMediaFileItemPricesContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Cellular_ChargeUserForSubscription">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -762,10 +1048,10 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="CC_ChargeUserForSubscriptionResponse">
+      <s:element name="Cellular_ChargeUserForSubscriptionResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="CC_ChargeUserForSubscriptionResult" type="tns:BillingResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="Cellular_ChargeUserForSubscriptionResult" type="tns:BillingResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -774,6 +1060,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_oStatus" type="tns:BillingResponseStatus" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sRecieptCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sStatusDescription" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sExternalReceiptCode" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="BillingResponseStatus">
@@ -784,6 +1071,10 @@
           <s:enumeration value="PriceNotCorrect" />
           <s:enumeration value="UnKnownUser" />
           <s:enumeration value="UnKnownPPVModule" />
+          <s:enumeration value="ExpiredCard" />
+          <s:enumeration value="ExternalError" />
+          <s:enumeration value="CellularPermissionsError" />
+          <s:enumeration value="UnKnownBillingProvider" />
         </s:restriction>
       </s:simpleType>
       <s:element name="CC_DummyChargeUserForSubscription">
@@ -861,32 +1152,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="CC_ChargeUserForMediaFile">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="dPrice" type="s:double" />
-            <s:element minOccurs="0" maxOccurs="1" name="sCurrencyCode3" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="sPPVModuleCode" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sCouponCode" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sExtraParameters" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="CC_ChargeUserForMediaFileResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="CC_ChargeUserForMediaFileResult" type="tns:BillingResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="CC_DummyChargeUserForMediaFile">
         <s:complexType>
           <s:sequence>
@@ -910,6 +1175,61 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="CC_DummyChargeUserForMediaFileResult" type="tns:BillingResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CC_ChargeUserForMediaFile">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dPrice" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCurrencyCode3" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPPVModuleCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCouponCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sExtraParameters" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPaymentMethodID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sEncryptedCVV" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CC_ChargeUserForMediaFileResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CC_ChargeUserForMediaFileResult" type="tns:BillingResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CC_ChargeUserForSubscription">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dPrice" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCurrencyCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSubscriptionCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCouponCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sExtraParameters" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPaymentMethodID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sEncryptedCVV" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CC_ChargeUserForSubscriptionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CC_ChargeUserForSubscriptionResult" type="tns:BillingResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -986,6 +1306,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="assetType" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="sOverrideEndDate" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPreviewModuleID" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1285,6 +1606,33 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="InApp_ChargeUserForMediaFile">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dPrice" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCurrencyCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sProductCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPPVModuleCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCouponCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sExtraParameters" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ReceiptData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InApp_ChargeUserForMediaFileResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InApp_ChargeUserForMediaFileResult" type="tns:BillingResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="InApp_ChargeUserForSubscription">
         <s:complexType>
           <s:sequence>
@@ -1310,11 +1658,55 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetGoogleSignature">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nCustomDataID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGoogleSignatureResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGoogleSignatureResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Cellular_ChargeUserForMediaFile">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dPrice" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCurrencyCode3" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPPVModuleCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCouponCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sExtraParameters" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Cellular_ChargeUserForMediaFileResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Cellular_ChargeUserForMediaFileResult" type="tns:BillingResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="ArrayOfPermittedSubscriptionContainer" nillable="true" type="tns:ArrayOfPermittedSubscriptionContainer" />
       <s:element name="boolean" type="s:boolean" />
+      <s:element name="ArrayOfUserBillingTransactionsResponse" nillable="true" type="tns:ArrayOfUserBillingTransactionsResponse" />
+      <s:element name="ArrayOfDomainBillingTransactionsResponse" nillable="true" type="tns:ArrayOfDomainBillingTransactionsResponse" />
       <s:element name="BillingTransactionsResponse" nillable="true" type="tns:BillingTransactionsResponse" />
       <s:element name="ArrayOfMediaFileItemPricesContainer" nillable="true" type="tns:ArrayOfMediaFileItemPricesContainer" />
       <s:element name="ArrayOfSubscriptionsPricesContainer" nillable="true" type="tns:ArrayOfSubscriptionsPricesContainer" />
@@ -1351,12 +1743,18 @@
               <s:element minOccurs="1" maxOccurs="1" name="m_bIsRecurring" type="s:boolean" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nNumberOfRecPeriods" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionPriceCode" type="s1:PriceCode" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="s1:DiscountModule" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s1:ArrayOfLanguageContainer" />
               <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionUsageModule" type="s1:UsageModule" />
               <s:element minOccurs="1" maxOccurs="1" name="m_fictivicMediaID" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_Priority" type="s:long" />
               <s:element minOccurs="0" maxOccurs="1" name="m_ProductCode" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_SubscriptionCode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_MultiSubscriptionUsageModule" type="s1:ArrayOfUsageModule" />
+              <s:element minOccurs="1" maxOccurs="1" name="n_GeoCommerceID" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_bIsInfiniteRecurring" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_UserTypes" type="s1:ArrayOfUserType" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oPreviewModule" type="s1:PreviewModule" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1372,6 +1770,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sObjectVirtualName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bSubscriptionOnly" type="s:boolean" />
           <s:element minOccurs="0" maxOccurs="1" name="m_relatedFileTypes" type="s1:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Product_Code" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bFirstDeviceLimitation" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="PriceCode">
@@ -1431,6 +1831,15 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_nMaxNumberOfViews" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_tsViewLifeCycle" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_tsMaxUsageModuleLifeCycle" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_ext_discount_id" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_internal_discount_id" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_pricing_id" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_coupon_id" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_type" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_subscription_only" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_is_renew" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_num_of_rec_periods" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_device_limit_id" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="CouponsGroup">
@@ -1444,6 +1853,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sGroupCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sGroupName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nFinancialEntityID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nMaxRecurringUsesCountForCoupon" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfInt">
@@ -1460,6 +1870,31 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUsageModule">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UsageModule" nillable="true" type="s1:UsageModule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserType" type="s1:UserType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserType">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" nillable="true" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PreviewModule">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nID" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_tsFullLifeCycle" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_tsNonRenewPeriod" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="PrePaidModule">
@@ -1481,6 +1916,8 @@
           <s:enumeration value="NotExists" />
           <s:enumeration value="AllreadyUsed" />
           <s:enumeration value="IrrelevantCode" />
+          <s:enumeration value="Expired" />
+          <s:enumeration value="NotActive" />
         </s:restriction>
       </s:simpleType>
     </s:schema>
@@ -1503,6 +1940,12 @@
   <wsdl:message name="GetUserPermittedItemsSoapOut">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItemsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetDomainPermittedItemsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDomainPermittedItems" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedItemsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDomainPermittedItemsResponse" />
+  </wsdl:message>
   <wsdl:message name="GetUserExpiredItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserExpiredItems" />
   </wsdl:message>
@@ -1521,6 +1964,12 @@
   <wsdl:message name="GetLicensedLinkSoapOut">
     <wsdl:part name="parameters" element="tns:GetLicensedLinkResponse" />
   </wsdl:message>
+  <wsdl:message name="GetEPGLicensedLinkSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEPGLicensedLink" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGLicensedLinkSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEPGLicensedLinkResponse" />
+  </wsdl:message>
   <wsdl:message name="GetLicensedLinkWithCouponSoapIn">
     <wsdl:part name="parameters" element="tns:GetLicensedLinkWithCoupon" />
   </wsdl:message>
@@ -1538,6 +1987,12 @@
   </wsdl:message>
   <wsdl:message name="ActivateCampaignWithInfoSoapOut">
     <wsdl:part name="parameters" element="tns:ActivateCampaignWithInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedSubscriptionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDomainPermittedSubscriptions" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedSubscriptionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDomainPermittedSubscriptionsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedSubscriptionsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedSubscriptions" />
@@ -1562,6 +2017,18 @@
   </wsdl:message>
   <wsdl:message name="IsPermittedSubscriptionSoapOut">
     <wsdl:part name="parameters" element="tns:IsPermittedSubscriptionResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersBillingHistorySoapIn">
+    <wsdl:part name="parameters" element="tns:GetUsersBillingHistory" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersBillingHistorySoapOut">
+    <wsdl:part name="parameters" element="tns:GetUsersBillingHistoryResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainsBillingHistorySoapIn">
+    <wsdl:part name="parameters" element="tns:GetDomainsBillingHistory" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainsBillingHistorySoapOut">
+    <wsdl:part name="parameters" element="tns:GetDomainsBillingHistoryResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserBillingHistorySoapIn">
     <wsdl:part name="parameters" element="tns:GetUserBillingHistory" />
@@ -1605,17 +2072,35 @@
   <wsdl:message name="GetItemsPricesSoapOut">
     <wsdl:part name="parameters" element="tns:GetItemsPricesResponse" />
   </wsdl:message>
+  <wsdl:message name="GetItemsPricesByIPSoapIn">
+    <wsdl:part name="parameters" element="tns:GetItemsPricesByIP" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesByIPSoapOut">
+    <wsdl:part name="parameters" element="tns:GetItemsPricesByIPResponse" />
+  </wsdl:message>
   <wsdl:message name="GetItemsPricesWithCouponsSoapIn">
     <wsdl:part name="parameters" element="tns:GetItemsPricesWithCoupons" />
   </wsdl:message>
   <wsdl:message name="GetItemsPricesWithCouponsSoapOut">
     <wsdl:part name="parameters" element="tns:GetItemsPricesWithCouponsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetItemsPricesWithCouponsByIPSoapIn">
+    <wsdl:part name="parameters" element="tns:GetItemsPricesWithCouponsByIP" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesWithCouponsByIPSoapOut">
+    <wsdl:part name="parameters" element="tns:GetItemsPricesWithCouponsByIPResponse" />
+  </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesSoapIn">
     <wsdl:part name="parameters" element="tns:GetSubscriptionsPrices" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesSoapOut">
     <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesByIPSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesByIP" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesByIPSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesByIPResponse" />
   </wsdl:message>
   <wsdl:message name="GetPrePaidPricesSoapIn">
     <wsdl:part name="parameters" element="tns:GetPrePaidPrices" />
@@ -1629,11 +2114,23 @@
   <wsdl:message name="GetSubscriptionsPricesWithCouponSoapOut">
     <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesWithCouponResponse" />
   </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesWithCouponByIPSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesWithCouponByIP" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesWithCouponByIPSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesWithCouponByIPResponse" />
+  </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesSTSoapIn">
     <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesST" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesSTSoapOut">
     <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesSTResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTByIPSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesSTByIP" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTByIPSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesSTByIPResponse" />
   </wsdl:message>
   <wsdl:message name="GetPrePaidPricesSTSoapIn">
     <wsdl:part name="parameters" element="tns:GetPrePaidPricesST" />
@@ -1647,17 +2144,29 @@
   <wsdl:message name="GetSubscriptionsPricesSTWithCouponSoapOut">
     <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesSTWithCouponResponse" />
   </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTWithCouponByIPSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesSTWithCouponByIP" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTWithCouponByIPSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsPricesSTWithCouponByIPResponse" />
+  </wsdl:message>
   <wsdl:message name="GetItemsPricesSTSoapIn">
     <wsdl:part name="parameters" element="tns:GetItemsPricesST" />
   </wsdl:message>
   <wsdl:message name="GetItemsPricesSTSoapOut">
     <wsdl:part name="parameters" element="tns:GetItemsPricesSTResponse" />
   </wsdl:message>
-  <wsdl:message name="CC_ChargeUserForSubscriptionSoapIn">
-    <wsdl:part name="parameters" element="tns:CC_ChargeUserForSubscription" />
+  <wsdl:message name="GetItemsPricesSTByIPSoapIn">
+    <wsdl:part name="parameters" element="tns:GetItemsPricesSTByIP" />
   </wsdl:message>
-  <wsdl:message name="CC_ChargeUserForSubscriptionSoapOut">
-    <wsdl:part name="parameters" element="tns:CC_ChargeUserForSubscriptionResponse" />
+  <wsdl:message name="GetItemsPricesSTByIPSoapOut">
+    <wsdl:part name="parameters" element="tns:GetItemsPricesSTByIPResponse" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForSubscriptionSoapIn">
+    <wsdl:part name="parameters" element="tns:Cellular_ChargeUserForSubscription" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForSubscriptionSoapOut">
+    <wsdl:part name="parameters" element="tns:Cellular_ChargeUserForSubscriptionResponse" />
   </wsdl:message>
   <wsdl:message name="CC_DummyChargeUserForSubscriptionSoapIn">
     <wsdl:part name="parameters" element="tns:CC_DummyChargeUserForSubscription" />
@@ -1677,17 +2186,23 @@
   <wsdl:message name="CC_DummyChargeUserForPrePaidSoapOut">
     <wsdl:part name="parameters" element="tns:CC_DummyChargeUserForPrePaidResponse" />
   </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForMediaFileSoapIn">
+    <wsdl:part name="parameters" element="tns:CC_DummyChargeUserForMediaFile" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForMediaFileSoapOut">
+    <wsdl:part name="parameters" element="tns:CC_DummyChargeUserForMediaFileResponse" />
+  </wsdl:message>
   <wsdl:message name="CC_ChargeUserForMediaFileSoapIn">
     <wsdl:part name="parameters" element="tns:CC_ChargeUserForMediaFile" />
   </wsdl:message>
   <wsdl:message name="CC_ChargeUserForMediaFileSoapOut">
     <wsdl:part name="parameters" element="tns:CC_ChargeUserForMediaFileResponse" />
   </wsdl:message>
-  <wsdl:message name="CC_DummyChargeUserForMediaFileSoapIn">
-    <wsdl:part name="parameters" element="tns:CC_DummyChargeUserForMediaFile" />
+  <wsdl:message name="CC_ChargeUserForSubscriptionSoapIn">
+    <wsdl:part name="parameters" element="tns:CC_ChargeUserForSubscription" />
   </wsdl:message>
-  <wsdl:message name="CC_DummyChargeUserForMediaFileSoapOut">
-    <wsdl:part name="parameters" element="tns:CC_DummyChargeUserForMediaFileResponse" />
+  <wsdl:message name="CC_ChargeUserForSubscriptionSoapOut">
+    <wsdl:part name="parameters" element="tns:CC_ChargeUserForSubscriptionResponse" />
   </wsdl:message>
   <wsdl:message name="PU_GetPPVPopupPaymentMethodURLSoapIn">
     <wsdl:part name="parameters" element="tns:PU_GetPPVPopupPaymentMethodURL" />
@@ -1767,11 +2282,29 @@
   <wsdl:message name="GetItemLeftViewLifeCycleSoapOut">
     <wsdl:part name="parameters" element="tns:GetItemLeftViewLifeCycleResponse" />
   </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserForMediaFileSoapIn">
+    <wsdl:part name="parameters" element="tns:InApp_ChargeUserForMediaFile" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserForMediaFileSoapOut">
+    <wsdl:part name="parameters" element="tns:InApp_ChargeUserForMediaFileResponse" />
+  </wsdl:message>
   <wsdl:message name="InApp_ChargeUserForSubscriptionSoapIn">
     <wsdl:part name="parameters" element="tns:InApp_ChargeUserForSubscription" />
   </wsdl:message>
   <wsdl:message name="InApp_ChargeUserForSubscriptionSoapOut">
     <wsdl:part name="parameters" element="tns:InApp_ChargeUserForSubscriptionResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGoogleSignatureSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGoogleSignature" />
+  </wsdl:message>
+  <wsdl:message name="GetGoogleSignatureSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGoogleSignatureResponse" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForMediaFileSoapIn">
+    <wsdl:part name="parameters" element="tns:Cellular_ChargeUserForMediaFile" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForMediaFileSoapOut">
+    <wsdl:part name="parameters" element="tns:Cellular_ChargeUserForMediaFileResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1779,6 +2312,14 @@
     <wsdl:part name="sSiteGUID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedMediaContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedItemsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedItemsHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfPermittedMediaContainer" />
   </wsdl:message>
   <wsdl:message name="GetUserExpiredItemsHttpPostIn">
@@ -1813,6 +2354,24 @@
   <wsdl:message name="GetLicensedLinkHttpPostOut">
     <wsdl:part name="Body" element="tns:string" />
   </wsdl:message>
+  <wsdl:message name="GetEPGLicensedLinkHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="nEPGItemID" type="s:string" />
+    <wsdl:part name="startTime" type="s:string" />
+    <wsdl:part name="sBasicLink" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sRefferer" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="nFormatType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGLicensedLinkHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
   <wsdl:message name="GetLicensedLinkWithCouponHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1828,6 +2387,14 @@
   </wsdl:message>
   <wsdl:message name="GetLicensedLinkWithCouponHttpPostOut">
     <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedSubscriptionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedSubscriptionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedSubscriptionContainer" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedSubscriptionsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1854,6 +2421,26 @@
   </wsdl:message>
   <wsdl:message name="IsPermittedItemHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersBillingHistoryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="arrSiteGUIDs" type="s2:StringArray" />
+    <wsdl:part name="dStartDate" type="s:string" />
+    <wsdl:part name="dEndDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersBillingHistoryHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfUserBillingTransactionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainsBillingHistoryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainIDs" type="s2:StringArray" />
+    <wsdl:part name="dStartDate" type="s:string" />
+    <wsdl:part name="dEndDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainsBillingHistoryHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDomainBillingTransactionsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserBillingHistoryHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1906,8 +2493,23 @@
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
     <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetItemsPricesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="bOnlyLowest" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesByIPHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
   </wsdl:message>
   <wsdl:message name="GetItemsPricesWithCouponsHttpPostIn">
@@ -1920,8 +2522,24 @@
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
     <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetItemsPricesWithCouponsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesWithCouponsByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="bOnlyLowest" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesWithCouponsByIPHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesHttpPostIn">
@@ -1932,8 +2550,22 @@
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
     <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesByIPHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
   </wsdl:message>
   <wsdl:message name="GetPrePaidPricesHttpPostIn">
@@ -1958,8 +2590,23 @@
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
     <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesWithCouponHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesWithCouponByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesWithCouponByIPHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesSTHttpPostIn">
@@ -1970,8 +2617,22 @@
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
     <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesSTHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptionsList" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTByIPHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
   </wsdl:message>
   <wsdl:message name="GetPrePaidPricesSTHttpPostIn">
@@ -2000,6 +2661,20 @@
   <wsdl:message name="GetSubscriptionsPricesSTWithCouponHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
   </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTWithCouponByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptionsList" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTWithCouponByIPHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
   <wsdl:message name="GetItemsPricesSTHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2009,11 +2684,26 @@
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
     <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetItemsPricesSTHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
   </wsdl:message>
-  <wsdl:message name="CC_ChargeUserForSubscriptionHttpPostIn">
+  <wsdl:message name="GetItemsPricesSTByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sMediaFilesCommaSeperated" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="bOnlyLowest" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesSTByIPHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForSubscriptionHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="sSiteGUID" type="s:string" />
@@ -2027,7 +2717,7 @@
     <wsdl:part name="sLanguageCode3" type="s:string" />
     <wsdl:part name="sDeviceName" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="CC_ChargeUserForSubscriptionHttpPostOut">
+  <wsdl:message name="Cellular_ChargeUserForSubscriptionHttpPostOut">
     <wsdl:part name="Body" element="tns:BillingResponse" />
   </wsdl:message>
   <wsdl:message name="CC_DummyChargeUserForSubscriptionHttpPostIn">
@@ -2081,24 +2771,6 @@
   <wsdl:message name="CC_DummyChargeUserForPrePaidHttpPostOut">
     <wsdl:part name="Body" element="tns:BillingResponse" />
   </wsdl:message>
-  <wsdl:message name="CC_ChargeUserForMediaFileHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSiteGUID" type="s:string" />
-    <wsdl:part name="dPrice" type="s:string" />
-    <wsdl:part name="sCurrencyCode3" type="s:string" />
-    <wsdl:part name="nMediaFileID" type="s:string" />
-    <wsdl:part name="sPPVModuleCode" type="s:string" />
-    <wsdl:part name="sCouponCode" type="s:string" />
-    <wsdl:part name="sUserIP" type="s:string" />
-    <wsdl:part name="sExtraParameters" type="s:string" />
-    <wsdl:part name="sCountryCd2" type="s:string" />
-    <wsdl:part name="sLanguageCode3" type="s:string" />
-    <wsdl:part name="sDeviceName" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="CC_ChargeUserForMediaFileHttpPostOut">
-    <wsdl:part name="Body" element="tns:BillingResponse" />
-  </wsdl:message>
   <wsdl:message name="CC_DummyChargeUserForMediaFileHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2115,6 +2787,45 @@
     <wsdl:part name="sDeviceName" type="s:string" />
   </wsdl:message>
   <wsdl:message name="CC_DummyChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sPaymentMethodID" type="s:string" />
+    <wsdl:part name="sEncryptedCVV" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sPaymentMethodID" type="s:string" />
+    <wsdl:part name="sEncryptedCVV" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForSubscriptionHttpPostOut">
     <wsdl:part name="Body" element="tns:BillingResponse" />
   </wsdl:message>
   <wsdl:message name="PU_GetPPVPopupPaymentMethodURLHttpPostIn">
@@ -2172,6 +2883,7 @@
     <wsdl:part name="sDeviceName" type="s:string" />
     <wsdl:part name="assetType" type="s:string" />
     <wsdl:part name="sOverrideEndDate" type="s:string" />
+    <wsdl:part name="sPreviewModuleID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetCustomDataIDHttpPostOut">
     <wsdl:part name="Body" element="tns:int" />
@@ -2322,6 +3034,25 @@
   <wsdl:message name="GetItemLeftViewLifeCycleHttpPostOut">
     <wsdl:part name="Body" element="tns:string" />
   </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sProductCode" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="ReceiptData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
   <wsdl:message name="InApp_ChargeUserForSubscriptionHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2339,10 +3070,40 @@
   <wsdl:message name="InApp_ChargeUserForSubscriptionHttpPostOut">
     <wsdl:part name="Body" element="tns:BillingResponse" />
   </wsdl:message>
+  <wsdl:message name="GetGoogleSignatureHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nCustomDataID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGoogleSignatureHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedItemsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedItems">
+      <wsdl:input message="tns:GetDomainPermittedItemsSoapIn" />
+      <wsdl:output message="tns:GetDomainPermittedItemsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserExpiredItems">
       <wsdl:input message="tns:GetUserExpiredItemsSoapIn" />
@@ -2356,6 +3117,10 @@
       <wsdl:input message="tns:GetLicensedLinkSoapIn" />
       <wsdl:output message="tns:GetLicensedLinkSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetEPGLicensedLink">
+      <wsdl:input message="tns:GetEPGLicensedLinkSoapIn" />
+      <wsdl:output message="tns:GetEPGLicensedLinkSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetLicensedLinkWithCoupon">
       <wsdl:input message="tns:GetLicensedLinkWithCouponSoapIn" />
       <wsdl:output message="tns:GetLicensedLinkWithCouponSoapOut" />
@@ -2367,6 +3132,10 @@
     <wsdl:operation name="ActivateCampaignWithInfo">
       <wsdl:input message="tns:ActivateCampaignWithInfoSoapIn" />
       <wsdl:output message="tns:ActivateCampaignWithInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedSubscriptions">
+      <wsdl:input message="tns:GetDomainPermittedSubscriptionsSoapIn" />
+      <wsdl:output message="tns:GetDomainPermittedSubscriptionsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedSubscriptions">
       <wsdl:input message="tns:GetUserPermittedSubscriptionsSoapIn" />
@@ -2383,6 +3152,14 @@
     <wsdl:operation name="IsPermittedSubscription">
       <wsdl:input message="tns:IsPermittedSubscriptionSoapIn" />
       <wsdl:output message="tns:IsPermittedSubscriptionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUsersBillingHistory">
+      <wsdl:input message="tns:GetUsersBillingHistorySoapIn" />
+      <wsdl:output message="tns:GetUsersBillingHistorySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainsBillingHistory">
+      <wsdl:input message="tns:GetDomainsBillingHistorySoapIn" />
+      <wsdl:output message="tns:GetDomainsBillingHistorySoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserBillingHistory">
       <wsdl:input message="tns:GetUserBillingHistorySoapIn" />
@@ -2412,13 +3189,25 @@
       <wsdl:input message="tns:GetItemsPricesSoapIn" />
       <wsdl:output message="tns:GetItemsPricesSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesByIP">
+      <wsdl:input message="tns:GetItemsPricesByIPSoapIn" />
+      <wsdl:output message="tns:GetItemsPricesByIPSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesWithCoupons">
       <wsdl:input message="tns:GetItemsPricesWithCouponsSoapIn" />
       <wsdl:output message="tns:GetItemsPricesWithCouponsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesWithCouponsByIP">
+      <wsdl:input message="tns:GetItemsPricesWithCouponsByIPSoapIn" />
+      <wsdl:output message="tns:GetItemsPricesWithCouponsByIPSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPrices">
       <wsdl:input message="tns:GetSubscriptionsPricesSoapIn" />
       <wsdl:output message="tns:GetSubscriptionsPricesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesByIPSoapIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesByIPSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetPrePaidPrices">
       <wsdl:input message="tns:GetPrePaidPricesSoapIn" />
@@ -2428,9 +3217,17 @@
       <wsdl:input message="tns:GetSubscriptionsPricesWithCouponSoapIn" />
       <wsdl:output message="tns:GetSubscriptionsPricesWithCouponSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesWithCouponByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesWithCouponByIPSoapIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesWithCouponByIPSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPricesST">
       <wsdl:input message="tns:GetSubscriptionsPricesSTSoapIn" />
       <wsdl:output message="tns:GetSubscriptionsPricesSTSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesSTByIPSoapIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesSTByIPSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetPrePaidPricesST">
       <wsdl:input message="tns:GetPrePaidPricesSTSoapIn" />
@@ -2440,13 +3237,21 @@
       <wsdl:input message="tns:GetSubscriptionsPricesSTWithCouponSoapIn" />
       <wsdl:output message="tns:GetSubscriptionsPricesSTWithCouponSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTWithCouponByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesSTWithCouponByIPSoapIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesSTWithCouponByIPSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesST">
       <wsdl:input message="tns:GetItemsPricesSTSoapIn" />
       <wsdl:output message="tns:GetItemsPricesSTSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="CC_ChargeUserForSubscription">
-      <wsdl:input message="tns:CC_ChargeUserForSubscriptionSoapIn" />
-      <wsdl:output message="tns:CC_ChargeUserForSubscriptionSoapOut" />
+    <wsdl:operation name="GetItemsPricesSTByIP">
+      <wsdl:input message="tns:GetItemsPricesSTByIPSoapIn" />
+      <wsdl:output message="tns:GetItemsPricesSTByIPSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForSubscription">
+      <wsdl:input message="tns:Cellular_ChargeUserForSubscriptionSoapIn" />
+      <wsdl:output message="tns:Cellular_ChargeUserForSubscriptionSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="CC_DummyChargeUserForSubscription">
       <wsdl:input message="tns:CC_DummyChargeUserForSubscriptionSoapIn" />
@@ -2460,13 +3265,17 @@
       <wsdl:input message="tns:CC_DummyChargeUserForPrePaidSoapIn" />
       <wsdl:output message="tns:CC_DummyChargeUserForPrePaidSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
+      <wsdl:input message="tns:CC_DummyChargeUserForMediaFileSoapIn" />
+      <wsdl:output message="tns:CC_DummyChargeUserForMediaFileSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="CC_ChargeUserForMediaFile">
       <wsdl:input message="tns:CC_ChargeUserForMediaFileSoapIn" />
       <wsdl:output message="tns:CC_ChargeUserForMediaFileSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
-      <wsdl:input message="tns:CC_DummyChargeUserForMediaFileSoapIn" />
-      <wsdl:output message="tns:CC_DummyChargeUserForMediaFileSoapOut" />
+    <wsdl:operation name="CC_ChargeUserForSubscription">
+      <wsdl:input message="tns:CC_ChargeUserForSubscriptionSoapIn" />
+      <wsdl:output message="tns:CC_ChargeUserForSubscriptionSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="PU_GetPPVPopupPaymentMethodURL">
       <wsdl:input message="tns:PU_GetPPVPopupPaymentMethodURLSoapIn" />
@@ -2520,15 +3329,31 @@
       <wsdl:input message="tns:GetItemLeftViewLifeCycleSoapIn" />
       <wsdl:output message="tns:GetItemLeftViewLifeCycleSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUserForMediaFile">
+      <wsdl:input message="tns:InApp_ChargeUserForMediaFileSoapIn" />
+      <wsdl:output message="tns:InApp_ChargeUserForMediaFileSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="InApp_ChargeUserForSubscription">
       <wsdl:input message="tns:InApp_ChargeUserForSubscriptionSoapIn" />
       <wsdl:output message="tns:InApp_ChargeUserForSubscriptionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGoogleSignature">
+      <wsdl:input message="tns:GetGoogleSignatureSoapIn" />
+      <wsdl:output message="tns:GetGoogleSignatureSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForMediaFile">
+      <wsdl:input message="tns:Cellular_ChargeUserForMediaFileSoapIn" />
+      <wsdl:output message="tns:Cellular_ChargeUserForMediaFileSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
       <wsdl:output message="tns:GetUserPermittedItemsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedItems">
+      <wsdl:input message="tns:GetDomainPermittedItemsHttpPostIn" />
+      <wsdl:output message="tns:GetDomainPermittedItemsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserExpiredItems">
       <wsdl:input message="tns:GetUserExpiredItemsHttpPostIn" />
@@ -2542,9 +3367,17 @@
       <wsdl:input message="tns:GetLicensedLinkHttpPostIn" />
       <wsdl:output message="tns:GetLicensedLinkHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetEPGLicensedLink">
+      <wsdl:input message="tns:GetEPGLicensedLinkHttpPostIn" />
+      <wsdl:output message="tns:GetEPGLicensedLinkHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetLicensedLinkWithCoupon">
       <wsdl:input message="tns:GetLicensedLinkWithCouponHttpPostIn" />
       <wsdl:output message="tns:GetLicensedLinkWithCouponHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedSubscriptions">
+      <wsdl:input message="tns:GetDomainPermittedSubscriptionsHttpPostIn" />
+      <wsdl:output message="tns:GetDomainPermittedSubscriptionsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedSubscriptions">
       <wsdl:input message="tns:GetUserPermittedSubscriptionsHttpPostIn" />
@@ -2557,6 +3390,14 @@
     <wsdl:operation name="IsPermittedItem">
       <wsdl:input message="tns:IsPermittedItemHttpPostIn" />
       <wsdl:output message="tns:IsPermittedItemHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUsersBillingHistory">
+      <wsdl:input message="tns:GetUsersBillingHistoryHttpPostIn" />
+      <wsdl:output message="tns:GetUsersBillingHistoryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainsBillingHistory">
+      <wsdl:input message="tns:GetDomainsBillingHistoryHttpPostIn" />
+      <wsdl:output message="tns:GetDomainsBillingHistoryHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserBillingHistory">
       <wsdl:input message="tns:GetUserBillingHistoryHttpPostIn" />
@@ -2578,13 +3419,25 @@
       <wsdl:input message="tns:GetItemsPricesHttpPostIn" />
       <wsdl:output message="tns:GetItemsPricesHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesByIP">
+      <wsdl:input message="tns:GetItemsPricesByIPHttpPostIn" />
+      <wsdl:output message="tns:GetItemsPricesByIPHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesWithCoupons">
       <wsdl:input message="tns:GetItemsPricesWithCouponsHttpPostIn" />
       <wsdl:output message="tns:GetItemsPricesWithCouponsHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesWithCouponsByIP">
+      <wsdl:input message="tns:GetItemsPricesWithCouponsByIPHttpPostIn" />
+      <wsdl:output message="tns:GetItemsPricesWithCouponsByIPHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPrices">
       <wsdl:input message="tns:GetSubscriptionsPricesHttpPostIn" />
       <wsdl:output message="tns:GetSubscriptionsPricesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesByIPHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesByIPHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetPrePaidPrices">
       <wsdl:input message="tns:GetPrePaidPricesHttpPostIn" />
@@ -2594,9 +3447,17 @@
       <wsdl:input message="tns:GetSubscriptionsPricesWithCouponHttpPostIn" />
       <wsdl:output message="tns:GetSubscriptionsPricesWithCouponHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesWithCouponByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesWithCouponByIPHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesWithCouponByIPHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPricesST">
       <wsdl:input message="tns:GetSubscriptionsPricesSTHttpPostIn" />
       <wsdl:output message="tns:GetSubscriptionsPricesSTHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesSTByIPHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesSTByIPHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetPrePaidPricesST">
       <wsdl:input message="tns:GetPrePaidPricesSTHttpPostIn" />
@@ -2606,13 +3467,21 @@
       <wsdl:input message="tns:GetSubscriptionsPricesSTWithCouponHttpPostIn" />
       <wsdl:output message="tns:GetSubscriptionsPricesSTWithCouponHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTWithCouponByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesSTWithCouponByIPHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesSTWithCouponByIPHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesST">
       <wsdl:input message="tns:GetItemsPricesSTHttpPostIn" />
       <wsdl:output message="tns:GetItemsPricesSTHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="CC_ChargeUserForSubscription">
-      <wsdl:input message="tns:CC_ChargeUserForSubscriptionHttpPostIn" />
-      <wsdl:output message="tns:CC_ChargeUserForSubscriptionHttpPostOut" />
+    <wsdl:operation name="GetItemsPricesSTByIP">
+      <wsdl:input message="tns:GetItemsPricesSTByIPHttpPostIn" />
+      <wsdl:output message="tns:GetItemsPricesSTByIPHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForSubscription">
+      <wsdl:input message="tns:Cellular_ChargeUserForSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:Cellular_ChargeUserForSubscriptionHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="CC_DummyChargeUserForSubscription">
       <wsdl:input message="tns:CC_DummyChargeUserForSubscriptionHttpPostIn" />
@@ -2626,13 +3495,17 @@
       <wsdl:input message="tns:CC_DummyChargeUserForPrePaidHttpPostIn" />
       <wsdl:output message="tns:CC_DummyChargeUserForPrePaidHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
+      <wsdl:input message="tns:CC_DummyChargeUserForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:CC_DummyChargeUserForMediaFileHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="CC_ChargeUserForMediaFile">
       <wsdl:input message="tns:CC_ChargeUserForMediaFileHttpPostIn" />
       <wsdl:output message="tns:CC_ChargeUserForMediaFileHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
-      <wsdl:input message="tns:CC_DummyChargeUserForMediaFileHttpPostIn" />
-      <wsdl:output message="tns:CC_DummyChargeUserForMediaFileHttpPostOut" />
+    <wsdl:operation name="CC_ChargeUserForSubscription">
+      <wsdl:input message="tns:CC_ChargeUserForSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:CC_ChargeUserForSubscriptionHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="PU_GetPPVPopupPaymentMethodURL">
       <wsdl:input message="tns:PU_GetPPVPopupPaymentMethodURLHttpPostIn" />
@@ -2686,15 +3559,36 @@
       <wsdl:input message="tns:GetItemLeftViewLifeCycleHttpPostIn" />
       <wsdl:output message="tns:GetItemLeftViewLifeCycleHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUserForMediaFile">
+      <wsdl:input message="tns:InApp_ChargeUserForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:InApp_ChargeUserForMediaFileHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="InApp_ChargeUserForSubscription">
       <wsdl:input message="tns:InApp_ChargeUserForSubscriptionHttpPostIn" />
       <wsdl:output message="tns:InApp_ChargeUserForSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGoogleSignature">
+      <wsdl:input message="tns:GetGoogleSignatureHttpPostIn" />
+      <wsdl:output message="tns:GetGoogleSignatureHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForMediaFile">
+      <wsdl:input message="tns:Cellular_ChargeUserForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:Cellular_ChargeUserForMediaFileHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="GetUserPermittedItems">
       <soap:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedItems">
+      <soap:operation soapAction="http://ca.tvinci.com/GetDomainPermittedItems" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2729,6 +3623,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetEPGLicensedLink">
+      <soap:operation soapAction="http://ca.tvinci.com/GetEPGLicensedLink" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetLicensedLinkWithCoupon">
       <soap:operation soapAction="http://ca.tvinci.com/GetLicensedLinkWithCoupon" style="document" />
       <wsdl:input>
@@ -2749,6 +3652,15 @@
     </wsdl:operation>
     <wsdl:operation name="ActivateCampaignWithInfo">
       <soap:operation soapAction="http://ca.tvinci.com/ActivateCampaignWithInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedSubscriptions">
+      <soap:operation soapAction="http://ca.tvinci.com/GetDomainPermittedSubscriptions" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2785,6 +3697,24 @@
     </wsdl:operation>
     <wsdl:operation name="IsPermittedSubscription">
       <soap:operation soapAction="http://ca.tvinci.com/IsPermittedSubscription" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUsersBillingHistory">
+      <soap:operation soapAction="http://ca.tvinci.com/GetUsersBillingHistory" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainsBillingHistory">
+      <soap:operation soapAction="http://ca.tvinci.com/GetDomainsBillingHistory" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2855,6 +3785,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesByIP">
+      <soap:operation soapAction="http://ca.tvinci.com/GetItemsPricesByIP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesWithCoupons">
       <soap:operation soapAction="http://ca.tvinci.com/GetItemsPricesWithCoupons" style="document" />
       <wsdl:input>
@@ -2864,8 +3803,26 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesWithCouponsByIP">
+      <soap:operation soapAction="http://ca.tvinci.com/GetItemsPricesWithCouponsByIP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPrices">
       <soap:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPrices" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesByIP">
+      <soap:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesByIP" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2891,8 +3848,26 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesWithCouponByIP">
+      <soap:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesWithCouponByIP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPricesST">
       <soap:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesST" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTByIP">
+      <soap:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesSTByIP" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2918,6 +3893,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTWithCouponByIP">
+      <soap:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesSTWithCouponByIP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesST">
       <soap:operation soapAction="http://ca.tvinci.com/GetItemsPricesST" style="document" />
       <wsdl:input>
@@ -2927,8 +3911,17 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="CC_ChargeUserForSubscription">
-      <soap:operation soapAction="http://ca.tvinci.com/CC_ChargeUserForSubscription" style="document" />
+    <wsdl:operation name="GetItemsPricesSTByIP">
+      <soap:operation soapAction="http://ca.tvinci.com/GetItemsPricesSTByIP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForSubscription">
+      <soap:operation soapAction="http://ca.tvinci.com/Cellular_ChargeUserForSubscription" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2963,6 +3956,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
+      <soap:operation soapAction="http://ca.tvinci.com/CC_DummyChargeUserForMediaFile" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="CC_ChargeUserForMediaFile">
       <soap:operation soapAction="http://ca.tvinci.com/CC_ChargeUserForMediaFile" style="document" />
       <wsdl:input>
@@ -2972,8 +3974,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
-      <soap:operation soapAction="http://ca.tvinci.com/CC_DummyChargeUserForMediaFile" style="document" />
+    <wsdl:operation name="CC_ChargeUserForSubscription">
+      <soap:operation soapAction="http://ca.tvinci.com/CC_ChargeUserForSubscription" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3098,8 +4100,35 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUserForMediaFile">
+      <soap:operation soapAction="http://ca.tvinci.com/InApp_ChargeUserForMediaFile" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InApp_ChargeUserForSubscription">
       <soap:operation soapAction="http://ca.tvinci.com/InApp_ChargeUserForSubscription" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGoogleSignature">
+      <soap:operation soapAction="http://ca.tvinci.com/GetGoogleSignature" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForMediaFile">
+      <soap:operation soapAction="http://ca.tvinci.com/Cellular_ChargeUserForMediaFile" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3112,6 +4141,15 @@
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="GetUserPermittedItems">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedItems">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetDomainPermittedItems" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3146,6 +4184,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetEPGLicensedLink">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetEPGLicensedLink" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetLicensedLinkWithCoupon">
       <soap12:operation soapAction="http://ca.tvinci.com/GetLicensedLinkWithCoupon" style="document" />
       <wsdl:input>
@@ -3166,6 +4213,15 @@
     </wsdl:operation>
     <wsdl:operation name="ActivateCampaignWithInfo">
       <soap12:operation soapAction="http://ca.tvinci.com/ActivateCampaignWithInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedSubscriptions">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetDomainPermittedSubscriptions" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3202,6 +4258,24 @@
     </wsdl:operation>
     <wsdl:operation name="IsPermittedSubscription">
       <soap12:operation soapAction="http://ca.tvinci.com/IsPermittedSubscription" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUsersBillingHistory">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetUsersBillingHistory" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainsBillingHistory">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetDomainsBillingHistory" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3272,6 +4346,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesByIP">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetItemsPricesByIP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesWithCoupons">
       <soap12:operation soapAction="http://ca.tvinci.com/GetItemsPricesWithCoupons" style="document" />
       <wsdl:input>
@@ -3281,8 +4364,26 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesWithCouponsByIP">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetItemsPricesWithCouponsByIP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPrices">
       <soap12:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPrices" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesByIP">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesByIP" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3308,8 +4409,26 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesWithCouponByIP">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesWithCouponByIP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPricesST">
       <soap12:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesST" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTByIP">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesSTByIP" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3335,6 +4454,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTWithCouponByIP">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetSubscriptionsPricesSTWithCouponByIP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesST">
       <soap12:operation soapAction="http://ca.tvinci.com/GetItemsPricesST" style="document" />
       <wsdl:input>
@@ -3344,8 +4472,17 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="CC_ChargeUserForSubscription">
-      <soap12:operation soapAction="http://ca.tvinci.com/CC_ChargeUserForSubscription" style="document" />
+    <wsdl:operation name="GetItemsPricesSTByIP">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetItemsPricesSTByIP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForSubscription">
+      <soap12:operation soapAction="http://ca.tvinci.com/Cellular_ChargeUserForSubscription" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3380,6 +4517,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
+      <soap12:operation soapAction="http://ca.tvinci.com/CC_DummyChargeUserForMediaFile" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="CC_ChargeUserForMediaFile">
       <soap12:operation soapAction="http://ca.tvinci.com/CC_ChargeUserForMediaFile" style="document" />
       <wsdl:input>
@@ -3389,8 +4535,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
-      <soap12:operation soapAction="http://ca.tvinci.com/CC_DummyChargeUserForMediaFile" style="document" />
+    <wsdl:operation name="CC_ChargeUserForSubscription">
+      <soap12:operation soapAction="http://ca.tvinci.com/CC_ChargeUserForSubscription" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3515,8 +4661,35 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUserForMediaFile">
+      <soap12:operation soapAction="http://ca.tvinci.com/InApp_ChargeUserForMediaFile" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InApp_ChargeUserForSubscription">
       <soap12:operation soapAction="http://ca.tvinci.com/InApp_ChargeUserForSubscription" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGoogleSignature">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetGoogleSignature" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForMediaFile">
+      <soap12:operation soapAction="http://ca.tvinci.com/Cellular_ChargeUserForMediaFile" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3529,6 +4702,15 @@
     <http:binding verb="POST" />
     <wsdl:operation name="GetUserPermittedItems">
       <http:operation location="/GetUserPermittedItems" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedItems">
+      <http:operation location="/GetDomainPermittedItems" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -3563,8 +4745,26 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetEPGLicensedLink">
+      <http:operation location="/GetEPGLicensedLink" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetLicensedLinkWithCoupon">
       <http:operation location="/GetLicensedLinkWithCoupon" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedSubscriptions">
+      <http:operation location="/GetDomainPermittedSubscriptions" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -3592,6 +4792,24 @@
     </wsdl:operation>
     <wsdl:operation name="IsPermittedItem">
       <http:operation location="/IsPermittedItem" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUsersBillingHistory">
+      <http:operation location="/GetUsersBillingHistory" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainsBillingHistory">
+      <http:operation location="/GetDomainsBillingHistory" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -3644,6 +4862,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesByIP">
+      <http:operation location="/GetItemsPricesByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesWithCoupons">
       <http:operation location="/GetItemsPricesWithCoupons" />
       <wsdl:input>
@@ -3653,8 +4880,26 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesWithCouponsByIP">
+      <http:operation location="/GetItemsPricesWithCouponsByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPrices">
       <http:operation location="/GetSubscriptionsPrices" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesByIP">
+      <http:operation location="/GetSubscriptionsPricesByIP" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -3680,8 +4925,26 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesWithCouponByIP">
+      <http:operation location="/GetSubscriptionsPricesWithCouponByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsPricesST">
       <http:operation location="/GetSubscriptionsPricesST" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTByIP">
+      <http:operation location="/GetSubscriptionsPricesSTByIP" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -3707,6 +4970,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTWithCouponByIP">
+      <http:operation location="/GetSubscriptionsPricesSTWithCouponByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetItemsPricesST">
       <http:operation location="/GetItemsPricesST" />
       <wsdl:input>
@@ -3716,8 +4988,17 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="CC_ChargeUserForSubscription">
-      <http:operation location="/CC_ChargeUserForSubscription" />
+    <wsdl:operation name="GetItemsPricesSTByIP">
+      <http:operation location="/GetItemsPricesSTByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForSubscription">
+      <http:operation location="/Cellular_ChargeUserForSubscription" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -3752,6 +5033,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
+      <http:operation location="/CC_DummyChargeUserForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="CC_ChargeUserForMediaFile">
       <http:operation location="/CC_ChargeUserForMediaFile" />
       <wsdl:input>
@@ -3761,8 +5051,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
-      <http:operation location="/CC_DummyChargeUserForMediaFile" />
+    <wsdl:operation name="CC_ChargeUserForSubscription">
+      <http:operation location="/CC_ChargeUserForSubscription" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -3887,8 +5177,35 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUserForMediaFile">
+      <http:operation location="/InApp_ChargeUserForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InApp_ChargeUserForSubscription">
       <http:operation location="/InApp_ChargeUserForSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGoogleSignature">
+      <http:operation location="/GetGoogleSignature" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForMediaFile">
+      <http:operation location="/Cellular_ChargeUserForMediaFile" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -3899,13 +5216,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="https://platform-us.tvinci.com/ca/module.asmx" />
+      <soap:address location="http://192.168.16.176/webservices/cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="https://platform-us.tvinci.com/ca/module.asmx" />
+      <soap12:address location="http://192.168.16.176/webservices/cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="https://platform-us.tvinci.com/ca/module.asmx" />
+      <http:address location="http://192.168.16.176/webservices/cas/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

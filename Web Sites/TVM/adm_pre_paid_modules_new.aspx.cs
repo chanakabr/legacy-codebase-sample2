@@ -280,10 +280,7 @@ public partial class adm_pre_paid_modules_new : System.Web.UI.Page
 
     static protected string GetWSURL()
     {
-        if (ConfigurationManager.AppSettings["pricing_ws"] != null &&
-            ConfigurationManager.AppSettings["pricing_ws"].ToString() != "")
-            return ConfigurationManager.AppSettings["pricing_ws"].ToString();
-        return "";
+        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
     }
 
     protected System.Data.DataTable GetBaseDT()

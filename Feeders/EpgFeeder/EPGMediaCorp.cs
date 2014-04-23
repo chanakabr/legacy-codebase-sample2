@@ -135,6 +135,36 @@ namespace EpgFeeder
             }
             return res;
         }
+
+        private void DeleteProgramsByChannelAndDate(Int32 channelID, DateTime dProgStartDate)
+        {
+            DateTime dProgEndDate = dProgStartDate.AddDays(1).AddMilliseconds(-1);
+                       
+            #region Delete all existing programs in CB that have start/end dates within the new schedule
+            int nParentGroupID = int.Parse(m_ParentGroupId);
+            BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);
+            List<DateTime> lDates = new List<DateTime>() { dProgStartDate }; 
+
+            Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID), "EpgFeeder");
+
+            oEpgBL.RemoveGroupPrograms(lDates, channelID);
+            #endregion
+
+            #region Delete all existing programs in DB that have start/end dates within the new schedule
+
+            DeleteScheduleProgramByDate(channelID, dProgStartDate);
+            
+            #endregion
+
+            #region Delete all existing programs in ES that have start/end dates within the new schedule
+            bool resDelete = Utils.DeleteEPGDocFromES(m_ParentGroupId, channelID, lDates);
+            #endregion
+
+        }
+
+
+
+
         /// <summary>
         /// Save EPG schedule program from file name
         /// </summary>
@@ -176,10 +206,18 @@ namespace EpgFeeder
                     List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
 
                     EPGDateRang = new List<DateTime>();
+                    
+                    string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
+                    int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package); 
+                    int nCount = 0;
+                    List<ulong> ulProgram =  new List<ulong>();
+
+                  
                     foreach (XmlNode node in xmlnodelist)
                     {
                         try
                         {
+                            nCount++;
                             Guid EPGGuid = Guid.NewGuid();
 
                             #region Basic xml Data
@@ -198,6 +236,13 @@ namespace EpgFeeder
                             #region Set field mapping valus
                             SetMappingValues(FieldEntityMapping, node);
                             #endregion
+                            
+                            #region Delete Programs by channel + date                            
+                                
+                                DateTime dDate = ParseEPGStrToDate(schedule_date, "000000");// get all day start from 00:00:00
+                                DeleteProgramsByChannelAndDate(channelID, dDate);
+                            
+                            #endregion 
 
                             #region Insert EPG Program Schedule
 
@@ -206,10 +251,29 @@ namespace EpgFeeder
                             AddDateRange(dProgStartDate);
 
                             InsertProgramSchedule(program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate);
-                            EpgCB newEpgItem = InsertProgramScheduleCB(program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);
+                            ProgramID = GetProgramIDByEPGIdentifier(EPGGuid);
+                            ulong uProgramID = (ulong)ProgramID;
+
+                            EpgCB newEpgItem = InsertProgramScheduleCB(uProgramID, program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);                          
                             #endregion
 
-                            ProgramID = GetProgramIDByEPGIdentifier(EPGGuid);
+                            #region Insert EpgProgram ES
+
+                            if (nCount >= nCountPackage)
+                            {                                
+                                int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                                bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
+                                
+                                ulProgram = new List<ulong>();
+                                nCount = 0;
+                            }
+                            else
+                            {
+                                ulProgram.Add(uProgramID);
+                            }
+                            
+                            #endregion
+                           
 
                             if (ProgramID > 0)
                             {
@@ -287,6 +351,12 @@ namespace EpgFeeder
                             Logger.Logger.Log("Media Corp: Add Program Error ", string.Format("there an error occurring during the insert Program Schedule '{0}'\r\n\r\nError : {1} \r\n StackTrace : {2}  \r\n\r\nXmlNode : {3}\r\n", sFileName, exp.Message, exp.StackTrace, node.InnerXml), LogFileName, string.Format("there an error occurring during the insert Program Schedule '{0}'", sFileName));
 
                         }
+                    }
+
+                    if (nCount > 0 && ulProgram != null && ulProgram.Count > 0)
+                    {
+                        int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                        bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
                     }
 
                     //start Upload proccess Queue
@@ -377,12 +447,8 @@ namespace EpgFeeder
                 ODBCWrapper.InsertQuery insertProgQuery = new ODBCWrapper.InsertQuery("epg_channels_schedule");
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", string.Format("{0} {1} {2}", program_desc_english, program_desc_chinese, episode_no));
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", string.Format("{0} {1}", syp, syp_chi));
-
-
-
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", s_GroupID);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
-
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", EPGGuid);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", 0);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dProgStartDate);
@@ -405,15 +471,17 @@ namespace EpgFeeder
                 Logger.Logger.Log("InsertProgramSchedule", string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), LogFileName);
             }
         }
-        private EpgCB InsertProgramScheduleCB(string program_desc_english, string program_desc_chinese, string episode_no, string syp, string syp_chi,
+        private EpgCB InsertProgramScheduleCB(ulong uProgramID, string program_desc_english, string program_desc_chinese, string episode_no, string syp, string syp_chi,
             int channelID, string EPGGuid, DateTime dProgStartDate, DateTime dProgEndDate, XmlNode progItem)
         {
             ulong epgID = 0;
             EpgCB newEpgItem = new EpgCB();
             try
             {   
-                BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId)); 
+                BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId));
 
+                Logger.Logger.Log("InsertProgramScheduleCB", string.Format("EpgID '{0}' ", uProgramID), LogFileName);
+                newEpgItem.EpgID = uProgramID;
                 newEpgItem.ChannelID = channelID;
                 newEpgItem.Name = string.Format("{0} {1} {2}", program_desc_english, program_desc_chinese, episode_no);
                 newEpgItem.Description = string.Format("{0} {1}", syp, syp_chi);

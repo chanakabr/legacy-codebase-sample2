@@ -154,6 +154,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
                     insertQuery = null;
                 }
 
+                //bool update = true;
                 if (nSubscriptionName != 0)
                 {
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscription_names");
@@ -174,6 +175,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
                 }
                 else
                 {
+                    update = false;
                     ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("subscription_names");
                     insertQuery.SetConnectionKey("pricing_connection");
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_id", "=", nSuscriptionID);
@@ -199,10 +201,14 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
 
                     if (t != null)
                     {
-                        t.NotifyChange(nSuscriptionID.ToString(), update);
-                    }
+                        string errorMessage = "";
+                        t.NotifyChange(nSuscriptionID.ToString(), ref errorMessage, Convert.ToInt32(update));
 
-                    //return;
+                        if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            HttpContext.Current.Session["error_msg_sub"] = "Error in Subscription ID " + nSuscriptionID + ":\r\n" + errorMessage;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -408,10 +414,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
 
     static protected string GetWSURL()
     {
-        if (ConfigurationManager.AppSettings["pricing_ws"] != null &&
-            ConfigurationManager.AppSettings["pricing_ws"].ToString() != "")
-            return ConfigurationManager.AppSettings["pricing_ws"].ToString();
-        return "";
+        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
     }
 
     protected string GetCurrentValue(string sField, string sTable, Int32 nsubscription_idID, string sLangCode, string sConnKey)

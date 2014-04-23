@@ -109,6 +109,8 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         if (Session["limit_id"] != null && Session["limit_id"].ToString() != "" && int.Parse(Session["limit_id"].ToString()) != 0)
             t = Session["limit_id"];
         string sBack = "adm_device_limitation_modules.aspx?search_save=1";
+
+        int nGroupID = LoginManager.GetLoginGroupID();
         DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_device_limitation_modules", "adm_table_pager", sBack, "", "ID", t, sBack, "");
 
         DataRecordShortTextField dr_Name = new DataRecordShortTextField("ltr", true, 60, 128);
@@ -125,15 +127,59 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
-        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        dr_groups.SetValue(nGroupID.ToString());
         theRecord.AddRecord(dr_groups);
 
         DataRecordShortIntField dr_concurrent_limit = new DataRecordShortIntField(true, 9, 9);
         dr_concurrent_limit.Initialize("Concurrent Limit", "adm_table_header_nbg", "FormInput", "concurrent_max_limit", false);
-        theRecord.AddRecord(dr_concurrent_limit);
+        theRecord.AddRecord(dr_concurrent_limit);        
+        
+        DataRecordDropDownField dr_env_type = new DataRecordDropDownField("lu_domain_environment", "Description", "ID", string.Empty, string.Empty, 60, true);
+        string sQuery = "select Description as txt,ID from lu_domain_environment"; 
+        dr_env_type.SetSelectsQuery(sQuery);            
+        dr_env_type.Initialize("Environment type", "adm_table_header_nbg", "FormInput", "environment_type", false);      
+        //dr_env_type.SetConnectionKey("users_connection");
+        dr_env_type.SetDefaultVal(getDomainEnvironment(nGroupID, t));
+        theRecord.AddRecord(dr_env_type);
+
+        DataRecordShortIntField dr_hn_limit = new DataRecordShortIntField(true, 9, 9);
+        dr_hn_limit.Initialize("Home Network Limit", "adm_table_header_nbg", "FormInput", "Home_network_quantity", false);
+        theRecord.AddRecord(dr_hn_limit);
+
+        DataRecordDropDownField dr_hn_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
+        dr_hn_frequency.Initialize("Home Network Frequency", "adm_table_header_nbg", "FormInput", "Home_network_frequency", false);
+        theRecord.AddRecord(dr_hn_frequency);
 
         string sTable = theRecord.GetTableHTML("adm_device_limitation_modules_new.aspx?submited=1");
 
         return sTable;
+    }
+
+    private string getDomainEnvironment(int nGroupID, object t)
+    {
+        string sDomainEnv = "";
+        if (t != null)
+        {
+            int nRowID = int.Parse(t.ToString());
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+          //  selectQuery.SetConnectionKey("CONNECTION_STRING");
+            selectQuery += "select glimit.ID, dm.description from groups g (nolock)";
+            selectQuery += "inner Join groups_device_limitation_modules glimit (nolock) on";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("glimit.ID", "=", nRowID);
+            selectQuery += "Inner Join lu_domain_environment dm (nolock) on dm.ID = glimit.environment_type where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.ID", "=", nGroupID);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    sDomainEnv = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "description", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+        return sDomainEnv;
     }
 }
