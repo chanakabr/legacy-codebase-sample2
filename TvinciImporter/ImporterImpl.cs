@@ -3302,7 +3302,7 @@ namespace TvinciImporter
             }
             return true;
         }
-
+         //get tags by group and by non group 
         static protected Int32 GetTagTypeID(Int32 nGroupID, string sTagName)
         {
             if (sTagName.ToLower().Trim() == "free")
