@@ -1089,7 +1089,7 @@ namespace Users
         {
             UserResponseObject ret = new UserResponseObject();
             UserResponseObject uro = User.CheckUserPassword(sUN, sOldPass, 3, 3, nGroupID, false, true);
-            if (uro.m_user == null)
+            if (uro.m_RespStatus != ResponseStatus.OK)
             {
                 ret.m_RespStatus = uro.m_RespStatus;
                 ret.m_user = null;
@@ -1141,7 +1141,7 @@ namespace Users
         {
             DataTable dt = DAL.UsersDal.GenerateToken(sUN, m_nGroupID, m_nTokenValidityHours);
 
-            if (dt != null && dt.Rows != null != dt.Rows.Count > 0)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 DataRow dr = dt.Rows[0];
 
