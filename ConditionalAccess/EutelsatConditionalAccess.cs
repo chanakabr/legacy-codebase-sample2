@@ -1055,7 +1055,6 @@ namespace ConditionalAccess
                             }
 
                             break;
-
                         case eEPGFormatType.LivePause:
 
                             DateTime startTimeUTC = startTime.ToUniversalTime();
