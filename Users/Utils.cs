@@ -13,6 +13,7 @@ namespace Users
         public const int USER_COGUID_LENGTH = 15;
         internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the
         // default result of GetDateSafeVal in ODBCWrapper.Utils
+        internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000;
 
         static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers t)
         {

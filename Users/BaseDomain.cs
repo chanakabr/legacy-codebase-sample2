@@ -437,7 +437,7 @@ namespace Users
                 {
                     case ValidationType.Concurrency:
                         {
-                            res = domain.ValidateConcurrency(sUDID, nDeviceBrandID);
+                            res = domain.ValidateConcurrency(sUDID, nDeviceBrandID, lDomainID);
                             break;
                         }
                     case ValidationType.Frequency:

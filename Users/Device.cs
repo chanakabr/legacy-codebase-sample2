@@ -82,7 +82,7 @@ namespace Users
 
             string sDbState = string.Empty;
 
-            bool res = DAL.DeviceDal.InitDeviceInDb(nDeviceID, nDomainID,
+            bool res = DeviceDal.InitDeviceInDb(nDeviceID, nDomainID,
                                                 ref m_groupID, ref m_deviceUDID, ref m_deviceBrandID, ref m_deviceName, ref m_deviceFamilyID, ref m_pin, ref m_activationDate, ref sDbState);
 
 
@@ -446,7 +446,7 @@ namespace Users
 
         public bool Equals(Device other)
         {
-            return m_deviceUDID.Equals(other.m_deviceUDID);
+            return m_deviceFamilyID == other.m_deviceFamilyID && m_deviceUDID.Equals(other.m_deviceUDID);
         }
     }
 }

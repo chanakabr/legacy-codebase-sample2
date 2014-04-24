@@ -118,7 +118,8 @@ namespace Users
         RequestSent = 20,
         DeviceNotConfirmed = 21,
         RequestFailed = 22,
-        InvalidUser = 23
+        InvalidUser = 23,
+        ConcurrencyLimitation = 24
     }
 
     public enum DeviceResponseStatus

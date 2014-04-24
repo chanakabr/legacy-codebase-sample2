@@ -42,6 +42,8 @@ namespace Catalog
                 MediaLastPositionRequest req = null;
                 MediaLastPositionResponse res = null;
 
+                CheckSignature(oBaseRequest);
+
                 if (oBaseRequest != null)
                 {
                     req = (MediaLastPositionRequest)oBaseRequest;
@@ -66,17 +68,26 @@ namespace Catalog
         private MediaLastPositionResponse ProcessMediaLastPositionRequest(MediaLastPositionRequest request)
         {
             MediaLastPositionResponse response = new MediaLastPositionResponse();
+            int nSiteGuid = 0;
 
-            if (request.data.m_nMediaID == 0 || request.data.m_sSiteGuid == 0)
+            if (request.data.m_nMediaID == 0 || string.IsNullOrEmpty(request.data.m_sSiteGuid) || !Int32.TryParse(request.data.m_sSiteGuid, out nSiteGuid) || nSiteGuid == 0)
             {
                 response.m_sStatus = "INVALID_PARAMS";
                 return response;
             }
 
-            var pos = Catalog.GetLastPosition(request.data.m_nMediaID, request.data.m_sSiteGuid);
+            var pos = Catalog.GetLastPosition(request.data.m_nMediaID, nSiteGuid);
             response.Location = pos;
 
             return response;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(base.ToString());
+            sb.Append(data != null ? data.ToString() : " data is null");
+
+            return sb.ToString();
         }
     }
 }

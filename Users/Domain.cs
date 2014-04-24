@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using ApiObjects.MediaMarks;
+using Tvinci.Core.DAL;
+using DAL;
 
 namespace Users
 {
@@ -89,6 +92,9 @@ namespace Users
         [NonSerialized]
         public LimitationsManager m_oLimitationsManager;
 
+        [NonSerialized]
+        public Dictionary<string, int> m_oUDIDToDeviceFamilyMapping;
+
         #endregion
 
 
@@ -116,6 +122,8 @@ namespace Users
 
             m_oLimitationsManager = new LimitationsManager();
 
+            m_oUDIDToDeviceFamilyMapping = new Dictionary<string, int>();
+
         }
 
         public Domain(int nDomainID)
@@ -140,9 +148,10 @@ namespace Users
             int nUserLimit = 0;
             int nConcurrentLimit = 0;
             int nGroupConcurrentLimit = 0;
-            int nDomainLimitID = DAL.DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit);
+            int nDeviceFreqLimit = 0;
+            int nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit);
 
-            bool bInserRes = DAL.DomainDal.InsertNewDomain(sName, sDescription, nGroupID, dDateTime, nDomainLimitID, sCoGuid);
+            bool bInserRes = DomainDal.InsertNewDomain(sName, sDescription, nGroupID, dDateTime, nDomainLimitID, sCoGuid);
 
             if (!bInserRes)
             {
@@ -170,6 +179,10 @@ namespace Users
             m_nUserLimit = nUserLimit;
             m_nConcurrentLimit = nConcurrentLimit;
 
+            // initialize device limitations manager. user limitations are not managed through this object.
+            InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceFreqLimit, Utils.FICTIVE_DATE);
+
+
             m_DomainStatus = DomainStatus.OK;
 
             m_deviceFamilies = InitializeDeviceFamilies(nDomainLimitID, nGroupID);
@@ -189,14 +202,27 @@ namespace Users
             return this;
         }
 
+        private void InitializeLimitationsManager(int nDomainLevelConcurrentLimit, int nGroupLevelConcurrentLimit, int nDeviceQuantityLimit, int nDeviceFrequencyLimit, DateTime dtLastActionDate)
+        {
+            if (m_oLimitationsManager == null)
+                m_oLimitationsManager = new LimitationsManager();
+            m_oLimitationsManager.SetConcurrency(nDomainLevelConcurrentLimit, nGroupLevelConcurrentLimit);
+            m_oLimitationsManager.Frequency = nDeviceFrequencyLimit;
+            m_oLimitationsManager.Quantity = nDeviceQuantityLimit;
+            if (dtLastActionDate == null || dtLastActionDate.Equals(Utils.FICTIVE_DATE) || dtLastActionDate.Equals(DateTime.MinValue) || nDeviceFrequencyLimit == 0)
+                m_oLimitationsManager.NextActionFreqDate = DateTime.MinValue;
+            else
+                m_oLimitationsManager.NextActionFreqDate = Utils.GetEndDateTime(dtLastActionDate, nDeviceFrequencyLimit);
+        }
+
         public DomainResponseStatus Remove()
         {
             int isActive = 2;   // Inactive
             int status = 2;     // Removed
 
-            int statusRes = DAL.DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
+            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
 
-            return (statusRes == 2) ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
         }
 
         public DomainResponseStatus TryRemove()
@@ -232,13 +258,14 @@ namespace Users
             m_sDescription = sDescription;
 
             DomainResponseStatus dStatus = GetUserList(nDomainID, nGroupID);   // OK or NoUsersInDomain
+
             int numOfDevices = GetDeviceList();
 
             m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID);
 
-            m_DomainStatus = (dStatus == DomainResponseStatus.OK) ? DomainStatus.OK : DomainStatus.Error;
+            m_DomainStatus = dStatus == DomainResponseStatus.OK ? DomainStatus.OK : DomainStatus.Error;
 
-            return (m_DomainStatus == DomainStatus.OK);
+            return m_DomainStatus == DomainStatus.OK;
         }
 
         /// <summary>
@@ -304,7 +331,9 @@ namespace Users
             m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID);
 
             m_DomainStatus = DomainStatus.OK;
+
             return true;
+
         }
 
         /// <summary>
@@ -579,7 +608,7 @@ namespace Users
             /*
              * 1. Since frequency is defined at domain level and not in device family level we can pass a fictive (0)
              * device brand id to ValidateFrequency method
-             */ 
+             */
             if (!bIsEnable && ValidateFrequency(sUDID, 0) == DomainResponseStatus.LimitationPeriod)
             {
                 eDomainResponseStatus = DomainResponseStatus.LimitationPeriod;
@@ -1244,7 +1273,7 @@ namespace Users
 
         internal List<DeviceContainer> InitializeDeviceFamilies(int nDomainLimitID, int nGroupID)
         {
-            List<string[]> dbDeviceFamilies = DAL.DomainDal.InitializeDeviceFamilies(nDomainLimitID, nGroupID);
+            List<string[]> dbDeviceFamilies = DomainDal.InitializeDeviceFamilies(nDomainLimitID, nGroupID);
 
             List<DeviceContainer> deviceFamilies = new List<DeviceContainer>(dbDeviceFamilies.Count);
 
@@ -1281,7 +1310,7 @@ namespace Users
                 m_deviceFamilies = InitializeDeviceFamilies(m_deviceLimitationModule, m_nGroupID);
             }
 
-            List<int> devicesInDomain = DAL.DomainDal.GetDevicesInDomain(m_nGroupID, m_nDomainID);
+            List<int> devicesInDomain = DomainDal.GetDevicesInDomain(m_nGroupID, m_nDomainID);
 
             if (devicesInDomain != null && devicesInDomain.Count > 0)
             {
@@ -1295,7 +1324,7 @@ namespace Users
                     {
                         container.AddDeviceInstance(device);
 
-                        if (device.m_state == DeviceState.Activated)
+                        if (device.IsActivated())
                         {
                             m_totalNumOfDevices++;
                         }
@@ -1359,7 +1388,7 @@ namespace Users
         {
             DateTime dt = DateTime.UtcNow;
 
-            bool res = DAL.DomainDal.SetDomainFlag(domainId, val, dt, Convert.ToInt32(deviceFlag));
+            bool res = DomainDal.SetDomainFlag(domainId, val, dt, Convert.ToInt32(deviceFlag));
 
             if (res)
             {
@@ -1425,8 +1454,8 @@ namespace Users
         /// <returns>true if Query is valid</returns>
         protected bool GetDomainSettings(int nDomainID, int nGroupID)
         {
-            DateTime dDeviceFrequencyLastAction = new DateTime(2000, 1, 1);
-            DateTime dUserFrequencyLastAction = new DateTime(2000, 1, 1);
+            DateTime dDeviceFrequencyLastAction = Utils.FICTIVE_DATE;
+            DateTime dUserFrequencyLastAction = Utils.FICTIVE_DATE;
 
             string sName = string.Empty;
             string sDescription = string.Empty;
@@ -1441,24 +1470,11 @@ namespace Users
             int nUserMinPeriodId = 0;
             string sCoGuid = string.Empty;
             int nDeviceRestriction = 0;
+            int nGroupConcurrentLimit = 0;
 
-            bool res = DAL.DomainDal.GetDomainSettings(nDomainID,
-                                                        nGroupID,
-                                                        ref sName,
-                                                        ref sDescription,
-                                                        ref nDeviceLimitationModule,
-                                                        ref nDeviceLimit,
-                                                        ref nUserLimit,
-                                                        ref nConcurrentLimit,
-                                                        ref nStatus,
-                                                        ref nIsActive,
-                                                        ref nFrequencyFlag,
-                                                        ref nDeviceMinPeriodId,
-                                                        ref nUserMinPeriodId,
-                                                        ref dDeviceFrequencyLastAction,
-                                                        ref dUserFrequencyLastAction,
-                                                        ref sCoGuid,
-                                                        ref nDeviceRestriction);
+            bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
+                ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit);
 
             if (res)
             {
@@ -1475,6 +1491,8 @@ namespace Users
                 m_minUserPeriodId = nUserMinPeriodId;
                 m_sCoGuid = sCoGuid;
                 m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
+
+                InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceMinPeriodId, dDeviceFrequencyLastAction);
 
                 if (m_minPeriodId != 0)
                 {
@@ -1536,14 +1554,117 @@ namespace Users
             return retVal;
         }
 
-        public DomainResponseStatus ValidateConcurrency(string sUDID, int nDeviceBrandID)
+        public DomainResponseStatus ValidateConcurrency(string sUDID, int nDeviceBrandID, long lDomainID)
         {
-            return DomainResponseStatus.UnKnown;
+            DomainResponseStatus res = DomainResponseStatus.UnKnown;
+            if (!string.IsNullOrEmpty(sUDID))
+            {
+                Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID);
+                DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
+                if (dc != null)
+                {
+                    if (m_oLimitationsManager.Concurrency <= 0)
+                    {
+                        // there are no concurrency limitations at all.
+                        res = DomainResponseStatus.OK;
+                    }
+                    else
+                    {
+                        int nTotalStreams = 0;
+                        Dictionary<int, int> deviceFamiliesStreams = GetConcurrentCount(lDomainID, sUDID, ref nTotalStreams);
+                        if (deviceFamiliesStreams == null)
+                        {
+                            // no active streams at all
+                            res = DomainResponseStatus.OK;
+                        }
+                        else
+                        {
+                            if (nTotalStreams >= m_oLimitationsManager.Concurrency)
+                            {
+                                // Cannot allow a new stream. Domain reached its max limitation
+                                res = DomainResponseStatus.ConcurrencyLimitation;
+                            }
+                            else
+                            {
+                                if (deviceFamiliesStreams.ContainsKey(device.m_deviceFamilyID))
+                                {
+                                    if (deviceFamiliesStreams[device.m_deviceFamilyID] >= dc.m_oLimitationsManager.Concurrency)
+                                    {
+                                        // device family reached its max limit. Cannot allow a new stream
+                                        res = DomainResponseStatus.ConcurrencyLimitation;
+                                    }
+                                    else
+                                    {
+                                        // User is able to watch through this device. Hasn't reach the device family max limitation
+                                        res = DomainResponseStatus.OK;
+                                    }
+                                }
+                                else
+                                {
+                                    // no active streams at the device's family.
+                                    res = DomainResponseStatus.OK;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    res = DomainResponseStatus.DeviceTypeNotAllowed;
+                }
+            }
+            else
+            {
+                res = DomainResponseStatus.OK;
+            }
+
+            return res;
+        }
+
+        private Dictionary<int, int> GetConcurrentCount(long lDomainID, string sUDID, ref int nTotalConcurrentStreamsWithoutGivenDevice)
+        {
+            Dictionary<int, int> res = null;
+            List<UserMediaMark> positions = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+            if (positions != null)
+            {
+                res = new Dictionary<int, int>();
+                nTotalConcurrentStreamsWithoutGivenDevice = positions.Where(x => !x.UDID.Equals(sUDID) && x.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).Count();
+                var filteredPositions = positions.Where(x => !x.UDID.Equals(sUDID));
+                if (filteredPositions != null)
+                {
+                    foreach (UserMediaMark umm in filteredPositions)
+                    {
+                        int nDeviceFamilyID = 0;
+                        if (!m_oUDIDToDeviceFamilyMapping.TryGetValue(umm.UDID, out nDeviceFamilyID) || nDeviceFamilyID == 0)
+                        {
+                            // the device family id does not exist in Domain cache. Grab it from DB.
+                            int nDeviceBrandID = 0;
+                            nDeviceFamilyID = DeviceDal.GetDeviceFamilyID(m_nGroupID, umm.UDID, ref nDeviceBrandID);
+                        }
+                        if (nDeviceFamilyID > 0)
+                        {
+                            // we have device family id, increment its value in the result dictionary.
+                            if (res.ContainsKey(nDeviceFamilyID))
+                            {
+                                // increment by one
+                                res[nDeviceFamilyID]++;
+                            }
+                            else
+                            {
+                                // add the device family id to dictionary
+                                res.Add(nDeviceFamilyID, 1);
+                            }
+                        }
+                    } // end foreach
+                }
+            }
+
+            return res;
         }
 
         public DomainResponseStatus ValidateFrequency(string sUDID, int nDeviceBrandID)
         {
-            if (m_oLimitationsManager.nextActionFreqDate > DateTime.UtcNow)
+            if (m_oLimitationsManager.NextActionFreqDate > DateTime.UtcNow)
                 return DomainResponseStatus.LimitationPeriod;
             return DomainResponseStatus.OK;
         }
@@ -1551,9 +1672,9 @@ namespace Users
         public DomainResponseStatus ValidateQuantity(string sUDID, int nDeviceBrandID, DeviceContainer dc = null, Device device = null)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
-            if(device == null)
+            if (device == null)
                 device = new Device(sUDID, nDeviceBrandID, m_nGroupID);
-            if(dc == null)
+            if (dc == null)
                 dc = GetDeviceContainer(device.m_deviceFamilyID);
             if (dc == null)
             {
@@ -1600,7 +1721,7 @@ namespace Users
             DomainResponseStatus res = DomainResponseStatus.ExceededLimit;
 
             int activatedDevices = dc.GetActivatedDeviceCount();
-            if (m_totalNumOfDevices >= m_oLimitationsManager.quantity || activatedDevices >= dc.m_oLimitationsManager.quantity)
+            if (m_totalNumOfDevices >= m_oLimitationsManager.Quantity || activatedDevices >= dc.m_oLimitationsManager.Quantity)
             {
                 res = DomainResponseStatus.ExceededLimit;
             }
