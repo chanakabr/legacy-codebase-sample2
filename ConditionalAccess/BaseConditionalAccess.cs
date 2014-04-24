@@ -52,6 +52,16 @@ namespace ConditionalAccess
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
             long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID);
+
+        /*
+         * This method was created in order to solve a bug in the flow of ChargeUserForMediaFile in Cinepolis.
+         * 1. Cinepolis does not dummy charge their user. All transactions are recorded in their billing gateway,
+         *    including transactions for the price of zero.
+         * 2. However, since it is not a dummy charge (dummy charge is when you skip the step of contacting the billing gateway)
+         *    the flow in the mentioned method did not reach the step where it contacts the billing gateway.
+         * 3. This patch resolves this situation without changing any billing logic related to different customers.
+         */ 
+        protected abstract bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid);
         #endregion
 
         protected BaseConditionalAccess() { }
@@ -94,7 +104,7 @@ namespace ConditionalAccess
                     selectQuery.SetConnectionKey(connectionKey);
                 }
                 selectQuery.SetCachedSec(0);
-                selectQuery += "select * from groups_parameters where status=1 and is_active=1 and ";
+                selectQuery += "select * from groups_parameters with (nolock) where status=1 and is_active=1 and ";
                 //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
                 selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
                 selectQuery += " order by id desc";
@@ -195,7 +205,7 @@ namespace ConditionalAccess
             double tax = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("billing_connection");
-            selectQuery += " select tax_value from groups_parameters where ";
+            selectQuery += " select tax_value from groups_parameters with (nolock) where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
             if (selectQuery.Execute("query", true) != null)
             {
@@ -250,7 +260,7 @@ namespace ConditionalAccess
         {
             Int32 nLangID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select l.NAME,l.CODE3,l.id from groups g,lu_languages l where l.id=g.language_id and  ";
+            selectQuery += "select l.NAME,l.CODE3,l.id from groups g with (nolock), lu_languages l with (nolock) where l.id=g.language_id and  ";
             selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
             if (selectQuery.Execute("query", true) != null)
@@ -2231,12 +2241,12 @@ namespace ConditionalAccess
                 {
                     // card is expired. there is no point to continue trying renewing the mpp for this user.
                     // hence, we set the fail count to maximum.
-                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"));
+                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"), "CA_CONNECTION_STRING");
                 }
                 else
                 {
                     // failed to renew. increase fail count by one.
-                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, true, 0);
+                    ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, true, 0, "CA_CONNECTION_STRING");
                 }
             }
         }
@@ -2247,7 +2257,7 @@ namespace ConditionalAccess
 
             // user does not exist. there is no point to continue trying renewing the mpp.
             // hence, we set the fail count to maximum
-            ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"));
+            ConditionalAccessDAL.Update_MPPFailCountByPurchaseID(lPurchaseID, false, Utils.GetGroupFAILCOUNT(m_nGroupID, "CA_CONNECTION_STRING"), "CA_CONNECTION_STRING");
 
             res.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnownUser;
             res.m_sStatusDescription = "User does not exist";
@@ -2829,7 +2839,7 @@ namespace ConditionalAccess
                 }
             }
             return isDeviceRecognized;
-        }   
+        }
 
 
 
@@ -4487,7 +4497,10 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        bool bIsCouponValid = false;
+                        bool bIsCouponUsedAndValid = false;
+                        bIsCouponValid = Utils.IsCouponValid(m_nGroupID, sCouponCode);
+                        if (!bIsCouponValid)
                         {
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -4495,6 +4508,8 @@ namespace ConditionalAccess
                             WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             return ret;
                         }
+
+                        bIsCouponUsedAndValid = bIsCouponValid && !string.IsNullOrEmpty(sCouponCode);
 
                         sIP = "1.1.1.1";
                         sWSUserName = string.Empty;
@@ -4558,33 +4573,31 @@ namespace ConditionalAccess
                             if (thePPVModule != null)
                             {
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                bDummy = RecalculateDummyIndicatorForChargeMediaFile(bDummy, theReason, bIsCouponUsedAndValid);
                                 if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0) || bDummy)
                                 {
                                     if (bDummy || (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
                                     {
                                         string sCustomData = string.Empty;
-                                        if (p.m_dPrice != 0 || bDummy)
+                                        sWSUserName = string.Empty;
+                                        sWSPass = string.Empty;
+
+                                        InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
+
+                                        if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                         {
-                                            sWSUserName = string.Empty;
-                                            sWSPass = string.Empty;
-
-                                            InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
-
-                                            if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
-                                            {
-                                                sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
-                                            }
-
-                                            //Create the Custom Data
-                                            sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                                nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                                sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                                            Logger.Logger.Log("CustomData", sCustomData, "CustomData");
-
-                                            ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData,
-                                                1, 1, sExtraParameters, sPaymentMethodID, sEncryptedCVV, bDummy, false, ref bm);
+                                            sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
                                         }
+
+                                        //Create the Custom Data
+                                        sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
+                                            nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
+                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+
+                                        Logger.Logger.Log("CustomData", sCustomData, "CustomData");
+
+                                        ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData,
+                                            1, 1, sExtraParameters, sPaymentMethodID, sEncryptedCVV, bDummy, false, ref bm);
                                         if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
                                         {
                                             long lBillingTransactionID = 0;
@@ -4659,6 +4672,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Media ID: ", nMediaID));
                 sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
                 sb.Append(String.Concat(" User IP: ", sUserIP));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
                 Logger.Logger.Log("CC_BaseChargeUserForMediaFile", sb.ToString(), GetLogFilename());
                 WriteToUserLog(sSiteGUID, string.Format("Exception at CC_BaseChargeUserForMediaFile. Media File ID: {0} , Media ID: {1} , Coupon Code: {2}", nMediaFileID, nMediaID, sCouponCode));
@@ -5554,21 +5568,14 @@ namespace ConditionalAccess
 
                                 Logger.Logger.Log("CustomData", string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
 
-                                if (p.m_dPrice != 0 || bDummy)
-                                {
-                                    sWSUserName = string.Empty;
-                                    sWSPass = string.Empty;
+                                sWSUserName = string.Empty;
+                                sWSPass = string.Empty;
 
-                                    InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
+                                InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
 
-                                    ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
-                                        sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
-                                        bDummy, bIsEntitledToPreviewModule, ref bm);
-                                }
-                                if ((p.m_dPrice == 0 && !string.IsNullOrEmpty(sCouponCode)) || bIsEntitledToPreviewModule)
-                                {
-                                    ret.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
-                                }
+                                ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
+                                    sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
+                                    bDummy, bIsEntitledToPreviewModule, ref bm);
                                 if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
                                 {
                                     long lBillingTransactionID = 0;
@@ -5626,6 +5633,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(", Language Code: ", sLANGUAGE_CODE));
                 sb.Append(String.Concat(", Device Name: ", sDEVICE_NAME));
                 sb.Append(String.Concat(", Dummy: ", bDummy.ToString().ToLower()));
+                sb.Append(String.Concat(", this is: ", this.GetType().Name));
                 Logger.Logger.Log("CC_BaseChargeUserForSubscription", sb.ToString(), GetLogFilename());
                 WriteToUserLog(sSiteGUID, string.Format("While trying to purchase subscription id: {0} , Exception occurred.", sSubscriptionCode));
                 #endregion
@@ -7958,8 +7966,13 @@ namespace ConditionalAccess
         private bool IsSkipOnFirstUsageModule(int nIndexOfUsageModule, bool bIsUsageModuleIsRenewable, int nTotalNumOfPayments, int nNumOfPayments, bool bIsPurchasedWithPreviewModule)
         {
             if (bIsPurchasedWithPreviewModule)
-                return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && (nTotalNumOfPayments % nNumOfPayments != 1);
-            return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && (nTotalNumOfPayments % nNumOfPayments != 0);
+            {
+                if (nNumOfPayments != 0)
+                    return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && nTotalNumOfPayments % nNumOfPayments != 1;
+                else
+                    return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && nTotalNumOfPayments == 2;
+            }
+            return nIndexOfUsageModule == 0 && !bIsUsageModuleIsRenewable && (nNumOfPayments == 0 || nTotalNumOfPayments % nNumOfPayments != 0);
         }
 
         /*

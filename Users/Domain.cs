@@ -310,27 +310,84 @@ namespace Users
         /// <param name="nGroupID"></param>
         /// <param name="nDomainID"></param>
         /// <param name="nUserGuid"></param>
-        public DomainResponseStatus RemoveUserFromDomain(int nGroupID, int nDomainID, int nUserGuid)
+        public DomainResponseStatus RemoveUserFromDomain(int nGroupID, int nDomainID, int nUserID)
         {
             DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
 
-            int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserGuid, false);
+            // if next allowed action is in future, return LimitationPeriod status
+            if (m_NextUserActionFreq >= DateTime.UtcNow)
+            {
+                eRetVal = DomainResponseStatus.LimitationPeriod;
+                return eRetVal;
+            }
 
+            int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
             if (nUserDomainID <= 0)
             {
                 eRetVal = DomainResponseStatus.UserNotExistsInDomain;
                 return eRetVal;
             }
 
+
+            //Check if UserID is valid
+            if ((!User.IsUserValid(nGroupID, nUserID)))
+            {
+                eRetVal = DomainResponseStatus.InvalidUser;
+                return eRetVal;
+            }
+
+            Dictionary<int, int> dTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
+
+            // User validations
+            if (dTypedUserIDs == null || dTypedUserIDs.Count == 0)
+            {
+                // Try to remove anyway (maybe user is inactive or pending)
+                //DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
+
+                eRetVal = DomainResponseStatus.NoUsersInDomain;
+                return eRetVal;
+
+                //domain.m_DomainStatus = DomainStatus.Error;
+                //oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.NoUsersInDomain);
+                //return oDomainResponseObject;
+            }
+
+            //if (!dTypedUserIDs.ContainsKey(nUserID))
+            //{
+            //    // Try to remove anyway (maybe user is inactive or pending)
+            //    DomainResponseStatus res = domain.RemoveUserFromDomain(nGroupID, nDomainID, nUserID);
+
+            //    domain.m_DomainStatus = DomainStatus.UserNotInDomain;
+            //    oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserNotExistsInDomain);
+            //    return oDomainResponseObject;
+            //}
+
+            // Check master and default users
+            KeyValuePair<int, int> masterUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Master);
+            KeyValuePair<int, int> defaultUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Household);
+
+            if (masterUserKV.Equals(default(KeyValuePair<int, int>)) || masterUserKV.Key <= 0 ||
+                (nUserID == masterUserKV.Key || nUserID == defaultUserKV.Key))
+            {
+                eRetVal = DomainResponseStatus.UserNotAllowed;
+                return eRetVal;
+
+                //domain.m_DomainStatus = DomainStatus.Error;
+                //oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+                //return oDomainResponseObject;
+            }
+
+
             try
             {
                 int nStatus = 2;
-                int nIsActive = 0;
-                int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserGuid, nDomainID, nGroupID, nUserDomainID, nStatus, nIsActive);
+                int nIsActive = 2;
+                int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID, nStatus, nIsActive);
 
                 if (rowsAffected > 0)
                 {
-                    eRetVal = RemoveUserFromList(nUserGuid);
+                    SetDomainFlag(nDomainID, 1, false);
+                    eRetVal = RemoveUserFromList(nUserID);
                 }
                 else
                 {
@@ -444,77 +501,80 @@ namespace Users
             return eRetVal;
         }
 
-
         public DomainResponseStatus RemoveDeviceFromDomain(string sUDID)
         {
             DomainResponseStatus bRes = DomainResponseStatus.UnKnown;
+
+            // if next allowed action is in future, return LimitationPeriod status
+            if (m_NextActionFreq >= DateTime.UtcNow)
+            {
+                bRes = DomainResponseStatus.LimitationPeriod;
+                return bRes;
+            }
+
+
             int isActive = 0;
             int nDeviceID = 0;
+
             int nDomainDeviceID = DAL.DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);   //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
-            
-            if (m_NextActionFreq < DateTime.UtcNow)
+
+            if (nDomainDeviceID > 0)
             {
-                if (nDomainDeviceID > 0)
+                // set is_Active = 2; status = 2
+                bool bUpdate = DAL.DomainDal.UpdateDomainsDevicesStatus(nDomainDeviceID, 2, 2);
+
+                if (!bUpdate)
+                {
+                    return DomainResponseStatus.Error;
+                }
+
+
+                int nDomainsDevicesCount = DAL.DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID);
+                bool bDeleteDevice = (nDomainsDevicesCount == 0);   // No other domains attached to this device
+
+                if (bDeleteDevice)
                 {
                     // set is_Active = 2; status = 2
-                    bool bUpdate = DAL.DomainDal.UpdateDomainsDevicesStatus(nDomainDeviceID, 2, 2);
+                    bUpdate = DAL.DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
 
                     if (!bUpdate)
                     {
                         return DomainResponseStatus.Error;
                     }
+                }
 
-
-                    int nDomainsDevicesCount = DAL.DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID);
-                    bool bDeleteDevice = (nDomainsDevicesCount == 0);   // No other domains attached to this device
-                    
-                    if (bDeleteDevice)
+                DeviceContainer container = null;
+                Device device = GetDomainDevice(sUDID, ref container);
+                if (container != null && device != null)
+                {
+                    if (container.RemoveDeviceInstance(sUDID))
                     {
-                        // set is_Active = 2; status = 2
-                        bUpdate = DAL.DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
+                        bRes = DomainResponseStatus.OK;
 
-                        if (!bUpdate)
+                        if (m_minPeriodId != 0)
                         {
-                            return DomainResponseStatus.Error;
-                        }
-                    }
-
-                    DeviceContainer container = null;
-                    Device device = GetDomainDevice(sUDID, ref container);
-                    if (container != null && device != null)
-                    {
-                        if (container.RemoveDeviceInstance(sUDID))
-                        {
-                            bRes = DomainResponseStatus.OK;
-
-                            if (m_minPeriodId != 0)
-                            {
-                                SetDomainFlag(m_nDomainID, 1);
-                            }    
-                        }
-                        else
-                        {
-                            bRes = DomainResponseStatus.Error;
+                            SetDomainFlag(m_nDomainID, 1);
                         }
                     }
                     else
                     {
-                        bRes = DomainResponseStatus.DeviceNotInDomain;
+                        bRes = DomainResponseStatus.Error;
                     }
                 }
                 else
                 {
                     bRes = DomainResponseStatus.DeviceNotInDomain;
                 }
-
-                return bRes;
             }
             else
             {
-                bRes = DomainResponseStatus.LimitationPeriod;
-                return bRes;
+                bRes = DomainResponseStatus.DeviceNotInDomain;
             }
-        }     
+
+            return bRes;
+        }
+
+     
 
         /// <summary>
         /// Activate/Deactivate device in Domain
@@ -526,6 +586,14 @@ namespace Users
         public DomainResponseStatus ChangeDeviceDomainStatus(int nGroupID, int nDomainID, string sUDID, bool bIsEnable)
         {
             DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
+
+
+            if ((!bIsEnable) && (m_NextActionFreq >= DateTime.UtcNow))
+            {
+                eDomainResponseStatus = DomainResponseStatus.LimitationPeriod;
+                return eDomainResponseStatus;
+            }
+
 
             DeviceContainer container = null;
             Device device = GetDomainDevice(sUDID, ref container);           
@@ -580,7 +648,6 @@ namespace Users
 
             return eDomainResponseStatus;
         }
-
 
         /// <summary>
         /// Add User to the Domain
@@ -867,7 +934,7 @@ namespace Users
                 // Now we can send the activation mail to the Master
                 if (!string.IsNullOrEmpty(sActivationToken))
                 {
-                    TvinciAPI.AddUserMailRequest sMailRequest = GetAddUserMailRequest(nGroupID,
+                    TvinciAPI.AddUserMailRequest sMailRequest = MailFactory.GetAddUserMailRequest(nGroupID,
                                                                                                 masterUser.m_oBasicData.m_sFirstName,
                                                                                                 masterUser.m_oBasicData.m_sUserName,
                                                                                                 masterUser.m_oBasicData.m_sEmail,
@@ -1001,9 +1068,9 @@ namespace Users
             return device;
         }
 
-        public DomainResponseStatus ResetDomain()
+        public DomainResponseStatus ResetDomain(int nFreqencyType = 0)
         {
-            bool res = DAL.DomainDal.ResetDomain(m_nDomainID, m_nGroupID);
+            bool res = DAL.DomainDal.ResetDomain(m_nDomainID, m_nGroupID, nFreqencyType);
 
             if (!res)
             {
@@ -1012,7 +1079,6 @@ namespace Users
 
             return DomainResponseStatus.OK;
         }
-
 
         /// <summary>
         /// Domain has to be initialized before entering this method
@@ -1072,7 +1138,6 @@ namespace Users
 
             #endregion
 
-
             if (isActive == 3)  // device pending activation in this or other domain; reset this association
             {
                 int rowsAffected = DAL.DomainDal.SetDeviceStatusInDomain(deviceID, this.m_nDomainID, nGroupID, nDeviceDomainRecordID, 2, 2);
@@ -1105,14 +1170,20 @@ namespace Users
                 m_totalNumOfDevices++;
                 m_deviceFamilies.Add(container);
 
-                User masterUser = new User();
-                bool masterInit = masterUser.Initialize(this.m_masterGUIDs[0], nGroupID);
+                User masterUser = new User(nGroupID, m_masterGUIDs[0]);
+                //bool masterInit = masterUser.Initialize(this.m_masterGUIDs[0], nGroupID);
 
                 TvinciAPI.AddDeviceMailRequest sMailRequest = null;
 
-                if (masterInit)
+                if (masterUser != null)
                 {
-                    sMailRequest = GetAddDeviceMailRequest(nGroupID, masterUser.m_oBasicData.m_sFirstName, masterUser.m_oBasicData.m_sUserName, masterUser.m_oBasicData.m_sEmail, sDeviceUdid, device.m_deviceName, sActivationToken);
+                    sMailRequest = MailFactory.GetAddDeviceMailRequest(nGroupID,
+                                                                    masterUser.m_oBasicData.m_sFirstName,
+                                                                    masterUser.m_oBasicData.m_sUserName,
+                                                                    masterUser.m_oBasicData.m_sEmail,
+                                                                    sDeviceUdid,
+                                                                    device.m_deviceName,
+                                                                    sActivationToken);
                 }
 
                 if (sMailRequest != null)
@@ -1124,6 +1195,55 @@ namespace Users
             }
 
             return DomainResponseStatus.Error;
+        }
+
+        public DomainResponseStatus ChangeDomainMaster(int nGroupID, int nDomainID, int nCurrentMasterID, int nNewMasterID)
+        {
+            #region Validations
+
+            if (m_nDomainID <= 0)
+            {
+                return DomainResponseStatus.DomainNotInitialized;
+            }
+
+            if (m_UsersIDs == null || m_UsersIDs.Count == 0)
+            {
+                DomainResponseStatus eDomainResponseStatus = GetUserList(this.m_nDomainID, nGroupID);
+
+                if (m_UsersIDs == null || m_UsersIDs.Count == 0)
+                {
+                    return DomainResponseStatus.NoUsersInDomain;
+                }
+            }
+
+            if (m_masterGUIDs == null || m_masterGUIDs.Count == 0)
+            {
+                return DomainResponseStatus.DomainNotInitialized;
+            }
+
+            User curMasterUser = new User(nGroupID, nCurrentMasterID);
+
+            // Found domain, but username is not a master 
+            if (!curMasterUser.m_isDomainMaster)
+            {
+                return DomainResponseStatus.ActionUserNotMaster;
+            }
+
+            // Now let's see which domains the user belons to
+            List<int> lCurMasterDomainIDs = DAL.UsersDal.GetUserDomainIDs(nGroupID, nCurrentMasterID);
+            List<int> lNewMasterDomainIDs = DAL.UsersDal.GetUserDomainIDs(nGroupID, nNewMasterID);
+
+            if (((lCurMasterDomainIDs != null && lCurMasterDomainIDs.Count > 0) && (!lCurMasterDomainIDs.Contains(nDomainID))) ||
+                ((lNewMasterDomainIDs != null && lNewMasterDomainIDs.Count > 0) && (!lNewMasterDomainIDs.Contains(nDomainID))))
+            {
+                return DomainResponseStatus.UserExistsInOtherDomains;
+            }
+
+            #endregion
+
+            int rowsAffected = DAL.DomainDal.SwitchDomainMaster(nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
+
+            return (rowsAffected > 0) ? DomainResponseStatus.OK : DomainResponseStatus.Error;
         }
 
         #endregion
@@ -1244,18 +1364,43 @@ namespace Users
             return eDomainResponseStatus;
         }
 
-        protected bool SetDomainFlag(int domainId, int val)
+        //protected bool SetDomainFlag(int domainId, int val)
+        //{
+        //    DateTime dt = DateTime.UtcNow;
+
+        //    bool res = DAL.DomainDal.SetDomainFlag(domainId, val, dt);
+
+        //    if (res)
+        //    {
+        //        m_NextActionFreq = dt;
+        //        return true;
+        //    }
+        //    else return false;
+        //}
+
+        protected bool SetDomainFlag(int domainId, int val, bool deviceFlag = true)
         {
             DateTime dt = DateTime.UtcNow;
 
-            bool res = DAL.DomainDal.SetDomainFlag(domainId, val, dt);
+            bool res = DAL.DomainDal.SetDomainFlag(domainId, val, dt, Convert.ToInt32(deviceFlag));
 
             if (res)
             {
-                m_NextActionFreq = dt;
+                if (deviceFlag)
+                {
+                    m_NextActionFreq = dt;
+                }
+                else
+                {
+                    m_NextUserActionFreq = dt;
+                }
+
                 return true;
             }
-            else return false;
+            else
+            {
+                return false;
+            }
         }
 
         protected DomainResponseStatus RemoveUserFromList(int nUserGuid)
@@ -1303,7 +1448,8 @@ namespace Users
         /// <returns>true if Query is valid</returns>
         protected bool GetDomainSettings(int nDomainID, int nGroupID)
         {
-            DateTime dFrequencyLastAction = new DateTime(2000, 1, 1);
+            DateTime dDeviceFrequencyLastAction = new DateTime(2000, 1, 1);
+            DateTime dUserFrequencyLastAction = new DateTime(2000, 1, 1);
 
             string sName = string.Empty;
             string sDescription = string.Empty;
@@ -1332,7 +1478,8 @@ namespace Users
                                                         ref nFrequencyFlag, 
                                                         ref nDeviceMinPeriodId, 
                                                         ref nUserMinPeriodId, 
-                                                        ref dFrequencyLastAction, 
+                                                        ref dDeviceFrequencyLastAction,
+                                                        ref dUserFrequencyLastAction, 
                                                         ref sCoGuid,
                                                         ref nDeviceRestriction);
 
@@ -1354,12 +1501,12 @@ namespace Users
 
                 if (m_minPeriodId != 0)
                 {
-                    m_NextActionFreq = Utils.GetEndDateTime(dFrequencyLastAction, m_minPeriodId);
+                    m_NextActionFreq = Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
                 }
 
                 if (m_minUserPeriodId != 0)
                 {
-                    m_NextUserActionFreq = Utils.GetEndDateTime(dFrequencyLastAction, m_minUserPeriodId);
+                    m_NextUserActionFreq = Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
                 }
             }
 
@@ -1431,146 +1578,6 @@ namespace Users
                         }
                     }
                 }
-            }
-
-            return retVal;
-        }
-
-        private static TvinciAPI.AddUserMailRequest GetAddUserMailRequest(int nGroupID, string sMasterFirstName, string sMasterUsername, string sMasterUserEmail, string sNewUsername, string sNewFirstName, string sActivationToken)
-        {
-            TvinciAPI.AddUserMailRequest retVal = null;
-
-            DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(nGroupID);
-
-            if (dvMailParameters != null)
-            {
-                retVal = new TvinciAPI.AddUserMailRequest();
-
-                object oAddUserMail = dvMailParameters["ACTIVATION_MAIL"];
-                object oMailFromName = dvMailParameters["MAIL_FROM_NAME"];
-                object oMailFromAdd = dvMailParameters["MAIL_FROM_ADD"];
-                object oAddUserMailSubject = dvMailParameters["ACTIVATION_MAIL_SUBJECT"];
-
-                if (oAddUserMail != null && oAddUserMail != DBNull.Value)
-                {
-                    retVal.m_sTemplateName = oAddUserMail.ToString();
-                }
-
-                if (oAddUserMailSubject != null && oAddUserMailSubject != DBNull.Value)
-                {
-                    retVal.m_sSubject = oAddUserMailSubject.ToString();
-                }
-
-                if (oMailFromAdd != null && oMailFromAdd != DBNull.Value)
-                {
-                    retVal.m_sSenderFrom = oMailFromAdd.ToString();
-                }
-                if (oMailFromName != null && oMailFromName != DBNull.Value)
-                {
-                    retVal.m_sSenderName = oMailFromName.ToString();
-                }
-
-                retVal.m_eMailType       = TvinciAPI.eMailTemplateType.AddUserToDomain;
-                retVal.m_sSenderTo       = sMasterUserEmail;
-                retVal.m_sMasterUsername = sMasterUsername;
-                retVal.m_sFirstName      = sMasterFirstName;
-                retVal.m_sNewFirstName   = sNewFirstName;
-                retVal.m_sNewUsername    = sNewUsername;
-                retVal.m_sToken          = sActivationToken;
-            }
-
-            return retVal;
-        }
-
-        private TvinciAPI.AddDeviceMailRequest GetAddDeviceMailRequest(int nGroupID, string sMasterFirstName, string sMasterUsername, string sMasterEmail, string sDeviceUdid, string sDeviceName, string sActivationToken)
-        {
-            TvinciAPI.AddDeviceMailRequest retVal = null;
-
-            DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(nGroupID);
-
-            if (dvMailParameters != null)
-            {
-                retVal = new TvinciAPI.AddDeviceMailRequest();
-
-                object oAddUserMail         = dvMailParameters["DEVICE_REQUEST_MAIL"];
-                object oMailFromName        = dvMailParameters["MAIL_FROM_NAME"];
-                object oMailFromAdd         = dvMailParameters["MAIL_FROM_ADD"];
-                object oAddUserMailSubject  = dvMailParameters["DEVICE_REQUEST_MAIL_SUBJECT"];
-
-                if (oAddUserMail != null && oAddUserMail != DBNull.Value)
-                {
-                    retVal.m_sTemplateName = oAddUserMail.ToString();
-                }
-
-                if (oAddUserMailSubject != null && oAddUserMailSubject != DBNull.Value)
-                {
-                    retVal.m_sSubject = oAddUserMailSubject.ToString();
-                }
-
-                if (oMailFromAdd != null && oMailFromAdd != DBNull.Value)
-                {
-                    retVal.m_sSenderFrom = oMailFromAdd.ToString();
-                }
-                if (oMailFromName != null && oMailFromName != DBNull.Value)
-                {
-                    retVal.m_sSenderName = oMailFromName.ToString();
-                }
-
-                retVal.m_eMailType          = TvinciAPI.eMailTemplateType.AddDeviceToDomain;
-                retVal.m_sSenderTo          = sMasterEmail;
-                retVal.m_sMasterUsername    = sMasterUsername;
-                retVal.m_sFirstName         = sMasterFirstName;
-                retVal.m_sNewDeviceUdid     = sDeviceUdid;
-                retVal.m_sNewDeviceName     = sDeviceName;
-                retVal.m_sToken             = sActivationToken;
-            }
-
-            return retVal;
-        }
-
-
-        protected TvinciAPI.WelcomeMailRequest GetWelcomeMailRequest(string sMasterFirstName, string sNewUsername, string sNewFirstName, string sEmail)
-        {
-            TvinciAPI.WelcomeMailRequest retVal = null;
-
-            DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(m_nGroupID);
-
-            if (dvMailParameters != null)
-            {
-                retVal = new TvinciAPI.WelcomeMailRequest();
-
-                object oWelcomeMail = dvMailParameters["WELCOME_MAIL"];             
-                object oMailFromName = dvMailParameters["MAIL_FROM_NAME"];
-                object oMailFromAdd = dvMailParameters["MAIL_FROM_ADD"];
-                object oWelcomMailSubject = dvMailParameters["WELCOME_MAIL_SUBJECT"];
-
-                if (oWelcomeMail != null && oWelcomeMail != DBNull.Value)
-                {
-                    retVal.m_sTemplateName = oWelcomeMail.ToString();
-                }
-                if (oWelcomMailSubject != null && oWelcomMailSubject != DBNull.Value)
-                {
-                    retVal.m_sSubject = oWelcomMailSubject.ToString();
-                }
-                if (oMailFromAdd != null && oMailFromAdd != DBNull.Value)
-                {
-                    retVal.m_sSenderFrom = oMailFromAdd.ToString();
-                }
-                if (oMailFromName != null && oMailFromName != DBNull.Value)
-                {
-                    retVal.m_sSenderName = oMailFromName.ToString();
-                }
-
-                retVal.m_eMailType  = TvinciAPI.eMailTemplateType.Welcome;
-                retVal.m_sFirstName = sMasterFirstName;
-                retVal.m_sLastName  = string.Empty;
-                
-                
-                retVal.m_sSenderTo = sEmail;
-
-                retVal.m_sUsername = sNewUsername;
-
-                retVal.m_sToken = DAL.UsersDal.GetActivationToken(m_nGroupID, sNewUsername);
             }
 
             return retVal;

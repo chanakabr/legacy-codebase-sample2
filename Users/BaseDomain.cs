@@ -51,7 +51,9 @@ namespace Users
 
         public abstract DeviceResponseObject    RegisterDeviceToDomainWithPIN(int nGroupID, string sPIN, int nDomainID, string sDeviceName);
 
-        public abstract DomainResponseObject    ResetDomain(int nDomainID);
+        //public abstract DomainResponseObject    ResetDomain(int nDomainID);
+
+        public abstract DomainResponseObject    ResetDomain(int nDomainID, int nFrequencyType);
 
         public abstract int                     GetDomainIDByCoGuid(string coGuid);
 
@@ -61,6 +63,9 @@ namespace Users
         public abstract int[]                   GetDomainIDsByOperatorCoGuid(string sOperatorCoGuid);
 
         public abstract bool                    SetDomainRestriction(int nDomainID, DomainRestriction rest);
+
+        public abstract DomainResponseObject    ChangeDomainMaster(int nDomainID, int nCurrentMasterID, int nNewMasterID);
+
 
         public virtual List<HomeNetwork> GetDomainHomeNetworks(long lDomainID)
         {

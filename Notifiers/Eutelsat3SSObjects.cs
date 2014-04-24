@@ -18,7 +18,7 @@ namespace Notifiers
     public class EutelsatProduct
     {
         [JsonProperty("external_product_id")]
-        public string ExternalProductID     { get; set; }
+        public string ExternalProductID { get; set; }
 
         [JsonProperty("internal_product_id")]
         public int InternalProductID { get; set; }
@@ -99,22 +99,41 @@ namespace Notifiers
     }
 
 
-    public class EutelsatTransactionResponse
+    //public class EutelsatTransactionResponse
+    //{
+
+    //    //"http://82.79.128.235:8080/TvinciService.svc/transaction/create.json?user_id={userId}&price={price}&currency={currency}&asset_id={assetId}&ppv_module_code={ppvModuleCode}&coupon_code={couponCode}&rovi_id={roviId}&device_brand={deviceBrand}&transaction_id={transactionId}"
+
+
+    //    [JsonProperty("success")]
+    //    public bool Success { get; set; }
+
+    //    //[JsonProperty("error_code")]
+    //    //public int ErrorCode { get; set; }
+
+    //    [JsonProperty("message")]
+    //    public string Message { get; set; }
+
+    //    //[JsonProperty("transaction_id")]
+    //    //public string TransactionId { get; set; }
+    //}
+
+    public class EutelsatProductNotificationResponse
     {
-        
-        //"http://82.79.128.235:8080/TvinciService.svc/transaction/create.json?user_id={userId}&price={price}&currency={currency}&asset_id={assetId}&ppv_module_code={ppvModuleCode}&coupon_code={couponCode}&rovi_id={roviId}&device_brand={deviceBrand}&transaction_id={transactionId}"
-
-
         [JsonProperty("success")]
-        public bool Success { get; set; }
+        public bool success { get; set; }
 
-        //[JsonProperty("error_code")]
-        //public int ErrorCode { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; }
-
-        //[JsonProperty("transaction_id")]
-        //public string TransactionId { get; set; }
+        [JsonProperty("errors")]
+        public EutelsatError[] errors { get; set; }
     }
+
+    public class EutelsatError
+    {
+        [JsonProperty("error_message")]
+        public string error_message { get; set; }
+
+        [JsonProperty("error_type")]
+        public string error_type { get; set; }
+    }
+
 }

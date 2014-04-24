@@ -13,8 +13,13 @@ namespace Notifiers
         {
         }
 
-
         override public void NotifyChange(string sMediaID)
+        {
+            string errorMessage = "";
+            NotifyChange(sMediaID, ref errorMessage);
+        }
+
+        override public void NotifyChange(string sMediaID, ref string errorMessage)
         {
             if (IsNotifyProduct(sMediaID))
             {
@@ -24,9 +29,17 @@ namespace Notifiers
                 //tikle_ws.Response resp = t.NotifyProduct(sMediaID, m_nGroupID);
                 //Logger.Logger.Log("Notify", sMediaID + " : " + resp.ResultDetail, "media_notifier");
 
-                EutelsatTransactionResponse resp = MakePackageNotification(sMediaID);
+                EutelsatProductNotificationResponse resp = MakePackageNotification(sMediaID);
 
-                Logger.Logger.Log("Notify", sMediaID + " : " + resp.Message, "package_notifier");
+                errorMessage = "";
+
+                if (!resp.success)
+                {
+                    string[] errors = resp.errors.Select(e => "type: " + e.error_type + "; error: " + e.error_message).ToArray();
+                    errorMessage = string.Join("\n", errors);
+                }
+
+                Logger.Logger.Log("Notify", sMediaID + " : " + (resp.success ? "notification success" : errorMessage), "package_notifier");
             }
             else
             {
@@ -34,15 +47,13 @@ namespace Notifiers
             }
         }
 
-        private EutelsatTransactionResponse MakePackageNotification(string sMediaID)
+        private EutelsatProductNotificationResponse MakePackageNotification(string sMediaID)
         {
-            EutelsatTransactionResponse res = new EutelsatTransactionResponse();
-            res.Success = false;
+            EutelsatProductNotificationResponse res = new EutelsatProductNotificationResponse();
+            res.success = false;
 
             try
             {
-
-
                 string sWSURL = Utils.GetWSURL("Eutelsat_ProductBase") + "/assign";
                 string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
                 string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
@@ -102,7 +113,7 @@ namespace Notifiers
 
                 if (isGoodUri)
                 {
-                    res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatTransactionResponse;
+                    res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatProductNotificationResponse;
                     //object 3ssRes = Utils.MakeJsonRequest(checkTvodUrl, 
                 }
             }

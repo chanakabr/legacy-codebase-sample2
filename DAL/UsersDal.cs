@@ -1188,9 +1188,9 @@ namespace DAL
         ///      3 - user removed from domain
         ///      
         /// </returns>
-        public static int GetUserActivationState(string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
+        public static DALUserActivationState GetUserActivationState(int nParentGroupID, string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
         {
-            int res = (-2);
+            DALUserActivationState res = DALUserActivationState.Error;
 
             try
             {
@@ -1211,42 +1211,40 @@ namespace DAL
                 }
 
                 selectQuery += " AND GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
-                //selectQuery += "AND GROUP_ID " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
 
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        nUserID                 = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                        sUserName               = selectQuery.Table("query").DefaultView[0].Row["USERNAME"].ToString();
+                        nUserID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
+                        sUserName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "USERNAME", 0);
 
-                        nActivateStatus         = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ACTIVATE_STATUS"].ToString());
-                        DateTime dCreateDate    = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["CREATE_DATE"]);
-                        DateTime dNow           = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["DNOW"]);
+                        nActivateStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ACTIVATE_STATUS", 0);
+                        DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "CREATE_DATE", 0);
+                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "DNOW", 0); 
 
-                        bool isActive           = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
+                        bool isActive = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
 
-                        res                     = isActive ? 0 : 1;
-
-                        //if (!isActive) { return res; }
+                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;                 
                     }
                     else
                     {
-                        res = (-1); //UserDoesNotExist
-                        return res;
+                        res = DALUserActivationState.UserDoesNotExist;
                     }
                 }
 
                 selectQuery.Finish();
                 selectQuery = null;
 
-                if (res == 1) { return res; } //NotActivated
-
-
-
-                //check if the user has a domain 
-
+                if (res == DALUserActivationState.UserDoesNotExist || (res == DALUserActivationState.NotActivated && GetIsActivationNeeded(nParentGroupID)))
+                { 
+                    return res; 
+                }
+                else
+                {
+                    res = DALUserActivationState.Activated;
+                }
 
                 // If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
                 //
@@ -1278,17 +1276,17 @@ namespace DAL
 
                         if (nStatus != 2)
                         {
-                            res = isActive1 ? 0 : 2; 
+                            res = isActive1 ? DALUserActivationState.Activated : DALUserActivationState.NotActivatedByMaster;
                         }
                         else
                         {
-                            res = 3; //UserRemovedFromDomain
+                            res = DALUserActivationState.UserRemovedFromDomain;
                         }
 
                     }
                     else //user does not have a Domain
                     {
-                        res = 4;
+                        res = DALUserActivationState.UserWIthNoDomain;
                     }
                 }
 
@@ -1298,8 +1296,8 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                HandleException(ex);               
-                res = (-2);
+                HandleException(ex);
+                res = DALUserActivationState.Error; // (-2);
             }
 
             return res;
