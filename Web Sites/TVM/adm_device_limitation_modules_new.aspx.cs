@@ -142,6 +142,14 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         dr_env_type.SetDefaultVal(getDomainEnvironment(nGroupID, t));
         theRecord.AddRecord(dr_env_type);
 
+        DataRecordShortIntField dr_hn_limit = new DataRecordShortIntField(true, 9, 9);
+        dr_hn_limit.Initialize("Home Network Limit", "adm_table_header_nbg", "FormInput", "Home_network_quantity", false);
+        theRecord.AddRecord(dr_hn_limit);
+
+        DataRecordDropDownField dr_hn_frequency = new DataRecordDropDownField("lu_min_periods", "Description", "ID", string.Empty, string.Empty, 60, true);
+        dr_hn_frequency.Initialize("Home Network Frequency", "adm_table_header_nbg", "FormInput", "Home_network_frequency", false);
+        theRecord.AddRecord(dr_hn_frequency);
+
         string sTable = theRecord.GetTableHTML("adm_device_limitation_modules_new.aspx?submited=1");
 
         return sTable;

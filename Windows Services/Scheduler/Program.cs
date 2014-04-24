@@ -13,6 +13,14 @@ namespace Scheduler
         /// </summary>
         static void Main()
         {
+            try
+            {
+                TCMClient.Settings.Instance.Init();
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Scheduler Main", "Init=" + ex.Message, "Tcm");
+            }
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[] 
 			{ 
