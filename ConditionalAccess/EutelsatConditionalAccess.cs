@@ -1024,7 +1024,7 @@ namespace ConditionalAccess
                     Logger.Logger.Log("LicensedLink", "Finished getting stream type", "LicensedLink");
 
                     url = Utils.GetStreamTypeAndFormatLink(streamType, format); // Getting the url which matches both the epg format and the stream type
-                    
+
                     long nStartTime;
                     long nEndTime;
 
@@ -1046,8 +1046,6 @@ namespace ConditionalAccess
                             {
                                 if (scheduling != null)
                                 {
-                                    //long nTestStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.StartDate.AddMinutes(nLeftMargin)));
-
                                     nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.StartDate.ToUniversalTime().AddMinutes(nLeftMargin)));
                                     nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.ToUniversalTime().AddMinutes(nRightMargin)));
 
@@ -1057,18 +1055,6 @@ namespace ConditionalAccess
                             }
 
                             break;
-                        
-                            //{
-                                //if (!string.IsNullOrEmpty(startTime.ToString()))
-                                //{
-                                //    nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(startTime.AddMinutes(nLeftMargin)));
-                                //    nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.AddMinutes(nRightMargin)));
-                                //    parametersToInjectInUrl.Add("start", nStartTime);
-                                //    parametersToInjectInUrl.Add("end", nEndTime);
-                                //}
-
-                            //}
-                            //break;
 
                         case eEPGFormatType.LivePause:
 
