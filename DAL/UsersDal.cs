@@ -1265,12 +1265,12 @@ namespace DAL
                     Int32 nCount = selectQuery1.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        int isMaster = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["IS_MASTER"].ToString());
-                        int isActive = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["IS_ACTIVE"].ToString());
-                        int nStatus  = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["STATUS"].ToString());
+                        int isMaster = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_MASTER", 0); 
+                        int isActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_ACTIVE", 0); 
+                        int nStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "STATUS", 0); 
 
-                        DateTime dCreateDate1 = (DateTime)(selectQuery1.Table("query").DefaultView[0].Row["CREATE_DATE"]);
-                        DateTime dNow1 = (DateTime)(selectQuery1.Table("query").DefaultView[0].Row["DNOW"]);
+                        DateTime dCreateDate1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "CREATE_DATE", 0); 
+                        DateTime dNow1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "DNOW", 0); 
 
                         bool isActive1 = ((isMaster > 0) || !(isActive == 0 && dCreateDate1.AddHours(nActivationMustHours) < dNow1));
 
