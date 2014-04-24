@@ -57,20 +57,7 @@ public partial class adi_api : System.Web.UI.Page
                         string desc = GetItemParameterVal(ref theNode, "message");
                         string coguid = GetItemParameterVal(ref theNode, "co_guid");
                         string tvmid = GetItemParameterVal(ref theNode, "tvm_id");
-                        if (!string.IsNullOrEmpty(tvmid))
-                        {
-                            int nTVMID = int.Parse(tvmid);
-                            //Lucene.Service luceneSer = new Lucene.Service();
-                            //bool luceneUpdated = luceneSer.UpdateRecord(groupID, nTVMID);
-                            //if (luceneUpdated)
-                            //{
-                            //    Logger.Logger.Log("ADI_API", "Lucene update tvm id " + tvmid, "ADI_API");
-                            //}
-                            //else
-                            //{
-                            //    Logger.Logger.Log("ADI_API", "Lucene not update tvm id " + tvmid, "ADI_API");
-                            //}
-                        }
+                        
                         responseSTR = GetResponse(status, desc, coguid, tvmid);
                     }
                     catch
