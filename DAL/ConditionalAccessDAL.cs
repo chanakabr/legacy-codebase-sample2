@@ -1088,9 +1088,9 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool Update_BillingBillingMethodInBillingTransactions(int nID, int nBillingMethod)
+        public static bool Update_BillingMethodInBillingTransactions(int nID, int nBillingMethod)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_BillingBillingMethodInBillingTransactions");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_BillingMethodInBillingTransactions");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@BillingTransID", nID);
             sp.AddParameter("@BillingMethod", nBillingMethod);
