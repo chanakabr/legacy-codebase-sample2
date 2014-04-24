@@ -134,6 +134,8 @@ namespace ConditionalAccess
         UserNotExists = 1,
         OldSubNotExists = 2,
         NewSubNotExits = 3,
-        Error = 4
+        OldSubNotRenewable = 4,
+        UserHadNewSub = 5,
+        Error = 6
     }
 }

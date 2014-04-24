@@ -8557,11 +8557,10 @@ namespace ConditionalAccess
 
         //Change subscription for a given user - the user will be able to watch the new subscription content, 
         //but the billing for the new subscription will happen only when the previous subcription ends 
-        public ChangeSubscriptionStatus ChangeSubscription(int nUserID, int nOldSub, int nNewSub)
+        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSub, int nNewSub)
         {
             try
-            {
-                string sSiteGuid = nUserID.ToString();
+            {               
                 //check if user exists
                 UserResponseObject ExistUser = Utils.GetExistUser(sSiteGuid, m_nGroupID);
 
@@ -8586,7 +8585,7 @@ namespace ConditionalAccess
                             if (!userSubOld.m_bIsSubRenewable)
                             {
                                 Logger.Logger.Log("ChangeSubscription", "Previous Subscription ID: " + nOldSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
-                                return ChangeSubscriptionStatus.Error;
+                                return ChangeSubscriptionStatus.OldSubNotRenewable;
                             }
                         }
                     }
@@ -8596,9 +8595,10 @@ namespace ConditionalAccess
                     if (userNewSubList != null && userNewSubList.Count > 0 && userNewSubList[0] != null)
                     {
                         Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is already attached to this user. Subscription was not changed", "BaseConditionalAccess");
-                        return ChangeSubscriptionStatus.Error;
+                        return ChangeSubscriptionStatus.UserHadNewSub;
                     }
-                    userSubNew = Utils.GetSubscriptionData(nNewSub.ToString(), m_nGroupID);//maybe put in other function
+
+                    userSubNew = Utils.GetSubscriptionData(nNewSub.ToString(), m_nGroupID);
 
                     //set new subscprion
                     if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
@@ -8626,12 +8626,11 @@ namespace ConditionalAccess
 
         //the new subscription is dummy charged and its end date is set according the previous subscriptions end date
         //the previous  subscription is cancled and its end date is set to 'now'
-        private ChangeSubscriptionStatus setSubscriptionChange(string sSiteGuid, Subscription userSubNew, PermittedSubscriptionContainer userSubOld)
+        private ChangeSubscriptionStatus setSubscriptionChange(string sSiteGuid, Subscription subNew, PermittedSubscriptionContainer userSubOld)
         {
             ChangeSubscriptionStatus status = ChangeSubscriptionStatus.Error;
             try
-            {
-
+            {               
                 #region Initialize
                 string sCurrency = "";
                 double dPrice = 0;
@@ -8640,22 +8639,22 @@ namespace ConditionalAccess
                 string sCountry = "";
                 string sLanguage = "";
                 string sDeviceName = "";
-                string sSubscriptionCode = userSubNew.m_SubscriptionCode;
+                string sSubscriptionCode = subNew.m_SubscriptionCode;
                 bool isDummyCharge = true;
                 string extraParams = "";
                 string sBillingMethod = "";//used only in real billing and not dummy
                 string sEncryptedCVV = "";//used only in real billing and not dummy                  
 
-                if (userSubNew.m_oPriceCode != null && userSubNew.m_oPriceCode.m_oPrise != null)
+                if (subNew.m_oPriceCode != null && subNew.m_oPriceCode.m_oPrise != null)
                 {
-                    dPrice = userSubNew.m_oPriceCode.m_oPrise.m_dPrice;
-                    if (userSubNew.m_oPriceCode.m_oPrise.m_oCurrency != null)
-                        sCurrency = userSubNew.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                    dPrice = subNew.m_oPriceCode.m_oPrise.m_dPrice;
+                    if (subNew.m_oPriceCode.m_oPrise.m_oCurrency != null)
+                        sCurrency = subNew.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
                 }
 
-                if (userSubNew.m_oSubscriptionUsageModule != null && userSubNew.m_oSubscriptionUsageModule.m_coupon_id > 0)
+                if (subNew.m_oSubscriptionUsageModule != null && subNew.m_oSubscriptionUsageModule.m_coupon_id > 0)
                 {
-                    sCouponCode = userSubNew.m_oSubscriptionUsageModule.m_coupon_id.ToString();
+                    sCouponCode = subNew.m_oSubscriptionUsageModule.m_coupon_id.ToString();
                 }
 
                 string sCouponCodeOld = "";
@@ -8670,9 +8669,9 @@ namespace ConditionalAccess
                 {
                     //get the end_date of previous subsciption - with considuration of a free trial, if one was assigned to it 
                     PriceReason reason = new PriceReason();
-                    Subscription subOld = new Subscription(); 
+                    Subscription subOld = new Subscription();
                     //the 'sCouponCodeOld' is empty, so the 'price' itself does not include a discount, if one was given
-                    Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, userSubOld.m_sSubscriptionCode, sSiteGuid, sCouponCodeOld, ref reason, ref subOld, sCountry, sLanguage, userSubOld.m_sDeviceName);                    
+                    Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, userSubOld.m_sSubscriptionCode, sSiteGuid, sCouponCodeOld, ref reason, ref subOld, sCountry, sLanguage, userSubOld.m_sDeviceName);
                     bool bIsEntitledToPreviewModule = false;
                     if (reason == PriceReason.EntitledToPreviewModule)
                         bIsEntitledToPreviewModule = true;
@@ -8699,12 +8698,13 @@ namespace ConditionalAccess
                         {
                             Logger.Logger.Log("setSubscriptionChange", "Update of new subscription: " + sSubscriptionCode + "and previous subcsription:" + userSubOld.m_sSubscriptionCode + "for User: " + sSiteGuid + " failed.", "BaseConditionalAccess");
                         }
-                    }                    
+                    }
                 }
                 else
                 {
                     Logger.Logger.Log("setSubscriptionChange", "User with siteGuid: " + sSiteGuid + " was not dummy charged for new Subscription: " + sSubscriptionCode + ". Subscription was not changed", "BaseConditionalAccess");
                 }
+                                
             }
             catch (Exception exc)
             {
