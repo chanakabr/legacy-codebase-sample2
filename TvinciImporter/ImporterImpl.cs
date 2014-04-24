@@ -3310,7 +3310,8 @@ namespace TvinciImporter
             Int32 nRet = 0;
             string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select mtt.id from media_tags_types mtt (nolock) where status=1 and group_id " + sGroups;
+            selectQuery += "select mtt.id from media_tags_types mtt (nolock) where status=1 and ( (TagFamilyID IS NULL and group_id " + sGroups + " ) ";
+            selectQuery += " or ( group_id = 0 and TagFamilyID = 1 ) )";
             selectQuery += "and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sTagName.Trim().ToLower());
             if (selectQuery.Execute("query", true) != null)
