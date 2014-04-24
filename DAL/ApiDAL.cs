@@ -4,11 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Configuration;
+using ApiObjects;
+using ApiObjects.MediaMarks;
+using CouchbaseManager;
+using Newtonsoft.Json;
+using System.Threading;
 
 namespace DAL
 {
     public class ApiDAL
     {
+        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
         {
@@ -520,19 +526,46 @@ namespace DAL
         }
 
 
-        public static DataSet Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
+        public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID)
         {
-            ODBCWrapper.StoredProcedure spMediaMark = new ODBCWrapper.StoredProcedure("Get_MediaMark");
-            spMediaMark.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spMediaMark.AddParameter("@MediaID", nMediaID);
-            spMediaMark.AddParameter("@SiteGUID", sSiteGUID);
-            spMediaMark.AddParameter("@GroupID", nGroupID);
+            MediaMarkObject ret = new MediaMarkObject();
+            int nUserID = 0;
+            int.TryParse(sSiteGUID, out nUserID);
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);
 
-            DataSet ds = spMediaMark.ExecuteDataSet();
+            var data = m_oClient.Get<string>(docKey);
+            if (!string.IsNullOrEmpty(data))
+            {
+                MediaMarkLog mediaMarkLogObject = JsonConvert.DeserializeObject<MediaMarkLog>(data);
+                ret.nLocationSec = mediaMarkLogObject.LastMark.Location;
+                ret.sDeviceID = mediaMarkLogObject.LastMark.UDID;
 
-            if (ds != null)
-                return ds;
-            return null;
+                if (string.IsNullOrEmpty(mediaMarkLogObject.LastMark.UDID))
+                {
+                    ret.sDeviceName = "PC";
+                }
+                else
+                {
+                    DataTable dtDeviceInfo = DeviceDal.Get_DeviceInfo(mediaMarkLogObject.LastMark.UDID, true);
+                    if (dtDeviceInfo != null && dtDeviceInfo.Rows.Count > 0)
+                    {
+                        ret.sDeviceName = ODBCWrapper.Utils.GetSafeStr(dtDeviceInfo.Rows[0]["name"]);
+                    }
+                    else
+                    {
+                        ret.sDeviceName = "N/A";
+                        ret.eStatus = MediaMarkObject.MediaMarkObjectStatus.NA;
+                    }
+                }
+            }
+            else
+            {
+                return null;
+            }
+
+            return ret;
+
         }
 
         public static DataTable Get_GeoCommerceValue(int nGroupID, int SubscriptionGeoCommerceID)
@@ -879,34 +912,69 @@ namespace DAL
             return returnedDataTable;
         }
 
-        public static DataTable GetUserStartedWatchingMedias(string sSiteGuid, int nNumOfItems)
+       
+
+        public static List<int> GetUserStartedWatchingMedias(string sSiteGuid, int nNumOfItems)
         {
-            DataTable returnedDataTable = null;
+            int nSiteGuid = 0;
+            int.TryParse(sSiteGuid, out nSiteGuid);
 
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserStartedWatchingMedias");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@UserSiteGuid", sSiteGuid);
-            sp.AddParameter("@NumOfItems", nNumOfItems.ToString());
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
-            DataSet ds = sp.ExecuteDataSet();
+            var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_medias", true).Key(nSiteGuid);
+            List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).Take(nNumOfItems).ToList();
 
-            if (ds != null)
-                returnedDataTable = ds.Tables[0];
+            List<int> retList = new List<int>();
 
-            return returnedDataTable;
+            if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
+            {
+                List<int> mediaIdsList = sortedMediaMarksList.Select(x => x.LastMark.MediaID).ToList();
+                DataTable dtMediasMaxDurations = ApiDAL.Get_MediasMaxDuration(mediaIdsList);
+
+                if (dtMediasMaxDurations != null && dtMediasMaxDurations.Rows.Count > 0)
+                {
+                    Dictionary<int, int> dictMediasMaxDuration = new Dictionary<int, int>();
+                    foreach (DataRow rowDuration in dtMediasMaxDurations.Rows)
+                    {
+                        int nMediaID = ODBCWrapper.Utils.GetIntSafeVal("media_id");
+                        int nMaxDuration = ODBCWrapper.Utils.GetIntSafeVal("max_duration");
+                        dictMediasMaxDuration.Add(nMediaID, nMaxDuration);
+                    }
+
+                    foreach (MediaMarkLog mediaMarkLogObject in sortedMediaMarksList)
+                    {
+                        double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.MediaID]));
+                        if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
+                        {
+                            retList.Add(mediaMarkLogObject.LastMark.MediaID);
+                        }
+                    }
+
+                }
+            }
+            return retList;
         }
 
-        public static bool CleanUserHistory(int nGroupID, string siteGuid, List<int> lMediaIDs)
+        public static bool CleanUserHistory(string siteGuid, List<int> lMediaIDs)
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CleanUserHistory");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", nGroupID);
-                sp.AddParameter("@SiteGUID", siteGuid);
-                sp.AddIDListParameter<int>("@MediaIds", lMediaIDs, "Id");
+                bool retVal = true;
+                int nSiteGuid = 0;
+                int.TryParse(siteGuid, out nSiteGuid);
 
-                bool retVal = sp.ExecuteReturnValue<bool>();
+                var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+                Random r = new Random();
+                foreach (int nMediaID in lMediaIDs)
+                {
+                    string sDcoKey = UtilsDal.getUserMediaMarkDocKey(nSiteGuid, nMediaID);
+                    retVal = m_oClient.Remove(sDcoKey);
+                    Thread.Sleep(r.Next(50));
+                    if (!retVal)
+                    {
+                        return retVal;
+                    }
+                }
                 return retVal;
             }
             catch (Exception ex)
@@ -914,6 +982,7 @@ namespace DAL
                 return false;
             }
         }
+ 
 
         public static bool Is_MediaExistsToUserType(int nMediaID, int nUserTypeID)
         {
@@ -1218,5 +1287,19 @@ namespace DAL
 
             return res;
         }
+
+        public static DataTable Get_MediasMaxDuration(List<int> lMediaIDs)
+        {
+            ODBCWrapper.StoredProcedure spGetMediasMaxDuration = new ODBCWrapper.StoredProcedure("Get_MediasMaxDuration");
+            spGetMediasMaxDuration.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            spGetMediasMaxDuration.AddIDListParameter("@MediaIDs", lMediaIDs, "id");
+
+            DataSet ds = spGetMediasMaxDuration.ExecuteDataSet();
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+       
     }
 }

@@ -150,6 +150,9 @@
     <Compile Include="MediaCommentRequest.cs" />
     <Compile Include="MediaHitRequest.cs" />
     <Compile Include="MediaHitResponse.cs" />
+    <Compile Include="MediaLastPositionRequest.cs" />
+    <Compile Include="MediaLastPositionRequestData.cs" />
+    <Compile Include="MediaLastPositionResponse.cs" />
     <Compile Include="MediaMarkRequest.cs" />
     <Compile Include="MediaMarkResponse.cs" />
     <Compile Include="MediaPlayRequestData.cs" />

@@ -152,6 +152,10 @@ namespace Catalog
             {
                 return new EPGSearchContentRequest();
             }
+            if (m_oBaseRequest is MediaLastPositionRequest)
+            {
+                return new MediaLastPositionRequest((MediaLastPositionRequest)this.m_oBaseRequest);
+            }
            
 
             return null;

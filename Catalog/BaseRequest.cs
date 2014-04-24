@@ -44,6 +44,8 @@ namespace Catalog
     [KnownType(typeof(EPGProgramsByScidsRequest))]
     [KnownType(typeof(EPGProgramsByProgramsIdentefierRequest))]
     [KnownType(typeof(EPGSearchContentRequest))]
+    [KnownType(typeof(MediaLastPositionRequest))]
+    [KnownType(typeof(MediaLastPositionResponse))]
   
 
     [DataContract]
