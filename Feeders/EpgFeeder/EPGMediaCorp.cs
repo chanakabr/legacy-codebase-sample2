@@ -309,9 +309,7 @@ namespace EpgFeeder
                                         updateQuery.Finish();
                                         updateQuery = null;
 
-                                        //Update CB
-                                        newEpgItem.PicUrl = nPicID.ToString();                                        
-                                        
+                                        ////Update CB
                                         int nParentGroupID = 0;
                                         if (!string.IsNullOrEmpty(m_ParentGroupId))
                                         {
@@ -321,10 +319,10 @@ namespace EpgFeeder
                                         {
                                             nParentGroupID = DAL.UtilsDal.GetParentGroupID(int.Parse(s_GroupID));
                                         }
-
                                         BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);
-
-
+                                        newEpgItem.PicID = nPicID;
+                                        newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
+                                        newEpgItem.EpgID = uProgramID;
                                         oEpgBL.UpdateEpg(newEpgItem);
                                     }
                                     #endregion
