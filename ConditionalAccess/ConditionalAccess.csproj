@@ -190,6 +190,13 @@
     <None Include="Web References\TvinciAPI\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\api.wsdl" />
+    <None Include="Web References\TvinciAPI\CategoryObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\ChannelObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\DeviceAvailabiltyRule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -199,7 +206,13 @@
     <None Include="Web References\TvinciAPI\EPGChannelProgrammeObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciAPI\EPGMultiChannelProgrammeObject.datasource">
+    <None Include="Web References\TvinciAPI\FileTypeContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\GenericWriteResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\GroupInfo.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\GroupOperator.datasource">
@@ -208,13 +221,25 @@
     <None Include="Web References\TvinciAPI\GroupRule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\MediaInfoStructObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\MediaMarkObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\MeidaMaper.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\RateMediaObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\Scheduling.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\TagResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\UserIMRequestObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\UserStatus.datasource">
@@ -273,10 +298,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Api/api.asmx">
+    <WebReferenceUrl Include="http://localhost/WSApi/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciAPI\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WSApi/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -359,7 +384,6 @@
     <None Include="Web References\TvinciBilling\module.wsdl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciAPI\api.wsdl" />
     <None Include="Web References\TvinciBilling\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -370,10 +394,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciAPI\api.disco" />
-    <None Include="Web References\TvinciAPI\FileTypeContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
     <None Include="Web References\TvinciAPI\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -425,30 +445,6 @@
     <None Include="Web References\TvinciUsers\module.wsdl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciAPI\CategoryObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\ChannelObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GenericWriteResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GroupInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\MediaInfoStructObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\MeidaMaper.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\TagResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\UserIMRequestObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
     <None Include="Web References\TvinciPricing\Currency.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -557,6 +553,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\NotificationService\NotificationService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\TvinciAPI\api.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
