@@ -212,6 +212,7 @@ namespace EpgFeeder
                     int nCount = 0;
                     List<ulong> ulProgram =  new List<ulong>();
 
+                    List<DateTime> deletedDays = new List<DateTime>();
                   
                     foreach (XmlNode node in xmlnodelist)
                     {
@@ -240,7 +241,11 @@ namespace EpgFeeder
                             #region Delete Programs by channel + date                            
                                 
                                 DateTime dDate = ParseEPGStrToDate(schedule_date, "000000");// get all day start from 00:00:00
-                                DeleteProgramsByChannelAndDate(channelID, dDate);
+                                if (!deletedDays.Contains(dDate))
+                                {
+                                    deletedDays.Add(dDate);
+                                    DeleteProgramsByChannelAndDate(channelID, dDate);
+                                }
                             
                             #endregion 
 
@@ -253,11 +258,15 @@ namespace EpgFeeder
                             InsertProgramSchedule(program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate);
                             ProgramID = GetProgramIDByEPGIdentifier(EPGGuid);
                             ulong uProgramID = (ulong)ProgramID;
-
-                            EpgCB newEpgItem = InsertProgramScheduleCB(uProgramID, program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);                          
+                          
                             #endregion
 
-                            #region Insert EpgProgram ES
+                            if (ProgramID > 0)
+                            {
+
+                                EpgCB newEpgItem = InsertProgramScheduleCB(uProgramID, program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);                          
+                            
+                                #region Insert EpgProgram ES
 
                             if (nCount >= nCountPackage)
                             {                                
@@ -274,9 +283,7 @@ namespace EpgFeeder
                             
                             #endregion
                            
-
-                            if (ProgramID > 0)
-                            {
+                                                           
                                 DateTime progDate = new DateTime(dProgStartDate.Year, dProgStartDate.Month, dProgStartDate.Day);
 
                                 if (!epgDateWithChannelIds.ContainsKey(progDate))
@@ -360,11 +367,11 @@ namespace EpgFeeder
                     //start Upload proccess Queue
                     UploadQueue.UploadQueueHelper.SetJobsForUpload(int.Parse(s_GroupID));
 
-                    foreach (DateTime date in EPGDateRang)
-                    {
-                        DeleteScheduleProgramByDate(channelID, date);
-                        ApproverdScheduleProgramByDate(channelID, date);
-                    }
+                    //foreach (DateTime date in EPGDateRang)
+                    //{
+                    //    DeleteScheduleProgramByDate(channelID, date);
+                    //    ApproverdScheduleProgramByDate(channelID, date);
+                    //}
 
                     if (response != null)
                         response.Close();
@@ -451,7 +458,7 @@ namespace EpgFeeder
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", 0);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dProgStartDate);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dProgEndDate);
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 5);
+                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", UpdaterID);
 
@@ -491,7 +498,7 @@ namespace EpgFeeder
                 newEpgItem.UpdateDate = DateTime.UtcNow;
                 newEpgItem.CreateDate = DateTime.UtcNow;
                 newEpgItem.isActive = true;
-                newEpgItem.Status = 5;
+                newEpgItem.Status = 1;
 
                 List<FieldTypeEntity> lFieldTypeEntity = GetMappingFields();
                 SetMappingValues(lFieldTypeEntity, progItem);
