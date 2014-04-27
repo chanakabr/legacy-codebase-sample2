@@ -2736,5 +2736,21 @@ namespace ConditionalAccess
             return result;
         }
 
+        public static TvinciPricing.Subscription GetSubscriptionData(string sSubscriptionCode, int nGroupID)
+        {   
+            using (TvinciPricing.mdoule p = new TvinciPricing.mdoule())
+            {
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetSubscriptionByProductCode", "pricing", sIP, ref sWSUserName, ref sWSPass);
+
+                string sWSURL = Utils.GetWSURL("pricing_ws");
+                if (sWSURL.Length > 0)
+                    p.Url = sWSURL;
+
+                return p.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, "", "", "", false);
+            }
+        }
     }
 }

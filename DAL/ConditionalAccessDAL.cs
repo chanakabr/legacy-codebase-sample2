@@ -1143,6 +1143,20 @@ namespace DAL
             sp.AddParameter("@MPPPurchaseID", lPurchaseID);
 
             return sp.ExecuteReturnValue<bool>();
+        }             
+
+        public static bool Update_SubscriptionPurchaseEndDate(int? nID, string sSiteGuid, int? nBillingTransID, DateTime endDate)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseEndDate");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            if (nID.HasValue)
+                sp.AddParameter("@SubscriptionPurchaseID", nID);
+            if (nBillingTransID.HasValue)
+                sp.AddParameter("@BillingTransactionID", nBillingTransID);
+            sp.AddParameter("@SiteGUID", sSiteGuid);
+            sp.AddParameter("@EndDate", endDate);
+
+            return sp.ExecuteReturnValue<bool>();
         }
 
         public static long Insert_NewMColPurchase(long lGroupID, string sCollectionCode, string sSiteGuid,
@@ -1181,6 +1195,14 @@ namespace DAL
 
         }
 
+        public static bool Update_BillingMethodInBillingTransactions(int nID, int nBillingMethod)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_BillingMethodInBillingTransactions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BillingTransID", nID);
+            sp.AddParameter("@BillingMethod", nBillingMethod);
 
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
 }

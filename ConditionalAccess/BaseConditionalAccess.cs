@@ -11,6 +11,7 @@ using System.Xml;
 using System.Data;
 using DAL;
 using M1BL;
+using ConditionalAccess.TvinciPricing;
 
 
 namespace ConditionalAccess
@@ -8977,6 +8978,165 @@ namespace ConditionalAccess
 
         }
 
+
+        //Change subscription for a given user - the user will be able to watch the new subscription content, 
+        //but the billing for the new subscription will happen only when the previous subcription ends 
+        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSub, int nNewSub)
+        {
+            try
+            {               
+                //check if user exists
+                UserResponseObject ExistUser = Utils.GetExistUser(sSiteGuid, m_nGroupID);
+
+                if (ExistUser != null && ExistUser.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                {
+                    PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(sSiteGuid);//get all the valid subscriptions that this user has
+                    Subscription userSubNew;
+                    PermittedSubscriptionContainer userSubOld = new PermittedSubscriptionContainer();
+
+                    //check if old sub exists
+                    List<PermittedSubscriptionContainer> userOldSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nOldSub.ToString()).ToList();
+                    if (userOldSubList == null || userOldSubList.Count == 0)
+                    {
+                        return ChangeSubscriptionStatus.OldSubNotExists;
+                    }
+                    else
+                    {
+                        if (userOldSubList.Count > 0 && userOldSubList[0] != null)
+                        {
+                            userSubOld = userOldSubList[0];
+                            //check if the Subscription has autorenewal  
+                            if (!userSubOld.m_bIsSubRenewable)
+                            {
+                                Logger.Logger.Log("ChangeSubscription", "Previous Subscription ID: " + nOldSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
+                                return ChangeSubscriptionStatus.OldSubNotRenewable;
+                            }
+                        }
+                    }
+
+                    //check if new subscsription already exists for this user
+                    List<PermittedSubscriptionContainer> userNewSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nNewSub.ToString()).ToList();
+                    if (userNewSubList != null && userNewSubList.Count > 0 && userNewSubList[0] != null)
+                    {
+                        Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is already attached to this user. Subscription was not changed", "BaseConditionalAccess");
+                        return ChangeSubscriptionStatus.UserHadNewSub;
+                    }
+
+                    userSubNew = Utils.GetSubscriptionData(nNewSub.ToString(), m_nGroupID);
+
+                    //set new subscprion
+                    if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
+                    {
+                        return setSubscriptionChange(sSiteGuid, userSubNew, userSubOld);
+                    }
+                    else
+                    {
+                        Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " was not found. Subscription was not changed", "BaseConditionalAccess");
+                        return ChangeSubscriptionStatus.NewSubNotExits;
+                    }
+                }
+                else
+                {
+                    Logger.Logger.Log("ChangeSubscription", " User with siteGuid: " + sSiteGuid + " does not exist. Subscription was not changed", "BaseConditionalAccess");
+                    return ChangeSubscriptionStatus.UserNotExists;
+                }
+            }
+            catch (Exception exc)
+            {
+                Logger.Logger.Log("ChangeSubscription", "Exception: " + exc.Message + "In: " + exc.StackTrace, "BaseConditionalAccess");
+                return ChangeSubscriptionStatus.Error;
+            }
+        }
+
+        //the new subscription is dummy charged and its end date is set according the previous subscriptions end date
+        //the previous  subscription is cancled and its end date is set to 'now'
+        private ChangeSubscriptionStatus setSubscriptionChange(string sSiteGuid, Subscription subNew, PermittedSubscriptionContainer userSubOld)
+        {
+            ChangeSubscriptionStatus status = ChangeSubscriptionStatus.Error;
+            try
+            {               
+                #region Initialize
+                string sCurrency = "";
+                double dPrice = 0;
+                string sCouponCode = "";
+                string sUserIP = "";
+                string sCountry = "";
+                string sLanguage = "";
+                string sDeviceName = "";
+                string sSubscriptionCode = subNew.m_SubscriptionCode;
+                bool isDummyCharge = true;
+                string extraParams = "";
+                string sBillingMethod = "";//used only in real billing and not dummy
+                string sEncryptedCVV = "";//used only in real billing and not dummy                  
+
+                if (subNew.m_oPriceCode != null && subNew.m_oPriceCode.m_oPrise != null)
+                {
+                    dPrice = subNew.m_oPriceCode.m_oPrise.m_dPrice;
+                    if (subNew.m_oPriceCode.m_oPrise.m_oCurrency != null)
+                        sCurrency = subNew.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                }
+
+                if (subNew.m_oSubscriptionUsageModule != null && subNew.m_oSubscriptionUsageModule.m_coupon_id > 0)
+                {
+                    sCouponCode = subNew.m_oSubscriptionUsageModule.m_coupon_id.ToString();
+                }
+
+                string sCouponCodeOld = "";
+                #endregion
+
+                //charge the user for the new subscription with dummy charge
+                TvinciBilling.BillingResponse billResp = CC_BaseChargeUserForBundle(sSiteGuid, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, extraParams, sCountry, sLanguage, sDeviceName,
+                    isDummyCharge, sBillingMethod, sEncryptedCVV, eBundleType.SUBSCRIPTION);
+
+                //check if the charge was succesful: if so update relevant parameters and cancel the subsciption  
+                if (billResp.m_oStatus == TvinciBilling.BillingResponseStatus.Success)
+                {
+                    //get the end_date of previous subsciption - with considuration of a free trial, if one was assigned to it 
+                    PriceReason reason = new PriceReason();
+                    Subscription subOld = new Subscription();
+                    //the 'sCouponCodeOld' is empty, so the 'price' itself does not include a discount, if one was given
+                    Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, userSubOld.m_sSubscriptionCode, sSiteGuid, sCouponCodeOld, ref reason, ref subOld, sCountry, sLanguage, userSubOld.m_sDeviceName);
+                    bool bIsEntitledToPreviewModule = false;
+                    if (reason == PriceReason.EntitledToPreviewModule)
+                        bIsEntitledToPreviewModule = true;
+                    DateTime dtSubEndDate = CalcSubscriptionEndDate(subOld, bIsEntitledToPreviewModule, DateTime.UtcNow);
+
+                    int nBillingTransID = 0;
+                    bool parseSucceeded = int.TryParse(billResp.m_sRecieptCode, out nBillingTransID);
+                    if (parseSucceeded)
+                    {
+                        //update the new subscription End Date and Billing Method                                                                
+                        bool updateEndDateNew = ConditionalAccessDAL.Update_SubscriptionPurchaseEndDate(null, sSiteGuid, nBillingTransID, dtSubEndDate);
+                        int nBillingMethod = (int)PaymentMethod.ChangeSubscription;
+                        bool updateBillingTrans = ConditionalAccessDAL.Update_BillingMethodInBillingTransactions(nBillingTransID, nBillingMethod);
+
+                        //update the old subscription : is_recurring_status = 0, end_date = 'now'               
+                        bool bCancel = DAL.ConditionalAccessDAL.CancelSubscription(userSubOld.m_nSubscriptionPurchaseID, m_nGroupID, sSiteGuid, userSubOld.m_sSubscriptionCode) != 0 ? false : true;
+                        bool updateEndDateOld = ConditionalAccessDAL.Update_SubscriptionPurchaseEndDate(userSubOld.m_nSubscriptionPurchaseID, sSiteGuid, null, DateTime.UtcNow);
+
+                        if (updateEndDateNew && updateBillingTrans && bCancel && updateEndDateOld)
+                        {
+                            status = ChangeSubscriptionStatus.OK;
+                        }
+                        else
+                        {
+                            Logger.Logger.Log("setSubscriptionChange", "Update of new subscription: " + sSubscriptionCode + "and previous subcsription:" + userSubOld.m_sSubscriptionCode + "for User: " + sSiteGuid + " failed.", "BaseConditionalAccess");
+                        }
+                    }
+                }
+                else
+                {
+                    Logger.Logger.Log("setSubscriptionChange", "User with siteGuid: " + sSiteGuid + " was not dummy charged for new Subscription: " + sSubscriptionCode + ". Subscription was not changed", "BaseConditionalAccess");
+                }
+                                
+            }
+            catch (Exception exc)
+            {
+                Logger.Logger.Log("setSubscriptionChange", "Exception: " + exc.Message + "In: " + exc.StackTrace, "BaseConditionalAccess");
+                return ChangeSubscriptionStatus.Error;
+            }
+            return status;
+        }
     }
 
 }
