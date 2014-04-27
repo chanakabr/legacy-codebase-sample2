@@ -467,12 +467,13 @@ namespace M1BL
                 FileInfo fileInf = new FileInfo(sFileName);
                 string uri = m_sFtpDirectory + "/" + sFtpFolder + "/" + fileInf.Name;
 
+                Logger.Logger.Log("Start", string.Format("file:{0}, ftp:{1}", fileInf.Name, uri), "M1_FTPUpload");
+
                 if (!uri.StartsWith("ftp:"))
                 {
                     uri = "ftp://" + uri;
+                    Logger.Logger.Log("Add ftp", string.Format("ftp:{0}", uri), "M1_FTPUpload");
                 }
-
-                Logger.Logger.Log("Start", string.Format("file:{0}, ftp:{1}", fileInf.Name, uri), "M1_FTPUpload");
 
                 FtpWebRequest reqFTP;
                 reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));

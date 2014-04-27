@@ -176,43 +176,63 @@ namespace Uploader
                 }
                 else
                 {
-                    fs = fileInf.OpenRead();
-
-                    AmazonS3Config amazonS3Config = new AmazonS3Config();
-
-                    if (!string.IsNullOrEmpty(m_sRegion))
-                        amazonS3Config.RegionEndpoint = RegionEndpoint.GetBySystemName(m_sRegion);
-
-                    using (IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
+                    try
                     {
-                        PutObjectRequest request = new PutObjectRequest();
+                        fs = fileInf.OpenRead();
 
-                        request.InputStream = fs;
-                        request.BucketName = m_sAddress;
-                        //request.WithKey(job.media_id > 0 ? m_sPrefix + "/" + job.media_id + "/" + fileInf.Name : m_sPrefix + "/" + fileInf.Name);
-                        request.Key = m_sPrefix + "/" + fileInf.Name;
-                        request.CannedACL = S3CannedACL.PublicRead;
+                        AmazonS3Config amazonS3Config = new AmazonS3Config();
 
-                        PutObjectResponse putObjectResponse = client.PutObject(request);
+                        if (!string.IsNullOrEmpty(m_sRegion))
+                            amazonS3Config.RegionEndpoint = RegionEndpoint.GetBySystemName(m_sRegion);
 
-                        using (var md5Hasher = MD5.Create())
+                        using (IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
                         {
-                            using (var fs2 = fileInf.OpenRead())
+                            PutObjectRequest request = new PutObjectRequest();
+
+                            request.InputStream = fs;
+                            request.BucketName = m_sAddress;
+                            //request.WithKey(job.media_id > 0 ? m_sPrefix + "/" + job.media_id + "/" + fileInf.Name : m_sPrefix + "/" + fileInf.Name);
+                            request.Key = m_sPrefix + "/" + fileInf.Name;
+                            request.CannedACL = S3CannedACL.PublicRead;
+
+                            PutObjectResponse putObjectResponse = client.PutObject(request);
+
+                            using (var md5Hasher = MD5.Create())
                             {
-                                StringBuilder sb = new StringBuilder();
+                                using (var fs2 = fileInf.OpenRead())
+                                {
+                                    StringBuilder sb = new StringBuilder();
 
-                                foreach (Byte b in md5Hasher.ComputeHash(fs2))
-                                    sb.Append(b.ToString("x2").ToLower());
+                                    foreach (Byte b in md5Hasher.ComputeHash(fs2))
+                                        sb.Append(b.ToString("x2").ToLower());
 
-                                if (putObjectResponse.ETag.Replace("\"", string.Empty) != sb.ToString())
-                                    throw new Exception("Failed to copy file to Amazon S3");
+                                    if (putObjectResponse.ETag.Replace("\"", string.Empty) != sb.ToString())
+                                        throw new Exception("Failed to copy file to Amazon S3");
+                                }
                             }
                         }
+
+                        job.upload_status = UploadJobStatus.FINISHED;
+
+                        Logger.Logger.Log("ProccessJob - Finish.", "Job: " + job.ToString(), "AmazonUploader");
                     }
+                    catch (Exception ex)
+                    {
+                        Interlocked.Add(ref nFailCount, 1);
 
-                    job.upload_status = UploadJobStatus.FINISHED;
+                        job.fail_count++;
 
-                    Logger.Logger.Log("ProccessJob - Finish.", "Job: " + job.ToString(), "AmazonUploader");
+                        Logger.Logger.Log("ProccessJob - Error.", "Job: " + job.ToString() + ", Exception: " + ex.Message, "AmazonUploader");
+                    }
+                    finally
+                    {
+                        if (fileInf != null && job.upload_status == UploadJobStatus.FINISHED)
+                        {
+                            fileInf.Delete();
+
+                            Logger.Logger.Log("ProccessJob - Delete.", "Job: " + job.ToString(), "AmazonUploader");
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -228,14 +248,6 @@ namespace Uploader
                 if (fs != null)
                 {
                     fs.Close();
-
-                    //Logger.Logger.Log("File Stream Closed.", "File: " + file, "UploadedPics");
-                }
-                if (fileInf != null && job.upload_status == UploadJobStatus.FINISHED)
-                {
-                    fileInf.Delete();
-
-                    //Logger.Logger.Log("DeleteFile.", "File: " + file, "UploadedPics");
                 }
 
                 UploadHelper.UpdateJob(job);
