@@ -14,6 +14,8 @@ using DAL;
 using ApiObjects;
 using Logger;
 using System.Reflection;
+using System.ServiceModel.Channels;
+using System.ServiceModel;
 
 namespace TvinciImporter
 {
@@ -264,7 +266,7 @@ namespace TvinciImporter
         {
             int retVal = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select id from device_rules where IS_ACTIVE = 1 and";
+            selectQuery += "select id from device_rules where IS_ACTIVE = 1 and STATUS = 1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sDeviceRule.Trim().ToLower());
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
@@ -2374,7 +2376,7 @@ namespace TvinciImporter
             string sPreRule, string sPostRule, string sBreakRule,
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage)
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
@@ -2389,11 +2391,11 @@ namespace TvinciImporter
                 nCDNId = int.Parse(sCDNId);
 
 
-            Int32 nBillingCodeID    = GetBillingCodeIDByName(sBillingType);
-            Int32 nMediaFileID      = IngestionUtils.GetPicMediaFileID(nPicType, nMediaID, nGroupID, nQualityID, true, sLanguage);
-            Int32 nPreAdCompany     = GetAdCompID(sPreRule, nGroupID);
-            Int32 nPostAdCompany    = GetAdCompID(sPostRule, nGroupID);
-            Int32 nBreakAdCompany   = GetAdCompID(sBreakRule, nGroupID);
+            Int32 nBillingCodeID = GetBillingCodeIDByName(sBillingType);
+            Int32 nMediaFileID = IngestionUtils.GetPicMediaFileID(nPicType, nMediaID, nGroupID, nQualityID, true, sLanguage);
+            Int32 nPreAdCompany = GetAdCompID(sPreRule, nGroupID);
+            Int32 nPostAdCompany = GetAdCompID(sPostRule, nGroupID);
+            Int32 nBreakAdCompany = GetAdCompID(sBreakRule, nGroupID);
             Int32 nOverlayAdCompany = GetAdCompID(sOverlayRule, nGroupID);
 
             if (nMediaFileID != 0)
@@ -2406,18 +2408,19 @@ namespace TvinciImporter
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TYPE_ID", "=", nBillingCodeID);
 
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STREAMING_CODE", "=", sCDNCode);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS",         "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DURATION",       "=", nDuration);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE",      "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE",    "=", DateTime.Now);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID",     "=", 43);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DURATION", "=", nDuration);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_PRE_ID", "=", nPreAdCompany);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_POST_ID",    "=", nPostAdCompany);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_BREAK_ID",   "=", nBreakAdCompany);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_BREAK_POINTS",    "=", sBreakPoints);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_POST_ID", "=", nPostAdCompany);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_BREAK_ID", "=", nBreakAdCompany);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_BREAK_POINTS", "=", sBreakPoints);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_OVERLAY_ID", "=", nOverlayAdCompany);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_OVERLAY_POINTS",  "=", sOverlayPoints);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_OVERLAY_POINTS", "=", sOverlayPoints);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Product_Code", "=", sProductCode);
 
                 if (bAdsEnabled == true)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADS_ENABLED", "=", 1);
@@ -2487,9 +2490,9 @@ namespace TvinciImporter
 
         static protected void EnterPicMediaFile(string sPicType, Int32 nMediaID, Int32 nPicID, Int32 nGroupID, string sQuality)
         {
-            Int32 nPicType      = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
-            Int32 nQualityID    = ProtocolsFuncs.GetFileQualityID(sQuality);
-            Int32 nMediaFileID  = IngestionUtils.GetPicMediaFileID(nPicType, nMediaID, nGroupID, nQualityID, true);
+            Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
+            Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
+            Int32 nMediaFileID = IngestionUtils.GetPicMediaFileID(nPicType, nMediaID, nGroupID, nQualityID, true);
             if (nMediaFileID != 0)
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_files");
@@ -2739,7 +2742,7 @@ namespace TvinciImporter
             }
             return nChannelTransID;
         }
-        
+
         static public Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID, ref bool bExists, bool bForceCreate)
         {
             bExists = true;
@@ -2937,20 +2940,20 @@ namespace TvinciImporter
                 string sMainValue = GetNodeValue(ref theItem, "");
 
                 Int32 nMetaID = GetBoolMetaIDByMetaName(nGroupID, sName);
-                try
+                if (nMetaID > 0)
                 {
+                    bExecute = true;
+                    int val = 0;
                     if (sMainValue.Trim().ToLower() == "1" || sMainValue.Trim().ToLower() == "true")
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", 1);
-                    else if (sMainValue.Trim().ToLower() == "0" || sMainValue.Trim().ToLower() == "false")
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", 0);
-                    else
-                        AddError(ref sError, "On processing boolean value: " + sName + " The values are not boolean ");
+                    {
+                        val = 1;
+                    }
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("META" + nMetaID.ToString() + "_BOOL", "=", val);
                 }
-                catch (Exception ex)
+                else
                 {
-                    AddError(ref sError, "On processing boolean value: " + sName + " exception: " + ex.Message);
+                    AddError(ref sError, "boolean value: " + sName + " not exsits");
                 }
-                bExecute = true;
             }
             updateQuery += " where ";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
@@ -3049,28 +3052,29 @@ namespace TvinciImporter
             for (int i = 0; i < nCount; i++)
             {
                 XmlNode theItem = theFiles[i];
-                string sCoGuid            = GetItemParameterVal(ref theItem, "co_guid");
-                string sName              = GetItemParameterVal(ref theItem, "handling_type");
-                string sDuration          = GetItemParameterVal(ref theItem, "assetDuration");
-                string sQuality           = GetItemParameterVal(ref theItem, "quality");
-                string sFormat            = GetItemParameterVal(ref theItem, "type");
-                string sCDN               = GetItemParameterVal(ref theItem, "cdn_name");
-                string sCDNId             = GetItemParameterVal(ref theItem, "cdn_id");
-                string sBillingType       = GetItemParameterVal(ref theItem, "billing_type");
-                string sPPVModule         = GetItemParameterVal(ref theItem, "PPV_Module");
-                string sCDNCode           = GetItemParameterVal(ref theItem, "cdn_code");
-                string sPreRule           = GetItemParameterVal(ref theItem, "pre_rule");
-                string sPostRule          = GetItemParameterVal(ref theItem, "post_rule");
-                string sBreakRule         = GetItemParameterVal(ref theItem, "break_rule");
-                string sBreakPoints       = GetItemParameterVal(ref theItem, "break_points");
-                string sOverlayRule       = GetItemParameterVal(ref theItem, "overlay_rule");
-                string sOverlayPoints     = GetItemParameterVal(ref theItem, "overlay_points");
-                string sAdsEnabled        = GetItemParameterVal(ref theItem, "ads_enabled");
-                string sContractFamily    = GetItemParameterVal(ref theItem, "contract_family");
-                string sLanguage              = GetItemParameterVal(ref theItem, "lang");
-                string sIsDefaultLanguage     = GetItemParameterVal(ref theItem, "default");
+                string sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
+                string sName = GetItemParameterVal(ref theItem, "handling_type");
+                string sDuration = GetItemParameterVal(ref theItem, "assetDuration");
+                string sQuality = GetItemParameterVal(ref theItem, "quality");
+                string sFormat = GetItemParameterVal(ref theItem, "type");
+                string sCDN = GetItemParameterVal(ref theItem, "cdn_name");
+                string sCDNId = GetItemParameterVal(ref theItem, "cdn_id");
+                string sBillingType = GetItemParameterVal(ref theItem, "billing_type");
+                string sPPVModule = GetItemParameterVal(ref theItem, "PPV_Module");
+                string sCDNCode = GetItemParameterVal(ref theItem, "cdn_code");
+                string sPreRule = GetItemParameterVal(ref theItem, "pre_rule");
+                string sPostRule = GetItemParameterVal(ref theItem, "post_rule");
+                string sBreakRule = GetItemParameterVal(ref theItem, "break_rule");
+                string sBreakPoints = GetItemParameterVal(ref theItem, "break_points");
+                string sOverlayRule = GetItemParameterVal(ref theItem, "overlay_rule");
+                string sOverlayPoints = GetItemParameterVal(ref theItem, "overlay_points");
+                string sAdsEnabled = GetItemParameterVal(ref theItem, "ads_enabled");
+                string sContractFamily = GetItemParameterVal(ref theItem, "contract_family");
+                string sLanguage = GetItemParameterVal(ref theItem, "lang");
+                string sIsDefaultLanguage = GetItemParameterVal(ref theItem, "default");
                 string sOutputProtectionLevel = GetItemParameterVal(ref theItem, "output_protection_level");
-                int nIsDefaultLanguage        = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
+                int nIsDefaultLanguage = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
+                string sProductCode = GetItemParameterVal(ref theItem, "product_code");
 
                 bool bAdsEnabled = true;
                 if (sAdsEnabled.Trim().ToLower() == "false")
@@ -3101,7 +3105,7 @@ namespace TvinciImporter
                     EnterClipMediaFile(sFormat, nMediaID, 0, nGroupID, sQuality, sCDN, sCDNId, sCDNCode, sBillingType,
                         sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
                         bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
-                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage);
+                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode);
                 }
 
 
@@ -3257,7 +3261,7 @@ namespace TvinciImporter
             }
             return true;
         }
-
+         //get tags by group and by non group 
         static protected Int32 GetTagTypeID(Int32 nGroupID, string sTagName)
         {
             if (sTagName.ToLower().Trim() == "free")
@@ -3265,7 +3269,8 @@ namespace TvinciImporter
             Int32 nRet = 0;
             string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select mtt.id from media_tags_types mtt (nolock) where status=1 and group_id " + sGroups;
+            selectQuery += "select mtt.id from media_tags_types mtt (nolock) where status=1 and ( (TagFamilyID IS NULL and group_id " + sGroups + " ) ";
+            selectQuery += " or ( group_id = 0 and TagFamilyID = 1 ) )";
             selectQuery += "and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sTagName.Trim().ToLower());
             if (selectQuery.Execute("query", true) != null)
@@ -3453,9 +3458,9 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
-                updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 bool res = updateQuery.Execute();
-                Logger.Logger.Log("Ingest", "Update:"+res, "IngestLog");
+                Logger.Logger.Log("Update", string.Format("Media:{0} - {1}", nMediaID, res), "IngestLog");
+
                 updateQuery.Finish();
                 updateQuery = null;
             }
@@ -3609,7 +3614,7 @@ namespace TvinciImporter
         }
 
         static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
-        {           
+        {
             XmlDocument theDoc = new XmlDocument();
 
             theDoc.LoadXml(sXML);
@@ -3644,8 +3649,8 @@ namespace TvinciImporter
                     }
                     else
                     {
-                        sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";                       
-                        
+                        sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
+
                         // Update record in Catalog (see the flow inside Update Index
                         bool resultMQ = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update);
                         // update notification 
@@ -3755,7 +3760,7 @@ namespace TvinciImporter
         }
 
         #region Lucene
-    
+
         //Update Lucene Directory for the new media that was insert
         static public bool UpdateRecordInLucene(int groupid, int nMediaID)
         {
@@ -3837,7 +3842,7 @@ namespace TvinciImporter
 
             return bUpdate;
         }
-       
+
         static public bool UpdateChannelInLucene(int nGroupId, int nChannelID)
         {
             bool bUpdate = false;
@@ -3929,7 +3934,7 @@ namespace TvinciImporter
 
         #endregion
 
-       
+
         #region Notification
 
         static public void UpdateNotificationsRequests(int groupid, int nMediaID)
@@ -3939,7 +3944,7 @@ namespace TvinciImporter
             int[] vals = new int[2];
             vals[0] = groupid;
             vals[1] = nMediaID;
-            t.Start(vals);                 
+            t.Start(vals);
         }
 
         static private void UpdateNotification(object val)
@@ -3965,8 +3970,8 @@ namespace TvinciImporter
                 string sWSUserName = "";
                 string sWSPass = "";
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupid);
-                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);                
-                bUpdate = service.AddNotificationRequest(sWSUserName, sWSPass,string.Empty,Notification_WCF.NotificationTriggerType.FollowUpByTag,nMediaID);                                  
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+                bUpdate = service.AddNotificationRequest(sWSUserName, sWSPass, string.Empty, Notification_WCF.NotificationTriggerType.FollowUpByTag, nMediaID);
             }
             catch (Exception ex)
             {
@@ -3977,79 +3982,108 @@ namespace TvinciImporter
             return bUpdate;
         }
 
-        
+
         #endregion
-       
+
         private static string GetConfigVal(string sKey)
         {
-           return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
+            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
-        
+
+        #region create client to WCF service
+
+        internal static class BindingFactory
+        {
+            internal static Binding CreateInstance()
+            {
+                BasicHttpBinding binding = new BasicHttpBinding();
+                binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+                binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
+                binding.UseDefaultWebProxy = true;
+                return binding;
+            }
+
+        }        
+
+        internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
+        {
+            string siteUrl = GetConfigVal(sSiteUrl);
+            Uri serviceUri = new Uri(siteUrl);
+            EndpointAddress endpointAddress = new EndpointAddress(serviceUri);
+
+            //Create the binding here
+            Binding binding = BindingFactory.CreateInstance();
+            WSCatalog.IserviceClient client = new WSCatalog.IserviceClient(binding, endpointAddress);
+            return client;
+        }
+        #endregion
+
         public static bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction)
         {
             bool isUpdateIndexSucceeded = false;
 
-             string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
-             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
-             {
+            string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
+            if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
+            {
 
-                 using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
-                 {
-                     WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+                using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+                {
+                    WSCatalog.IserviceClient client = null;
 
-                     try
-                     {
-                         if (lMediaIds != null && lMediaIds.Count > 0 && nGroupId > 0)
-                         {
-                             string sWSURL = GetCatalogUrl(nGroupId);
-                             if (!string.IsNullOrEmpty(sWSURL))
-                             {
-                                 string[] addresses = sWSURL.Split(';');
-                                 int[] ids = lMediaIds.ToArray();
-                                 foreach (string endPointAddress in addresses)
-                                 {
-                                     try
-                                     {
-                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
-                                         isUpdateIndexSucceeded = client.UpdateIndex(ids, nGroupId, eAction);
-                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
-                                     }
-                                     catch (Exception ex)
-                                     {
-                                         updateIndexLog.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", endPointAddress, ex.Message));
-                                     }
-                                 }
-                             }
-                         }
-                     }
-                     catch (Exception ex)
-                     {
-                         updateIndexLog.Error(string.Format("{0} process failed due to the following error: {1}", MethodInfo.GetCurrentMethod().Name, ex.Message));
-                     }
-                     finally
-                     {
-                         if (client != null)
-                         {
-                             client.Close();
-                         }
-                     }
-                 }
-             }
-             else //Lucene
-             {
-                 if (lMediaIds != null && lMediaIds.Count > 0)
-                 {
-                     if (eAction.Equals(ApiObjects.eAction.Delete))
-                     {
-                         isUpdateIndexSucceeded = ImporterImpl.RemoveRecordInLucene(nGroupId, lMediaIds[0]);
-                     }
-                     else
-                     {
-                         isUpdateIndexSucceeded = ImporterImpl.UpdateRecordInLucene(nGroupId, lMediaIds[0]);
-                     }
-                 }
-             }
+                    try
+                    {
+                        client = GetWCFSvc("WS_Catalog");
+                        if (lMediaIds != null && lMediaIds.Count > 0 && nGroupId > 0)
+                        {
+                            string sWSURL = GetCatalogUrl(nGroupId);
+                            if (!string.IsNullOrEmpty(sWSURL))
+                            {
+                                string[] addresses = sWSURL.Split(';');
+                                int[] ids = lMediaIds.ToArray();
+                                foreach (string endPointAddress in addresses)
+                                {
+                                    try
+                                    {
+                                        client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
+                                        isUpdateIndexSucceeded = client.UpdateIndex(ids, nGroupId, eAction);
+                                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        updateIndexLog.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", endPointAddress, ex.Message));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        updateIndexLog.Error(string.Format("{0} process failed due to the following error: {1}", MethodInfo.GetCurrentMethod().Name, ex.Message));
+                    }
+                    finally
+                    {
+                        if (client != null)
+                        {
+                            client.Close();
+                        }
+                    }
+                }
+            }
+            else //Lucene
+            {
+                if (lMediaIds != null && lMediaIds.Count > 0)
+                {
+                    if (eAction.Equals(ApiObjects.eAction.Delete))
+                    {
+                        isUpdateIndexSucceeded = ImporterImpl.RemoveRecordInLucene(nGroupId, lMediaIds[0]);
+                    }
+                    else
+                    {
+                        isUpdateIndexSucceeded = ImporterImpl.UpdateRecordInLucene(nGroupId, lMediaIds[0]);
+                    }
+                }
+            }
 
             return isUpdateIndexSucceeded;
         }
@@ -4061,13 +4095,13 @@ namespace TvinciImporter
             string sUseElasticSearch = GetConfigVal("indexer");
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES"))
             {
-                WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+                WSCatalog.IserviceClient client = null;
 
                 using (BaseLog updateChannelLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
                 {
                     try
                     {
-
+                        client = GetWCFSvc("WS_Catalog");
                         if (lChannelIds != null && lChannelIds.Count > 0 && nGroupId > 0)
                         {
                             string sWSURL = GetCatalogUrl(nGroupId);
@@ -4129,7 +4163,7 @@ namespace TvinciImporter
                     string[] addresses = sWSURL.Split(';');
                     if (addresses != null && addresses.Length > 0)
                     {
-                        client = new WSCatalog.IserviceClient();
+                        client = GetWCFSvc("WS_Catalog");
                         int length = addresses.Length;
                         for (int i = 0; i < length; i++)
                         {
@@ -4137,8 +4171,8 @@ namespace TvinciImporter
                             res &= client.UpdateOperator(nGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
                         }
                     }
-                }               
-                
+                }
+
             }
             catch (Exception ex)
             {
@@ -4173,10 +4207,11 @@ namespace TvinciImporter
             {
                 using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
                 {
-                    WSCatalog.IserviceClient client = new WSCatalog.IserviceClient();
+                    WSCatalog.IserviceClient client = null;
 
                     try
                     {
+                        client = GetWCFSvc("WS_Catalog");
                         if (lepgIds != null && lepgIds.Count > 0 && nGroupId > 0)
                         {
                             string sWSURL = GetCatalogUrl(nGroupId);
@@ -4227,3 +4262,4 @@ namespace TvinciImporter
         }
     }   
 }
+

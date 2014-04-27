@@ -54,7 +54,7 @@ namespace Users
         Activated = 0,
         NotActivated = 1,
         NotActivatedByMaster = 2,
-        UserNotInDomain = 3,
+        UserRemovedFromDomain = 3,
         UserWIthNoDomain  = 4
     }
 

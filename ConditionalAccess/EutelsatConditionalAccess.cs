@@ -838,27 +838,39 @@ namespace ConditionalAccess
                     dbRes = DAL.ConditionalAccessDAL.UpdatePurchaseID(nReceiptCode, nPurchaseID);
                 }
 
-                try
+
+                // If device is portal (3SS), do NOT notify!
+                //
+                string transDeviceFilter = string.Empty;
+                if (TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter") != string.Empty)
                 {
-                    EutelsatTransactionResponse subNotificationRes = MakeSubNotification(sHouseholdUID, sSubscriptionCode, dPrice, sCurrency, sDEVICE_NAME, nReceiptCode);
-
-                    if (subNotificationRes.Success == false)
-                    {
-                        if (nReceiptCode > 0)
-                        {
-                            bool canceledTransaction = DAL.ConditionalAccessDAL.CancelTransaction(nReceiptCode);
-                            bool canceled = canceledTransaction && DAL.ConditionalAccessDAL.CancelSubPurchase(m_nGroupID, sSubscriptionCode, nPurchaseID, sSiteGUID);
-                        }
-
-                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                        ret.m_sRecieptCode = nReceiptCode.ToString();
-                        ret.m_sStatusDescription = "Error " + subNotificationRes.ErrorCode + ">" + subNotificationRes.ErrorMessage; //"User is not entitled for VOD purchasing";
-
-                        WriteToUserLog(sSiteGUID, "While trying to purchase product id(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
-                    }
+                    transDeviceFilter = TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter");
                 }
-                catch { }
 
+                if (!string.IsNullOrEmpty(sDEVICE_NAME) && (!sDEVICE_NAME.Contains(transDeviceFilter)))
+                {
+
+                    try
+                    {
+                        EutelsatTransactionResponse subNotificationRes = MakeSubNotification(sHouseholdUID, sSubscriptionCode, dPrice, sCurrency, sDEVICE_NAME, nReceiptCode);
+
+                        if (subNotificationRes.Success == false)
+                        {
+                            if (nReceiptCode > 0)
+                            {
+                                bool canceledTransaction = DAL.ConditionalAccessDAL.CancelTransaction(nReceiptCode);
+                                bool canceled = canceledTransaction && DAL.ConditionalAccessDAL.CancelSubPurchase(m_nGroupID, sSubscriptionCode, nPurchaseID, sSiteGUID);
+                            }
+
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            ret.m_sRecieptCode = nReceiptCode.ToString();
+                            ret.m_sStatusDescription = "Error " + subNotificationRes.ErrorCode + ">" + subNotificationRes.ErrorMessage; //"User is not entitled for VOD purchasing";
+
+                            WriteToUserLog(sSiteGUID, "While trying to purchase product id(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
+                        }
+                    }
+                    catch { }
+                }
 
                 //#region Send purchase mail
                 //try
@@ -941,6 +953,15 @@ namespace ConditionalAccess
         {
             string url = string.Empty;
 
+            // Validate inputs
+            if ((nProgramId <= 0) ||
+                (string.IsNullOrEmpty(sBasicLink)) ||
+                (string.IsNullOrEmpty(sSiteGUID)))
+            {
+                return string.Empty;
+            }
+
+
             try
             {
                 string sIP = "1.1.1.1";
@@ -948,11 +969,16 @@ namespace ConditionalAccess
                 string sWSPass = "";
 
                 string host = (new Uri(sBasicLink)).Host;
+                if (string.IsNullOrEmpty(host))
+                {
+                    return string.Empty;
+                }
+
 
                 string sBaseLink = GetLicensedLink(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
                 Logger.Logger.Log("LicensedLink", "Finished base link", "LicensedLink");
 
-                if ((string.IsNullOrEmpty(sBaseLink)) && (string.IsNullOrEmpty(host)))
+                if (string.IsNullOrEmpty(sBaseLink))
                 {
                     return string.Empty;
                 }
@@ -998,7 +1024,7 @@ namespace ConditionalAccess
                     Logger.Logger.Log("LicensedLink", "Finished getting stream type", "LicensedLink");
 
                     url = Utils.GetStreamTypeAndFormatLink(streamType, format); // Getting the url which matches both the epg format and the stream type
-                    
+
                     long nStartTime;
                     long nEndTime;
 
@@ -1010,49 +1036,35 @@ namespace ConditionalAccess
                     {
                         int.TryParse(sTimeMultFactor, out timeMultFactor);
                     }
-                  
+
+                    Scheduling scheduling = api.GetProgramSchedule(sWSUserName, sWSPass, nProgramId);
 
                     switch (format)
                     {
                         case eEPGFormatType.Catchup:
                         case eEPGFormatType.StartOver:
                             {
-                                if (!string.IsNullOrEmpty(nProgramId.ToString()))
+                                if (scheduling != null)
                                 {
-                                    Scheduling scheduling = api.GetProgramSchedule(sWSUserName, sWSPass, nProgramId);
-                                    if (scheduling != null)
-                                    {
-                                        long nTestStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.StartDate.AddMinutes(nLeftMargin)));
+                                    nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.StartDate.ToUniversalTime().AddMinutes(nLeftMargin)));
+                                    nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.ToUniversalTime().AddMinutes(nRightMargin)));
 
-                                        nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.StartDate.ToUniversalTime().AddMinutes(nLeftMargin)));
-                                        nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.ToUniversalTime().AddMinutes(nRightMargin)));
-
-                                        parametersToInjectInUrl.Add("start", nStartTime);
-                                        parametersToInjectInUrl.Add("end", nEndTime);
-                                    }
+                                    parametersToInjectInUrl.Add("start", nStartTime);
+                                    parametersToInjectInUrl.Add("end", nEndTime);
                                 }
                             }
-                            
-                            break;
-                        
-                            //{
-                                //if (!string.IsNullOrEmpty(startTime.ToString()))
-                                //{
-                                //    nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(startTime.AddMinutes(nLeftMargin)));
-                                //    nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.AddMinutes(nRightMargin)));
-                                //    parametersToInjectInUrl.Add("start", nStartTime);
-                                //    parametersToInjectInUrl.Add("end", nEndTime);
-                                //}
 
-                            //}
-                            //break;
+                            break;
+
                         case eEPGFormatType.LivePause:
-                            if (!string.IsNullOrEmpty(startTime.ToString()))
+
+                            DateTime startTimeUTC = startTime.ToUniversalTime();
+                            if (DateTime.Compare(startTimeUTC, DateTime.UtcNow) <= 0)
                             {
-                                nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(startTime.ToUniversalTime().AddMinutes(nLeftMargin)));
-                                //    nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.AddMinutes(nRightMargin)));
+                                nStartTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(startTimeUTC.AddMinutes(nLeftMargin)));
+                                nEndTime = (timeMultFactor * Utils.ConvertDateToEpochTimeInMilliseconds(scheduling.EndTime.AddMinutes(nRightMargin)));
                                 parametersToInjectInUrl.Add("start", nStartTime);
-                                //parametersToInjectInUrl.Add("end", nEndTime);
+                                parametersToInjectInUrl.Add("end", nEndTime);
                             }
 
                             break;
@@ -1064,7 +1076,9 @@ namespace ConditionalAccess
 
                     // Injecting the parameters values to the url
                     if (!string.IsNullOrEmpty(url))
+                    {
                         Utils.ReplaceSubStr(ref url, parametersToInjectInUrl);
+                    }
                 }
 
             }

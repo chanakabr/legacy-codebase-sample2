@@ -2197,7 +2197,7 @@ namespace ConditionalAccess
         {
             eStreamType streamType = eStreamType.HLS;
 
-            if (sBaseLink.Contains("isml/Manifest"))
+            if ((sBaseLink.ToLower().Contains("ism")) && (sBaseLink.ToLower().Contains("manifest")))
             {
                 streamType = eStreamType.SS;
             }
@@ -2205,7 +2205,7 @@ namespace ConditionalAccess
             {
                 streamType = eStreamType.HLS;
             }
-            else if (sBaseLink.Contains("Manifest.mpd"))
+            else if (sBaseLink.Contains(".mpd"))
             {
                 streamType = eStreamType.DASH;
             }

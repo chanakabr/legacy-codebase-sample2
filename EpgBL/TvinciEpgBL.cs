@@ -124,7 +124,10 @@ namespace EpgBL
                 List<ulong> lEpgIDs = new List<ulong>();
                 foreach (EpgCB epg in lExisitingPrograms)
                 {
-                    lEpgIDs.Add(epg.EpgID);                    
+                    if (epg != null)
+                    {
+                        lEpgIDs.Add(epg.EpgID);
+                    }
                 }
                 this.RemoveEpg(lEpgIDs);
             }
@@ -471,7 +474,7 @@ namespace EpgBL
 
             int nUPDATER_ID = 0;                      //not in use
             DateTime nPUBLISH_DATE = DateTime.UtcNow; //not in use  
-            oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString(), epg.EndDate.ToString(), epg.PicUrl, epg.Status.ToString(),
+            oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.PicUrl, epg.Status.ToString(),
                 epg.isActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(), epg.UpdateDate.ToString(), nPUBLISH_DATE.ToString(), epg.CreateDate.ToString(), lTags, lMetas, epg.ExtraData.MediaID.ToString(), (int)epg.Statistics.Likes);
             return oProg;
         }
