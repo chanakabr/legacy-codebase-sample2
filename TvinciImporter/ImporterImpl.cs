@@ -1637,7 +1637,7 @@ namespace TvinciImporter
                 return 0;
 
             //string sBasePath = GetBasePath(nGroupID);
-            string sBasePath = getRemotePicsURL(nGroupID);
+            string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);     
             string sPicName = getPictureFileName(sThumb);   
             Int32 nPicID = 0;
             nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicName, nGroupID);                        
@@ -2004,9 +2004,9 @@ namespace TvinciImporter
             //generate PictureData and send to Queue 
             string sPicNewName = getNewUninqueName(ratioID, nMediaID); //the unique name            
         
-            string[] sPicSizes = getMediaPicSizes(bSetMediaThumb, nGroupID, ratioID);  
+            string[] sPicSizes = getMediaPicSizes(bSetMediaThumb, nGroupID, ratioID);
 
-            string sBasePath = getRemotePicsURL(nGroupID); 
+            string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);              
 
             // generate PictureData and send to Queue
             bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sPic, sPicNewName, sBasePath, sPicSizes, nGroupID);            
@@ -2125,26 +2125,6 @@ namespace TvinciImporter
 
             str = lString.ToArray();
             return str;
-        }
-
-
-        private static string getRemotePicsURL(int nGroupID)
-        {
-            string sRemotePicsURL = string.Empty;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select PICS_REMOTE_BASE_URL from groups (nolock) where";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    sRemotePicsURL = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return sRemotePicsURL;
         }        
 
            //get new Unique name or existing one per media

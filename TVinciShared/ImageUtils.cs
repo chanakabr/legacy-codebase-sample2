@@ -587,7 +587,7 @@ namespace TVinciShared
         }
 
         //get the url from which the pics are downloaded 
-        private static string getRemotePicsURL(int nGroupID)
+        public static string getRemotePicsURL(int nGroupID)
         {
             string sRemotePicsURL = string.Empty;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
