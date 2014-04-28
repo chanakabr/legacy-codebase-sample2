@@ -4039,8 +4039,8 @@ namespace TvinciImporter
         {
             internal static Binding CreateInstance()
             {
-                BasicHttpBinding binding = new BasicHttpBinding();
-                binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+                WSHttpBinding binding = new WSHttpBinding();
+                binding.Security.Mode = SecurityMode.None;
                 binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
                 binding.UseDefaultWebProxy = true;
                 return binding;
