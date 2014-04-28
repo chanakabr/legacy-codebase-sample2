@@ -356,11 +356,16 @@ namespace ExcelGenerator
             selectQuery.Finish();
             selectQuery = null;
 
-            //Tags
+            //Tags + TagsType by group_id = 0 and	TagFamilyID = 1
+            string sTag = string.Empty;
+            int nID;
             selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select id, description from media_tags_types where status=1 and group_id";
+            selectQuery += "select id, description from media_tags_types where status = 1 and  (   ";
+            selectQuery += " ( TagFamilyID = 1	  and group_id = 0) or (  group_id ";
             string groupsStr = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
             selectQuery += groupsStr;
+            selectQuery += "  and TagFamilyID IS NULL ) )";
+
             selectQuery += "order by order_num";
             if (selectQuery.Execute("query", true) != null)
             {
@@ -370,8 +375,8 @@ namespace ExcelGenerator
                     for (int i = 0; i < nCount; i++)
                     {
                         //Get the Value and store in list
-                        string sTag = selectQuery.Table("query").DefaultView[i].Row["Description"].ToString();
-                        int nID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["id"].ToString());
+                        sTag = selectQuery.Table("query").DefaultView[i].Row["Description"].ToString();
+                        nID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["id"].ToString());
                         meta_tags.Add(nID);
 
                         //Create "Tag" Column
