@@ -549,10 +549,17 @@ namespace TVinciShared
         }
 
 
-        public static bool SendPictureDataToQueue(string sFullUrlDownload, string sNewName, string [] sPicSizes, int nGroupID)
+        public static bool SendPictureDataToQueue(string sFullUrlDownload, string sNewName, string sBasePath, string [] sPicSizes, int nGroupID)
         {
             bool bIsUpdateSucceeded = false;
             List<object> args = new List<object>();
+
+            //check for Http and if it is missing, insert the the remotePicsURL
+            if (sFullUrlDownload.ToLower().Trim().StartsWith("http://") == false &&
+                sFullUrlDownload.ToLower().Trim().StartsWith("https://") == false)
+            {
+                sFullUrlDownload = getRemotePicsURL(nGroupID) + sFullUrlDownload;
+            }
 
             args.Add(sFullUrlDownload);//the full url from which the picture should be taken
             args.Add(sNewName);
@@ -562,18 +569,17 @@ namespace TVinciShared
             upConfig.setUploadConfig(nGroupID);
             args.Add(upConfig);
 
-            string sBasePath = getRemotePicsURL(nGroupID);
             args.Add(sBasePath);
 
             string id = Guid.NewGuid().ToString();
-            ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, args);
+            string task = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyPicture");  
+            ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, task, args);
             Logger.Logger.Log("File download", "Picture will be downloaded from: " + sFullUrlDownload + "to:" + sBasePath, "DownloadFile");
 
             //update the Queue with picture data
             if (data != null)
             {
-                BaseQueue queue = new PictureQueue();
-                string task = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyPicture");                
+                BaseQueue queue = new PictureQueue();                             
                 bIsUpdateSucceeded = queue.Enqueue(data, task);                
             }
             Logger.Logger.Log("File download", "file was downloaded successfully :" + bIsUpdateSucceeded, "DownloadFile");
@@ -599,6 +605,8 @@ namespace TVinciShared
             selectQuery = null;
             return sRemotePicsURL;
         }
+
+
 
     }
 }

@@ -18,6 +18,7 @@ namespace QueueWrapper
         public string Port { get; set; }
         public string VirtualHost { get; set; }
         public string Username { get; set; }
+        public bool setContentType { get; set; }
 
         #endregion
 
@@ -34,10 +35,13 @@ namespace QueueWrapper
             this.Username = sUsername;
             this.Port = sPort;
             this.VirtualHost = sVirtualPort;
+            this.setContentType = false;
         }
 
         public RabbitConfigurationData()
-        { }
+        {
+            this.setContentType = false;
+        }
 
         #endregion
 

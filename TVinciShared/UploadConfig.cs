@@ -10,23 +10,23 @@ namespace TVinciShared
 
         #region Members
 
-        public string m_sType;
-        public string m_sAddress;
-        public string m_sUserName;
-        public string m_sPass;
-        public string m_sPrefix;       
-        public string m_sRegion;
+        public string type;
+        public string address;
+        public string user_name;
+        public string password;
+        public string prefix;
+        public string region;       
 
         #endregion
 
         public UploadConfig()
         {
-            m_sType = string.Empty;
-            m_sAddress = string.Empty;
-            m_sUserName = string.Empty;
-            m_sPass = string.Empty;
-            m_sPrefix = string.Empty;            
-            m_sRegion = string.Empty;
+            type = string.Empty;
+            address = string.Empty;
+            user_name = string.Empty;
+            password = string.Empty;
+            prefix = string.Empty;
+            region = string.Empty;
         }
 
         public void setUploadConfig(int nGroupID)
@@ -41,13 +41,13 @@ namespace TVinciShared
                 int nCount = selectQuery.Table("query").DefaultView.Count;
                 if (nCount > 0)
                 {
-                    this.m_sAddress = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "address", 0);
-                    this.m_sUserName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "username", 0);
-                    this.m_sPass = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "password", 0);
-                    this.m_sPrefix = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "prefix", 0);
-                    this.m_sRegion = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "region", 0);
-                    Uploader.UploaderImpl uploaderImpl = (Uploader.UploaderImpl)ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "uploader_type_id", 0); 
-                    this.m_sType = Enum.GetName(typeof(Uploader.UploaderImpl), uploaderImpl).ToLower();                   
+                    this.address = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "address", 0);
+                    this.user_name = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "username", 0);
+                    this.password = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "password", 0);
+                    this.prefix = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "prefix", 0);
+                    this.region = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "region", 0);
+                    Uploader.UploaderImpl uploaderImpl = (Uploader.UploaderImpl)ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "uploader_type_id", 0);
+                    this.type = Enum.GetName(typeof(Uploader.UploaderImpl), uploaderImpl).ToLower();                   
                 }
             }
             selectQuery.Finish();

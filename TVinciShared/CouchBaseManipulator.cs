@@ -310,7 +310,8 @@ namespace TVinciShared
 
             #region intialize string values from 'coll'
             bool bIsNew = false;
-            string sPicName = "";   
+            string sPicName = "";
+            string sBasePath = PageUtils.GetBasePicURL(nGroupID);                            
             string sFileObjName = nCounter.ToString() + "_val";
             HttpPostedFile theFile = HttpContext.Current.Request.Files[sFileObjName];
             string sUploadedFile = "";
@@ -369,7 +370,7 @@ namespace TVinciShared
                     string[] sPicSizes = lSizes.ToArray();
                     #endregion
                                        
-                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicName, sPicSizes, nGroupID); //send to Rabbit
+                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicName, sBasePath, sPicSizes, nGroupID); //send to Rabbit
 
                     epg.PicUrl = sPicName + sUploadedFileExt;
                     updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid);
@@ -450,8 +451,6 @@ namespace TVinciShared
             selectQuery.Finish();
             selectQuery = null;
             return sResult;
-
-
         }
 
         private static DateTime getDateTime(string sVal, int nCounter, ref NameValueCollection coll, ref bool bValid)

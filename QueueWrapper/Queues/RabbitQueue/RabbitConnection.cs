@@ -91,6 +91,8 @@ namespace QueueWrapper
                     {
                         var body = Encoding.UTF8.GetBytes(sMessage.ToString());
                         IBasicProperties properties = m_Model.CreateBasicProperties();
+                        if (configuration.setContentType)
+                            properties.ContentType = "application/json";
                         m_Model.BasicPublish(configuration.Exchange, configuration.RoutingKey, properties, body);
                     }
                 }

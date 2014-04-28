@@ -1634,20 +1634,21 @@ namespace TvinciImporter
             if (sThumb.Trim() == "")
                 return 0;
 
-            string sPicName = getPictureFileName(sThumb);          
-
+            //string sBasePath = GetBasePath(nGroupID);
+            string sBasePath = getRemotePicsURL(nGroupID);
+            string sPicName = getPictureFileName(sThumb);   
             Int32 nPicID = 0;
-            nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicName, nGroupID);
-                        
+            nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicName, nGroupID);                        
+          
             if (nPicID == 0)
-            { 
-                string sUploadedFileExt = ImageUtils.GetFileExt(sPicName);
+            {
+                string sUploadedFileExt = ImageUtils.GetFileExt(sThumb);
                 string sPicNewName = TVinciShared.ImageUtils.GetDateImageName();
-                string[] sPicSizes = getEPGPicSizes(nGroupID);
+                string[] sPicSizes = getEPGPicSizes(nGroupID);  
+               
+                bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sThumb, sPicNewName, sBasePath, sPicSizes, nGroupID);
 
-                bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sThumb, sPicNewName, sPicSizes, nGroupID); //send to Rabbit
-
-                nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sPicName, sPicNewName + sUploadedFileExt, nGroupID);
+                nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sThumb, sPicNewName + sUploadedFileExt, nGroupID);
             }
             #region old Code - changed to CB
             // Liat comment this update 02.02.2014
@@ -2003,14 +2004,17 @@ namespace TvinciImporter
         
             string[] sPicSizes = getMediaPicSizes(bSetMediaThumb, nGroupID, ratioID);  
 
-            bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sPic, sPicNewName, sPicSizes, nGroupID); //send to Rabbit           
+            string sBasePath = getRemotePicsURL(nGroupID); 
+
+            // generate PictureData and send to Queue
+            bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sPic, sPicNewName, sBasePath, sPicSizes, nGroupID);            
 
             //insert new Picture to DB 
             string sUploadedFileExt = ImageUtils.GetFileExt(sPic);
             nPicID = InsertNewPic(sMediaName, sPic, sPicNewName + sUploadedFileExt, nGroupID);          
 
-            if (nPicID != 0)
-            {               
+            if (nPicID != 0)          
+            {                
                 #region handle pic tags and update the media files
                 IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, nPicID, false);
                 if (bSetMediaThumb == true)
@@ -2030,6 +2034,7 @@ namespace TvinciImporter
             return nPicID;
         }
 
+
         private static string getPictureFileName(string sThumb)
         {
             char[] delim = { '/' };
@@ -2048,8 +2053,8 @@ namespace TvinciImporter
             return sPicName;
         }
 
-
-        //Epg Pics will alsays have "full" and "tn". also, all sizes of the group in 'epg_pics_sizes' will be added      
+        
+        //Epg Pics will alsays have "full" and "tn". also, all sizes of the group in 'epg_pics_sizes' will be added  
         private static string[] getEPGPicSizes(int nGroupID)
         {
             string[] str;
@@ -2076,9 +2081,12 @@ namespace TvinciImporter
             str = lString.ToArray();
             return str;
         }
-               
+
+
+
+
+        //according to 'bSetMediaThumb' there is "full" and "tn"
         //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
-        //"full" and "tn" are set according to 'bSetMediaThumb'
         private static string[] getMediaPicSizes(bool bSetMediaThumb, int nGroupID, int ratioID)
         {
             string [] str;
@@ -2116,8 +2124,28 @@ namespace TvinciImporter
             str = lString.ToArray();
             return str;
         }
-        
-        //get new Unique name or existing one per media
+
+
+        private static string getRemotePicsURL(int nGroupID)
+        {
+            string sRemotePicsURL = string.Empty;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select PICS_REMOTE_BASE_URL from groups (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    sRemotePicsURL = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return sRemotePicsURL;
+        }        
+
+           //get new Unique name or existing one per media
         private static string getNewUninqueName(int ratioID, int nMediaID)
         {
             string sPicBaseName = string.Empty;

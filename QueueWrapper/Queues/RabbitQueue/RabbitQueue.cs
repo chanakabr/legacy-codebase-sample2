@@ -17,7 +17,7 @@ namespace QueueWrapper
         private string m_sVirtualHost = string.Empty;
         private string m_sExchangeType = string.Empty;
         private string m_sType = string.Empty;
-
+        private bool m_bSetContentType = false;
         #region CTOR
 
         public RabbitQueue()
@@ -27,9 +27,10 @@ namespace QueueWrapper
 
 
         //the parameter will ensure that the config values are the ones relevent for the speceific Queue Type 
-        public RabbitQueue(string sType)
+        public RabbitQueue(string sType, bool bSetContentType)
         {
             m_sType = sType;
+            m_bSetContentType = bSetContentType;
             ReadRabbitParameters();
         }
 
@@ -47,10 +48,10 @@ namespace QueueWrapper
                 {
                     RabbitConfigurationData configData = CreateRabbitConfigurationData();
                     configData.RoutingKey = sRouteKey;
-
+                                       
                     if (configData != null)
                     {
-                        RabbitConnection.Instance.Publish(configData, sDataToIndex);
+                        RabbitConnection.Instance.Publish(configData, sDataToIndex);                        
                         bIsEnqueueSucceeded = true;
                     }
                 }
@@ -132,7 +133,7 @@ namespace QueueWrapper
                 m_sQueue = Utils.GetConfigValue("queuePicture");
                 m_sVirtualHost = Utils.GetConfigValue("virtualHostPicture");
                 m_sExchangeType = Utils.GetConfigValue("exchangeTypePicture");
-            }
+            }           
         }
 
         private RabbitConfigurationData CreateRabbitConfigurationData()
@@ -145,6 +146,10 @@ namespace QueueWrapper
                 && !string.IsNullOrEmpty(this.m_sExchangeType))
             {
                 configData = new RabbitConfigurationData(m_sExchange, m_sQueue, m_sRoutingKey, m_sHostName, m_sPassword, m_sExchangeType, m_sVirtualHost, m_sUserName, m_sPort);
+                if (m_bSetContentType)
+                {
+                    configData.setContentType = true;
+                }
             }
 
             return configData;

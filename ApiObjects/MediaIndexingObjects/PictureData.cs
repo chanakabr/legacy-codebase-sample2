@@ -9,7 +9,8 @@ namespace ApiObjects.MediaIndexingObjects
     public class PictureData : QueueObject
     {
         #region Properties       
-        public string id;    
+        public string id;
+        public string task;
         public List<object> args;
         #endregion
 
@@ -20,9 +21,10 @@ namespace ApiObjects.MediaIndexingObjects
         }
 
 
-        public PictureData(string sID, List<object> lArgs)
+        public PictureData(string sID, string sTask, List<object> lArgs)
         {
             serializer = new JavaScriptSerializer();
+            task = sTask;
             id = sID;       
             args = lArgs;
         }

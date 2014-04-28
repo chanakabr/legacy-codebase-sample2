@@ -11,7 +11,9 @@ namespace QueueWrapper
     {
         public PictureQueue()
         {
-            this.Implementation = new RabbitQueue("picture");//the parameter will ensure that the config values are the ones relevent for the PictureQueue
+            //the "picture" parameter will ensure that the config values are the ones relevent for the PictureQueue 
+            //the "true" indicates to set the content type of the message in the properties of the message
+            this.Implementation = new RabbitQueue("picture", true);            
         }
 
         public override bool Enqueue(QueueObject record, string sRouteKey)
