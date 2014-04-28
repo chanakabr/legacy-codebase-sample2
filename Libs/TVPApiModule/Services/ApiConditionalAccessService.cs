@@ -479,7 +479,8 @@ namespace TVPApiModule.Services
                                    string languageCode3,
                                    string deviceName,
                                    int assetType,
-                                   string overrideEndDate)
+                                   string overrideEndDate,
+                                   string sPreviewModelID)
         {
             int res = 0;
 
@@ -501,7 +502,7 @@ namespace TVPApiModule.Services
                                                   deviceName,
                                                   assetType,
                                                   overrideEndDate,
-                                                  string.Empty);
+                                                  sPreviewModelID);
 
                 logger.InfoFormat("Protocol: GetCustomDataID, Parameters : Parameters : siteGuid - {0}, price - {1}, currencyCode3 - {2}, assetId - {3}, ppvModuleCode - {4}, campaignCode - {5}, couponCode - {6}, paymentMethod - {7}, userIp - {8}, countryCd2 - {9}, languageCode3 - {10}, deviceName - {11}, assetType - {12}, overrideEndDate - {13}",
                                   siteGuid,
