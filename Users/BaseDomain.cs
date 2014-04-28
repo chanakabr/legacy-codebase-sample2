@@ -431,7 +431,7 @@ namespace Users
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             if (domain == null)
                 domain = GetDomainForValidation(lSiteGuid, lDomainID);
-            if (domain != null)
+            if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
                 switch (eValidationType)
                 {

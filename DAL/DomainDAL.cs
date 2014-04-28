@@ -202,28 +202,19 @@ namespace DAL
 
         public static int InsertDeviceToDomain(int nDeviceID, int nDomainID, int nGroupID, int nIsActive, int nStatus, string sActivationToken = "")
         {
-            int res = 0;
 
-            try
-            {
-                ODBCWrapper.StoredProcedure spInsertDeviceToDomain = new ODBCWrapper.StoredProcedure(SP_INSERT_DEVICE_TO_DOMAIN);
-                spInsertDeviceToDomain.SetConnectionKey("USERS_CONNECTION_STRING");
+            ODBCWrapper.StoredProcedure spInsertDeviceToDomain = new ODBCWrapper.StoredProcedure(SP_INSERT_DEVICE_TO_DOMAIN);
+            spInsertDeviceToDomain.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                spInsertDeviceToDomain.AddParameter("@deviceID", nDeviceID);
-                spInsertDeviceToDomain.AddParameter("@domainID", nDomainID);
-                spInsertDeviceToDomain.AddParameter("@groupID", nGroupID);
-                spInsertDeviceToDomain.AddParameter("@status", nStatus);
-                spInsertDeviceToDomain.AddParameter("@isActive", nIsActive);
-                spInsertDeviceToDomain.AddParameter("@activationToken", sActivationToken);
+            spInsertDeviceToDomain.AddParameter("@deviceID", nDeviceID);
+            spInsertDeviceToDomain.AddParameter("@domainID", nDomainID);
+            spInsertDeviceToDomain.AddParameter("@groupID", nGroupID);
+            spInsertDeviceToDomain.AddParameter("@status", nStatus);
+            spInsertDeviceToDomain.AddParameter("@isActive", nIsActive);
+            spInsertDeviceToDomain.AddParameter("@activationToken", sActivationToken);
 
-                res = spInsertDeviceToDomain.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+            return spInsertDeviceToDomain.ExecuteReturnValue<int>();
 
-            return res;
         }
 
         public static bool UpdateDomainsDevicesStatus(int nDomainsDevicesID, int nIsActive, int nStatus)
@@ -293,6 +284,8 @@ namespace DAL
             }
 
             return nDeviceDomainID;
+
+            //return Get_IsDeviceExistInDomain(nDomainID, nGroupID, deviceUdid, ref isActive, ref nDeviceID);
         }
 
         public static int GetDeviceDomainData(int nGroupID, string sDeviceUdid, ref int nDeviceID, ref int nIsActive, ref int nStatus, ref int nDbDomainDeviceID)
@@ -1276,45 +1269,47 @@ namespace DAL
 
         public static int GetDomainIDBySiteGuid(int nGroupID, int nSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster)
         {
-            int nDomainID = 0;
+            //int nDomainID = 0;
 
-            try
-            {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+            //try
+            //{
+            //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //    selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID FROM USERS_DOMAINS UD WITH (NOLOCK) INNER JOIN DOMAINS D WITH (NOLOCK) ON UD.DOMAIN_ID = D.ID WHERE UD.STATUS = 1 AND D.IS_ACTIVE = 1 AND D.STATUS = 1 AND";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UD.GROUP_ID", "=", nGroupID);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UD.USER_ID", "=", nSiteGuid);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    int count = selectQuery.Table("query").DefaultView.Count;
-                    if (count > 0)
-                    {
-                        nDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["DOMAIN_ID"].ToString());
+            //    selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID FROM USERS_DOMAINS UD WITH (NOLOCK) INNER JOIN DOMAINS D WITH (NOLOCK) ON UD.DOMAIN_ID = D.ID WHERE UD.STATUS = 1 AND D.IS_ACTIVE = 1 AND D.STATUS = 1 AND";
+            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UD.GROUP_ID", "=", nGroupID);
+            //    selectQuery += " AND ";
+            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UD.USER_ID", "=", nSiteGuid);
+            //    if (selectQuery.Execute("query", true) != null)
+            //    {
+            //        int count = selectQuery.Table("query").DefaultView.Count;
+            //        if (count > 0)
+            //        {
+            //            nDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["DOMAIN_ID"].ToString());
 
-                        if (!string.IsNullOrEmpty(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString()))
-                        {
-                            nOperatorID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString());
-                        }
+            //            if (!string.IsNullOrEmpty(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString()))
+            //            {
+            //                nOperatorID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString());
+            //            }
 
-                        if (selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"] != null)
-                        {
-                            bIsDomainMaster = (selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"].ToString() == "1");
-                        }
-                    }
-                }
+            //            if (selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"] != null)
+            //            {
+            //                bIsDomainMaster = (selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"].ToString() == "1");
+            //            }
+            //        }
+            //    }
 
-                selectQuery.Finish();
-                selectQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+            //    selectQuery.Finish();
+            //    selectQuery = null;
+            //}
+            //catch (Exception ex)
+            //{
+            //    HandleException(ex);
+            //}
 
-            return nDomainID;
+            //return nDomainID;
+
+            return (int)Get_DomainDataBySiteGuid(nGroupID, nSiteGuid, ref nOperatorID, ref bIsDomainMaster);
 
         }
 
@@ -1764,6 +1759,67 @@ namespace DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
+        }
+
+        public static long Get_DomainDataBySiteGuid(int nGroupID, long lSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster)
+        {
+            long res = 0;
+            StoredProcedure sp = new StoredProcedure("Get_DomainDataBySiteGuid");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", lSiteGuid);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0]["domain_id"]);
+                    nOperatorID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["operator_id"]);
+                    bIsDomainMaster = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["is_master"]) == 1;
+                }
+            }
+
+            return res;
+        }
+
+        public static DataTable Get_DomainDevices(int nGroupID, long lDomainID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_DomainDevices");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DomainID", lDomainID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static int Get_IsDeviceExistInDomain(int nDomainID, int nGroupID, string sDeviceUDID, ref int isActive, ref int nDeviceID)
+        {
+            int res = 0;
+            StoredProcedure sp = new StoredProcedure("Get_IsDeviceExistInDomain");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@DomainID", nDomainID);
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DeviceUDID", sDeviceUDID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
+                    isActive = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["is_active"]);
+                    nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["device_id"]);
+                }
+            }
+
+            return res;
+
         }
     }
 }

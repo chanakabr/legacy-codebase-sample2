@@ -106,7 +106,7 @@ namespace Users
             this.concurrency = concurrency;
             this.quantity = quantity;
             this.frequency = frequency;
-            this.nextActionFreqDate = DateTime.MaxValue;
+            this.nextActionFreqDate = Utils.FICTIVE_DATE;
         }
 
         public LimitationsManager(int concurrencyGroupLevel, int concurrencyDomainLevel, int quantity, int frequency)
@@ -114,7 +114,7 @@ namespace Users
             this.concurrency = GetActualConcurrency(concurrencyGroupLevel, concurrencyDomainLevel);
             this.quantity = quantity;
             this.frequency = frequency;
-            this.nextActionFreqDate = DateTime.MaxValue;
+            this.nextActionFreqDate = Utils.FICTIVE_DATE;
         }
 
         public LimitationsManager()
@@ -122,7 +122,7 @@ namespace Users
             this.concurrency = 0;
             this.quantity = 0;
             this.frequency = 0;
-            this.nextActionFreqDate = DateTime.MinValue;
+            this.nextActionFreqDate = Utils.FICTIVE_DATE;
         }
 
     }

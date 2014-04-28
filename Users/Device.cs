@@ -40,6 +40,23 @@ namespace Users
             m_state = DeviceState.UnKnown;
         }
 
+        public Device(string sUDID, int nDeviceBrandID, int nGroupID, string sDeviceName, int nDomainID, int nDeviceID, int nDeviceFamilyID,
+            string sDeviceFamilyName, string sPin, DateTime dtActivationDate, DeviceState eState)
+        {
+            this.m_deviceUDID = sUDID;
+            this.m_deviceBrandID = nDeviceBrandID;
+            this.m_groupID = nGroupID;
+            this.m_deviceName = sDeviceName;
+            this.m_domainID = nDomainID;
+            this.m_id = nDeviceID + "";
+            this.m_deviceFamilyID = nDeviceFamilyID;
+            this.m_deviceFamily = sDeviceFamilyName;
+            this.m_pin = sPin;
+            this.m_activationDate = dtActivationDate;
+            this.m_state = eState;
+
+        }
+
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string sDeviceName)
             : this(sUDID, nDeviceBrandID, nGroupID, sDeviceName, 0)
         {
@@ -447,6 +464,19 @@ namespace Users
         public bool Equals(Device other)
         {
             return m_deviceFamilyID == other.m_deviceFamilyID && m_deviceUDID.Equals(other.m_deviceUDID);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(String.Concat(" Device ID: ", m_id));
+            sb.Append(String.Concat(" Device UDID: ", m_deviceUDID));
+            sb.Append(String.Concat(" Device Brand ID: ", m_deviceBrandID));
+            sb.Append(String.Concat(" Device Family ID: ", m_deviceFamilyID));
+            sb.Append(String.Concat(" Group ID: ", m_groupID));
+            sb.Append(String.Concat(" Domain ID: ", m_domainID));
+            sb.Append(String.Concat(" State: ", m_state.ToString()));
+
+            return sb.ToString();
         }
     }
 }

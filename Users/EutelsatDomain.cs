@@ -172,11 +172,13 @@ namespace Users
 
                     if (nOperatorSubGroupID > 0)
                     {
-                        d.m_deviceFamilies = d.InitializeDeviceFamilies(nDomainLimitID, nOperatorSubGroupID);
+                        //d.m_deviceFamilies = d.InitializeDeviceFamilies(nDomainLimitID, nOperatorSubGroupID);
+                        d.DeviceFamiliesInitializer(nDomainLimitID, nOperatorSubGroupID);
                     }
                     else
                     {
-                        d.m_deviceFamilies = d.InitializeDeviceFamilies(nDomainLimitID, nGroupID);
+                        //d.m_deviceFamilies = d.InitializeDeviceFamilies(nDomainLimitID, nGroupID);
+                        d.DeviceFamiliesInitializer(nDomainLimitID, nGroupID);
                     }
 
                     DomainResponseStatus res = d.AddUserToDomain(m_nGroupID, d.m_nDomainID, nMasterGuID, nMasterGuID, UserDomainType.Master);    //AddUserToDomain(m_nGroupID, m_nDomainID, nMasterGuID, true);

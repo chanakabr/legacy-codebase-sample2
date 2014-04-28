@@ -27,7 +27,7 @@ namespace Users
             m_deviceLimit = limit;
             m_deviceConcurrentLimit = nConcurrentLimit;
             m_DeviceInstances = new List<Device>();
-            m_oLimitationsManager = new LimitationsManager();
+            m_oLimitationsManager = new LimitationsManager(nConcurrentLimit, limit, 0);
         }
 
         public List<Device> DeviceInstances
