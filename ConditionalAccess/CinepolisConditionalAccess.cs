@@ -39,13 +39,14 @@ namespace ConditionalAccess
 
 
 
-        public override int GetSubscriptionCustomDataID(string sSiteGUID, double dPrice,
+        public override int GetBundleCustomDataID(string sSiteGUID, double dPrice,
             string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEnddate, string sPreviewModuleID)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEnddate, string sPreviewModuleID, eBundleType bundleType)
         {
             int nSistrategiaToken = 0;
             // write custom data to db
-            int nCustomDataID = base.GetSubscriptionCustomDataID(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, sCampaignCode, sCouponCode, sPaymentMethod, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEnddate, sPreviewModuleID);
+
+            int nCustomDataID = base.GetBundleCustomDataID(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, sCampaignCode, sCouponCode, sPaymentMethod, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEnddate, sPreviewModuleID, eBundleType.SUBSCRIPTION);
             // request token from cinepolis
             if (nCustomDataID == 0 || !TryGetCinepolisToken(sSiteGUID, sUserIP, nCustomDataID, dPrice, ref nSistrategiaToken))
                 return 0;
@@ -512,6 +513,11 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        protected override bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
+        {
+            return bIsCouponUsedAndValid && reason == PriceReason.Free;
         }
 
     }

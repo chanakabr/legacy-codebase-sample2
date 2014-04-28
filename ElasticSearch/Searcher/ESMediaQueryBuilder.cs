@@ -334,13 +334,13 @@ namespace ElasticSearch.Searcher
                 BoolQuery oAndBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
                 BoolQuery oOrBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
                 BoolQuery oMultiFilterBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
-
-                BoolQuery oBoolQuery = new BoolQuery();
-                oBoolQuery.AddChild(oAndBoolQuery, CutWith.OR);
-                oBoolQuery.AddChild(oOrBoolQuery, CutWith.OR);
-                oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.OR);
                 
+                BoolQuery oBoolQuery = new BoolQuery();
+                oBoolQuery.AddChild(oAndBoolQuery, CutWith.AND);
+                oBoolQuery.AddChild(oOrBoolQuery, CutWith.AND);
+                oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.AND);
 
+                /*
                 if (!string.IsNullOrEmpty(oSearchObject.m_sDescription))
                 {
                     oBoolQuery.AddChild(new ESWildcard(){ Key = "description", Value = string.Format("*{0}*", oSearchObject.m_sDescription) }, CutWith.OR);
@@ -349,6 +349,7 @@ namespace ElasticSearch.Searcher
                 {
                     oBoolQuery.AddChild(new ESWildcard() { Key = "name", Boost = 3.0f, Value = string.Format("*{0}*", oSearchObject.m_sName) }, CutWith.OR);
                 }
+                */
 
                 sQuery = oBoolQuery.ToString();
 

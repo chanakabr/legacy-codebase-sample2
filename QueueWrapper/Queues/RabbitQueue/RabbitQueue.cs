@@ -51,8 +51,7 @@ namespace QueueWrapper
                                        
                     if (configData != null)
                     {
-                        RabbitConnection.Instance.Publish(configData, sDataToIndex);                        
-                        bIsEnqueueSucceeded = true;
+                        bIsEnqueueSucceeded = RabbitConnection.Instance.Publish(configData, sDataToIndex);
                     }
                 }
             }
@@ -81,7 +80,7 @@ namespace QueueWrapper
 
                     if (!string.IsNullOrEmpty(sMessage))
                     {
-                        sReturnedData = Utils.JsonToObject<T>(sMessage);                        
+                        sReturnedData = Utils.JsonToObject<T>(sMessage);
                     }
                 }
             }
@@ -163,6 +162,6 @@ namespace QueueWrapper
         #endregion
 
 
-        
+
     }
 }

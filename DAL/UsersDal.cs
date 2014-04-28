@@ -1188,9 +1188,9 @@ namespace DAL
         ///      3 - user removed from domain
         ///      
         /// </returns>
-        public static UserActivationState GetUserActivationState(string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
+        public static DALUserActivationState GetUserActivationState(int nParentGroupID, string[] arrGroupIDs, int nActivationMustHours, ref string sUserName, ref int nUserID, ref int nActivateStatus)
         {
-            UserActivationState res = UserActivationState.Error;    // int res = (-2);
+            DALUserActivationState res = DALUserActivationState.Error;
 
             try
             {
@@ -1217,32 +1217,34 @@ namespace DAL
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        nUserID                 = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                        sUserName               = selectQuery.Table("query").DefaultView[0].Row["USERNAME"].ToString();
+                        nUserID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
+                        sUserName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "USERNAME", 0);
 
-                        nActivateStatus         = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ACTIVATE_STATUS"].ToString());
-                        DateTime dCreateDate    = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["CREATE_DATE"]);
-                        DateTime dNow           = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["DNOW"]);
+                        nActivateStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ACTIVATE_STATUS", 0);
+                        DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "CREATE_DATE", 0);
+                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "DNOW", 0); 
 
-                        bool isActive           = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
+                        bool isActive = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
 
-                        res = isActive ? UserActivationState.Activated : UserActivationState.NotActivated; // 0 : 1;
-
-                        //if (!isActive) { return res; }
+                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;                 
                     }
                     else
                     {
-                        res = UserActivationState.UserDoesNotExist; // (-1);
-
-                        return res;
+                        res = DALUserActivationState.UserDoesNotExist;
                     }
                 }
 
                 selectQuery.Finish();
                 selectQuery = null;
 
-
-                if (res == UserActivationState.NotActivated) { return res; }
+                if (res == DALUserActivationState.UserDoesNotExist || (res == DALUserActivationState.NotActivated && GetIsActivationNeeded(nParentGroupID)))
+                { 
+                    return res; 
+                }
+                else
+                {
+                    res = DALUserActivationState.Activated;
+                }
 
                 // If reached here (res == 0), user's activation status is true, so need to check if he is non-master awaiting master's approval
                 //
@@ -1263,28 +1265,28 @@ namespace DAL
                     Int32 nCount = selectQuery1.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        int isMaster = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["IS_MASTER"].ToString());
-                        int isActive = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["IS_ACTIVE"].ToString());
-                        int nStatus  = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["STATUS"].ToString());
+                        int isMaster = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_MASTER", 0); 
+                        int isActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_ACTIVE", 0); 
+                        int nStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "STATUS", 0); 
 
-                        DateTime dCreateDate1 = (DateTime)(selectQuery1.Table("query").DefaultView[0].Row["CREATE_DATE"]);
-                        DateTime dNow1 = (DateTime)(selectQuery1.Table("query").DefaultView[0].Row["DNOW"]);
+                        DateTime dCreateDate1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "CREATE_DATE", 0); 
+                        DateTime dNow1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "DNOW", 0); 
 
                         bool isActive1 = ((isMaster > 0) || !(isActive == 0 && dCreateDate1.AddHours(nActivationMustHours) < dNow1));
 
                         if (nStatus != 2)
                         {
-                            res = isActive1 ? UserActivationState.Activated : UserActivationState.NotActivatedByMaster; // 0 : 2;
+                            res = isActive1 ? DALUserActivationState.Activated : DALUserActivationState.NotActivatedByMaster;
                         }
                         else
                         {
-                            res = UserActivationState.UserNotInDomain;
+                            res = DALUserActivationState.UserRemovedFromDomain;
                         }
 
                     }
                     else //user does not have a Domain
                     {
-                        res = UserActivationState.UserNotInDomain; //res = (-1);
+                        res = DALUserActivationState.UserWIthNoDomain;
                     }
                 }
 
@@ -1295,8 +1297,7 @@ namespace DAL
             catch (Exception ex)
             {
                 HandleException(ex);
-
-                res = UserActivationState.Error; // (-2);
+                res = DALUserActivationState.Error; // (-2);
             }
 
             return res;

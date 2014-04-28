@@ -213,10 +213,10 @@ namespace DAL
         public static DataView GetUserBillingHistory(string[] arrGroupIDs, string sUserGUID, int nTopNum, DateTime dStartDate, DateTime dEndDate)
         {
             DataView res = null;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
 
                 if (nTopNum > 0)
@@ -248,6 +248,14 @@ namespace DAL
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                    selectQuery = null;
+                }
             }
 
             return res;
@@ -611,6 +619,20 @@ namespace DAL
             return null;
         }
 
+        public static DataTable Get_UsersPermittedCollections(List<int> usersIds, bool isExpired)
+        {
+            ODBCWrapper.StoredProcedure spGet_UsersPermittedCollections = new ODBCWrapper.StoredProcedure("Get_UsersPermittedCollections");
+            spGet_UsersPermittedCollections.SetConnectionKey("CONNECTION_STRING");
+            spGet_UsersPermittedCollections.AddIDListParameter<int>("@UserIDs", usersIds, "Id");
+            spGet_UsersPermittedCollections.AddParameter("@isExpired", isExpired);
+
+            DataSet ds = spGet_UsersPermittedCollections.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
         public static DataTable Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
         {
             ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_MediaFileByID");
@@ -651,6 +673,22 @@ namespace DAL
             sp.AddParameter("@PurchaseType", nPurchaseType);
             return sp.ExecuteReturnValue<bool>();
 
+        }
+
+        public static DataTable Get_allDomainsPPVUsesUsingCollection(List<int> usersList, int groupID, int MediaFileID, int nBoxsetID)
+        {
+            ODBCWrapper.StoredProcedure spGet_allDomainsPPVUsesUsingCollection = new ODBCWrapper.StoredProcedure("Get_allDomainsPPVUsesUsingCollection");
+            spGet_allDomainsPPVUsesUsingCollection.SetConnectionKey("CONNECTION_STRING");
+            spGet_allDomainsPPVUsesUsingCollection.AddIDListParameter<int>("@usersList", usersList, "Id");
+            spGet_allDomainsPPVUsesUsingCollection.AddParameter("@groupID", groupID);
+            spGet_allDomainsPPVUsesUsingCollection.AddParameter("@MediaFileID", MediaFileID);
+            spGet_allDomainsPPVUsesUsingCollection.AddParameter("@relCollectionID", nBoxsetID);
+
+            DataSet ds = spGet_allDomainsPPVUsesUsingCollection.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
         }
 
         public static DataTable Get_allDomainsPPVUses(List<int> usersList, int groupID, int MediaFileID)
@@ -700,6 +738,20 @@ namespace DAL
             return null;
         }
 
+        public static DataTable Get_AllCollectionInfoByUsersIDs(List<int> UserIDs)
+        {
+            ODBCWrapper.StoredProcedure spGet_AllCollectionInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllCollectionInfoByUsersIDs");
+            spGet_AllCollectionInfoByUsersIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllCollectionInfoByUsersIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
+
+
+            DataSet ds = spGet_AllCollectionInfoByUsersIDs.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
         public static DataTable Get_AllSubscriptionInfoByUsersIDs(List<int> UserIDs)
         {
             ODBCWrapper.StoredProcedure spGet_AllSubscriptionInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllSubscriptionInfoByUsersIDs");
@@ -721,6 +773,20 @@ namespace DAL
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.AddParameter("@subscriptionCode", subscriptionCode);
 
             DataSet ds = spGet_SubscriptionBySubscriptionCodeAndUserIDs.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_CollectionByCollectionCodeAndUserIDs(List<int> UserIDs, string collectionCode)
+        {
+            ODBCWrapper.StoredProcedure spGet_CollectionByCollectionCodeAndUserIDs = new ODBCWrapper.StoredProcedure("Get_CollectionByCollectionCodeAndUserIDs");
+            spGet_CollectionByCollectionCodeAndUserIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_CollectionByCollectionCodeAndUserIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
+            spGet_CollectionByCollectionCodeAndUserIDs.AddParameter("@subscriptionCode", collectionCode);
+
+            DataSet ds = spGet_CollectionByCollectionCodeAndUserIDs.ExecuteDataSet();
 
             if (ds != null)
                 return ds.Tables[0];
@@ -985,10 +1051,10 @@ namespace DAL
             sp.ExecuteNonQuery();
         }
 
-        public static void Update_MPPFailCountByPurchaseID(long lPurchaseID, bool bTrueForIncrementingByOneFalseForSettingNewValue, int nNewValue)
+        public static void Update_MPPFailCountByPurchaseID(long lPurchaseID, bool bTrueForIncrementingByOneFalseForSettingNewValue, int nNewValue, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPFailCountByPurchaseID");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
             sp.AddParameter("@PurchaseID", lPurchaseID);
             if (bTrueForIncrementingByOneFalseForSettingNewValue)
             {
@@ -1002,6 +1068,11 @@ namespace DAL
             }
 
             sp.ExecuteNonQuery();
+        }
+
+        public static void Update_MPPFailCountByPurchaseID(long lPurchaseID, bool bTrueForIncrementingByOneFalseForSettingNewValue, int nNewValue)
+        {
+            Update_MPPFailCountByPurchaseID(lPurchaseID, bTrueForIncrementingByOneFalseForSettingNewValue, nNewValue, string.Empty);
         }
 
         public static string Get_FirstDeviceUsedByPPVModule(int nMediaFileID, string sPPVModuleCode, List<int> usersList, out int numofRowsReturned)
@@ -1072,8 +1143,66 @@ namespace DAL
             sp.AddParameter("@MPPPurchaseID", lPurchaseID);
 
             return sp.ExecuteReturnValue<bool>();
+        }             
+
+        public static bool Update_SubscriptionPurchaseEndDate(int? nID, string sSiteGuid, int? nBillingTransID, DateTime endDate)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseEndDate");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            if (nID.HasValue)
+                sp.AddParameter("@SubscriptionPurchaseID", nID);
+            if (nBillingTransID.HasValue)
+                sp.AddParameter("@BillingTransactionID", nBillingTransID);
+            sp.AddParameter("@SiteGUID", sSiteGuid);
+            sp.AddParameter("@EndDate", endDate);
+
+            return sp.ExecuteReturnValue<bool>();
         }
 
+        public static long Insert_NewMColPurchase(long lGroupID, string sCollectionCode, string sSiteGuid,
+            double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
+            string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs,
+            long lBillingTransactionID, DateTime dtCollectionStartDate, DateTime dtCollectionEndDate,
+            DateTime dtCreateAndUpdateDate, string sConnKey)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@GroupID", lGroupID);
+            sp.AddParameter("@CollectionCode", sCollectionCode);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@CustomData", sCustomData);
+            sp.AddParameter("@NumOfUses", 0);
+            sp.AddParameter("@MaxNumOfUses", lMaxNumOfUses);
+            sp.AddParameter("@ViewLifeCycleSecs", lViewLifeCycleSecs);
+            sp.AddParameter("@LastViewDate", DBNull.Value); // make sure it is correct
+            sp.AddParameter("@StartDate", dtCollectionStartDate);
+            sp.AddParameter("@IsActive", 1);
+            sp.AddParameter("@EndDate", dtCollectionEndDate);
+            sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
+            sp.AddParameter("@Status", 1);
+            sp.AddParameter("@Price", dPrice);
+            sp.AddParameter("@CurrencyCode", sCurrencyCode);
+            sp.AddParameter("@UpdaterID", 0);
+            sp.AddParameter("@UpdateDate", dtCreateAndUpdateDate);
+            sp.AddParameter("@CreateDate", dtCreateAndUpdateDate);
+            sp.AddParameter("@PublishDate", DBNull.Value);
+            sp.AddParameter("@CountryCode", sCountryCode);
+            sp.AddParameter("@LanguageCode", sLanguageCode);
+            sp.AddParameter("@DeviceName", sDeviceName);
+            sp.AddParameter("@FailCount", 0);
 
+            return sp.ExecuteReturnValue<long>();
+
+        }
+
+        public static bool Update_BillingMethodInBillingTransactions(int nID, int nBillingMethod)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_BillingMethodInBillingTransactions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BillingTransID", nID);
+            sp.AddParameter("@BillingMethod", nBillingMethod);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
 }

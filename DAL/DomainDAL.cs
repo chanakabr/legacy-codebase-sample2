@@ -987,9 +987,9 @@ namespace DAL
                     nStatus                 = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
                     nIsActive               = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE");
                     nFrequencyFlag          = ODBCWrapper.Utils.GetIntSafeVal(dr, "FREQUENCY_FLAG");
-                    nDeviceMinPeriodId      = GetGroupDeviceMinPeriodId(nGroupID);
-                    nUserMinPeriodId        = GetGroupUserMinPeriodId(nGroupID);
-                    sCoGuid                 = ODBCWrapper.Utils.GetSafeStr(dr,"COGUID");
+                    nDeviceMinPeriodId      = ODBCWrapper.Utils.GetIntSafeVal(dr, "DEVICE_MIN_PERIOD_ID"); //GetDeviceMinPeriodID();
+                    nUserMinPeriodId        = ODBCWrapper.Utils.GetIntSafeVal(dr, "USER_MIN_PERIOD_ID");   //GetGroupUserMinPeriodId(nGroupID);
+                    sCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "COGUID");
                     dDeviceFrequencyLastAction = ODBCWrapper.Utils.GetDateSafeVal(dr, "FREQUENCY_LAST_ACTION");
                     dUserFrequencyLastAction   = ODBCWrapper.Utils.GetDateSafeVal(dr, "USER_FREQUENCY_LAST_ACTION");
                     nDomainRestriction         = ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
@@ -1199,7 +1199,6 @@ namespace DAL
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken); 
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken);
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 updateQuery += " and ";
@@ -1729,8 +1728,7 @@ namespace DAL
             sp.AddParameter("@Name", sName);
             sp.AddParameter("@Description", sDesc);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
-            sp.AddParameter("@IsActive", false);
-            sp.AddParameter("@Status", (byte)(bTrueForDeactivationFalseForDeletion ? 1 : 2));
+            sp.AddParameter("@IsDelete", !bTrueForDeactivationFalseForDeletion);
 
             return sp.ExecuteReturnValue<bool>();
         }

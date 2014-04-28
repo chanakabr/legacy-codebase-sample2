@@ -4,6 +4,7 @@ using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -14,11 +15,20 @@ namespace QueueWrapper
 {
     public class RabbitConnection : IDisposable
     {
+
+        #region CONST
+
+        private int FAIL_COUNT_LIMIT = 3;
+
+        #endregion
+
         #region Members
 
         private IConnection m_Connection;
         private IModel m_Model;
-        private QueueingBasicConsumer m_consumer;
+        private ReaderWriterLockSlim m_lock;
+        private int m_FailCounter;
+        private int m_FailCounterLimit;
 
         #endregion
 
@@ -43,6 +53,33 @@ namespace QueueWrapper
             // not to mark type as beforefieldinit
             static Nested()
             {
+                if (Instance != null)
+                {
+                    Instance.m_lock = new ReaderWriterLockSlim();
+                    Instance.m_FailCounter = 0;
+
+                    int failCounterLimit = Instance.FAIL_COUNT_LIMIT;  // A random value was chosen here. It is only for a case on which we can't read value neither from TCM nor from AppSettings
+                    try
+                    {
+                        string sFailCountLimit = Utils.GetTcmConfigValue("queue_fail_limit");
+                        if (string.IsNullOrEmpty(sFailCountLimit))
+                        {
+                            bool isParseSucceeded = int.TryParse(ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
+                            if (!isParseSucceeded)
+                            {
+                                failCounterLimit = Instance.FAIL_COUNT_LIMIT;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        Instance.m_FailCounterLimit = failCounterLimit;
+                    }
+                }
             }
 
             internal static readonly RabbitConnection Instance = new RabbitConnection();
@@ -51,6 +88,16 @@ namespace QueueWrapper
         #endregion
 
         #region Public Functions
+
+        public int GetQueueFailCounter()
+        {
+            return m_FailCounter;
+        }
+
+        public int GetQueueFailCountLimit()
+        {
+            return m_FailCounterLimit;
+        }
 
         public bool Ack(RabbitConfigurationData configuration, string sAckId)
         {
@@ -80,29 +127,75 @@ namespace QueueWrapper
 
         public bool Publish(RabbitConfigurationData configuration, string sMessage)
         {
-            bool bIsInstanceExist = this.GetInstance(configuration, QueueAction.Publish);
-
-            if (m_Connection != null)
+            bool isPublishSucceeded = false;
+            if (m_FailCounter < m_FailCounterLimit) // Check if we reached the writing limit
             {
-                try
-                {
-                    this.m_Model = m_Connection.CreateModel();
-                    if (this.m_Model != null)
-                    {
-                        var body = Encoding.UTF8.GetBytes(sMessage.ToString());
-                        IBasicProperties properties = m_Model.CreateBasicProperties();
-                        if (configuration.setContentType)
-                            properties.ContentType = "application/json";
-                        m_Model.BasicPublish(configuration.Exchange, configuration.RoutingKey, properties, body);
-                    }
-                }
-                catch  (Exception ex)
-                {
+                bool bIsInstanceExist = false;
+                bIsInstanceExist = this.GetInstance(configuration, QueueAction.Publish);
 
+                if (m_Connection != null && bIsInstanceExist)
+                {
+                    try
+                    {
+                        this.m_Model = m_Connection.CreateModel();
+                        if (this.m_Model != null)
+                        {
+                            var body = Encoding.UTF8.GetBytes(sMessage.ToString());
+                            IBasicProperties properties = m_Model.CreateBasicProperties();
+                            if (configuration.setContentType)
+                                properties.ContentType = "application/json";
+                            m_Model.BasicPublish(configuration.Exchange, configuration.RoutingKey, properties, body);
+                            isPublishSucceeded = true;
+                            ResetFailCounter();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        IncreaseFailCounter();
+                        string msg = ex.Message;
+                    }
                 }
             }
 
-            return bIsInstanceExist;
+            return isPublishSucceeded;
+        }
+
+        private void ResetFailCounter()
+        {
+            if (m_FailCounter > 0)
+            {
+                m_lock.EnterWriteLock();
+                try
+                {
+                    if (m_FailCounter > 0)                    
+                    {
+                        this.m_FailCounter = 0;
+                    }
+                }
+                finally
+                {
+                    m_lock.ExitWriteLock();
+                }
+            }
+        }
+
+        private void IncreaseFailCounter()
+        {
+            if (m_FailCounter < m_FailCounterLimit)
+            {
+                m_lock.EnterWriteLock();
+                try
+                {
+                    if (m_FailCounter < m_FailCounterLimit)
+                    {
+                        this.m_FailCounter++;
+                    }
+                }
+                finally
+                {
+                    m_lock.ExitWriteLock();
+                }
+            }
         }
 
         public string Subscribe(RabbitConfigurationData configuration, ref string sAckId)
@@ -110,7 +203,7 @@ namespace QueueWrapper
             string sMessage = string.Empty;
 
             this.GetInstance(configuration, QueueAction.Subscribe);
-            
+
             if (m_Connection != null)
             {
                 try
@@ -152,31 +245,31 @@ namespace QueueWrapper
                         mutex.WaitOne(-1);
                         if (this.m_Connection == null)
                         {
-                            ////string sRabbitEndpoint = Utils.GetConfigValue("queue-endpoint");
-                            //if (!string.IsNullOrEmpty(sRabbitEndpoint))
-                            //{
-                            var factory = new ConnectionFactory() { HostName = configuration.Host, Password = configuration.Password };// , Endpoint = new AmqpTcpEndpoint(new Uri(sRabbitEndpoint)) };
+                            var factory = new ConnectionFactory() { HostName = configuration.Host, Password = configuration.Password };
 
-                                this.m_Connection = factory.CreateConnection();
-                                if (action.Equals(QueueAction.Subscribe) || action.Equals(QueueAction.Ack))
-                                {
-                                    this.m_Model = this.m_Connection.CreateModel();
-                                }
-                                bIsGetInstanceSucceeded = true;
-                            //}
+                            this.m_Connection = factory.CreateConnection();
+                            if (action.Equals(QueueAction.Subscribe) || action.Equals(QueueAction.Ack))
+                            {
+                                this.m_Model = this.m_Connection.CreateModel();
+                            }
+                            bIsGetInstanceSucceeded = true;
                         }
                     }
                     catch (Exception ex)
                     {
-                        
                         m_Connection = null;
                         m_Model = null;
+                        IncreaseFailCounter();
                     }
                     finally
                     {
                         mutex.ReleaseMutex();
                     }
                 }
+            }
+            else
+            {
+                bIsGetInstanceSucceeded = true;
             }
 
             return bIsGetInstanceSucceeded;
