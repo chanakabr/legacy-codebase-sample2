@@ -195,4 +195,12 @@ namespace TVPApi
         Asc,
         Desc
     }
+
+    public enum eSocialPlatform
+    {
+        All = 0,
+        InApp = 1,
+        Facebook = 2,
+        Twitter = 3
+    }
 }
