@@ -135,7 +135,7 @@ namespace Logger
             {
                 string countError = RabbitConnection.Instance.GetQueueFailCounter() == RabbitConnection.Instance.GetQueueFailCountLimit() ? "Reached the limit of queue failures" : string.Format("Num of writing failures: {0}", RabbitConnection.Instance.GetQueueFailCounter());
                 Logger.Log("AMQP Write Fail", string.Format("{0}, msg: {1}", countError, sMessageToWrite), "Logger");
-            }            
+            }
         }
 
         #endregion

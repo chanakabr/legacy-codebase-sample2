@@ -26,7 +26,7 @@ namespace QueueWrapper
 
         private IConnection m_Connection;
         private IModel m_Model;
-        private ReaderWriterLockSlim m_lock; 
+        private ReaderWriterLockSlim m_lock;
         private int m_FailCounter;
         private int m_FailCounterLimit;
 
@@ -73,7 +73,7 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
-                        
+
                     }
                     finally
                     {
@@ -82,7 +82,7 @@ namespace QueueWrapper
                 }
             }
 
-            internal static readonly RabbitConnection Instance = new RabbitConnection();            
+            internal static readonly RabbitConnection Instance = new RabbitConnection();
         }
 
         #endregion
@@ -93,7 +93,7 @@ namespace QueueWrapper
         {
             return m_FailCounter;
         }
-        
+
         public int GetQueueFailCountLimit()
         {
             return m_FailCounterLimit;
@@ -194,14 +194,14 @@ namespace QueueWrapper
                     m_lock.ExitWriteLock();
                 }
             }
-        }        
+        }
 
         public string Subscribe(RabbitConfigurationData configuration, ref string sAckId)
         {
             string sMessage = string.Empty;
 
             this.GetInstance(configuration, QueueAction.Subscribe);
-            
+
             if (m_Connection != null)
             {
                 try

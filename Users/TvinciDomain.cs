@@ -19,6 +19,33 @@ namespace Users
         }
 
         //Override Methods
+        public override int GetDomainIDByCoGuid(string coGuid)
+        {
+            int domainID = DAL.DomainDal.GetDomainIDByCoGuid(coGuid);
+
+            return domainID;
+        }
+
+        public override DomainResponseObject GetDomainByCoGuid(string coGuid, int nGroupID)
+        {
+            // Create new response
+            DomainResponseObject oDomainResponseObject;
+
+            int nDomainID = GetDomainIDByCoGuid(coGuid);
+
+            if (nDomainID <= 0)
+            {
+                oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.DomainNotExists);
+
+                return oDomainResponseObject;
+            }
+
+            Domain domain = DomainFactory.GetDomain(nGroupID, nDomainID);
+
+            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
+
+            return oDomainResponseObject;
+        }
 
         protected override Domain DomainInitializer(int nGroupID, int nDomainID)
         {
@@ -86,7 +113,6 @@ namespace Users
 
             //New domain
             Domain domain = DomainFactory.GetDomain(sDomainName, sDomainDescription, nGroupID, nDomainID);
-
 
             //Update the domain fields
             bool updated = domain.Update();
@@ -164,16 +190,34 @@ namespace Users
 
             //Init The Domain
             domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
+            oDomainResponseObject = new DomainResponseObject() { m_oDomain = domain };
 
-            // No change required, return OK 
-            if (nNewMasterID == nCurrentMasterID)
+            if (domain != null && domain.m_DomainStatus == DomainStatus.OK)
             {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
+                //cannot set domain default user as master
+                if (domain.m_DefaultUsersIDs != null && domain.m_DefaultUsersIDs.Contains(nNewMasterID))
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
+                }
+                //cannot change master to user that's not in domain
+                else if (domain.m_UsersIDs == null || !domain.m_UsersIDs.Contains(nNewMasterID))
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
+                }
+                // No change required, return OK 
+                else if (nNewMasterID == nCurrentMasterID)
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.OK;
+                }
+                else
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = domain.ChangeDomainMaster(m_nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
+                }
             }
-
-
-            DomainResponseStatus eDomainResponseStatus = domain.ChangeDomainMaster(m_nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
-            oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
+            else
+            {
+                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
+            }
 
             return oDomainResponseObject;
         }

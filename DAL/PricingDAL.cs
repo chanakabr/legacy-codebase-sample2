@@ -87,7 +87,7 @@ namespace DAL
 
         }
 
-        public static void Insert_NewCouponUse(string sSiteGuid, long lCouponID, long lGroupID, long lMediaFileID, long lSubscriptionCode, long lPrePaidCode)
+        public static void Insert_NewCouponUse(string sSiteGuid, long lCouponID, long lGroupID, long lMediaFileID, long lSubscriptionCode, long lPrePaidCode, long nCollectionCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCouponUse");
             sp.SetConnectionKey("pricing_connection");
@@ -100,6 +100,7 @@ namespace DAL
             sp.AddParameter("@SubscriptionCode", lSubscriptionCode);
             sp.AddParameter("@PrePaidCode", lPrePaidCode);
             sp.AddParameter("@UpdateDate", dtToWriteToDB);
+            sp.AddParameter("@CollectionCode", nCollectionCode);
             sp.ExecuteNonQuery();
         }
 
@@ -309,6 +310,21 @@ namespace DAL
         public static List<long> Get_SubscriptionChannelIDs(int nGroupID, int nSubscriptionID)
         {
             return Get_SubscriptionChannelIDs(nGroupID, nSubscriptionID, string.Empty);
+        }
+
+        public static DataSet Get_CollectionData(int nGroupID, int? nIsActive, int? nCollectionID = null, string sProductCode = null, List<int> userTypesIDsList = null, int? nTopRows = null)
+        {
+            ODBCWrapper.StoredProcedure spCollectionData = new ODBCWrapper.StoredProcedure("GetCollectionData");
+            spCollectionData.SetConnectionKey("pricing_connection");
+
+            spCollectionData.AddParameter("@GroupID", nGroupID);
+            spCollectionData.AddParameter("@IsActive", nIsActive);
+            spCollectionData.AddParameter("@CollectionID", nCollectionID);
+            spCollectionData.AddParameter("@ProductCode", sProductCode);
+            spCollectionData.AddParameter("@TopRows", nTopRows);
+
+            DataSet ds = spCollectionData.ExecuteDataSet();
+            return ds;
         }
 
     }

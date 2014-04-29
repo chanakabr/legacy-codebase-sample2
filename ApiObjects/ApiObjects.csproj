@@ -132,6 +132,7 @@
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
     <Compile Include="PicObject.cs" />
+    <Compile Include="MediaIndexingObjects\PictureData.cs" />
     <Compile Include="PlayerIMRequestObject.cs" />
     <Compile Include="PlayListSchema.cs" />
     <Compile Include="PreviewModuleCancelOrRefundRequest.cs" />

@@ -137,6 +137,10 @@
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4EB719ED-06B1-4C05-A7CA-269D802105EA}</Project>
       <Name>ScheduledTasks</Name>

@@ -112,6 +112,7 @@
     <Compile Include="ChannelRequest.cs" />
     <Compile Include="ChannelRequestMultiFiltering.cs" />
     <Compile Include="ChannelResponse.cs" />
+    <Compile Include="BundleMediaRequest.cs" />
     <Compile Include="ContainingMediaResponse.cs" />
     <Compile Include="DoesMediaBelongToChannels.cs" />
     <Compile Include="EpgAutoCompleteRequest.cs" />
@@ -182,8 +183,7 @@
     <Compile Include="Searcher\ElasticsearchWrapper.cs" />
     <Compile Include="Searcher\Helper.cs" />
     <Compile Include="Searcher\LuceneWrapper.cs" />
-    <Compile Include="SubscriptionContainingMediaRequest.cs" />
-    <Compile Include="SubscriptionMediaRequest.cs" />
+    <Compile Include="BundleContainingMediaRequest.cs" />
     <Compile Include="TagMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserSocialMediasRequest.cs" />
