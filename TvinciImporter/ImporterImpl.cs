@@ -950,13 +950,16 @@ namespace TvinciImporter
 
             for (int i = 0; i < theMedias.Length; ++i)
             {
+                // Convert co_guid to media ID
+                int mediaID = GetMediaIDByCoGuid(nGroupID, theMedias[i].ID);
+
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select ID from channels_media where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
                 selectQuery += " and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", Int32.Parse(theMedias[i].ID));
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
 
                 // check if media exist in channel, if so update the data, otherwise insert the new media
                 if (selectQuery.Execute("query", true) != null)
@@ -970,7 +973,7 @@ namespace TvinciImporter
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
                         updateQuery += " where ";
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", Int32.Parse(theMedias[i].ID));
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
                         updateQuery.Execute();
                         updateQuery.Finish();
                         updateQuery = null;
@@ -978,7 +981,7 @@ namespace TvinciImporter
                     else
                     {
                         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("channels_media");
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", Int32.Parse(theMedias[i].ID));
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", Int32.Parse(theMedias[i].order_number));
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
@@ -2343,7 +2346,7 @@ namespace TvinciImporter
             return nRet;
         }
 
-        static protected void InsertFilePPVModule(int ppvModule, int fileID, int groupID)
+        static protected void InsertFilePPVModule(int ppvModule, int fileID, int groupID, DateTime startDate, DateTime endDate)
         {
             // get parent group id
             Int32 ppvModuleGroupID = 0;
@@ -2393,6 +2396,25 @@ namespace TvinciImporter
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", ppvModuleGroupID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+
+                if (startDate == default(DateTime))
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                }
+                else
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
+                }
+
+                if (endDate == default(DateTime))
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                }
+                else
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
+                }
+
                 insertQuery.Execute();
                 insertQuery.Finish();
                 insertQuery = null;
@@ -2405,6 +2427,25 @@ namespace TvinciImporter
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
+
+                if (startDate == default(DateTime))
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                }
+                else
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
+                }
+
+                if (endDate == default(DateTime))
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                }
+                else
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
+                }
+
                 updateOldQuery += "where";
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", ppvFileID);
                 updateOldQuery.Execute();
@@ -2419,7 +2460,7 @@ namespace TvinciImporter
             string sPreRule, string sPostRule, string sBreakRule,
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode)
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime fileStartDate, DateTime fileEndDate)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
@@ -2465,6 +2506,16 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Product_Code", "=", sProductCode);
 
+                if (fileStartDate != default(DateTime))
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", fileStartDate);
+                }
+
+                if (fileEndDate != default(DateTime))
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", fileEndDate);
+                }
+
                 if (bAdsEnabled == true)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADS_ENABLED", "=", 1);
                 else
@@ -2491,8 +2542,31 @@ namespace TvinciImporter
 
                 SetPolicyToFile(sOutputProtectionLevel, nGroupID, sCoGuid, ref sErrorMessage);
 
-                int ppvID = GetPPVModuleID(ppvModuleName, nGroupID);
-                InsertFilePPVModule(ppvID, nMediaFileID, nGroupID);
+                if (ppvModuleName.EndsWith(";"))
+                {
+                    string ParsedPPVModuleName = string.Empty;
+                    DateTime ppvStartDate;
+                    DateTime ppvEndDate;
+
+                    ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
+                    string[] parameters = ppvModuleName.Split(';');
+
+                    for (int i = 0; i < parameters.Length; i += 3)
+                    {
+                        ParsedPPVModuleName = parameters[i];
+                        DateTime.TryParse(parameters[i + 1], out ppvStartDate);
+                        DateTime.TryParse(parameters[i + 2], out ppvEndDate);
+
+                        int ppvID = GetPPVModuleID(ParsedPPVModuleName, nGroupID);
+                        InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, ppvStartDate, ppvEndDate);
+                    }
+                }
+                else
+                {
+                    int ppvID = GetPPVModuleID(ppvModuleName, nGroupID);
+
+                    InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, default(DateTime), default(DateTime));
+                }
 
                 /*Insert Family Contract For File */
                 if (!string.IsNullOrEmpty(sContractFamily))
@@ -3111,6 +3185,8 @@ namespace TvinciImporter
                 string sBreakPoints = GetItemParameterVal(ref theItem, "break_points");
                 string sOverlayRule = GetItemParameterVal(ref theItem, "overlay_rule");
                 string sOverlayPoints = GetItemParameterVal(ref theItem, "overlay_points");
+                string sFileStartDate = GetItemParameterVal(ref theItem, "file_start_date");
+                string sFileEndDate = GetItemParameterVal(ref theItem, "file_end_date");
                 string sAdsEnabled = GetItemParameterVal(ref theItem, "ads_enabled");
                 string sContractFamily = GetItemParameterVal(ref theItem, "contract_family");
                 string sLanguage = GetItemParameterVal(ref theItem, "lang");
@@ -3118,6 +3194,23 @@ namespace TvinciImporter
                 string sOutputProtectionLevel = GetItemParameterVal(ref theItem, "output_protection_level");
                 int nIsDefaultLanguage = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
                 string sProductCode = GetItemParameterVal(ref theItem, "product_code");
+
+                // try to pare the files date correctly
+                DateTime dStartDate = new DateTime();
+                DateTime dEndDate   = new DateTime();
+                bool resVal = DateTime.TryParse(sFileStartDate, out dStartDate);
+
+                if (resVal == false)
+                {
+                    dStartDate = default(DateTime);
+                }
+
+                resVal = DateTime.TryParse(sFileEndDate, out dEndDate);
+
+                if (resVal == false)
+                {
+                    dEndDate = default(DateTime);
+                }
 
                 bool bAdsEnabled = true;
                 if (sAdsEnabled.Trim().ToLower() == "false")
@@ -3148,7 +3241,7 @@ namespace TvinciImporter
                     EnterClipMediaFile(sFormat, nMediaID, 0, nGroupID, sQuality, sCDN, sCDNId, sCDNCode, sBillingType,
                         sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
                         bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
-                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode);
+                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode, dStartDate, dEndDate);
                 }
 
 

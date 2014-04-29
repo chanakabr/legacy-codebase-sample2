@@ -6,31 +6,99 @@ using System.IO;
 using XMLAdapter;
 using System.Xml;
 using System.Xml.Xsl;
+using System.Configuration;
 
 namespace XSLT_transform_handlar
 {
     public sealed class RoviTransform : BaseTransformHandler
     {
-        // TODO: later on, read these configuration information fron outside
-        const string XSL_DEFAULT_FILE = "c:/ode/TVM/Libs/Core/XMLAdapter/XSLTFiles/Rovi_transform.xsl";
+        string XSL_Movie_FILE   = ConfigurationManager.AppSettings["ROVI_XSLT_PATH"] + "Rovi_movie_transform.xsl";
+        string XSL_Series_FILE  = ConfigurationManager.AppSettings["ROVI_XSLT_PATH"] + "Rovi_series_transform.xsl";
+        string XSL_Episode_FILE = ConfigurationManager.AppSettings["ROVI_XSLT_PATH"] + "Rovi_episode_transform.xsl";
+        string XSL_CMT_FILE     = ConfigurationManager.AppSettings["ROVI_XSLT_PATH"] + "Rovi_CMT_transform.xsl";
+
+        XslCompiledTransform m_oXsltMovies  = new XslCompiledTransform();
+        XslCompiledTransform m_oXsltEpisode = new XslCompiledTransform();
+        XslCompiledTransform m_oXsltSeries  = new XslCompiledTransform();
+        XslCompiledTransform m_oXsltCMT     = new XslCompiledTransform();
+
+        public enum assetType
+        {
+            MOVIE = 1,
+            EPISODE,
+            SERIES,
+            CMT
+        }
+
+        public override void Transform(string pathInputFile, string nameInputFile, StringWriter output)
+        {
+        }
+        public override void Transform(XmlDocument inputXml, StringWriter output)
+        {
+        }
 
         // transform and add the url physical files
-        public override void Transform(string pathInputFile, string nameInputFile, StringWriter output)
+        public void TransformA(string pathInputFile, string nameInputFile, StringWriter output, assetType at)
         {
             using (output)
             {
-                m_oXslt.Transform(pathInputFile + nameInputFile, m_oXslArguments, output);
+                switch (at)
+                {
+                    case assetType.EPISODE:
+                    {
+                        m_oXsltEpisode.Transform(pathInputFile + nameInputFile, m_oXslArguments, output);
+                        break;
+                    }
+                    case assetType.MOVIE:
+                    {
+                        m_oXsltMovies.Transform(pathInputFile + nameInputFile, m_oXslArguments, output);
+                        break;
+                    }
+                    case assetType.SERIES:
+                    {
+                        m_oXsltSeries.Transform(pathInputFile + nameInputFile, m_oXslArguments, output);
+                        break;
+                    }
+                    case assetType.CMT:
+                    {
+                        m_oXsltCMT.Transform(pathInputFile + nameInputFile, m_oXslArguments, output);
+                        break;
+                    }
+                }
             }
         }
 
         // transform and add the url physical files
-        public override void Transform(XmlDocument inputXml, StringWriter output)
+        public void TransformA(XmlDocument inputXml, StringWriter output, assetType at)
         {
+            XmlReader reader = XmlReader.Create(new StringReader(inputXml.InnerXml));
+            XmlWriter writer = XmlWriter.Create(output);
+
             using (output)
             {
-                XmlReader reader = XmlReader.Create(new StringReader(inputXml.InnerXml));
-                XmlWriter writer = XmlWriter.Create(output);
-                m_oXslt.Transform(reader, writer);
+                switch (at)
+                {
+                    case assetType.EPISODE:
+                    {
+                        m_oXsltEpisode.Transform(reader, writer);
+                        break;
+                    }
+                    case assetType.MOVIE:
+                    {
+                        m_oXsltMovies.Transform(reader, writer);
+                        break;
+                    }
+                    case assetType.SERIES:
+                    {
+                        m_oXsltSeries.Transform(reader, writer);
+                        break;
+                    }
+                    case assetType.CMT:
+                    {
+                        m_oXsltCMT.Transform(reader, writer);
+                        break;
+                    }
+                }
             }
         }
 
@@ -41,7 +109,10 @@ namespace XSLT_transform_handlar
             m_oAdapter.Init();
             m_oXslArguments.AddExtensionObject("pda:ADIUtils", m_oAdapter as BaseXMLAdapter);
 
-            m_oXslt.Load(XSL_DEFAULT_FILE);
+            m_oXsltEpisode.Load(XSL_Episode_FILE);
+            m_oXsltMovies.Load(XSL_Movie_FILE);
+            m_oXsltSeries.Load(XSL_Series_FILE);
+            m_oXsltCMT.Load(XSL_CMT_FILE);
 
             base.Init();  // Init base
         }

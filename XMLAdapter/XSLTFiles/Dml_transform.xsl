@@ -166,91 +166,92 @@
   <xsl:template name="add_trailers">
     <xsl:variable name="contentID" select="../@ContentID" />
     <xsl:for-each select="//*[local-name() = 'LibraryItem']/*[local-name() = 'BasicMetadata']/*[local-name() = 'Parent']/*[local-name() = 'ParentContentID'][. = $contentID]">
-      <xsl:for-each select="../../../*[local-name() = 'DigitalAsset']">
-        <xsl:choose>
-          
-          <xsl:when test="./*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'playready']">
-            <xsl:element name="file">
-              <xsl:attribute name="type"><xsl:text>Trailer</xsl:text></xsl:attribute>
+      <xsl:if test="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'playready']">
+        <xsl:element name="file">
+        <xsl:attribute name="type"><xsl:text>Trailer</xsl:text></xsl:attribute>
+        <xsl:attribute name="quality"><xsl:text>HIGH</xsl:text></xsl:attribute>
+        <xsl:attribute name="pre_rule"><xsl:text>null</xsl:text></xsl:attribute>
+        <xsl:attribute name="post_rule"><xsl:text>null</xsl:text></xsl:attribute>
+        <xsl:attribute name="handling_type"><xsl:text>CLIP</xsl:text></xsl:attribute>
+        <xsl:attribute name="duration"><xsl:value-of select="substring-before(substring-after(../../../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
+        <xsl:attribute name="cdn_name"><xsl:text>Smooth CDN</xsl:text></xsl:attribute>
+        <xsl:attribute name="cdn_code">
+          <xsl:for-each select="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'playready']" >
+            <xsl:value-of select="concat($prefixURLPhysicalFile,../../../*[local-name() = 'FileInfo']/*[local-name() = 'Location'])" />
+          </xsl:for-each>
+        </xsl:attribute>
+        <xsl:attribute name="break_rule"><xsl:text>null</xsl:text></xsl:attribute>
+        <xsl:attribute name="break_points"><xsl:text></xsl:text></xsl:attribute>
+        <xsl:attribute name="billing_type"><xsl:text></xsl:text></xsl:attribute>
+        <xsl:attribute name="assetwidth"><xsl:text></xsl:text></xsl:attribute>
+        <xsl:attribute name="assetheight"><xsl:text></xsl:text></xsl:attribute>
+        <xsl:attribute name="assetduration"><xsl:value-of select="substring-before(substring-after(../../../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
+        <xsl:attribute name="ppv_module"></xsl:attribute>
+        <xsl:attribute name="co_guid">
+          <xsl:for-each select="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'playready']" >
+            <xsl:value-of select="../*[local-name() = 'AssetId']" />
+          </xsl:for-each>
+        </xsl:attribute>
+      </xsl:element>
+      </xsl:if>
+      <xsl:if test="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'widevine']">
+        <xsl:element name="file">
+          <xsl:choose>
+            <xsl:when test="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Video']/*[local-name() = 'Picture']/*[local-name() = 'WidthPixels'] = 480">
+              <xsl:attribute name="type"><xsl:text>Smartphone Trailer</xsl:text></xsl:attribute>
               <xsl:attribute name="quality"><xsl:text>HIGH</xsl:text></xsl:attribute>
               <xsl:attribute name="pre_rule"><xsl:text>null</xsl:text></xsl:attribute>
               <xsl:attribute name="post_rule"><xsl:text>null</xsl:text></xsl:attribute>
               <xsl:attribute name="handling_type"><xsl:text>CLIP</xsl:text></xsl:attribute>
-              <xsl:attribute name="duration"><xsl:value-of select="substring-before(substring-after(../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
-              <xsl:attribute name="cdn_name"><xsl:text>Smooth CDN</xsl:text></xsl:attribute>
+              <xsl:attribute name="duration"><xsl:value-of select="substring-before(substring-after(../../../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
+              <xsl:attribute name="cdn_name"><xsl:text>Widevine CDN</xsl:text></xsl:attribute>
               <xsl:attribute name="cdn_code">
-                  <xsl:value-of select="concat($prefixURLPhysicalFile,./*[local-name() = 'FileInfo']/*[local-name() = 'Location'])" />
+                <xsl:for-each select="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'widevine']" >
+                  <xsl:value-of select="concat($prefixURLPhysicalFile,../../../*[local-name() = 'FileInfo']/*[local-name() = 'Location'])" />
+                </xsl:for-each>
               </xsl:attribute>
               <xsl:attribute name="break_rule"><xsl:text>null</xsl:text></xsl:attribute>
               <xsl:attribute name="break_points"><xsl:text></xsl:text></xsl:attribute>
               <xsl:attribute name="billing_type"><xsl:text></xsl:text></xsl:attribute>
               <xsl:attribute name="assetwidth"><xsl:text></xsl:text></xsl:attribute>
               <xsl:attribute name="assetheight"><xsl:text></xsl:text></xsl:attribute>
-              <xsl:attribute name="assetduration"><xsl:value-of select="substring-before(substring-after(../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
-              <xsl:attribute name="ppv_module"></xsl:attribute>
+              <xsl:attribute name="assetduration"><xsl:value-of select="substring-before(substring-after(../../../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
+              <xsl:attribute name="ppv_module"><xsl:text></xsl:text></xsl:attribute>
               <xsl:attribute name="co_guid">
-                  <xsl:value-of select="./*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'AssetId']" />
+                <xsl:for-each select="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'widevine']" >
+                  <xsl:value-of select="../*[local-name() = 'AssetId']" />
+                </xsl:for-each>
               </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-
-          <xsl:when test="./*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'widevine']">
-            <xsl:choose>
-              <xsl:when test="./*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Video']/*[local-name() = 'Picture']/*[local-name() = 'WidthPixels'] = 480">
-                <xsl:element name="file">
-                  <xsl:attribute name="type"><xsl:text>Smartphone Trailer</xsl:text></xsl:attribute>
-                  <xsl:attribute name="quality"><xsl:text>HIGH</xsl:text></xsl:attribute>
-                  <xsl:attribute name="pre_rule"><xsl:text>null</xsl:text></xsl:attribute>
-                  <xsl:attribute name="post_rule"><xsl:text>null</xsl:text></xsl:attribute>
-                  <xsl:attribute name="handling_type"><xsl:text>CLIP</xsl:text></xsl:attribute>
-                  <xsl:attribute name="duration"><xsl:value-of select="substring-before(substring-after(../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
-                  <xsl:attribute name="cdn_name"><xsl:text>Widevine CDN</xsl:text></xsl:attribute>
-                  <xsl:attribute name="cdn_code">
-                      <xsl:value-of select="concat($prefixURLPhysicalFile,./*[local-name() = 'FileInfo']/*[local-name() = 'Location'])" />
-                  </xsl:attribute>
-                  <xsl:attribute name="break_rule"><xsl:text>null</xsl:text></xsl:attribute>
-                  <xsl:attribute name="break_points"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="billing_type"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="assetwidth"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="assetheight"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="assetduration"><xsl:value-of select="substring-before(substring-after(../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
-                  <xsl:attribute name="ppv_module"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="co_guid">
-                      <xsl:value-of select="./*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'AssetId']" />
-                  </xsl:attribute>
-                </xsl:element>
-              </xsl:when>
-
-              <xsl:when test="./*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Video']/*[local-name() = 'Picture']/*[local-name() = 'WidthPixels'] = 640">
-                <xsl:element name="file">
-                  <xsl:attribute name="type"><xsl:text>Tablet Trailer</xsl:text></xsl:attribute>
-                  <xsl:attribute name="quality"><xsl:text>HIGH</xsl:text></xsl:attribute>
-                  <xsl:attribute name="pre_rule"><xsl:text>null</xsl:text></xsl:attribute>
-                  <xsl:attribute name="post_rule"><xsl:text>null</xsl:text></xsl:attribute>
-                  <xsl:attribute name="handling_type"><xsl:text>CLIP</xsl:text></xsl:attribute>
-                  <xsl:attribute name="duration"><xsl:value-of select="substring-before(substring-after(../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
-                  <xsl:attribute name="cdn_name"><xsl:text>Widevine CDN</xsl:text></xsl:attribute>
-                  <xsl:attribute name="cdn_code">
-                      <xsl:value-of select="concat($prefixURLPhysicalFile,./*[local-name() = 'FileInfo']/*[local-name() = 'Location'])" />
-                  </xsl:attribute>
-                  <xsl:attribute name="break_rule"><xsl:text>null</xsl:text></xsl:attribute>
-                  <xsl:attribute name="break_points"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="billing_type"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="assetwidth"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="assetheight"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="assetduration"><xsl:value-of select="substring-before(substring-after(../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
-                  <xsl:attribute name="ppv_module"><xsl:text></xsl:text></xsl:attribute>
-                  <xsl:attribute name="co_guid">
-                      <xsl:value-of select="./*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'AssetId']" />
-                  </xsl:attribute>
-                </xsl:element>
-              </xsl:when>
-              
-            </xsl:choose>
-          </xsl:when>
-          
-        </xsl:choose>
-      </xsl:for-each>
+            </xsl:when>
+            <xsl:when test="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Video']/*[local-name() = 'Picture']/*[local-name() = 'WidthPixels'] = 640">
+              <xsl:attribute name="type"><xsl:text>Tablet Trailer</xsl:text></xsl:attribute>
+              <xsl:attribute name="quality"><xsl:text>HIGH</xsl:text></xsl:attribute>
+              <xsl:attribute name="pre_rule"><xsl:text>null</xsl:text></xsl:attribute>
+              <xsl:attribute name="post_rule"><xsl:text>null</xsl:text></xsl:attribute>
+              <xsl:attribute name="handling_type"><xsl:text>CLIP</xsl:text></xsl:attribute>
+              <xsl:attribute name="duration"><xsl:value-of select="substring-before(substring-after(../../../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
+              <xsl:attribute name="cdn_name"><xsl:text>Widevine CDN</xsl:text></xsl:attribute>
+              <xsl:attribute name="cdn_code">
+                <xsl:for-each select="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'widevine']" >
+                  <xsl:value-of select="concat($prefixURLPhysicalFile,../../../*[local-name() = 'FileInfo']/*[local-name() = 'Location'])" />
+                </xsl:for-each>
+              </xsl:attribute>
+              <xsl:attribute name="break_rule"><xsl:text>null</xsl:text></xsl:attribute>
+              <xsl:attribute name="break_points"><xsl:text></xsl:text></xsl:attribute>
+              <xsl:attribute name="billing_type"><xsl:text></xsl:text></xsl:attribute>
+              <xsl:attribute name="assetwidth"><xsl:text></xsl:text></xsl:attribute>
+              <xsl:attribute name="assetheight"><xsl:text></xsl:text></xsl:attribute>
+              <xsl:attribute name="assetduration"><xsl:value-of select="substring-before(substring-after(../../../*[local-name() = 'BasicMetadata']/*[local-name() = 'RunLength'],'PT'),'S')"/></xsl:attribute>
+              <xsl:attribute name="ppv_module"><xsl:text></xsl:text></xsl:attribute>
+              <xsl:attribute name="co_guid">
+                <xsl:for-each select="../../../*[local-name() = 'DigitalAsset']/*[local-name() = 'DigitalAssetMetadata']/*[local-name() = 'Drm']/*[local-name() = 'Type'][. = 'widevine']" >
+                  <xsl:value-of select="../*[local-name() = 'AssetId']" />
+                </xsl:for-each>
+              </xsl:attribute>
+            </xsl:when>
+          </xsl:choose>
+      </xsl:element>
+      </xsl:if>
     </xsl:for-each>
   </xsl:template>
 
@@ -273,6 +274,10 @@
         <xsl:element name="geo_block_rule">
           <xsl:text>Philippines only</xsl:text>
         </xsl:element>
+        <xsl:element name="watch_per_rule">
+          <xsl:text>Parent allowed</xsl:text>
+        </xsl:element>
+      </xsl:element>
       </xsl:element>
       <xsl:if test="../*[local-name() = 'LocalizedInfo']/*[local-name() = 'ArtReference']">
         <xsl:variable name="urlPostfix" select="../*[local-name() = 'LocalizedInfo']/*[local-name() = 'ArtReference']"/>
@@ -289,7 +294,6 @@
           </xsl:for-each>
         </xsl:element>
       </xsl:if>
-    </xsl:element>
   </xsl:template>
 
   <xsl:template name="build_movie_structure_data">
