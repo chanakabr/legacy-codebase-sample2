@@ -1358,10 +1358,13 @@ namespace TVinciShared
                     //}
                     if (sType == "file")
                     {
+
+                       
                         if (string.IsNullOrEmpty(selectedRatio))
                         {
 
                         }
+                        
                         string sPicBaseName = "";
                         string sBasePath = HttpContext.Current.Server.MapPath("");
                         string sPicUploaderPath = GetWSURL("pic_uploader_path");
@@ -1409,75 +1412,181 @@ namespace TVinciShared
                                     bValid = true;
                             }
                             if (bValid == true)
-                            {                              
-                                int mediaID = 0;
-                                if (HttpContext.Current.Session["media_id"] != null)
+                            {
+                                string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+
+                                if (sUseQueue.Equals("true"))
                                 {
-                                    string mediaIdStr = HttpContext.Current.Session["media_id"].ToString();
-                                    if (!string.IsNullOrEmpty(mediaIdStr))
+                                    #region useRabbitQueue
+                                    int mediaID = 0;
+                                    if (HttpContext.Current.Session["media_id"] != null)
                                     {
-                                        if (HttpContext.Current.Session["media_file_id"] == null)
+                                        string mediaIdStr = HttpContext.Current.Session["media_id"].ToString();
+                                        if (!string.IsNullOrEmpty(mediaIdStr))
                                         {
-                                            mediaID = int.Parse(mediaIdStr);
+                                            if (HttpContext.Current.Session["media_file_id"] == null)
+                                            {
+                                                mediaID = int.Parse(mediaIdStr);
+                                            }
                                         }
                                     }
-                                }
 
-                                sPicBaseName = ImageUtils.GetDateImageName(mediaID);
-                               
-                                sUploadedFile = theFile.FileName;
+                                    sPicBaseName = ImageUtils.GetDateImageName(mediaID);
 
-                                sUploadedFileExt = ImageUtils.GetFileExt(sUploadedFile);
+                                    sUploadedFile = theFile.FileName;
 
-                                if (!Directory.Exists(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString()))
-                                {
-                                    Directory.CreateDirectory(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString());
-                                }
+                                    sUploadedFileExt = ImageUtils.GetFileExt(sUploadedFile);
 
-                                if (bIsImage == false)
-                                {
-                                    string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + sUploadedFileExt;
-                                    theFile.SaveAs(sTmpImage);                                   
+                                    if (!Directory.Exists(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString()))
+                                    {
+                                        Directory.CreateDirectory(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString());
+                                    }
+
+                                    if (bIsImage == false)
+                                    {
+                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + sUploadedFileExt;
+                                        theFile.SaveAs(sTmpImage);
+                                    }
+                                    else
+                                    {
+                                        List<string> lSizes = new List<string>();
+                                        lSizes.Add("full");
+
+                                        Int32 nI = 0;
+                                        bool bCont1 = true;
+                                        while (bCont1 && sPicBaseName != "")
+                                        {
+                                            if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
+                                                coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
+                                            {
+                                                bool isResize = true;
+                                                string sRatio = string.Empty;
+                                                string sWidth = coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].ToString();
+                                                string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
+                                                if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
+                                                coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
+                                                {
+                                                    sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
+                                                    if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
+                                                    {
+                                                        isResize = false;
+                                                    }
+                                                }
+                                                if (isResize)
+                                                {
+                                                    lSizes.Add(sWidth + "X" + sHeight);
+                                                }
+                                                nI++;
+                                            }
+                                            else
+                                                bCont1 = false;
+                                        }
+
+                                        string[] sPicSizes = lSizes.ToArray();
+                                        bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sPicSizes, nGroupID);//send to Rabbit
+                                    }
+                                    #endregion
                                 }
                                 else
                                 {
-                                    List<string> lSizes = new List<string>();
-                                    lSizes.Add("full");
-                                   
-                                    Int32 nI = 0;
-                                    bool bCont1 = true;
-                                    while (bCont1 && sPicBaseName != "")
+                                    #region useUploader
+                                    bool isOverridePic = false;
+                                    int mediaID = 0;
+                                    if (HttpContext.Current.Session["media_id"] != null)
                                     {
-                                        if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
-                                            coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
+                                        string mediaIdStr = HttpContext.Current.Session["media_id"].ToString();
+                                        if (!string.IsNullOrEmpty(mediaIdStr))
                                         {
-                                            bool isResize = true;
-                                            string sRatio = string.Empty;
-                                            string sWidth = coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].ToString();
-                                            string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();                                    
-                                            if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
-                                            coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
+                                            if (HttpContext.Current.Session["media_file_id"] == null)
                                             {
-                                                sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
-                                                if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
-                                                {
-                                                    isResize = false;
-                                                }
+                                                mediaID = int.Parse(mediaIdStr);
                                             }
-                                            if (isResize)
-                                            {                                              
-                                                lSizes.Add(sWidth + "X" + sHeight);
-                                            }
-                                            nI++;
                                         }
-                                        else
-                                            bCont1 = false;
+                                    }
+                                    if (mediaID > 0)
+                                    {
+                                        sPicBaseName = ImageUtils.GetDateImageName(mediaID);
+                                        isOverridePic = true;
+                                    }
+                                    else
+                                    {
+                                        sPicBaseName = ImageUtils.GetDateImageName();
+                                    }
+                                    sUploadedFile = theFile.FileName;
+                                    int nExtractPos = sUploadedFile.LastIndexOf(".");
+                                    if (nExtractPos > 0)
+                                        sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
+
+                                    if (!Directory.Exists(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString()))
+                                    {
+                                        Directory.CreateDirectory(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString());
                                     }
 
-                                    string[] sPicSizes = lSizes.ToArray();
-                                    bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sPicSizes, nGroupID);//send to Rabbit
+                                    if (bIsImage == false)
+                                    {
+                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + sUploadedFileExt;
+                                        theFile.SaveAs(sTmpImage);
+                                    }
+                                    else
+                                    {
+                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
+                                        bool bExists = System.IO.File.Exists(sTmpImage);
+
+
+                                        Int32 nAdd = 0;
+                                        while (bExists)
+                                        {
+                                            if (sPicBaseName.IndexOf("_") != -1)
+                                                sPicBaseName = sPicBaseName.Substring(0, sPicBaseName.IndexOf("_"));
+                                            sPicBaseName += "_" + nAdd.ToString();
+                                            sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
+                                            bExists = System.IO.File.Exists(sTmpImage);
+                                            nAdd++;
+                                        }
+                                        theFile.SaveAs(sTmpImage);
+                                        UploadPicToGroup(nGroupID, sTmpImage);
+
+                                        Int32 nI = 0;
+                                        bool bCont1 = true;
+                                        while (bCont1 && sPicBaseName != "")
+                                        {
+                                            if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
+                                                coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
+                                            {
+                                                bool isResize = true;
+                                                string sRatio = string.Empty;
+                                                string sWidth = coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].ToString();
+                                                string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
+                                                string sEndName = coll[nCounter.ToString() + "_picDim_endname_" + nI.ToString()].ToString();
+                                                string sCropName = coll[nCounter.ToString() + "_crop_" + nI.ToString()].ToString();
+                                                string sTmpImage1 = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+                                                if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
+                                                coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
+                                                {
+                                                    sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
+                                                    if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
+                                                    {
+                                                        isResize = false;
+                                                    }
+                                                }
+                                                if (isResize)
+                                                {
+                                                    ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bool.Parse(sCropName));
+                                                    UploadPicToGroup(nGroupID, sTmpImage);
+                                                }
+                                                nI++;
+                                            }
+
+
+                                            else
+                                                bCont1 = false;
+                                        }
+
+                                    }
+                                    #endregion
                                 }
                             }
+
                             if (bFirst == false)
                                 selectQuery += "and";
                             else
