@@ -6,9 +6,17 @@ using System.Threading.Tasks;
 
 namespace RoviFeeder
 {
-    public enum EFeeder_Impl
+    public enum FeederImplEnum
     {
-        E_MEDIA_FEEDER = 1,
-        E_CMT_FEEDER = 2
-    } 
+        MOVIE = 1,
+        CMT = 2,
+        EPISODE = 3,
+        SERIES = 4
+    }
+
+    public enum IngestNotificationStatus
+    {
+        SUCCESS = 1,
+        ERROR
+    }
 }

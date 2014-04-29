@@ -52,15 +52,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums.cs" />
-    <Compile Include="RoviCampaign.cs" />
-    <Compile Include="RoviObjects.cs" />
-    <Compile Include="RoviPresentation.cs" />
+    <Compile Include="XSDs\API_NotificationXSD.cs" />
+    <Compile Include="XSDs\RoviCampaignXSD.cs" />
+    <Compile Include="RoviEpisodeFeeder.cs" />
+    <Compile Include="XSDs\RoviEpisodeXSD.cs" />
+    <Compile Include="XSDs\RoviObjectsXSD.cs" />
+    <Compile Include="XSDs\MoviesXSD.cs" />
+    <Compile Include="RoviSeriesFeeder.cs" />
     <Compile Include="RoviTasker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoviCMTFeeder.cs" />
     <Compile Include="RoviBaseFeeder.cs" />
     <Compile Include="RoviFeederUtils.cs" />
-    <Compile Include="RoviVODFeeder.cs" />
+    <Compile Include="RoviMovieFeeder.cs" />
+    <Compile Include="XSDs\SeriesXSD.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\TvmCore\Logger\Logger.csproj">

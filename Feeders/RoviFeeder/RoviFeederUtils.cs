@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace RoviFeeder
@@ -63,7 +65,7 @@ namespace RoviFeeder
 
             return dPresentationUrls;
         }
-        public static bool Validate(RoviFeeder.VOD_object.RoviNowtilusVodApiPresentation roviTitle)
+        public static bool Validate(RoviFeeder.MoviesXSD.RoviNowtilusVodApiPresentation roviTitle)
         {
             if (roviTitle == null)
             {
@@ -77,7 +79,30 @@ namespace RoviFeeder
 
             return true;
         }
-        public static bool Validate(RoviFeeder.RoviCMT.RoviNowtilusVodApiCampaign roviCampaign)
+        public static bool Validate(RoviFeeder.SeriesXSD.RoviNowtilusVodApiPresentation roviTitle)
+        {
+            if (roviTitle == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        public static bool Validate(RoviFeeder.EpisodeXSD.RoviNowtilusVodApiPresentation roviTitle)
+        {
+            if (roviTitle == null)
+            {
+                return false;
+            }
+
+            if ((roviTitle.LicenseList == null) || (roviTitle.LicenseList.Length == 0))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        public static bool Validate(RoviFeeder.CMT_XSD.RoviNowtilusVodApiCampaign roviCampaign)
         {
             if (roviCampaign == null)
             {
@@ -89,6 +114,34 @@ namespace RoviFeeder
                 return false;
             }
 
+            return true;
+        }
+
+        public static bool SendIngetNotification(IngestNotificationStatus status, string sURL, string logMsg)
+        {
+            string theNotificationXML = string.Empty;
+            Notification.RoviNowtilusVodApi notificationClass = new Notification.RoviNowtilusVodApi();
+
+            notificationClass.RequestType     = "STATUS";
+            notificationClass.Status = new Notification.RoviNowtilusVodApiStatus();
+            notificationClass.Status.LogLevel = status.ToString();
+            notificationClass.Status.Message  = logMsg;
+
+            try
+            {
+                using (StringWriter sw = new StringWriter())
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(Notification.RoviNowtilusVodApi));
+                    serializer.Serialize(sw, notificationClass);
+                    theNotificationXML = sw.ToString();
+                }
+            }
+            catch
+            {
+            }
+
+            string response = TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(sURL, theNotificationXML, new Dictionary<string, string>() { });
+            
             return true;
         }
     }
