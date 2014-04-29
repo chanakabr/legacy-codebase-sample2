@@ -115,39 +115,6 @@ namespace DAL
 
         public static int GetDeviceFamilyID(int nGroupID, string sUDID, ref int nDeviceBrandID)
         {
-            //int nDbDeviceFamilyID = 0;
-            //nDeviceBrandID = 0;
-
-            //try
-            //{
-            //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            //    selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-
-            //    // Search for device in devices table
-            //    selectQuery += "select device_brand_id, device_family_id from devices WITH (nolock) where status=1";
-            //    selectQuery += "and";
-            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", sUDID);
-            //    selectQuery += "and";
-            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-            //    if (selectQuery.Execute("query", true) != null)
-            //    {
-            //        int count = selectQuery.Table("query").DefaultView.Count;
-            //        if (count > 0) // Device found
-            //        {
-            //            nDbDeviceFamilyID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_family_id", 0);
-            //            nDeviceBrandID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_brand_id", 0);
-            //        }
-
-            //        selectQuery.Finish();
-            //        selectQuery = null;
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    HandleException(ex);
-            //}
-
-            //return nDbDeviceFamilyID;
 
             int res = 0;
             StoredProcedure sp = new StoredProcedure("Get_DeviceFamilyID");
@@ -271,25 +238,6 @@ namespace DAL
 
         public static int InsertNewDevice(string sDeviceUDID, int nDeviceBrandID, int nDeviceFamilyID, string sDeviceName, int nGroupID, int nIsActive, int nStatus, string sPin)
         {
-            //int retVal = 0;
-
-            //ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("devices");
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", sDeviceUDID);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("device_brand_id", "=", nDeviceBrandID);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("device_family_id", "=", nDeviceFamilyID);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("name", "=", sDeviceName);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", nIsActive);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
-            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PIN", "=", sPin);
-            //insertQuery.Execute();
-            //insertQuery.Finish();
-            //insertQuery = null;
-
-            //retVal = GetDeviceID(sDeviceUDID, nGroupID, nDeviceBrandID, nDeviceFamilyID, nStatus);
-
-            //return retVal;
-
             StoredProcedure sp = new StoredProcedure("Insert_NewDevice");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@DeviceUDID", sDeviceUDID);

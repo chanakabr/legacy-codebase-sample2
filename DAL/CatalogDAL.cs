@@ -528,7 +528,6 @@ namespace Tvinci.Core.DAL
 
                     mm.devices.Add(dev);
                 }
-
                 var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mm, Formatting.None), data.Cas);
 
                 if (!res.Result)

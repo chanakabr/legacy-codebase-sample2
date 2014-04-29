@@ -118,13 +118,10 @@ namespace Users
 
         public virtual DomainResponseObject ChangeDeviceDomainStatus(int nDomainID, string sDeviceUDID, bool bIsEnable)
         {
-            //New domain
             Domain domain = DomainInitializer(m_nGroupID, nDomainID);
 
-            // Create new response
             DomainResponseObject oDomainResponseObject;
 
-            // Change Device data
             DomainResponseStatus eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
@@ -133,12 +130,9 @@ namespace Users
 
         public virtual DomainResponseObject RemoveDeviceFromDomain(int nDomainID, string sDeviceUDID)
         {
-            //New domain
             Domain domain = DomainInitializer(m_nGroupID, nDomainID);
-            // Create new response
             DomainResponseObject oDomainResponseObject;
 
-            //Remove Device from Domain
             DomainResponseStatus eDomainResponseStatus = domain.RemoveDeviceFromDomain(sDeviceUDID);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
@@ -147,7 +141,6 @@ namespace Users
 
         public virtual DomainResponseObject SubmitAddDeviceToDomainRequest(int nGroupID, int nDomainID, int nUserID, string sDeviceUdid, string sDeviceName, int nBrandID)
         {
-            // Create new response
             DomainResponseObject oDomainResponseObject;
 
             if (nDomainID <= 0)
@@ -155,7 +148,6 @@ namespace Users
                 oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.Error);
             }
 
-            //New domain
             Domain domain = DomainInitializer(nGroupID, nDomainID);
 
             Device device = new Device(sDeviceUdid, nBrandID, m_nGroupID, sDeviceName, nDomainID);

@@ -62,25 +62,19 @@ namespace Users
 
         public override DomainResponseStatus RemoveDomain(int nDomainID)
         {
-            //New domain
             Domain domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
 
-            // Create new response
             DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
 
-            //Init The Domain
 
-            if ((domain != null) && (domain.m_DomainStatus != DomainStatus.OK))
+            if (domain != null && domain.m_DomainStatus != DomainStatus.OK)
             {
                 eDomainResponseStatus = domain.TryRemove();
             }
             else
             {
-                //Remove the domain
                 eDomainResponseStatus = domain.Remove();
             }
-
-            //Re-Init domain to return updated data
 
             return eDomainResponseStatus;
         }

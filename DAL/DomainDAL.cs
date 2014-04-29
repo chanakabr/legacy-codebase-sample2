@@ -170,26 +170,6 @@ namespace DAL
                     }
                 }
 
-                //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                //selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-
-                //selectQuery += "select device_id, device_brand_id from devices WITH (nolock) where status=3 and";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PIN", "=", sPIN);
-                //selectQuery += "and";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-                //if (selectQuery.Execute("query", true) != null)
-                //{
-                //    int nCount = selectQuery.Table("query").DefaultView.Count;
-                //    if (nCount > 0)
-                //    {
-                //        sUDID = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "device_id", 0); // selectQuery.Table("query").DefaultView[0].Row["device_id"].ToString();
-                //        nBrandID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_brand_id", 0); // int.Parse(selectQuery.Table("query").DefaultView[0].Row["device_brand_id"].ToString());
-                //    }
-                //}
-
-                //selectQuery.Finish();
-                //selectQuery = null;
-
                 res = true;
             }
             catch (Exception ex)
@@ -219,106 +199,47 @@ namespace DAL
 
         public static bool UpdateDomainsDevicesStatus(int nDomainsDevicesID, int nIsActive, int nStatus)
         {
-            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Update_DomainsDevicesStatus");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@DomainsDevicesID", nDomainsDevicesID);
+            sp.AddParameter("@IsActive", nIsActive);
+            sp.AddParameter("@Status", nStatus);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
 
-            try
-            {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("domains_devices");
-                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", nIsActive);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
-                updateQuery += " where ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nDomainsDevicesID);
-                res = updateQuery.Execute();
-
-                updateQuery.Finish();
-                updateQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return res;
+            return sp.ExecuteReturnValue<bool>();
         }
 
         public static int DoesDeviceExistInDomain(int nDomainID, int nGroupID, string deviceUdid, ref int isActive, ref int nDeviceID)
         {
-            int nDeviceDomainID = 0;
-
-            try
-            {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                selectQuery += "select dd.id, dd.is_active, dd.device_id from domains_devices dd WITH (nolock), devices d WITH (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("dd.DOMAIN_ID", "=", nDomainID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("dd.GROUP_ID", "=", nGroupID);
-                selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("d.device_id", "=", deviceUdid);
-                selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("d.status", "=", 1);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("d.group_id", "=", nGroupID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("dd.STATUS", "=", 1);
-                selectQuery += "and";
-                selectQuery += "dd.DEVICE_ID=d.id";
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    int nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        nDeviceDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                        isActive = int.Parse(selectQuery.Table("query").DefaultView[0].Row["is_active"].ToString());
-                        nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_id", 0);
-                    }
-                }
-
-                selectQuery.Finish();
-                selectQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return nDeviceDomainID;
-
-            //return Get_IsDeviceExistInDomain(nDomainID, nGroupID, deviceUdid, ref isActive, ref nDeviceID);
+            return Get_IsDeviceExistInDomain(nDomainID, nGroupID, deviceUdid, ref isActive, ref nDeviceID);
         }
 
         public static int GetDeviceDomainData(int nGroupID, string sDeviceUdid, ref int nDeviceID, ref int nIsActive, ref int nStatus, ref int nDbDomainDeviceID)
         {
             int nDomainID = 0;
 
-            try
+
+            ODBCWrapper.StoredProcedure spGetDeviceDomainData = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_DOMAIN_DATA);
+            spGetDeviceDomainData.SetConnectionKey("USERS_CONNECTION_STRING");
+            spGetDeviceDomainData.AddParameter("@groupID", nGroupID);
+            spGetDeviceDomainData.AddParameter("@deviceID", sDeviceUdid);
+
+            DataSet ds = spGetDeviceDomainData.ExecuteDataSet();
+
+            if (ds != null && ds.Tables[0].DefaultView.Count > 0)
             {
-                ODBCWrapper.StoredProcedure spGetDeviceDomainData = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_DOMAIN_DATA);
-                spGetDeviceDomainData.SetConnectionKey("USERS_CONNECTION_STRING");
-                spGetDeviceDomainData.AddParameter("@groupID", nGroupID);
-                spGetDeviceDomainData.AddParameter("@deviceID", sDeviceUdid);
-
-                DataSet ds = spGetDeviceDomainData.ExecuteDataSet();
-
-                if ((ds != null) && (ds.Tables[0].DefaultView.Count > 0))
+                int nCount = ds.Tables[0].DefaultView.Count;
+                if (nCount > 0)
                 {
-                    int nCount = ds.Tables[0].DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        nDbDomainDeviceID = int.Parse(ds.Tables[0].DefaultView[0].Row["id"].ToString());
-                        nDomainID = int.Parse(ds.Tables[0].DefaultView[0].Row["domain_id"].ToString());
-                        nIsActive = int.Parse(ds.Tables[0].DefaultView[0].Row["is_active"].ToString());
-                        nStatus = int.Parse(ds.Tables[0].DefaultView[0].Row["status"].ToString());
-                        nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].DefaultView[0].Row, "device_id");
+                    nDbDomainDeviceID = int.Parse(ds.Tables[0].DefaultView[0].Row["id"].ToString());
+                    nDomainID = int.Parse(ds.Tables[0].DefaultView[0].Row["domain_id"].ToString());
+                    nIsActive = int.Parse(ds.Tables[0].DefaultView[0].Row["is_active"].ToString());
+                    nStatus = int.Parse(ds.Tables[0].DefaultView[0].Row["status"].ToString());
+                    nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].DefaultView[0].Row, "device_id");
 
-                    }
                 }
             }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+
 
             return nDomainID;
         }
@@ -365,31 +286,19 @@ namespace DAL
 
         public static bool UpdateDomainsDevicesIsActive(int nDomainDeviceID, int enableInt, bool bIsEnable)
         {
-            bool res = false;
+            return Update_DomainsDevicesIsActive(nDomainDeviceID, enableInt, bIsEnable);
+        }
 
-            try
-            {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("domains_devices");
-                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", enableInt);
-                if (bIsEnable)
-                {
-                    updateQuery += ", last_activation_date = getdate()";
-                }
-                updateQuery += " where ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nDomainDeviceID);
+        public static bool Update_DomainsDevicesIsActive(int nDomainsDevicesID, int nEnableInt, bool bIsUpdateLastActivationDate)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_DomainsDevicesIsActive");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@DomainsDevicesID", nDomainsDevicesID);
+            sp.AddParameter("@IsActive", nEnableInt);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.AddParameter("@IsUpdateLastActivationDate", bIsUpdateLastActivationDate);
 
-                res = updateQuery.Execute();
-
-                updateQuery.Finish();
-                updateQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return res;
+            return sp.ExecuteReturnValue<bool>();
         }
 
         /// <summary>
@@ -472,7 +381,7 @@ namespace DAL
 
                 DataSet ds = spGetUsersInDomain.ExecuteDataSet();
 
-                if ((ds != null) && (ds.Tables[0].DefaultView.Count > 0))
+                if (ds != null && ds.Tables[0].DefaultView.Count > 0)
                 {
                     int nCount = ds.Tables[0].DefaultView.Count;
 
@@ -538,7 +447,7 @@ namespace DAL
                 return 1;
             }
 
-            return (dtResult.DefaultView.Count);
+            return dtResult.DefaultView.Count;
 
         }
 
@@ -561,7 +470,7 @@ namespace DAL
                 return 1;
             }
 
-            return (dtResult.DefaultView.Count);
+            return dtResult.DefaultView.Count;
 
         }
 
@@ -701,42 +610,38 @@ namespace DAL
 
         public static bool ResetDomain(int nDomainID, int nGroupID, int nFrequencyType = 0)
         {
-            try
+
+
+            ODBCWrapper.StoredProcedure spResetDomainFrequency = new ODBCWrapper.StoredProcedure(SP_RESET_DOMAIN_FREQUENCY);
+            spResetDomainFrequency.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            spResetDomainFrequency.AddParameter("@domainID", nDomainID);
+            spResetDomainFrequency.AddParameter("@groupID", nGroupID);
+            spResetDomainFrequency.AddParameter("@status", 2);
+            spResetDomainFrequency.AddParameter("@isActive", 2);
+            spResetDomainFrequency.AddParameter("@freqType", nFrequencyType);
+
+            DataTable dtResult = spResetDomainFrequency.Execute();
+
+            if (dtResult == null)
             {
-
-                ODBCWrapper.StoredProcedure spResetDomainFrequency = new ODBCWrapper.StoredProcedure(SP_RESET_DOMAIN_FREQUENCY);
-                spResetDomainFrequency.SetConnectionKey("USERS_CONNECTION_STRING");
-
-                spResetDomainFrequency.AddParameter("@domainID", nDomainID);
-                spResetDomainFrequency.AddParameter("@groupID", nGroupID);
-                spResetDomainFrequency.AddParameter("@status", 2);
-                spResetDomainFrequency.AddParameter("@isActive", 2);
-                spResetDomainFrequency.AddParameter("@freqType", nFrequencyType);
-
-                DataTable dtResult = spResetDomainFrequency.Execute();
-
-                if (dtResult == null)
-                {
-                    return true;
-                }
-
-                return (dtResult.DefaultView.Count > 0);
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
+                return true;
             }
 
-            return true;
+            return dtResult.DefaultView.Count > 0;
+
+
+
         }
 
         public static bool SetDomainFlag(int domainId, int val, DateTime dt, int deviceFlag = 1)
         {
             bool res = false;
+            ODBCWrapper.UpdateQuery updateQuery = null;
 
             try
             {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("domains");
+                updateQuery = new ODBCWrapper.UpdateQuery("domains");
                 updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Frequency_flag", "=", val);
 
@@ -757,6 +662,14 @@ namespace DAL
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (updateQuery != null)
+                {
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
             }
 
             return res;
@@ -900,25 +813,20 @@ namespace DAL
         {
             bool res = false;
 
-            try
-            {
-                ODBCWrapper.StoredProcedure spUpdateDomain = new ODBCWrapper.StoredProcedure(SP_UPDATE_DOMAIN_DATA);
-                spUpdateDomain.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                spUpdateDomain.AddParameter("@domainID", nDomainID);
-                spUpdateDomain.AddParameter("@groupID", nGroupID);
-                spUpdateDomain.AddParameter("@name", sName);
-                spUpdateDomain.AddParameter("@description", sDescription);
-                spUpdateDomain.AddParameter("@restriction", nDomainRestriciton);
+            ODBCWrapper.StoredProcedure spUpdateDomain = new ODBCWrapper.StoredProcedure(SP_UPDATE_DOMAIN_DATA);
+            spUpdateDomain.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                int rowCount = spUpdateDomain.ExecuteReturnValue<int>();
-                res = (rowCount > 0);
+            spUpdateDomain.AddParameter("@domainID", nDomainID);
+            spUpdateDomain.AddParameter("@groupID", nGroupID);
+            spUpdateDomain.AddParameter("@name", sName);
+            spUpdateDomain.AddParameter("@description", sDescription);
+            spUpdateDomain.AddParameter("@restriction", nDomainRestriciton);
 
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+            int rowCount = spUpdateDomain.ExecuteReturnValue<int>();
+            res = rowCount > 0;
+
+
 
             return res;
         }
@@ -1080,31 +988,14 @@ namespace DAL
             return nMinPeriod;
         }
 
-        public static int GetDomainsDevicesCount(int m_nGroupID, int nDeviceID)
+        public static int GetDomainsDevicesCount(int nGroupID, int nDeviceID)
         {
-            int nCount = 0;
+            StoredProcedure sp = new StoredProcedure("Get_DomainsDevicesCount");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DeviceID", nDeviceID);
 
-            try
-            {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                selectQuery += "select ID from domains_devices WITH (nolock) where status=1 and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", nDeviceID);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    nCount = selectQuery.Table("query").DefaultView.Count;
-                }
-                selectQuery.Finish();
-                selectQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return nCount;
+            return sp.ExecuteReturnValue<int>();
         }
 
         public static bool UpdateDeviceStatus(int nDeviceID, int nIsActive, int nStatus)
@@ -1269,45 +1160,6 @@ namespace DAL
 
         public static int GetDomainIDBySiteGuid(int nGroupID, int nSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster)
         {
-            //int nDomainID = 0;
-
-            //try
-            //{
-            //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            //    selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-
-            //    selectQuery += "SELECT UD.DOMAIN_ID, UD.IS_MASTER, D.OPERATOR_ID FROM USERS_DOMAINS UD WITH (NOLOCK) INNER JOIN DOMAINS D WITH (NOLOCK) ON UD.DOMAIN_ID = D.ID WHERE UD.STATUS = 1 AND D.IS_ACTIVE = 1 AND D.STATUS = 1 AND";
-            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UD.GROUP_ID", "=", nGroupID);
-            //    selectQuery += " AND ";
-            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UD.USER_ID", "=", nSiteGuid);
-            //    if (selectQuery.Execute("query", true) != null)
-            //    {
-            //        int count = selectQuery.Table("query").DefaultView.Count;
-            //        if (count > 0)
-            //        {
-            //            nDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["DOMAIN_ID"].ToString());
-
-            //            if (!string.IsNullOrEmpty(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString()))
-            //            {
-            //                nOperatorID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString());
-            //            }
-
-            //            if (selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"] != null)
-            //            {
-            //                bIsDomainMaster = (selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"].ToString() == "1");
-            //            }
-            //        }
-            //    }
-
-            //    selectQuery.Finish();
-            //    selectQuery = null;
-            //}
-            //catch (Exception ex)
-            //{
-            //    HandleException(ex);
-            //}
-
-            //return nDomainID;
 
             return (int)Get_DomainDataBySiteGuid(nGroupID, nSiteGuid, ref nOperatorID, ref bIsDomainMaster);
 
@@ -1365,22 +1217,17 @@ namespace DAL
         {
             int status = (-1);
 
-            try
-            {
-                ODBCWrapper.StoredProcedure spRemoveDomain = new ODBCWrapper.StoredProcedure(SP_REMOVE_DOMAIN);
-                spRemoveDomain.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                spRemoveDomain.AddParameter("@DomainID", nDomainID);
-                spRemoveDomain.AddParameter("@GroupID", nGroupID);
-                spRemoveDomain.AddParameter("@Status", nStatus);
-                spRemoveDomain.AddParameter("@IsActive", nIsActive);
+            ODBCWrapper.StoredProcedure spRemoveDomain = new ODBCWrapper.StoredProcedure(SP_REMOVE_DOMAIN);
+            spRemoveDomain.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                status = spRemoveDomain.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+            spRemoveDomain.AddParameter("@DomainID", nDomainID);
+            spRemoveDomain.AddParameter("@GroupID", nGroupID);
+            spRemoveDomain.AddParameter("@Status", nStatus);
+            spRemoveDomain.AddParameter("@IsActive", nIsActive);
+
+            status = spRemoveDomain.ExecuteReturnValue<int>();
+
 
             return status;
         }
@@ -1497,7 +1344,6 @@ namespace DAL
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += " and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", nDomainID);
 
                 if (selectQuery.Execute("query", true) != null)
                 {
@@ -1588,30 +1434,24 @@ namespace DAL
         public static bool IsSingleDomainEnvironment(int nGroupID)
         {
             bool isSingleDomainEnv = true;
-            try
-            {
-                ODBCWrapper.StoredProcedure spGetDomainEnvironment = new ODBCWrapper.StoredProcedure("GET_DomainEnvironment");
-                spGetDomainEnvironment.SetConnectionKey("MAIN_CONNECTION_STRING");
-                spGetDomainEnvironment.AddParameter("@groupID", nGroupID);
-                DataSet ds = spGetDomainEnvironment.ExecuteDataSet();
 
-                if ((ds != null) && (ds.Tables.Count != 0) && (ds.Tables[0].DefaultView.Count != 0))
+            ODBCWrapper.StoredProcedure spGetDomainEnvironment = new ODBCWrapper.StoredProcedure("GET_DomainEnvironment");
+            spGetDomainEnvironment.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetDomainEnvironment.AddParameter("@groupID", nGroupID);
+            DataSet ds = spGetDomainEnvironment.ExecuteDataSet();
+
+            if ((ds != null) && (ds.Tables.Count != 0) && (ds.Tables[0].DefaultView.Count != 0))
+            {
+                DataRow dr = ds.Tables[0].DefaultView[0].Row;
+                if (dr != null)
                 {
-                    DataRow dr = ds.Tables[0].DefaultView[0].Row;
-                    if (dr != null)
-                    {
-                        string sDomainEnv = ODBCWrapper.Utils.GetSafeStr(dr, "description");
-                        DomianEnvironmentType eType = (DomianEnvironmentType)Enum.Parse(typeof(DomianEnvironmentType), sDomainEnv, true);
-                        if (eType == ApiObjects.DomianEnvironmentType.MUS)
-                            return isSingleDomainEnv = false;
-                    }
+                    string sDomainEnv = ODBCWrapper.Utils.GetSafeStr(dr, "description");
+                    DomianEnvironmentType eType = (DomianEnvironmentType)Enum.Parse(typeof(DomianEnvironmentType), sDomainEnv, true);
+                    if (eType == ApiObjects.DomianEnvironmentType.MUS)
+                        return isSingleDomainEnv = false;
                 }
             }
 
-            catch (Exception ex)
-            {
-
-            }
 
             return isSingleDomainEnv;
         }

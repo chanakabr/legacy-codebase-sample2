@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Users
 {
@@ -13,7 +14,7 @@ namespace Users
         public int m_deviceLimit;
         public int m_deviceConcurrentLimit;
 
-        [NonSerialized]
+        [XmlIgnore]
         public LimitationsManager m_oLimitationsManager;
 
         public DeviceContainer()

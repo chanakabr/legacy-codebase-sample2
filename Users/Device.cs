@@ -168,31 +168,6 @@ namespace Users
 
         private string GetDeviceFamily(int deviceBrand, ref int familyID)
         {
-            //string retVal = string.Empty;
-            //try
-            //{
-            //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            //    selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-            //    selectQuery += "select lud.id, lud.name from lu_DeviceFamily lud WITH (nolock), lu_DeviceBrands lub WITH (nolock) where lub.device_family_id = lud.id and ";
-            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("lub.id", "=", deviceBrand);
-            //    if (selectQuery.Execute("query", true) != null)
-            //    {
-            //        int count = selectQuery.Table("query").DefaultView.Count;
-            //        if (count > 0)
-            //        {
-            //            retVal = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["name"]);
-            //            familyID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["id"]);
-            //        }
-            //    }
-            //    selectQuery.Finish();
-            //    selectQuery = null;
-            //}
-            //catch
-            //{
-
-            //}
-            //return retVal;
-
             return DeviceDal.Get_DeviceFamilyIDAndName(deviceBrand, ref familyID);
         }
 
@@ -238,8 +213,6 @@ namespace Users
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_family_id", "=", m_deviceFamilyID);
                 updateQuery += "and ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_groupID);
-                //updateQuery += "and ";
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
                 updateQuery += "and ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", retVal);
                 bool bUpdateRetVal = updateQuery.Execute();
@@ -348,24 +321,6 @@ namespace Users
 
         public static int GetDeviceIDByUDID(string sUDID, int nGroupID)
         {
-            //int retVal = 0;
-            //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            //selectQuery += "select id from devices with (nolock) where status=1 and";
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", sUDID);
-            //selectQuery += "and";
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-            //if (selectQuery.Execute("query", true) != null)
-            //{
-            //    int count = selectQuery.Table("query").DefaultView.Count;
-            //    if (count > 0)
-            //    {
-            //        retVal = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", 0);
-            //    }
-            //}
-            //selectQuery.Finish();
-            //selectQuery = null;
-            //return retVal;
-
             return (int) DeviceDal.Get_IDInDevicesByDeviceUDID(sUDID, nGroupID, "CONNECTION_STRING");
         }
 

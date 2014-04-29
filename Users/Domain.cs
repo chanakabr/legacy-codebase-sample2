@@ -6,6 +6,7 @@ using System.Data;
 using ApiObjects.MediaMarks;
 using Tvinci.Core.DAL;
 using DAL;
+using System.Xml.Serialization;
 
 namespace Users
 {
@@ -64,9 +65,6 @@ namespace Users
         //List of device brands
         public List<DeviceContainer> m_deviceFamilies;
 
-        [NonSerialized]
-        protected Dictionary<int, DeviceContainer> m_oDeviceFamiliesMapping;
-
         public DomainStatus m_DomainStatus;
 
         public int m_frequencyFlag;
@@ -92,11 +90,14 @@ namespace Users
 
         public List<HomeNetwork> m_homeNetworks;
 
-        [NonSerialized]
+        [XmlIgnore]
         protected LimitationsManager m_oLimitationsManager;
 
-        [NonSerialized]
+        [XmlIgnore]
         protected Dictionary<string, int> m_oUDIDToDeviceFamilyMapping;
+
+        [XmlIgnore]
+        protected Dictionary<int, DeviceContainer> m_oDeviceFamiliesMapping;
 
         #endregion
 
@@ -188,7 +189,6 @@ namespace Users
 
             m_DomainStatus = DomainStatus.OK;
 
-            //m_deviceFamilies = InitializeDeviceFamilies(nDomainLimitID, nGroupID);
             DeviceFamiliesInitializer(nDomainLimitID, nGroupID);
 
             m_UsersIDs = new List<int>();
@@ -279,28 +279,6 @@ namespace Users
         /// <param name="nDomainId">The DomainId</param>
         public bool Initialize(int nGroupID, int nDomainID)
         {
-            //m_nGroupID = nGroupID;
-            //m_nDomainID = nDomainID;
-
-            //if (!GetDomainSettings(nDomainID, nGroupID))
-            //{
-            //    m_DomainStatus = DomainStatus.DomainNotExists;
-            //    return false;
-            //}
-
-            //// Init Users
-            //DomainResponseStatus domainRes = GetUserList(nDomainID, nGroupID);
-
-            //// Init Devices
-            //m_deviceFamilies = InitializeDeviceFamilies(m_deviceLimitationModule, nGroupID);
-            //int devCount = GetDeviceList(false);
-
-            //m_homeNetworks = Utils.GetHomeNetworksOfDomain(nDomainID, nGroupID);
-
-            //m_DomainStatus = DomainStatus.OK;
-
-            //return true;
-
             return Initialize(string.Empty, string.Empty, nGroupID, nDomainID);
         }
 
@@ -402,7 +380,7 @@ namespace Users
             {
                 int nStatus = 2;
                 int nIsActive = 2;
-                int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID, nStatus, nIsActive);
+                int rowsAffected = DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID, nStatus, nIsActive);
 
                 if (rowsAffected > 0)
                 {
@@ -485,8 +463,6 @@ namespace Users
                     device.m_state = DeviceState.Activated;
                     container.AddDeviceInstance(device);
 
-                    //m_deviceFamilies.Add(container); - no need. it si reference type
-
                     m_totalNumOfDevices++;
 
                     eRetVal = DomainResponseStatus.OK;
@@ -539,26 +515,27 @@ namespace Users
             int isActive = 0;
             int nDeviceID = 0;
 
-            int nDomainDeviceID = DAL.DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);   //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
+            int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);   //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
 
             if (nDomainDeviceID > 0)
             {
                 // set is_Active = 2; status = 2
-                bool bUpdate = DAL.DomainDal.UpdateDomainsDevicesStatus(nDomainDeviceID, 2, 2);
+                bool bUpdate = DomainDal.UpdateDomainsDevicesStatus(nDomainDeviceID, 2, 2);
 
                 if (!bUpdate)
                 {
+                    Logger.Logger.Log("RemoveDeviceFromDomain", String.Concat("Failed to update domains_device table. Status=2, Is_Active=2, ID in domains_devices: ", nDomainDeviceID, " UDID: ", sUDID), "Domain");
                     return DomainResponseStatus.Error;
                 }
 
 
-                int nDomainsDevicesCount = DAL.DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID);
-                bool bDeleteDevice = (nDomainsDevicesCount == 0);   // No other domains attached to this device
+                int nDomainsDevicesCount = DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID);
+                bool bDeleteDevice = nDomainsDevicesCount == 0;   // No other domains attached to this device
 
                 if (bDeleteDevice)
                 {
                     // set is_Active = 2; status = 2
-                    bUpdate = DAL.DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
+                    bUpdate = DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
 
                     if (!bUpdate)
                     {
@@ -639,11 +616,11 @@ namespace Users
 
             int isActive = 0;
             int nDeviceID = 0;
-            int nDomainDeviceID = DAL.DomainDal.DoesDeviceExistInDomain(m_nDomainID, nGroupID, sUDID, ref isActive, ref nDeviceID);     //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
+            int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, nGroupID, sUDID, ref isActive, ref nDeviceID);     //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
 
             if (nDomainDeviceID > 0 && eDomainResponseStatus != DomainResponseStatus.ExceededLimit)
             {
-                bool resUpdated = DAL.DomainDal.UpdateDomainsDevicesIsActive(nDomainDeviceID, enableInt, bIsEnable);
+                bool resUpdated = DomainDal.UpdateDomainsDevicesIsActive(nDomainDeviceID, enableInt, bIsEnable);
 
                 if (resUpdated)
                 {
@@ -657,6 +634,7 @@ namespace Users
                 }
                 else
                 {
+                    Logger.Logger.Log("ChangeDeviceDomainStatus", String.Concat("Failed to update is_active in domains_devices. domains devices id: ", nDomainDeviceID, " enableInt: ", enableInt, " UDID: ", sUDID), "Domain");
                     eDomainResponseStatus = DomainResponseStatus.Error;
                 }
             }
@@ -806,8 +784,8 @@ namespace Users
             {
                 if (lDomainIDs.Count == 1 && lDomainIDs[0] == nDomainID)
                 {
-                    int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, null, 0, 0);
-                    lDomainIDs = DAL.UsersDal.GetUserDomainIDs(nGroupID, nUserID);
+                    int rowsAffected = DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, null, 0, 0);
+                    lDomainIDs = UsersDal.GetUserDomainIDs(nGroupID, nUserID);
                 }
                 else if (!lDomainIDs.Contains<int>(nDomainID) || lDomainIDs.Count > 1)
                 {
@@ -816,7 +794,7 @@ namespace Users
                 }
             }
 
-            int inserted = DAL.DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, Convert.ToInt32(bIsMaster), 1, 1, 43);
+            int inserted = DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, Convert.ToInt32(bIsMaster), 1, 1, 43);
 
             if (inserted > 0)
             {
@@ -904,7 +882,6 @@ namespace Users
             DomainResponseStatus responseStatus = CheckUserLimit(nDomainID, nUserID);
             if (responseStatus == DomainResponseStatus.ExceededUserLimit || responseStatus == DomainResponseStatus.UserNotAllowed)
             {
-                //eDomainResponseStatus = responseStatus;
                 return new DomainResponseObject(this, responseStatus);
             }
 
@@ -1276,28 +1253,6 @@ namespace Users
 
         #region Protected Methods
 
-        internal List<DeviceContainer> InitializeDeviceFamilies(int nDomainLimitID, int nGroupID)
-        {
-            List<string[]> dbDeviceFamilies = DomainDal.InitializeDeviceFamilies(nDomainLimitID, nGroupID);
-
-            List<DeviceContainer> deviceFamilies = new List<DeviceContainer>(dbDeviceFamilies.Count);
-
-            for (int i = 0; i < dbDeviceFamilies.Count; i++)
-            {
-                string[] currentDeviceFamily = dbDeviceFamilies[i];
-
-                int nFamilyID = string.IsNullOrEmpty(currentDeviceFamily[0]) ? 0 : int.Parse(currentDeviceFamily[0]);
-                int nFamilyLimit = string.IsNullOrEmpty(currentDeviceFamily[1]) ? 0 : int.Parse(currentDeviceFamily[1]);
-                int nFamilyConcurrentLimit = string.IsNullOrEmpty(currentDeviceFamily[2]) ? 0 : int.Parse(currentDeviceFamily[2]);
-                string sFamilyName = currentDeviceFamily[3];
-
-                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nFamilyLimit, nFamilyConcurrentLimit);
-                deviceFamilies.Add(dc);
-            }
-
-            return deviceFamilies;
-        }
-
         protected internal void DeviceFamiliesInitializer(int nDomainLimitationModuleID, int nGroupID)
         {
             List<string[]> dbDeviceFamilies = DomainDal.InitializeDeviceFamilies(nDomainLimitationModuleID, nGroupID);
@@ -1334,36 +1289,8 @@ namespace Users
         {
             if (isInitializeFamilies)
             {
-                //m_deviceFamilies = InitializeDeviceFamilies(m_deviceLimitationModule, m_nGroupID);
                 DeviceFamiliesInitializer(m_deviceLimitationModule, m_nGroupID);
             }
-
-            //List<int> devicesInDomain = DomainDal.GetDevicesInDomain(m_nGroupID, m_nDomainID);
-
-            //if (devicesInDomain != null && devicesInDomain.Count > 0)
-            //{
-            //    for (int i = 0; i < devicesInDomain.Count; i++)
-            //    {
-            //        Device device = new Device(m_nGroupID);
-            //        device.Initialize(devicesInDomain[i], m_nDomainID);
-
-            //        DeviceContainer container = GetDeviceContainer(device.m_deviceFamilyID);
-            //        if (container != null)
-            //        {
-            //            container.AddDeviceInstance(device);
-
-            //            string sTrimmedUDID = device.m_deviceUDID.Trim();
-            //            if (!m_oUDIDToDeviceFamilyMapping.ContainsKey(sTrimmedUDID))
-            //                m_oUDIDToDeviceFamilyMapping.Add(sTrimmedUDID, device.m_deviceFamilyID);
-
-
-            //            if (device.IsActivated())
-            //            {
-            //                m_totalNumOfDevices++;
-            //            }
-            //        }
-            //    }
-            //}
 
             DataTable dt = DomainDal.Get_DomainDevices(m_nGroupID, m_nDomainID);
             InitializeDomainDevicesData(dt);
@@ -1538,20 +1465,6 @@ namespace Users
 
         protected DeviceContainer GetDeviceContainer(int deviceFamilyID)
         {
-            //DeviceContainer retVal = null;
-            //if (m_deviceFamilies != null)
-            //{
-            //    foreach (DeviceContainer container in m_deviceFamilies)
-            //    {
-            //        if (container.m_deviceFamilyID == deviceFamilyID)
-            //        {
-            //            retVal = container;
-            //            break;
-            //        }
-            //    }
-            //}
-            //return retVal;
-
             if (m_oDeviceFamiliesMapping != null && m_oDeviceFamiliesMapping.Count > 0 && m_oDeviceFamiliesMapping.ContainsKey(deviceFamilyID))
                 return m_oDeviceFamiliesMapping[deviceFamilyID];
             return null;
@@ -1630,7 +1543,7 @@ namespace Users
                 eRetVal = DomainResponseStatus.UserNotAllowed;
 
             }
-            else if ((m_nUserLimit > 0) && (m_totalNumOfUsers >= m_nUserLimit))
+            else if (m_nUserLimit > 0 && m_totalNumOfUsers >= m_nUserLimit)
             {
                 eRetVal = DomainResponseStatus.ExceededUserLimit;
             }
@@ -1764,12 +1677,11 @@ namespace Users
                     foreach (UserMediaMark umm in filteredPositions)
                     {
                         int nDeviceFamilyID = 0;
-                        string sTrimmedUDID = umm.UDID.Trim();
-                        if (!m_oUDIDToDeviceFamilyMapping.TryGetValue(sTrimmedUDID, out nDeviceFamilyID) || nDeviceFamilyID == 0)
+                        if (!m_oUDIDToDeviceFamilyMapping.TryGetValue(umm.UDID, out nDeviceFamilyID) || nDeviceFamilyID == 0)
                         {
                             // the device family id does not exist in Domain cache. Grab it from DB.
                             int nDeviceBrandID = 0;
-                            nDeviceFamilyID = DeviceDal.GetDeviceFamilyID(m_nGroupID, sTrimmedUDID, ref nDeviceBrandID);
+                            nDeviceFamilyID = DeviceDal.GetDeviceFamilyID(m_nGroupID, umm.UDID, ref nDeviceBrandID);
                         }
                         if (nDeviceFamilyID > 0)
                         {
