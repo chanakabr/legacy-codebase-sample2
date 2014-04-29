@@ -141,4 +141,10 @@ namespace ApiObjects
         SUS,
         MUS
     }
+
+    public enum Btype
+    {
+        SUBSCRIPTION = 0,
+        COLLECTION = 1
+    }
 }

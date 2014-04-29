@@ -17,7 +17,8 @@ namespace ConditionalAccess
         PrePaidPurchased = 7,
         GeoCommerceBlocked = 8,
         EntitledToPreviewModule = 9,
-        FirstDeviceLimitation =10
+        FirstDeviceLimitation =10,
+        CollectionPurchased
     }
 
     public enum BillingItemsType
@@ -128,6 +129,12 @@ namespace ConditionalAccess
         Failed = 2
     }
 
+    public enum eBundleType
+    {
+        SUBSCRIPTION = 0,
+        COLLECTION = 1
+	}
+	
     public enum ChangeSubscriptionStatus
     {
         OK = 0,

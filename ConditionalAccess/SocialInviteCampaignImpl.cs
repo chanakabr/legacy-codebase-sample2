@@ -144,7 +144,7 @@ namespace ConditionalAccess
                                             int subCode = camp.m_subscriptionCode;
                                             if (subCode > 0)
                                             {
-                                                caImpl.CC_ChargeUserForSubscription(ownerSiteGuid.ToString(), 0.0, string.Empty, subCode.ToString(), string.Empty, "1.1.1.1", string.Empty, "EUR", string.Empty, string.Empty, true, string.Empty, string.Empty);
+                                                caImpl.CC_ChargeUserForBundle(ownerSiteGuid.ToString(), 0.0, string.Empty, subCode.ToString(), string.Empty, "1.1.1.1", string.Empty, "EUR", string.Empty, string.Empty, true, string.Empty, string.Empty, eBundleType.SUBSCRIPTION);
                                             }
                                         }
                                     }

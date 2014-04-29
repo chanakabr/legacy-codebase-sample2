@@ -14,19 +14,24 @@ using System.Collections.Concurrent;
 
 namespace Catalog
 {
-    [DataContract]    
-    public class SubscriptionMediaRequest : BaseRequest, IRequestImp
+    [DataContract]
+    public class BundleMediaRequest : BaseRequest, IRequestImp
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         [DataMember]
-        public int m_nSubscriptionID;
+        public eBundleType m_eBundleType;
+        [DataMember]
+        public int m_nBundleID;
         [DataMember]
         public OrderObj m_oOrderObj;
         [DataMember]
         public string m_sMediaType;
 
-        public SubscriptionMediaRequest() 
+        private const string SUB_DATA_TABLE = "subscriptions";
+        private const string COL_DATA_TABLE = "collections";
+
+        public BundleMediaRequest() 
             : base()
         {
         }
@@ -35,14 +40,29 @@ namespace Catalog
         {
             try
             {
-                SubscriptionMediaRequest request = (SubscriptionMediaRequest)oBaseRequest;
-                List<SearchResult> lMedias = new List<SearchResult>();
-                MediaIdsResponse response = new MediaIdsResponse();
+                BundleMediaRequest request = (BundleMediaRequest)oBaseRequest;
+                List<SearchResult> lMedias     = new List<SearchResult>();
+                MediaIdsResponse response      = new MediaIdsResponse();
 
-                if (request == null || request.m_nSubscriptionID == 0)
+                if (request == null || request.m_nBundleID == 0)
                     throw new Exception("request object is null or Required variables is null");
 
-                Int32 nOwnerGroup = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "group_id", request.m_nSubscriptionID, "pricing_connection").ToString());
+                string dataTable = string.Empty;
+                switch(m_eBundleType)
+                {
+                    case eBundleType.SUBSCRIPTION:
+                    {
+                        dataTable = SUB_DATA_TABLE;
+                        break;
+                    }
+                    case eBundleType.COLLECTION:
+                    {
+                        dataTable = COL_DATA_TABLE;
+                        break;
+                    }
+                }
+
+                Int32 nOwnerGroup = int.Parse(ODBCWrapper.Utils.GetTableSingleVal(dataTable, "group_id", request.m_nBundleID, "pricing_connection").ToString());
 
                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
 
@@ -52,7 +72,7 @@ namespace Catalog
                 Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
                 if (groupInCache != null)
                 {
-                    List<int> channelIds = Catalog.GetSubscriptionChannelIds(groupInCache.m_nParentGroupID, request.m_nSubscriptionID);
+                    List<int> channelIds      = Catalog.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, m_eBundleType);
                     List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                     if (channelIds != null && channelIds.Count > 0)
@@ -74,7 +94,6 @@ namespace Catalog
 
                             }
 
-                            //List<int> lIds = new List<int>();
                             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 
                             int[] nDeviceRuleId = null;
@@ -136,7 +155,7 @@ namespace Catalog
                                             oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                                         }
 
-                                        // Getting all medias in subscription   
+                                        // Getting all medias in bundle   
                                         List<SearchResult> lMediaRes = null;
                                         SearchResultsObj oSearchResults = searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_sMediaType, oSearchOrder, request.m_nPageIndex, request.m_nPageSize);
 
@@ -165,7 +184,7 @@ namespace Catalog
                     }
                 }
 
-                Logger.Logger.Log("Info", "SubscriptionMediaRequest - total returned items = " + response.m_nTotalItems, "Elasticsearch");
+                Logger.Logger.Log("Info", "BundleMediaRequest - total returned items = " + response.m_nTotalItems, "Elasticsearch");
                 return (BaseResponse)response;
             }
             catch (Exception ex)
@@ -173,6 +192,6 @@ namespace Catalog
                 _logger.Error(ex.Message, ex);
                 throw ex;
             }
-        }        
+        }
     }
 }

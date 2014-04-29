@@ -1394,9 +1394,28 @@ namespace Catalog
             }
         }
 
-        internal static List<int> GetSubscriptionChannelIds(int nGroupId, int nSubscriptionId)
+        internal static List<int> GetBundleChannelIds(int nGroupId, int nBundleId, eBundleType bundleType)
         {
-            DataTable channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsBySubscription(nGroupId, nSubscriptionId);
+            DataTable channelIdsDt;
+            switch (bundleType)
+            {
+                case eBundleType.SUBSCRIPTION:
+                {
+                    channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsBySubscription(nGroupId, nBundleId);
+                    break;
+                }
+                case eBundleType.COLLECTION:
+                {
+                    channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsByCollection(nGroupId, nBundleId);
+                    break;
+                }
+                default:
+                {
+                    channelIdsDt = null;
+                    break;
+                }
+            }
+
             List<int> lChannelIds = null;
             if (channelIdsDt != null && channelIdsDt.Rows.Count > 0)
             {
