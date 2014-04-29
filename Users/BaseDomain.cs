@@ -418,29 +418,30 @@ namespace Users
                 candidate, existingNetwork, dtLastDeactivationDate, ref res);
         }
 
-        public virtual DomainResponseStatus ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType, Domain domain = null)
+        public virtual ValidationResponseObject ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType, Domain domain = null)
         {
-            DomainResponseStatus res = DomainResponseStatus.UnKnown;
+            ValidationResponseObject res = new ValidationResponseObject();
             if (domain == null)
                 domain = GetDomainForValidation(lSiteGuid, lDomainID);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
+                res.m_lDomainID = lDomainID > 0 ? lDomainID : domain.m_nDomainID;
                 switch (eValidationType)
                 {
                     case ValidationType.Concurrency:
                         {
-                            res = domain.ValidateConcurrency(sUDID, nDeviceBrandID, lDomainID);
+                            res.m_eStatus = domain.ValidateConcurrency(sUDID, nDeviceBrandID, res.m_lDomainID);
                             break;
                         }
                     case ValidationType.Frequency:
                         {
-                            res = domain.ValidateFrequency(sUDID, nDeviceBrandID);
+                            res.m_eStatus = domain.ValidateFrequency(sUDID, nDeviceBrandID);
                             break;
                         }
                     default:
                         {
                             // Quantity
-                            res = domain.ValidateQuantity(sUDID, nDeviceBrandID);
+                            res.m_eStatus = domain.ValidateQuantity(sUDID, nDeviceBrandID);
                             break;
                         }
                 }

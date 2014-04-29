@@ -157,6 +157,7 @@
     <Compile Include="UserType.cs" />
     <Compile Include="UserUpdateResponse.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="ValidationResponseObject.cs" />
     <Compile Include="Web References\TvinciAPI\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

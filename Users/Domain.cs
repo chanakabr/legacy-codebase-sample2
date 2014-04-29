@@ -1601,7 +1601,7 @@ namespace Users
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             if (!string.IsNullOrEmpty(sUDID))
             {
-                Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID);
+                Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, string.Empty, (int) lDomainID);
                 DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
                 if (dc != null)
                 {

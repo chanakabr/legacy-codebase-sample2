@@ -24,13 +24,21 @@ namespace Users
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {
+            int nFamilyID = 0;
             m_id = string.Empty;
             m_deviceUDID = sUDID;
-            m_deviceBrandID = nDeviceBrandID;
-
-            int nFamilyID = 0;
-            m_deviceFamily = GetDeviceFamily(nDeviceBrandID, ref nFamilyID);
-            m_deviceFamilyID = nFamilyID;
+            if (nDeviceBrandID > 0)
+            {
+                m_deviceBrandID = nDeviceBrandID;
+                m_deviceFamily = GetDeviceFamily(nDeviceBrandID, ref nFamilyID);
+                m_deviceFamilyID = nFamilyID;
+            }
+            else
+            {
+                int nBrandID = 0;
+                m_deviceFamilyID = DeviceDal.GetDeviceFamilyID(nGroupID, sUDID, ref nBrandID);
+                m_deviceBrandID = nBrandID;
+            }
 
             m_domainID = domainID;
             m_groupID = nGroupID;
