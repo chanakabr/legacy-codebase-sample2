@@ -1111,7 +1111,7 @@ namespace Catalog
         public static void GetMediaPlayData(int nMediaID, int nMediaFileID, ref int nOwnerGroupID, ref int nCDNID, ref int nQualityID, ref int nFormatID, ref int nBillingTypeID)
         {
             DataTable dtPlayData = CatalogDAL.Get_MediaPlayData(nMediaID, nMediaFileID);
-            if (dtPlayData != null && dtPlayData.Rows.Count > 0)
+            if (dtPlayData != null && dtPlayData.Rows != null && dtPlayData.Rows.Count > 0)
             {
                 nOwnerGroupID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "group_id");
                 nCDNID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "streaming_suplier_id");
@@ -1135,17 +1135,14 @@ namespace Catalog
             return retVal;
         }
 
-        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID)
+        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int nDomainID = 0)
         {
             int opID = 0;
             bool isMaster = false;
-            int domainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
-
-
-            if (domainID == 0)
-                return;
-
-            CatalogDAL.UpdateOrInsert_UsersMediaMark(domainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
+            if (nDomainID < 1)
+                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
+            if (nDomainID > 0)
+                CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
         }
 
         public static int GetCountryIDByIP(string sIP)
@@ -1172,7 +1169,7 @@ namespace Catalog
             int retActionID = 0;
 
             DataTable dtAction = CatalogDAL.Get_ActionValues(sAction);
-            if (dtAction != null && dtAction.Rows.Count > 0)
+            if (dtAction != null && dtAction.Rows != null && dtAction.Rows.Count > 0)
             {
                 retActionID = Utils.GetIntSafeVal(dtAction.Rows[0], "ID");
             }
@@ -1384,20 +1381,20 @@ namespace Catalog
             switch (bundleType)
             {
                 case eBundleType.SUBSCRIPTION:
-                {
-                    channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsBySubscription(nGroupId, nBundleId);
-                    break;
-                }
+                    {
+                        channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsBySubscription(nGroupId, nBundleId);
+                        break;
+                    }
                 case eBundleType.COLLECTION:
-                {
-                    channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsByCollection(nGroupId, nBundleId);
-                    break;
-                }
+                    {
+                        channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsByCollection(nGroupId, nBundleId);
+                        break;
+                    }
                 default:
-                {
-                    channelIdsDt = null;
-                    break;
-                }
+                    {
+                        channelIdsDt = null;
+                        break;
+                    }
             }
 
             List<int> lChannelIds = null;
@@ -1422,13 +1419,13 @@ namespace Catalog
         public static bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
         {
             return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
-        }  
+        }
 
         public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
         {
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction);
         }
-       
+
         private static bool Update(List<int> lIds, int nGroupId, eObjectType eUpdatedObjectType, eAction eAction)
         {
             bool bIsUpdateIndexSucceeded = false;
@@ -1452,7 +1449,7 @@ namespace Catalog
             return bIsUpdateIndexSucceeded;
         }
 
-       
+
         private static bool UpdateEpg(List<int> lIds, int nGroupId, eObjectType eObjectType, eAction eAction)
         {
             bool bIsUpdateIndexSucceeded = false;
@@ -1613,7 +1610,7 @@ namespace Catalog
                 return null;
             }
         }
-        
+
         /*Build Full search object*/
         private static void EpgSearchAddParams(EpgSearchRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
@@ -2498,6 +2495,74 @@ namespace Catalog
 
             return CatalogDAL.GetLastPosition(mediaID, userID);
         }
+
+        internal static bool IsConcurrent(string sSiteGuid, string sUDID, int nGroupID, ref int nDomainID)
+        {
+            bool res = true;
+            long lSiteGuid = 0;
+            if (!Int64.TryParse(sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
+            {
+                throw new Exception(GetIsConcurrentLogMsg("SiteGuid is in incorrect format.", sSiteGuid, sUDID, nGroupID));
+            }
+
+            string sWSUsername = string.Empty;
+            string sWSPassword = string.Empty;
+            string sWSUrl = string.Empty;
+
+            TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "ValidateLimitationModule", "domains", "1.1.1.1", ref sWSUsername, ref sWSPassword);
+            sWSUrl = Utils.GetWSURL("ws_domains");
+
+            if (sWSUsername.Length == 0 || sWSPassword.Length == 0)
+            {
+                throw new Exception(GetIsConcurrentLogMsg("No WS_Domains login parameters were extracted from DB.", sSiteGuid, sUDID, nGroupID));
+            }
+
+            using (WS_Domains.module domains = new WS_Domains.module())
+            {
+                if (sWSUrl.Length > 0)
+                    domains.Url = sWSUrl;
+                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency);
+                if (domainsResp != null)
+                {
+                    nDomainID = (int)domainsResp.m_lDomainID;
+                    switch (domainsResp.m_eStatus)
+                    {
+                        case WS_Domains.DomainResponseStatus.ConcurrencyLimitation:
+                            {
+                                res = true;
+                                break;
+                            }
+                        case WS_Domains.DomainResponseStatus.OK:
+                            {
+                                res = false;
+                                break;
+                            }
+                        default:
+                            {
+                                throw new Exception(GetIsConcurrentLogMsg(String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), sSiteGuid, sUDID, nGroupID));
+                            }
+                    }
+                }
+                else
+                {
+                    throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", sSiteGuid, sUDID, nGroupID));
+                }
+            }
+
+            return res;
+        }
+
+        private static string GetIsConcurrentLogMsg(string sMessage, string sSiteGuid, string sUDID, int nGroupID)
+        {
+            StringBuilder sb = new StringBuilder("IsConcurrent Err. ");
+            sb.Append(sMessage);
+            sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+            sb.Append(String.Concat(" UDID: ", sUDID));
+            sb.Append(String.Concat(" Group ID: ", nGroupID));
+
+            return sb.ToString();
+        }
+
 
     }
 
