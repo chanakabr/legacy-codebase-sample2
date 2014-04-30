@@ -53,8 +53,7 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
         if (Session["channels_ids"] == null)
         {
             Session["channels_ids"] = new Hashtable();
-        }
-        
+        }      
         if (sAction.ToLower().Equals("add") && !((Hashtable)Session["channels_ids"]).ContainsKey(sID))
         {
             ((Hashtable)Session["channels_ids"]).Add(sID, sID);

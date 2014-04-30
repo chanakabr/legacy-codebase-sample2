@@ -64,28 +64,90 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             }
             //if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.PUBLISH) == false)
                 //LoginManager.LogoutFromSite("login.html");
-            object oStatus = ODBCWrapper.Utils.GetTableSingleVal(m_sTable , "status" , m_nID , m_sDB);
-            if (oStatus != null)
+
+            if (m_sDB == "couchbase")
             {
-                Int32 nCurrentStatus = int.Parse(oStatus.ToString());
-                if (nCurrentStatus == 3)
+                if (m_sTable == "Epg")
                 {
-                    if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.PUBLISH) == false)
+                    //Delete from CouchBase
+                    int nGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+                    ulong uID = 0;
+                    bool successParse = ulong.TryParse(m_nID.ToString(), out uID);
+                    if (successParse)
                     {
-                        LoginManager.LogoutFromSite("login.html");
-                        return;
+                        EpgBL.TvinciEpgBL oEpgBL = new EpgBL.TvinciEpgBL(nGroupID);
+                        EpgCB epgCB = oEpgBL.GetEpgCB(uID);
+                        if (epgCB != null)
+                        {   
+                            if (epgCB.Status == 4)
+                            {
+                                if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.REMOVE) == false)
+                                {
+                                    LoginManager.LogoutFromSite("login.html");
+                                    return;
+                                }
+                            }
+
+                            if (m_bConfirm) // confirm button
+                            {
+                                if (epgCB.Status == 4) //remove permanent
+                                {
+                                    oEpgBL.RemoveEpg(uID);
+                                    bool result = false;
+                                    result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Delete);
+                                }
+                                else if (epgCB.Status == 1)
+                                {
+                                    epgCB.Status = 4;
+                                    bool res = oEpgBL.UpdateEpg(epgCB);
+                                    bool result = false;
+                                    result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
+                                }
+                            }
+                            else // cancel button
+                            {
+                                epgCB.Status = 1;
+                                bool res = oEpgBL.UpdateEpg(epgCB);
+                                bool result = false;
+                                result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
+                            }
+                        }
+                        //Delete from ElasticSearch
                     }
                 }
-                if (nCurrentStatus == 4)
-                {
-                    if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.REMOVE) == false)
-                    {
-                        LoginManager.LogoutFromSite("login.html");
-                        return;
-                    }
-                }
+                if (Session["LastContentPage"].ToString().IndexOf("?") == -1)
+                    Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1'</script>");
+                else
+                    Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1'</script>");
+
+               
             }
-            Remove();
+            else
+            {
+
+                object oStatus = ODBCWrapper.Utils.GetTableSingleVal(m_sTable, "status", m_nID, m_sDB);
+                if (oStatus != null)
+                {
+                    Int32 nCurrentStatus = int.Parse(oStatus.ToString());
+                    if (nCurrentStatus == 3)
+                    {
+                        if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.PUBLISH) == false)
+                        {
+                            LoginManager.LogoutFromSite("login.html");
+                            return;
+                        }
+                    }
+                    if (nCurrentStatus == 4)
+                    {
+                        if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.REMOVE) == false)
+                        {
+                            LoginManager.LogoutFromSite("login.html");
+                            return;
+                        }
+                    }
+                }
+                Remove();
+            }
         }
         catch
         {

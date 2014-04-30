@@ -11,6 +11,7 @@ using System.Web.UI.HtmlControls;
 using TVinciShared;
 using TvinciImporter;
 using System.Collections.Generic;
+using ApiObjects;
 
 public partial class adm_generic_remove : System.Web.UI.Page
 {
@@ -94,57 +95,95 @@ public partial class adm_generic_remove : System.Web.UI.Page
 
     protected void Remove()
     {
-        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
-        updateQuery.SetConnectionKey(m_sDB);
-        // double confirm for remove
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
-        updateQuery += "where";
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
-        updateQuery += "and";
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 4);
-        updateQuery.Execute();
-        updateQuery.Finish();
-        updateQuery = null;
-
-        ODBCWrapper.UpdateQuery updateQuery1 = new ODBCWrapper.UpdateQuery(m_sTable);
-        updateQuery1.SetConnectionKey(m_sDB);
-        // double confirm for remove
-        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 4);
-        updateQuery1 += "where";
-        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
-        updateQuery1 += "and";
-        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
-        updateQuery1.Execute();
-        updateQuery1.Finish();
-        updateQuery1 = null;
-
-
-        //Remove Media / Channel from Lucene 
-        bool result = false;
-        List<int> lIds = new List<int>() { m_nID };           
-
-        switch (m_sTable.ToLower())
+        if (m_sDB == "couchbase")
         {
-            case "media":
-                result = ImporterImpl.UpdateIndex(lIds, LoginManager.GetLoginGroupID(), ApiObjects.eAction.Delete);
-                break;
-            case "channels":
-                result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), lIds, ApiObjects.eAction.Delete);
-                break;
-            case "channels_media":
-                object oChannelId = ODBCWrapper.Utils.GetTableSingleVal("channels_media", "CHANNEL_ID", m_nID);//get channel+media_id 
-                int nChannelId;
-                if (oChannelId != null && oChannelId != DBNull.Value)
+            if (m_sTable == "Epg")
+            {
+                //Delete from CouchBase
+                int nGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+                ulong uID = 0;
+                bool successParse = ulong.TryParse(m_nID.ToString(), out uID);
+                if (successParse)
                 {
-                    nChannelId = int.Parse(oChannelId.ToString());
-                    lIds.Clear();
-                    lIds.Add(nChannelId);
+                    EpgBL.TvinciEpgBL oEpgBL = new EpgBL.TvinciEpgBL(nGroupID);
+                    EpgCB epgCB = oEpgBL.GetEpgCB(uID);
+                    if (epgCB != null)
+                    {
+                        if (epgCB.Status == 4) //remove permanent
+                        {
+                            oEpgBL.RemoveEpg(uID);
+                            //Delete from ElasticSearch
+                            bool result = false;
+                            result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Delete);
+                        }
+                        else if (epgCB.Status == 1)
+                        {
+                            epgCB.Status = 4;
+                            bool res = oEpgBL.UpdateEpg(epgCB);
+                            //Update from ElasticSearch
+                            bool result = false;
+                            result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
+                        }
+                    }
+                }
+            }
+        }
 
+        else
+        {
+
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
+            updateQuery.SetConnectionKey(m_sDB);
+            // double confirm for remove
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+            updateQuery += "where";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+            updateQuery += "and";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 4);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+
+            ODBCWrapper.UpdateQuery updateQuery1 = new ODBCWrapper.UpdateQuery(m_sTable);
+            updateQuery1.SetConnectionKey(m_sDB);
+            // double confirm for remove
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 4);
+            updateQuery1 += "where";
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+            updateQuery1 += "and";
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+            updateQuery1.Execute();
+            updateQuery1.Finish();
+            updateQuery1 = null;
+
+
+            //Remove Media / Channel from Lucene 
+            bool result = false;
+            List<int> lIds = new List<int>() { m_nID };
+
+            switch (m_sTable.ToLower())
+            {
+                case "media":
+                    result = ImporterImpl.UpdateIndex(lIds, LoginManager.GetLoginGroupID(), ApiObjects.eAction.Delete);
+                    break;
+                case "channels":
                     result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), lIds, ApiObjects.eAction.Delete);
-                }               
-                break;
-            default:
-                break;
+                    break;
+                case "channels_media":
+                    object oChannelId = ODBCWrapper.Utils.GetTableSingleVal("channels_media", "CHANNEL_ID", m_nID);//get channel+media_id 
+                    int nChannelId;
+                    if (oChannelId != null && oChannelId != DBNull.Value)
+                    {
+                        nChannelId = int.Parse(oChannelId.ToString());
+                        lIds.Clear();
+                        lIds.Add(nChannelId);
+
+                        result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), lIds, ApiObjects.eAction.Delete);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         if (Session["LastContentPage"].ToString().IndexOf("?") == -1)

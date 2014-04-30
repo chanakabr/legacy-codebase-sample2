@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using ApiObjects;
+using EpgBL;
 using TVinciShared;
 
 public partial class adm_epg_channels_schedule : System.Web.UI.Page
@@ -61,32 +65,47 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        CBTableWebEditor<EPGChannelProgrammeObject> theTable = new CBTableWebEditor<EPGChannelProgrammeObject>(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         FillTheTableEditor(ref theTable, sOldOrderBy, startD, startM, startY, endD, endM, endY);
 
-        string sCSVFile = theTable.OpenCSV();
+        string sCSVFile =  theTable.OpenCSV(); 
         theTable.Finish();
         theTable = null;
         return sCSVFile;
     }
 
-    protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy, string startD, string startM, string startY, string endD, string endM, string endY)
+    protected void FillTheTableEditor(ref CBTableWebEditor<EPGChannelProgrammeObject> theTable, string sOrderBy, string startD, string startM, string startY, string endD, string endM, string endY)
     {
         DateTime tStart = DateUtils.GetDateFromStr(startD + "/" + startM + "/" + startY);
         DateTime tEnd = DateUtils.GetDateFromStr(endD + "/" + endM + "/" + endY);
 
-        theTable += "select q.is_active,q.id,q.eci,q.m_id,q.DOW,q.name as 'EPG name',q.description as 'EPG Description', q.epg_identifier as 'EPG Identifier',m.description as 'Media description',q.START_DATE as 'Start Date',q.END_DATE as 'End Date',q.status,q.State from (select ecs.epg_identifier,ecs.id,ecs.EPG_CHANNEL_ID as 'eci',ecs.id as 'm_id',CASE DATEPART (dw,ecs.START_DATE) WHEN 3 THEN 'Tue' WHEN 1 THEN 'Sun' WHEN 2 THEN 'Mon' WHEN 4 THEN 'Wen' WHEN 5 THEN 'Thu' WHEN 6 THEN 'Fri' WHEN 7 THEN 'Sat' END as 'DOW',ecs.name,ecs.description,ecs.START_DATE,ecs.END_DATE,ecs.status,lcs.description as 'State',ecs.is_active ";
-        theTable += " from ";
-        theTable += " lu_content_status lcs,epg_channels_schedule ecs where lcs.id=ecs.status and ecs.status=1 ";
-        theTable += " and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("ecs.EPG_CHANNEL_ID", "=", int.Parse(Session["epg_channel_id"].ToString()));
-        theTable += " and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("ecs.END_DATE", ">=", tStart);
-        theTable += " and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("ecs.START_DATE", "<=", tEnd);
-        theTable += " and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("ecs.GROUP_ID", "=", LoginManager.GetLoginGroupID());
-        theTable += " )q left join media m on m.epg_identifier=q.epg_identifier order by q.start_date";
+        //get epg programs from CB
+        int nGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+
+        int channelID = int.Parse(Session["epg_channel_id"].ToString());
+        List<int> channelIDs = new List<int>() { channelID };
+        TvinciEpgBL oEpgBL = new TvinciEpgBL(nGroupID);
+        Dictionary<int, List<EPGChannelProgrammeObject>> dEpg = oEpgBL.GetMultiChannelProgramsDic(0, 0, channelIDs, tStart, tEnd).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        if (dEpg != null && dEpg.ContainsKey(channelID))
+            theTable.SetData(dEpg[channelID]);
+
+        theTable.AddField("DOW");
+        theTable.AddField("EPG name");
+        theTable.AddField("EPG Description");
+        theTable.AddField("EPF Identifier");
+        theTable.AddField("Media description");
+        theTable.AddField("Start Date");
+        theTable.AddField("End Date");
+        theTable.AddField("State");
+
+        theTable.AddHiddenField("eci");     //EPG_CHANNEL ID
+        theTable.AddHiddenField("m_id");    //Epg program ID
+        theTable.AddHiddenField("id");      //Epg program ID
+        theTable.AddHiddenField("status");
+        theTable.AddHiddenField("is_active");
+
+        theTable.AddOnOffField("On/Off", "Epg~~|~~On Off~~|~~m_id~~|~~On~~|~~Off");
+
         if (LoginManager.IsActionPermittedOnPage("adm_epg_channels.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_epg_channels_schedule_new.aspx", "Edit", "");
@@ -94,31 +113,19 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
             linkColumn1.AddQueryStringValue("epg_channels_id", "field=eci");
             theTable.AddLinkColumn(linkColumn1);
         }
-        theTable.AddHiddenField("eci");
-        theTable.AddHiddenField("m_id");
-        theTable.AddHiddenField("id");
-        theTable.AddHiddenField("status");
-        theTable.AddActivationField("epg_channels_schedule");
-        theTable.AddHiddenField("is_active");
-
-
-
-        DataTableLinkColumn linkColumnComment = new DataTableLinkColumn("adm_epg_channels_schedule_comments.aspx", "Comments", "");
-        linkColumnComment.AddQueryStringValue("program_id", "field=id");
-        theTable.AddLinkColumn(linkColumnComment);
-
-
 
         if (LoginManager.IsActionPermittedOnPage("adm_epg_channels.aspx", LoginManager.PAGE_PERMISION_TYPE.REMOVE))
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=m_id");
-            linkColumn.AddQueryStringValue("table", "epg_channels_schedule");
+            linkColumn.AddQueryStringValue("table", "Epg");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "3");
             linkColumn.AddQueryStringValue("rep_field", "NAME");
             linkColumn.AddQueryStringValue("rep_name", "שם");
+            linkColumn.AddQueryStringValue("db", "couchbase");
+            linkColumn.AddQueryStringValue("m_sBasePageURL", "adm_epg_channels.aspx");
             theTable.AddLinkColumn(linkColumn);
         }
 
@@ -126,12 +133,14 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=m_id");
-            linkColumn.AddQueryStringValue("table", "epg_channels_schedule");
+            linkColumn.AddQueryStringValue("table", "Epg");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "3");
             linkColumn.AddQueryStringValue("rep_field", "NAME");
             linkColumn.AddQueryStringValue("rep_name", "שם");
+            linkColumn.AddQueryStringValue("db", "couchbase");
+            linkColumn.AddQueryStringValue("m_sBasePageURL", "adm_epg_channels.aspx");
             theTable.AddLinkColumn(linkColumn);
         }
 
@@ -139,12 +148,14 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=m_id");
-            linkColumn.AddQueryStringValue("table", "epg_channels_schedule");
+            linkColumn.AddQueryStringValue("table", "Epg");
             linkColumn.AddQueryStringValue("confirm", "false");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "3");
             linkColumn.AddQueryStringValue("rep_field", "NAME");
             linkColumn.AddQueryStringValue("rep_name", "שם");
+            linkColumn.AddQueryStringValue("db", "couchbase");
+            linkColumn.AddQueryStringValue("m_sBasePageURL", "adm_epg_channels.aspx");
             theTable.AddLinkColumn(linkColumn);
         }
     }
@@ -154,33 +165,19 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        CBTableWebEditor<EPGChannelProgrammeObject> theTable = new CBTableWebEditor<EPGChannelProgrammeObject>(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);       
+
         FillTheTableEditor(ref theTable, sOrderBy, startD, startM, startY, endD, endM, endY);
 
+        FillDataTable(ref theTable);
+
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
 
         theTable.Finish();
         theTable = null;
         return sTable;
     }
-    /*
-    public string GetPageContent(string sOrderBy, string sPageNum)
-    {
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
-
-        //TVinciShared.Channel channel = new TVinciShared.Channel(int.Parse(Session["epg_channel_id"].ToString()), false);
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOrderBy);
-
-        string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
-        Session["ContentPage"] = "adm_epg_channels.aspx?search_save=1";
-        theTable.Finish();
-        theTable = null;
-        return sTable;
-    }
-    */
+   
     public void GetSearchPannel()
     {
         DateTime dStart = DateTime.UtcNow;
@@ -219,4 +216,135 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         sRet += "</tr>\r\n";
         Response.Write(sRet);
     }
+
+    private void FillDataTable(ref CBTableWebEditor<EPGChannelProgrammeObject> theTable)
+    {
+        DataTable dt;
+        List<EPGChannelProgrammeObject> lEpg = theTable.GetData();
+        if (lEpg != null && lEpg.Count > 0)
+        {
+            //get all media description from DB 
+            List<string> lEpgIdentifier = lEpg.Select(x => x.EPG_IDENTIFIER).ToList();
+            List<KeyValuePair<string,string>> lMediaDescription = DAL.TvmDAL.GetMediaDescription(lEpgIdentifier);
+
+            dt = new DataTable();
+            // Build DataTable
+            foreach (DictionaryEntry item in theTable.GetHTMLFields())
+            {
+                dt.Columns.Add(item.Key.ToString());
+            }
+            foreach (DictionaryEntry item in theTable.GetHiddenFields())
+            {
+                string sKey = item.Key.ToString();
+                dt.Columns.Add(sKey);
+                dt.Columns[sKey].ColumnMapping = MappingType.Hidden;
+            }
+            foreach (DictionaryEntry item in theTable.GetOnOffFields())
+            {
+		        dt.Columns.Add(item.Key.ToString());
+            }
+
+            #region Fill DataTable Rows
+            DataRow row; 
+            foreach (EPGChannelProgrammeObject epg in lEpg)
+            {
+                row = dt.NewRow();
+
+                string sDate = string.Empty;
+                DateTime DOW = DateTime.MinValue;
+                if (!string.IsNullOrEmpty(epg.START_DATE))
+                {
+                    try
+                    {
+                        sDate = epg.START_DATE.Substring(0, epg.START_DATE.IndexOf(" "));
+                        char[] delimiters = new char[] { '/' };
+                        string[] sSplitDate = sDate.Split(delimiters);
+                        DOW = new DateTime(int.Parse(sSplitDate[2]), int.Parse(sSplitDate[1]), int.Parse(sSplitDate[0]));
+                    }
+                    catch
+                    {
+                    }
+                }
+                
+                DayOfWeek eDayOfWeek = DOW.DayOfWeek;
+                switch (eDayOfWeek)
+                {
+                    case DayOfWeek.Friday:
+                        row["DOW"] = "Fri";
+                        break;
+                    case DayOfWeek.Monday:
+                        row["DOW"] = "Mon";
+                        break;
+                    case DayOfWeek.Saturday:
+                        row["DOW"] = "Sat";
+                        break;
+                    case DayOfWeek.Sunday:
+                        row["DOW"] = "Sun";
+                        break;
+                    case DayOfWeek.Thursday:
+                        row["DOW"] = "Thu";
+                        break;
+                    case DayOfWeek.Tuesday:
+                        row["DOW"] = "Tue";
+                        break;
+                    case DayOfWeek.Wednesday:
+                        row["DOW"] = "Wed";
+                        break;
+                    default:
+                        break;
+                }
+                row["EPG name"] = epg.NAME;
+                row["EPG Description"] = epg.DESCRIPTION;
+                row["EPF Identifier"] = epg.EPG_IDENTIFIER;
+
+                row["Media description"] = GetDescription(epg.EPG_IDENTIFIER, lMediaDescription); 
+
+                row["Start Date"] = epg.START_DATE;
+                row["End Date"] = epg.END_DATE;
+
+                switch (epg.STATUS) // TO DO complite from DB ???
+                {
+                    case "1":
+                        row["State"] = "Active";
+                        break;
+                    case "2":
+                        row["State"] = "Not active";
+                        break;
+                    case "3":
+                        row["State"] = "Waiting for activation";
+                        break;
+                    case "4":
+                        row["State"] = "Waiting for delete";
+                        break;
+                    default:
+                        break;
+                }
+
+                row["eci"] = epg.EPG_CHANNEL_ID;
+                row["m_id"] = epg.EPG_ID;
+                row["id"] = epg.EPG_ID;
+                row["status"] = epg.STATUS;
+                row["is_active"] = epg.IS_ACTIVE;
+
+                row["On/Off"] = (epg.IS_ACTIVE.ToLower() == "true") ? 1 : 0 ;
+
+                dt.Rows.Add(row);
+            }
+            #endregion
+
+            theTable.FillDataTable(dt);
+        }
+    }
+
+    public static string GetDescription(string item, List<KeyValuePair<string, string>> list)
+    {
+        foreach (var x in list)
+        {
+            if (x.Key == item)
+                return x.Value;
+            return string.Empty;
+        }
+        return string.Empty;
+    }
+
 }
