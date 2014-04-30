@@ -8299,6 +8299,36 @@ namespace ConditionalAccess
                             }
                             #endregion
                         }
+                        else if(sPPVMCode.Contains("c:"))
+                        {
+                            #region Get Collection usage module view life cycle
+                            Int32 nColID = Convert.ToInt32(sPPVMCode.Split(' ')[1]);
+                            nUsageModuleID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("collections", "usage_module_id", nColID, "pricing_connection").ToString());
+
+                            TvinciPricing.Collection theCol = null;
+
+                            string sWSUserName = "";
+                            string sWSPass = "";
+                            TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule();
+                            if (Utils.GetWSURL("pricing_ws") != "")
+                                m.Url = Utils.GetWSURL("pricing_ws");
+
+                            if (CachingManager.CachingManager.Exist("GetCollectionData" + nColID + "_" + m_nGroupID.ToString()) == true)
+                                theCol = (TvinciPricing.Collection)(CachingManager.CachingManager.GetCachedData("GetCollectionData" + nColID + "_" + m_nGroupID.ToString()));
+                            else
+                            {
+                                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetCollectionData", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
+                                theCol = m.GetCollectionData(sWSUserName, sWSPass, nColID.ToString(), sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                                CachingManager.CachingManager.SetCachedData("GetCollectionData" + nColID + "_" + m_nGroupID.ToString(), theCol, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                            }
+
+                            if (theCol != null && theCol.m_oCollectionUsageModule != null)
+                            {
+                                TvinciPricing.UsageModule u = theCol.m_oCollectionUsageModule;
+                                nViewLifeCycle = u.m_tsViewLifeCycle;
+                            }
+                            #endregion
+                        }
                         else
                         {
                             #region PPVModule view life cycle
