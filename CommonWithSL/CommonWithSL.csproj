@@ -39,12 +39,16 @@
     <Compile Include="Converters\Gallery\GalleryEPGChannelProgramObjectConverter.cs" />
     <Compile Include="Converters\Gallery\GalleryItemConverterFactory.cs" />
     <Compile Include="Converters\Gallery\GalleryMediaObjectConverter.cs" />
+    <Compile Include="Enums\FileType.cs" />
     <Compile Include="Enums\GalleryItemType.cs" />
+    <Compile Include="Enums\MediaTypeID.cs" />
     <Compile Include="Forcast.cs" />
     <Compile Include="Interfaces\IGalleryItemConverter.cs" />
+    <Compile Include="Interfaces\IItemTemplate.cs" />
     <Compile Include="Media.cs" />
     <Compile Include="MediaFile.cs" />
     <Compile Include="Enums\MediaType.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

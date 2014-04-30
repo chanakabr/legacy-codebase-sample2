@@ -1,11 +1,12 @@
-﻿using System;
+﻿using CommonWithSL.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace CommonWithSL
 {
-    public class Media
+    public class Media : IItemTemplate
     {        
         public string   ID { get; set; }
         public string   MediaTypeID { get; set; }             
@@ -36,6 +37,18 @@ namespace CommonWithSL
             Tags = new Dictionary<string, string>();
             Files = new List<MediaFile>();
             Forcast = new List<Forcast>();
+        }
+
+        public string TemplateName
+        {
+            get
+            {
+                return MediaTemplate;
+            }
+            set
+            {
+                MediaTemplate = value;
+            }
         }
     }
 }

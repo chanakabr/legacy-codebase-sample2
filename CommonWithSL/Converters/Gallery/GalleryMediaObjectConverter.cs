@@ -8,13 +8,13 @@ namespace CommonWithSL.Converters.Gallery
 {
     public class GalleryMediaObjectConverter : IGalleryItemConverter
     {
-        public Media ConvertItem(object inputObject, string picSize = null)
+        public object ConvertItem(object inputObject, string picSize = null)
         {
             Dictionary<string, object> inputObjectDic = (Dictionary<string, object>)(inputObject);
             return ConvertItem(inputObjectDic, picSize);
         }
 
-        public Media ConvertItem(Dictionary<string, object> inputObjectDic, string picSize = null)
+        public object ConvertItem(Dictionary<string, object> inputObjectDic, string picSize = null)
         {
             Media convertedItem = null;
             try
@@ -27,6 +27,8 @@ namespace CommonWithSL.Converters.Gallery
                     Title = inputObjectDic["MediaName"].ToString(),
                     MediaTemplate = inputObjectDic["MediaTypeName"].ToString() + "Template",
                     Rating = getRating(inputObjectDic),
+                    SeasonNumber = getMetaValue(inputObjectDic, "Season Number"),
+                    EpisodeNumber = getMetaValue(inputObjectDic, "Episode Number"),
                     PictureSize = picSize
                 };
             }
@@ -61,6 +63,62 @@ namespace CommonWithSL.Converters.Gallery
                     link = ((Dictionary<string, object>)ImageObj)["URL"].ToString();
             }
             return link;
+        }
+
+        private string getMetaValue(Dictionary<string, object> inputObjectDic, string key)
+        {
+            string value = string.Empty;
+
+            Dictionary<string, string> metasDic = getMetas(inputObjectDic);
+            if (metasDic != null && metasDic.Keys.Contains(key))
+                value = metasDic[key];
+
+            return value;
+        }
+
+        private Dictionary<string, string> getMetas(Dictionary<string, object> inputObjectDic)
+        {
+            Dictionary<string, string> metasDic = null;
+            try
+            {
+                if (inputObjectDic.Keys.Contains("Metas"))
+                {
+                    metasDic = new Dictionary<string, string>();
+                    object[] metasArray = (object[])inputObjectDic["Metas"];
+                    foreach (Dictionary<string, object> item in metasArray)
+                    {
+                        metasDic.Add(item["Key"].ToString(), item["Value"].ToString());
+                    }
+                }
+            }
+            catch
+            {
+                metasDic = null;
+            }
+
+            return metasDic;
+        }
+
+        private Dictionary<string, string> getTags(Dictionary<string, object> inputObjectDic)
+        {
+            Dictionary<string, string> tagsDic = null;
+            try
+            {
+                if (inputObjectDic.Keys.Contains("Tags"))
+                {
+                    tagsDic = new Dictionary<string, string>();
+                    object[] metasArray = (object[])inputObjectDic["Tags"];
+                    foreach (Dictionary<string, object> item in metasArray)
+                    {
+                        tagsDic.Add(item["Key"].ToString(), item["Value"].ToString());
+                    }
+                }
+            }
+            catch
+            {
+                tagsDic = null;
+            }
+            return tagsDic;
         }
     }
 }

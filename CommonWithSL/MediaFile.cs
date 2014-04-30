@@ -11,6 +11,7 @@ namespace CommonWithSL
         public string URL { get; set; }
         public string FileType { get; set; }
         public bool CanBeAccessed { get; set; }
+        public bool IsSelected { get; set; }
 
         public MediaFile()
         {
