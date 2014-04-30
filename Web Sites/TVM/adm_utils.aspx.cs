@@ -127,93 +127,133 @@ public partial class adm_utils : System.Web.UI.Page
         string sFieldName, string sIndexField, string sIndexVal,
         string sRequestedStatus, string sOnStr, string sOffStr , string sConnKey)
     {
-        Int32 nGroupID = LoginManager.GetLoginGroupID();
-        Int32 nRowGroupID = 0;
-        try
+       
+
+        if (sTableName == "Epg")
         {
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select group_id from " + sTableName + " where ";
-            if (sConnKey != "")
-                selectQuery.SetConnectionKey(sConnKey);
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", int.Parse(sIndexVal));
-            if (selectQuery.Execute("query", true) != null)
+            Int32 nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+            string sRet = string.Empty;
+            EpgBL.TvinciEpgBL oEpgBL = new EpgBL.TvinciEpgBL(nParentGroupID);
+            EpgCB epgCB = oEpgBL.GetEpgCB(ulong.Parse(sIndexVal));
+            if (epgCB != null)
             {
-                nRowGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["group_id"].ToString());
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-           
+                epgCB.isActive = !(epgCB.isActive);
+                bool res = oEpgBL.UpdateEpg(epgCB);
 
-        }
-        catch { }
-        bool bBelongs = false;
-        if (nGroupID == 0)
-            bBelongs = false;
-        if (nRowGroupID != 0 && nRowGroupID != 1 && nRowGroupID != nGroupID)
-        {
-            PageUtils.DoesGroupIsParentOfGroup(nGroupID, nRowGroupID, ref bBelongs);
-            if (bBelongs == false)
-            {
-                LoginManager.LogoutFromSite("login.html");
-                return "";
-            }
-        }
-        else
-            bBelongs = true;
-        if (bBelongs == true)
-        {
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(sTableName);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", int.Parse(sRequestedStatus));
-            if (sConnKey != "")
-                updateQuery.SetConnectionKey(sConnKey);
-            updateQuery += "where ";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", int.Parse(sIndexVal));
-            updateQuery.Execute();
-            updateQuery.Finish();
-            updateQuery = null;
+                //Update from ElasticSearch
+                bool result = false;
+                result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nParentGroupID, ApiObjects.eAction.Update);
 
-            // Update Media / Channel in Lucene
-
-            eAction eAction = eAction.Update;
-
-            // Update Media / Channel in Lucene
-            int nId = int.Parse(sIndexVal);
-            List<int> idsToUpdate = new List<int>();
-            if (nId != 0)
-            {
-                idsToUpdate.Add(nId);
-            }
-            bool result = false;
-            switch (sTableName.ToLower())
-            {
-                case "media":
-                    result = ImporterImpl.UpdateIndex(idsToUpdate, nGroupID, eAction);
-                    break;
-                case "channels":
-                    result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
-                    break;
-                default:
-                    break;
-            }
-
-            string sRet = "activation_" + sFieldName.ToString() + "_" + sIndexVal + "~~|~~";
-            if (int.Parse(sRequestedStatus) == 1)
-            {
-                sRet += "<b>" + sOnStr + "</b> / <a href=\"javascript: ChangeOnOffStateRow('" + sTableName + "','" + sFieldName + "','" + sIndexField + "'," + sIndexVal.ToString() + ",0 , '" + sOnStr + "','" + sOffStr + "' , '" + sConnKey + "');\" ";
-                sRet += " class='adm_table_link_div' >";
-                sRet += sOffStr;
-                sRet += "</a>";
-            }
-            else
-            {
-                sRet += "<b>" + sOffStr + "</b> / <a href=\"javascript: ChangeOnOffStateRow('" + sTableName + "','" + sFieldName + "','" + sIndexField + "'," + sIndexVal.ToString() + ",1 , '" + sOnStr + "','" + sOffStr + "' , '" + sConnKey + "');\" ";
-                sRet += " class='adm_table_link_div' >";
-                sRet += sOnStr;
-                sRet += "</a>";
+                sRet = "activation_" + sFieldName.ToString() + "_" + sIndexVal + "~~|~~";
+                if (res && epgCB.isActive)
+                {
+                    sRet += "<b>" + sOnStr + "</b> / <a href=\"javascript: ChangeOnOffStateRow('" + sTableName + "','" + sFieldName + "','" + sIndexField + "'," + sIndexVal.ToString() + ",0 , '" + sOnStr + "','" + sOffStr + "' , '" + sConnKey + "');\" ";
+                    sRet += " class='adm_table_link_div' >";
+                    sRet += sOffStr;
+                    sRet += "</a>";
+                }                
+                else // res = false or !epg.isActive
+                {
+                    sRet += "<b>" + sOffStr + "</b> / <a href=\"javascript: ChangeOnOffStateRow('" + sTableName + "','" + sFieldName + "','" + sIndexField + "'," + sIndexVal.ToString() + ",1 , '" + sOnStr + "','" + sOffStr + "' , '" + sConnKey + "');\" ";
+                    sRet += " class='adm_table_link_div' >";
+                    sRet += sOnStr;
+                    sRet += "</a>";
+                }
             }
             return sRet;
+
         }
-        return "";
+        else
+        {
+            Int32 nGroupID = LoginManager.GetLoginGroupID();
+            Int32 nRowGroupID = 0;
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select group_id from " + sTableName + " where ";
+                if (sConnKey != "")
+                    selectQuery.SetConnectionKey(sConnKey);
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", int.Parse(sIndexVal));
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    nRowGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["group_id"].ToString());
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+
+            }
+            catch { }
+            bool bBelongs = false;
+            if (nGroupID == 0)
+                bBelongs = false;
+            if (nRowGroupID != 0 && nRowGroupID != 1 && nRowGroupID != nGroupID)
+            {
+                PageUtils.DoesGroupIsParentOfGroup(nGroupID, nRowGroupID, ref bBelongs);
+                if (bBelongs == false)
+                {
+                    LoginManager.LogoutFromSite("login.html");
+                    return "";
+                }
+            }
+            else
+                bBelongs = true;
+            if (bBelongs == true)
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(sTableName);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", int.Parse(sRequestedStatus));
+                if (sConnKey != "")
+                    updateQuery.SetConnectionKey(sConnKey);
+                updateQuery += "where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", int.Parse(sIndexVal));
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+
+                // Update Media / Channel in Lucene
+
+                eAction eAction = eAction.Update;
+
+                // Update Media / Channel in Lucene
+                int nId = int.Parse(sIndexVal);
+                List<int> idsToUpdate = new List<int>();
+                if (nId != 0)
+                {
+                    idsToUpdate.Add(nId);
+                }
+                bool result = false;
+                switch (sTableName.ToLower())
+                {
+                    case "media":
+                        result = ImporterImpl.UpdateIndex(idsToUpdate, nGroupID, eAction);
+                        break;
+                    case "channels":
+                        result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
+                        break;
+                    default:
+                        break;
+                }
+
+
+                string sRet = "activation_" + sFieldName.ToString() + "_" + sIndexVal + "~~|~~";
+                if (int.Parse(sRequestedStatus) == 1)
+                {
+                    sRet += "<b>" + sOnStr + "</b> / <a href=\"javascript: ChangeOnOffStateRow('" + sTableName + "','" + sFieldName + "','" + sIndexField + "'," + sIndexVal.ToString() + ",0 , '" + sOnStr + "','" + sOffStr + "' , '" + sConnKey + "');\" ";
+                    sRet += " class='adm_table_link_div' >";
+                    sRet += sOffStr;
+                    sRet += "</a>";
+                }
+                else
+                {
+                    sRet += "<b>" + sOffStr + "</b> / <a href=\"javascript: ChangeOnOffStateRow('" + sTableName + "','" + sFieldName + "','" + sIndexField + "'," + sIndexVal.ToString() + ",1 , '" + sOnStr + "','" + sOffStr + "' , '" + sConnKey + "');\" ";
+                    sRet += " class='adm_table_link_div' >";
+                    sRet += sOnStr;
+                    sRet += "</a>";
+                }
+                return sRet;
+            }
+            return "";
+        }
     }
 
     public string ChangeOrderNumRow(string sTable, string sID, string sFieldName , string sDelta , string sConnKey)

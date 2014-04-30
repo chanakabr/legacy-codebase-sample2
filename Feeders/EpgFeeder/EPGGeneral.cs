@@ -664,7 +664,8 @@ namespace EpgFeeder
                                 updateQuery = null;
 
                                 //Update CB
-                                newEpgItem.PicUrl = nPicID.ToString();
+                                newEpgItem.PicID = nPicID;
+                                newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
                                 newEpgItem.EpgID = epgID;
                                 oEpgBL.UpdateEpg(newEpgItem);
                             }

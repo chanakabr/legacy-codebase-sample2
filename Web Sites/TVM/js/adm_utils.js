@@ -553,6 +553,16 @@ function OpenPicBrowser(theID , maxPics, lastPage)
     popUp(theURL , 'PicSelector');
 }
 
+
+function OpenPicBrowserEpg(theID, maxPics, lastPage)
+{    
+    theVal = window.document.getElementsByName(theID)[0].value;
+    theURL = "adm_epg_pic_popup_selector.aspx?pics_ids=" + theVal + "&theID=" + theID + "&maxPics=" + maxPics + "&lastPage=" + lastPage;
+    popUp(theURL, 'PicSelector');
+}
+
+
+
 function OpenCommentsFilterBrowser() {
     
     theURL = "adm_comments_filter_tester_popup.aspx?regex=0";

@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EpgBL;
 
 namespace ElasticSearchFeeder.IndexBuilders
 {
@@ -109,78 +110,15 @@ namespace ElasticSearchFeeder.IndexBuilders
         {
             Dictionary<ulong, EpgCB> epgs = new Dictionary<ulong, EpgCB>();
 
-            DataSet ds = await Task.Factory.StartNew(() => Tvinci.Core.DAL.EpgDal.Get_EpgPrograms(m_nGroupID, dDateTime, nEpgID));
+            //Get All programs by group_id + date from CB
+            TvinciEpgBL oEpgBL = new TvinciEpgBL(nGroupID);
+            List<EpgCB> lEpgCB = await Task.Factory.StartNew(() => oEpgBL.GetGroupEpgs(0, 0, dDateTime, dDateTime.Value.AddDays(1)));
 
-            if (ds != null && ds.Tables != null)
+            if (lEpgCB != null && lEpgCB.Count > 0)
             {
-                if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                foreach (EpgCB epg in lEpgCB)
                 {
-                    //Basic Details
-                    foreach (DataRow row in ds.Tables[0].Rows)
-                    {
-                        EpgCB epg = new EpgCB();
-                        epg.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(row["EPG_CHANNEL_ID"]);
-                        epg.EpgID = ODBCWrapper.Utils.GetUnsignedLongSafeVal(row["ID"]);
-                        epg.GroupID = ODBCWrapper.Utils.GetIntSafeVal(row["GROUP_ID"]);
-                        epg.isActive = (ODBCWrapper.Utils.GetIntSafeVal(row["IS_ACTIVE"]) == 1) ? true : false;
-                        epg.Description = ODBCWrapper.Utils.GetSafeStr(row["DESCRIPTION"]);
-                        epg.Name = ODBCWrapper.Utils.GetSafeStr(row["NAME"]);
-                        if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["START_DATE"])))
-                        {
-                            epg.StartDate = ODBCWrapper.Utils.GetDateSafeVal(row["START_DATE"]);
-                        }
-                        if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["END_DATE"])))
-                        {
-                            epg.EndDate = ODBCWrapper.Utils.GetDateSafeVal(row["END_DATE"]);
-                        }
-
-                        //Metas
-                        if (ds.Tables.Count >= 2 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-                        {
-                            List<string> tempList;
-                            DataRow[] metas = ds.Tables[1].Select("program_id=" + epg.EpgID);
-                            foreach (DataRow meta in metas)
-                            {
-                                string metaName = ODBCWrapper.Utils.GetSafeStr(meta["name"]);
-                                string metaValue = ODBCWrapper.Utils.GetSafeStr(meta["value"]);
-
-                                if (epg.Metas.TryGetValue(metaName, out tempList))
-                                {
-                                    tempList.Add(metaValue);
-                                    epg.Tags.Add(metaName, tempList);
-                                }
-                                else
-                                {
-                                    tempList = new List<string>() { metaValue };
-                                    epg.Metas.Add(metaName, tempList);
-                                }
-                            }
-                        }
-                        //Tags
-                        if (ds.Tables.Count >= 3 && ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
-                        {
-                            List<string> tempList;
-                            DataRow[] tags = ds.Tables[2].Select("program_id=" + epg.EpgID);
-                            foreach (DataRow tag in tags)
-                            {
-                                string tagName = ODBCWrapper.Utils.GetSafeStr(tag["name"]);
-                                string tagValue = ODBCWrapper.Utils.GetSafeStr(tag["value"]);
-                                if (epg.Tags.TryGetValue(tagName, out tempList))
-                                {
-                                    tempList.Add(tagValue);
-                                    epg.Tags.Add(tagName, tempList);
-                                }
-                                else
-                                {
-                                    tempList = new List<string>() { tagValue };
-                                    epg.Tags.Add(tagName, tempList);
-                                }
-                                
-                            }
-                        }
-
-                        epgs.Add(epg.EpgID, epg);
-                    }
+                    epgs.Add(epg.EpgID, epg);
                 }
             }
 

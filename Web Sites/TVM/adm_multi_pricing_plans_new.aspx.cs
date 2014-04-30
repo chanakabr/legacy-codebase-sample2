@@ -1074,6 +1074,11 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         dr_coupons_group.SetDefault(0);
         theRecord.AddRecord(dr_coupons_group);
 
+        DataRecordShortTextField dr_Product_Code = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_Product_Code.Initialize("Product Code", "adm_table_header_nbg", "FormInput", "Product_Code", false);
+        theRecord.AddRecord(dr_Product_Code);
+
+
         DataRecordBoolField dr_is_recurring = new DataRecordBoolField(true);
         dr_is_recurring.Initialize("Is subscription Renewed", "adm_table_header_nbg", "FormInput", "IS_RECURRING", false);
         theRecord.AddRecord(dr_is_recurring);

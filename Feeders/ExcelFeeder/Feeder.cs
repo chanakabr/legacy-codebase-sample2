@@ -789,9 +789,12 @@ namespace ExcelFeeder
         {
             //Tags
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select id, description from media_tags_types where status=1 and group_id";
+
+            selectQuery += "select id, description from media_tags_types where status = 1 and  (   ";
+            selectQuery += " ( TagFamilyID = 1	  and group_id = 0) or (  group_id ";
             string groupsStr = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
             selectQuery += groupsStr;
+            selectQuery += "  and TagFamilyID IS NULL ) )";
             selectQuery += "order by order_num";
             if (selectQuery.Execute("query", true) != null)
             {
@@ -808,7 +811,7 @@ namespace ExcelFeeder
                 }
             }
             selectQuery.Finish();
-            selectQuery = null;
+            selectQuery = null;         
 
             hTags.Add(0, "free");
         }
