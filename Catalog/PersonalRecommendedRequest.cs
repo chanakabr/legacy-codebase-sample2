@@ -81,6 +81,7 @@ namespace Catalog
             return lMedias;
         }
 
+
         protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, int nOperatorID, List<List<string>> jsonizedChannelsDefinitions, ref ISearcher initializedSearcher)
         {
             List<SearchResult> lMedias = null;
@@ -92,7 +93,7 @@ namespace Catalog
 
                 _logger.Info(String.Concat(request.ToString(), " started at: ", DateTime.UtcNow, " ipno flow"));
 
-                DataTable dt = CatalogDAL.Get_IPersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize, nOperatorID);
+                DataTable dt = CatalogDAL.Get_IPersonalRecommended(request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize, nOperatorID);
 
                 if (dt != null && dt.Columns != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
@@ -100,7 +101,7 @@ namespace Catalog
                     {
                         lMedias = HandleGetRelated(request, ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["media_id"]));
                     }
-                    else 
+                    else
                     {
                         //Return most viewed items and validate against ES they are still associated with the operator
                         lMedias = HandleMostViewed(dt);
@@ -140,7 +141,7 @@ namespace Catalog
                     {
                         lMedias = HandleGetRelated(request, ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["media_id"]));
                     }
-                    else 
+                    else
                     {
                         //Return most viewed items
                         lMedias = HandleMostViewed(dt);
@@ -159,6 +160,8 @@ namespace Catalog
 
             return lMedias;
         }
+
+  
 
         protected override int GetProtocolMaxResultsSize()
         {

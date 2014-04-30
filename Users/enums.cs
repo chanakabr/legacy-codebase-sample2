@@ -118,7 +118,8 @@ namespace Users
         RequestSent = 20,
         DeviceNotConfirmed = 21,
         RequestFailed = 22,
-        InvalidUser = 23
+        InvalidUser = 23,
+        ConcurrencyLimitation = 24
     }
 
     public enum DeviceResponseStatus
@@ -174,4 +175,12 @@ namespace Users
         InvalidInput = 5,
         Error = 6
     }
+
+    public enum ValidationType : byte
+    {
+        Concurrency = 0,
+        Quantity = 1,
+        Frequency = 2
+    }
+
 }

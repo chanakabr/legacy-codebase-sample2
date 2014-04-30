@@ -126,6 +126,7 @@
     <Compile Include="ProtocolsFuncs.cs" />
     <Compile Include="ScheualerManager.cs" />
     <Compile Include="UMObj.cs" />
+    <Compile Include="UploadConfig.cs" />
     <Compile Include="Web References\Lucene_WCF\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -164,6 +165,10 @@
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
       <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\Uploader\Uploader.csproj">
       <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>

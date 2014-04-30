@@ -1,13 +1,19 @@
-﻿using System;
+﻿using ApiObjects.MediaMarks;
+using CouchbaseManager;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Tvinci.Core.DAL;
 
 namespace DAL
 {
     public class SocialDAL
     {
+        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
+
         private int m_nGroupID;
         public SocialDAL(int nGroupID)
         {
@@ -135,51 +141,64 @@ namespace DAL
             return null;
         }
 
-        public DataTable GetAllFriendsWatchedMedia(int nNumOfResults, int nGroup, List<int> lFriendsList, int nMediaID = 0)
+        public List<MediaMarkLog> GetAllFriendsWatchedMedia(List<int> lFriendsList, int nMediaID = 0)
         {
-            ODBCWrapper.StoredProcedure spGetAllFriendsWatchedMedia = new ODBCWrapper.StoredProcedure("GetAllFriendsWatchedMedia");
-            spGetAllFriendsWatchedMedia.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spGetAllFriendsWatchedMedia.AddParameter("@GroupID", nGroup);
-            spGetAllFriendsWatchedMedia.AddIDListParameter("@FriendsIDList", lFriendsList, "Id");
-            spGetAllFriendsWatchedMedia.AddParameter("@MediaID", nMediaID);
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
-            DataSet ds = spGetAllFriendsWatchedMedia.ExecuteDataSet();
+            List<MediaMarkLog> lRes = new List<MediaMarkLog>();
 
-            if (ds != null)
-                return ds.Tables[0];
+            if (nMediaID == 0)
+            {
 
-            return null;
+                List<UserMediaMark> mediaMarksList = CatalogDAL.GetMediaMarksLastDateByUsers(lFriendsList);
+                foreach (UserMediaMark mediaMark in mediaMarksList)
+                {
+                    lRes.Add(new MediaMarkLog() { LastMark = mediaMark });
+                }
+            }
+            else
+            {
+                List<string> docKeysList = new List<string>();
+
+                foreach (int nUserID in lFriendsList)
+                {
+                    docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
+                }
+
+                IDictionary<string, object> res = m_oClient.Get(docKeysList);
+
+                foreach (string sKey in res.Keys)
+                {
+                    lRes.Add(JsonConvert.DeserializeObject<MediaMarkLog>(res[sKey].ToString()));
+                }
+            }
+            return lRes;
         }
 
-        public DataTable GetFriendsWhoWatchedMedia(int nMediaID, List<int> lGroupList, List<int> lFriendsGuidList)
+        public List<MediaMarkLog> GetFriendsWhoWatchedMedia(int nMediaID, List<int> lFriendsGuidList)
         {
-            ODBCWrapper.StoredProcedure spGetFriendsWatchedByMedia = new ODBCWrapper.StoredProcedure("GetFriendsWhoWatchedMedia");
-            spGetFriendsWatchedByMedia.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spGetFriendsWatchedByMedia.AddParameter("@MediaID", nMediaID);
-            spGetFriendsWatchedByMedia.AddIDListParameter<int>("@GroupList", lGroupList, "Id");
-            spGetFriendsWatchedByMedia.AddIDListParameter<int>("@FriendIDList", lFriendsGuidList, "Id");
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            List<string> docKeysList = new List<string>();
+            List<MediaMarkLog> lRes = new List<MediaMarkLog>();
 
-            DataSet ds = spGetFriendsWatchedByMedia.ExecuteDataSet();
+            foreach (int userID in lFriendsGuidList)
+            {
+                docKeysList.Add(DAL.UtilsDal.getUserMediaMarkDocKey(userID, nMediaID));
+            }
 
-            if (ds != null)
-                return ds.Tables[0];
+            IDictionary<string, object> res = m_oClient.Get(docKeysList);
 
-            return null;
+            foreach (string sKey in res.Keys)
+            {
+                lRes.Add(JsonConvert.DeserializeObject<MediaMarkLog>(res[sKey].ToString()));
+            }
+            return lRes;
         }
 
-        public DataTable GetFriendsWatchedCount(List<int> lGroupList, List<int> lFriendsGuidList)
+        public Dictionary<int, int> GetFriendsWatchedCount(List<int> lFriendsGuidList)
         {
-            ODBCWrapper.StoredProcedure spGetFriendsWatchedByMedia = new ODBCWrapper.StoredProcedure("GetFriendsWatchCount");
-            spGetFriendsWatchedByMedia.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spGetFriendsWatchedByMedia.AddIDListParameter<int>("@GroupList", lGroupList, "Id");
-            spGetFriendsWatchedByMedia.AddIDListParameter<int>("@FriendGuidList", lFriendsGuidList, "Id");
-
-            DataSet ds = spGetFriendsWatchedByMedia.ExecuteDataSet();
-
-            if (ds != null)
-                return ds.Tables[0];
-
-            return null;
+            Dictionary<int, int> retDict = CatalogDAL.GetMediaMarkUserCount(lFriendsGuidList);
+            return retDict;
         }
 
         public DataTable GetUserSocialActionId(int nUserSiteGuid, int nMediaID, int nSocialPlatform, int nSocialAction, int nProgramID)

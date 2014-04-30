@@ -807,7 +807,7 @@ namespace Users
         {
             UserResponseObject o = new UserResponseObject();
             ResponseStatus ret = ResponseStatus.WrongPasswordOrUserName;
-            User u = null;
+            User res = null;
 
             if (!string.IsNullOrEmpty(sUN) && !string.IsNullOrEmpty(sPass))
             {
@@ -826,7 +826,7 @@ namespace Users
 
                 if (nID > 0)
                 {
-                    u = new User();
+                    User u = new User();
                     bool bOk = u.Initialize(nID, nGroupID);
 
                     if (bOk && u.m_oBasicData != null && u.m_oDynamicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
@@ -869,6 +869,8 @@ namespace Users
                             {
                                 if (nFailCount > 0)
                                     UpdateFailCount(0, nID);
+
+                                res = u;
                             }
                         }
                         else
@@ -884,7 +886,7 @@ namespace Users
                     ret = ResponseStatus.UserDoesNotExist;
             }
 
-            o.Initialize(ret, u);
+            o.Initialize(ret, res);
             return o;
         }
 

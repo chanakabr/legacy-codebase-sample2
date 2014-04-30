@@ -1631,7 +1631,22 @@ namespace TvinciImporter
             return nRet;
         }
 
+
         static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
+        {
+            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+
+            if (sUseQueue.Equals("true"))
+            {
+                return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID);
+            }
+            else
+            {
+                return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID);
+            }
+        }
+
+        static public Int32 DownloadEPGPicToUploader(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
         {
             if (sThumb.Trim() == "")
                 return 0;
@@ -1718,6 +1733,46 @@ namespace TvinciImporter
             return nPicID;
         }
 
+
+        static public Int32 DownloadEPGPicToQueue(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
+        {
+            if (sThumb.Trim() == "")
+                return 0;
+
+            string sPicName = getPictureFileName(sThumb);          
+
+            Int32 nPicID = 0;
+            nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicName, nGroupID);
+                        
+            if (nPicID == 0)
+            { 
+                string sUploadedFileExt = ImageUtils.GetFileExt(sPicName);
+                string sPicNewName = TVinciShared.ImageUtils.GetDateImageName();
+                string[] sPicSizes = getEPGPicSizes(nGroupID);
+
+                bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sThumb, sPicNewName, sPicSizes, nGroupID); //send to Rabbit
+
+                nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sPicName, sPicNewName + sUploadedFileExt, nGroupID);
+            }
+            #region old Code - changed to CB
+            // Liat comment this update 02.02.2014
+            //if (nPicID != 0)
+            //{
+            //    //IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sName, nGroupID, nPicID, false);
+            //    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+            //    updateQuery += " where ";
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
+            //    updateQuery.Execute();
+            //    updateQuery.Finish();
+            //    updateQuery = null;
+            //} 
+            #endregion
+            return nPicID;
+        }
+
+
+        //this function is not used (old)
         static protected Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, string sMainLang)
         {
             if (sThumb.Trim() == "")
@@ -2037,7 +2092,22 @@ namespace TvinciImporter
             return nPicID;
         }
 
+
         static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        {           
+            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+
+            if (sUseQueue.Equals("true"))
+            {
+                return DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+            }
+            else
+            {
+                return DownloadPicToUploader(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+            }
+        }
+
+        static public Int32 DownloadPicToUploader(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
             //return DownloadPic_old(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
 
@@ -2175,6 +2245,153 @@ namespace TvinciImporter
                 EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH");
             }
             return nPicID;
+        }
+		
+		
+
+
+        static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        {
+            int nPicID = 0;
+            Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
+            if (sPic.Trim() == "")
+            {
+                Logger.Logger.Log("File download", "picture name is empty. mediaID: " + nMediaID.ToString(), "DownloadFile");
+                return 0;
+            }
+
+            //generate PictureData and send to Queue 
+            string sPicNewName = getNewUninqueName(ratioID, nMediaID); //the unique name            
+        
+            string[] sPicSizes = getMediaPicSizes(bSetMediaThumb, nGroupID, ratioID);  
+
+            bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sPic, sPicNewName, sPicSizes, nGroupID); //send to Rabbit           
+
+            //insert new Picture to DB 
+            string sUploadedFileExt = ImageUtils.GetFileExt(sPic);
+            nPicID = InsertNewPic(sMediaName, sPic, sPicNewName + sUploadedFileExt, nGroupID);          
+
+            if (nPicID != 0)
+            {               
+                #region handle pic tags and update the media files
+                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, nPicID, false);
+                if (bSetMediaThumb == true)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+                //the media type id is invalid here
+                EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH"); 
+                #endregion
+            }
+            return nPicID;
+        }
+
+        private static string getPictureFileName(string sThumb)
+        {
+            char[] delim = { '/' };
+            string[] splited = sThumb.Split(delim);
+            string sPicName = splited[splited.Length - 1];
+            if (sPicName.IndexOf("?") != -1 && sPicName.IndexOf("uuid") != -1)
+            {
+                Int32 nStart = sPicName.IndexOf("uuid=", 0) + 5;
+                Int32 nEnd = sPicName.IndexOf("&", nStart);
+                if (nEnd != 4)
+                    sPicName = sPicName.Substring(nStart, nEnd - nStart);
+                else
+                    sPicName = sPicName.Substring(nStart);
+                sPicName += ".jpg";
+            }
+            return sPicName;
+        }
+
+
+        //Epg Pics will alsays have "full" and "tn". also, all sizes of the group in 'epg_pics_sizes' will be added      
+        private static string[] getEPGPicSizes(int nGroupID)
+        {
+            string[] str;
+            List<string> lString = new List<string>();
+
+            lString.Add("full");
+            lString.Add("tn");
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from epg_pics_sizes (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
+                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
+                    string sSize = nWidth + "X" + nHeight;
+                    lString.Add(sSize);
+                }
+            }
+
+            str = lString.ToArray();
+            return str;
+        }
+               
+        //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
+        //"full" and "tn" are set according to 'bSetMediaThumb'
+        private static string[] getMediaPicSizes(bool bSetMediaThumb, int nGroupID, int ratioID)
+        {
+            string [] str;
+            List<string> lString = new List<string>();
+            if (bSetMediaThumb)
+            {
+                lString.Add("full");
+                lString.Add("tn");
+            }
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            if (ratioID > 0)
+            {
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
+            }
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
+                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
+
+                    string size = nWidth + "x" + nHeight;
+                    lString.Add(size);                   
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            str = lString.ToArray();
+            return str;
+        }
+        
+        //get new Unique name or existing one per media
+        private static string getNewUninqueName(int ratioID, int nMediaID)
+        {
+            string sPicBaseName = string.Empty;
+            if (ratioID > 0)
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName(nMediaID);
+            }
+            if (string.IsNullOrEmpty(sPicBaseName))
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+            }
+            return sPicBaseName;
         }
 
         static private string GetBasePath(int nGroupID)
@@ -3304,7 +3521,7 @@ namespace TvinciImporter
             }
             return true;
         }
-
+         //get tags by group and by non group 
         static protected Int32 GetTagTypeID(Int32 nGroupID, string sTagName)
         {
             if (sTagName.ToLower().Trim() == "free")
@@ -3312,7 +3529,8 @@ namespace TvinciImporter
             Int32 nRet = 0;
             string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select mtt.id from media_tags_types mtt (nolock) where status=1 and group_id " + sGroups;
+            selectQuery += "select mtt.id from media_tags_types mtt (nolock) where status=1 and ( (TagFamilyID IS NULL and group_id " + sGroups + " ) ";
+            selectQuery += " or ( group_id = 0 and TagFamilyID = 1 ) )";
             selectQuery += "and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sTagName.Trim().ToLower());
             if (selectQuery.Execute("query", true) != null)
@@ -4038,8 +4256,8 @@ namespace TvinciImporter
         {
             internal static Binding CreateInstance()
             {
-                BasicHttpBinding binding = new BasicHttpBinding();
-                binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+                WSHttpBinding binding = new WSHttpBinding();
+                binding.Security.Mode = SecurityMode.None;
                 binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
                 binding.UseDefaultWebProxy = true;
                 return binding;
@@ -4302,6 +4520,6 @@ namespace TvinciImporter
 
             return isUpdateIndexSucceeded;
         }
-    }
+    }   
 }
 

@@ -12,19 +12,19 @@ namespace DAL
     {
         #region Private Constants
 
-        private const string SP_GET_USER_TYPE_DATA              = "Get_UserTypeData";
-        private const string SP_GET_USER_TYPE_DATA_BY_IDS       = "Get_UserTypesDataByIDs";
-        private const string SP_GET_USER_BASIC_DATA             = "Get_UserBasicData";
-        private const string SP_GET_USER_DOMAINS                = "sp_GetUserDomains";
-        private const string SP_INSERT_USER                     = "sp_InsertUser";
-        private const string SP_GET_IS_ACTIVATION_NEEDED        = "Get_IsActivationNeeded";
-        private const string SP_GET_ACTIVATION_TOKEN            = "Get_ActivationToken";
-        private const string SP_GET_USERS_BASIC_DATA            = "Get_UsersBasicData";
-        private const string SP_GET_GROUP_USERS                 = "Get_GroupUsers";
-        private const string SP_GET_GROUP_USERS_SEARCH_FIELDS   = "Get_GroupUsersSearchFields";
-        private const string SP_GET_DEVICES_TO_USERS_NON_PUSH   = "Get_DevicesToUsersNonPushAction";
-        private const string SP_GET_DEVICES_TO_USERS_PUSH       = "Get_DevicesToUsersPushAction";
-        private const string SP_GENERATE_TOKEN                  = "GenerateToken";
+        private const string SP_GET_USER_TYPE_DATA = "Get_UserTypeData";
+        private const string SP_GET_USER_TYPE_DATA_BY_IDS = "Get_UserTypesDataByIDs";
+        private const string SP_GET_USER_BASIC_DATA = "Get_UserBasicData";
+        private const string SP_GET_USER_DOMAINS = "sp_GetUserDomains";
+        private const string SP_INSERT_USER = "sp_InsertUser";
+        private const string SP_GET_IS_ACTIVATION_NEEDED = "Get_IsActivationNeeded";
+        private const string SP_GET_ACTIVATION_TOKEN = "Get_ActivationToken";
+        private const string SP_GET_USERS_BASIC_DATA = "Get_UsersBasicData";
+        private const string SP_GET_GROUP_USERS = "Get_GroupUsers";
+        private const string SP_GET_GROUP_USERS_SEARCH_FIELDS = "Get_GroupUsersSearchFields";
+        private const string SP_GET_DEVICES_TO_USERS_NON_PUSH = "Get_DevicesToUsersNonPushAction";
+        private const string SP_GET_DEVICES_TO_USERS_PUSH = "Get_DevicesToUsersPushAction";
+        private const string SP_GENERATE_TOKEN = "GenerateToken";
 
         #endregion
 
@@ -104,7 +104,7 @@ namespace DAL
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HandleException(ex);
             }
@@ -151,7 +151,7 @@ namespace DAL
                     return ds.Tables[0];
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HandleException(ex);
             }
@@ -214,17 +214,10 @@ namespace DAL
             string sSiteGuid = string.Empty;
 
 
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SiteGuid");
-                sp.SetConnectionKey("USERS_CONNECTION_STRING");
-                sp.AddParameter("@UID", sUID);
-                sSiteGuid = sp.ExecuteReturnValue<string>();
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SiteGuid");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@UID", sUID);
+            sSiteGuid = sp.ExecuteReturnValue<string>();
 
             return sSiteGuid;
         }
@@ -239,19 +232,14 @@ namespace DAL
         {
             string UID = string.Empty;
 
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UID");
-                sp.SetConnectionKey("USERS_CONNECTION_STRING");
-                sp.AddParameter("@SiteGuid", sSiteGuid);
 
-                UID = sp.ExecuteReturnValue<string>();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UID");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", sSiteGuid);
 
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+            UID = sp.ExecuteReturnValue<string>();
+
+
 
             return UID;
         }
@@ -497,46 +485,6 @@ namespace DAL
 
             return lDomainIDs;
 
-
-            #region Commented
-            //int nDomainID = 0;
-
-            //try
-            //{
-            //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            //    selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-
-            //    selectQuery += "SELECT DISTINCT UD.DOMAIN_ID FROM USERS_DOMAINS UD WITH (NOLOCK), DOMAINS D WITH (NOLOCK) WHERE UD.DOMAIN_ID=D.ID AND UD.IS_ACTIVE = 1 AND UD.STATUS = 1 AND D.IS_ACTIVE = 1 AND D.STATUS = 1 AND";
-            //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", int.Parse(sSiteGUID));
-            //    if (selectQuery.Execute("query", true) != null)
-            //    {
-            //        int count = selectQuery.Table("query").DefaultView.Count;
-            //        if (count > 0)
-            //        {
-            //            nDomainID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["DOMAIN_ID"].ToString());
-
-            //            if (!string.IsNullOrEmpty(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString()))
-            //            {
-            //                nOperatorID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["OPERATOR_ID"].ToString());
-            //            }
-
-            //            if (selectQuery.Table("query").DefaultView[0].Row["is_master"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"] != null)
-            //            {
-            //                bIsDomainMaster = (selectQuery.Table("query").DefaultView[0].Row["IS_MASTER"].ToString() == "1");
-            //            }
-            //        }
-            //    }
-
-            //    selectQuery.Finish();
-            //    selectQuery = null;
-            //}
-            //catch (Exception ex)
-            //{
-            //    HandleException(ex);
-            //}
-
-            //return nDomainID;
-            #endregion
         }
 
         public static int GetAllowedLogins(int nGroupID)
@@ -746,13 +694,13 @@ namespace DAL
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    dNow            = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
-                    nFailCount      = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["FAIL_COUNT"]);
-                    nID             = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
-                    dLastFailDate   = new DateTime(2020, 1, 1);
-                    dLastHitDate    = new DateTime(2020, 1, 1);
-                    dLastFailDate   = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_FAIL_DATE"]);
-                    dLastHitDate    = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_HIT_DATE"]);
+                    dNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
+                    nFailCount = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["FAIL_COUNT"]);
+                    nID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
+                    dLastFailDate = new DateTime(2020, 1, 1);
+                    dLastHitDate = new DateTime(2020, 1, 1);
+                    dLastFailDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_FAIL_DATE"]);
+                    dLastHitDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_HIT_DATE"]);
                 }
             }
 
@@ -770,9 +718,6 @@ namespace DAL
 
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("user_site_guid", "=", nSiteGuid);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("co_guid", "=", sCoGuid);
-                //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("acess_token", "=", authenticationObj.access_token);
-                //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("refresh_token", "=", authenticationObj.refresh_token);
-                //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("expires_in", "=", DateTime.UtcNow.AddSeconds(double.Parse(authenticationObj.expires_in)));
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("operator_id", "=", nOperatorID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
@@ -787,19 +732,6 @@ namespace DAL
 
             return res;
         }
-
-        //public static DataTable GetActivationToken(int nGroupID, string sUsername)
-        //{
-        //    ODBCWrapper.StoredProcedure spGetActivationToken = new ODBCWrapper.StoredProcedure(SP_GET_ACTIVATION_TOKEN);
-        //    spGetActivationToken.SetConnectionKey("USERS_CONNECTION_STRING");
-
-        //    spGetActivationToken.AddParameter("@groupID", nGroupID);
-        //    spGetActivationToken.AddParameter("@username", sUsername);
-        //    DataSet ds = spGetActivationToken.ExecuteDataSet();
-        //    if (ds != null)
-        //        return ds.Tables[0];
-        //    return null;
-        //}
 
         public static string GetActivationToken(int nGroupID, string sUserName)
         {
@@ -878,7 +810,6 @@ namespace DAL
 
                 selectQuery += "select * from groups_parameters with (nolock) where status=1 and is_active=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
-                //selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
                 selectQuery += " order by id desc";
                 if (selectQuery.Execute("query", true) != null)
                 {
@@ -911,13 +842,12 @@ namespace DAL
                 updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATE_STATUS", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken); //System.Guid.NewGuid().ToString());
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("user_state", "=", nUserState);
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
                 updateQuery += " and ";
-                //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
-                updateQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";    //+ TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+                updateQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";
                 updateQuery += " and status=1 and is_active=1 and ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
 
@@ -973,8 +903,7 @@ namespace DAL
                 selectQuery += " select ACTIVATE_STATUS from users WITH (nolock) where status=1 and is_active=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nUserID);
                 selectQuery += " and ";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
-                selectQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";  // TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+                selectQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -1009,7 +938,6 @@ namespace DAL
                 selectQuery += "select id from users WITH (nolock) where status=1 and is_active=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
                 selectQuery += " and ";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                 selectQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";
                 if (selectQuery.Execute("query", true) != null)
                 {
@@ -1044,8 +972,6 @@ namespace DAL
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
                 selectQuery += " AND ";
                 selectQuery += " GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
-                //selectQuery += " GROUP_ID " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -1079,7 +1005,7 @@ namespace DAL
 
                 if (ds != null && ds.Tables.Count > 0)
                 {
-                    DataTable dt = ds.Tables[0]; //UsersDal.GetIsActivationNeeded(m_nGroupID);
+                    DataTable dt = ds.Tables[0];
 
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
@@ -1103,8 +1029,6 @@ namespace DAL
             sp.AddParameter("@userID", nSiteGuid);
             sp.AddParameter("@listType", listType);
             sp.AddParameter("@itemType", itemType);
-            //sp.AddParameter("@orderNum", orderNum);
-            //sp.AddIDListParameter<int>("@itemIDs", litems, "Id");
             sp.AddKeyValueListParameter<int, int>("@itemIDs", dItems, "Id", "OrderNum");
             sp.AddParameter("@groupID", nGroupID);
             bool result = sp.ExecuteReturnValue<bool>();
@@ -1118,8 +1042,6 @@ namespace DAL
             sp.AddParameter("@userID", nSiteGuid);
             sp.AddParameter("@listType", listType);
             sp.AddParameter("@itemType", itemType);
-            //sp.AddParameter("@orderNum", orderNum);
-            //sp.AddIDListParameter<int>("@itemIDs", litems, "Id");
             sp.AddKeyValueListParameter<int, int>("@itemIDs", dItems, "Id", "OrderNum");
             sp.AddParameter("@groupID", nGroupID);
             bool result = sp.ExecuteReturnValue<bool>();
@@ -1133,8 +1055,6 @@ namespace DAL
             sp.AddParameter("@userID", nSiteGuid);
             sp.AddParameter("@listType", listType);
             sp.AddParameter("@itemType", itemType);
-            //sp.AddParameter("@orderNum", orderNum);
-            //sp.AddIDListParameter<int>("@itemIDs", litems, "Id");
             sp.AddKeyValueListParameter<int, int>("@itemIDs", dItems, "Id", "OrderNum");
             sp.AddParameter("@groupID", nGroupID);
             bool result = sp.ExecuteReturnValue<bool>();
@@ -1230,6 +1150,7 @@ namespace DAL
                     }
                     else
                     {
+
                         res = DALUserActivationState.UserDoesNotExist;
                     }
                 }
@@ -1265,12 +1186,13 @@ namespace DAL
                     Int32 nCount = selectQuery1.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        int isMaster = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["IS_MASTER"].ToString());
-                        int isActive = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["IS_ACTIVE"].ToString());
-                        int nStatus  = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["STATUS"].ToString());
 
-                        DateTime dCreateDate1 = (DateTime)(selectQuery1.Table("query").DefaultView[0].Row["CREATE_DATE"]);
-                        DateTime dNow1 = (DateTime)(selectQuery1.Table("query").DefaultView[0].Row["DNOW"]);
+                        int isMaster = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_MASTER", 0); 
+                        int isActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_ACTIVE", 0); 
+                        int nStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "STATUS", 0); 
+
+                        DateTime dCreateDate1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "CREATE_DATE", 0); 
+                        DateTime dNow1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "DNOW", 0); 
 
                         bool isActive1 = ((isMaster > 0) || !(isActive == 0 && dCreateDate1.AddHours(nActivationMustHours) < dNow1));
 
@@ -1286,6 +1208,7 @@ namespace DAL
                     }
                     else //user does not have a Domain
                     {
+
                         res = DALUserActivationState.UserWIthNoDomain;
                     }
                 }
@@ -1394,7 +1317,7 @@ namespace DAL
         }
 
 
-        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, string sFacebookToken, string sUserName, string sFirstName, 
+        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, string sFacebookToken, string sUserName, string sFirstName,
                                         string sLastName, string sEmail, string sAddress, string sCity, int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret)
         {
             try
@@ -1433,10 +1356,10 @@ namespace DAL
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ZIP", "=", sZip);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PHONE", "=", sPhone);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REG_AFF", "=", sAffiliateCode);
-                
+
                 updateQuery += "WHERE";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
-                
+
                 bool inserted = updateQuery.Execute();
 
                 updateQuery.Finish();
@@ -1686,5 +1609,5 @@ namespace DAL
 
             return null;
         }
-    } 
+    }
 }

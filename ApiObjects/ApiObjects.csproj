@@ -122,6 +122,9 @@
     <Compile Include="MediaFileObject.cs" />
     <Compile Include="MediaInfoObject.cs" />
     <Compile Include="MediaInfoStructObject.cs" />
+    <Compile Include="MediaMarks\DomainMediaMark.cs" />
+    <Compile Include="MediaMarks\MediaMarkLog.cs" />
+    <Compile Include="MediaMarks\UserMediaMark.cs" />
     <Compile Include="MediaObject.cs" />
     <Compile Include="MediaPersonalStatistics.cs" />
     <Compile Include="MediaStatistics.cs" />
@@ -130,6 +133,7 @@
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
     <Compile Include="PicObject.cs" />
+    <Compile Include="MediaIndexingObjects\PictureData.cs" />
     <Compile Include="PlayerIMRequestObject.cs" />
     <Compile Include="PlayListSchema.cs" />
     <Compile Include="PreviewModuleCancelOrRefundRequest.cs" />

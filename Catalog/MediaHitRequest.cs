@@ -46,6 +46,9 @@ namespace Catalog
             {
                 MediaHitResponse oMediaHitResponse = null;
                 MediaHitRequest oMediaHitRequest = null;
+
+                CheckSignature(oBaseRequest);
+
                 if (oBaseRequest != null)
                 {
                     oMediaHitRequest = (MediaHitRequest)oBaseRequest;

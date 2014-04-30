@@ -88,4 +88,10 @@ namespace Catalog
         Tvinci = 0,
         Adi = 1
     }
+
+    public enum eBundleType
+    {
+        SUBSCRIPTION = 0,
+        COLLECTION = 1
+    }
 }
