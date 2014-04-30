@@ -108,6 +108,7 @@
     <Compile Include="ImporterObject.cs" />
     <Compile Include="InfoStructObj.cs" />
     <Compile Include="InitializationObject.cs" />
+    <Compile Include="Json\Converters\BaseTimeConverter.cs" />
     <Compile Include="LanguageObj.cs" />
     <Compile Include="LanguageRequestObject.cs" />
     <Compile Include="MailRequestObj.cs" />

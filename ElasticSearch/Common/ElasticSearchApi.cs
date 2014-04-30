@@ -328,7 +328,9 @@ namespace ElasticSearch.Common
             {
                 foreach (var bulkObj in lBulkRequest)
                 {
-                    sBulkRequest.Append("{ \"index\": { ");
+                    sBulkRequest.Append("{ \"");
+                    sBulkRequest.Append(bulkObj.Operation.ToString());
+                    sBulkRequest.Append("\": { ");
 
 
                     sBulkRequest.AppendFormat("\"_index\": \"{0}\"", bulkObj.index);
@@ -341,7 +343,11 @@ namespace ElasticSearch.Common
                     sBulkRequest.AppendFormat(",\"_id\" : \"{0}\"", bulkObj.docID);
 
                     sBulkRequest.Append(" } }\n");
-                    sBulkRequest.AppendFormat("{0}\n", bulkObj.document);
+
+                    if (!string.IsNullOrEmpty(bulkObj.document))
+                    {
+                        sBulkRequest.AppendFormat("{0}\n", bulkObj.document);
+                    }
                 }
             }
 
