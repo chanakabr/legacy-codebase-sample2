@@ -53,7 +53,7 @@
         <s:complexContent mixed="false">
           <s:extension base="tns:PPVModule">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="tns:ArrayOfSubscriptionCodeContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="tns:ArrayOfBundleCodeContainer" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="tns:ArrayOfInt" />
@@ -184,12 +184,31 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ArrayOfSubscriptionCodeContainer">
+      <s:complexType name="Collection">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PPVModule">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="tns:ArrayOfBundleCodeContainer" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="tns:ArrayOfInt" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionPriceCode" type="tns:PriceCode" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="tns:DiscountModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="tns:ArrayOfLanguageContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionUsageModule" type="tns:UsageModule" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_fictivicMediaID" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_ProductCode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_CollectionCode" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfBundleCodeContainer">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="SubscriptionCodeContainer" nillable="true" type="tns:SubscriptionCodeContainer" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="BundleCodeContainer" nillable="true" type="tns:BundleCodeContainer" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="SubscriptionCodeContainer">
+      <s:complexType name="BundleCodeContainer">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s:string" />
@@ -495,6 +514,26 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetCollectionData">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCollectionCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bGetAlsoUnActive" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCollectionDataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCollectionDataResult" type="tns:Collection" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetSubscriptionDataByProductCode">
         <s:complexType>
           <s:sequence>
@@ -619,8 +658,8 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_oPPVModule" type="tns:PPVModule" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bIsBelong" type="s:boolean" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" nillable="true" type="s:dateTime" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetDiscountsModuleListForAdmin">
@@ -995,6 +1034,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="nSubCode" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nCollectionCode" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="nPrePaidCode" type="s:int" />
           </s:sequence>
         </s:complexType>
@@ -1049,6 +1089,7 @@
       <s:element name="ArrayOfCampaign" nillable="true" type="tns:ArrayOfCampaign" />
       <s:element name="Campaign" nillable="true" type="tns:Campaign" />
       <s:element name="Subscription" nillable="true" type="tns:Subscription" />
+      <s:element name="Collection" nillable="true" type="tns:Collection" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="ArrayOfPPVModule" nillable="true" type="tns:ArrayOfPPVModule" />
       <s:element name="ArrayOfPPVModuleContainer" nillable="true" type="tns:ArrayOfPPVModuleContainer" />
@@ -1170,6 +1211,12 @@
   </wsdl:message>
   <wsdl:message name="GetSubscriptionDataSoapOut">
     <wsdl:part name="parameters" element="tns:GetSubscriptionDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionDataSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCollectionData" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionDataSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCollectionDataResponse" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionDataByProductCodeSoapIn">
     <wsdl:part name="parameters" element="tns:GetSubscriptionDataByProductCode" />
@@ -1474,6 +1521,18 @@
   <wsdl:message name="GetSubscriptionDataHttpPostOut">
     <wsdl:part name="Body" element="tns:Subscription" />
   </wsdl:message>
+  <wsdl:message name="GetCollectionDataHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sCollectionCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="bGetAlsoUnActive" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionDataHttpPostOut">
+    <wsdl:part name="Body" element="tns:Collection" />
+  </wsdl:message>
   <wsdl:message name="GetSubscriptionDataByProductCodeHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1703,6 +1762,7 @@
     <wsdl:part name="sSiteGUID" type="s:string" />
     <wsdl:part name="nMediaFileID" type="s:string" />
     <wsdl:part name="nSubCode" type="s:string" />
+    <wsdl:part name="nCollectionCode" type="s:string" />
     <wsdl:part name="nPrePaidCode" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SetCouponUsesHttpPostOut">
@@ -1783,6 +1843,10 @@
     <wsdl:operation name="GetSubscriptionData">
       <wsdl:input message="tns:GetSubscriptionDataSoapIn" />
       <wsdl:output message="tns:GetSubscriptionDataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionData">
+      <wsdl:input message="tns:GetCollectionDataSoapIn" />
+      <wsdl:output message="tns:GetCollectionDataSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetSubscriptionDataByProductCode">
       <wsdl:input message="tns:GetSubscriptionDataByProductCodeSoapIn" />
@@ -1949,6 +2013,10 @@
     <wsdl:operation name="GetSubscriptionData">
       <wsdl:input message="tns:GetSubscriptionDataHttpPostIn" />
       <wsdl:output message="tns:GetSubscriptionDataHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionData">
+      <wsdl:input message="tns:GetCollectionDataHttpPostIn" />
+      <wsdl:output message="tns:GetCollectionDataHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetSubscriptionDataByProductCode">
       <wsdl:input message="tns:GetSubscriptionDataByProductCodeHttpPostIn" />
@@ -2185,6 +2253,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetSubscriptionData">
       <soap:operation soapAction="http://pricing.tvinci.com/GetSubscriptionData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionData">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetCollectionData" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2564,6 +2641,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetCollectionData">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetCollectionData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionDataByProductCode">
       <soap12:operation soapAction="http://pricing.tvinci.com/GetSubscriptionDataByProductCode" style="document" />
       <wsdl:input>
@@ -2936,6 +3022,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetCollectionData">
+      <http:operation location="/GetCollectionData" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetSubscriptionDataByProductCode">
       <http:operation location="/GetSubscriptionDataByProductCode" />
       <wsdl:input>
@@ -3173,13 +3268,13 @@
   </wsdl:binding>
   <wsdl:service name="mdoule">
     <wsdl:port name="mdouleSoap" binding="tns:mdouleSoap">
-      <soap:address location="http://localhost/WS_pricing/module.asmx" />
+      <soap:address location="http://localhost/TVMPricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleSoap12" binding="tns:mdouleSoap12">
-      <soap12:address location="http://localhost/WS_pricing/module.asmx" />
+      <soap12:address location="http://localhost/TVMPricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleHttpPost" binding="tns:mdouleHttpPost">
-      <http:address location="http://localhost/WS_pricing/module.asmx" />
+      <http:address location="http://localhost/TVMPricing/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

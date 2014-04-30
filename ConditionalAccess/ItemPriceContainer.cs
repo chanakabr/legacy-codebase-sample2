@@ -51,6 +51,24 @@ namespace ConditionalAccess
 
     }
 
+    public class CollectionsPricesContainer
+    {
+        public string m_sCollectionCode;
+        public TvinciPricing.Price m_oPrice;
+        public PriceReason m_PriceReason;
+
+        public CollectionsPricesContainer()
+        { }
+
+        public void Initialize(string sCollectionCode, TvinciPricing.Price oPrice, PriceReason ePriceReason)
+        {
+            m_sCollectionCode   = sCollectionCode;
+            m_oPrice            = oPrice;
+            m_PriceReason       = ePriceReason;
+        }
+
+    }
+
     public class PrePaidPricesContainer
     {
         public string m_sPrePaidCode;
@@ -77,6 +95,7 @@ namespace ConditionalAccess
         public TvinciPricing.Price m_oFullPrice;
         public PriceReason m_PriceReason;
         public TvinciPricing.Subscription m_relevantSub;
+        public TvinciPricing.Collection   m_relevantCol;
         public TvinciPricing.PrePaidModule m_relevantPP;
         public TvinciPricing.LanguageContainer[] m_oPPVDescription;
         public TvinciPricing.CouponsStatus m_couponStatus;
@@ -85,6 +104,7 @@ namespace ConditionalAccess
         public ItemPriceContainer()
         {
             m_relevantSub = null;
+            m_relevantCol = null;
             m_PriceReason = PriceReason.UnKnown;
             m_oPrice = null;
             m_oFullPrice = null;
@@ -95,18 +115,19 @@ namespace ConditionalAccess
             m_relevantPP = null;
         }
 
-        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, bool bSubscriptionOnly)
+        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, TvinciPricing.Collection relevantCol, bool bSubscriptionOnly)
         {
             m_oPPVDescription = oPPVDescription;
             m_oPrice = oPrice;
             m_oFullPrice = oFullPrice;
             m_sPPVModuleCode = sPPVModuleCode;
             m_PriceReason = theReason;
+            m_relevantCol = relevantCol;
             m_relevantSub = relevantSub;
             m_bSubscriptionOnly = bSubscriptionOnly;
         }
 
-        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound)
+        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, TvinciPricing.Collection relevantCol, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound)
         {
             m_oPPVDescription = oPPVDescription;
             m_oPrice = oPrice;
@@ -114,6 +135,7 @@ namespace ConditionalAccess
             m_sPPVModuleCode = sPPVModuleCode;
             m_PriceReason = theReason;
             m_relevantSub = relevantSub;
+            m_relevantCol = relevantCol;
             m_bSubscriptionOnly = bSubscriptionOnly;            
             m_relevantPP = relevantPP;
             m_sFirstDeviceNameFound = sFirstDeviceFound;

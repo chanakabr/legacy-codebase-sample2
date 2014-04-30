@@ -410,7 +410,15 @@ namespace ODBCWrapper
             {
                 if (o != null && o != DBNull.Value)
                 {
-                    return (DateTime)(o);
+                    DateTime dt = new DateTime();
+                    if (DateTime.TryParseExact(o.ToString(), "M/dd/yyyy h:mm:ss tt", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+                    {
+                        return dt; 
+                    }
+                    else
+                    {
+                        return (DateTime)(o);
+                    }
                 }
                 return new DateTime(2000, 1, 1);
             }

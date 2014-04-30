@@ -15,18 +15,20 @@ using System.Collections.Concurrent;
 namespace Catalog
 {
     [DataContract]
-    public class SubscriptionContainingMediaRequest : BaseRequest, IRequestImp
+    public class BundleContainingMediaRequest : BaseRequest, IRequestImp
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         [DataMember]
-        public int m_nSubscriptionID;
+        public eBundleType m_eBundleType;
+        [DataMember]
+        public int m_nBundleID;
         [DataMember]
         public int m_nMediaID;
         [DataMember]
         public string m_sMediaType;
 
-        public SubscriptionContainingMediaRequest()
+        public BundleContainingMediaRequest()
             : base()
         {
         }
@@ -35,12 +37,12 @@ namespace Catalog
         {
             try
             {
-                SubscriptionContainingMediaRequest request = (SubscriptionContainingMediaRequest)oBaseRequest;
+                BundleContainingMediaRequest request = (BundleContainingMediaRequest)oBaseRequest;
                 List<SearchResult> lMedias = new List<SearchResult>();
 
                 ContainingMediaResponse response = new ContainingMediaResponse();
 
-                if (request == null || request.m_nSubscriptionID == 0)
+                if (request == null || request.m_nBundleID == 0)
                     throw new Exception("request object is null or Required variables is null");
 
                 Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
@@ -51,7 +53,7 @@ namespace Catalog
                 }
 
                 if (groupInCache.m_nParentGroupID != request.m_nGroupID)
-                    throw new Exception("SubscriptionID does not belong to group");
+                    throw new Exception("BundleID does not belong to group");
 
                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
 
@@ -61,8 +63,8 @@ namespace Catalog
                 response.m_bContainsMedia = false;
                 response.m_nTotalItems = 0;
 
-                List<int> channelIds = Catalog.GetSubscriptionChannelIds(request.m_nGroupID, request.m_nSubscriptionID);
-                List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nBundleID, request.m_eBundleType);
+                List<Channel> allChannels   = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                 if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                 {
@@ -115,7 +117,7 @@ namespace Catalog
                                     if (searcher != null)
                                     {
 
-                                        // Getting all medias in subscription
+                                        // Getting all medias in Bundle
                                         SearchResultsObj oSearchResult = searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_sMediaType, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
 
                                         if (oSearchResult != null && oSearchResult.m_resultIDs != null && oSearchResult.m_resultIDs.Count > 0)
@@ -141,8 +143,8 @@ namespace Catalog
                         else
                         {
                             List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
-                            bool bDoesMediaBelongToSubscription = searcher.DoesMediaBelongToChannels(groupInCache.m_nParentGroupID, lChannelIDs, request.m_nMediaID);
-                            if (bDoesMediaBelongToSubscription)
+                            bool bDoesMediaBelongToBundle = searcher.DoesMediaBelongToChannels(groupInCache.m_nParentGroupID, lChannelIDs, request.m_nMediaID);
+                            if (bDoesMediaBelongToBundle)
                             {
                                 response.m_bContainsMedia = true;
                                 response.m_nTotalItems = 1;

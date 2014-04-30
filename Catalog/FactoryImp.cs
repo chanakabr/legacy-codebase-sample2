@@ -72,9 +72,9 @@ namespace Catalog
             {
                 return new UserSocialMediasRequest();
             }
-            if (m_oBaseRequest is SubscriptionMediaRequest)
+            if (m_oBaseRequest is BundleMediaRequest)
             {
-                return new SubscriptionMediaRequest();
+                return new BundleMediaRequest();
             }
             if (m_oBaseRequest is PicRequest)
             {
@@ -128,9 +128,9 @@ namespace Catalog
             {
                 return new MediaAutoCompleteRequest();
             }
-            if (m_oBaseRequest is SubscriptionContainingMediaRequest)
+            if (m_oBaseRequest is BundleContainingMediaRequest)
             {
-                return new SubscriptionContainingMediaRequest();
+                return new BundleContainingMediaRequest();
             }
             if (m_oBaseRequest is AssetStatsRequest)
             {
@@ -151,6 +151,10 @@ namespace Catalog
              if (m_oBaseRequest is EPGSearchContentRequest)
             {
                 return new EPGSearchContentRequest();
+            }
+            if (m_oBaseRequest is MediaLastPositionRequest)
+            {
+                return new MediaLastPositionRequest((MediaLastPositionRequest)this.m_oBaseRequest);
             }
            
 

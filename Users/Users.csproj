@@ -103,6 +103,7 @@
     <Compile Include="DomainFactory.cs" />
     <Compile Include="EutelsatDomain.cs" />
     <Compile Include="EutelsatUsers.cs" />
+    <Compile Include="LimitationsManager.cs" />
     <Compile Include="MailFactory.cs" />
     <Compile Include="HomeNetwork.cs" />
     <Compile Include="MCMailImpl.cs" />
@@ -156,6 +157,7 @@
     <Compile Include="UserType.cs" />
     <Compile Include="UserUpdateResponse.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="ValidationResponseObject.cs" />
     <Compile Include="Web References\TvinciAPI\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

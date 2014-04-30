@@ -25,7 +25,7 @@ namespace Catalog
     [KnownType(typeof(CommentsListRequest))]
     [KnownType(typeof(PWLALProtocolRequest))]
     [KnownType(typeof(UserSocialMediasRequest))]
-    [KnownType(typeof(SubscriptionMediaRequest))]
+    [KnownType(typeof(BundleMediaRequest))]
     [KnownType(typeof(PicRequest))]
     [KnownType(typeof(MediaMarkRequest))]
     [KnownType(typeof(MediaHitRequest))]
@@ -36,7 +36,7 @@ namespace Catalog
     [KnownType(typeof(MediaCommentRequest))]
     [KnownType(typeof(IsMediaExistsInSubscriptionRequest))]
     [KnownType(typeof(ChannelsContainingMediaRequest))]
-    [KnownType(typeof(SubscriptionContainingMediaRequest))]    
+    [KnownType(typeof(BundleContainingMediaRequest))]    
     [KnownType(typeof(MediaChannelsRequest))]
     [KnownType(typeof(MediaAutoCompleteRequest))]
     [KnownType(typeof(EpgRequest))]
@@ -44,6 +44,8 @@ namespace Catalog
     [KnownType(typeof(EPGProgramsByScidsRequest))]
     [KnownType(typeof(EPGProgramsByProgramsIdentefierRequest))]
     [KnownType(typeof(EPGSearchContentRequest))]
+    [KnownType(typeof(MediaLastPositionRequest))]
+    [KnownType(typeof(MediaLastPositionResponse))]
   
 
     [DataContract]
@@ -98,17 +100,6 @@ namespace Catalog
         {
             StringBuilder sb = new StringBuilder();
 
-            //XmlWriterSettings settings =
-            //    new XmlWriterSettings { Encoding = Encoding.UTF8, Indent = true };
-
-            //using (XmlWriter xmlWriter = XmlWriter.Create(sb, settings))
-            //{
-            //    if (xmlWriter != null)
-            //    {
-            //        new XmlSerializer(typeof(T), new Type[] { typeof(MediaObj), typeof(PicObj) }).Serialize(xmlWriter, objectToSerialize);
-            //    }
-            //}
-
             return sb.ToString();
         }
 
@@ -142,12 +133,12 @@ namespace Catalog
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder(String.Concat("User IP: ", m_sUserIP));
+            StringBuilder sb = new StringBuilder(String.Concat("this is: ", this.GetType().Name));
             sb.Append(String.Concat(" Page Size: ", m_nPageSize));
             sb.Append(String.Concat(" Page Index: ", m_nPageIndex));
             sb.Append(String.Concat(" Site Guid: ", m_sSiteGuid));
             sb.Append(String.Concat(" Group ID: ", m_nGroupID));
-            sb.Append(String.Concat(" this is: ", this.GetType().Name));
+            sb.Append(String.Concat(" User IP: ", m_sUserIP));
 
             return sb.ToString();
         }

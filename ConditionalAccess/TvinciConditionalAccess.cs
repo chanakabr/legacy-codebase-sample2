@@ -226,7 +226,7 @@ namespace ConditionalAccess
             string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID)
         {
             bool res = true;
-            HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0);
+            HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
 
             long lPreviewModuleID = 0;
             if (theSub.m_oPreviewModule != null)
@@ -293,6 +293,78 @@ namespace ConditionalAccess
             return res;
         }
 
+        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, TvinciPricing.Collection theCol,
+            double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
+            string sDeviceName, TvinciBilling.BillingResponse br, string sCollectionCode,
+            string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID)
+        {
+            bool res = true;
+            Int32 nColCode;
+            Int32.TryParse(sCollectionCode, out nColCode);
+            HandleCouponUses(null, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP,
+                sCountryCd, sLanguageCode, sDeviceName, true, 0, nColCode);
+
+            lBillingTransactionID = Utils.ParseLongIfNotEmpty(br.m_sRecieptCode);
+
+            bool bUsageModuleExists = (theCol != null && theCol.m_oUsageModule != null);
+            DateTime dtUtcNow = DateTime.UtcNow;
+            DateTime dtSubEndDate = CalcCollectionEndDate(theCol, dtUtcNow);
+
+            lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID,
+                sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData,
+                sCountryCd, sLanguageCode, sDeviceName, bUsageModuleExists ? theCol.m_oUsageModule.m_nMaxNumberOfViews : 0,
+                bUsageModuleExists ? theCol.m_oUsageModule.m_tsViewLifeCycle : 0, lBillingTransactionID,
+                dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty);
+
+            if (lPurchaseID > 0)
+            {
+                // writing to collection_purchases succeeded
+                WriteToUserLog(sSiteGUID, string.Format("Collection purchased. ID in billing transaction {0} , ID in collection_purchases {1}", lBillingTransactionID, lPurchaseID));
+                if (lBillingTransactionID > 0)
+                {
+                    // update in billing_transactions
+                    if (!ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID))
+                    {
+                        // purchase id in billing transactions is critical for renewal process. log if fails.
+                        #region Logging
+                        StringBuilder sb = new StringBuilder("Failed to update purchase id in billing_transactions table");
+                        sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
+                        sb.Append(String.Concat(" Purchase ID: ", lPurchaseID));
+                        sb.Append(String.Concat(" Billing transaction ID: ", lBillingTransactionID));
+                        sb.Append(String.Concat(" Collection Code: ", sCollectionCode));
+                        sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
+                        sb.Append(String.Concat(" Custom Data: ", sCustomData));
+                        Logger.Logger.Log("HandleChargeUserForCollectionBillingSuccess", sb.ToString(), GetLogFilename());
+                        #endregion
+                    }
+                    else
+                    {
+                        UpdatePurchaseIDInExternalBillingTable(lBillingTransactionID, lPurchaseID);
+                    }
+                }
+                else
+                {
+                    // no id in billing_transactions
+                    res = false;
+                    #region Logging
+                    Logger.Logger.Log("HandleChargeUserForCollectionBillingSuccess", string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Col Code: {2} , Coupon Code: {3}", sSiteGUID, lPurchaseID, sCollectionCode, sCouponCode), GetLogFilename());
+                    WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForCollectionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Col Code: {1} , Coupon Code: {2}", lPurchaseID, sCollectionCode, sCouponCode));
+                    #endregion
+                }
+            }
+            else
+            {
+                // writing to collection_purchases failed
+                res = false;
+                #region Logging
+                Logger.Logger.Log("HandleChargeUserForCollectionBillingSuccess", string.Format("No ID in Collection_purchases. Site Guid: {0} , Col Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sCollectionCode, sCouponCode, sUserIP), GetLogFilename());
+                WriteToUserLog(sSiteGUID, string.Format("Failed to write to collection_purchases. Col Code: {0} , Coupon Code: {1}", sCollectionCode, sCouponCode));
+                #endregion
+            }
+
+            return res;
+        }
+
         protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID,
             TvinciPricing.Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
             string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData,
@@ -301,7 +373,7 @@ namespace ConditionalAccess
             bool res = true;
 
             HandleCouponUses(relevantSub, string.Empty, sSiteGUID, dPrice, sCurrency, (int)lMediaFileID, sCouponCode, sUserIP,
-                sCountryCd, sLanguageCode, sDeviceName, true, 0);
+                sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
 
             lBillingTransactionID = Utils.ParseLongIfNotEmpty(br.m_sRecieptCode);
             bool bIsPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
@@ -361,6 +433,10 @@ namespace ConditionalAccess
             return res;
         }
 
+        protected override bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
+        {
+            return bDummy;
+        }
 
     }
 }

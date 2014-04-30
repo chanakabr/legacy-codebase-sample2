@@ -46,6 +46,9 @@ namespace Catalog
             {
                 MediaMarkResponse oMediaMarkResponse = null;
                 MediaMarkRequest oMediaMarkRequest = null;
+
+                CheckSignature(oBaseRequest);
+
                 if (oBaseRequest != null)
                 {
                     oMediaMarkRequest = (MediaMarkRequest)oBaseRequest;
@@ -55,14 +58,14 @@ namespace Catalog
                 {
                     oMediaMarkResponse = new MediaMarkResponse();
                     oMediaMarkResponse.m_sDescription = Catalog.GetMediaPlayResponse(MediaPlayResponse.OK);
-                    //throw new Exception("request object is null or Required variables is null");
+                    
                 }                
 
                 return (BaseResponse)oMediaMarkResponse;
             }
             catch (Exception ex)
             {
-                _logger.Error("MediaMarkRequest.GetResponse", ex);
+                _logger.Error(String.Concat("MediaMarkRequest.GetResponse. ", oBaseRequest.ToString()), ex);
                 throw ex;
             }
         }
@@ -99,6 +102,7 @@ namespace Catalog
             int nSwhoosh = 0;
 
             MediaPlayActions mediaMarkAction;
+
             int.TryParse(this.m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
                                           
 
@@ -114,25 +118,25 @@ namespace Catalog
           
             bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction);
 
-            if (resultParse == true)
+            if (resultParse)
             {
                 bool isError = false;
                 bool isConcurrent = false;
                 HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
                                       ref nFirstPlay, ref sPlayCycleKey, ref isConcurrent, ref isError, ref nSwhoosh);
 
-                if (isError == true)
+                if (isError)
                 {
                     return oMediaMarkResponse;
                 }
-                else if (isConcurrent == true)
+                else if (isConcurrent)
                 {
                     oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
                     return oMediaMarkResponse;
                 }                
             }
 
-            if (nActionID == 0 && this.m_oMediaPlayRequestData.m_sAction != "")
+            if (nActionID == 0 && this.m_oMediaPlayRequestData.m_sAction.Length > 0)
             {
                 nActionID = Catalog.GetMediaActionID(this.m_oMediaPlayRequestData.m_sAction);
             }                     
