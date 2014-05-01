@@ -10,6 +10,7 @@ namespace CommonWithSL
         public string FileID { get; set; }
         public string URL { get; set; }
         public string FileType { get; set; }
+        public string Lang { get; set; }
         public bool CanBeAccessed { get; set; }
         public bool IsSelected { get; set; }
 
