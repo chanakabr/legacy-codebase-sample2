@@ -222,7 +222,6 @@ namespace ConditionalAccess
                 PriceReason theReason = PriceReason.UnKnown;
 
                 TvinciPricing.Subscription relevantSub = null;
-                TvinciPricing.Collection   relevantCol = null;
                 TvinciPricing.PrePaidModule relevantPP = null;
 
                 TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
@@ -232,7 +231,7 @@ namespace ConditionalAccess
                 {
 
                     TvinciPricing.Price p =
-                        Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
+                        Utils.GetMediaFileFinalPrice(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
 
                     if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0)) // || bDummy)
                     {
@@ -326,7 +325,7 @@ namespace ConditionalAccess
 
                         if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
                         {
-                            HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID, true, 0, 0);
+                            HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID, true, 0);
 
                             int transactionID = int.Parse(ret.m_sRecieptCode);
 
@@ -632,9 +631,9 @@ namespace ConditionalAccess
         /// <summary>
         /// Credit Card Charge User For Subscription
         /// </summary>
-        public override TvinciBilling.BillingResponse CC_ChargeUserForBundle(string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP,
-            string sExtraParams, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV, eBundleType bundleType)        
-        {
+        public override TvinciBilling.BillingResponse CC_ChargeUserForSubscription(string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP, 
+			string sExtraParams, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV)        {
+
             TvinciBilling.BillingResponse ret = new ConditionalAccess.TvinciBilling.BillingResponse();
 
             #region User and household validation
@@ -802,7 +801,7 @@ namespace ConditionalAccess
 
             if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
             {
-                HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+                HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0);
 
                 int nIsRecurring = 0;
                 int nIsRecurringStatus = (bIsRecurring == true) ? 1 : 0;
@@ -1173,7 +1172,6 @@ namespace ConditionalAccess
                     TvinciPricing.Price pLowest = null;
                     PriceReason theLowestReason = PriceReason.UnKnown;
                     TvinciPricing.Subscription relevantLowestSub = null;
-                    TvinciPricing.Collection relevantLowestCol = null;
                     TvinciPricing.PrePaidModule relevantLowestPrePaid = null;
                     string sProductCode = string.Empty;
                     
@@ -1182,17 +1180,16 @@ namespace ConditionalAccess
                         string sPPVCode = ppvModules[j].m_sObjectCode + "|" + ppvModules[j].m_sObjectVirtualName;
                         PriceReason theReason = PriceReason.UnKnown;
                         TvinciPricing.Subscription relevantSub = null;
-                        TvinciPricing.Collection   relevantCol = null;
                         TvinciPricing.PrePaidModule relevantPrePaid = null;
 
-                        TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantPrePaid, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                         sProductCode = oModules[i].m_sProductCode;
                         
                         if (bOnlyLowest == false)
                         {
                             itemPriceCont[j] = new ItemPriceContainer();
-                            itemPriceCont[j].Initialize(p, ppvModules[j].m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].m_sDescription, theReason, relevantSub, relevantCol, ppvModules[j].m_bSubscriptionOnly);
+                            itemPriceCont[j].Initialize(p, ppvModules[j].m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].m_sDescription, theReason, relevantSub, ppvModules[j].m_bSubscriptionOnly);
                         }
                         else
                         {
@@ -1203,7 +1200,6 @@ namespace ConditionalAccess
                                 pLowest = p;
                                 theLowestReason = theReason;
                                 relevantLowestSub = relevantSub;
-                                relevantLowestCol = relevantCol;
                                 relevantLowestPrePaid = relevantPrePaid;
                             }
                         }
@@ -1211,7 +1207,7 @@ namespace ConditionalAccess
                     if (ppvModules.Length > 0 && bOnlyLowest == true)
                     {
                         itemPriceCont[0] = new ItemPriceContainer();
-                        itemPriceCont[0].Initialize(pLowest, ppvModules[nLowestIndex].m_oPriceCode.m_oPrise, ppvModules[nLowestIndex].m_sObjectCode, ppvModules[nLowestIndex].m_sDescription, theLowestReason, relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].m_bSubscriptionOnly);
+                        itemPriceCont[0].Initialize(pLowest, ppvModules[nLowestIndex].m_oPriceCode.m_oPrise, ppvModules[nLowestIndex].m_sObjectCode, ppvModules[nLowestIndex].m_sDescription, theLowestReason, relevantLowestSub, ppvModules[nLowestIndex].m_bSubscriptionOnly);
                     }
 
                     mf.Initialize(nMediaFileID, itemPriceCont, sProductCode);
