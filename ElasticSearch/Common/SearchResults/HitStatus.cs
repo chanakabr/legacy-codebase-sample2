@@ -1,0 +1,18 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace ElasticSearch.Common.SearchResults
+{
+    public class HitStatus
+    {
+        [JsonProperty("hits")]
+        public List<Hits> Hits = new List<Hits>();
+        [JsonProperty("max_score")]
+        public double MaxScore;
+        [JsonProperty("total")]
+        public int Total;
+    }
+}

@@ -50,11 +50,11 @@ namespace ElasticSearch.Searcher
                 //bQuerySingle = new BoolQuery();
                 if (!m_oEpgSearchObj.m_bExact)
                 {
-                    wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(kvp.m_sKey), Value = string.Format("*{0}*", Common.Utils.EscapeValues(kvp.m_sValue)) };
+                    wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("*{0}*", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
                 }
                 else
                 {
-                    wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(kvp.m_sValue)) };
+                    wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
                 }
                 //bQuerySingle.AddChild(wildCard, CutWith.AND);
 
@@ -68,7 +68,7 @@ namespace ElasticSearch.Searcher
                 foreach (var kvp in m_oEpgSearchObj.m_lSearchAnd)
                 {
                     //bQuerySingle = new BoolQuery();
-                    wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(kvp.m_sValue)) };
+                    wildCard = new ESWildcard() { Key = Common.Utils.EscapeValues(ref kvp.m_sKey), Value = string.Format("{0}", Common.Utils.EscapeValues(ref kvp.m_sValue)) };
 
                     //bQuerySingle.AddChild(wildCard, CutWith.AND);
 

@@ -580,6 +580,13 @@ namespace Catalog
                 {
                     isLucene = searcher is LuceneWrapper;
 
+                    Group groupInCache = GroupsCache.Instance.GetGroup(oMediaRequest.m_nGroupID);
+                    if (groupInCache != null)
+                    {
+                        LanguageObj objLang = groupInCache.GetLanguage(oMediaRequest.m_oFilter.m_nLanguage);
+                        search.m_oLangauge = objLang;
+                    }
+
                     SearchResultsObj resultObj = searcher.SearchMedias(oMediaRequest.m_nGroupID, search, 0, oMediaRequest.m_oFilter.m_bUseStartDate);
 
                     if (resultObj != null)
@@ -722,12 +729,19 @@ namespace Catalog
         /*Build Full search object*/
         static internal void FullSearchAddParams(MediaSearchFullRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
+            Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+
+            if(group != null)
+            {
+                string searchKey;
             if (request.m_AndList != null)
             {
                 foreach (KeyValue andKeyValue in request.m_AndList)
                 {
+                    searchKey = GetFullSearchKey(andKeyValue.m_sKey, ref group); // returns search key with prefix e.g. metas.{key}
+                    
                     SearchValue search = new SearchValue();
-                    search.m_sKey = andKeyValue.m_sKey;
+                    search.m_sKey = searchKey;
                     search.m_lValue = new List<string> { andKeyValue.m_sValue };
                     search.m_sValue = andKeyValue.m_sValue;
                     m_dAnd.Add(search);
@@ -739,11 +753,14 @@ namespace Catalog
                 foreach (KeyValue orKeyValue in request.m_OrList)
                 {
                     SearchValue search = new SearchValue();
-                    search.m_sKey = orKeyValue.m_sKey;
+
+                    searchKey = GetFullSearchKey(orKeyValue.m_sKey, ref group);// returns search key with prefix e.g. metas.{key}
+                    search.m_sKey = searchKey;
                     search.m_lValue = new List<string> { orKeyValue.m_sValue };
                     search.m_sValue = orKeyValue.m_sValue;
                     m_dOr.Add(search);
                 }
+            }
             }
         }
 
@@ -1221,7 +1238,7 @@ namespace Catalog
 
         #endregion
 
-        internal static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId)
+        internal static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
         {
             MediaSearchObj searchObject = new MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
@@ -1234,6 +1251,7 @@ namespace Catalog
                 searchObject.m_sPermittedWatchRules = string.Join(" ", lPermittedWatchRules);
             searchObject.m_nDeviceRuleId = nDeviceRuleId;
             searchObject.m_nIndexGroupId = nParentGroupID;
+            searchObject.m_oLangauge = oLanguage;
 
             ApiObjects.SearchObjects.OrderObj oSearcherOrderObj = new ApiObjects.SearchObjects.OrderObj();
             if (orderObj != null && orderObj.m_eOrderBy != ApiObjects.SearchObjects.OrderBy.NONE)
@@ -2487,6 +2505,42 @@ namespace Catalog
             return res;
         }
 
+        private static string GetFullSearchKey(string sKey, ref Group oGroup)
+        {
+            bool bHasTagPrefix = false;
+
+            string searchKey = sKey;
+
+            foreach (var key in oGroup.m_oGroupTags.Keys)
+            {
+                if (oGroup.m_oGroupTags[key].Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    searchKey = string.Concat(TAGS, ".", oGroup.m_oGroupTags[key].ToLower());
+                    bHasTagPrefix = true;
+                    break;
+                }
+            }
+
+            if (!bHasTagPrefix)
+            {
+                if (oGroup.m_oMetasValuesByGroupId.ContainsKey(oGroup.m_nParentGroupID))
+                {
+                    Dictionary<string, string> dMetas = oGroup.m_oMetasValuesByGroupId[oGroup.m_nParentGroupID];
+                    foreach (string key in dMetas.Keys)
+                    {
+                        if (dMetas[key].Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            searchKey = string.Concat(METAS, ".", dMetas[key].ToLower());
+                            bHasTagPrefix = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return searchKey;
+		}
+		
         public static int GetLastPosition(int mediaID, int userID)
         {
 
