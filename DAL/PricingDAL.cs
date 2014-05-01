@@ -73,7 +73,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure spItemName = new ODBCWrapper.StoredProcedure("Get_ItemName");
             spItemName.SetConnectionKey("pricing_connection");
             spItemName.AddParameter("@TableName", sTableName);
-            spItemName.AddParameter("ItemCode", lItemCode);
+            spItemName.AddParameter("@ItemCode", lItemCode);
 
             DataSet ds = spItemName.ExecuteDataSet();
             if (ds != null)
