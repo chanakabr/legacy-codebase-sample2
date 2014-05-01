@@ -193,16 +193,13 @@ namespace DAL
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPass);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("WS_NAME", "=", sWSName);
                 selectQuery += "and (";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_NAME", "=", sModuleName);
-                selectQuery += " or ";
+                selectQuery += "or";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_NAME", "=", "00000");
-                selectQuery += ") and (";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IP", "=", sIP);
-                selectQuery += " or ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IP", "=", "00000");
-                selectQuery += " ) and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("WS_NAME", "=", sWSName);
+                selectQuery += ")";
                 selectQuery += "order by MODULE_NAME desc";
                 if (selectQuery.Execute("query", true) != null)
                 {
