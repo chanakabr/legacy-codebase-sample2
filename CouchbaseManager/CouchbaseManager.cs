@@ -9,7 +9,7 @@ using Couchbase.Configuration;
 
 namespace CouchbaseManager
 {
-    public enum eCouchbaseBucket { UNKNOWN = 0, NOTIFICATION = 1, SOCIALHUB = 2, SOCIALFRIENDS = 3, EPG = 4, MEDIAMARK = 5, STATISTICS = 6 }
+    public enum eCouchbaseBucket { DEFAULT = 0, NOTIFICATION = 1, SOCIALHUB = 2, SOCIALFRIENDS = 3, EPG = 4, MEDIAMARK = 5, STATISTICS = 6 }
 
     public class CouchbaseManager
     {
