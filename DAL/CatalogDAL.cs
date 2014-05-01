@@ -1207,23 +1207,7 @@ namespace Tvinci.Core.DAL
 
             return new List<int>(0);
         }
-        public static DataTable Get_IPersonalRecommended(string sSiteGuid, int nTop, int nOperatorID)
-        {
-<<<<<<< HEAD
-            StoredProcedure sp = new StoredProcedure("Get_IPersonalRecommended");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupID", nGroupID);
-            sp.AddParameter("@SiteGuid", sSiteGuid);
-            sp.AddParameter("@Top", nTop);
-            sp.AddParameter("@OperatorID", nOperatorID);
-			
-			DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-				return ds.Tables[0];
-            
-			return null;
-		}
+ 
 		
         public static List<LanguageObj> GetGroupLanguages(int nGroupID)
         {
@@ -1305,8 +1289,10 @@ namespace Tvinci.Core.DAL
 
             return language;
         }
-=======
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+        
+        public static DataTable Get_IPersonalRecommended(string sSiteGuid, int nTop, int nOperatorID)
+        {
+              var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
@@ -1344,7 +1330,7 @@ namespace Tvinci.Core.DAL
                     return ds.Tables[0];
             }
             return null;
-        }
+		}
 
         public static int GetLastPosition(int mediaID, int userID)
         {
@@ -1423,7 +1409,6 @@ namespace Tvinci.Core.DAL
             return dictMediaUsersCount;
         }
 
-
         public static List<UserMediaMark> GetMediaMarksLastDateByUsers(List<int> usersList)
         {
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
@@ -1491,7 +1476,5 @@ namespace Tvinci.Core.DAL
             }
             return mediasMarksList;
         }
-
->>>>>>> master
     }
 }
