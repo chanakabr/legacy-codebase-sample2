@@ -18,8 +18,8 @@ namespace Users
         {
             UserResponseObject resObj = new UserResponseObject();
             User u = new User();
-            u.InitializeByUsername(sUN, m_nGroupID);
-            if (int.Parse(u.m_sSiteGUID) != 0)
+            int nSiteGuid = u.InitializeByUsername(sUN, m_nGroupID);
+            if (nSiteGuid > 0)
             {
                 resObj = User.CheckUserPassword(sUN, sPass, 0, 0, m_nGroupID, false, false);
                 if (resObj.m_RespStatus == ResponseStatus.OK)
@@ -43,9 +43,9 @@ namespace Users
         {
             User u = new User();
             UserResponseObject uRepsObj = new UserResponseObject();
-            u.InitializeByUsername(sUserName, m_nGroupID);
+            int nSiteGuid = u.InitializeByUsername(sUserName, m_nGroupID);
 
-            if (u.m_sSiteGUID == string.Empty)
+            if (nSiteGuid == 0 || u.m_sSiteGUID.Length == 0)
             {
                 uRepsObj.Initialize(ResponseStatus.UserDoesNotExist, u);
             }
