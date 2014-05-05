@@ -1042,5 +1042,18 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+
+        public static DataTable GetPicEpgURL(int groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("GetPicEpgURL");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
     }
 }
