@@ -281,7 +281,7 @@ namespace Users
             int nMasterID = masterUser.InitializeByUsername(sMasterUsername, nGroupID);
 
             //Check if UserGuid is valid
-            if ((!User.IsUserValid(nGroupID, nUserGuid)) || (nMasterID <= 0) || (masterUser.m_domianID <= 0))
+            if (nMasterID <= 0 || masterUser.m_domianID <= 0 || !User.IsUserValid(nGroupID, nUserGuid))
             {
                 domain.m_DomainStatus = DomainStatus.Error;
                 oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
