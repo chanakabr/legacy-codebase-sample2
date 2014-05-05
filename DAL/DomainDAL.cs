@@ -369,40 +369,32 @@ namespace DAL
         {
             Dictionary<int, int> dTypedUsers = new Dictionary<int, int>();
 
-            try
+            ODBCWrapper.StoredProcedure spGetUsersInDomain = new ODBCWrapper.StoredProcedure(SP_GET_USERS_IN_DOMAIN);
+            spGetUsersInDomain.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            spGetUsersInDomain.AddParameter("@domainID", nDomainID);
+            spGetUsersInDomain.AddParameter("@groupID", nGroupID);
+            spGetUsersInDomain.AddParameter("@status", status);
+            spGetUsersInDomain.AddParameter("@isActive", isActive);
+
+            DataSet ds = spGetUsersInDomain.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                ODBCWrapper.StoredProcedure spGetUsersInDomain = new ODBCWrapper.StoredProcedure(SP_GET_USERS_IN_DOMAIN);
-                spGetUsersInDomain.SetConnectionKey("USERS_CONNECTION_STRING");
+                int nCount = ds.Tables[0].DefaultView.Count;
 
-                spGetUsersInDomain.AddParameter("@domainID", nDomainID);
-                spGetUsersInDomain.AddParameter("@groupID", nGroupID);
-                spGetUsersInDomain.AddParameter("@status", status);
-                spGetUsersInDomain.AddParameter("@isActive", isActive);
-
-                DataSet ds = spGetUsersInDomain.ExecuteDataSet();
-
-                if (ds != null && ds.Tables[0].DefaultView.Count > 0)
+                for (int i = 0; i < nCount; i++)
                 {
-                    int nCount = ds.Tables[0].DefaultView.Count;
+                    int nUserId = int.Parse(ds.Tables[0].DefaultView[i].Row["user_id"].ToString());
+                    int nUserType = int.Parse(ds.Tables[0].DefaultView[i].Row["is_master"].ToString());
 
-                    for (int i = 0; i < nCount; i++)
-                    {
-                        int nUserId = int.Parse(ds.Tables[0].DefaultView[i].Row["user_id"].ToString());
-                        int nUserType = int.Parse(ds.Tables[0].DefaultView[i].Row["is_master"].ToString());
-
-                        dTypedUsers[nUserId] = nUserType;
-                    }
-
+                    dTypedUsers[nUserId] = nUserType;
                 }
 
-                return dTypedUsers;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
             }
 
             return dTypedUsers;
+
 
         }
 

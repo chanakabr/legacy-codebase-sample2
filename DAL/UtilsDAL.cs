@@ -395,7 +395,7 @@ namespace DAL
                 }
 
                 int nCount = ds.Tables[0].DefaultView.Count;
-                //for (int i = 0; i < nCount; i++)
+                
                 if (nCount > 0)
                 {
                     nOperatorID = int.Parse(ds.Tables[0].DefaultView[0].Row["ID"].ToString());

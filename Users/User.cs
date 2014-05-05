@@ -330,14 +330,13 @@ namespace Users
             {
                 res         = m_oBasicData.Initialize(nUserID, nGroupID);
                 bool res2   = m_oDynamicData.Initialize(nUserID, nGroupID);
-                //res         = res && res2;
 
                 m_sSiteGUID = nUserID.ToString();
-                m_domianID  = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
+                m_domianID  = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
 
                 if (m_domianID <= 0)
                 {
-                    m_domianID = DAL.DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster);
+                    m_domianID = DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster);
                 }
 
                 m_eUserState = GetCurrentUserState(nUserID);

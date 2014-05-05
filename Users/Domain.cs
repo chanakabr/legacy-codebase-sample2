@@ -233,7 +233,7 @@ namespace Users
         {
             int isActive = 2;   // Inactive
             int status = 2;     // Removed
-            int statusRes = DAL.DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
+            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
 
             return DomainResponseStatus.DomainNotExists;
 
@@ -778,7 +778,7 @@ namespace Users
 
             int numOfUsers = m_UsersIDs.Count;
 
-            List<int> lDomainIDs = DAL.UsersDal.GetUserDomainIDs(nGroupID, nUserID);
+            List<int> lDomainIDs = UsersDal.GetUserDomainIDs(nGroupID, nUserID);
 
             if (lDomainIDs != null && lDomainIDs.Count > 0)
             {
