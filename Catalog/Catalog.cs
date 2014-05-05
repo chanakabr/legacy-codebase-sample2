@@ -1647,6 +1647,10 @@ namespace Catalog
             {
                 int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
                 int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
+                
+                int groupID = 0;
+                DataTable dtPic = null;
+                string sBaseURL = string.Empty;
 
                 if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
                     nEndIndex = pRequest.m_lProgramsIds.Count();
@@ -1665,7 +1669,25 @@ namespace Catalog
                 //keeping the original order and amount of items (some of the items might return as null)
                 if (pRequest.m_lProgramsIds != null && lEpgProg != null)
                 {
-                    pResponse.m_nTotalItems = lEpgProg.Count;
+                    pResponse.m_nTotalItems = lEpgProg.Count; 
+                    
+                    if (lEpgProg.Count > 0)
+                    {
+                        // get pic baseURL by groupID                        
+                        if (lEpgProg[0] != null)
+                        {
+                            groupID = int.Parse(lEpgProg[0].GROUP_ID);
+                            dtPic = Tvinci.Core.DAL.CatalogDAL.GetPicEpgURL(groupID);
+                            if (dtPic != null && dtPic.Rows != null && dtPic.Rows.Count > 0)
+                            {
+                                sBaseURL = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "baseURL");
+                                if (sBaseURL.Substring(sBaseURL.Length - 1, 1) != "/")
+                                {
+                                    sBaseURL = string.Format("{0}/", sBaseURL);
+                                }
+                            }
+                        }
+                    }
                     foreach (int nProgram in pRequest.m_lProgramsIds)
                     {
                         if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
@@ -1675,6 +1697,11 @@ namespace Catalog
                             oProgramObj.m_oProgram = epgProg;
                             oProgramObj.m_nID = (int)epgProg.EPG_ID;
                             bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
+
+                            if (!string.IsNullOrEmpty(sBaseURL))
+                            {
+                                oProgramObj.m_oProgram.PIC_URL = string.Format("{0}{1}", sBaseURL, oProgramObj.m_oProgram.PIC_URL);                             
+                            }
                         }
                         else
                         {
