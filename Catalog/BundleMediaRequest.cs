@@ -62,8 +62,6 @@ namespace Catalog
                     }
                 }
 
-                Int32 nOwnerGroup = int.Parse(ODBCWrapper.Utils.GetTableSingleVal(dataTable, "group_id", request.m_nBundleID, "pricing_connection").ToString());
-
                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
 
                 if (sCheckSignature != request.m_sSignature)
