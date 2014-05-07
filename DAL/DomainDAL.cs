@@ -924,10 +924,11 @@ namespace DAL
         private static int GetGroupUserMinPeriodId(int nGroupID)
         {
             int nMinPeriod = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
 
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 selectQuery += "select mp.ID from groups g WITH (nolock), groups_device_limitation_modules lm WITH (nolock), lu_min_periods mp WITH (nolock) where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.ID", "=", nGroupID);
@@ -945,6 +946,14 @@ namespace DAL
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                    selectQuery = null;
+                }
             }
 
             return nMinPeriod;
