@@ -536,5 +536,39 @@ namespace Catalog
 
         }
 
+
+        internal static List<ApiObjects.EPGChannelProgrammeObject> CompleteFullEpgPicURL(List<ApiObjects.EPGChannelProgrammeObject> epgList)
+        {   
+            try
+            {         
+                string sBaseURL = string.Empty;
+                if (epgList != null && epgList.Count > 0 && epgList[0] != null)
+                {
+                    int groupID = int.Parse(epgList[0].GROUP_ID);
+                    DataTable dtPic = Tvinci.Core.DAL.CatalogDAL.GetPicEpgURL(groupID);
+                    if (dtPic != null && dtPic.Rows != null && dtPic.Rows.Count > 0)
+                    {
+                        sBaseURL = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "baseURL");
+                        if (sBaseURL.Substring(sBaseURL.Length - 1, 1) != "/")
+                        {
+                            sBaseURL = string.Format("{0}/", sBaseURL);
+                        }
+                    }
+
+                    foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
+                    {
+                        if (!string.IsNullOrEmpty(sBaseURL))
+                        {
+                            oProgram.PIC_URL = string.Format("{0}{1}", sBaseURL, oProgram.PIC_URL);
+                        }
+                    }
+                }
+                return epgList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }

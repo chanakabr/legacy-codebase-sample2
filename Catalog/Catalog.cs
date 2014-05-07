@@ -2079,7 +2079,15 @@ namespace Catalog
             EpgResultsObj resultPerChannel = new EpgResultsObj();
             resultPerChannel.m_nChannelID = nChannelID;
             resultPerChannel.m_nTotalItems = epgList.Count();
+            
+            //complete the full url for picURL 
             resultPerChannel.m_lEpgProgram = epgList;
+            List<ApiObjects.EPGChannelProgrammeObject> tempEpgList = Utils.CompleteFullEpgPicURL(epgList);
+            if (tempEpgList!= null)
+            {
+                resultPerChannel.m_lEpgProgram = tempEpgList;
+            }
+
             return resultPerChannel;
         }
 
