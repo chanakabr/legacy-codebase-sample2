@@ -150,32 +150,27 @@ namespace DAL
         {
             bool res = false;
 
-            try
+
+            ODBCWrapper.StoredProcedure spGetDeviceIDandBrandByPIN = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_ID_AND_BRAND_BY_PIN);
+            spGetDeviceIDandBrandByPIN.SetConnectionKey("USERS_CONNECTION_STRING");
+            spGetDeviceIDandBrandByPIN.AddParameter("@groupID", nGroupID);
+            spGetDeviceIDandBrandByPIN.AddParameter("@PIN", sPIN);
+
+            DataSet ds = spGetDeviceIDandBrandByPIN.ExecuteDataSet();
+
+            if (ds != null && ds.Tables[0].DefaultView.Count > 0)
             {
-                ODBCWrapper.StoredProcedure spGetDeviceIDandBrandByPIN = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_ID_AND_BRAND_BY_PIN);
-                spGetDeviceIDandBrandByPIN.SetConnectionKey("USERS_CONNECTION_STRING");
-                spGetDeviceIDandBrandByPIN.AddParameter("@groupID", nGroupID);
-                spGetDeviceIDandBrandByPIN.AddParameter("@PIN", sPIN);
-
-                DataSet ds = spGetDeviceIDandBrandByPIN.ExecuteDataSet();
-
-                if ((ds != null) && (ds.Tables[0].DefaultView.Count > 0))
+                int nCount = ds.Tables[0].DefaultView.Count;
+                if (nCount > 0)
                 {
-                    int nCount = ds.Tables[0].DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        DataRow dr = ds.Tables[0].DefaultView[0].Row;
-                        sUDID = ODBCWrapper.Utils.GetSafeStr(dr["device_id"]);
-                        nBrandID = ODBCWrapper.Utils.GetIntSafeVal(dr, "device_brand_id");
-                    }
+                    DataRow dr = ds.Tables[0].DefaultView[0].Row;
+                    sUDID = ODBCWrapper.Utils.GetSafeStr(dr["device_id"]);
+                    nBrandID = ODBCWrapper.Utils.GetIntSafeVal(dr, "device_brand_id");
                 }
+            }
 
-                res = true;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+            res = true;
+
 
             return res;
         }
