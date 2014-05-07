@@ -244,36 +244,6 @@ namespace Users
         }
 
 
-        protected UserResponseObject ValidateMasterUser(int nGroupID, int nUserID)
-        {
-
-            User masterUser = new User(nGroupID, nUserID);
-
-            UserResponseObject resp = new UserResponseObject();
-
-            if (masterUser == null || string.IsNullOrEmpty(masterUser.m_oBasicData.m_sUserName))
-            {
-                resp.Initialize(ResponseStatus.UserDoesNotExist, masterUser);
-                return resp;
-            }
-
-            if (!string.IsNullOrEmpty(masterUser.m_oBasicData.m_sEmail))
-            {
-                List<int> lDomainsByMail = DAL.DomainDal.GetDomainIDsByEmail(nGroupID, masterUser.m_oBasicData.m_sEmail);
-
-                if (lDomainsByMail != null && lDomainsByMail.Count > 0)
-                {
-                    resp.Initialize(ResponseStatus.UserEmailAlreadyExists, masterUser);
-                    return resp;
-                }
-            }
-
-            resp.Initialize(ResponseStatus.OK, masterUser);
-            return resp;
-
-        }
-
-
         #endregion
 
     }

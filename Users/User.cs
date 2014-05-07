@@ -310,13 +310,20 @@ namespace Users
                 m_oDynamicData = oDynamicData;
                 if (!string.IsNullOrEmpty(m_sSiteGUID))
                 {
-                    m_domianID = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);     //GetUserDomainID(nGroupID);
+                    m_domianID = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
                 }
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at User.Initialize ");
+                sb.Append(String.Concat(" Basic Data: ", oBasicData.ToString()));
+                sb.Append(String.Concat(" Group ID: ", nGroupID));
+                sb.Append(String.Concat(" Msg: ", ex.Message));
+                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), "User");
             }
 
             return false;
@@ -341,7 +348,6 @@ namespace Users
 
                 m_eUserState = GetCurrentUserState(nUserID);
 
-                //return true;
             }
             catch
             {
