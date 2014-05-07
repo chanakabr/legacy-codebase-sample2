@@ -731,10 +731,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://webservices.dev/ca/module.asmx">
+    <WebReferenceUrl Include="http://192.168.16.176/webservices/cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://webservices.dev/ca/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.16.176/webservices/cas/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

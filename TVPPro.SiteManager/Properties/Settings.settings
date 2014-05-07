@@ -24,7 +24,7 @@
       <Value Profile="(Default)">http://webservices.dev/Social/module.asmx</Value>
     </Setting>
     <Setting Name="TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://webservices.dev/ca/module.asmx</Value>
+      <Value Profile="(Default)">http://192.168.16.176/webservices/cas/module.asmx</Value>
     </Setting>
     <Setting Name="TVPPro_SiteManager_TvinciPlatform_api_API" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://192.168.16.176/webservices/api/api.asmx</Value>
