@@ -542,6 +542,8 @@ namespace Catalog
             try
             {         
                 string sBaseURL = string.Empty;
+                string sWidth = string.Empty;
+                string sHeight = string.Empty;
                 if (epgList != null && epgList.Count > 0 && epgList[0] != null)
                 {
                     int groupID = int.Parse(epgList[0].GROUP_ID);
@@ -549,6 +551,8 @@ namespace Catalog
                     if (dtPic != null && dtPic.Rows != null && dtPic.Rows.Count > 0)
                     {
                         sBaseURL = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "baseURL");
+                        sWidth = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "WIDTH");
+                        sHeight = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "HEIGHT");
                         if (sBaseURL.Substring(sBaseURL.Length - 1, 1) != "/")
                         {
                             sBaseURL = string.Format("{0}/", sBaseURL);
@@ -559,7 +563,12 @@ namespace Catalog
                     {
                         if (!string.IsNullOrEmpty(sBaseURL))
                         {
+                            if (!string.IsNullOrEmpty(sWidth) && !string.IsNullOrEmpty(sHeight))
+                            {
+                                oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", sWidth, sHeight));
+                            }
                             oProgram.PIC_URL = string.Format("{0}{1}", sBaseURL, oProgram.PIC_URL);
+                           
                         }
                     }
                 }
