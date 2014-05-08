@@ -91,11 +91,11 @@ public partial class MethodFinder
                     }
                     catch (Exception ex)
                     {
-                        
+
                     }
                 }
                 else
-                {                    
+                {
                     try
                     {
                         using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
@@ -115,7 +115,7 @@ public partial class MethodFinder
 
                         //    //    Product = CreateObjectInstance(TargetType);
 
-                                
+
                         //    //}
                         //}                        
                         ////System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(TargetType);                                                
@@ -123,9 +123,9 @@ public partial class MethodFinder
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
 
                         var dict = serializer.Deserialize<Dictionary<string, object>>(DeserializationTarget);
-                        Product = CreateObjectInstance(TargetType);   
+                        Product = CreateObjectInstance(TargetType);
 
-                        Parse(dict,Product);                                             
+                        Parse(dict, Product);
 
                         //DeserializationTarget = serializer.Serialize(parsedDictionary);
 
@@ -144,7 +144,7 @@ public partial class MethodFinder
 
         private void Parse(Dictionary<string, object> dic, object product)
         {
-            if( dic is Dictionary<string, object> )
+            if (dic is Dictionary<string, object>)
             {
                 foreach (PropertyInfo propInfo in product.GetType().GetProperties())//check if object and properties of type objects and create them as well
                 {
@@ -224,7 +224,7 @@ public partial class MethodFinder
                 }
             }
             return t != null;
-        } 
+        }
 
         /// <summary>
         /// Create a default instance of the givien type
@@ -417,7 +417,7 @@ public partial class MethodFinder
     }
 
     private class ParameterDefaultInit : ParameterInitBase
-    {               
+    {
 
         public override object InitilizeParameter(Type MethodParam, String methodName)
         {
