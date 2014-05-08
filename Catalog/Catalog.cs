@@ -1647,13 +1647,7 @@ namespace Catalog
             {
                 int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
                 int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
-
-                int groupID = 0;
-                DataTable dtPic = null;
-                string sBaseURL = string.Empty;
-                string sWidth = string.Empty;
-                string sHeight = string.Empty;
-
+                
                 if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
                     nEndIndex = pRequest.m_lProgramsIds.Count();
 
