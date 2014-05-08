@@ -24,7 +24,7 @@ namespace ApiObjects
         public String GroupUserName { get; set; }
         public string GroupPassword { get; set; }
         public string LogoutURL     { get; set; }
-        public List<KeyValuePair<string, string>> Groups_operators_menus;
+        public List<ApiObjects.KeyValuePair> Groups_operators_menus;
         public string AboutUs       { get; set; }
         public string ContactUs     { get; set; }
     }
