@@ -561,14 +561,13 @@ namespace Catalog
 
                     foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
                     {
-                        if (!string.IsNullOrEmpty(sBaseURL))
+                        if (oProgram != null && !string.IsNullOrEmpty(sBaseURL))
                         {
                             if (!string.IsNullOrEmpty(sWidth) && !string.IsNullOrEmpty(sHeight))
                             {
                                 oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", sWidth, sHeight));
                             }
-                            oProgram.PIC_URL = string.Format("{0}{1}", sBaseURL, oProgram.PIC_URL);
-                           
+                            oProgram.PIC_URL = string.Format("{0}{1}", sBaseURL, oProgram.PIC_URL);                           
                         }
                     }
                 }
