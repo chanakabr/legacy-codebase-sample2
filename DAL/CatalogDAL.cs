@@ -5,6 +5,7 @@ using System.Text;
 using System.Data;
 using System.Configuration;
 using ODBCWrapper;
+using ApiObjects;
 using ApiObjects.MediaMarks;
 using CouchbaseManager;
 using System.Threading;
@@ -1206,9 +1207,92 @@ namespace Tvinci.Core.DAL
 
             return new List<int>(0);
         }
+ 
+		
+        public static List<LanguageObj> GetGroupLanguages(int nGroupID)
+        {
+            List<LanguageObj> lLanguages = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupLanguages");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupID", nGroupID);
+			
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                lLanguages = new List<LanguageObj>();
+
+                DataTable dt = ds.Tables[0];
+                LanguageObj tempLang;
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    tempLang = getLanguageFromRow(dt.Rows[0]);
+
+                    if (tempLang != null)
+                    {
+                        //language from groups table is counted as default
+                        tempLang.IsDefault = true;
+                        lLanguages.Add(tempLang);
+                    }
+                }
+
+                if (ds.Tables.Count > 1)
+                {
+                    dt = ds.Tables[1];
+
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            tempLang = getLanguageFromRow(dt.Rows[0]);
+
+                            if (tempLang != null)
+                            {
+                                //languages from group_extra_languages are set as non-default
+                                tempLang.IsDefault = false;
+                                lLanguages.Add(tempLang);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return lLanguages;
+        }
+
+        private static LanguageObj getLanguageFromRow(DataRow row)
+        {
+            LanguageObj language = null;
+
+            try
+            {
+                if (row != null)
+                {
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                    string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
+                    string code = ODBCWrapper.Utils.GetSafeStr(row, "CODE3");
+                    string direction = ODBCWrapper.Utils.GetSafeStr(row, "DIRECTION");
+
+                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code))
+                    {
+                        language = new LanguageObj() { ID = id, Name = name, Code = code, Direction = direction };
+                    }
+                }
+            }
+            catch
+            {
+                language = null;
+            }
+
+            return language;
+        }
+        
         public static DataTable Get_IPersonalRecommended(string sSiteGuid, int nTop, int nOperatorID)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+              var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
@@ -1336,7 +1420,6 @@ namespace Tvinci.Core.DAL
             return dictMediaUsersCount;
         }
 
-
         public static List<UserMediaMark> GetMediaMarksLastDateByUsers(List<int> usersList)
         {
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
@@ -1403,6 +1486,19 @@ namespace Tvinci.Core.DAL
 
             }
             return mediasMarksList;
+        }
+
+        public static DataTable GetPicEpgURL(int groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("GetPicEpgURL");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
         }
 
     }

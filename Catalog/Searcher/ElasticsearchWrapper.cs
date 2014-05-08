@@ -67,7 +67,10 @@ namespace Catalog
             if (!string.IsNullOrEmpty(sQuery))
             {
                 int nStatus = 0;
-                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nParentGroupID, ES_MEDIA_TYPE);
+
+                string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
+                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nParentGroupID, sType);
+
                 string retObj = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
 
                 if (nStatus == STATUS_OK)
@@ -144,7 +147,8 @@ namespace Catalog
 
             if (!string.IsNullOrEmpty(sQuery))
             {
-                string retObj = m_oESApi.Search(nParentGroupID.ToString(), ES_MEDIA_TYPE, ref sQuery);
+                string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
+                string retObj = m_oESApi.Search(nParentGroupID.ToString(), sType, ref sQuery);
 
                 List<ElasticSearchApi.ESAssetDocument> lMediaDocs = DecodeAssetSearchJsonObject(retObj, ref nTotalItems);
                 if (lMediaDocs != null && lMediaDocs.Count > 0)
@@ -362,25 +366,16 @@ namespace Catalog
                     sbMediaDoc.Append("}");
 
                     sMediaDoc = sbMediaDoc.ToString();
-                    string sRetVal = m_oESApi.SearchPercolator(sIndex, ES_MEDIA_TYPE, ref sMediaDoc);
+                    List<string> lRetVal = m_oESApi.SearchPercolator(sIndex, ES_MEDIA_TYPE, ref sMediaDoc);
 
-                    if (!string.IsNullOrEmpty(sRetVal))
+                    if (lRetVal != null && lRetVal.Count > 0)
                     {
-
-                        jsonObj = JObject.Parse(sRetVal);
-
-                        if (jsonObj != null)
+                        int nID;
+                        foreach (string match in lRetVal)
                         {
-                            JToken jToken = jsonObj.SelectToken("matches");
-                            if (jToken != null)
+                            if (int.TryParse(match, out nID))
                             {
-                                lResult = jToken.Select(item =>
-                                {
-                                    int n;
-                                    int.TryParse((string)item.SelectToken("."), out n);
-                                    return n;
-                                }
-                                ).ToList();
+                                lResult.Add(nID);
                             }
                         }
                     }

@@ -109,6 +109,8 @@
     <Compile Include="InfoStructObj.cs" />
     <Compile Include="InitializationObject.cs" />
     <Compile Include="JsonSerializers\TimeConverters.cs" />
+    <Compile Include="Json\Converters\BaseTimeConverter.cs" />
+    <Compile Include="LanguageObj.cs" />
     <Compile Include="LanguageRequestObject.cs" />
     <Compile Include="MailRequestObj.cs" />
     <Compile Include="MCObjects.cs" />

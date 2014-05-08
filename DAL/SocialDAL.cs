@@ -311,6 +311,17 @@ namespace DAL
             return retVal;
         }
 
+        public int DecrementMediaLikeCounter(int nMediaID)
+        {
+            ODBCWrapper.StoredProcedure spUpdateMediaCounter = new ODBCWrapper.StoredProcedure("DecrementMediaLikeCounter");
+            spUpdateMediaCounter.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUpdateMediaCounter.AddParameter("@MediaID", nMediaID);
+
+            int retVal = spUpdateMediaCounter.ExecuteReturnValue<int>();
+
+            return retVal;
+        }
+
         public int IncrementProgramLikeCounter(int nProgramID)
         {
             ODBCWrapper.StoredProcedure spUpdateMediaCounter = new ODBCWrapper.StoredProcedure("IncrementProgramLikeCounter");
@@ -321,6 +332,18 @@ namespace DAL
 
             return retVal;
         }
+
+        public int DecrementProgramLikeCounter(int nProgramID)
+        {
+            ODBCWrapper.StoredProcedure spUpdateMediaCounter = new ODBCWrapper.StoredProcedure("DecrementProgramLikeCounter");
+            spUpdateMediaCounter.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spUpdateMediaCounter.AddParameter("@ProgramID", nProgramID);
+
+            int retVal = spUpdateMediaCounter.ExecuteReturnValue<int>();
+
+            return retVal;
+        }
+
 
         public DataTable GetMediaLikeCounter(int nMediaID)
         {

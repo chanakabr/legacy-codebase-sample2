@@ -33,7 +33,7 @@ namespace ElasticSearch.Searcher
         {
             oSearchObject = searchObject;
             m_nGroupID = nGroupID;
-            ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"name\", \"cache_date\"" };
+            ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"name\"", "\"cache_date\"" };
 
             string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
 
@@ -176,16 +176,6 @@ namespace ElasticSearch.Searcher
                 oBoolQuery.AddChild(oAndBoolQuery, CutWith.OR);
                 oBoolQuery.AddChild(oOrBoolQuery, CutWith.OR);
                 oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.OR);
-
-
-                if (!string.IsNullOrEmpty(oSearchObject.m_sDescription))
-                {
-                    oBoolQuery.AddChild(new ESWildcard() { Key = "description", Value = string.Format("*{0}*", oSearchObject.m_sDescription) }, CutWith.OR);
-                }
-                if (!string.IsNullOrEmpty(oSearchObject.m_sName))
-                {
-                    oBoolQuery.AddChild(new ESWildcard() { Key = "name", Boost = 3.0f, Value = string.Format("*{0}*", oSearchObject.m_sName) }, CutWith.OR);
-                }
 
                 query.Query = oBoolQuery;
 
@@ -334,22 +324,11 @@ namespace ElasticSearch.Searcher
                 BoolQuery oAndBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
                 BoolQuery oOrBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
                 BoolQuery oMultiFilterBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
-                
+
                 BoolQuery oBoolQuery = new BoolQuery();
                 oBoolQuery.AddChild(oAndBoolQuery, CutWith.AND);
                 oBoolQuery.AddChild(oOrBoolQuery, CutWith.AND);
                 oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.AND);
-
-                /*
-                if (!string.IsNullOrEmpty(oSearchObject.m_sDescription))
-                {
-                    oBoolQuery.AddChild(new ESWildcard(){ Key = "description", Value = string.Format("*{0}*", oSearchObject.m_sDescription) }, CutWith.OR);
-                }
-                if (!string.IsNullOrEmpty(oSearchObject.m_sName))
-                {
-                    oBoolQuery.AddChild(new ESWildcard() { Key = "name", Boost = 3.0f, Value = string.Format("*{0}*", oSearchObject.m_sName) }, CutWith.OR);
-                }
-                */
 
                 sQuery = oBoolQuery.ToString();
 
@@ -480,10 +459,7 @@ namespace ElasticSearch.Searcher
 
             foreach (SearchValue searchValue in oSearchObject.m_dOr)
             {
-                if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
-                    multiMatchQuery.Fields.Add(string.Format("{0}.{1}", searchValue.m_sKeyPrefix.ToLower(), searchValue.m_sKey.ToLower()));
-                else
-                    multiMatchQuery.Fields.Add(searchValue.m_sKey.ToLower());
+                multiMatchQuery.Fields.Add(Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey, searchValue.m_sKeyPrefix));
             }
 
             if (multiMatchQuery.Fields.Count > 0)
@@ -528,10 +504,7 @@ namespace ElasticSearch.Searcher
             MultiMatchQuery multiMatchQuery = new MultiMatchQuery();
             foreach (SearchValue searchValue in oSearchObject.m_dOr)
             {
-                if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
-                    multiMatchQuery.Fields.Add(string.Format("{0}.{1}", searchValue.m_sKeyPrefix.ToLower(), searchValue.m_sKey.ToLower()));
-                else
-                    multiMatchQuery.Fields.Add(searchValue.m_sKey.ToLower());
+                multiMatchQuery.Fields.Add(Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(), searchValue.m_sKeyPrefix.ToLower()));
             }
 
             multiMatchQuery.Query = oSearchObject.m_sName.ToLower();
@@ -594,9 +567,7 @@ namespace ElasticSearch.Searcher
 
             foreach (SearchValue searchValue in oSearchList)
             {
-                string sSearchKey = (string.IsNullOrEmpty(searchValue.m_sKeyPrefix)) ?
-                    searchValue.m_sKey.ToLower() : string.Format("{0}.{1}", searchValue.m_sKeyPrefix.ToLower(), searchValue.m_sKey.ToLower());
-
+                string sSearchKey = Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(), searchValue.m_sKeyPrefix);
 
                 if (searchValue.m_eInnerCutWith == ApiObjects.SearchObjects.CutWith.AND)
                 {
@@ -642,8 +613,8 @@ namespace ElasticSearch.Searcher
                     BoolQuery oValueBoolQuery = new BoolQuery();
                     if (!string.IsNullOrEmpty(searchValue.m_sKey))
                     {
-                        string sSearchKey = (string.IsNullOrEmpty(searchValue.m_sKeyPrefix)) ?
-                                        String.Concat(searchValue.m_sKey.ToLower(), ".analyzed") : string.Format("{0}.{1}.analyzed", searchValue.m_sKeyPrefix.ToLower(), searchValue.m_sKey.ToLower());
+                        string sSearchKey = string.Concat(Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey, searchValue.m_sKeyPrefix),
+                                                          ".analyzed");
 
                         foreach (string sValue in searchValue.m_lValue)
                         {
@@ -658,7 +629,7 @@ namespace ElasticSearch.Searcher
                                 foreach (string splitedValue in lSplitedValues)
                                 {
                                     tempBQ.AddChild(
-                                        new ESWildcard() { Key = sSearchKey, Value = string.Format("{0}*", splitedValue.ToLower()) },
+                                        new ESTerm(false) { Key = sSearchKey, Value = splitedValue },
                                         CutWith.AND
                                         );
                                 }
