@@ -892,6 +892,19 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
+        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSubscription, int nNewSubscription)
+        {            
+            try
+            {
+                return m_Module.ChangeSubscription(m_wsUserName, m_wsPassword, sSiteGuid, nOldSubscription, nNewSubscription);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ChangeSubscription, Error Message: {0}, Parameters :  sSiteGuid : {1}, nOldSubscription : {2}, nNewSubscription : {3}", ex.Message, sSiteGuid, nOldSubscription, nNewSubscription);
+            }
+
+            return ChangeSubscriptionStatus.Error;
+        } 
 
 
         #endregion
