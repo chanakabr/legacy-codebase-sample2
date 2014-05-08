@@ -1651,6 +1651,8 @@ namespace Catalog
                 int groupID = 0;
                 DataTable dtPic = null;
                 string sBaseURL = string.Empty;
+                string sWidth = string.Empty;
+                string sHeight = string.Empty;
 
                 if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
                     nEndIndex = pRequest.m_lProgramsIds.Count();
@@ -1681,6 +1683,9 @@ namespace Catalog
                             if (dtPic != null && dtPic.Rows != null && dtPic.Rows.Count > 0)
                             {
                                 sBaseURL = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "baseURL");
+                                sWidth = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "WIDTH");
+                                sHeight = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "HEIGHT");
+
                                 if (sBaseURL.Substring(sBaseURL.Length - 1, 1) != "/")
                                 {
                                     sBaseURL = string.Format("{0}/", sBaseURL);
@@ -1700,7 +1705,12 @@ namespace Catalog
 
                             if (!string.IsNullOrEmpty(sBaseURL))
                             {
-                                oProgramObj.m_oProgram.PIC_URL = string.Format("{0}{1}", sBaseURL, oProgramObj.m_oProgram.PIC_URL);                             
+                                if (!string.IsNullOrEmpty(sWidth) && !string.IsNullOrEmpty(sHeight))
+                                {
+                                    oProgramObj.m_oProgram.PIC_URL = oProgramObj.m_oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", sWidth, sHeight));
+                                }
+
+                                oProgramObj.m_oProgram.PIC_URL = string.Format("{0}{1}", sBaseURL, oProgramObj.m_oProgram.PIC_URL);                                
                             }
                         }
                         else
