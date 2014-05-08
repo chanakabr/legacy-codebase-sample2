@@ -1255,7 +1255,9 @@ namespace Users
 
         protected internal void DeviceFamiliesInitializer(int nDomainLimitationModuleID, int nGroupID)
         {
-            List<string[]> dbDeviceFamilies = DomainDal.InitializeDeviceFamilies(nDomainLimitationModuleID, nGroupID);
+            Dictionary<int, int> concurrencyOverride = new Dictionary<int, int>();
+            Dictionary<int, int> quantityOverride = new Dictionary<int, int>();
+            List<string[]> dbDeviceFamilies = DomainDal.Get_DeviceFamiliesLimits(nGroupID, nDomainLimitationModuleID, ref concurrencyOverride, ref quantityOverride);
 
             m_deviceFamilies = new List<DeviceContainer>(dbDeviceFamilies.Count);
             m_oDeviceFamiliesMapping = new Dictionary<int, DeviceContainer>(dbDeviceFamilies.Count);
@@ -1268,8 +1270,17 @@ namespace Users
                 int nFamilyLimit = string.IsNullOrEmpty(currentDeviceFamily[1]) ? 0 : Int32.Parse(currentDeviceFamily[1]);
                 int nFamilyConcurrentLimit = string.IsNullOrEmpty(currentDeviceFamily[2]) ? 0 : Int32.Parse(currentDeviceFamily[2]);
                 string sFamilyName = currentDeviceFamily[3];
-
-                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nFamilyLimit, nFamilyConcurrentLimit);
+                int nOverrideQuantityLimit = 0;
+                int nOverrideConcurrencyLimit = 0;
+                if (concurrencyOverride != null && concurrencyOverride.Count > 0 && concurrencyOverride.ContainsKey(nFamilyID))
+                {
+                    nOverrideConcurrencyLimit = concurrencyOverride[nFamilyID];
+                }
+                if (quantityOverride != null && quantityOverride.Count > 0 && quantityOverride.ContainsKey(nFamilyID))
+                {
+                    nOverrideQuantityLimit = quantityOverride[nFamilyID];
+                }
+                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > 0 ? nOverrideQuantityLimit : nFamilyLimit, nOverrideConcurrencyLimit > 0 ? nOverrideConcurrencyLimit : nFamilyConcurrentLimit);
                 m_deviceFamilies.Add(dc);
                 m_oDeviceFamiliesMapping.Add(nFamilyID, dc);
             }
