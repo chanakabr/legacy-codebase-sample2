@@ -1647,7 +1647,7 @@ namespace Catalog
             {
                 int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
                 int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
-                
+
                 int groupID = 0;
                 DataTable dtPic = null;
                 string sBaseURL = string.Empty;
@@ -1671,57 +1671,29 @@ namespace Catalog
                 //keeping the original order and amount of items (some of the items might return as null)
                 if (pRequest.m_lProgramsIds != null && lEpgProg != null)
                 {
-                    pResponse.m_nTotalItems = lEpgProg.Count; 
-                    
-                    if (lEpgProg.Count > 0)
-                    {
-                        // get pic baseURL by groupID                        
-                        if (lEpgProg[0] != null)
-                        {
-                            groupID = int.Parse(lEpgProg[0].GROUP_ID);
-                            dtPic = Tvinci.Core.DAL.CatalogDAL.GetPicEpgURL(groupID);
-                            if (dtPic != null && dtPic.Rows != null && dtPic.Rows.Count > 0)
-                            {
-                                sBaseURL = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "baseURL");
-                                sWidth = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "WIDTH");
-                                sHeight = ODBCWrapper.Utils.GetSafeStr(dtPic.Rows[0], "HEIGHT");
-
-                                if (sBaseURL.Substring(sBaseURL.Length - 1, 1) != "/")
-                                {
-                                    sBaseURL = string.Format("{0}/", sBaseURL);
-                                }
-                            }
-                        }
-                    }
-                    foreach (int nProgram in pRequest.m_lProgramsIds)
-                    {
-                        if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
-                        {
-                            epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
-                            oProgramObj = new ProgramObj();
-                            oProgramObj.m_oProgram = epgProg;
-                            oProgramObj.m_nID = (int)epgProg.EPG_ID;
-                            bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
-
-                            if (!string.IsNullOrEmpty(sBaseURL))
-                            {
-                                if (!string.IsNullOrEmpty(sWidth) && !string.IsNullOrEmpty(sHeight))
-                                {
-                                    oProgramObj.m_oProgram.PIC_URL = oProgramObj.m_oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", sWidth, sHeight));
-                                }
-
-                                oProgramObj.m_oProgram.PIC_URL = string.Format("{0}{1}", sBaseURL, oProgramObj.m_oProgram.PIC_URL);                                
-                            }
-                        }
-                        else
-                        {
-                            oProgramObj = null;
-                        }
-
-                        lProgramObj.Add(oProgramObj);
-                    }
-                    pResponse.m_lObj = lProgramObj;
+                    pResponse.m_nTotalItems = lEpgProg.Count;
+                    lEpgProg = Utils.CompleteFullEpgPicURL(lEpgProg);
                 }
+                foreach (int nProgram in pRequest.m_lProgramsIds)
+                {
+                    if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
+                    {
+                        epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
+                        oProgramObj = new ProgramObj();
+                        oProgramObj.m_oProgram = epgProg;
+                        oProgramObj.m_nID = (int)epgProg.EPG_ID;
+
+                        bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
+                    }
+                    else
+                    {
+                        oProgramObj = null;
+                    }
+
+                    lProgramObj.Add(oProgramObj);
+                }
+                pResponse.m_lObj = lProgramObj;
+
 
                 _logger.Info(string.Format("Finish Complete Details for {0} ProgramIds", nEndIndex));
                 return true;
