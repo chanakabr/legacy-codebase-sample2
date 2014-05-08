@@ -127,13 +127,13 @@ namespace EpgBL
             }
         }
 
-        public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID)
+        public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas)
         {
             epgID = 0;
             return false;
         }
 
-        public override bool UpdateEpg(EpgCB newEpgItem)
+        public override bool UpdateEpg(EpgCB newEpgItem, ulong? cas)
         {
             return false;
         }
@@ -144,6 +144,17 @@ namespace EpgBL
 
         public override void RemoveGroupPrograms(List<DateTime> lDates, int channelID)
         {
+        }
+
+        public override EpgCB GetEpgCB(ulong nProgramID)
+        {
+            return null;
+        }
+
+        public override EpgCB GetEpgCB(ulong nProgramID, out ulong cas)
+        {
+            cas = 0;
+            return null;
         }
 
         //get all EPgs in the given range, including Epgs that are partially overlapping
