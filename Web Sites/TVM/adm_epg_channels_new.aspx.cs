@@ -160,6 +160,10 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
         dr_order_num.SetDefault(1);
         theRecord.AddRecord(dr_order_num);
 
+        DataRecordShortTextField dr_channel_id = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_channel_id.Initialize("Channel ID", "adm_table_header_nbg", "FormInput", "CHANNEL_ID", false);
+        theRecord.AddRecord(dr_channel_id);
+
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
         theRecord.AddRecord(dr_name);
