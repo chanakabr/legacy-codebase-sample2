@@ -100,31 +100,33 @@ public partial class adm_operator_menus : System.Web.UI.Page
                 DataTable dbValsTable = GetPlaformsFromDB();
                 foreach (DataRow row in dbValsTable.Rows)
                 {
-                    int menuId = int.Parse(Request.Form["ddl_" + row["NAME"].ToString()]);
-                    if (row["TVPMenuID"] != null && !string.IsNullOrEmpty(row["TVPMenuID"].ToString()))
+                    int menuId;
+                    if (int.TryParse(Request.Form["ddl_" + row["NAME"]], out menuId))
                     {
-                        if (int.Parse(row["TVPMenuID"].ToString()) != menuId)
+                        if (row["TVPMenuID"] != null && !string.IsNullOrEmpty(row["TVPMenuID"].ToString()))
                         {
-                            ODBCWrapper.UpdateQuery updateQuery = new UpdateQuery("groups_operators_menus");
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("TVPMenuID", "=", menuId);
-                            updateQuery += " WHERE ";
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OperatorID", "=", (int)Session["operator_id"]);
-                            updateQuery += " AND ";
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PlatformID", "=", (int)row["ID"]);
-                            updateQuery.Execute();
-                            updateQuery.Finish();
+                            if (int.Parse(row["TVPMenuID"].ToString()) != menuId)
+                            {
+                                ODBCWrapper.UpdateQuery updateQuery = new UpdateQuery("groups_operators_menus");
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("TVPMenuID", "=", menuId);
+                                updateQuery += " WHERE ";
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OperatorID", "=", (int)Session["operator_id"]);
+                                updateQuery += " AND ";
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PlatformID", "=", (int)row["ID"]);
+                                updateQuery.Execute();
+                                updateQuery.Finish();
+                            }
+                        }
+                        else
+                        {
+                            ODBCWrapper.InsertQuery insertQuery = new InsertQuery("groups_operators_menus");
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("TVPMenuID", "=", menuId);
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("OperatorID", "=", (int)Session["operator_id"]);
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PlatformID", "=", (int)row["ID"]);
+                            insertQuery.Execute();
+                            insertQuery.Finish();
                         }
                     }
-                    else
-                    {
-                        ODBCWrapper.InsertQuery insertQuery = new InsertQuery("groups_operators_menus");
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("TVPMenuID", "=", menuId);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("OperatorID", "=", (int)Session["operator_id"]);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PlatformID", "=", (int)row["ID"]);
-                        insertQuery.Execute();
-                        insertQuery.Finish();
-                    }
-
                 }
                 Response.Redirect("adm_operator.aspx");
             }
@@ -155,7 +157,7 @@ public partial class adm_operator_menus : System.Web.UI.Page
         List<KeyValuePair<int, string>> retVal = new List<KeyValuePair<int, string>>();
 
         ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery();
-        query += "SELECT lup.ID, lup.NAME, gom.TVPMenuID FROM  groups_operators_menus gom RIGHT OUTER JOIN lu_platform lup ON gom.PlatformID = lup.ID AND ";
+        query += "SELECT lup.ID, lup.NAME, gom.TVPMenuID FROM  lu_platform lup LEFT OUTER JOIN groups_operators_menus gom ON gom.PlatformID = lup.ID AND ";
         query += ODBCWrapper.Parameter.NEW_PARAM("gom.OperatorID", "=", ((int)Session["operator_id"]));
         //query += " WHERE ";
         //query += ODBCWrapper.Parameter.NEW_PARAM("gom.OperatorID", "=", ((int)Session["operator_id"]));
@@ -163,7 +165,7 @@ public partial class adm_operator_menus : System.Web.UI.Page
         query.Finish();
         return dt;
     }
-    //[tvp_{0}_{1}_{2}]
+
     private List<KeyValuePair<int, string>> GetMenusFromDb(string platformName)
     {
         List<KeyValuePair<int, string>> retVal = new List<KeyValuePair<int, string>>();
@@ -171,7 +173,7 @@ public partial class adm_operator_menus : System.Web.UI.Page
         string groupName = GetName(LoginManager.GetLoginGroupID(), false);
         string operatorName = GetName((int)Session["operator_id"], true);
         ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery();
-        query += string.Format("select ID as MENU_ID, NAME as txt from [tvp_[0]_{1}_[2]].[dbo].tvp_menu where is_active=1 and status=1", groupName, platformName, operatorName);
+        query += string.Format("select ID as MENU_ID, NAME as txt from [tvp_{0}_{1}_{2}].[dbo].tvp_menu where is_active=1 and status=1", groupName, operatorName, platformName);
         DataTable dt = query.Execute("query", true);
         if (dt != null)
         {
@@ -182,17 +184,9 @@ public partial class adm_operator_menus : System.Web.UI.Page
         }
         return retVal;
     }
-    //
-    //dr_menu_ID.SetSelectsQuery(string.Format("select ID as MENU_ID, NAME as txt from [tvp_mediacorp].[dbo].tvp_menu where is_active=1 and status=1",groupName, operatorName, platform.Value));
-    //protected void GetMainMenu()
-    //{
-    //    Response.Write(m_sMenu);
-    //}
 
-    //protected void GetSubMenu()
-    //{
-    //    Response.Write(m_sSubMenu);
-    //}
+
+
 
 
     private string GetName(int id, bool isOperator)
@@ -216,75 +210,3 @@ public partial class adm_operator_menus : System.Web.UI.Page
     }
 }
 
-
-
-//public void GetPageContent(string sOrderBy, string sPageNum)
-//{
-//    //if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
-//    //{
-//    //    Session["error_msg"] = "";
-//    //    return Session["last_page_html"].ToString();
-//    //}
-//    //object t = null; ;
-//    //if (Session["operator_id"] != null)
-//    //    t = Session["operator_id"];
-//    string sBack = "adm_operator.aspx?search_save=1";
-
-//    //DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_operators_menus", "adm_table_pager", sBack, "ID", "ID", 0, sBack, "");
-//    //string groupName = GetName(LoginManager.GetLoginGroupID(), false);
-//    //string operatorName = GetName((int) t, true);
-
-//    //DataRecordShortIntField drOperatorField = new DataRecordShortIntField(false, 0, 0);
-//    //drOperatorField.Initialize("", "", "", "OperatorID", true);
-//    //theRecord.AddRecord(drOperatorField);
-//    Table table = new Table();
-//    foreach (KeyValuePair<int, string> platform in GetPlaformsFromDB().Rows)
-//    {
-
-//        TableRow row = new TableRow();
-//        TableCell cell = new TableCell();
-//        cell.Attributes.Add("data-platformId", platform.Key.ToString());
-//        Label label = new Label();
-//        label.Text = string.Format("{0} menu:", platform.Value);
-//        cell.Controls.Add(label);
-//        row.Cells.Add(cell);
-//        DropDownList ddl = new DropDownList();
-//        ddl.Items.Add(new ListItem("", "0"));
-//        TableCell ddlCell = new TableCell();
-//        foreach (KeyValuePair<int, string> dbMenu in GetMenusFromDb(platform.Value))
-//        {
-//            ddl.Items.Add(new ListItem(dbMenu.Value, dbMenu.Key.ToString()));
-//        }
-//        ddlCell.Controls.Add(ddl);
-
-//        //DataRecordDropDownField dr_menu_ID = new DataRecordDropDownField("groups_operators_menus", "txt", "MENU_ID", "", null, 60, true);
-//        //dr_menu_ID.SetNoSelectStr("N\\A");
-
-//        //dr_menu_ID.Initialize(string.Format("{0} Menu", platform.Value), "adm_table_header_nbg", "FormInput", "TVPMenuID", false);
-//        //theRecord.AddRecord(dr_menu_ID);
-
-
-//    }
-
-
-//    page_content.Controls.Add(table);
-//}
-
-//   DataRecordDropDownField dr_platform = new DataRecordDropDownField("lu_platform", "NAME", "ID", "", null, 60, true);
-//   dr_platform.Initialize("Platform", "adm_table_header_nbg", "FormInput", "Sub_Group_ID", false);
-//   dr_platform.SetAddtionalHtml("onchange=javascript:refreshMenuIdList(this)");
-
-//   //DataRecordDropDownField dr_menu_ID = new DataRecordDropDownField("groups_operators", "txt", "MENU_ID", "", null, 60, true);
-//   //dr_menu_ID.Initialize("Menu", "adm_table_header_nbg", "FormInput", "Menu_ID", false);
-
-//   //to be replaced with "tvp_" + %GroupName% + "_" + Session["platform"].ToString()) + "_" + Session["operator_id"].ToString() ;
-//   //dr_menu_ID.SetConnectionKey("tvp_connection_" + parent_group_id + "_" + Session["platform"].ToString());
-
-
-////   dr_menu_ID.SetSelectsQuery(sQuery2);
-
-
-//string sTable = theRecord.GetTableHTML("adm_operator_menus.aspx?submited=1");
-
-//return sTable;
-//  return table;
