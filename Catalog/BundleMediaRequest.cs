@@ -48,7 +48,7 @@ namespace Catalog
                     throw new Exception("request object is null or Required variables is null");
 
                 string dataTable = string.Empty;
-                switch(m_eBundleType)
+                switch (request.m_eBundleType)
                 {
                     case eBundleType.SUBSCRIPTION:
                     {
@@ -70,7 +70,7 @@ namespace Catalog
                 Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
                 if (groupInCache != null)
                 {
-                    List<int> channelIds      = Catalog.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, m_eBundleType);
+                    List<int> channelIds = Catalog.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, request.m_eBundleType);
                     List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                     if (channelIds != null && channelIds.Count > 0)
