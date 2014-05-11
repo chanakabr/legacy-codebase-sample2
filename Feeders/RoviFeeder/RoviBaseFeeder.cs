@@ -9,5 +9,9 @@ namespace RoviFeeder
     public abstract class RoviBaseFeeder
     {
         public abstract bool Ingest();
+
+        protected string m_url;
+        protected int m_fromID;
+        protected int m_groupID;
     }
 }

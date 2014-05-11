@@ -8,28 +8,24 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Xml.Xsl;
+using XSLT_transform_handlar;
 
 namespace RoviFeeder
 {
-    public class Rovi_CMTFeeder : RoviBaseFeeder
+    public class RoviCMTFeeder : RoviBaseFeeder
     {
-        private string   m_url;
-        private int      m_fromID;
-        private int      m_groupID;
-
-
-        public Rovi_CMTFeeder()
+        public RoviCMTFeeder()
         {
-            m_url       = string.Empty;
-            m_fromID    = 0;
-            m_groupID   = 0;
+            m_url = string.Empty;
+            m_fromID = 0;
+            m_groupID = 0;
         }
 
-        public Rovi_CMTFeeder(string url, int fromID, int nGroupID)
+        public RoviCMTFeeder(string url, int fromID, int nGroupID)
         {
-            m_url       = url;
-            m_fromID    = fromID;
-            m_groupID   = nGroupID;
+            m_url = url;
+            m_fromID = fromID;
+            m_groupID = nGroupID;
         }
 
         private string ContentURL
@@ -38,7 +34,7 @@ namespace RoviFeeder
             {
                 if (string.IsNullOrEmpty(m_url))
                 {
-                    return "https://choice-ce.nowtilus.tv/services/tvinci/v1/marketing/campaigns/";
+                    return "https://choice-ce.nowtilus.tv/services/tvinci/v1.1/marketing/campaigns/";
                 }
 
                 return m_url;
@@ -63,8 +59,8 @@ namespace RoviFeeder
             Dictionary<int, string> dRetryCampaignUrls = new Dictionary<int, string>();
 
 
-            XslCompiledTransform Xslt = new XslCompiledTransform();
-            Xslt.Load(ConfigurationManager.AppSettings["XSL_PATH"].ToString() + "ChannelBuild.xslt");
+            RoviTransform transformer = new RoviTransform();
+            transformer.Init();
 
             foreach (KeyValuePair<int, string> entry in dCampaignUrls)
             {
@@ -76,9 +72,7 @@ namespace RoviFeeder
                     {
                         string campaignUrl = entry.Value;
 
-                        double dTime = 0.0;
-
-                        res = TryIngestItem(campaignUrl, Xslt, out dTime);
+                        res = TryIngestItem(campaignUrl, transformer);
 
                         if (res) { break; }
                     }
@@ -120,9 +114,7 @@ namespace RoviFeeder
                         {
                             string campaignUrl = entry.Value;
 
-                            double dTime = 0.0;
-
-                            if (TryIngestItem(campaignUrl, Xslt, out dTime))
+                            if (TryIngestItem(campaignUrl, transformer))
                             {
                                 dCampaignUrls.Remove(entry.Key);
                             }
@@ -146,21 +138,17 @@ namespace RoviFeeder
 
             }
 
-            Xslt = null;
+            transformer = null;
 
             return true;
         }
 
-        private bool TryIngestItem(string sVodUrl, XslCompiledTransform transformer, out double dTime)
+        private bool TryIngestItem(string sVodUrl, RoviTransform transformer)
         {
             bool res = false;
-            bool doIngest = true;
 
-            DateTime dStart = DateTime.UtcNow;
             string campaignXML = TVinciShared.WS_Utils.SendXMLHttpReq(sVodUrl, "", "", "application/json", "", "", "", "", "get");
             campaignXML = campaignXML.Replace("xml:lang", "lang");
-
-            dTime = DateTime.UtcNow.Subtract(dStart).TotalMilliseconds;
 
             if (string.IsNullOrEmpty(campaignXML))
             {
@@ -171,31 +159,19 @@ namespace RoviFeeder
 
             XMLD.LoadXml(campaignXML);
 
-            string sMovieID = sVodUrl.Split('/').Last();
-
-            string appXmlDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "rovi_xml");
-            if (!Directory.Exists(appXmlDir))
-            {
-                Directory.CreateDirectory(appXmlDir);
-            }
-
-            string xmlFileOut = Path.Combine(appXmlDir, sMovieID + ".xml");  //string xmlFileOut = string.Format("E:/Projects/rovi_xml/{0}.xml", sMovieID);
-            XMLD.Save(xmlFileOut);
-
             try
             {
-                RoviFeeder.RoviCMT.RoviNowtilusVodApi roviResult;
-                XmlSerializer serializer = new XmlSerializer(typeof(RoviFeeder.RoviCMT.RoviNowtilusVodApi));
+                RoviFeeder.CMT_XSD.RoviNowtilusVodApi roviResult;
+                XmlSerializer serializer = new XmlSerializer(typeof(RoviFeeder.CMT_XSD.RoviNowtilusVodApi));
 
                 using (TextReader reader = new StringReader(campaignXML))
                 {
-                    roviResult = (RoviFeeder.RoviCMT.RoviNowtilusVodApi)serializer.Deserialize(reader);
+                    roviResult = (RoviFeeder.CMT_XSD.RoviNowtilusVodApi)serializer.Deserialize(reader);
 
-                    RoviFeeder.RoviCMT.RoviNowtilusVodApiCampaign roviTitle = roviResult.Campaign;
+                    RoviFeeder.CMT_XSD.RoviNowtilusVodApiCampaign roviTitle = roviResult.Campaign;
 
                     if (!RoviFeederUtils.Validate(roviTitle))
                     {
-                        File.Move(xmlFileOut, Path.ChangeExtension(xmlFileOut, ".err"));
                         return false;
                     }
                 }
@@ -205,38 +181,35 @@ namespace RoviFeeder
                 return false;
             }
 
-            if (doIngest)
+            using (StringWriter writer = new StringWriter())
             {
-                using (StringWriter writer = new StringWriter())
+                try
                 {
-                    try
-                    {
-                        XmlReader reader = XmlReader.Create(new StringReader(XMLD.InnerXml));
-                        StringWriter output = new StringWriter();
-                        XmlWriter writers = XmlWriter.Create(writer);
-                        transformer.Transform(reader, writers);
-                    }
-                    catch
-                    {
-                        File.Move(xmlFileOut, Path.ChangeExtension(xmlFileOut, ".err"));
-                        throw;
-                    }
-
-                    XMLD.LoadXml(writer.ToString());
+                    transformer.TransformA(XMLD, writer, RoviTransform.assetType.CMT);
+                }
+                catch
+                {
+                    return false; ;
                 }
 
-                string exeptionString = string.Empty;
-                string sCoGuid = string.Empty;
-                int nChannelID = 0;
-
-                res = TvinciImporter.ImporterImpl.ProcessChannelItems(XMLD, ref sCoGuid, ref nChannelID, ref exeptionString, m_groupID);
-                if (!res)
-                {
-                    File.Move(xmlFileOut, Path.ChangeExtension(xmlFileOut, ".err"));
-                }
-
-                XMLD = null;
+                XMLD.LoadXml(writer.ToString());
             }
+
+            string exeptionString = string.Empty;
+            string sCoGuid = string.Empty;
+            int nChannelID = 0;
+
+            res = TvinciImporter.ImporterImpl.ProcessChannelItems(XMLD, ref sCoGuid, ref nChannelID, ref exeptionString, m_groupID);
+
+            IngestNotificationStatus configurationStatus = res == true ? IngestNotificationStatus.SUCCESS : IngestNotificationStatus.ERROR;
+
+            RoviFeederUtils.SendIngetNotification(configurationStatus, sVodUrl, exeptionString);
+            if (!res)
+            {
+                return false;
+            }
+
+            XMLD = null;
 
             return res;
         }
