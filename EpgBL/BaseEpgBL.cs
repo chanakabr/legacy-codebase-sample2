@@ -17,6 +17,8 @@ namespace EpgBL
 
         public abstract EPGChannelProgrammeObject GetEpg(ulong nProgramID);
         public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);
+        public abstract EpgCB GetEpgCB(ulong nProgramID);
+        public abstract EpgCB GetEpgCB(ulong nProgramID, out ulong cas);
 
         public abstract ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDic(int nPageSize, int nStartIndex, List<int> lChannelIDs, DateTime fromDate, DateTime toDate);
         public abstract ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDicCurrent(int nNextTop, int nPrevTop, List<int> lChannelIDs);
@@ -25,9 +27,9 @@ namespace EpgBL
         public abstract List<EPGChannelProgrammeObject> GetEPGProgramsByScids(int groupID, string[] scids, Language eLang, int duration);
         public abstract List<EPGChannelProgrammeObject> GetEPGProgramsByProgramsIdentefier(int groupID, string[] pids, Language eLang, int duration);
 
-        public abstract bool InsertEpg(EpgCB newEpgItem, out ulong epgID);
+        public abstract bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
 
-        public abstract bool UpdateEpg(EpgCB newEpgItem);
+        public abstract bool UpdateEpg(EpgCB newEpgItem, ulong? cas = null);
 
         public abstract void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate);
 
