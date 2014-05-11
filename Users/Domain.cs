@@ -731,7 +731,7 @@ namespace Users
             // Process New User
 
             //Check if exceeded limit for users
-            if (userType != UserDomainType.Household) // && (userType != UserDomainType.Master))
+            if (userType != UserDomainType.Household)
             {
                 DomainResponseStatus responseStatus = CheckUserLimit(nDomainID, nUserID);
                 if (responseStatus == DomainResponseStatus.ExceededUserLimit || responseStatus == DomainResponseStatus.UserNotAllowed)
