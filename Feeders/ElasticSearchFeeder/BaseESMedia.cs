@@ -65,20 +65,19 @@ namespace ElasticSearchFeeder
                 }
                 //Get message queue
                 Logger.Logger.Log("Info", "Initializaing rabbit queue", "ESFeeder");
-                using (IQueueImpl oMessageQueue = QueueImplFactory.GetQueueImp(QueueWrapper.Enums.QueueType.RabbitQueue))
+                using (RabbitQueueSingleConnection oMessageQueue = new RabbitQueueSingleConnection(m_sQueueName, string.Empty))
                 {
-                    if (oMessageQueue != null)
+                    try
                     {
-                        Logger.Logger.Log("Info", "Message queue initialized successfully", "ESFeeder");
-
-                        string sGroupID = m_nGroupID.ToString();
-                        IndexingData oMessage = null;
-
-                        //Do while queue is not empty
-                        string sAckId;
-                        bool bRetVal;
-                        try
+                        if (oMessageQueue.Start())
                         {
+                            Logger.Logger.Log("Info", "Message queue initialized successfully", "ESFeeder");
+
+                            string sGroupID = m_nGroupID.ToString();
+                            IndexingData oMessage = null;
+
+                            string sAckId;
+                            bool bRetVal;
                             Logger.Logger.Log("Info", string.Format("Attempting to read messages for queue {0}", m_sQueueName), "ESFeeder");
 
                             while ((oMessage = oMessageQueue.Dequeue<IndexingData>(m_sQueueName, out sAckId)) != null)
@@ -107,7 +106,7 @@ namespace ElasticSearchFeeder
                                         }
                                         if (bRetVal && !string.IsNullOrEmpty(sAckId))
                                         {
-                                            Logger.Logger.Log("Info", string.Format("Message handled successfully. Sending ack to queue {0} ack_id={1}",m_sQueueName, sAckId), "ESFeeder");
+                                            Logger.Logger.Log("Info", string.Format("Message handled successfully. Sending ack to queue {0} ack_id={1}", m_sQueueName, sAckId), "ESFeeder");
                                             bool bAckSuccess = oMessageQueue.Ack(m_sQueueName, sAckId);
                                             Logger.Logger.Log("Info", string.Format("Ack result from queue is {0}, for ack_id={1}", bAckSuccess, sAckId), "ESFeeder");
                                         }
@@ -127,10 +126,10 @@ namespace ElasticSearchFeeder
                                 }
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            Logger.Logger.Log("Exception on Dequeue", string.Format("ex={0};stack={1}",ex.Message, ex.StackTrace), "ESFeeder");
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Logger.Log("Exception on Dequeue", string.Format("ex={0};stack={1}", ex.Message, ex.StackTrace), "ESFeeder");
                     }
                 }
             }
