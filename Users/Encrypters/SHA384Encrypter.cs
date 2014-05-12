@@ -28,8 +28,10 @@ namespace Users
         private static string GetSHA384HashData(string data)
         {
             byte[] buffer = Encoding.ASCII.GetBytes(data);
-            SHA384CryptoServiceProvider cryptoTransformSHA384 = new SHA384CryptoServiceProvider();
-            return BitConverter.ToString(cryptoTransformSHA384.ComputeHash(buffer)).Replace("-", "").ToLower();
+            using (SHA384CryptoServiceProvider cryptoTransformSHA384 = new SHA384CryptoServiceProvider())
+            {
+                return BitConverter.ToString(cryptoTransformSHA384.ComputeHash(buffer)).Replace("-", "").ToLower();
+            }
         }
 
         public override void GenerateEncryptPassword(string clearPassword, ref string EncryptPassword, ref string salt)
