@@ -119,11 +119,12 @@ namespace Users
             int nDomainLimitID = 0;
             int nOperatorSubGroupID = 0;
             int nOperatorID = (-1);
+            int nDeviceFreqLimit = 0;
 
             // Get domain's default limits identifier from parent group
             if (string.IsNullOrEmpty(sCoGuid))
             {
-                nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit);
+                nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit);
             }
             else // Get domain's default limits identifier from sub-account group
             {
@@ -137,7 +138,7 @@ namespace Users
                         nOperatorSubGroupID = nGroupID;
                     }
 
-                    nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nOperatorSubGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit);
+                    nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nOperatorSubGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit);
                 }
             }
 
@@ -168,6 +169,7 @@ namespace Users
                     d.m_nDeviceLimit = d.m_nLimit = nDeviceLimit;
                     d.m_nUserLimit = nUserLimit;
                     d.m_nConcurrentLimit = nConcurrentLimit;
+                    d.InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceFreqLimit, Utils.FICTIVE_DATE);
 
                     d.m_DomainStatus = DomainStatus.OK;
 
@@ -180,7 +182,7 @@ namespace Users
                         d.DeviceFamiliesInitializer(nDomainLimitID, nGroupID);
                     }
 
-                    DomainResponseStatus res = d.AddUserToDomain(m_nGroupID, d.m_nDomainID, nMasterGuID, nMasterGuID, UserDomainType.Master);    //AddUserToDomain(m_nGroupID, m_nDomainID, nMasterGuID, true);
+                    DomainResponseStatus res = d.AddUserToDomain(m_nGroupID, d.m_nDomainID, nMasterGuID, nMasterGuID, UserDomainType.Master);
 
                     d.m_UsersIDs = new List<int>();
                     d.m_UsersIDs.Add(nMasterGuID);

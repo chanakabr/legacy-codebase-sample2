@@ -146,7 +146,7 @@ namespace Users
         /// <returns>the new record ID</returns>
         public virtual Domain CreateNewDomain(string sName, string sDescription, int nGroupID, int nMasterGuID, string sCoGuid = null)
         {
-            DateTime dDateTime = DateTime.Now;
+            DateTime dDateTime = DateTime.UtcNow;
 
             int nDeviceLimit = 0;
             int nUserLimit = 0;
@@ -169,7 +169,7 @@ namespace Users
             int nStatus = 0;
 
             Domain domainDbObj = this;
-            bool resDbObj = DAL.DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid);
+            bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid);
 
             m_sName = sName;
             m_sDescription = sDescription;
@@ -206,7 +206,7 @@ namespace Users
             return this;
         }
 
-        private void InitializeLimitationsManager(int nDomainLevelConcurrentLimit, int nGroupLevelConcurrentLimit, int nDeviceQuantityLimit, int nDeviceFrequencyLimit, DateTime dtLastActionDate)
+        protected internal void InitializeLimitationsManager(int nDomainLevelConcurrentLimit, int nGroupLevelConcurrentLimit, int nDeviceQuantityLimit, int nDeviceFrequencyLimit, DateTime dtLastActionDate)
         {
             if (m_oLimitationsManager == null)
                 m_oLimitationsManager = new LimitationsManager();
@@ -351,7 +351,7 @@ namespace Users
                 return eRetVal;
             }
 
-            Dictionary<int, int> dTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
+            Dictionary<int, int> dTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
 
             // User validations
             if (dTypedUserIDs == null || dTypedUserIDs.Count == 0)
@@ -478,7 +478,7 @@ namespace Users
                 if (isActive != 1)               // should be status != 1 ?
                 {
                     // Set is_active = 1 and status = 1
-                    bool updated = DAL.DomainDal.UpdateDomainsDevicesStatus(nDomainsDevicesID, 1, 1);
+                    bool updated = DomainDal.UpdateDomainsDevicesStatus(nDomainsDevicesID, 1, 1);
 
                     if (updated)
                     {
@@ -666,7 +666,7 @@ namespace Users
 
             int numOfUsers = m_UsersIDs.Count;
 
-            Dictionary<int, int> dbTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
+            Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
 
 
             // If domain has no users, insert new Master user
@@ -677,7 +677,7 @@ namespace Users
             if ((dbTypedUserIDs == null || dbTypedUserIDs.Count == 0) &&
                 (nUserID == nMasterUserGuid))
             {
-                int inserted = DAL.DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int)userType, status, isActive, nMasterUserGuid);
+                int inserted = DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int)userType, status, isActive, nMasterUserGuid);
 
                 if (inserted > 0)
                 {
@@ -702,18 +702,18 @@ namespace Users
             // Domain has users, but action user is NOT Master
             List<int> masterUserIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Master).Select(ut => ut.Key).ToList();
 
-            if ((masterUserIDs != null) && (masterUserIDs.Count > 0) && (!masterUserIDs.Contains(nMasterUserGuid)))
+            if (masterUserIDs != null && masterUserIDs.Count > 0 && !masterUserIDs.Contains(nMasterUserGuid))
             {
                 return DomainResponseStatus.ActionUserNotMaster;
             }
 
 
             // Check if user already exists in domain (active or pending)
-            int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
+            int nUserDomainID = DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
 
             if (nUserDomainID > 0)  // If user exists, update its status to active
             {
-                int rowsAffected = DAL.DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID);
+                int rowsAffected = DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID);
 
                 if (rowsAffected < 1)
                 {
@@ -741,7 +741,7 @@ namespace Users
                 }
             }
 
-            int inserted1 = DAL.DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int)userType, status, isActive, nMasterUserGuid);
+            int inserted1 = DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int)userType, status, isActive, nMasterUserGuid);
 
             if (inserted1 > 0)
             {
@@ -855,7 +855,7 @@ namespace Users
 
 
             // Now let's see which domains the user belons to
-            List<int> lDomainIDs = DAL.UsersDal.GetUserDomainIDs(nGroupID, nUserID);
+            List<int> lDomainIDs = UsersDal.GetUserDomainIDs(nGroupID, nUserID);
 
             if (lDomainIDs != null && lDomainIDs.Count > 0)
             {
@@ -890,7 +890,7 @@ namespace Users
             string sNewFirstName = string.Empty;
             string sNewEmail = string.Empty;
 
-            using (DataTable dtUserBasicData = DAL.UsersDal.GetUserBasicData(nUserID))
+            using (DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID))
             {
                 if (dtUserBasicData != null)
                 {
@@ -910,7 +910,7 @@ namespace Users
             int isActive = 0;
             string sActivationToken = Guid.NewGuid().ToString();
 
-            int inserted = DAL.DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, isMaster, status, isActive, nMasterID, sActivationToken);
+            int inserted = DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, isMaster, status, isActive, nMasterID, sActivationToken);
 
             if (inserted > 0)
             {
@@ -964,7 +964,7 @@ namespace Users
         /// </summary>
         public bool Update()
         {
-            bool dbRes = DAL.DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction);
+            bool dbRes = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction);
 
             if (!dbRes)
             {
@@ -979,7 +979,7 @@ namespace Users
             List<Domain> retVal = null;
             List<int> dbDomains = DAL.DomainDal.GetDeviceDomains(deviceID, groupID);
 
-            if ((dbDomains != null) && (dbDomains.Count > 0))
+            if (dbDomains != null && dbDomains.Count > 0)
             {
                 retVal = new List<Domain>(dbDomains.Count);
 
@@ -1006,7 +1006,7 @@ namespace Users
 
             int status = 1;
             int isActive = 1;
-            Dictionary<int, int> dbTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+            Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
 
             if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
             {
@@ -1016,7 +1016,7 @@ namespace Users
             // Add Pending Users (with minus)
             status = 3;
             isActive = 0;
-            Dictionary<int, int> dbPendingTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+            Dictionary<int, int> dbPendingTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
 
             if (dbPendingTypedUserIDs != null && dbPendingTypedUserIDs.Count > 0)
             {
@@ -1033,7 +1033,7 @@ namespace Users
             string sUDID = string.Empty;
             int nBrandID = 0;
 
-            bool res = DAL.DomainDal.GetDeviceIdAndBrandByPin(sPIN, nGroupID, ref sUDID, ref nBrandID);
+            bool res = DomainDal.GetDeviceIdAndBrandByPin(sPIN, nGroupID, ref sUDID, ref nBrandID);
 
             Device device = null;
 
@@ -1073,7 +1073,7 @@ namespace Users
 
         public DomainResponseStatus ResetDomain(int nFreqencyType = 0)
         {
-            bool res = DAL.DomainDal.ResetDomain(m_nDomainID, m_nGroupID, nFreqencyType);
+            bool res = DomainDal.ResetDomain(m_nDomainID, m_nGroupID, nFreqencyType);
 
             if (!res)
             {
@@ -1124,11 +1124,11 @@ namespace Users
             int nDeviceDomainRecordID = 0;
 
             // Now let's see which domain the device belongs to
-            int nDeviceDomainID = DAL.DomainDal.GetDeviceDomainData(nGroupID, sDeviceUdid, ref deviceID, ref isActive, ref status, ref nDeviceDomainRecordID);
+            int nDeviceDomainID = DomainDal.GetDeviceDomainData(nGroupID, sDeviceUdid, ref deviceID, ref isActive, ref status, ref nDeviceDomainRecordID);
 
             if (isActive == 1)
             {
-                if ((nDeviceDomainID > 0) && (nDeviceDomainID != this.m_nDomainID))
+                if (nDeviceDomainID > 0 && nDeviceDomainID != this.m_nDomainID)
                 {
                     return DomainResponseStatus.DeviceExistsInOtherDomains;
                 }
@@ -1143,7 +1143,7 @@ namespace Users
 
             if (isActive == 3)  // device pending activation in this or other domain; reset this association
             {
-                int rowsAffected = DAL.DomainDal.SetDeviceStatusInDomain(deviceID, this.m_nDomainID, nGroupID, nDeviceDomainRecordID, 2, 2);
+                int rowsAffected = DomainDal.SetDeviceStatusInDomain(deviceID, this.m_nDomainID, nGroupID, nDeviceDomainRecordID, 2, 2);
             }
 
 
@@ -1163,7 +1163,7 @@ namespace Users
             deviceID = device.Save(0, 3);
 
             string sActivationToken = Guid.NewGuid().ToString();
-            nDeviceDomainRecordID = DAL.DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 3, 3, sActivationToken);
+            nDeviceDomainRecordID = DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 3, 3, sActivationToken);
 
             if (nDeviceDomainRecordID > 0)
             {
@@ -1243,7 +1243,7 @@ namespace Users
 
             #endregion
 
-            int rowsAffected = DAL.DomainDal.SwitchDomainMaster(nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
+            int rowsAffected = DomainDal.SwitchDomainMaster(nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
 
             return rowsAffected > 0 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
         }
@@ -1267,9 +1267,9 @@ namespace Users
                 string[] currentDeviceFamily = dbDeviceFamilies[i];
 
                 int nFamilyID = string.IsNullOrEmpty(currentDeviceFamily[0]) ? 0 : Int32.Parse(currentDeviceFamily[0]);
-                int nFamilyLimit = string.IsNullOrEmpty(currentDeviceFamily[1]) ? 0 : Int32.Parse(currentDeviceFamily[1]);
-                int nFamilyConcurrentLimit = string.IsNullOrEmpty(currentDeviceFamily[2]) ? 0 : Int32.Parse(currentDeviceFamily[2]);
-                string sFamilyName = currentDeviceFamily[3];
+                //int nFamilyLimit = string.IsNullOrEmpty(currentDeviceFamily[1]) ? 0 : Int32.Parse(currentDeviceFamily[1]);
+                //int nFamilyConcurrentLimit = string.IsNullOrEmpty(currentDeviceFamily[2]) ? 0 : Int32.Parse(currentDeviceFamily[2]);
+                string sFamilyName = currentDeviceFamily[1];
                 int nOverrideQuantityLimit = 0;
                 int nOverrideConcurrencyLimit = 0;
                 if (concurrencyOverride != null && concurrencyOverride.Count > 0 && concurrencyOverride.ContainsKey(nFamilyID))
@@ -1280,7 +1280,7 @@ namespace Users
                 {
                     nOverrideQuantityLimit = quantityOverride[nFamilyID];
                 }
-                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > 0 ? nOverrideQuantityLimit : nFamilyLimit, nOverrideConcurrencyLimit > 0 ? nOverrideConcurrencyLimit : nFamilyConcurrentLimit);
+                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > 0 ? nOverrideQuantityLimit : m_oLimitationsManager.Quantity, nOverrideConcurrencyLimit > 0 ? nOverrideConcurrencyLimit : m_oLimitationsManager.Concurrency);
                 m_deviceFamilies.Add(dc);
                 m_oDeviceFamiliesMapping.Add(nFamilyID, dc);
             }
@@ -1401,7 +1401,7 @@ namespace Users
 
 
             // Get Domain users from DB; Master user is first
-            Dictionary<int, int> dbTypedUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+            Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
 
             if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
             {
@@ -1421,7 +1421,7 @@ namespace Users
             // Now get only pending users
             isActive = 0;
             status = 3;
-            Dictionary<int, int> dbPendingUserIDs = DAL.DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+            Dictionary<int, int> dbPendingUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
 
             if (dbPendingUserIDs != null && dbPendingUserIDs.Count > 0)
             {
