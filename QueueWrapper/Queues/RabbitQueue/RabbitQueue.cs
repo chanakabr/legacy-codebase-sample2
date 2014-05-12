@@ -28,7 +28,7 @@ namespace QueueWrapper
 
         #region IQueuable Methods
 
-        public bool Enqueue(string sDataToIndex, string sRouteKey)
+        public virtual bool Enqueue(string sDataToIndex, string sRouteKey)
         {
             bool bIsEnqueueSucceeded = false;
             try
@@ -52,7 +52,7 @@ namespace QueueWrapper
             return bIsEnqueueSucceeded;
         }
 
-        public T Dequeue<T>(string sQueueName, out string sAckId)
+        public virtual T Dequeue<T>(string sQueueName, out string sAckId)
         {
             sAckId = string.Empty;
 
@@ -81,7 +81,7 @@ namespace QueueWrapper
             return sReturnedData;
         }
 
-        public bool Ack(string sQueueName, string sAckId)
+        public virtual bool Ack(string sQueueName, string sAckId)
         {
             bool bResult = false;
 
@@ -112,7 +112,7 @@ namespace QueueWrapper
             m_sExchangeType = Utils.GetConfigValue("exchangeType");
         }
 
-        private RabbitConfigurationData CreateRabbitConfigurationData()
+        protected virtual RabbitConfigurationData CreateRabbitConfigurationData()
         {
 
             RabbitConfigurationData configData = null;
@@ -127,7 +127,7 @@ namespace QueueWrapper
             return configData;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             RabbitConnection.Instance.Dispose();
         }
