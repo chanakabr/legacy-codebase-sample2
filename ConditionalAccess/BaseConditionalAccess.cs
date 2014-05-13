@@ -11,6 +11,7 @@ using System.Xml;
 using System.Data;
 using DAL;
 using M1BL;
+using System.Collections;
 
 
 namespace ConditionalAccess
@@ -3994,7 +3995,25 @@ namespace ConditionalAccess
         /// </summary>
         public virtual PermittedMediaContainer[] GetUserPermittedItems(string sSiteGUID)
         {
-            return GetUserPermittedItems(new List<int> { int.Parse(sSiteGUID) }, false, 0);
+            int nSiteGuid = 0;
+            PermittedMediaContainer[] res = null;
+            if (!string.IsNullOrEmpty(sSiteGUID) && Int32.TryParse(sSiteGUID, out nSiteGuid) && nSiteGuid > 0)
+            {
+                res = GetUserPermittedItems(new List<int>(1) { nSiteGuid }, false, 0);
+            }
+            else
+            {
+                StringBuilder sb = new StringBuilder("GetUserPermittedItems. SiteGUID is in incorrect format. ");
+                sb.Append(String.Concat("Group ID: ", m_nGroupID));
+                sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+
+                Logger.Logger.Log("Error", sb.ToString(), "BaseConditionalAccess");
+
+                res = new PermittedMediaContainer[0];
+            }
+
+            return res;
         }
         /// <summary>
         /// Get User Permitted Items
@@ -4004,68 +4023,84 @@ namespace ConditionalAccess
             //PermittedMediaContainer[] ret = null;
             PermittedMediaContainer[] ret = { };
             Int32[] nMediaFilesIDs = null;
-            System.Collections.Hashtable h = new System.Collections.Hashtable();
-            DataTable allPPVModules = DAL.ConditionalAccessDAL.Get_All_Users_PPV_modules(lUsersIDs, isExpired);
-
-            if (allPPVModules != null)
+            Hashtable h = new Hashtable();
+            try
             {
-                Int32 nCount = allPPVModules.Rows.Count;
-                if (numOfItems != 0 && numOfItems < nCount)
+                DataTable allPPVModules = ConditionalAccessDAL.Get_All_Users_PPV_modules(lUsersIDs, isExpired);
+
+                if (allPPVModules != null)
                 {
-                    nCount = numOfItems;
+                    Int32 nCount = allPPVModules.Rows.Count;
+                    if (numOfItems != 0 && numOfItems < nCount)
+                    {
+                        nCount = numOfItems;
+                    }
+                    if (nCount > 0)
+                        ret = new PermittedMediaContainer[nCount];
+
+                    nMediaFilesIDs = new int[nCount];
+                    int i = 0;
+                    foreach (DataRow dataRow in allPPVModules.Rows)
+                    {
+                        Int32 nMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MEDIA_FILE_ID"]);
+                        Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
+                        Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
+                        int billingTransID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
+                        DateTime dEnd = new DateTime(2099, 1, 1);
+                        if (dataRow["END_DATE"] != null && dataRow["END_DATE"] != DBNull.Value)
+                            dEnd = (DateTime)(dataRow["END_DATE"]);
+
+                        DateTime dCurrent = DateTime.UtcNow;
+                        if (dataRow["cDate"] != null && dataRow["cDate"] != DBNull.Value)
+                            dCurrent = (DateTime)(dataRow["cDate"]);
+
+                        DateTime dCreateDate = DateTime.UtcNow;
+                        if (dataRow["CREATE_DATE"] != null && dataRow["CREATE_DATE"] != DBNull.Value)
+                            dCreateDate = (DateTime)(dataRow["CREATE_DATE"]);
+
+                        PaymentMethod payMet = GetBillingTransMethod(billingTransID);
+
+                        string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
+
+                        nMediaFilesIDs[i] = nMediaFileID;
+                        PermittedMediaContainer p = new PermittedMediaContainer();
+                        p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dCreateDate, payMet, sDeviceUDID);
+                        h[nMediaFileID] = p;
+                        ++i;
+                    }
                 }
-                if (nCount > 0)
-                    ret = new PermittedMediaContainer[nCount];
 
-                nMediaFilesIDs = new int[nCount];
-                int i = 0;
-                foreach (DataRow dataRow in allPPVModules.Rows)
+                TvinciAPI.MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFilesIDs);
+                if (mapper == null)
                 {
-                    Int32 nMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MEDIA_FILE_ID"]);
-                    Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
-                    Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
-                    int billingTransID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
-                    DateTime dEnd = new DateTime(2099, 1, 1);
-                    if (dataRow["END_DATE"] != null && dataRow["END_DATE"] != DBNull.Value)
-                        dEnd = (DateTime)(dataRow["END_DATE"]);
-
-                    DateTime dCurrent = DateTime.UtcNow;
-                    if (dataRow["cDate"] != null && dataRow["cDate"] != DBNull.Value)
-                        dCurrent = (DateTime)(dataRow["cDate"]);
-
-                    DateTime dCreateDate = DateTime.UtcNow;
-                    if (dataRow["CREATE_DATE"] != null && dataRow["CREATE_DATE"] != DBNull.Value)
-                        dCreateDate = (DateTime)(dataRow["CREATE_DATE"]);
-
-                    PaymentMethod payMet = GetBillingTransMethod(billingTransID);
-
-                    string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
-
-                    nMediaFilesIDs[i] = nMediaFileID;
-                    PermittedMediaContainer p = new PermittedMediaContainer();
-                    p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dCreateDate, payMet, sDeviceUDID);
-                    h[nMediaFileID] = p;
-                    ++i;
+                    return ret;
+                }
+                Int32 nCo = mapper.Length;
+                if (nCo > 0)
+                    ret = new PermittedMediaContainer[nCo];
+                for (int i = 0; i < nCo; i++)
+                {
+                    Int32 nMediaFileID = mapper[i].m_nMediaFileID;
+                    if (h.Contains(nMediaFileID) == true)
+                    {
+                        ((PermittedMediaContainer)(h[nMediaFileID])).m_nMediaID = mapper[i].m_nMediaID;
+                        ret[i] = (PermittedMediaContainer)(h[nMediaFileID]);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at GetUserPermittedItems.");
+                sb.Append(String.Concat(" Group ID: ", m_nGroupID));
+                sb.Append(String.Concat(" User IDs: ", lUsersIDs == null ? "null" : lUsersIDs.Aggregate<int, string>(string.Empty, (res, next) => (String.Concat(res, ":", next)))));
+                sb.Append(String.Concat(" isExpired: ", isExpired.ToString().ToLower()));
+                sb.Append(String.Concat(" numOfItems: ", numOfItems));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Exception msg: ", ex.Message));
+                sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
 
-            TvinciAPI.MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFilesIDs);
-            if (mapper == null)
-            {
-                return ret;
-                //return null;
-            }
-            Int32 nCo = mapper.Length;
-            if (nCo > 0)
-                ret = new PermittedMediaContainer[nCo];
-            for (int i = 0; i < nCo; i++)
-            {
-                Int32 nMediaFileID = mapper[i].m_nMediaFileID;
-                if (h.Contains(nMediaFileID) == true)
-                {
-                    ((PermittedMediaContainer)(h[nMediaFileID])).m_nMediaID = mapper[i].m_nMediaID;
-                    ret[i] = (PermittedMediaContainer)(h[nMediaFileID]);
-                }
+                Logger.Logger.Log("Exception", sb.ToString(), "BaseConditionalAccess");
+
             }
             return ret;
 
