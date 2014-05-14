@@ -247,6 +247,33 @@ namespace TVPApiServices
 
         }
 
+        [WebMethod(EnableSession = true, Description = "Get collection data")]
+        public Collection GetCollectionData(InitializationObject initObj, string collectionId, string countryCd2, string languageCode3, string deviceName, bool bGetAlsoUnActive)
+        {
+            Collection collection = new Collection();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCollectionData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    collection = new ApiPricingService(groupId, initObj.Platform).GetCollectionData(collectionId, countryCd2, languageCode3, deviceName, bGetAlsoUnActive);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return collection;
+        }
+
         #endregion
+        
     }
 }

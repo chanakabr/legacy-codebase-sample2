@@ -188,7 +188,21 @@ namespace TVPApiModule.Services
             return subscriptions;
         }
 
+        public Collection GetCollectionData(string collectionId, string countryCd2, string languageCode3, string deviceName, bool bGetAlsoUnActive)
+        {
+            Collection collection = null;
 
+            try
+            {
+                collection = m_Module.GetCollectionData(m_wsUserName, m_wsPassword, collectionId, countryCd2, languageCode3, deviceName, bGetAlsoUnActive);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetSubscriptionsContainingUserTypes, Error Message: {0}", ex.Message);
+            }
+
+            return collection;
+        }
 
         #endregion
     }

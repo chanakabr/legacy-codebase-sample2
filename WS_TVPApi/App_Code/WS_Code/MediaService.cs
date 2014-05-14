@@ -28,6 +28,7 @@ using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Objects;
 using OrderObj = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj;
+using System.Data;
 
 namespace TVPApiServices
 {
@@ -2854,6 +2855,86 @@ namespace TVPApiServices
 
             return retVal;
         }
+
+        #region Collections
+
+        [WebMethod(EnableSession = true, Description = "Get Bundle Media")]
+        public List<Media> GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize)
+        {
+            List<Media> lstMedia = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBundleMedia", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = orderDir, m_eOrderBy = orderBy };
+                    APIBundleMediaLoader loader = new APIBundleMediaLoader(bundleId, mediaType, orderObj, groupID, groupID, initObj.Platform.ToString(), clientIp, string.Empty, pageIndex, pageSize, bundleType);
+                    dsItemInfo returnedRows = loader.Execute() as dsItemInfo;
+                    if (returnedRows != null && returnedRows.Tables != null && returnedRows.Tables[0].Rows != null && returnedRows.Tables[0].Rows.Count > 0)
+                    {
+                        lstMedia = new List<Media>();
+                        foreach (dsItemInfo.ItemRow row in returnedRows.Item.Rows)
+                        {
+                            lstMedia.Add(new Media(row, initObj, groupID, false));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return lstMedia;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get Bundle Media")]
+        public bool DoesBundleContainMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, int mediaId, string mediaType)
+        {
+            bool isMediaInBundle = false;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBundleMedia", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    //Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = orderDir, m_eOrderBy = orderBy };
+                    BundleContainingMediaLoader loader = new BundleContainingMediaLoader()
+                    {
+                        BundleID = bundleId,
+                        BundleType = bundleType,
+                        MediaID = mediaId,
+                        GroupID = groupID,
+                        MediaType = mediaType,                      
+                    };
+
+                    isMediaInBundle = (bool)loader.Execute();
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return isMediaInBundle;
+        }
+
+        #endregion
 
     }
 }

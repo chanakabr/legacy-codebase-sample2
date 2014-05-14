@@ -39,6 +39,9 @@ namespace TVPApiServices
         [OperationContract]
         List<Subscription>  GetSubscriptionsContainingUserTypes(InitializationObject initObj, int isActive, int[] userTypesIDs);
 
+        [OperationContract]
+        Collection GetCollectionData(InitializationObject initObj, string collectionId, string countryCd2, string languageCode3, string deviceName, bool bGetAlsoUnActive);
+
 
 
 
