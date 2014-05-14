@@ -2547,7 +2547,6 @@ namespace TvinciImporter
 
                 if (!string.IsNullOrEmpty(ppvModuleName))
                 {
-
                     int nCommerceGroupID = 0;
 
                     if (ppvModuleName.EndsWith(";"))
@@ -3765,13 +3764,6 @@ namespace TvinciImporter
                 Int32 nCount1 = theItems.Count;
                 for (int i = 0; i < nCount1; i++)
                 {
-                    Int32 nRepStatus = 0;
-                    while (DoesReplicationClean(250000, ref nRepStatus) == false)
-                    {
-                        System.Threading.Thread.Sleep(1000);
-                        Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
-                    }
-                    Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
                     string sCoGuid = "";
                     string sErrorMessage = "";
                     Int32 nMediaID = 0;
@@ -3853,7 +3845,6 @@ namespace TvinciImporter
             {
                 sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
             }
-
 
             return true;
         }
