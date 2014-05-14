@@ -2317,50 +2317,45 @@ namespace TvinciImporter
             return nRet;
         }
 
-        static protected int GetPPVModuleID(string moduleName, int groupID)
+        static protected int GetPPVModuleID(string moduleName, int groupID, ref int nCommerceGroupID)
         {
-            Int32 nRet = 0;
-            if (string.IsNullOrEmpty(moduleName))
-                return 0;
+            int nRet = 0;
+            nCommerceGroupID = 0;
 
-            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(groupID);
+            if (string.IsNullOrEmpty(moduleName))
+            {
+                return 0;
+            }
+            
             object commerceGroupIDObj = ODBCWrapper.Utils.GetTableSingleVal("groups", "commerce_group_id", groupID, 86400);
-            int commerceGroupID = 0;
             if (commerceGroupIDObj != null && !string.IsNullOrEmpty(commerceGroupIDObj.ToString()))
             {
-                commerceGroupID = int.Parse(commerceGroupIDObj.ToString());
+                nCommerceGroupID = int.Parse(commerceGroupIDObj.ToString());
             }
+            
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("pricing_connection");
-            selectQuery += "select id from ppv_modules where ";
+            selectQuery += "select id from ppv_modules where IS_ACTIVE = 1 and STATUS = 1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", moduleName);
-            selectQuery += "and group_id =" + commerceGroupIDObj;
-            selectQuery += "and IS_ACTIVE = 1";
-            selectQuery += "and STATUS = 1";
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nCommerceGroupID);
             if (selectQuery.Execute("query", true) != null)
             {
-                Int32 nCopunt = selectQuery.Table("query").DefaultView.Count;
+                int nCopunt = selectQuery.Table("query").DefaultView.Count;
                 if (nCopunt > 0)
-                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    nRet = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
             }
             selectQuery.Finish();
             selectQuery = null;
             return nRet;
         }
 
-        static protected void InsertFilePPVModule(int ppvModule, int fileID, int groupID, DateTime startDate, DateTime endDate, bool clear)
+        static protected void InsertFilePPVModule(int ppvModule, int fileID, int ppvModuleGroupID, DateTime? startDate, DateTime? endDate, bool clear)
         {
             if (ppvModule == 0)
             {               
                 return;
             }
-
-            // get parent group id
-            Int32 ppvModuleGroupID = 0;
-            DataTable dt = ApiDAL.Get_DataByTableID(groupID + "", "groups", "parent_group_id", "id");
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                ppvModuleGroupID = int.Parse(dt.Rows[0]["parent_group_id"].ToString());
-            //Int32 ppvModuleGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", ppvModule, "pricing_connection").ToString());
 
             //First initialize all previous entries.
             if (clear)
@@ -2467,7 +2462,7 @@ namespace TvinciImporter
             string sPreRule, string sPostRule, string sBreakRule,
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime fileStartDate, DateTime fileEndDate)
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime? fileStartDate, DateTime? fileEndDate)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);          
 
@@ -2514,14 +2509,14 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Product_Code", "=", sProductCode);
 
-                if (fileStartDate != default(DateTime))
+                if (fileStartDate.HasValue)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", fileStartDate);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", fileStartDate.Value);
                 }
 
-                if (fileEndDate != default(DateTime))
+                if (fileEndDate.HasValue)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", fileEndDate);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", fileEndDate.Value);
                 }
 
                 if (bAdsEnabled == true)
@@ -2548,44 +2543,52 @@ namespace TvinciImporter
                 updateQuery.Finish();
                 updateQuery = null;
 
-                SetPolicyToFile(sOutputProtectionLevel, nGroupID, sCoGuid, ref sErrorMessage);            
+                SetPolicyToFile(sOutputProtectionLevel, nGroupID, sCoGuid, ref sErrorMessage);
 
-                if (ppvModuleName.EndsWith(";"))
+                if (!string.IsNullOrEmpty(ppvModuleName))
                 {
-                    string ParsedPPVModuleName = string.Empty;
-                    DateTime ppvStartDate;
-                    DateTime ppvEndDate;
 
-                    ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
-                    string[] parameters = ppvModuleName.Split(';');
+                    int nCommerceGroupID = 0;
 
-                    for (int i = 0; i < parameters.Length; i += 3)
+                    if (ppvModuleName.EndsWith(";"))
                     {
-                        ParsedPPVModuleName = parameters[i];
+                        string ParsedPPVModuleName = string.Empty;
+                        DateTime? ppvStartDate = null;
+                        DateTime? ppvEndDate = null;
 
-                        int ppvID = GetPPVModuleID(ParsedPPVModuleName, nGroupID); 
-                        
-                        //DateTime.TryParse(parameters[i + 1], out ppvStartDate);
-                        //DateTime.TryParse(parameters[i + 2], out ppvEndDate);
-                        try
+                        ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
+                        string[] parameters = ppvModuleName.Split(';');
+
+                        for (int i = 0; i < parameters.Length; i += 3)
                         {
-                            ppvStartDate = DateTime.ParseExact(parameters[i + 1], "dd/MM/yyyy HH:mm:ss", null);
-                            ppvEndDate = DateTime.ParseExact(parameters[i + 2], "dd/MM/yyyy HH:mm:ss", null);
+                            int ppvID = GetPPVModuleID(parameters[i], nGroupID, ref nCommerceGroupID);
+
+                            try
+                            {
+                                if (string.IsNullOrEmpty(parameters[i + 1]))
+                                {
+                                    ppvStartDate = DateTime.ParseExact(parameters[i + 1], "dd/MM/yyyy HH:mm:ss", null);
+                                }
+                                if (string.IsNullOrEmpty(parameters[i + 2]))
+                                {
+                                    ppvEndDate = DateTime.ParseExact(parameters[i + 2], "dd/MM/yyyy HH:mm:ss", null);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                ppvStartDate = null;
+                                ppvEndDate = null;
+                                Logger.Logger.Log("PPV-DATES Error", string.Format("{0}, {1}, {2}", ppvID, nMediaFileID, ex.Message), "importer");
+                            }
+
+                            InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, ppvStartDate, ppvEndDate, (i == 0));
                         }
-                        catch (Exception exc)
-                        {
-                            ppvStartDate = default(DateTime);
-                            ppvEndDate = default(DateTime);
-                            Logger.Logger.Log("EnterClipMediaFile", "problem in parsing the dates" + exc.Message, "importer");
-                        }                                          
-
-                        InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, ppvStartDate, ppvEndDate, (i == 0));
                     }
-                }
-                else
-                {
-                    int ppvID = GetPPVModuleID(ppvModuleName, nGroupID);                 
-                    InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, default(DateTime), default(DateTime), true);
+                    else
+                    {
+                        int ppvID = GetPPVModuleID(ppvModuleName, nGroupID, ref nCommerceGroupID);
+                        InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, null, null, true);
+                    }
                 }
 
                 /*Insert Family Contract For File */
@@ -3216,24 +3219,9 @@ namespace TvinciImporter
                 string sProductCode = GetItemParameterVal(ref theItem, "product_code");
 
                 // try to pare the files date correctly
-                DateTime dStartDate = new DateTime();
-                DateTime dEndDate   = new DateTime();
+                DateTime? dStartDate = null;
+                DateTime? dEndDate   = null;
                 
-                /*
-                bool resVal = DateTime.TryParse(sFileStartDate, out dStartDate);
-
-                if (resVal == false)
-                {
-                    dStartDate = default(DateTime);
-                }
-
-                resVal = DateTime.TryParse(sFileEndDate, out dEndDate);
-
-                if (resVal == false)
-                {
-                    dEndDate = default(DateTime);
-                }
-                */
                 try
                 {
                     if (!string.IsNullOrEmpty(sFileStartDate))
