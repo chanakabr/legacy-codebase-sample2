@@ -99,14 +99,28 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         protected virtual object ExecuteMultiMediaAdapter(List<BaseObject> medias)
         {
-            object retVal;
+            dsItemInfo retVal;
             if (overrideExecuteAdapter != null)
             {
-                retVal = overrideExecuteAdapter(medias);
+                retVal = overrideExecuteAdapter(medias) as dsItemInfo;
             }
             else
             {
-                retVal = null;                
+                string fileFormat = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
+                string subFileFormat = (TechnicalConfiguration.Instance.Data.TVM.FlashVars.SubFileFormat.Split(';')).FirstOrDefault();
+                retVal = CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
+
+                // If Channel - Add Channel data
+                if (m_oResponse is ChannelResponse)
+                {
+                    dsItemInfo.ChannelRow channelRow = retVal.Channel.NewChannelRow();
+                    ChannelResponse response = m_oResponse as ChannelResponse;
+                    channelRow.ChannelId = response.Id.ToString();
+                    channelRow.Title = response.m_sName;
+                    channelRow.Description = response.m_sDescription;
+                    channelRow.EnableRssFeed = response.m_sEnableRssFeed == 1 ? true : false;
+                    retVal.Channel.AddChannelRow(channelRow);
+                }                
             }
             return retVal;
         }
