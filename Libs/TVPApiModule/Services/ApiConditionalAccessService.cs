@@ -904,8 +904,100 @@ namespace TVPApiModule.Services
             }
 
             return ChangeSubscriptionStatus.Error;
-        } 
+        }
 
+        public string DummyChargeUserForCollection(double price, string currency, string collectionCode, string couponCode, string userIP, string siteGuid, string extraParameters, string deviceName, string countryCode2, string languageCode3)
+        {
+            BillingResponse response = null;
+
+            try
+            {
+                response = m_Module.CC_DummyChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currency, collectionCode, couponCode, userIP, extraParameters, countryCode2, languageCode3, deviceName);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : DummyChargeUserForCollection, Error Message: {0}, Parameters :  User: {1}", ex.Message, siteGuid);
+            }
+
+            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+        }        
+
+        public CollectionsPricesContainer[] GetCollectionsPrices(string[] collections, string userGuid, string countryCode2, string languageCode3, string deviceName)
+        {
+            CollectionsPricesContainer[] retVal = null;
+
+            try
+            {
+                retVal = m_Module.GetCollectionsPrices(m_wsUserName, m_wsPassword, collections, userGuid, countryCode2, languageCode3, deviceName);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetCollectionsPrices, Error Message: {0}, Parameters :  siteGuid: {1}", ex.Message, userGuid);
+            }
+            return retVal;
+        }
+
+        public CollectionsPricesContainer[] GetCollectionsPricesWithCoupon(string[] collections, string userGuid, string countryCode2, string languageCode3, string deviceName, string couponCode, string clientIp)
+        {
+            CollectionsPricesContainer[] retVal = null;
+
+            try
+            {
+                retVal = m_Module.GetCollectionsPricesWithCoupon(m_wsUserName, m_wsPassword, collections, userGuid, couponCode, countryCode2, languageCode3, deviceName, clientIp);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetCollectionsPricesWithCoupon, Error Message: {0}, Parameters :  siteGuid: {1}", ex.Message, userGuid);
+            }
+            return retVal;
+        }
+
+        public PermittedCollectionContainer[] GetUserPermittedCollections(string siteGuid)
+        {
+            PermittedCollectionContainer[] retVal = null;
+
+            try
+            {
+                retVal = m_Module.GetUserPermittedCollections(m_wsUserName, m_wsPassword, siteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserPermittedCollections, Error Message: {0}, Parameters :  siteGuid: {1}", ex.Message, siteGuid);
+            }
+            return retVal;
+        }
+
+        public PermittedCollectionContainer[] GetDomainPermittedCollections(int domainId)
+        {
+            PermittedCollectionContainer[] retVal = null;
+
+            try
+            {
+                retVal = m_Module.GetDomainPermittedCollections(m_wsUserName, m_wsPassword, domainId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserPermittedCollections, Error Message: {0}, Parameters :  domainId: {1}", ex.Message, domainId);
+            }
+            return retVal;
+        }
+
+        public BillingResponse ChargeUserForCollection(string siteGuid, double price, string currencyCode3, string collectionCode, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3, string deviceName, string paymentMethodId, string encryptedCvv)
+        {
+            BillingResponse retVal = null;
+
+            try
+            {
+                retVal = m_Module.CC_ChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currencyCode3, collectionCode, couponCode, userIP, extraParameters, countryCode2,
+                                                            languageCode3, deviceName, paymentMethodId, encryptedCvv);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : CC_ChargeUserForCollection, Error Message: {0}, Parameters :  siteGuid: {1}, collectionCode: {2}", ex.Message, siteGuid, collectionCode);
+            }
+
+            return retVal;
+        }       
 
         #endregion
     }

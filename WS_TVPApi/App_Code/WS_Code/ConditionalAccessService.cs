@@ -607,7 +607,174 @@ namespace TVPApiServices
             }
 
             return response;                       
-        } 
+        }
 
+        [WebMethod(EnableSession = true, Description = "Get collections prices")]
+        public CollectionsPricesContainer[] GetCollectionsPrices(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, string languageCode3)
+        {
+            CollectionsPricesContainer[] response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCollectionsPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).GetCollectionsPrices(collections, userGuid, countryCode2, languageCode3, initObj.UDID);
+
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get collections prices with coupon")]
+        public CollectionsPricesContainer[] GetCollectionsPricesWithCoupon(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, string languageCode3, string couponCode)
+        {
+            CollectionsPricesContainer[] response = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCollectionsPricesWithCoupon", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).GetCollectionsPricesWithCoupon(collections, userGuid, countryCode2, languageCode3, initObj.UDID, couponCode, clientIp);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+
+        [WebMethod(EnableSession = true, Description = "Get user permitted collections")]
+        public PermittedCollectionContainer[] GetUserPermittedCollections(InitializationObject initObj, string siteGuid)
+        {
+            PermittedCollectionContainer[] response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserPermittedCollections", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserPermittedCollections(siteGuid);
+
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+
+        [WebMethod(EnableSession = true, Description = "Get domain permitted collections")]
+        public PermittedCollectionContainer[] GetDomainPermittedCollections(InitializationObject initObj)
+        {
+            PermittedCollectionContainer[] response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainPermittedCollections", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainPermittedCollections(initObj.DomainID);
+
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+
+        [WebMethod(EnableSession = true, Description = "Charge users for collection")]
+        public BillingResponse ChargeUserForCollection(InitializationObject initObj, double price, string currencyCode3, string collectionCode, string couponCode, string extraParameters, string countryCode2, string languageCode3, string paymentMethodID, string encryptedCvv)
+        {
+            BillingResponse response = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForCollection", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChargeUserForCollection(initObj.SiteGuid, price, currencyCode3, collectionCode, couponCode, clientIp, extraParameters, countryCode2, languageCode3, initObj.UDID, paymentMethodID, encryptedCvv);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Dummy Charge users for collection")]
+        public string DummyChargeUserForCollection(InitializationObject initObj, double price, string currency, string collectionCode, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3)
+        {
+            string response = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForCollection", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).DummyChargeUserForCollection(price, currency, collectionCode, couponCode, clientIp, initObj.SiteGuid, extraParameters, initObj.UDID, countryCode2, languageCode3);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }        
     }
 }
