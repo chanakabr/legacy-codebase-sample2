@@ -1412,7 +1412,7 @@ namespace TvinciImporter
 
         static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID)
         {
-            Logger.Logger.Log("TespIngest", "Start", "TempIngest");           
+            Logger.Logger.Log("TespIngest", "Start", "TempIngest");
             bool bOK = true;
             sErrorMessage = "";
             sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
@@ -1509,7 +1509,7 @@ namespace TvinciImporter
                 XmlNodeList theBools = theItem.SelectNodes("structure/booleans/meta");
                 XmlNodeList theMetas = theItem.SelectNodes("structure/metas/meta");
                 XmlNodeList theFiles = theItem.SelectNodes("files/file");
-  
+
 
                 string sMainLang = "";
                 Int32 nLangID = 0;
@@ -2326,13 +2326,13 @@ namespace TvinciImporter
             {
                 return 0;
             }
-            
+
             object commerceGroupIDObj = ODBCWrapper.Utils.GetTableSingleVal("groups", "commerce_group_id", groupID, 86400);
             if (commerceGroupIDObj != null && !string.IsNullOrEmpty(commerceGroupIDObj.ToString()))
             {
                 nCommerceGroupID = int.Parse(commerceGroupIDObj.ToString());
             }
-            
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("pricing_connection");
             selectQuery += "select id from ppv_modules where IS_ACTIVE = 1 and STATUS = 1 and";
@@ -2353,7 +2353,7 @@ namespace TvinciImporter
         static protected void InsertFilePPVModule(int ppvModule, int fileID, int ppvModuleGroupID, DateTime? startDate, DateTime? endDate, bool clear)
         {
             if (ppvModule == 0)
-            {               
+            {
                 return;
             }
 
@@ -2380,17 +2380,17 @@ namespace TvinciImporter
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
             if (selectQuery.Execute("query", true) != null)
             {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;             
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                 if (nCount > 0)
-                {                   
-                    ppvFileID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());                   
+                {
+                    ppvFileID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
                 }
             }
             selectQuery.Finish();
             selectQuery = null;
             //If doesnt exist - create new entry
             if (ppvFileID == 0)
-            {              
+            {
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ppv_modules_media_files");
                 insertQuery.SetConnectionKey("pricing_connection");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", fileID);
@@ -2400,7 +2400,7 @@ namespace TvinciImporter
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
 
                 if (startDate == default(DateTime))
-                {                  
+                {
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
                 }
                 else
@@ -2409,7 +2409,7 @@ namespace TvinciImporter
                 }
 
                 if (endDate == default(DateTime))
-                {                   
+                {
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
                 }
                 else
@@ -2422,7 +2422,7 @@ namespace TvinciImporter
                 insertQuery = null;
             }
             else
-            {             
+            {
                 //Update status of previous entry
                 ODBCWrapper.UpdateQuery updateOldQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
                 updateOldQuery.SetConnectionKey("pricing_connection");
@@ -2464,7 +2464,7 @@ namespace TvinciImporter
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
             string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime? fileStartDate, DateTime? fileEndDate)
         {
-            Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);          
+            Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
 
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
 
@@ -2563,23 +2563,8 @@ namespace TvinciImporter
                         {
                             int ppvID = GetPPVModuleID(parameters[i], nGroupID, ref nCommerceGroupID);
 
-                            try
-                            {
-                                if (string.IsNullOrEmpty(parameters[i + 1]))
-                                {
-                                    ppvStartDate = DateTime.ParseExact(parameters[i + 1], "dd/MM/yyyy HH:mm:ss", null);
-                                }
-                                if (string.IsNullOrEmpty(parameters[i + 2]))
-                                {
-                                    ppvEndDate = DateTime.ParseExact(parameters[i + 2], "dd/MM/yyyy HH:mm:ss", null);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                ppvStartDate = null;
-                                ppvEndDate = null;
-                                Logger.Logger.Log("PPV-DATES Error", string.Format("{0}, {1}, {2}", ppvID, nMediaFileID, ex.Message), "importer");
-                            }
+                            ppvStartDate = ExtractDate(parameters[i + 1], "dd/MM/yyyy HH:mm:ss");
+                            ppvEndDate = ExtractDate(parameters[i + 2], "dd/MM/yyyy HH:mm:ss");
 
                             InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, ppvStartDate, ppvEndDate, (i == 0));
                         }
@@ -3220,34 +3205,10 @@ namespace TvinciImporter
 
                 // try to pare the files date correctly
                 DateTime? dStartDate = null;
-                DateTime? dEndDate   = null;
-                
-                try
-                {
-                    if (!string.IsNullOrEmpty(sFileStartDate))
-                    {
-                        dStartDate = DateTime.ParseExact(sFileStartDate, "dd/MM/yyyy HH:mm:ss", null);
-                    }
-                    else
-                    {
-                        dStartDate = default(DateTime);
-                    }
+                DateTime? dEndDate = null;
 
-                    if (!string.IsNullOrEmpty(sFileEndDate))
-                    {
-                        dEndDate = DateTime.ParseExact(sFileEndDate, "dd/MM/yyyy HH:mm:ss", null);
-                    }
-                    else
-                    {
-                        dEndDate = default(DateTime);
-                    }
-                }
-                catch (Exception exc)
-                {
-                    dStartDate = default(DateTime);
-                    dEndDate = default(DateTime);
-                    Logger.Logger.Log("UpdateFiles", "problem in parsing the dates" + exc.Message, "importer");
-                }
+                dStartDate = ExtractDate(sFileStartDate, "dd/MM/yyyy HH:mm:ss");
+                dEndDate = ExtractDate(sFileEndDate, "dd/MM/yyyy HH:mm:ss");
 
                 bool bAdsEnabled = true;
                 if (sAdsEnabled.Trim().ToLower() == "false")
@@ -3434,7 +3395,7 @@ namespace TvinciImporter
             }
             return true;
         }
-         //get tags by group and by non group 
+        //get tags by group and by non group 
         static protected Int32 GetTagTypeID(Int32 nGroupID, string sTagName)
         {
             if (sTagName.ToLower().Trim() == "free")
@@ -3787,7 +3748,7 @@ namespace TvinciImporter
         }
 
         static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
-        {        
+        {
 
             XmlDocument theDoc = new XmlDocument();
 
@@ -4177,7 +4138,7 @@ namespace TvinciImporter
                 return binding;
             }
 
-        }        
+        }
 
         internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
         {
@@ -4434,6 +4395,17 @@ namespace TvinciImporter
             }
 
             return isUpdateIndexSucceeded;
+        }
+
+        public static DateTime? ExtractDate(string sDate, string format)
+        {
+            DateTime? result = null;
+            DateTime tempDt;
+            if (DateTime.TryParseExact(sDate, format, null, System.Globalization.DateTimeStyles.None, out tempDt))
+            {
+                result = tempDt;
+            }
+            return result;
         }
     }
 }
