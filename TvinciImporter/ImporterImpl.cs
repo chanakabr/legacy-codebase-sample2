@@ -1413,6 +1413,7 @@ namespace TvinciImporter
         static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID)
         {
             Logger.Logger.Log("TespIngest", "Start", "TempIngest");
+            Logger.Logger.Log("Ingest entire xml", theItem.ToString(), "RoviPPV");
             bool bOK = true;
             sErrorMessage = "";
             sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
@@ -1510,6 +1511,7 @@ namespace TvinciImporter
                 XmlNodeList theMetas = theItem.SelectNodes("structure/metas/meta");
                 XmlNodeList theFiles = theItem.SelectNodes("files/file");
 
+                Logger.Logger.Log("Ingest files", theFiles.ToString(), "RoviPPV");
 
                 string sMainLang = "";
                 Int32 nLangID = 0;
@@ -2346,8 +2348,14 @@ namespace TvinciImporter
             return nRet;
         }
 
-        static protected void InsertFilePPVModule(int ppvModule, int fileID, int groupID, DateTime startDate, DateTime endDate)
+        static protected void InsertFilePPVModule(int ppvModule, int fileID, int groupID, DateTime startDate, DateTime endDate, bool clear)
         {
+            if (ppvModule == 0)
+            {
+                Logger.Logger.Log("EnterPPV", "PPVModule is 0 in file ID " + fileID, "RoviPPV");
+                return;
+            }
+
             // get parent group id
             Int32 ppvModuleGroupID = 0;
             DataTable dt = ApiDAL.Get_DataByTableID(groupID + "", "groups", "parent_group_id", "id");
@@ -2356,18 +2364,18 @@ namespace TvinciImporter
             //Int32 ppvModuleGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", ppvModule, "pricing_connection").ToString());
 
             //First initialize all previous entries.
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
-            updateQuery.SetConnectionKey("pricing_connection");
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
-            updateQuery += "where";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
-            updateQuery.Execute();
-            updateQuery.Finish();
-            updateQuery = null;
-
-            if (ppvModule == 0)
-                return;
+            if (clear)
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
+                updateQuery.SetConnectionKey("pricing_connection");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
+                updateQuery += "where";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
 
             int ppvFileID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -2379,9 +2387,12 @@ namespace TvinciImporter
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                Logger.Logger.Log("EnterPPV", "nCount" + nCount + "in file ID" + fileID, "RoviPPV");
                 if (nCount > 0)
                 {
+                   
                     ppvFileID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    Logger.Logger.Log("EnterPPV", "ppvFile ID" + ppvFileID, "RoviPPV");
                 }
             }
             selectQuery.Finish();
@@ -2389,6 +2400,7 @@ namespace TvinciImporter
             //If doesnt exist - create new entry
             if (ppvFileID == 0)
             {
+                Logger.Logger.Log("EnterPPV", "ppvFile ID is 0 ", "RoviPPV");
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ppv_modules_media_files");
                 insertQuery.SetConnectionKey("pricing_connection");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", fileID);
@@ -2399,6 +2411,7 @@ namespace TvinciImporter
 
                 if (startDate == default(DateTime))
                 {
+                    Logger.Logger.Log("EnterPPV", "startDate = null", "RoviPPV");
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
                 }
                 else
@@ -2408,6 +2421,7 @@ namespace TvinciImporter
 
                 if (endDate == default(DateTime))
                 {
+                    Logger.Logger.Log("EnterPPV", "endDate = null", "RoviPPV");
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
                 }
                 else
@@ -2421,6 +2435,7 @@ namespace TvinciImporter
             }
             else
             {
+                Logger.Logger.Log("EnterPPV", "ppvFile ID is NOT 0 ", "RoviPPV");
                 //Update status of previous entry
                 ODBCWrapper.UpdateQuery updateOldQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
                 updateOldQuery.SetConnectionKey("pricing_connection");
@@ -2463,6 +2478,9 @@ namespace TvinciImporter
             string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime fileStartDate, DateTime fileEndDate)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
+
+            Logger.Logger.Log("EnterClip", string.Format("{0}, {1}", sPicType, nPicType.ToString()) , "RoviPPV");
+
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
 
             Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
@@ -2542,6 +2560,8 @@ namespace TvinciImporter
 
                 SetPolicyToFile(sOutputProtectionLevel, nGroupID, sCoGuid, ref sErrorMessage);
 
+                Logger.Logger.Log("ppvModuleName", string.Format("{0}", ppvModuleName), "RoviPPV");
+
                 if (ppvModuleName.EndsWith(";"))
                 {
                     string ParsedPPVModuleName = string.Empty;
@@ -2554,18 +2574,23 @@ namespace TvinciImporter
                     for (int i = 0; i < parameters.Length; i += 3)
                     {
                         ParsedPPVModuleName = parameters[i];
-                        DateTime.TryParse(parameters[i + 1], out ppvStartDate);
-                        DateTime.TryParse(parameters[i + 2], out ppvEndDate);
+                        //DateTime.TryParse(parameters[i + 1], out ppvStartDate);
+                        //DateTime.TryParse(parameters[i + 2], out ppvEndDate);
+
+                        ppvStartDate = DateTime.ParseExact(parameters[i + 1], "dd/MM/yyyy HH:mm:ss", null);
+                        ppvEndDate = DateTime.ParseExact(parameters[i + 2], "dd/MM/yyyy HH:mm:ss", null);
 
                         int ppvID = GetPPVModuleID(ParsedPPVModuleName, nGroupID);
-                        InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, ppvStartDate, ppvEndDate);
+                        Logger.Logger.Log("EnterPPV", string.Format("{0}, {1}", ppvID.ToString(), ParsedPPVModuleName), "RoviPPV");
+
+                        InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, ppvStartDate, ppvEndDate, (i == 0));
                     }
                 }
                 else
                 {
                     int ppvID = GetPPVModuleID(ppvModuleName, nGroupID);
-
-                    InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, default(DateTime), default(DateTime));
+                    Logger.Logger.Log("EnterPPV", "else: PPVID" + ppvID.ToString(), "RoviPPV");
+                    InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, default(DateTime), default(DateTime), true);
                 }
 
                 /*Insert Family Contract For File */
@@ -3198,6 +3223,8 @@ namespace TvinciImporter
                 // try to pare the files date correctly
                 DateTime dStartDate = new DateTime();
                 DateTime dEndDate   = new DateTime();
+                
+                /*
                 bool resVal = DateTime.TryParse(sFileStartDate, out dStartDate);
 
                 if (resVal == false)
@@ -3208,6 +3235,25 @@ namespace TvinciImporter
                 resVal = DateTime.TryParse(sFileEndDate, out dEndDate);
 
                 if (resVal == false)
+                {
+                    dEndDate = default(DateTime);
+                }
+                */
+
+                if (!string.IsNullOrEmpty(sFileStartDate))
+                {
+                    dStartDate = DateTime.ParseExact(sFileStartDate, "dd/MM/yyyy HH:mm:ss", null);
+                }
+                else
+                {
+                    dStartDate = default(DateTime);
+                }
+
+                if (!string.IsNullOrEmpty(sFileEndDate))
+                {
+                    dEndDate = DateTime.ParseExact(sFileEndDate, "dd/MM/yyyy HH:mm:ss", null);
+                }
+                else
                 {
                     dEndDate = default(DateTime);
                 }
@@ -3751,6 +3797,8 @@ namespace TvinciImporter
 
         static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
         {
+            Logger.Logger.Log("DoTheWorkInner", sXML, "RoviPPV");
+
             XmlDocument theDoc = new XmlDocument();
 
             theDoc.LoadXml(sXML);
@@ -4047,7 +4095,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = GetConfigVal("CATALOG_WCF");
+            string sCatalogURL = GetConfigVal("WS_Catalog");
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -4183,6 +4231,7 @@ namespace TvinciImporter
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
                                         isUpdateIndexSucceeded = client.UpdateIndex(ids, nGroupId, eAction);
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        Logger.Logger.Log("UpdateIndex", string.Format("{0} res {1}", endPointAddress, sInfo), "UpdateIndex");
                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
                                     }
                                     catch (Exception ex)
