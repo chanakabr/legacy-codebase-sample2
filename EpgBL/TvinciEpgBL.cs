@@ -23,7 +23,7 @@ namespace EpgBL
             m_oEpgCouchbase = new DalCB.EpgDal_Couchbase(m_nGroupID);
         }
 
-        public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID)
+        public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null)
         {
             epgID = 0;
             bool bRes = false;
@@ -38,11 +38,15 @@ namespace EpgBL
                     //bRes = m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
 
                     ulong nNewID = newEpgItem.EpgID;
-                    bRes = m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+
+                    bRes = (cas.HasValue) ? m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
+                                            m_oEpgCouchbase.InsertProgram(nNewID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+
                     if (bRes)
                     {
                         epgID = nNewID;
                     }
+
                     Logger.Logger.Log("InsertCBEpg", string.Format("insert result  CB id={0} result ={1}",nNewID, bRes), "InsertCBEpg");
                 }
 
@@ -54,12 +58,13 @@ namespace EpgBL
             return bRes;
         }
 
-        public override bool UpdateEpg(EpgCB newEpgItem)
+        public override bool UpdateEpg(EpgCB newEpgItem, ulong? cas = null)
         {
             bool bRes = false;
             for (int i = 0; i < 3 && !bRes; i++)
             {
-                bRes = m_oEpgCouchbase.UpdateProgram(newEpgItem.EpgID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+                bRes = (cas.HasValue) ? m_oEpgCouchbase.UpdateProgram(newEpgItem.EpgID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) : 
+                                        m_oEpgCouchbase.UpdateProgram(newEpgItem.EpgID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
             }
 
             return bRes;
@@ -151,10 +156,16 @@ namespace EpgBL
 
         }
 
-
-        public EpgCB GetEpgCB(ulong nProgramID)
+        public override EpgCB GetEpgCB(ulong nProgramID)
         {
             EpgCB oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString());
+            oRes = (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null;
+            return oRes;
+        }
+
+        public override EpgCB GetEpgCB(ulong nProgramID, out ulong cas)
+        {
+            EpgCB oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString(), out cas);
             oRes = (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null;
             return oRes;
         }
@@ -492,9 +503,6 @@ namespace EpgBL
             }
             return lProg;
         }
-
-      
-
         #endregion
 
         #region Not Implement

@@ -665,7 +665,7 @@ namespace Catalog
 
                     foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
                     {
-                        if (oProgram != null && !string.IsNullOrEmpty(sBaseURL))
+                        if (oProgram != null && !string.IsNullOrEmpty(sBaseURL) && !string.IsNullOrEmpty(oProgram.PIC_URL))
                         {
                             if (!string.IsNullOrEmpty(sWidth) && !string.IsNullOrEmpty(sHeight))
                             {
