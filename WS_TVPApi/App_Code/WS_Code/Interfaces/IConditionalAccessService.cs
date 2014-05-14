@@ -66,5 +66,23 @@ namespace TVPApiServices
 
         [OperationContract]
         int CreatePurchaseToken(InitializationObject initObj, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string userIp, string countryCd2, string languageCode3, string deviceName, int assetType, string overrideEndDate, string previewModuleID);
+
+        [OperationContract]
+        CollectionsPricesContainer[] GetCollectionsPrices(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, string languageCode3);
+
+        [OperationContract]
+        CollectionsPricesContainer[] GetCollectionsPricesWithCoupon(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, string languageCode3, string couponCode);
+
+        [OperationContract]
+        PermittedCollectionContainer[] GetUserPermittedCollections(InitializationObject initObj, string siteGuid);
+
+        [OperationContract]
+        PermittedCollectionContainer[] GetDomainPermittedCollections(InitializationObject initObj);
+
+        [OperationContract]
+        BillingResponse ChargeUserForCollection(InitializationObject initObj, double price, string currencyCode3, string collectionCode, string couponCode, string extraParameters, string countryCode2, string languageCode3, string paymentMethodID, string encryptedCvv);
+
+        [OperationContract]
+        string DummyChargeUserForCollection(InitializationObject initObj, double price, string currency, string collectionCode, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3);
     }
 }
