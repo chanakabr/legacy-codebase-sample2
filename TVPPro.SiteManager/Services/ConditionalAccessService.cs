@@ -1206,6 +1206,25 @@ namespace TVPPro.SiteManager.Services
             return null;
         }
 
+        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSubscription, int nNewSubscription)
+        {
+            string wsUser;
+            string wsPassword;
+            GetWSMethodUserPass(eWSMethodName.GetUserPermittedItems, out wsUser, out wsPassword);
+
+            try
+            {
+                return m_Module.ChangeSubscription(wsUser, wsPassword,sSiteGuid,nOldSubscription,nNewSubscription);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ChangeSubscription, Error Message: {0}, Parameters :  sSiteGuid : {1}, nOldSubscription : {2}, nNewSubscription : {3}", ex.Message, sSiteGuid,nOldSubscription,nNewSubscription);
+            }
+
+            return ChangeSubscriptionStatus.Error;
+        } 
+
+
         #endregion
         #region Private Methods
         private void GetWSMethodUserPass(eWSMethodName WSMethodName, out string User, out string Pass)
