@@ -397,6 +397,7 @@ namespace Users
         public int InitializeByFacebook(string sFacebookID, Int32 nGroupID)
         {
             Int32 nUserID = DAL.UsersDal.GetUserIDByFacebookID(sFacebookID, nGroupID);
+            
             bool res = Initialize(nUserID, nGroupID);
 
             return nUserID;
@@ -405,7 +406,10 @@ namespace Users
         public int InitializeByUsername(string sUsername, Int32 nGroupID)
         {
             Int32 nUserID = DAL.UsersDal.GetUserIDByUsername(sUsername, nGroupID);
-            bool bInit = Initialize(nUserID, nGroupID);
+            if (nUserID > 0)
+            {
+                bool bInit = Initialize(nUserID, nGroupID);
+            }
 
             return nUserID;
         }

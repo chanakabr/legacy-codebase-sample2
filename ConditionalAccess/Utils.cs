@@ -1765,8 +1765,7 @@ namespace ConditionalAccess
                         return p;
 
                     //collections check
-                    TvinciPricing.Collection[] relevantValidCollections = new Collection[1];
-                    relevantValidCollections[0] = (TvinciPricing.Collection)GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION)[0];
+                    TvinciPricing.Collection[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION) as TvinciPricing.Collection[];
 
                     if (relevantValidCollections != null)
                     {
