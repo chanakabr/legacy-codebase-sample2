@@ -2335,6 +2335,8 @@ namespace TvinciImporter
             selectQuery += "select id from ppv_modules where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", moduleName);
             selectQuery += "and group_id =" + commerceGroupIDObj;
+            selectQuery += "and IS_ACTIVE = 1";
+            selectQuery += "and STATUS = 1";
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCopunt = selectQuery.Table("query").DefaultView.Count;
