@@ -722,7 +722,6 @@ namespace TVPApiServices
             return response;
         }
 
-
         [WebMethod(EnableSession = true, Description = "Dummy Charge users for collection")]
         public string DummyChargeUserForCollection(InitializationObject initObj, double price, string currency, string collectionCode, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3)
         {
