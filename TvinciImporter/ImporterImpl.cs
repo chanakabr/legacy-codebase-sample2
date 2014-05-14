@@ -2534,57 +2534,59 @@ namespace TvinciImporter
             return nRet;
         }
 
-        static protected int GetPPVModuleID(string moduleName, int groupID)
+        static protected int GetPPVModuleID(string moduleName, int groupID, ref int nCommerceGroupID)
         {
-            Int32 nRet = 0;
-            if (string.IsNullOrEmpty(moduleName))
-                return 0;
+            int nRet = 0;
+            nCommerceGroupID = 0;
 
-            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(groupID);
+            if (string.IsNullOrEmpty(moduleName))
+            {
+                return 0;
+            }
+
             object commerceGroupIDObj = ODBCWrapper.Utils.GetTableSingleVal("groups", "commerce_group_id", groupID, 86400);
-            int commerceGroupID = 0;
             if (commerceGroupIDObj != null && !string.IsNullOrEmpty(commerceGroupIDObj.ToString()))
             {
-                commerceGroupID = int.Parse(commerceGroupIDObj.ToString());
+                nCommerceGroupID = int.Parse(commerceGroupIDObj.ToString());
             }
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("pricing_connection");
-            selectQuery += "select id from ppv_modules where ";
+            selectQuery += "select id from ppv_modules where IS_ACTIVE = 1 and STATUS = 1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", moduleName);
-            selectQuery += "and group_id =" + commerceGroupIDObj;
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nCommerceGroupID);
             if (selectQuery.Execute("query", true) != null)
             {
-                Int32 nCopunt = selectQuery.Table("query").DefaultView.Count;
+                int nCopunt = selectQuery.Table("query").DefaultView.Count;
                 if (nCopunt > 0)
-                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    nRet = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
             }
             selectQuery.Finish();
             selectQuery = null;
             return nRet;
         }
 
-        static protected void InsertFilePPVModule(int ppvModule, int fileID, int groupID, DateTime startDate, DateTime endDate)
+        static protected void InsertFilePPVModule(int ppvModule, int fileID, int ppvModuleGroupID, DateTime? startDate, DateTime? endDate, bool clear)
         {
-            // get parent group id
-            Int32 ppvModuleGroupID = 0;
-            DataTable dt = ApiDAL.Get_DataByTableID(groupID + "", "groups", "parent_group_id", "id");
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                ppvModuleGroupID = int.Parse(dt.Rows[0]["parent_group_id"].ToString());
-            //Int32 ppvModuleGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", ppvModule, "pricing_connection").ToString());
+            if (ppvModule == 0)
+            {
+                return;
+            }
 
             //First initialize all previous entries.
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
-            updateQuery.SetConnectionKey("pricing_connection");
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
-            updateQuery += "where";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
-            updateQuery.Execute();
-            updateQuery.Finish();
-            updateQuery = null;
-
-            if (ppvModule == 0)
-                return;
+            if (clear)
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
+                updateQuery.SetConnectionKey("pricing_connection");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
+                updateQuery += "where";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
 
             int ppvFileID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -2677,9 +2679,10 @@ namespace TvinciImporter
             string sPreRule, string sPostRule, string sBreakRule,
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime fileStartDate, DateTime fileEndDate)
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime? fileStartDate, DateTime? fileEndDate)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
+
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
 
             Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
@@ -2723,14 +2726,14 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Product_Code", "=", sProductCode);
 
-                if (fileStartDate != default(DateTime))
+                if (fileStartDate.HasValue)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", fileStartDate);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", fileStartDate.Value);
                 }
 
-                if (fileEndDate != default(DateTime))
+                if (fileEndDate.HasValue)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", fileEndDate);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", fileEndDate.Value);
                 }
 
                 if (bAdsEnabled == true)
@@ -2759,30 +2762,34 @@ namespace TvinciImporter
 
                 SetPolicyToFile(sOutputProtectionLevel, nGroupID, sCoGuid, ref sErrorMessage);
 
-                if (ppvModuleName.EndsWith(";"))
+                if (!string.IsNullOrEmpty(ppvModuleName))
                 {
-                    string ParsedPPVModuleName = string.Empty;
-                    DateTime ppvStartDate;
-                    DateTime ppvEndDate;
+                    int nCommerceGroupID = 0;
 
-                    ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
-                    string[] parameters = ppvModuleName.Split(';');
-
-                    for (int i = 0; i < parameters.Length; i += 3)
+                    if (ppvModuleName.EndsWith(";"))
                     {
-                        ParsedPPVModuleName = parameters[i];
-                        DateTime.TryParse(parameters[i + 1], out ppvStartDate);
-                        DateTime.TryParse(parameters[i + 2], out ppvEndDate);
+                        string ParsedPPVModuleName = string.Empty;
+                        DateTime? ppvStartDate = null;
+                        DateTime? ppvEndDate = null;
 
-                        int ppvID = GetPPVModuleID(ParsedPPVModuleName, nGroupID);
-                        InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, ppvStartDate, ppvEndDate);
+                        ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
+                        string[] parameters = ppvModuleName.Split(';');
+
+                        for (int i = 0; i < parameters.Length; i += 3)
+                        {
+                            int ppvID = GetPPVModuleID(parameters[i], nGroupID, ref nCommerceGroupID);
+
+                            ppvStartDate = ExtractDate(parameters[i + 1], "dd/MM/yyyy HH:mm:ss");
+                            ppvEndDate = ExtractDate(parameters[i + 2], "dd/MM/yyyy HH:mm:ss");
+
+                            InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, ppvStartDate, ppvEndDate, (i == 0));
+                        }
                     }
-                }
-                else
-                {
-                    int ppvID = GetPPVModuleID(ppvModuleName, nGroupID);
-
-                    InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, default(DateTime), default(DateTime));
+                    else
+                    {
+                        int ppvID = GetPPVModuleID(ppvModuleName, nGroupID, ref nCommerceGroupID);
+                        InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, null, null, true);
+                    }
                 }
 
                 /*Insert Family Contract For File */
@@ -3413,21 +3420,11 @@ namespace TvinciImporter
                 string sProductCode = GetItemParameterVal(ref theItem, "product_code");
 
                 // try to pare the files date correctly
-                DateTime dStartDate = new DateTime();
-                DateTime dEndDate   = new DateTime();
-                bool resVal = DateTime.TryParse(sFileStartDate, out dStartDate);
+                DateTime? dStartDate = null;
+                DateTime? dEndDate = null;
 
-                if (resVal == false)
-                {
-                    dStartDate = default(DateTime);
-                }
-
-                resVal = DateTime.TryParse(sFileEndDate, out dEndDate);
-
-                if (resVal == false)
-                {
-                    dEndDate = default(DateTime);
-                }
+                dStartDate = ExtractDate(sFileStartDate, "dd/MM/yyyy HH:mm:ss");
+                dEndDate = ExtractDate(sFileEndDate, "dd/MM/yyyy HH:mm:ss");
 
                 bool bAdsEnabled = true;
                 if (sAdsEnabled.Trim().ToLower() == "false")
@@ -3614,7 +3611,7 @@ namespace TvinciImporter
             }
             return true;
         }
-         //get tags by group and by non group 
+        //get tags by group and by non group 
         static protected Int32 GetTagTypeID(Int32 nGroupID, string sTagName)
         {
             if (sTagName.ToLower().Trim() == "free")
@@ -3968,6 +3965,7 @@ namespace TvinciImporter
 
         static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
         {
+
             XmlDocument theDoc = new XmlDocument();
 
             theDoc.LoadXml(sXML);
@@ -3983,13 +3981,6 @@ namespace TvinciImporter
                 Int32 nCount1 = theItems.Count;
                 for (int i = 0; i < nCount1; i++)
                 {
-                    Int32 nRepStatus = 0;
-                    while (DoesReplicationClean(250000, ref nRepStatus) == false)
-                    {
-                        System.Threading.Thread.Sleep(1000);
-                        Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
-                    }
-                    Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
                     string sCoGuid = "";
                     string sErrorMessage = "";
                     Int32 nMediaID = 0;
@@ -4071,7 +4062,6 @@ namespace TvinciImporter
             {
                 sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
             }
-
 
             return true;
         }
@@ -4264,7 +4254,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = GetConfigVal("CATALOG_WCF");
+            string sCatalogURL = GetConfigVal("WS_Catalog");
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -4358,6 +4348,7 @@ namespace TvinciImporter
 
         }        
 
+
         internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
         {
             string siteUrl = GetConfigVal(sSiteUrl);
@@ -4400,6 +4391,7 @@ namespace TvinciImporter
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
                                         isUpdateIndexSucceeded = client.UpdateIndex(ids, nGroupId, eAction);
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        Logger.Logger.Log("UpdateIndex", string.Format("{0} res {1}", endPointAddress, sInfo), "UpdateIndex");
                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
                                     }
                                     catch (Exception ex)
@@ -4613,6 +4605,17 @@ namespace TvinciImporter
 
             return isUpdateIndexSucceeded;
         }
-    }   
+
+        public static DateTime? ExtractDate(string sDate, string format)
+        {
+            DateTime? result = null;
+            DateTime tempDt;
+            if (DateTime.TryParseExact(sDate, format, null, System.Globalization.DateTimeStyles.None, out tempDt))
+            {
+                result = tempDt;
+            }
+            return result;
+        }
+    }
 }
 
