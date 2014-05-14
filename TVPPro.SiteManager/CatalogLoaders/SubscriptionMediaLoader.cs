@@ -50,9 +50,10 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         protected override void BuildSpecificRequest()
         {
-            m_oRequest = new SubscriptionMediaRequest
+            m_oRequest = new BundleMediaRequest
             {
-                m_nSubscriptionID = SubscriptionID,
+                m_nBundleID = SubscriptionID,
+                m_eBundleType = eBundleType.SUBSCRIPTION,
                 m_oOrderObj = new OrderObj()
                 {
                     m_eOrderBy = OrderBy,
@@ -63,12 +64,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             if (MediaTypes != null && MediaTypes.Count > 0)
             {
                 string sbTypes = String.Join(";", MediaTypes.Select(type => type.ToString()).ToArray());
-                //StringBuilder sbTypes = new StringBuilder();
-                //foreach (int type in MediaTypes)
-                //{
-                //    sbTypes.AppendFormat("{0};", type.ToString());
-                //}
-                ((SubscriptionMediaRequest)m_oRequest).m_sMediaType = sbTypes;
+                ((BundleMediaRequest)m_oRequest).m_sMediaType = sbTypes;
             }
         }
 
@@ -99,8 +95,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 switch (obj.GetType().ToString())
                 {
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.SubscriptionMediaRequest":
-                        SubscriptionMediaRequest subMediaRequest = obj as SubscriptionMediaRequest;
-                        sText.AppendFormat("SubscriptionMediaRequest: SubscriptionID = {0}, GroupID = {1}, PageIndex = {2}, PageSize = {3}", subMediaRequest.m_nSubscriptionID, subMediaRequest.m_nGroupID, subMediaRequest.m_nPageIndex, subMediaRequest.m_nPageSize);
+                        BundleMediaRequest subMediaRequest = obj as BundleMediaRequest;
+                        sText.AppendFormat("SubscriptionMediaRequest: SubscriptionID = {0}, GroupID = {1}, PageIndex = {2}, PageSize = {3}", subMediaRequest.m_nBundleID, subMediaRequest.m_nGroupID, subMediaRequest.m_nPageIndex, subMediaRequest.m_nPageSize);
                         break;
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaIdsResponse":
                         MediaIdsResponse mediaIDsResponse = obj as MediaIdsResponse;

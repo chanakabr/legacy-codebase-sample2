@@ -66,6 +66,14 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Couchbase, Version=1.3.3.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External\Couchbase.dll</HintPath>
+    </Reference>
+    <Reference Include="Enyim.Caching, Version=1.3.3.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External\Enyim.Caching.dll</HintPath>
+    </Reference>
     <Reference Include="Facebook, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\Facebook.dll</HintPath>
     </Reference>
@@ -103,6 +111,8 @@
   <ItemGroup>
     <Compile Include="BaseClass\BaseUrlShortenHelper.cs" />
     <Compile Include="CatalogLoaders\AssetStatsLoader.cs" />
+    <Compile Include="CatalogLoaders\BundleContainingMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\BundleMediaLoader.cs" />
     <Compile Include="CatalogLoaders\ChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\ChannelsListsLoader.cs" />
     <Compile Include="CatalogLoaders\EPGAutoCompleteLoader.cs" />
@@ -431,6 +441,10 @@
       <Project>{6409da6b-d48d-43a2-9217-02b25d4ed5e3}</Project>
       <Name>Tvinci.Web.Controls</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj">
       <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
       <Name>Tvinci.Data.DataLoader</Name>
@@ -474,6 +488,10 @@
     <ProjectReference Include="..\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj">
       <Project>{bead66e3-143b-4c83-9352-50afb0aa62fa}</Project>
       <Name>Tvinci.Data.TVMDataLoader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVPCommonObjects\TVPCommonObjects.csproj">
+      <Project>{c6e794b0-4370-464e-9aa2-f69d6cfc6174}</Project>
+      <Name>TVPCommonObjects</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj">
       <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
@@ -731,10 +749,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://webservices.dev/ca/module.asmx">
+    <WebReferenceUrl Include="http://192.168.16.176/webservices/cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://webservices.dev/ca/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.16.176/webservices/cas/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -786,10 +804,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Domains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://stg-hk.tvincidnshk.com/webservices/pricing_v2_1/module.asmx">
+    <WebReferenceUrl Include="http://192.168.16.176/webservices/pricing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Pricing\</RelPath>
-      <UpdateFromURL>http://stg-hk.tvincidnshk.com/webservices/pricing_v2_1/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.16.176/webservices/pricing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

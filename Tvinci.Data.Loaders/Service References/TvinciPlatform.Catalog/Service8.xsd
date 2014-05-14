@@ -15,15 +15,6 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="StatsType" nillable="true" type="tns:StatsType" />
-  <xs:simpleType name="Language">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="English" />
-      <xs:enumeration value="Hebrew" />
-      <xs:enumeration value="Russian" />
-      <xs:enumeration value="Arabic" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="Language" nillable="true" type="tns:Language" />
   <xs:complexType name="EPGChannelProgrammeObject">
     <xs:sequence>
       <xs:element minOccurs="0" name="CREATE_DATE" nillable="true" type="xs:string" />
@@ -72,6 +63,15 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ArrayOfEPGChannelProgrammeObject" nillable="true" type="tns:ArrayOfEPGChannelProgrammeObject" />
+  <xs:simpleType name="Language">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="English" />
+      <xs:enumeration value="Hebrew" />
+      <xs:enumeration value="Russian" />
+      <xs:enumeration value="Arabic" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Language" nillable="true" type="tns:Language" />
   <xs:simpleType name="eAction">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Off" />
