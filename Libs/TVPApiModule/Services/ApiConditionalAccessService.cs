@@ -102,22 +102,6 @@ namespace TVPApiModule.Services
             return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
         }
 
-        public string DummyChargeUserForCollection(double price, string currency, string collectionCode, string couponCode, string userIP, string siteGuid, string extraParameters, string deviceName, string countryCode2, string languageCode3)
-        {
-            BillingResponse response = null;
-
-            try
-            {
-                response = m_Module.CC_DummyChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currency, collectionCode, couponCode, userIP, extraParameters, countryCode2, languageCode3, deviceName);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("Error calling webservice protocol : DummyChargeUserForCollection, Error Message: {0}, Parameters :  User: {1}", ex.Message, siteGuid);
-            }
-
-            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
-        }
-
         public string ChargeUserForSubscription(double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sUserGuid, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV)
         {
             BillingResponse response = null;
@@ -907,6 +891,36 @@ namespace TVPApiModule.Services
             }
             return retVal;
         }
+
+        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSubscription, int nNewSubscription)
+        {            
+            try
+            {
+                return m_Module.ChangeSubscription(m_wsUserName, m_wsPassword, sSiteGuid, nOldSubscription, nNewSubscription);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : ChangeSubscription, Error Message: {0}, Parameters :  sSiteGuid : {1}, nOldSubscription : {2}, nNewSubscription : {3}", ex.Message, sSiteGuid, nOldSubscription, nNewSubscription);
+            }
+
+            return ChangeSubscriptionStatus.Error;
+        }
+
+        public string DummyChargeUserForCollection(double price, string currency, string collectionCode, string couponCode, string userIP, string siteGuid, string extraParameters, string deviceName, string countryCode2, string languageCode3)
+        {
+            BillingResponse response = null;
+
+            try
+            {
+                response = m_Module.CC_DummyChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currency, collectionCode, couponCode, userIP, extraParameters, countryCode2, languageCode3, deviceName);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : DummyChargeUserForCollection, Error Message: {0}, Parameters :  User: {1}", ex.Message, siteGuid);
+            }
+
+            return response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+        }        
 
         public CollectionsPricesContainer[] GetCollectionsPrices(string[] collections, string userGuid, string countryCode2, string languageCode3, string deviceName)
         {

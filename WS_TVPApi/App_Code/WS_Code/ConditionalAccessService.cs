@@ -582,6 +582,33 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "Change Subscription")]
+        public ChangeSubscriptionStatus ChangeSubscription(InitializationObject initObj, string sSiteGuid, int nOldSubscription, int nNewSubscription)
+        {
+            ChangeSubscriptionStatus response = ChangeSubscriptionStatus.Error; ;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChangeSubscription", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChangeSubscription(sSiteGuid, nOldSubscription, nNewSubscription);
+
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;                       
+        }
+
         [WebMethod(EnableSession = true, Description = "Get collections prices")]
         public CollectionsPricesContainer[] GetCollectionsPrices(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, string languageCode3)
         {
@@ -748,6 +775,6 @@ namespace TVPApiServices
             }
 
             return response;
-        }
+        }        
     }
 }
