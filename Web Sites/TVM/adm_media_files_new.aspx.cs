@@ -278,6 +278,10 @@ public partial class adm_media_files_new : System.Web.UI.Page
         dr_Product_Code.Initialize("Product Code", "adm_table_header_nbg", "FormInput", "Product_Code", false);
         theRecord.AddRecord(dr_Product_Code);
 
+        DataRecordShortTextField dr_CO_GUID = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_CO_GUID.Initialize("CO_GUID", "adm_table_header_nbg", "FormInput", "co_guid", false);
+        theRecord.AddRecord(dr_CO_GUID);
+
         DataRecordShortTextField dr_Language = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_Language.Initialize("Language", "adm_table_header_nbg", "FormInput", "LANGUAGE", false);
         theRecord.AddRecord(dr_Language);

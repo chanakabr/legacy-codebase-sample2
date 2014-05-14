@@ -99,7 +99,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                                 else if (epgCB.Status == 1)
                                 {
                                     epgCB.Status = 4;
-                                    bool res = oEpgBL.UpdateEpg(epgCB);
+                                    bool res = oEpgBL.UpdateEpg(epgCB, null);
                                     bool result = false;
                                     result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
                                 }
@@ -107,7 +107,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                             else // cancel button
                             {
                                 epgCB.Status = 1;
-                                bool res = oEpgBL.UpdateEpg(epgCB);
+                                bool res = oEpgBL.UpdateEpg(epgCB, null);
                                 bool result = false;
                                 result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
                             }

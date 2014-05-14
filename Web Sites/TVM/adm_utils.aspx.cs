@@ -138,7 +138,7 @@ public partial class adm_utils : System.Web.UI.Page
             if (epgCB != null)
             {
                 epgCB.isActive = !(epgCB.isActive);
-                bool res = oEpgBL.UpdateEpg(epgCB);
+                bool res = oEpgBL.UpdateEpg(epgCB, null);
 
                 //Update from ElasticSearch
                 bool result = false;
