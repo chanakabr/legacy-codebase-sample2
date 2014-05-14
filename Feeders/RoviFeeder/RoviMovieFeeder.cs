@@ -14,16 +14,16 @@ namespace RoviFeeder
     {
         public RoviMovieFeeder()
         {
-            m_url       = string.Empty;
-            m_fromID    = 0;
-            m_groupID   = 0;
+            m_url = string.Empty;
+            m_fromID = 0;
+            m_groupID = 0;
         }
 
         public RoviMovieFeeder(string url, int fromID, int nGroupID)
         {
-            m_url       = url;
-            m_fromID    = fromID;
-            m_groupID   = nGroupID;
+            m_url = url;
+            m_fromID = fromID;
+            m_groupID = nGroupID;
         }
 
         private string ContentURL
@@ -58,7 +58,30 @@ namespace RoviFeeder
                 return false;
             }
 
+            RoviTransform transformer = new RoviTransform();
+            transformer.Init();
 
+            foreach (KeyValuePair<int, string> entry in dMovieUrls)
+            {
+                bool res = false;
+                string movieUrl = entry.Value;
+                try
+                {
+                    res = TryIngestItem(movieUrl, transformer);
+                    Logger.Logger.Log("Error", string.Format("{0}, {1}", movieUrl, res.ToString()), "RoviMovieFeeder");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Error", string.Format("{0}, {1}", movieUrl, ex.Message), "RoviMovieFeeder");
+                }
+
+                System.Threading.Thread.Sleep(1000);
+            }
+
+            return true;
+
+
+            /*
             Dictionary<int, string> dErrorMovieUrls = new Dictionary<int, string>();
             Dictionary<int, string> dRetryMovieUrls = new Dictionary<int, string>();
 
@@ -147,6 +170,7 @@ namespace RoviFeeder
             transformer = null;
 
             return true;
+            */
         }
 
         private bool TryIngestItem(string sVodUrl, RoviTransform transformer)
@@ -191,7 +215,7 @@ namespace RoviFeeder
             {
                 try
                 {
-                    transformer.TransformA(XMLD, writer,RoviTransform.assetType.MOVIE);
+                    transformer.TransformA(XMLD, writer, RoviTransform.assetType.MOVIE);
                 }
                 catch
                 {
@@ -202,20 +226,20 @@ namespace RoviFeeder
             }
 
             string exeptionString = string.Empty;
-
-            res = TvinciImporter.ImporterImpl.DoTheWorkInner(XMLD.OuterXml, m_groupID, "", ref exeptionString, false);
-
-            IngestNotificationStatus configurationStatus = res == true ? IngestNotificationStatus.SUCCESS : IngestNotificationStatus.ERROR;
-
-            RoviFeederUtils.SendIngetNotification(configurationStatus, sVodUrl, exeptionString);
-            if (!res)
+            try
             {
-                return false;
+                res = TvinciImporter.ImporterImpl.DoTheWorkInner(XMLD.OuterXml, m_groupID, "", ref exeptionString, false);
+
+                IngestNotificationStatus configurationStatus = res == true ? IngestNotificationStatus.SUCCESS : IngestNotificationStatus.ERROR;
+
+                RoviFeederUtils.SendIngestNotification(configurationStatus, sVodUrl, exeptionString);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", string.Format("{0}", ex.Message), "RoviIngestNotification");
             }
 
-            XMLD = null;
-
-            return true;
+            return res;
         }
     }
 }

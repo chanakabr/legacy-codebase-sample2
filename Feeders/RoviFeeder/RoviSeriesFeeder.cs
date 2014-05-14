@@ -207,7 +207,7 @@ namespace RoviFeeder
 
             IngestNotificationStatus configurationStatus = res == true ? IngestNotificationStatus.SUCCESS : IngestNotificationStatus.ERROR;
 
-            RoviFeederUtils.SendIngetNotification(configurationStatus, sVodUrl, exeptionString);
+            RoviFeederUtils.SendIngestNotification(configurationStatus, sVodUrl, exeptionString);
             if (!res)
             {
                 return false;
