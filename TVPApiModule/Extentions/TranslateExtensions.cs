@@ -816,7 +816,7 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static TVPApiModule.Objects.Responses.SubscriptionCodeContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.SubscriptionCodeContainer response)
+        public static TVPApiModule.Objects.Responses.SubscriptionCodeContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BundleCodeContainer response)
         {
             TVPApiModule.Objects.Responses.SubscriptionCodeContainer retVal = new TVPApiModule.Objects.Responses.SubscriptionCodeContainer();
 
@@ -1257,7 +1257,7 @@ namespace TVPApiModule.Extentions
             return retVal;
         }
 
-        public static TVPApiModule.Objects.Responses.SubscriptionCodeContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.SubscriptionCodeContainer response)
+        public static TVPApiModule.Objects.Responses.SubscriptionCodeContainer ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.BundleCodeContainer response)
         {
             TVPApiModule.Objects.Responses.SubscriptionCodeContainer retVal = new TVPApiModule.Objects.Responses.SubscriptionCodeContainer();
 
