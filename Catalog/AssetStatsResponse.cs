@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
+using ApiObjects.Statistics;
 
 namespace Catalog
 {
@@ -41,6 +42,9 @@ namespace Catalog
         [DataMember]
         public int m_nViews;
 
+        [DataMember]
+        public BuzzWeightedAverScore m_buzzAverScore;
+
         public AssetStatsResult()
             : base()
         {
@@ -49,15 +53,17 @@ namespace Catalog
             m_nVotes = 0;
             m_dRate = 0;
             m_nViews = 0;
+           m_buzzAverScore = new BuzzWeightedAverScore();
         }
 
-        public AssetStatsResult(int nAssetID, int nLikes, int nVotes, double dRate, int nViews)
+        public AssetStatsResult(int nAssetID, int nLikes, int nVotes, double dRate, int nViews, BuzzWeightedAverScore oBuzzAverScore)
         {
             m_nAssetID = nAssetID;
             m_nLikes = nLikes;
             m_nVotes = nVotes;
             m_dRate = dRate;
             m_nViews = nViews;
+            m_buzzAverScore = oBuzzAverScore;
         }
 
 

@@ -37,11 +37,21 @@ namespace Catalog
             {
                 GetGroupsTagsTypes(ref newGroup);
                 GetAllGroupChannels(newGroup);
+                GetGroupLanguages(ref newGroup);
             }
             
             //get all PermittedWatchRules by groupID
             SetPermittedWatchRules(ref newGroup);
             return newGroup;
+        }
+
+        private static void GetGroupLanguages(ref Group group)
+        {
+            List<LanguageObj> languages = Tvinci.Core.DAL.CatalogDAL.GetGroupLanguages(group.m_nParentGroupID);
+            if (languages != null)
+            {
+                group.AddLanguage(languages);
+            }
         }
 
         private static void GetGroupEpgTagsAndMetas(ref Group newGroup)

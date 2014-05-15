@@ -950,13 +950,16 @@ namespace TvinciImporter
 
             for (int i = 0; i < theMedias.Length; ++i)
             {
+                // Convert co_guid to media ID
+                int mediaID = GetMediaIDByCoGuid(nGroupID, theMedias[i].ID);
+
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select ID from channels_media where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
                 selectQuery += " and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", Int32.Parse(theMedias[i].ID));
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
 
                 // check if media exist in channel, if so update the data, otherwise insert the new media
                 if (selectQuery.Execute("query", true) != null)
@@ -970,7 +973,7 @@ namespace TvinciImporter
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
                         updateQuery += " where ";
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", Int32.Parse(theMedias[i].ID));
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
                         updateQuery.Execute();
                         updateQuery.Finish();
                         updateQuery = null;
@@ -978,7 +981,7 @@ namespace TvinciImporter
                     else
                     {
                         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("channels_media");
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", Int32.Parse(theMedias[i].ID));
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", Int32.Parse(theMedias[i].order_number));
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
@@ -1631,7 +1634,110 @@ namespace TvinciImporter
             return nRet;
         }
 
+
         static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
+        {
+            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+            sUseQueue = sUseQueue.ToLower();
+            if (sUseQueue.Equals("true"))
+            {
+                return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID);
+            }
+            else
+            {
+                return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID);
+            }
+        }
+
+        static public Int32 DownloadEPGPicToUploader(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
+        {
+            if (sThumb.Trim() == "")
+                return 0;
+
+            string sBasePath = GetBasePath(nGroupID);
+
+            char[] delim = { '/' };
+            string[] splited1 = sThumb.Split(delim);
+            string sPicBaseName1 = splited1[splited1.Length - 1];
+            if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
+            {
+                Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
+                Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
+                if (nEnd != 4)
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
+                else
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart);
+                sPicBaseName1 += ".jpg";
+            }
+
+            Int32 nPicID = 0;
+            nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicBaseName1, nGroupID);
+
+            //string sPicName = sName;
+            if (nPicID == 0)
+            {
+                string sUploadedFile = "";
+                lock (m_sLocker)
+                {
+                    sUploadedFile = TVinciShared.ImageUtils.DownloadWebImage(sThumb, sBasePath);
+                }
+                if (sUploadedFile == "")
+                    return 0;
+                string sUploadedFileExt = "";
+                int nExtractPos = sUploadedFile.LastIndexOf(".");
+                if (nExtractPos > 0)
+                    sUploadedFileExt = sUploadedFile.Substring(nExtractPos);
+
+                string sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select * from epg_pics_sizes (nolock) where status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+
+                    TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt, 90, 65, true);
+                    UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_tn" + sUploadedFileExt);
+
+                    TVinciShared.ImageUtils.RenameImage(sBasePath + "/pics/" + sUploadedFile, sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt);
+                    UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_full" + sUploadedFileExt);
+
+                    for (int nI = 0; nI < nCount; nI++)
+                    {
+                        string sWidth = selectQuery.Table("query").DefaultView[nI].Row["WIDTH"].ToString();
+                        string sHeight = selectQuery.Table("query").DefaultView[nI].Row["HEIGHT"].ToString();
+                        string sEndName = sWidth + "X" + sHeight;
+
+                        string sTmpImage1 = sBasePath + "/pics/" + nGroupID.ToString() + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
+
+                        TVinciShared.ImageUtils.ResizeImageAndSave(sBasePath + "/pics/" + sUploadedFile, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), true);
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, sPicBaseName + "_" + sEndName + sUploadedFileExt);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+
+                nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sUploadedFile, sPicBaseName + sUploadedFileExt, nGroupID);
+            }
+            // Liat comment this update 02.02.2014
+            //if (nPicID != 0)
+            //{
+            //    //IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sName, nGroupID, nPicID, false);
+            //    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+            //    updateQuery += " where ";
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
+            //    updateQuery.Execute();
+            //    updateQuery.Finish();
+            //    updateQuery = null;
+            //}
+            return nPicID;
+        }
+
+
+        static public Int32 DownloadEPGPicToQueue(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
         {
             if (sThumb.Trim() == "")
                 return 0;
@@ -1990,8 +2096,165 @@ namespace TvinciImporter
             return nPicID;
         }
 
-  
+
         static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        {           
+            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+             sUseQueue = sUseQueue.ToLower();
+            if (sUseQueue.Equals("true"))
+            {
+                return DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+            }
+            else
+            {
+                return DownloadPicToUploader(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+            }
+        }
+
+        static public Int32 DownloadPicToUploader(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        {
+            //return DownloadPic_old(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+
+            Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
+            if (sPic.Trim() == "")
+            {
+                return 0;
+            }
+            string sBasePath = GetBasePath(nGroupID);
+            sBasePath = string.Format("{0}\\pics\\{1}", sBasePath, nGroupID);
+
+            Logger.Logger.Log("File download", "Base Path is " + sBasePath, "DownloadFile");
+
+            string sPicsBasePath = string.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            selectQuery += "select PICS_REMOTE_BASE_URL from groups (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    sPicsBasePath = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            char[] delim = { '/' };
+            string[] splited1 = sPic.Split(delim);
+            string sPicBaseName1 = splited1[splited1.Length - 1];
+            if (sPicBaseName1.IndexOf("?") != -1 && sPicBaseName1.IndexOf("uuid") != -1)
+            {
+                Int32 nStart = sPicBaseName1.IndexOf("uuid=", 0) + 5;
+                Int32 nEnd = sPicBaseName1.IndexOf("&", nStart);
+                if (nEnd != 4)
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart, nEnd - nStart);
+                else
+                    sPicBaseName1 = sPicBaseName1.Substring(nStart);
+                sPicBaseName1 += ".jpg";
+            }
+
+            string sPicName = sMediaName;
+
+            if (!Directory.Exists(sBasePath))
+            {
+                Directory.CreateDirectory(sBasePath);
+            }
+
+            Int32 nPicID = 0;
+
+            string sUploadedFileExt = "";
+            int nExtractPos = sPic.LastIndexOf(".");
+            if (nExtractPos > 0)
+                sUploadedFileExt = sPic.Substring(nExtractPos);
+
+            string sPicBaseName = string.Empty;
+            if (ratioID > 0)
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName(nMediaID);
+            }
+            if (string.IsNullOrEmpty(sPicBaseName))
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+            }
+
+            List<ImageManager.ImageObj> images = new List<ImageManager.ImageObj>();
+            if (bSetMediaThumb)
+            {
+                ImageManager.ImageObj tnImage = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.THUMB, 90, 65, sUploadedFileExt);
+                ImageManager.ImageObj fullImage = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.FULL, 0, 0, sUploadedFileExt);
+
+                images.Add(tnImage);
+                images.Add(fullImage);
+            }
+
+            selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            if (ratioID > 0)
+            {
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
+            }
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
+                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
+
+                    ImageManager.ImageObj image = new ImageManager.ImageObj(sPicBaseName, ImageManager.ImageType.SIZE, nWidth, nHeight, sUploadedFileExt);
+                    images.Add(image);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            bool downloadRes = ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPic, sBasePath, images, sPicBaseName, sUploadedFileExt);
+            if (!downloadRes)
+            {
+                ImageManager.ImageHelper.DownloadAndCropImage(nGroupID, sPicsBasePath + "/" + sPic, sBasePath, images, sPicBaseName, sUploadedFileExt);
+            }
+            if (downloadRes)
+            {
+                foreach (ImageManager.ImageObj image in images)
+                {
+                    if (image.eResizeStatus == ImageManager.ResizeStatus.SUCCESS)
+                    {
+                        UploadQueue.UploadQueueHelper.AddJobToQueue(nGroupID, image.ToString());
+                    }
+                }
+                nPicID = InsertNewPic(sMediaName, sPic, sPicBaseName + sUploadedFileExt, nGroupID);
+            }
+
+            if (nPicID != 0)
+            {
+                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, nPicID, false);
+                if (bSetMediaThumb == true)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+                //the media type id is invalid here
+                EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH");
+            }
+            return nPicID;
+        }
+		
+		
+
+
+        static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
             int nPicID = 0;
             Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
@@ -2279,57 +2542,59 @@ namespace TvinciImporter
             return nRet;
         }
 
-        static protected int GetPPVModuleID(string moduleName, int groupID)
+        static protected int GetPPVModuleID(string moduleName, int groupID, ref int nCommerceGroupID)
         {
-            Int32 nRet = 0;
-            if (string.IsNullOrEmpty(moduleName))
-                return 0;
+            int nRet = 0;
+            nCommerceGroupID = 0;
 
-            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(groupID);
+            if (string.IsNullOrEmpty(moduleName))
+            {
+                return 0;
+            }
+
             object commerceGroupIDObj = ODBCWrapper.Utils.GetTableSingleVal("groups", "commerce_group_id", groupID, 86400);
-            int commerceGroupID = 0;
             if (commerceGroupIDObj != null && !string.IsNullOrEmpty(commerceGroupIDObj.ToString()))
             {
-                commerceGroupID = int.Parse(commerceGroupIDObj.ToString());
+                nCommerceGroupID = int.Parse(commerceGroupIDObj.ToString());
             }
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("pricing_connection");
-            selectQuery += "select id from ppv_modules where ";
+            selectQuery += "select id from ppv_modules where IS_ACTIVE = 1 and STATUS = 1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", moduleName);
-            selectQuery += "and group_id =" + commerceGroupIDObj;
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nCommerceGroupID);
             if (selectQuery.Execute("query", true) != null)
             {
-                Int32 nCopunt = selectQuery.Table("query").DefaultView.Count;
+                int nCopunt = selectQuery.Table("query").DefaultView.Count;
                 if (nCopunt > 0)
-                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    nRet = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
             }
             selectQuery.Finish();
             selectQuery = null;
             return nRet;
         }
 
-        static protected void InsertFilePPVModule(int ppvModule, int fileID, int groupID)
+        static protected void InsertFilePPVModule(int ppvModule, int fileID, int ppvModuleGroupID, DateTime? startDate, DateTime? endDate, bool clear)
         {
-            // get parent group id
-            Int32 ppvModuleGroupID = 0;
-            DataTable dt = ApiDAL.Get_DataByTableID(groupID + "", "groups", "parent_group_id", "id");
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                ppvModuleGroupID = int.Parse(dt.Rows[0]["parent_group_id"].ToString());
-            //Int32 ppvModuleGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", ppvModule, "pricing_connection").ToString());
+            if (ppvModule == 0)
+            {
+                return;
+            }
 
             //First initialize all previous entries.
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
-            updateQuery.SetConnectionKey("pricing_connection");
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
-            updateQuery += "where";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
-            updateQuery.Execute();
-            updateQuery.Finish();
-            updateQuery = null;
-
-            if (ppvModule == 0)
-                return;
+            if (clear)
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
+                updateQuery.SetConnectionKey("pricing_connection");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
+                updateQuery += "where";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
 
             int ppvFileID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -2358,6 +2623,25 @@ namespace TvinciImporter
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", ppvModuleGroupID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+
+                if (startDate == default(DateTime))
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                }
+                else
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
+                }
+
+                if (endDate == default(DateTime))
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                }
+                else
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
+                }
+
                 insertQuery.Execute();
                 insertQuery.Finish();
                 insertQuery = null;
@@ -2370,6 +2654,25 @@ namespace TvinciImporter
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
+
+                if (startDate == default(DateTime))
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", null);
+                }
+                else
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
+                }
+
+                if (endDate == default(DateTime))
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", null);
+                }
+                else
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
+                }
+
                 updateOldQuery += "where";
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", ppvFileID);
                 updateOldQuery.Execute();
@@ -2384,9 +2687,10 @@ namespace TvinciImporter
             string sPreRule, string sPostRule, string sBreakRule,
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode)
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime? fileStartDate, DateTime? fileEndDate)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
+
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
 
             Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
@@ -2430,6 +2734,16 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Product_Code", "=", sProductCode);
 
+                if (fileStartDate.HasValue)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", fileStartDate.Value);
+                }
+
+                if (fileEndDate.HasValue)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", fileEndDate.Value);
+                }
+
                 if (bAdsEnabled == true)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADS_ENABLED", "=", 1);
                 else
@@ -2456,8 +2770,35 @@ namespace TvinciImporter
 
                 SetPolicyToFile(sOutputProtectionLevel, nGroupID, sCoGuid, ref sErrorMessage);
 
-                int ppvID = GetPPVModuleID(ppvModuleName, nGroupID);
-                InsertFilePPVModule(ppvID, nMediaFileID, nGroupID);
+                if (!string.IsNullOrEmpty(ppvModuleName))
+                {
+                    int nCommerceGroupID = 0;
+
+                    if (ppvModuleName.EndsWith(";"))
+                    {
+                        string ParsedPPVModuleName = string.Empty;
+                        DateTime? ppvStartDate = null;
+                        DateTime? ppvEndDate = null;
+
+                        ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
+                        string[] parameters = ppvModuleName.Split(';');
+
+                        for (int i = 0; i < parameters.Length; i += 3)
+                        {
+                            int ppvID = GetPPVModuleID(parameters[i], nGroupID, ref nCommerceGroupID);
+
+                            ppvStartDate = ExtractDate(parameters[i + 1], "dd/MM/yyyy HH:mm:ss");
+                            ppvEndDate = ExtractDate(parameters[i + 2], "dd/MM/yyyy HH:mm:ss");
+
+                            InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, ppvStartDate, ppvEndDate, (i == 0));
+                        }
+                    }
+                    else
+                    {
+                        int ppvID = GetPPVModuleID(ppvModuleName, nGroupID, ref nCommerceGroupID);
+                        InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, null, null, true);
+                    }
+                }
 
                 /*Insert Family Contract For File */
                 if (!string.IsNullOrEmpty(sContractFamily))
@@ -3076,6 +3417,8 @@ namespace TvinciImporter
                 string sBreakPoints = GetItemParameterVal(ref theItem, "break_points");
                 string sOverlayRule = GetItemParameterVal(ref theItem, "overlay_rule");
                 string sOverlayPoints = GetItemParameterVal(ref theItem, "overlay_points");
+                string sFileStartDate = GetItemParameterVal(ref theItem, "file_start_date");
+                string sFileEndDate = GetItemParameterVal(ref theItem, "file_end_date");
                 string sAdsEnabled = GetItemParameterVal(ref theItem, "ads_enabled");
                 string sContractFamily = GetItemParameterVal(ref theItem, "contract_family");
                 string sLanguage = GetItemParameterVal(ref theItem, "lang");
@@ -3083,6 +3426,16 @@ namespace TvinciImporter
                 string sOutputProtectionLevel = GetItemParameterVal(ref theItem, "output_protection_level");
                 int nIsDefaultLanguage = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
                 string sProductCode = GetItemParameterVal(ref theItem, "product_code");
+<<<<<<< HEAD
+=======
+
+                // try to pare the files date correctly
+                DateTime? dStartDate = null;
+                DateTime? dEndDate = null;
+
+                dStartDate = ExtractDate(sFileStartDate, "dd/MM/yyyy HH:mm:ss");
+                dEndDate = ExtractDate(sFileEndDate, "dd/MM/yyyy HH:mm:ss");
+>>>>>>> master
 
                 bool bAdsEnabled = true;
                 if (sAdsEnabled.Trim().ToLower() == "false")
@@ -3113,7 +3466,7 @@ namespace TvinciImporter
                     EnterClipMediaFile(sFormat, nMediaID, 0, nGroupID, sQuality, sCDN, sCDNId, sCDNCode, sBillingType,
                         sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
                         bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
-                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode);
+                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode, dStartDate, dEndDate);
                 }
 
 
@@ -3269,7 +3622,7 @@ namespace TvinciImporter
             }
             return true;
         }
-         //get tags by group and by non group 
+        //get tags by group and by non group 
         static protected Int32 GetTagTypeID(Int32 nGroupID, string sTagName)
         {
             if (sTagName.ToLower().Trim() == "free")
@@ -3623,6 +3976,7 @@ namespace TvinciImporter
 
         static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
         {
+
             XmlDocument theDoc = new XmlDocument();
 
             theDoc.LoadXml(sXML);
@@ -3638,13 +3992,6 @@ namespace TvinciImporter
                 Int32 nCount1 = theItems.Count;
                 for (int i = 0; i < nCount1; i++)
                 {
-                    Int32 nRepStatus = 0;
-                    while (DoesReplicationClean(250000, ref nRepStatus) == false)
-                    {
-                        System.Threading.Thread.Sleep(1000);
-                        Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
-                    }
-                    Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
                     string sCoGuid = "";
                     string sErrorMessage = "";
                     Int32 nMediaID = 0;
@@ -3726,7 +4073,6 @@ namespace TvinciImporter
             {
                 sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
             }
-
 
             return true;
         }
@@ -3919,7 +4265,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = GetConfigVal("CATALOG_WCF");
+            string sCatalogURL = GetConfigVal("WS_Catalog");
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -4004,14 +4350,18 @@ namespace TvinciImporter
         {
             internal static Binding CreateInstance()
             {
-                BasicHttpBinding binding = new BasicHttpBinding();
-                binding.Security.Mode = BasicHttpSecurityMode.TransportCredentialOnly;
+                WSHttpBinding binding = new WSHttpBinding();
+                binding.Security.Mode = SecurityMode.None;
                 binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
                 binding.UseDefaultWebProxy = true;
                 return binding;
             }
 
         }        
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 
         internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
         {
@@ -4055,6 +4405,7 @@ namespace TvinciImporter
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
                                         isUpdateIndexSucceeded = client.UpdateIndex(ids, nGroupId, eAction);
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        Logger.Logger.Log("UpdateIndex", string.Format("{0} res {1}", endPointAddress, sInfo), "UpdateIndex");
                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
                                     }
                                     catch (Exception ex)
@@ -4268,6 +4619,17 @@ namespace TvinciImporter
 
             return isUpdateIndexSucceeded;
         }
-    }   
+
+        public static DateTime? ExtractDate(string sDate, string format)
+        {
+            DateTime? result = null;
+            DateTime tempDt;
+            if (DateTime.TryParseExact(sDate, format, null, System.Globalization.DateTimeStyles.None, out tempDt))
+            {
+                result = tempDt;
+            }
+            return result;
+        }
+    }
 }
 

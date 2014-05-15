@@ -28,8 +28,10 @@ namespace Users
         private static string GetSHA1HashData(string data)
         {
             byte[] buffer = Encoding.ASCII.GetBytes(data);
-            SHA1CryptoServiceProvider cryptoTransformSHA1 = new SHA1CryptoServiceProvider();
-            return BitConverter.ToString(cryptoTransformSHA1.ComputeHash(buffer)).Replace("-", "").ToLower();
+            using (SHA1CryptoServiceProvider cryptoTransformSHA1 = new SHA1CryptoServiceProvider())
+            {
+                return BitConverter.ToString(cryptoTransformSHA1.ComputeHash(buffer)).Replace("-", "").ToLower();
+            }
         }
 
         public override void GenerateEncryptPassword(string clearPassword, ref string EncryptPassword, ref string salt)

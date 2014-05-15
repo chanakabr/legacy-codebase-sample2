@@ -14,8 +14,8 @@ namespace XSLT_transform_handlar
     public sealed class ADI3_XSLT_Transformer : BaseTransformHandler
     {
         // TODO: later on, read these configuration information fron outside
-        string XSL_DEFAULT_FILE           = ConfigurationManager.AppSettings["XSL_PATH"].ToString() + "ADI3_transform.xsl";
-        string XSL_SERIES_DEFAULT_FILE    = ConfigurationManager.AppSettings["XSL_PATH"].ToString() + "ADI3_transform_series.xsl";
+        string XSL_DEFAULT_FILE = ConfigurationManager.AppSettings["XSL_PATH"].ToString() + "ADI3_transform.xsl";
+        string XSL_SERIES_DEFAULT_FILE = ConfigurationManager.AppSettings["XSL_PATH"].ToString() + "ADI3_transform_series.xsl";
 
         private XslCompiledTransform m_oXsltSeries = new XslCompiledTransform();
 
@@ -28,7 +28,7 @@ namespace XSLT_transform_handlar
                 m_oXslt.Transform(pathInputFile + nameInputFile, m_oXslArguments, output);
 
                 // convert string to stream
-                byte[] byteArray = Encoding.UTF8.GetBytes( output.ToString() );
+                byte[] byteArray = Encoding.UTF8.GetBytes(output.ToString());
                 MemoryStream stream = new MemoryStream(byteArray);
 
                 StreamWriter writer = new StreamWriter(stream);
@@ -60,8 +60,8 @@ namespace XSLT_transform_handlar
 
             XmlNodeList movieList = XMLDocFile.GetElementsByTagName("Movie");
 
-            int       groupID = int.Parse(ConfigurationManager.AppSettings["PARENT_GROUP_ID"].ToString());
-            DataTable dt      = DAL.XMLAdapterDAL.Get_GroupLangCodes(groupID);
+            int groupID = int.Parse(ConfigurationManager.AppSettings["PARENT_GROUP_ID"].ToString());
+            DataTable dt = DAL.XMLAdapterDAL.Get_GroupLangCodes(groupID);
 
             if (dt != null)
             {
@@ -70,7 +70,7 @@ namespace XSLT_transform_handlar
                     foreach (DataRow dataRow in dt.Rows)
                     {
                         XmlElement SupportedLanguages = XMLDocFile.CreateElement("SupportedLanguages");
-                        string languageCode           = ODBCWrapper.Utils.GetSafeStr(dataRow["code3"]);
+                        string languageCode = ODBCWrapper.Utils.GetSafeStr(dataRow["code3"]);
                         SupportedLanguages.SetAttribute("codeID", languageCode);
 
                         XmlElement root = XMLDocFile.SelectSingleNode("//*[local-name()='ADI3']") as XmlElement;
@@ -121,10 +121,10 @@ namespace XSLT_transform_handlar
 
         private void AddingPhysicalFileUrls(StreamWriter transformedFile, string InputFile, StringWriter output)
         {
-            XmlDocument transformedDoc          = new XmlDocument();      // the final transformed file
-            XmlDocument mediaPhysicalDataDoc    = new XmlDocument();      // video file asset
-            XmlDocument InputADI3FileDoc        = new XmlDocument();
-            
+            XmlDocument transformedDoc = new XmlDocument();      // the final transformed file
+            XmlDocument mediaPhysicalDataDoc = new XmlDocument();      // video file asset
+            XmlDocument InputADI3FileDoc = new XmlDocument();
+
             // open and resources for the job
             //FileStream fs = (FileStream)(transformedFile.BaseStream);
             //transformedFile.Close();
@@ -136,8 +136,8 @@ namespace XSLT_transform_handlar
             nsmgr.AddNamespace("cm", "http://opencase.extend.com/cm");
             nsmgr.AddNamespace("offer", "http://www.cablelabs.com/namespaces/metadata/xsd/offer/1");
 
-            XmlNodeList contentGroupList    = InputADI3FileDoc.GetElementsByTagName("ContentGroup");  // bandle all the content groups
-            XmlNodeList movieList           = InputADI3FileDoc.GetElementsByTagName("Movie");         // bandle all the movies
+            XmlNodeList contentGroupList = InputADI3FileDoc.GetElementsByTagName("ContentGroup");  // bandle all the content groups
+            XmlNodeList movieList = InputADI3FileDoc.GetElementsByTagName("Movie");         // bandle all the movies
 
             // iterate all the content groups and set all the physical data info
             foreach (XmlNode node in contentGroupList)
@@ -198,7 +198,14 @@ namespace XSLT_transform_handlar
                         {
                             if (cdnCode.Contains("TABLET"))
                             {
-                                targetDeviceName = "Tablet Main"; 
+                                if (cdnCode.Contains("_RUS"))
+                                {
+                                    targetDeviceName = "Tablet Main RU";
+                                }
+                                else
+                                {
+                                    targetDeviceName = "Tablet Main";
+                                }
                             }
                             else if (cdnCode.Contains("PC"))
                             {
@@ -206,7 +213,14 @@ namespace XSLT_transform_handlar
                             }
                             else if (cdnCode.Contains("PHONE"))
                             {
-                                targetDeviceName = "PHONE Main";
+                                if (cdnCode.Contains("_RUS"))
+                                {
+                                    targetDeviceName = "Phone Main RU";
+                                }
+                                else
+                                {
+                                    targetDeviceName = "PHONE Main";
+                                }
                             }
                             else
                             {

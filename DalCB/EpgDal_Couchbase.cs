@@ -18,7 +18,7 @@ namespace DalCB
     public class EpgDal_Couchbase
     {
         private static readonly string sEndMaxValue = @"\uefff";
-        private static readonly string CB_EPG_DESGIN = GetValFromConfig("cb_epg_design");
+        private static readonly string CB_EPG_DESGIN = Utils.GetValFromConfig("cb_epg_design");
 
         CouchbaseClient m_oClient;
         private int m_nGroupID;
@@ -58,6 +58,30 @@ namespace DalCB
             return bRes;
         }
 
+
+        public bool InsertProgram(string sDocID, object epg, DateTime? dtExpiresAt, ulong cas)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    
+                    bRes = (dtExpiresAt.HasValue) ? m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Add, sDocID, epg, cas, dtExpiresAt.Value) :
+                                                   m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Add, sDocID, epg, cas);
+                }
+                catch (Exception ex)
+                {
+                    Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
+                    log.Message = string.Format("InsertProgram with cas: ex={0} in {1}", ex.Message, ex.StackTrace);
+                    log.Error(log.Message, false);
+                }
+            }
+
+            return bRes;
+        }
+
         //This method uses StoreMode.Set, hence can Inserts&Updates a records
         public bool UpdateProgram(string sDocID, object epg, DateTime? dtExpiresAt)
         {
@@ -74,6 +98,28 @@ namespace DalCB
                 {
                     Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
                     log.Message = string.Format("UpdateProgram: ex={0} in {1}", ex.Message, ex.StackTrace);
+                    log.Error(log.Message, false);
+                }
+            }
+
+            return bRes;
+        }
+
+        public bool UpdateProgram(string sDocID, object epg, DateTime? dtExpiresAt, ulong cas)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ? m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg, cas, dtExpiresAt.Value) :
+                                                    m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg, cas);
+                }
+                catch (Exception ex)
+                {
+                    Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
+                    log.Message = string.Format("UpdateProgram with cas: ex={0} in {1}", ex.Message, ex.StackTrace);
                     log.Error(log.Message, false);
                 }
             }
@@ -115,6 +161,26 @@ namespace DalCB
             return oRes;
         }
 
+        public EpgCB GetProgram(string id, out ulong cas)
+        {
+            EpgCB oRes = null;
+            cas = 0;
+            try
+            {
+                var casObj = m_oClient.GetWithCas<string>(id);
+                oRes = JsonConvert.DeserializeObject<EpgCB>(casObj.Result);
+                cas = casObj.Cas;
+            }
+            catch (Exception ex)
+            {
+                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
+                log.Message = string.Format("GetProgram: ex={0} in {1}", ex.Message, ex.StackTrace);
+                log.Error(log.Message, false);
+            }
+
+            return oRes;
+        }
+
         public List<EpgCB> GetProgram(List<string> lIds)
         {
             List<EpgCB> oRes = new List<EpgCB>();
@@ -123,7 +189,6 @@ namespace DalCB
                 if (lIds != null && lIds.Count > 0)
                 {
                     IDictionary<string, object> dItems = m_oClient.Get(lIds);
-
                     if (dItems != null && dItems.Count > 0)
                     {
                         EpgCB tempEpg;
@@ -298,11 +363,7 @@ namespace DalCB
             return lRes;
         }
 
-        public static string GetValFromConfig(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
- 
-        }
+
 
     }
 }

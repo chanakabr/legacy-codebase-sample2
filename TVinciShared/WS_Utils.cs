@@ -145,6 +145,73 @@ namespace TVinciShared
             }
         }
 
+        static public string SendXMLHttpReqWithHeaders(string sUrl, string sToSend, Dictionary<string,string> postHeaders, string contentType = "text/xml; charset=utf-8",
+                                            string sUsernameField = "", string sUsername = "", string sPasswordField = "", string sPassword = "", string sMethod = "post")
+        {
+
+            //Create the HTTP POST request and the authentication headers
+            HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(new Uri(sUrl));
+            oWebRequest.Method = (string.IsNullOrEmpty(sMethod) ? "post" : sMethod);
+            oWebRequest.ContentType = (string.IsNullOrEmpty(contentType) ? "text/xml; charset=utf-8" : contentType);
+
+            foreach (string header in postHeaders.Keys)
+            {
+                oWebRequest.Headers[header] = postHeaders[header];
+            }
+
+            if (!string.IsNullOrEmpty(sUsernameField) || !string.IsNullOrEmpty(sPasswordField) || !string.IsNullOrEmpty(sUsername) || !string.IsNullOrEmpty(sPassword))
+            {
+                oWebRequest.Headers[sUsernameField] = sUsername;
+                oWebRequest.Headers[sPasswordField] = sPassword;
+            }
+
+            byte[] encodedBytes = Encoding.UTF8.GetBytes(sToSend);
+
+            //Send the request
+            if (string.Compare(oWebRequest.Method, "post", true) == 0)
+            {
+                using (Stream requestStream = oWebRequest.GetRequestStream())
+                {
+                    requestStream.Write(encodedBytes, 0, encodedBytes.Length);
+                    requestStream.Close();
+                }
+            }
+
+            try
+            {
+                HttpWebResponse oWebResponse = (HttpWebResponse)oWebRequest.GetResponse();
+                HttpStatusCode sCode = oWebResponse.StatusCode;
+                Stream receiveStream = oWebResponse.GetResponseStream();
+
+                using (StreamReader sr = new StreamReader(receiveStream))
+                {
+                    string resultString = sr.ReadToEnd();
+
+                    sr.Close();
+
+                    oWebRequest = null;
+                    oWebResponse = null;
+
+                    return resultString;
+                }
+            }
+            catch (WebException ex)
+            {
+                Console.WriteLine(ex);
+                WebResponse errRsp = ex.Response;
+
+                if (errRsp == null)
+                {
+                    return string.Empty;
+                }
+
+                using (StreamReader rdr = new StreamReader(errRsp.GetResponseStream()))
+                {
+                    return rdr.ReadToEnd();
+                }
+            }
+        }
+
         public static bool TrySendHttpPostRequest(string sUrl, string sToSend, string sContentType,
             Encoding encoding, ref string sResult, ref string sErrorMsg)
         {

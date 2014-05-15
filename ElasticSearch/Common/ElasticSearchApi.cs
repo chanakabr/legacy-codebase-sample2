@@ -36,7 +36,7 @@ namespace ElasticSearch.Common
             return sRes;
         }
 
-        public bool BuildIndex(string sIndex, int nShards, int nReplicas)
+        public bool BuildIndex(string sIndex, int nShards, int nReplicas, List<string> lAnalyzers, List<string> lFilters)
         {
             bool bRes = false;
 
@@ -45,13 +45,41 @@ namespace ElasticSearch.Common
 
             StringBuilder sBuildIndex = new StringBuilder();
 
+            sBuildIndex.Append(@"{ ""settings"": {");
+
             if (nShards > 0 && nReplicas > 0)
             {
-                sBuildIndex.Append(@"{ ""settings"": { ""index"": {");
+                sBuildIndex.Append(@"""index"": {");
                 sBuildIndex.AppendFormat(" \"number_of_shards\": {0}, \"number_of_replicas\": {1}", nShards, nReplicas);
-                sBuildIndex.Append("} } } ");
+                sBuildIndex.Append("} ");
             }
-            
+
+            #region add analyzers/filters
+            sBuildIndex.Append("\"analysis\": {");
+            bool bAnalyzer = false;
+            if (lAnalyzers != null && lAnalyzers.Count > 0)
+            {
+                bAnalyzer = true;
+                sBuildIndex.Append("\"analyzer\":{");
+                sBuildIndex.Append(string.Join(",", lAnalyzers));
+                sBuildIndex.Append("}");
+            }
+
+            if (lFilters != null && lFilters.Count > 0)
+            {
+                if (bAnalyzer)
+                    sBuildIndex.Append(",");
+
+                sBuildIndex.Append("\"filter\":{");
+                sBuildIndex.Append(string.Join(",", lFilters));
+                sBuildIndex.Append("}");
+            }
+
+            sBuildIndex.Append("}");
+            #endregion
+
+            sBuildIndex.Append("} }");
+
             string sUrl = string.Format("{0}/{1}", ES_URL, sIndex);
             int nStatus = 0;
 
@@ -289,6 +317,50 @@ namespace ElasticSearch.Common
             return bRes;
         }
 
+        public List<ESBulkRequestObj<T>> CreateBulkIndexRequest<T>(List<ESBulkRequestObj<T>> lBulkRequest)
+        {
+            Logger.Logger.Log("STart ES Update", "Start Bulk Update ", "ESFeeder");
+            StringBuilder sBulkRequest = new StringBuilder();
+            List<ESBulkRequestObj<T>> sInvalidRecords = new List<ESBulkRequestObj<T>>();
+
+
+            if (lBulkRequest != null)
+            {
+                foreach (var bulkObj in lBulkRequest)
+                {
+                    sBulkRequest.Append("{ \"");
+                    sBulkRequest.Append(bulkObj.Operation.ToString());
+                    sBulkRequest.Append("\": { ");
+
+
+                    sBulkRequest.AppendFormat("\"_index\": \"{0}\"", bulkObj.index);
+                    sBulkRequest.AppendFormat(", \"_type\": \"{0}\"", bulkObj.type);
+
+                    if (!string.IsNullOrEmpty(bulkObj.routing))
+                    {
+                        sBulkRequest.AppendFormat(", \"_routing\": \"{0}\"", bulkObj.routing);
+                    }
+                    sBulkRequest.AppendFormat(",\"_id\" : \"{0}\"", bulkObj.docID);
+
+                    sBulkRequest.Append(" } }\n");
+
+                    if (!string.IsNullOrEmpty(bulkObj.document))
+                    {
+                        sBulkRequest.AppendFormat("{0}\n", bulkObj.document);
+                    }
+                }
+            }
+
+            string sUrl = string.Format("{0}/_bulk", ES_URL);
+            int nStatus = 0;
+            string sParams = sBulkRequest.ToString();
+            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams);
+            Logger.Logger.Log("Finish ES Update", sRetVal, "ESFeeder");
+            //Will need to add treatment on objects that returned with an "ok": false
+
+            return sInvalidRecords;
+        }
+
         public List<KeyValuePair<T, string>> CreateBulkIndexRequest<T>(string sIndex, string sType,  List<KeyValuePair<T, string>> lObjects, string sRouting = null)
         {
             Logger.Logger.Log("STart ES Update", "Start Bulk Update " , "ESFeeder");
@@ -398,25 +470,48 @@ namespace ElasticSearch.Common
             return sRes;
         }
 
-        public string SearchPercolator(string sIndex, string sType, ref string sDoc)
+        public List<string> SearchPercolator(string sIndex, string sType, ref string sDoc)
         {
-            string sResult = string.Empty;
+            List<string> lResult = new List<string>();
 
             if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc))
-                return sResult;
+                return lResult;
 
             string sUrl = string.Format("{0}/{1}/{2}/_percolate ", ES_URL, sIndex, sType);
             int nStatus = 0;
 
-            sResult = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc);
+            string retVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc);
 
             if (nStatus != 200)
             {
                 Logger.Logger.Log("Error", string.Format("Search Percolator query failed. url={0};doc={1}", sUrl, sDoc), "ElasticSearch");
-                sResult = string.Empty;
+            }
+            else
+            {
+                try
+                {
+                    var jsonObj = JObject.Parse(retVal);
+
+                    if (jsonObj != null)
+                    {
+                        JToken jToken = jsonObj.SelectToken("matches");
+                        if (jToken != null)
+                        {
+                            lResult = jToken.Select(item =>
+                            {
+                                return (string)item.SelectToken(".");
+                            }
+                            ).ToList();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Error", string.Format("SearchPercolator Could not parse response. Ex={0}", ex.Message), "ElasticSearch");
+                }
             }
 
-            return sResult;
+            return lResult;
         }
 
         public bool AddQueryToPercolator(string sIndex, string sQueryName, ref string sQuery)
@@ -442,6 +537,52 @@ namespace ElasticSearch.Common
 
             return bResult;
         }
+
+        protected static Dictionary<string, string> dESAnalyzers = new Dictionary<string, string>();
+        protected static Dictionary<string, string> dESFilters = new Dictionary<string, string>();
+        public static string GetAnalyzerDefinition(string sAnalyzerName)
+        {
+            string analyzer;
+
+            if (!dESAnalyzers.TryGetValue(sAnalyzerName, out analyzer))
+            {
+
+                analyzer = Utils.GetWSURL(sAnalyzerName);
+                if (!string.IsNullOrEmpty(analyzer))
+                    dESAnalyzers[sAnalyzerName] = analyzer;
+            }
+
+            return analyzer;
+        }
+
+        public static string GetFilterDefinition(string sFilterName)
+        {
+            string filter;
+
+            if (!dESFilters.TryGetValue(sFilterName, out filter))
+            {
+                filter = Utils.GetWSURL(sFilterName);
+                if (!string.IsNullOrEmpty(filter))
+                    dESFilters[sFilterName] = filter;
+            }
+
+            return filter;
+        }
+
+        public static bool AnalyzerExists(string sAnalyzerName)
+        {
+            bool bResult = string.IsNullOrEmpty(GetAnalyzerDefinition(sAnalyzerName)) ? false : true;
+
+            return bResult;
+        }
+
+        public static bool FilterExists(string sFilterName)
+        {
+            bool bResult = string.IsNullOrEmpty(GetFilterDefinition(sFilterName)) ? false : true;
+
+            return bResult;
+        }
+
         public string MultiGetIDs<T>(string sIndex, string sType, List<T> oIDsList, int nNumOfResultsToReturn)
         {
             string res = string.Empty;
@@ -465,6 +606,41 @@ namespace ElasticSearch.Common
             }
             return res;
         }
+
+        //public static List<ESSearchResults> DecodeESResults(List<string> lReturnFields, ref string sResultJson)
+        //{
+        //    List<ESSearchResults> lResults = new List<ESSearchResults>();
+
+        //    if (!string.IsNullOrEmpty(sResultJson))
+        //    {
+        //        try
+        //        {
+        //            var jsonObj = JObject.Parse(sResultJson);
+
+        //            if (jsonObj != null)
+        //            {
+        //                JToken tempToken;
+        //                int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+        //                if (totalItems > 0)
+        //                {
+        //                    lResults = jsonObj.SelectToken("hits.hits").Select(item => new ESSearchResults
+        //                    {
+
+        //                        index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
+        //                        type = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken),
+        //                        id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
+        //                        results = lReturnFields.Select(field => new KeyValuePair<string,string>(field, ((tempToken = item.SelectToken(string.Concat("fields.",field))) == null ? string.Empty : (string)tempToken))).ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value)
+        //                    }).ToList();
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), "BuzzFeeder");
+        //        }
+        //    }
+        //    return lResults;
+        //}
 
 
         private string BuildDirectIDsQuery<T>(List<T> oIDsList, int nNumOfResultsToReturn)
@@ -691,8 +867,5 @@ namespace ElasticSearch.Common
             public int totalNumOfItems { get; set; }
             public List<ElasticSearchApi.ESAssetDocument> documents { get; set; }
         }
-
-
-
     }
 }

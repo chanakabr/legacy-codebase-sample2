@@ -16,6 +16,8 @@ using ApiObjects.SearchObjects;
 using ApiObjects.MediaIndexingObjects;
 using QueueWrapper;
 using EpgBL;
+using StatisticsBL;
+using ApiObjects.Statistics;
 
 namespace Catalog
 {
@@ -580,6 +582,13 @@ namespace Catalog
                 {
                     isLucene = searcher is LuceneWrapper;
 
+                    Group groupInCache = GroupsCache.Instance.GetGroup(oMediaRequest.m_nGroupID);
+                    if (groupInCache != null)
+                    {
+                        LanguageObj objLang = groupInCache.GetLanguage(oMediaRequest.m_oFilter.m_nLanguage);
+                        search.m_oLangauge = objLang;
+                    }
+
                     SearchResultsObj resultObj = searcher.SearchMedias(oMediaRequest.m_nGroupID, search, 0, oMediaRequest.m_oFilter.m_bUseStartDate);
 
                     if (resultObj != null)
@@ -722,12 +731,19 @@ namespace Catalog
         /*Build Full search object*/
         static internal void FullSearchAddParams(MediaSearchFullRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
+            Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+
+            if(group != null)
+            {
+                string searchKey;
             if (request.m_AndList != null)
             {
                 foreach (KeyValue andKeyValue in request.m_AndList)
                 {
+                    searchKey = GetFullSearchKey(andKeyValue.m_sKey, ref group); // returns search key with prefix e.g. metas.{key}
+                    
                     SearchValue search = new SearchValue();
-                    search.m_sKey = andKeyValue.m_sKey;
+                    search.m_sKey = searchKey;
                     search.m_lValue = new List<string> { andKeyValue.m_sValue };
                     search.m_sValue = andKeyValue.m_sValue;
                     m_dAnd.Add(search);
@@ -739,11 +755,14 @@ namespace Catalog
                 foreach (KeyValue orKeyValue in request.m_OrList)
                 {
                     SearchValue search = new SearchValue();
-                    search.m_sKey = orKeyValue.m_sKey;
+
+                    searchKey = GetFullSearchKey(orKeyValue.m_sKey, ref group);// returns search key with prefix e.g. metas.{key}
+                    search.m_sKey = searchKey;
                     search.m_lValue = new List<string> { orKeyValue.m_sValue };
                     search.m_sValue = orKeyValue.m_sValue;
                     m_dOr.Add(search);
                 }
+            }
             }
         }
 
@@ -1108,15 +1127,16 @@ namespace Catalog
 
         #region Media play processing (media mrak, media hit)
 
-        public static void GetMediaPlayData(int nMediaID, int nMediaFileID, ref int nOwnerGroupID, ref int nCDNID, ref int nQualityID, ref int nFormatID, ref int nBillingTypeID)
+        public static void GetMediaPlayData(int nMediaID, int nMediaFileID, ref int nOwnerGroupID, ref int nCDNID, ref int nQualityID, ref int nFormatID, ref int nBillingTypeID, ref int nMediaTypeID)
         {
             DataTable dtPlayData = CatalogDAL.Get_MediaPlayData(nMediaID, nMediaFileID);
-            if (dtPlayData != null && dtPlayData.Rows.Count > 0)
+            if (dtPlayData != null && dtPlayData.Rows != null && dtPlayData.Rows.Count > 0)
             {
                 nOwnerGroupID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "group_id");
                 nCDNID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "streaming_suplier_id");
                 nQualityID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_quality_id");
-                nFormatID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_type_id");
+                nFormatID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_file_type_id");
+                nMediaTypeID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_type_id");
                 nBillingTypeID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "billing_type_id");
             }
         }
@@ -1135,50 +1155,35 @@ namespace Catalog
             return retVal;
         }
 
-        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID)
+        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int nDomainID = 0)
         {
-            if (string.IsNullOrEmpty(sSiteGUID) || nMediaID == 0)
-            {
-                return;
-            }
-
-            int nID = 0;
-            DateTime dNow = DateTime.Now;
-
-            bool isPC = sUDID.Contains("PC||") ? true : false;
-            DataTable dt = CatalogDAL.Get_UserMediaMark(nGroupID, nMediaID, sSiteGUID, isPC, sUDID);
-
-            if (dt != null)
-            {
-                Int32 nCount = dt.Rows.Count;
-                if (nCount > 0)
-                {
-                    nID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
-                    dNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "dNow");
-                }
-            }
-
-            int nUpdateOrInsert = (nID == 0 ? 1 : 2);  // 1-insert , 2-update
-            int nSiteGuid = 0;
-            bool resultParse = int.TryParse(sSiteGUID, out nSiteGuid);
-            CatalogDAL.UpdateOrInsert_UsersMediaMark(nID, nSiteGuid, sUDID, nMediaID, nGroupID, nPlayTime, nUpdateOrInsert);
+            int opID = 0;
+            bool isMaster = false;
+            if (nDomainID < 1)
+                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster);
+            if (nDomainID > 0)
+                CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime);
         }
 
         public static int GetCountryIDByIP(string sIP)
         {
             int retCountryID = 0;
-            long nIPVal = 0;
-            string[] splited = sIP.Split('.');
 
-            if (splited != null && splited.Length >= 3)
+            if (!string.IsNullOrEmpty(sIP))
             {
-                nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-            }
+                long nIPVal = 0;
+                string[] splited = sIP.Split('.');
 
-            DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
-            if (dtCountry != null && dtCountry.Rows.Count > 0)
-            {
-                retCountryID = Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
+                if (splited != null && splited.Length >= 3)
+                {
+                    nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
+                }
+
+                DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
+                if (dtCountry != null && dtCountry.Rows.Count > 0)
+                {
+                    retCountryID = Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
+                }
             }
             return retCountryID;
         }
@@ -1188,7 +1193,7 @@ namespace Catalog
             int retActionID = 0;
 
             DataTable dtAction = CatalogDAL.Get_ActionValues(sAction);
-            if (dtAction != null && dtAction.Rows.Count > 0)
+            if (dtAction != null && dtAction.Rows != null && dtAction.Rows.Count > 0)
             {
                 retActionID = Utils.GetIntSafeVal(dtAction.Rows[0], "ID");
             }
@@ -1240,7 +1245,7 @@ namespace Catalog
 
         #endregion
 
-        internal static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId)
+        internal static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
         {
             MediaSearchObj searchObject = new MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
@@ -1253,6 +1258,7 @@ namespace Catalog
                 searchObject.m_sPermittedWatchRules = string.Join(" ", lPermittedWatchRules);
             searchObject.m_nDeviceRuleId = nDeviceRuleId;
             searchObject.m_nIndexGroupId = nParentGroupID;
+            searchObject.m_oLangauge = oLanguage;
 
             ApiObjects.SearchObjects.OrderObj oSearcherOrderObj = new ApiObjects.SearchObjects.OrderObj();
             if (orderObj != null && orderObj.m_eOrderBy != ApiObjects.SearchObjects.OrderBy.NONE)
@@ -1400,20 +1406,20 @@ namespace Catalog
             switch (bundleType)
             {
                 case eBundleType.SUBSCRIPTION:
-                {
-                    channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsBySubscription(nGroupId, nBundleId);
-                    break;
-                }
+                    {
+                        channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsBySubscription(nGroupId, nBundleId);
+                        break;
+                    }
                 case eBundleType.COLLECTION:
-                {
-                    channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsByCollection(nGroupId, nBundleId);
-                    break;
-                }
+                    {
+                        channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsByCollection(nGroupId, nBundleId);
+                        break;
+                    }
                 default:
-                {
-                    channelIdsDt = null;
-                    break;
-                }
+                    {
+                        channelIdsDt = null;
+                        break;
+                    }
             }
 
             List<int> lChannelIds = null;
@@ -1438,13 +1444,13 @@ namespace Catalog
         public static bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
         {
             return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
-        }  
+        }
 
         public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
         {
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction);
         }
-       
+
         private static bool Update(List<int> lIds, int nGroupId, eObjectType eUpdatedObjectType, eAction eAction)
         {
             bool bIsUpdateIndexSucceeded = false;
@@ -1468,7 +1474,7 @@ namespace Catalog
             return bIsUpdateIndexSucceeded;
         }
 
-       
+
         private static bool UpdateEpg(List<int> lIds, int nGroupId, eObjectType eObjectType, eAction eAction)
         {
             bool bIsUpdateIndexSucceeded = false;
@@ -1629,7 +1635,7 @@ namespace Catalog
                 return null;
             }
         }
-        
+
         /*Build Full search object*/
         private static void EpgSearchAddParams(EpgSearchRequest request, ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
@@ -1712,7 +1718,7 @@ namespace Catalog
             {
                 int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
                 int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
-
+                
                 if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
                     nEndIndex = pRequest.m_lProgramsIds.Count();
 
@@ -1731,25 +1737,28 @@ namespace Catalog
                 if (pRequest.m_lProgramsIds != null && lEpgProg != null)
                 {
                     pResponse.m_nTotalItems = lEpgProg.Count;
-                    foreach (int nProgram in pRequest.m_lProgramsIds)
-                    {
-                        if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
-                        {
-                            epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
-                            oProgramObj = new ProgramObj();
-                            oProgramObj.m_oProgram = epgProg;
-                            oProgramObj.m_nID = (int)epgProg.EPG_ID;
-                            bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
-                        }
-                        else
-                        {
-                            oProgramObj = null;
-                        }
-
-                        lProgramObj.Add(oProgramObj);
-                    }
-                    pResponse.m_lObj = lProgramObj;
+                    lEpgProg = Utils.CompleteFullEpgPicURL(lEpgProg);
                 }
+                foreach (int nProgram in pRequest.m_lProgramsIds)
+                {
+                    if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
+                    {
+                        epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
+                        oProgramObj = new ProgramObj();
+                        oProgramObj.m_oProgram = epgProg;
+                        oProgramObj.m_nID = (int)epgProg.EPG_ID;
+
+                        bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
+                    }
+                    else
+                    {
+                        oProgramObj = null;
+                    }
+
+                    lProgramObj.Add(oProgramObj);
+                }
+                pResponse.m_lObj = lProgramObj;
+
 
                 _logger.Info(string.Format("Finish Complete Details for {0} ProgramIds", nEndIndex));
                 return true;
@@ -2071,7 +2080,15 @@ namespace Catalog
             EpgResultsObj resultPerChannel = new EpgResultsObj();
             resultPerChannel.m_nChannelID = nChannelID;
             resultPerChannel.m_nTotalItems = epgList.Count();
+            
+            //complete the full url for picURL 
             resultPerChannel.m_lEpgProgram = epgList;
+            List<ApiObjects.EPGChannelProgrammeObject> tempEpgList = Utils.CompleteFullEpgPicURL(epgList);
+            if (tempEpgList!= null)
+            {
+                resultPerChannel.m_lEpgProgram = tempEpgList;
+            }
+
             return resultPerChannel;
         }
 
@@ -2127,7 +2144,7 @@ namespace Catalog
                         else
                             ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate);
                         if (ds != null)
-                            resList = getMediaStatFromDataSet(ds, lAssetIDs);
+                            resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
                         else
                             sendLog = true;
                     }
@@ -2231,7 +2248,7 @@ namespace Catalog
             return resList;
         }
 
-        private static List<AssetStatsResult> getMediaStatFromDataSet(DataSet ds, List<int> mediaIDs)
+        private static List<AssetStatsResult> getMediaStatFromDataSet(DataSet ds, List<int> mediaIDs, int nGroupID)
         {
             using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
             {
@@ -2240,6 +2257,10 @@ namespace Catalog
                 AssetStatsResult mediaStat;
                 try
                 {
+                    //Complete BuzzMeter data from CB
+                    BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
+                    Dictionary<string, BuzzWeightedAverScore> lBM = staticticsBL.GetBuzzAverScore(mediaIDs);// need the assetid
+
                     //if the request was sent without dates, the select is only on 1 table
                     if (ds.Tables != null && ds.Tables.Count == 1)
                     {
@@ -2258,6 +2279,13 @@ namespace Catalog
                                     if (mediaStat.m_nVotes != 0)
                                         mediaStat.m_dRate = (double)sumVotes / mediaStat.m_nVotes;
                                     mediaStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
+
+                                    //BuzzMeter 
+                                    if (lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
+                                    {
+                                        mediaStat.m_buzzAverScore = lBM[mediaStat.m_nAssetID.ToString()];
+                                    }
+
                                     resList.Add(mediaStat);
                                 }
                             }
@@ -2323,6 +2351,15 @@ namespace Catalog
                                 }
                             }
                         }
+
+                        //BuzzMeter 
+                        foreach (KeyValuePair<int, AssetStatsResult> asset in resultDic)
+                        {
+                            if (lBM.ContainsKey(asset.Key.ToString()))
+                            {
+                                resultDic[asset.Key].m_buzzAverScore = lBM[asset.Key.ToString()];
+                            }
+                        }
                         resList = resultDic.Values.ToList();
                     }
                     else
@@ -2332,6 +2369,9 @@ namespace Catalog
                         log.Error(log.Message, false);
                         return null;
                     }
+
+
+                    
                 }
                 catch (Exception ex)
                 {
@@ -2505,6 +2545,119 @@ namespace Catalog
 
             return res;
         }
+
+        private static string GetFullSearchKey(string sKey, ref Group oGroup)
+        {
+            bool bHasTagPrefix = false;
+
+            string searchKey = sKey;
+
+            foreach (var key in oGroup.m_oGroupTags.Keys)
+            {
+                if (oGroup.m_oGroupTags[key].Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    searchKey = string.Concat(TAGS, ".", oGroup.m_oGroupTags[key].ToLower());
+                    bHasTagPrefix = true;
+                    break;
+                }
+            }
+
+            if (!bHasTagPrefix)
+            {
+                if (oGroup.m_oMetasValuesByGroupId.ContainsKey(oGroup.m_nParentGroupID))
+                {
+                    Dictionary<string, string> dMetas = oGroup.m_oMetasValuesByGroupId[oGroup.m_nParentGroupID];
+                    foreach (string key in dMetas.Keys)
+                    {
+                        if (dMetas[key].Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            searchKey = string.Concat(METAS, ".", dMetas[key].ToLower());
+                            bHasTagPrefix = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return searchKey;
+		}
+		
+        public static int GetLastPosition(int mediaID, int userID)
+        {
+
+            if (mediaID == 0 || userID == 0)
+                return 0;
+
+            return CatalogDAL.GetLastPosition(mediaID, userID);
+        }
+
+        internal static bool IsConcurrent(string sSiteGuid, string sUDID, int nGroupID, ref int nDomainID)
+        {
+            bool res = true;
+            long lSiteGuid = 0;
+            if (!Int64.TryParse(sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
+            {
+                throw new Exception(GetIsConcurrentLogMsg("SiteGuid is in incorrect format.", sSiteGuid, sUDID, nGroupID));
+            }
+
+            string sWSUsername = string.Empty;
+            string sWSPassword = string.Empty;
+            string sWSUrl = string.Empty;
+
+            TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "ValidateLimitationModule", "domains", "1.1.1.1", ref sWSUsername, ref sWSPassword);
+            sWSUrl = Utils.GetWSURL("ws_domains");
+
+            if (sWSUsername.Length == 0 || sWSPassword.Length == 0)
+            {
+                throw new Exception(GetIsConcurrentLogMsg("No WS_Domains login parameters were extracted from DB.", sSiteGuid, sUDID, nGroupID));
+            }
+
+            using (WS_Domains.module domains = new WS_Domains.module())
+            {
+                if (sWSUrl.Length > 0)
+                    domains.Url = sWSUrl;
+                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency);
+                if (domainsResp != null)
+                {
+                    nDomainID = (int)domainsResp.m_lDomainID;
+                    switch (domainsResp.m_eStatus)
+                    {
+                        case WS_Domains.DomainResponseStatus.ConcurrencyLimitation:
+                            {
+                                res = true;
+                                break;
+                            }
+                        case WS_Domains.DomainResponseStatus.OK:
+                            {
+                                res = false;
+                                break;
+                            }
+                        default:
+                            {
+                                throw new Exception(GetIsConcurrentLogMsg(String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), sSiteGuid, sUDID, nGroupID));
+                            }
+                    }
+                }
+                else
+                {
+                    throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", sSiteGuid, sUDID, nGroupID));
+                }
+            }
+
+            return res;
+        }
+
+        private static string GetIsConcurrentLogMsg(string sMessage, string sSiteGuid, string sUDID, int nGroupID)
+        {
+            StringBuilder sb = new StringBuilder("IsConcurrent Err. ");
+            sb.Append(sMessage);
+            sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+            sb.Append(String.Concat(" UDID: ", sUDID));
+            sb.Append(String.Concat(" Group ID: ", nGroupID));
+
+            return sb.ToString();
+        }
+
 
     }
 

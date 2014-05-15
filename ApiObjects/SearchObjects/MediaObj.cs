@@ -30,8 +30,8 @@ namespace ApiObjects.SearchObjects
         public string m_sDescription;
         public string m_sUserTypes;
 
-        public Dictionary<string, string> m_oMeatsValues;
-        public Dictionary<string, string> m_oTagsValues;
+        public Dictionary<string, Dictionary<long, string>> m_dTagValues;
+        public Dictionary<string, string> m_dMeatsValues;
 
         
 
@@ -63,9 +63,52 @@ namespace ApiObjects.SearchObjects
             m_sEndDate = sMax;
             m_sFinalEndDate = sMax;
 
-            m_oMeatsValues = new Dictionary<string, string>();
-            m_oTagsValues = new Dictionary<string, string>();
+            m_dMeatsValues = new Dictionary<string, string>();
+            m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
 
+        }
+
+        public Media Clone()
+        {
+            Media clone = new Media()
+            {
+                m_sName = this.m_sName,
+                m_dRating = this.m_dRating,
+                m_nDeviceRuleId = this.m_nDeviceRuleId,
+                m_nWPTypeID = this.m_nWPTypeID,
+                m_nVotes = this.m_nVotes,
+                m_nViews = this.m_nViews,
+                m_nMediaID = this.m_nMediaID,
+                m_nMediaTypeID = this.m_nMediaTypeID,
+                m_nLikeCounter = this.m_nLikeCounter,
+                m_nIsActive = this.m_nIsActive,
+                m_nGroupID = this.m_nGroupID,
+                m_sCreateDate = this.m_sCreateDate,
+                m_sDescription = this.m_sDescription,
+                m_sEndDate = this.m_sEndDate,
+                m_sMFTypes = this.m_sMFTypes,
+                m_sFinalEndDate = this.m_sFinalEndDate,
+                m_sStartDate = this.m_sStartDate,
+                m_sUpdateDate = this.m_sUpdateDate,
+                m_sUserTypes = this.m_sUserTypes
+            };
+
+            clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);
+
+            clone.m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
+
+            foreach (string tagName in this.m_dTagValues.Keys)
+            {
+                Dictionary<long, string> dTag = new Dictionary<long, string>();
+                foreach (int tagID in this.m_dTagValues[tagName].Keys)
+                {
+                    dTag.Add(tagID, this.m_dTagValues[tagName][tagID]);
+                }
+
+                clone.m_dTagValues[tagName] = dTag;
+            }
+
+            return clone;
         }
     }
 

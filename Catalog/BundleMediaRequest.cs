@@ -48,7 +48,7 @@ namespace Catalog
                     throw new Exception("request object is null or Required variables is null");
 
                 string dataTable = string.Empty;
-                switch(m_eBundleType)
+                switch (request.m_eBundleType)
                 {
                     case eBundleType.SUBSCRIPTION:
                     {
@@ -62,8 +62,6 @@ namespace Catalog
                     }
                 }
 
-                Int32 nOwnerGroup = int.Parse(ODBCWrapper.Utils.GetTableSingleVal(dataTable, "group_id", request.m_nBundleID, "pricing_connection").ToString());
-
                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
 
                 if (sCheckSignature != request.m_sSignature)
@@ -72,7 +70,7 @@ namespace Catalog
                 Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
                 if (groupInCache != null)
                 {
-                    List<int> channelIds      = Catalog.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, m_eBundleType);
+                    List<int> channelIds = Catalog.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, request.m_eBundleType);
                     List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                     if (channelIds != null && channelIds.Count > 0)
@@ -113,7 +111,7 @@ namespace Catalog
                                                  Channel currentChannel = allChannels[(int)obj];
                                                  if (sMediaTypesFromRequest.Contains<string>("0") || sMediaTypesFromRequest.Contains<string>(currentChannel.m_nMediaType.ToString()) || currentChannel.m_nMediaType.ToString().Equals("0"))
                                                  {
-                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, request.m_oOrderObj, nOwnerGroup, groupInCache.m_sPermittedWatchRules, nDeviceRuleId);
+                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, request.m_oOrderObj, request.m_nGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
 
                                                      if ((currentChannel.m_nMediaType.ToString().Equals("0") || string.IsNullOrEmpty(currentChannel.m_nMediaType.ToString())) && !(sMediaTypesFromRequest.Contains<string>("0")) && sMediaTypesFromRequest.Length > 0)
                                                      {

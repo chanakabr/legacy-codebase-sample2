@@ -63,6 +63,18 @@
     <Compile Include="XSLT_transform_handler\Rovi_transform\RoviTransform.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="XSLT_Files\ADI3_transform.xsl" />
+    <Content Include="XSLT_Files\ADI3_transform_removeMedia.xsl" />
+    <Content Include="XSLT_Files\ADI3_transform_series.xsl" />
+    <Content Include="XSLT_Files\Dml_transform.xsl" />
+    <Content Include="XSLT_Files\MC_transform.xsl" />
+    <Content Include="XSLT_Files\MC_transform_series.xsl" />
+    <Content Include="XSLT_Files\MultiCategoriesToCategories.xslt" />
+    <Content Include="XSLT_Files\MultiCategoriesToChannels.xslt" />
+    <Content Include="XSLT_Files\Rovi_CMT_transform.xsl" />
+    <Content Include="XSLT_Files\Rovi_episode_transform.xsl" />
+    <Content Include="XSLT_Files\Rovi_movie_transform.xsl" />
+    <Content Include="XSLT_Files\Rovi_series_transform.xsl" />
     <Content Include="XSLT_transform_handler\XSLT_Transforms\ADI3_transform.xsl">
       <SubType>Designer</SubType>
     </Content>

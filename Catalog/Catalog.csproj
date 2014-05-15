@@ -98,6 +98,8 @@
     <Compile Include="BaseEpg.cs" />
     <Compile Include="BaseProtocolRequest.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="BuzzMeterRequest.cs" />
+    <Compile Include="BuzzMeterResponse.cs" />
     <Compile Include="ChannelsContainingMediaRequest.cs" />
     <Compile Include="ChannelsContainingMediaResponse.cs" />
     <Compile Include="BaseMediaSearchRequest.cs" />
@@ -112,6 +114,9 @@
     <Compile Include="ChannelRequest.cs" />
     <Compile Include="ChannelRequestMultiFiltering.cs" />
     <Compile Include="ChannelResponse.cs" />
+    <Compile Include="ChannelViewsRequest.cs" />
+    <Compile Include="ChannelViewsResponse.cs" />
+    <Compile Include="ChannelViewsResult.cs" />
     <Compile Include="BundleMediaRequest.cs" />
     <Compile Include="ContainingMediaResponse.cs" />
     <Compile Include="DoesMediaBelongToChannels.cs" />
@@ -151,6 +156,9 @@
     <Compile Include="MediaCommentRequest.cs" />
     <Compile Include="MediaHitRequest.cs" />
     <Compile Include="MediaHitResponse.cs" />
+    <Compile Include="MediaLastPositionRequest.cs" />
+    <Compile Include="MediaLastPositionRequestData.cs" />
+    <Compile Include="MediaLastPositionResponse.cs" />
     <Compile Include="MediaMarkRequest.cs" />
     <Compile Include="MediaMarkResponse.cs" />
     <Compile Include="MediaPlayRequestData.cs" />
@@ -186,6 +194,11 @@
     <Compile Include="UserSocialMediasRequest.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Web References\Lucene_WCF\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\WS_Domains\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
@@ -246,6 +259,32 @@
     <None Include="Web References\Lucene_WCF\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Web References\WS_Domains\DeviceResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_Domains\Domain.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_Domains\DomainResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_Domains\DomainResponseStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_Domains\HomeNetwork.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_Domains\module.wsdl" />
+    <None Include="Web References\WS_Domains\NetworkResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_Domains\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WS_Domains\ValidationResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -254,6 +293,17 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="http://192.168.16.40/WS_Domains/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\WS_Domains\</RelPath>
+      <UpdateFromURL>http://192.168.16.40/WS_Domains/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>Catalog_WS_Domains_module</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/LuceneWCF2.0/service.svc">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Lucene_WCF\</RelPath>
@@ -295,6 +345,10 @@
       <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
       <Name>QueueWrapper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\StaticticsBL\StaticticsBL.csproj">
+      <Project>{798abf79-9cc5-4d97-bac3-de1f9b016ec2}</Project>
+      <Name>StaticticsBL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
@@ -302,6 +356,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\Lucene_WCF\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\WS_Domains\module.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

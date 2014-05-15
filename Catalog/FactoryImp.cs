@@ -148,11 +148,22 @@ namespace Catalog
             {
                 return new EPGProgramsByProgramsIdentefierRequest();
             }
-             if (m_oBaseRequest is EPGSearchContentRequest)
+            if (m_oBaseRequest is EPGSearchContentRequest)
             {
                 return new EPGSearchContentRequest();
             }
-           
+            if (m_oBaseRequest is ChannelViewsRequest)
+            {
+                return new ChannelViewsRequest();
+            }
+            if (m_oBaseRequest is BuzzMeterRequest)
+            {
+                return new BuzzMeterRequest();
+            }
+            if (m_oBaseRequest is MediaLastPositionRequest)
+            {
+                return new MediaLastPositionRequest((MediaLastPositionRequest)this.m_oBaseRequest);
+            }
 
             return null;
         }
