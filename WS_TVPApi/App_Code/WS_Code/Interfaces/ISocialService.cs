@@ -68,6 +68,6 @@ namespace TVPApiServices
         bool SetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
 
         [OperationContract]
-        SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId);
+        SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, eSocialPlatform socialPlatform, int numOfItems, long epochStartTime);
     }
 }
