@@ -342,7 +342,7 @@ namespace Catalog
 
         public List<int> GetMediaChannels(int nGroupID, int nMediaID)
         {
-            List<int> lResult = null;
+            List<int> lResult = new List<int>();
 
             Group oGroup = GroupsCache.Instance.GetGroup(nGroupID);
 
