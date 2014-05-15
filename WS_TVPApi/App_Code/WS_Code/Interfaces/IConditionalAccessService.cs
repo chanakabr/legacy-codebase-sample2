@@ -62,6 +62,12 @@ namespace TVPApiServices
         string ChargeUserForMediaFileUsingCC(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon, string sPaymentMethodID, string sEncryptedCVV);
 
         [OperationContract]
+        string ChargeUserForSubscriptionByPaymentMethod(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sExtraParameters, string sPaymentMethodID, string sEncryptedCVV);
+
+        [OperationContract]
+        ChangeSubscriptionStatus ChangeSubscription(InitializationObject initObj, string sSiteGuid, int nOldSubscription, int nNewSubscription);
+
+        [OperationContract]
         string ChargeUserForMediaSubscriptionUsingCC(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV);
 
         [OperationContract]
