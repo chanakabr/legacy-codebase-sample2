@@ -45,14 +45,14 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TCMClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="TCMClient">
       <HintPath>..\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -62,12 +62,10 @@
     <Compile Include="Common\ESMappingObj.cs" />
     <Compile Include="Common\ESRouting.cs" />
     <Compile Include="Common\ESSerializer.cs" />
-    <Compile Include="Common\OperationResult\BulkItemResponse.cs" />
-    <Compile Include="Common\OperationResult\OperateResult.cs" />
-    <Compile Include="Common\SearchResults\ESSearchResult.cs" />
     <Compile Include="Common\SearchResults\Hits.cs" />
     <Compile Include="Common\SearchResults\HitStatus.cs" />
     <Compile Include="Common\SearchResults\SearchHits.cs" />
+    <Compile Include="Common\SearchResults\ESSearchResult.cs" />
     <Compile Include="Common\SearchResults\ShardStatus.cs" />
     <Compile Include="Common\Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -75,6 +73,7 @@
     <Compile Include="Searcher\BaseFilterCompositeTypeDecorator.cs" />
     <Compile Include="Searcher\BoolQuery.cs" />
     <Compile Include="Searcher\ESEpgQueryBuilder.cs" />
+    <Compile Include="Searcher\ESFacet.cs" />
     <Compile Include="Searcher\ESMediaQueryBuilder.cs" />
     <Compile Include="Searcher\FilterCompositeType.cs" />
     <Compile Include="Searcher\FilteredQuery.cs" />

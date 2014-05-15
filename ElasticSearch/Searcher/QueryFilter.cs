@@ -297,6 +297,46 @@ namespace ElasticSearch.Searcher
         }
     }
 
+    public class ESExists : IESTerm
+    {
+        public ESExists()
+        {
+            this.eType = eTermType.EXISTS;
+        }
+
+        public eTermType eType { get; protected set; }
+
+        public bool bNot { get; set; }
+        public string Value { get; set; }
+
+        public bool IsEmpty()
+        {
+            return string.IsNullOrEmpty(Value);
+        }
+
+        public override string ToString()
+        {
+            if (this.IsEmpty())
+                return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            if (bNot)
+                sb.Append("{ \"not\": ");
+
+            sb.Append("{ \"exists\": {");
+             sb.AppendFormat(" \"field\": \"{0}\"", Value);
+
+            sb.Append("}}");
+
+            if (bNot)
+                sb.Append("}");
+
+            return sb.ToString();
+        }
+
+    }
+
     public enum eTermType
     {
         TERM,
@@ -304,7 +344,8 @@ namespace ElasticSearch.Searcher
         RANGE,
         WILDCARD,
         BOOL_QUERY,
-        MULTI_MATCH
+        MULTI_MATCH,
+        EXISTS
     }
 
     public enum eRangeComp

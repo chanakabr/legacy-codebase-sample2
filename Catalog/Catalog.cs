@@ -16,6 +16,8 @@ using ApiObjects.SearchObjects;
 using ApiObjects.MediaIndexingObjects;
 using QueueWrapper;
 using EpgBL;
+using StatisticsBL;
+using ApiObjects.Statistics;
 
 namespace Catalog
 {
@@ -1125,7 +1127,7 @@ namespace Catalog
 
         #region Media play processing (media mrak, media hit)
 
-        public static void GetMediaPlayData(int nMediaID, int nMediaFileID, ref int nOwnerGroupID, ref int nCDNID, ref int nQualityID, ref int nFormatID, ref int nBillingTypeID)
+        public static void GetMediaPlayData(int nMediaID, int nMediaFileID, ref int nOwnerGroupID, ref int nCDNID, ref int nQualityID, ref int nFormatID, ref int nBillingTypeID, ref int nMediaTypeID)
         {
             DataTable dtPlayData = CatalogDAL.Get_MediaPlayData(nMediaID, nMediaFileID);
             if (dtPlayData != null && dtPlayData.Rows != null && dtPlayData.Rows.Count > 0)
@@ -1133,7 +1135,8 @@ namespace Catalog
                 nOwnerGroupID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "group_id");
                 nCDNID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "streaming_suplier_id");
                 nQualityID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_quality_id");
-                nFormatID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_type_id");
+                nFormatID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_file_type_id");
+                nMediaTypeID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "media_type_id");
                 nBillingTypeID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "billing_type_id");
             }
         }
@@ -1165,18 +1168,22 @@ namespace Catalog
         public static int GetCountryIDByIP(string sIP)
         {
             int retCountryID = 0;
-            long nIPVal = 0;
-            string[] splited = sIP.Split('.');
 
-            if (splited != null && splited.Length >= 3)
+            if (!string.IsNullOrEmpty(sIP))
             {
-                nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-            }
+                long nIPVal = 0;
+                string[] splited = sIP.Split('.');
 
-            DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
-            if (dtCountry != null && dtCountry.Rows.Count > 0)
-            {
-                retCountryID = Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
+                if (splited != null && splited.Length >= 3)
+                {
+                    nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
+                }
+
+                DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
+                if (dtCountry != null && dtCountry.Rows.Count > 0)
+                {
+                    retCountryID = Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
+                }
             }
             return retCountryID;
         }
@@ -2137,7 +2144,7 @@ namespace Catalog
                         else
                             ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate);
                         if (ds != null)
-                            resList = getMediaStatFromDataSet(ds, lAssetIDs);
+                            resList = getMediaStatFromDataSet(ds, lAssetIDs, nGroupID);
                         else
                             sendLog = true;
                     }
@@ -2241,7 +2248,7 @@ namespace Catalog
             return resList;
         }
 
-        private static List<AssetStatsResult> getMediaStatFromDataSet(DataSet ds, List<int> mediaIDs)
+        private static List<AssetStatsResult> getMediaStatFromDataSet(DataSet ds, List<int> mediaIDs, int nGroupID)
         {
             using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
             {
@@ -2250,6 +2257,10 @@ namespace Catalog
                 AssetStatsResult mediaStat;
                 try
                 {
+                    //Complete BuzzMeter data from CB
+                    BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
+                    Dictionary<string, BuzzWeightedAverScore> lBM = staticticsBL.GetBuzzAverScore(mediaIDs);// need the assetid
+
                     //if the request was sent without dates, the select is only on 1 table
                     if (ds.Tables != null && ds.Tables.Count == 1)
                     {
@@ -2268,6 +2279,13 @@ namespace Catalog
                                     if (mediaStat.m_nVotes != 0)
                                         mediaStat.m_dRate = (double)sumVotes / mediaStat.m_nVotes;
                                     mediaStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
+
+                                    //BuzzMeter 
+                                    if (lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
+                                    {
+                                        mediaStat.m_buzzAverScore = lBM[mediaStat.m_nAssetID.ToString()];
+                                    }
+
                                     resList.Add(mediaStat);
                                 }
                             }
@@ -2333,6 +2351,15 @@ namespace Catalog
                                 }
                             }
                         }
+
+                        //BuzzMeter 
+                        foreach (KeyValuePair<int, AssetStatsResult> asset in resultDic)
+                        {
+                            if (lBM.ContainsKey(asset.Key.ToString()))
+                            {
+                                resultDic[asset.Key].m_buzzAverScore = lBM[asset.Key.ToString()];
+                            }
+                        }
                         resList = resultDic.Values.ToList();
                     }
                     else
@@ -2342,6 +2369,9 @@ namespace Catalog
                         log.Error(log.Message, false);
                         return null;
                     }
+
+
+                    
                 }
                 catch (Exception ex)
                 {

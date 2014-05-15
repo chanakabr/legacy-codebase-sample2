@@ -34,7 +34,8 @@ namespace Catalog
         public int m_nTotalBitRate;
         [DataMember]
         public int m_nCurrentBitRate;
-
+        
+        public string m_sMediaTypeId;
 
         public MediaPlayRequestData()
         {
