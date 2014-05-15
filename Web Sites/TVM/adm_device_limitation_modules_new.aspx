@@ -19,10 +19,84 @@
 <script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/ajaxFuncs.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/SWFObj.js" language="javascript"></script>
+<script type="text/javascript" src="js/WMPInterface.js" language="javascript"></script>
+<script type="text/javascript" src="js/WMPObject.js" language="javascript"></script>
+<script type="text/javascript" src="js/FlashUtils.js" language="javascript"></script>
+<script type="text/javascript" src="js/Player.js" language="javascript"></script>
+<script type="text/javascript" src="js/VGObject.js" language="javascript"></script>
 <script type="text/javascript">
+    var peek_date_string = '<%=Session["peek_date"]%>';
+    var Su = '<%=Session["Su"]%>';
+    var Mo = '<%=Session["Mo"]%>';
+    var Tu = '<%=Session["Tu"]%>';
+    var We = '<%=Session["We"]%>';
+    var Th = '<%=Session["Th"]%>';
+    var Fr = '<%=Session["Fr"]%>';
+    var Sa = '<%=Session["Sa"]%>';
+    MonthNumber = '<%=Session["MonthList"]%>';
+    var flashObj1 = new SWFObj
+(
+    'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
+    'width', '100%',
+    'height', '100%',
+    'src', 'flash/DualList',
+    'scale', 'NoScale',
+    'id', 'DualList',
+    'bgcolor', '#869CA7',
+    'wmode', 'Window',
+    'name', 'DualList',
+    'allowFullScreen', 'false',
+    'allowScriptAccess', 'sameDomain',
+    'movie', 'flash/DualList'
+);
+
+    function flashEvents(json) {
+        switch (json.eventType) {
+            case "move":
+                if (json.callerID == 'DualList') {
+                    RS.Execute("adm_device_limitation_modules_new", "changeItemStatus", json.id, json.kind, json.index, callback_changeItemStatus, errorCallback);
+                }
+                break;
+            case "ready":
+                if (json.id == 'DualList') {
+                    var flashObj1 = document.getElementById(json.id);
+                    initDualObj();
+                }
+                break;
+        }
+    }
+
+    function callback_changeItemStatus(ret) {
+    }
+
+    function callback_changeItemStatus_UserTypes(ret) {
+    }
+
+    function AfterDateSelect(orderBy, pageNum, theDate) {
+    }
     function GetPageTable(orderBy , pageNum)
     {
+        flashObj1.write("DualListPH");
         RS.Execute("adm_device_limitation_modules_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+    }
+
+    function initDualObj() {
+        RS.Execute("adm_device_limitation_modules_new.aspx", "initDualObj", callback_init_dobj, errorCallback);
+    }
+    function callback_init_dobj(ret) {
+        var flashObj1 = document.getElementById("DualList");
+
+
+        var split_array = ret.split("~~|~~");
+
+        if (split_array.length == 3) {
+            theTitle1 = split_array[0];
+            theTitle2 = split_array[1];
+            var xmlStr = split_array[2];
+            flashObj1.callFlashAction({ action: "setList", data: xmlStr, title1: theTitle1, title2: theTitle2 });
+        }
     }
 </script>
 </head>
@@ -108,6 +182,7 @@
 								    <td id="page_content" width=100% nowrap=nowrap>
 								    </td>
 								</tr>
+                                <tr><td><div id="DualListPH"></div></td></tr>
 							</table>
 						</td>
 					</tr>
