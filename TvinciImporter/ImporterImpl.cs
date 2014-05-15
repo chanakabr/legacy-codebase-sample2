@@ -2100,7 +2100,7 @@ namespace TvinciImporter
         static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {           
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-             sUseQueue = sUseQueue.ToLower();
+            sUseQueue = sUseQueue.ToLower();
             if (sUseQueue.Equals("true"))
             {
                 return DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
@@ -3426,16 +3426,14 @@ namespace TvinciImporter
                 string sOutputProtectionLevel = GetItemParameterVal(ref theItem, "output_protection_level");
                 int nIsDefaultLanguage = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
                 string sProductCode = GetItemParameterVal(ref theItem, "product_code");
-<<<<<<< HEAD
-=======
-
+                
                 // try to pare the files date correctly
                 DateTime? dStartDate = null;
                 DateTime? dEndDate = null;
 
                 dStartDate = ExtractDate(sFileStartDate, "dd/MM/yyyy HH:mm:ss");
                 dEndDate = ExtractDate(sFileEndDate, "dd/MM/yyyy HH:mm:ss");
->>>>>>> master
+
 
                 bool bAdsEnabled = true;
                 if (sAdsEnabled.Trim().ToLower() == "false")
@@ -4358,10 +4356,7 @@ namespace TvinciImporter
             }
 
         }        
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 
         internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
         {
