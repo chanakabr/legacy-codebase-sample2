@@ -11,6 +11,8 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Web.Script.Serialization;
 using TVPPro.SiteManager;
+using System.Xml.Serialization;
+using System.Text.RegularExpressions;
 /// <summary>
 /// Finds the Method By Reflection
 /// </summary>
@@ -89,7 +91,7 @@ public partial class MethodFinder
                     }
                     catch (Exception ex)
                     {
-                        
+
                     }
                 }
                 else
@@ -103,19 +105,183 @@ public partial class MethodFinder
                         }
                     }
                     catch
-                    {                        
+                    {
+                        //XmlSerializer serializer = new XmlSerializer(TargetType);
+                        //using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(DeserializationTarget)))
+                        //{
+                        //    Product = serializer.Deserialize(ms);
+                        //    //using (XmlWriter xw = XmlWriter.Create(ms))
+                        //    //{
+
+                        //    //    Product = CreateObjectInstance(TargetType);
+
+
+                        //    //}
+                        //}                        
+                        ////System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(TargetType);                                                
+
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
-                        Product = typeof(JavaScriptSerializer).GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(serializer, new object[] { DeserializationTarget });
+
+                        var dict = serializer.Deserialize<Dictionary<string, object>>(DeserializationTarget);
+                        Product = CreateObjectInstance(TargetType);
+
+                        Parse(dict, Product);
+
+                        //DeserializationTarget = serializer.Serialize(parsedDictionary);
+
+                        //using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
+                        //{
+                        //    DataContractJsonSerializer ser = new DataContractJsonSerializer(TargetType);
+                        //    Product = ser.ReadObject(ms);
+                        //}
+
+                        //Product = typeof(JavaScriptSerializer).GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(serializer, new object[] { DeserializationTarget });
                     }
                 }
             } while (false);
             return Product;
         }
 
+        private void Parse(Dictionary<string, object> dic, object product)
+        {
+            if (dic is Dictionary<string, object>)
+            {
+                foreach (PropertyInfo propInfo in product.GetType().GetProperties())//check if object and properties of type objects and create them as well
+                {
+                    if (propInfo.PropertyType.IsClass && propInfo.PropertyType.Name != "String")
+                    {
+                        string key = string.Format("{0}Field", propInfo.Name);
+                        if (dic.ContainsKey(key))
+                        {
+                            propInfo.SetValue(product, CreateObjectInstance(propInfo.PropertyType), null);
+                            Parse(dic[key] as Dictionary<string, object>, propInfo.GetValue(product, null));
+                        }
+                        else
+                        {
+                            key = propInfo.Name;
+                            if (dic.ContainsKey(key))
+                            {
+                                propInfo.SetValue(product, CreateObjectInstance(propInfo.PropertyType), null);
+                                Parse(dic[key] as Dictionary<string, object>, propInfo.GetValue(product, null));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        string key = string.Format("{0}Field", propInfo.Name);
+                        if (dic.ContainsKey(key))
+                        {
+                            propInfo.SetValue(product, dic[key] as object, null);
+                        }
+                        else
+                        {
+                            key = propInfo.Name;
+                            if (dic.ContainsKey(key))
+                            {
+                                propInfo.SetValue(product, dic[key] as object, null);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //Dictionary<string, object> result = new Dictionary<string, object>();
+            //if (dic is Dictionary<string, object>)
+            //{
+            //    foreach (string key in dic.Keys)
+            //    {
+            //        string paraseKey = Regex.Replace(key, @"field$", String.Empty, RegexOptions.IgnoreCase);
+            //        Dictionary<string, object> parsedKeyResult = Parse(dic[key] as Dictionary<string, object>);
+
+            //        result.Add(paraseKey, parsedKeyResult ?? dic[key]);
+            //    }
+            //}
+            //else
+            //{
+            //    result = null;
+            //}
+            //return result;
+        }
+
         protected T ConvertTotype<T>(object objToConvert)
         {
             return (T)objToConvert;
         }
+
+        /// <summary>
+        /// Searches the reuqested type
+        /// </summary>
+        public bool TryFindType(string typeName, out Type t)
+        {
+            t = Type.GetType(typeName);
+            if (t == null)
+            {
+                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    t = a.GetType(typeName);
+                    if (t != null)
+                        break;
+                }
+            }
+            return t != null;
+        }
+
+        /// <summary>
+        /// Create a default instance of the givien type
+        /// </summary>
+        /// <param name="MethodParam"></param>
+        /// <returns></returns>
+        protected object CreateObjectInstance(Type MethodParam)
+        {
+            object result = null;
+            do
+            {
+                if (MethodParam.IsByRef)// if parameter is (ref [Type] [param name])
+                {
+                    string itsName = MethodParam.FullName.Replace("&", "");
+                    if (!TryFindType(itsName, out MethodParam)) return null;
+                }
+
+                if (MethodParam.IsPrimitive)
+                {
+                    result = Activator.CreateInstance(MethodParam, true);
+                    break;
+                }
+
+                if (MethodParam.IsValueType && !MethodParam.IsEnum)
+                {
+                    result = Activator.CreateInstance(MethodParam, new object[] { (object)0 });
+                    break;
+                }
+
+                if (MethodParam.Name == "String")
+                {
+                    result = String.Empty;
+                    break;
+                }
+
+                if (MethodParam.IsArray)
+                {
+                    Type innerType = MethodParam.GetElementType();
+                    string underineObjectType = MethodParam.FullName.Replace("[]", "");
+                    if (!TryFindType(underineObjectType, out MethodParam)) return null;
+                    result = Array.CreateInstance(MethodParam, 1);
+                    object firstElement = null;
+                    ConstructorInfo constructor = innerType.GetConstructors().OrderBy(c => c.GetParameters().Length).FirstOrDefault();
+                    if (constructor != null)
+                    {
+                        firstElement = constructor.Invoke(new object[constructor.GetParameters().Length]);
+                    }
+                    ((Array)(result)).SetValue(firstElement, 0);
+                    break;
+                }
+
+                result = Activator.CreateInstance(MethodParam, true);
+
+            } while (false);
+            return result;
+        }
+
         /// <summary>
         /// Convert an object to its json represantation (string form)
         /// </summary>
@@ -252,79 +418,6 @@ public partial class MethodFinder
 
     private class ParameterDefaultInit : ParameterInitBase
     {
-        /// <summary>
-        /// Searches the reuqested type
-        /// </summary>
-        public bool TryFindType(string typeName, out Type t)
-        {
-            t = Type.GetType(typeName);
-            if (t == null)
-            {
-                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    t = a.GetType(typeName);
-                    if (t != null)
-                        break;
-                }
-            }
-            return t != null;
-        }
-
-        /// <summary>
-        /// Create a default instance of the givien type
-        /// </summary>
-        /// <param name="MethodParam"></param>
-        /// <returns></returns>
-        private object CreateObjectInstance(Type MethodParam)
-        {
-            object result = null;
-            do
-            {
-                if (MethodParam.IsByRef)// if parameter is (ref [Type] [param name])
-                {
-                    string itsName = MethodParam.FullName.Replace("&", "");
-                    if (!TryFindType(itsName, out MethodParam)) return null;
-                }
-
-                if (MethodParam.IsPrimitive)
-                {
-                    result = Activator.CreateInstance(MethodParam, true);
-                    break;
-                }
-
-                if (MethodParam.IsValueType && !MethodParam.IsEnum)
-                {
-                    result = Activator.CreateInstance(MethodParam, new object[] { (object)0 });
-                    break;
-                }
-
-                if (MethodParam.Name == "String")
-                {
-                    result = String.Empty;
-                    break;
-                }
-
-                if (MethodParam.IsArray)
-                {
-                    Type innerType = MethodParam.GetElementType();
-                    string underineObjectType = MethodParam.FullName.Replace("[]", "");
-                    if (!TryFindType(underineObjectType, out MethodParam)) return null;
-                    result = Array.CreateInstance(MethodParam, 1);
-                    object firstElement = null;
-                    ConstructorInfo constructor = innerType.GetConstructors().OrderBy(c => c.GetParameters().Length).FirstOrDefault();
-                    if (constructor != null)
-                    {
-                        firstElement = constructor.Invoke(new object[constructor.GetParameters().Length]);
-                    }
-                    ((Array)(result)).SetValue(firstElement, 0);
-                    break;
-                }
-
-                result = Activator.CreateInstance(MethodParam, true);
-
-            } while (false);
-            return result;
-        }
 
         public override object InitilizeParameter(Type MethodParam, String methodName)
         {

@@ -2353,20 +2353,21 @@ namespace TVPApiServices
                 {
                     EPGLoader loader;
                     List<int> channelIDs = new List<int>() { int.Parse(sEPGChannelID) };
-                    DateTime from = DateTime.UtcNow.AddHours(iUTCOffSet), to = DateTime.UtcNow.AddHours(iUTCOffSet);
+                    DateTime _offsetNow = DateTime.UtcNow.AddHours(iUTCOffSet);
                     switch (oUnit)
                     {
                         case EPGUnit.Days:
+                            DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0), to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0);
                             loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(iFromOffset), to.AddDays(iToOffset), 0, 0);
                             break;
                         case EPGUnit.Hours:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddHours(iFromOffset), to.AddHours(iToOffset), 0, 0);
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0);
                             break;
                         case EPGUnit.Current:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, from, to, iFromOffset, iToOffset);
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset);
                             break;
                         default:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, from, to, iFromOffset, iToOffset);
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset);
                             break;
                     }
 
@@ -2403,20 +2404,21 @@ namespace TVPApiServices
                 {
                     EPGLoader loader;
                     List<int> channelIDs = sEPGChannelID.Select(c => int.Parse(c)).ToList();
-                    DateTime from = DateTime.UtcNow.AddHours(iUTCOffSet), to = DateTime.UtcNow.AddHours(iUTCOffSet);
+                    DateTime _offsetNow = DateTime.UtcNow.AddHours(iUTCOffSet);
                     switch (oUnit)
                     {
                         case EPGUnit.Days:
+                            DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0), to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0);
                             loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(iFromOffset), to.AddDays(iToOffset), 0, 0);
                             break;
                         case EPGUnit.Hours:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddHours(iFromOffset), to.AddHours(iToOffset), 0, 0);
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0);
                             break;
                         case EPGUnit.Current:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, from, to, iFromOffset, iToOffset);
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset);
                             break;
                         default:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, from, to, iFromOffset, iToOffset);
+                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset);
                             break;
                     }
 
