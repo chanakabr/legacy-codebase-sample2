@@ -347,7 +347,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
             finally
             {
