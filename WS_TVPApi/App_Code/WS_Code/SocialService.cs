@@ -252,7 +252,7 @@ namespace TVPApiServices
                 {
 
                     ApiSocialService service = new ApiSocialService(groupId, initObj.Platform);
-                    var oExtra = new List<KeyValuePair>() { new KeyValuePair(){ key = "news", value = bGetNewsletter ? "1" : "0"}, new KeyValuePair() {key = "domain", value = bCreateNewDomain ? "1" : "0"} };
+                    var oExtra = new List<KeyValuePair>() { new KeyValuePair() { key = "news", value = bGetNewsletter ? "1" : "0" }, new KeyValuePair() { key = "domain", value = bCreateNewDomain ? "1" : "0" } };
                     return service.FBUserRegister(sToken, "0", oExtra, Context.Request.UserHostAddress);
 
                 }
@@ -327,7 +327,7 @@ namespace TVPApiServices
                     if (Int32.TryParse(initObj.SiteGuid, out siteGuid))
                     {
                         TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                        return service.SetUserSocialPrivacy(siteGuid, socialPlatform ,userAction, socialPrivacy);
+                        return service.SetUserSocialPrivacy(siteGuid, socialPlatform, userAction, socialPrivacy);
                     }
                 }
                 catch (Exception ex)
@@ -396,7 +396,7 @@ namespace TVPApiServices
                 }
             }
             HttpContext.Current.Items.Add("Error", "Unknown group");
-            return new DoSocialActionResponse(){ m_eActionResponseStatusExtern = SocialActionResponseStatus.ERROR, m_eActionResponseStatusIntern = SocialActionResponseStatus.ERROR};
+            return new DoSocialActionResponse() { m_eActionResponseStatusExtern = SocialActionResponseStatus.ERROR, m_eActionResponseStatusIntern = SocialActionResponseStatus.ERROR };
         }
 
         [WebMethod(EnableSession = true, Description = "Gets User Facebook Action Privacy")]
@@ -480,9 +480,8 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
-        public SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId)
+        public SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, eSocialPlatform socialPlatform, int numOfItems, long epochStartTime)
         {
-
             SocialFeed resSocialFeed = new SocialFeed();
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetUserInternalActionPrivacy", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -506,12 +505,20 @@ namespace TVPApiServices
                         webClient.QueryString.Add("mediaId", mediaId.ToString());
                         webClient.QueryString.Add("groupId", groupId.ToString());
                         webClient.QueryString.Add("siteGuid", initObj.SiteGuid);
+                        webClient.QueryString.Add("platform", socialPlatform.ToString());
                         using (StreamReader streamReader = new StreamReader(webClient.OpenRead(ConfigurationManager.AppSettings["SocialFeedProxy"])))
                         {
                             string socialFeedStr = streamReader.ReadToEnd();
                             try
                             {
-                                resSocialFeed.Feed = new JavaScriptSerializer().Deserialize<SerializableDictionary<string, List<SocialFeedItem>>>(socialFeedStr);
+                                Dictionary<string, List<SocialFeedItem>> respFeed = new JavaScriptSerializer().Deserialize<SerializableDictionary<string, List<SocialFeedItem>>>(socialFeedStr).ToDictionary(item => item.Key, item => item.Value);
+
+                                foreach (KeyValuePair<string, List<SocialFeedItem>> item in respFeed)
+                                {
+                                    var y = item.Value.Where(post => epochStartTime != 0 ? post.CreateDate < epochStartTime : true).Take(numOfItems == 0 ? int.MaxValue : numOfItems);
+                                    resSocialFeed.Feed.Add(item.Key, y.ToList());
+                                }
+
                             }
                             catch (Exception)
                             {
@@ -530,7 +537,7 @@ namespace TVPApiServices
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-                resSocialFeed.Error = "Unknown group";  
+                resSocialFeed.Error = "Unknown group";
             }
 
             return resSocialFeed;

@@ -16,6 +16,11 @@ public class SocialFeed
     public SerializableDictionary<string, List<SocialFeedItem>> Feed { get; set; }
     [DataMember, Newtonsoft.Json.JsonProperty]
     public string Error { get; set; }
+
+    public SocialFeed()
+    {
+        Feed = new SerializableDictionary<string, List<SocialFeedItem>>();
+    }
 }
 
 [DataContract]
@@ -37,7 +42,7 @@ public class SocialFeedItemComment
     [DataMember]
     public string CreatorName { get; set; }
     [DataMember]
-    public string CreateDate { get; set; }
+    public long CreateDate { get; set; }
     [DataMember]
     public string CreatorImageUrl { get; set; }
     [DataMember]
