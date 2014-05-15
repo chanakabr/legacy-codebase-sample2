@@ -281,6 +281,7 @@ namespace TVinciShared
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE", "=", sLanguage);
             }
+            selectQuery += "and IS_ACTIVE = 1 and STATUS = 1";
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
