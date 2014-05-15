@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ApiObjects;
 using ApiObjects.MediaIndexingObjects;
+using QueueWrapper.Enums;
 
 namespace QueueWrapper
 {
@@ -11,7 +12,7 @@ namespace QueueWrapper
     {
         public PictureQueue()
         {
-            this.Implementation = new RabbitQueue("picture");//the parameter will ensure that the config values are the ones relevent for the PictureQueue
+            this.Implementation = new RabbitQueue(ConfigType.PictureConfig);//the parameter will ensure that the config values are the ones relevent for the PictureQueue
         }
 
         public override bool Enqueue(QueueObject record, string sRouteKey)
