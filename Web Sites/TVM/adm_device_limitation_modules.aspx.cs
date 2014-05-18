@@ -81,9 +81,9 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("environment_type");      
 
-        DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_device_management.aspx", "Device Families", "");
+        DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_limitation_modules.aspx", "Limitation Modules", "");
         linkColumn1.AddQueryStringValue("limit_module_id", "field=id");
-        linkColumn1.AddQueryCounterValue("select count(*) as val from groups_device_families with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and device_family_id=", "field=id");
+        linkColumn1.AddQueryCounterValue("select count([id]) as val from groups_device_families_limitation_modules with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and id=", "field=id");
         theTable.AddLinkColumn(linkColumn1);
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
