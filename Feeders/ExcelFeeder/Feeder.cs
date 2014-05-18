@@ -465,6 +465,28 @@ namespace ExcelFeeder
                                 {
                                     sHandlingType = val;
                                 }
+                                else if (sParam == "file_start_date(dd/mm/yyyy hh:mm:ss)" || sParam == "file_end_date(dd/mm/yyyy hh:mm:ss)")
+                                {                                  
+                                    int index = sParam.IndexOf('(');
+                                    sParam = sParam.Substring(0,index);
+                                    if (val != "")
+                                    {
+                                        DateTime date;
+                                        bool parsed = DateTime.TryParseExact(val, "dd/MM/yyyy HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out date);
+                                        if (!parsed)
+                                        {
+                                            val = "";
+                                        }
+                                    }
+                                }
+                                else if (sParam == "language")
+                                {
+                                    sParam = "lang";
+                                }
+                                else if (sParam == "is_default_language")
+                                {
+                                    sParam = "default";
+                                }
 
                                 KeyValuePair<string, string> kvp = new KeyValuePair<string, string>(sParam, val);
                                 filesVals.Add(kvp);
