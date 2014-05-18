@@ -117,31 +117,35 @@ namespace RoviFeeder
             return true;
         }
 
-        public static bool SendIngetNotification(IngestNotificationStatus status, string sURL, string logMsg)
+        public static bool SendIngestNotification(IngestNotificationStatus status, string sURL, string logMsg)
         {
-            string theNotificationXML = string.Empty;
-            Notification.RoviNowtilusVodApi notificationClass = new Notification.RoviNowtilusVodApi();
-
-            notificationClass.RequestType = "STATUS";
-            notificationClass.Status = new Notification.RoviNowtilusVodApiStatus();
-            notificationClass.Status.LogLevel = status.ToString();
-            notificationClass.Status.Message = logMsg;
-
             try
             {
+                Logger.Logger.Log("Start", string.Format("{0}, {1}, {2}", status.ToString(), sURL, logMsg), "RoviIngestNotification");
+                
+                Notification.RoviNowtilusVodApi notificationClass = new Notification.RoviNowtilusVodApi();
+                notificationClass.RequestType = "STATUS";
+                notificationClass.Status = new Notification.RoviNowtilusVodApiStatus();
+                notificationClass.Status.LogLevel = status.ToString();
+                notificationClass.Status.Message = logMsg;
+
+                string theNotificationXML = string.Empty;
+
                 using (StringWriter sw = new StringWriter())
                 {
                     XmlSerializer serializer = new XmlSerializer(typeof(Notification.RoviNowtilusVodApi));
                     serializer.Serialize(sw, notificationClass);
                     theNotificationXML = sw.ToString();
                 }
+
+                string response = TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(sURL, theNotificationXML, new Dictionary<string, string>() { });
+                Logger.Logger.Log("Finish", string.Format("{0}", response), "RoviIngestNotification");
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Logger.Log("Exception", string.Format("{0}", ex.Message), "RoviIngestNotification");
             }
-
-            string response = TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(sURL, theNotificationXML, new Dictionary<string, string>() { });
-
+            
             return true;
         }
     }

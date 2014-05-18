@@ -822,6 +822,14 @@ namespace ExcelGenerator
 
                     string sFileCoGuid = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "co_guid", i);
 
+                    string sProductCode = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "Product_Code", i);
+
+                    string sLanguage = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "LANGUAGE", i);
+                    string sIsDefaultLanguage = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "IS_DEFAULT_LANGUAGE", i);
+
+                    DateTime dFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "START_DATE", i);                       
+                    DateTime dFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "END_DATE", i);
+
                     string sExtra = (i + 1).ToString();
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["handling_type"], 0, sExtra)] = sHandlingType;
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["Type"], 0, sExtra)] = sFileMediaType;
@@ -848,6 +856,13 @@ namespace ExcelGenerator
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["post_skip_enabled"], 0, sExtra)] = sPostSkip;
 
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["co_guid"], 0, sExtra)] = sFileCoGuid;
+
+                    mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["product_code"], 0, sExtra)] = sProductCode;
+                    mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["language"], 0, sExtra)] = sLanguage;
+                    mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["is_default_language"], 0, sExtra)] = sIsDefaultLanguage;
+
+                    mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["file_start_date(dd/mm/yyyy hh:mm:ss)"], 0, sExtra)] = dFileStartDate.ToString("dd/MM/yyyy HH:mm:ss");
+                    mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["file_end_date(dd/mm/yyyy hh:mm:ss)"], 0, sExtra)] = dFileEndDate.ToString("dd/MM/yyyy HH:mm:ss");
                 }
 
                 lock (objLockDataTable)
