@@ -1638,8 +1638,7 @@ namespace TvinciImporter
         static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
         {
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-            sUseQueue = sUseQueue.ToLower();
-            if (sUseQueue.Equals("true"))
+            if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
             {
                 return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID);
             }
@@ -2100,8 +2099,7 @@ namespace TvinciImporter
         static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {           
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-            sUseQueue = sUseQueue.ToLower();
-            if (sUseQueue.Equals("true"))
+            if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
             {
                 return DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
             }

@@ -343,8 +343,44 @@ namespace TVinciShared
                     bValid = true;
 
                     string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-                    sUseQueue = sUseQueue.ToLower();
-                    if (!sUseQueue.Equals("true"))                 
+
+                    //use the rabbit Queue
+                    if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+                    {
+                        //get the name of the file, or generate it if needed                   
+                        sPicName = ImageUtils.GetDateImageNameEpg(epg.PicID, ref bIsNew);
+
+                        List<string> lSizes = new List<string>();
+                        lSizes.Add("full");
+
+                        sUploadedFile = theFile.FileName;
+                        sUploadedFileExt = ImageUtils.GetFileExt(sUploadedFile);     //get the file extension from the file                   
+
+                        #region generate sizes list
+                        int count = 0;
+                        bool bCont = true;
+                        while (bCont && sPicName != "")
+                        {
+                            if (coll[nCounter.ToString() + "_picDim_width_" + count.ToString()] != null &&
+                                coll[nCounter.ToString() + "_picDim_width_" + count.ToString()].Trim().ToString() != "")
+                            {
+                                string sWidth = coll[nCounter.ToString() + "_picDim_width_" + count.ToString()].ToString();
+                                string sHeight = coll[nCounter.ToString() + "_picDim_height_" + count.ToString()].ToString();
+                                lSizes.Add(sWidth + "X" + sHeight);
+                                count++;
+                            }
+                            else
+                                bCont = false;
+                        }
+                        string[] sPicSizes = lSizes.ToArray();
+                        #endregion
+
+                        bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicName, sBasePath, sPicSizes, nGroupID); //send to Rabbit
+
+                        epg.PicUrl = sPicName + sUploadedFileExt;
+                        updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid);
+                    }
+                    else                 
                     {
 
                         string sPicBaseName = "";
@@ -403,41 +439,6 @@ namespace TVinciShared
                         epg.PicUrl = sPicBaseName + sUploadedFileExt;
                         updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid);
 
-                    }
-                    else //use the rabbit Queue
-                    {                    
-                        //get the name of the file, or generate it if needed                   
-                        sPicName = ImageUtils.GetDateImageNameEpg(epg.PicID, ref bIsNew);
-
-                        List<string> lSizes = new List<string>();
-                        lSizes.Add("full");
-
-                        sUploadedFile = theFile.FileName;
-                        sUploadedFileExt = ImageUtils.GetFileExt(sUploadedFile);     //get the file extension from the file                   
-
-                        #region generate sizes list
-                        int count = 0;
-                        bool bCont = true;
-                        while (bCont && sPicName != "")
-                        {
-                            if (coll[nCounter.ToString() + "_picDim_width_" + count.ToString()] != null &&
-                                coll[nCounter.ToString() + "_picDim_width_" + count.ToString()].Trim().ToString() != "")
-                            {
-                                string sWidth = coll[nCounter.ToString() + "_picDim_width_" + count.ToString()].ToString();
-                                string sHeight = coll[nCounter.ToString() + "_picDim_height_" + count.ToString()].ToString();
-                                lSizes.Add(sWidth + "X" + sHeight);
-                                count++;
-                            }
-                            else
-                                bCont = false;
-                        }
-                        string[] sPicSizes = lSizes.ToArray();
-                        #endregion
-                                      
-                        bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicName, sBasePath, sPicSizes, nGroupID); //send to Rabbit
-                        
-                        epg.PicUrl = sPicName + sUploadedFileExt;
-                        updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid);
                     }
                 }
             }

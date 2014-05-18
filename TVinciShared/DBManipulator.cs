@@ -283,8 +283,7 @@ namespace TVinciShared
                             if (bValid == true)
                             {
                                 string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-                                sUseQueue = sUseQueue.ToLower();
-                                if (sUseQueue.Equals("true"))
+                                if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
                                 {
                                     #region useRabbitQueue
 
