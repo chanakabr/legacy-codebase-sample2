@@ -2730,6 +2730,7 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_OVERLAY_ID", "=", nOverlayAdCompany);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_OVERLAY_POINTS", "=", sOverlayPoints);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE", "=", sLanguage);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Product_Code", "=", sProductCode);
 
                 if (fileStartDate.HasValue)
@@ -3424,8 +3425,8 @@ namespace TvinciImporter
                 string sOutputProtectionLevel = GetItemParameterVal(ref theItem, "output_protection_level");
                 int nIsDefaultLanguage = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
                 string sProductCode = GetItemParameterVal(ref theItem, "product_code");
-                
-                // try to pare the files date correctly
+
+                // try to parse the files date correctly
                 DateTime? dStartDate = null;
                 DateTime? dEndDate = null;
 
