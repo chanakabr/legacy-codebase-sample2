@@ -258,5 +258,8 @@ namespace TVPApiServices
 
         [OperationContract]
         bool DoesBundleContainMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, int mediaId, string mediaType);
+
+        [OperationContract]
+        BuzzWeightedAverScore GetBuzzMeterData(InitializationObject initObj, string sKey);
     }
 }

@@ -2936,6 +2936,35 @@ namespace TVPApiServices
             return isMediaInBundle;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get Buzz Meter Data")]
+        public BuzzWeightedAverScore GetBuzzMeterData(InitializationObject initObj, string sKey)
+        {
+            BuzzWeightedAverScore buzzMeterData = null;
+            
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetBuzzMeterData", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    BuzzMeterLoader loader = new BuzzMeterLoader(groupID, sKey);
+                    buzzMeterData = loader.Execute() as BuzzWeightedAverScore;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return buzzMeterData;
+        }
+
         #endregion
 
     }
