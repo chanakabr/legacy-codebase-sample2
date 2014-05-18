@@ -113,6 +113,7 @@
     <Compile Include="CatalogLoaders\AssetStatsLoader.cs" />
     <Compile Include="CatalogLoaders\BundleContainingMediaLoader.cs" />
     <Compile Include="CatalogLoaders\BundleMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\BuzzMeterLoader.cs" />
     <Compile Include="CatalogLoaders\ChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\ChannelsListsLoader.cs" />
     <Compile Include="CatalogLoaders\EPGAutoCompleteLoader.cs" />
