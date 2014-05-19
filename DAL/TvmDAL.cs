@@ -323,6 +323,56 @@ namespace DAL
         {
             return Update_DeviceFamilyStatus(nGroupID, nDeviceFamilyID, nLimitationModuleID, bIsDelete, string.Empty);
         }
+
+        public static bool Insert_DeviceFamilyToLimitationModule(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID, string sConnKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_DeviceFamilyToLimitationModule");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@DeviceFamilyID", nDeviceFamilyID);
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@LimitationModuleID", nLimitationModuleID);
+
+            return sp.ExecuteReturnValue<long>() > 0;
+        }
+
+        public static bool Insert_DeviceFamilyToLimitationModule(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID)
+        {
+            return Insert_DeviceFamilyToLimitationModule(nGroupID, nDeviceFamilyID, nLimitationModuleID, string.Empty);
+        }
+
+        public static bool Update_DeviceFamilyToLimitationID(int nGroupID, int nLimitationID, int nDeviceFamilyID, bool bIsDelete,
+            string sConnKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_DeviceFamilyToLimitationID");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@LimitationID", nLimitationID);
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DeviceFamilyID", nDeviceFamilyID);
+            sp.AddParameter("@IsDelete", bIsDelete ? 2 : 1);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool Update_DeviceFamilyToLimitationID(int nGroupID, int nLimitationID, int nDeviceFamilyID, bool bIsDelete)
+        {
+            return Update_DeviceFamilyToLimitationID(nGroupID, nLimitationID, nDeviceFamilyID, bIsDelete, string.Empty);
+        }
+
+        public static DataSet Get_DeviceFamiliesLimitationsData(int nGroupID, int nLimitationID, string sConnKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_DeviceFamiliesLimitationsData");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@LimitationID", nLimitationID);
+
+            return sp.ExecuteDataSet();
+
+        }
+
+        public static DataSet Get_DeviceFamiliesLimitationsData(int nGroupID, int nLimitationID)
+        {
+            return Get_DeviceFamiliesLimitationsData(nGroupID, nLimitationID, string.Empty);
+        }
     }
     
 }
