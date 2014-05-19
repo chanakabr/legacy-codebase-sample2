@@ -96,7 +96,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         {
             if (!currentDeviceFamilyIDs.Contains(updatedDeviceFamilyIDs[i]))
             {
-                TvmDAL.Insert_DeviceFamilyToGroup(groupID, updatedDeviceFamilyIDs[i], limitID);
+                TvmDAL.Insert_DeviceFamilyToLimitationModule(groupID, updatedDeviceFamilyIDs[i], limitID);
             }
         }
 
@@ -104,7 +104,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         {
             if (!updatedDeviceFamilyIDs.Contains(currentDeviceFamilyIDs[j]))
             {
-                TvmDAL.Update_DeviceFamilyStatus(groupID, currentDeviceFamilyIDs[j], limitID, true);
+                TvmDAL.Update_DeviceFamilyToLimitationID(groupID, limitID, currentDeviceFamilyIDs[j], true);
             }
         }
     }
@@ -149,7 +149,12 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         dr_Name.Initialize("Name", "adm_table_header_nbg", "FormInput", "Description", true);
         theRecord.AddRecord(dr_Name);
 
-        DataRecordShortIntField dr_limit_type = new DataRecordShortIntField(true, 9, 9);
+        //DataRecordShortIntField dr_limit_type = new DataRecordShortIntField(true, 9, 9);
+        //dr_limit_type.Initialize("Limit Type", "adm_table_header_nbg", "FormInput", "Type", true);
+        //theRecord.AddRecord(dr_limit_type);
+        DataRecordDropDownField dr_limit_type = new DataRecordDropDownField("lu_device_limitation_modules", "Description", "ID", string.Empty, string.Empty, 60, true);
+        string sQuery = "select Description as txt,ID from lu_device_limitation_modules with (nolock) where status=1 order by id asc";
+        dr_limit_type.SetSelectsQuery(sQuery);
         dr_limit_type.Initialize("Limit Type", "adm_table_header_nbg", "FormInput", "Type", true);
         theRecord.AddRecord(dr_limit_type);
 
@@ -196,7 +201,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                 for (int i = 0; i < nCount; i++)
                 {
-                    string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
+                    string sID = selectQuery.Table("query").DefaultView[i].Row["device_family_id"].ToString();
                     string sTitle = string.Empty;
                     if (selectQuery.Table("query").DefaultView[i].Row["NAME"] != null &&
                         selectQuery.Table("query").DefaultView[i].Row["NAME"] != DBNull.Value)

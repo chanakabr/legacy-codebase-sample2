@@ -12,9 +12,9 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (LoginManager.CheckLogin() == false)
+        if (!LoginManager.CheckLogin())
             Response.Redirect("login.html");
-        if (LoginManager.IsPagePermitted() == false)
+        if (!LoginManager.IsPagePermitted())
             LoginManager.LogoutFromSite("login.html");
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
@@ -44,15 +44,27 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
 
     public string GetTableCSV()
     {
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOldOrderBy);
+        string sOldOrderBy = string.Empty;
+        DBTableWebEditor theTable = null;
+        string sCSVFile = string.Empty;
+        try
+        {
+            if (Session["order_by"] != null)
+                sOldOrderBy = Session["order_by"].ToString();
+            theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+            FillTheTableEditor(ref theTable, sOldOrderBy);
 
-        string sCSVFile = theTable.OpenCSV();
-        theTable.Finish();
-        theTable = null;
+            sCSVFile = theTable.OpenCSV();
+        }
+        finally
+        {
+            if (theTable != null)
+            {
+                theTable.Finish();
+                theTable = null;
+            }
+        }
+
         return sCSVFile;
     }
 
@@ -70,7 +82,7 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
         theTable += "or ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.STATUS", "=", 4);
         theTable += ")";
-        if (sOrderBy != "")
+        if (sOrderBy.Length > 0)
         {
             theTable += " order by ";
             theTable += sOrderBy;
@@ -83,7 +95,7 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
 
         DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_limitation_modules.aspx", "Limitation Modules", "");
         linkColumn1.AddQueryStringValue("limit_module_id", "field=id");
-        linkColumn1.AddQueryCounterValue("select count([id]) as val from groups_device_families_limitation_modules with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and id=", "field=id");
+        //linkColumn1.AddQueryCounterValue("select count([id]) as val from groups_device_families_limitation_modules with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and id=", "field=id");
         theTable.AddLinkColumn(linkColumn1);
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
@@ -134,15 +146,26 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOrderBy);
+        string sOldOrderBy = string.Empty;
+        DBTableWebEditor theTable = null;
+        string sTable = string.Empty;
+        try
+        {
+            if (Session["order_by"] != null)
+                sOldOrderBy = Session["order_by"].ToString();
+            theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+            FillTheTableEditor(ref theTable, sOrderBy);
 
-        string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
-        theTable.Finish();
-        theTable = null;
+            sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
+        }
+        finally
+        {
+            if (theTable != null)
+            {
+                theTable.Finish();
+                theTable = null;
+            }
+        }
         return sTable;
     }
 
