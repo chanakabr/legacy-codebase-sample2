@@ -12,9 +12,9 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (LoginManager.CheckLogin() == false)
+        if (!LoginManager.CheckLogin())
             Response.Redirect("login.html");
-        if (LoginManager.IsPagePermitted() == false)
+        if (!LoginManager.IsPagePermitted())
             LoginManager.LogoutFromSite("login.html");
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
@@ -44,15 +44,27 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
 
     public string GetTableCSV()
     {
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOldOrderBy);
+        string sOldOrderBy = string.Empty;
+        DBTableWebEditor theTable = null;
+        string sCSVFile = string.Empty;
+        try
+        {
+            if (Session["order_by"] != null)
+                sOldOrderBy = Session["order_by"].ToString();
+            theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+            FillTheTableEditor(ref theTable, sOldOrderBy);
 
-        string sCSVFile = theTable.OpenCSV();
-        theTable.Finish();
-        theTable = null;
+            sCSVFile = theTable.OpenCSV();
+        }
+        finally
+        {
+            if (theTable != null)
+            {
+                theTable.Finish();
+                theTable = null;
+            }
+        }
+
         return sCSVFile;
     }
 
@@ -61,8 +73,8 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable += "select a.is_active,a.id as id,a.NAME as 'Name', a.max_limit as 'Limit',  q1.DESCRIPTION as 'Frequency', a.concurrent_max_limit as 'Concurrent Limit', a.status, a.Home_network_quantity as 'Home networks limit', q2.DESCRIPTION as 'Home network frequency', env.description as 'Environment Type'";
         theTable += "from groups_device_limitation_modules a with (nolock) ";
-        theTable += "left join (select lmp1.ID, lmp1.description from lu_min_periods lmp1 with (nolock)) q1 on (q1.ID=a.freq_period_id or a.freq_period_id is NULL) ";
-        theTable += "left join (select lmp2.ID, lmp2.description from lu_min_periods lmp2 with (nolock)) q2 on (q2.ID=a.Home_Network_Frequency or a.Home_Network_Frequency is NULL) ";
+        theTable += "left join (select lmp1.ID, lmp1.description from lu_min_periods lmp1 with (nolock)) q1 on q1.ID=a.freq_period_id ";
+        theTable += "left join (select lmp2.ID, lmp2.description from lu_min_periods lmp2 with (nolock)) q2 on q2.ID=a.Home_Network_Frequency ";
         theTable += "left join lu_domain_environment env with (nolock) on env.ID = a.environment_type where ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
         theTable += "and (";
@@ -70,7 +82,7 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
         theTable += "or ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.STATUS", "=", 4);
         theTable += ")";
-        if (sOrderBy != "")
+        if (sOrderBy.Length > 0)
         {
             theTable += " order by ";
             theTable += sOrderBy;
@@ -81,9 +93,9 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("environment_type");      
 
-        DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_device_management.aspx", "Device Families", "");
+        DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_limitation_modules.aspx", "Limitation Modules", "");
         linkColumn1.AddQueryStringValue("limit_module_id", "field=id");
-        linkColumn1.AddQueryCounterValue("select count(*) as val from groups_device_families with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and device_family_id=", "field=id");
+        //linkColumn1.AddQueryCounterValue("select count([id]) as val from groups_device_families_limitation_modules with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and id=", "field=id");
         theTable.AddLinkColumn(linkColumn1);
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
@@ -134,15 +146,26 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOrderBy);
+        string sOldOrderBy = string.Empty;
+        DBTableWebEditor theTable = null;
+        string sTable = string.Empty;
+        try
+        {
+            if (Session["order_by"] != null)
+                sOldOrderBy = Session["order_by"].ToString();
+            theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+            FillTheTableEditor(ref theTable, sOrderBy);
 
-        string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
-        theTable.Finish();
-        theTable = null;
+            sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
+        }
+        finally
+        {
+            if (theTable != null)
+            {
+                theTable.Finish();
+                theTable = null;
+            }
+        }
         return sTable;
     }
 
