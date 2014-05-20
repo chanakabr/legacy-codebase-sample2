@@ -24,7 +24,17 @@ namespace Users
          */ 
         private int frequency;
         private DateTime nextActionFreqDate;
-                            
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("LimitationsManager: ");
+            sb.Append(String.Concat(" Conc: ", concurrency));
+            sb.Append(String.Concat(" Quan: ", quantity));
+            sb.Append(String.Concat(" Freq: ", frequency));
+            sb.Append(String.Concat(" Next action freq date: ", nextActionFreqDate));
+
+            return sb.ToString();
+        }
 
         public int Concurrency
         {

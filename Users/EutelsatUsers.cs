@@ -7,7 +7,6 @@ namespace Users
 {
     public class EutelsatUsers : TvinciUsers
     {
-        //private const int USER_COGUID_LENGTH = 15;
 
 
         public EutelsatUsers(int nGroupID)
@@ -27,10 +26,6 @@ namespace Users
             }
 
             u.Initialize(oBasicData, sDynamicData, m_nGroupID, sPassword);
-            //{
-            //    resp.Initialize(ResponseStatus.ErrorOnInitUser, u);
-            //    return resp;
-            //}
 
             if (!string.IsNullOrEmpty(u.m_sSiteGUID))
             {
@@ -59,9 +54,7 @@ namespace Users
             else
             {
                 resp.Initialize(ResponseStatus.OK, u);
-            }          
-            
-            //CreateDefaultRules(u.m_sSiteGUID, m_nGroupID);           
+            }                   
 
             string sNewsLetter = sDynamicData.GetValByKey("newsletter");
             if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true"))
@@ -86,8 +79,6 @@ namespace Users
 
                 bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailReq);
             }
-
-            //UserResponseObject resp = base.AddNewUser(oBasicData, sDynamicData, sPassword);
 
             if (resp.m_RespStatus != ResponseStatus.OK)
             {
@@ -125,14 +116,7 @@ namespace Users
 
 
             bool bNotify = false;
-            //bool bIsMaster = u.m_isDomainMaster;
-            //int nOperatorID = 0;
-            
-            //int nDomainID = DAL.UsersDal.GetUserDomainID(nUserID.ToString(), ref nOperatorID, ref bIsMaster);
-            //if (nDomainID <= 0)
-            //{
-            //    nDomainID = DAL.UsersDal.GetUserDomainID(nUserID.ToString(), ref nOperatorID, ref bIsMaster);
-            //}
+
 
             int tokenUserID = GetUserIDByActivationToken(sToken);
             
@@ -147,7 +131,6 @@ namespace Users
 
             if (tokenUserID > 0 && nUserID == tokenUserID)  //(u.m_isDomainMaster)
             {          
-                //string sInGroupIDs = TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
                 List<int> lGroupIDs = DAL.UtilsDal.GetAllRelatedGroups(m_nGroupID);
                 string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
 
@@ -245,7 +228,6 @@ namespace Users
             }
 
             User u = new User(m_nGroupID, nUserID);
-            //u.Initialize(nUserID, m_nGroupID);
 
             if ((u.m_oBasicData != null) && (!string.IsNullOrEmpty(u.m_oBasicData.m_sPassword)))
             {
@@ -257,15 +239,6 @@ namespace Users
 
             return false;
         }
-
-        //public override bool IsUserActivated(ref string sUserName, ref int nUserID)
-        //{
-        //    if (!IsActivationNeeded(null))
-        //        return true;
-
-        //    bool bRet = DAL.UsersDal.IsUserActivated(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID);
-        //    return bRet;
-        //}
 
 
         public bool SendWelcomePasswordMail(UserResponseObject user)

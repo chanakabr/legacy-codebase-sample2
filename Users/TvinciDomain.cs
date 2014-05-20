@@ -87,48 +87,6 @@ namespace Users
             return AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, "");
         }
 
-        public override DomainResponseStatus RemoveDomain(int nDomainID)
-        {
-            Domain domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
-
-            DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
-
-
-            if (domain != null && domain.m_DomainStatus != DomainStatus.OK)
-            {
-                eDomainResponseStatus = domain.TryRemove();
-            }
-            else
-            {
-                eDomainResponseStatus = domain.Remove();
-            }
-
-            return eDomainResponseStatus;
-        }
-
-        public override DomainResponseObject SetDomainInfo(int nDomainID, string sDomainName, int nGroupID, string sDomainDescription)
-        {
-            // Create new response
-            DomainResponseObject oDomainResponseObject;
-
-            //New domain
-            Domain domain = DomainFactory.GetDomain(sDomainName, sDomainDescription, nGroupID, nDomainID);
-
-            //Update the domain fields
-            bool updated = domain.Update();
-
-            if (updated && (domain.m_DomainStatus == DomainStatus.OK))
-            {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
-            }
-            else
-            {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-            }
-
-            return oDomainResponseObject;
-        }
-
         /// <summary>
         /// SubmitAddUserToDomainRequest
         /// </summary>
@@ -151,73 +109,6 @@ namespace Users
             }
 
             oDomainResponseObject = domain.SubmitAddUserToDomainRequest(nGroupID, nUserGuid, sMasterUsername);
-
-            return oDomainResponseObject;
-        }
-
-        public override DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType = 0)
-        {
-            //New domain
-            Domain domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
-
-            // Create new response
-            DomainResponseObject oDomainResponseObject;
-
-            //Reset the domain
-            DomainResponseStatus eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
-
-            //Re-Init domain to return updated data
-            domain.Initialize(m_nGroupID, nDomainID);
-            oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
-
-            return oDomainResponseObject;
-        }
-
-        public override DomainResponseObject ChangeDomainMaster(int nDomainID, int nCurrentMasterID, int nNewMasterID)
-        {
-            //New domain
-            Domain domain = new Domain();
-
-            // Create new response
-            DomainResponseObject oDomainResponseObject;
-
-            //Check if user IDs are valid
-            if (!User.IsUserValid(m_nGroupID, nCurrentMasterID) || !User.IsUserValid(m_nGroupID, nNewMasterID))
-            {
-                domain.m_DomainStatus = DomainStatus.Error;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-            }
-
-            //Init The Domain
-            domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
-            oDomainResponseObject = new DomainResponseObject() { m_oDomain = domain };
-
-            if (domain != null && domain.m_DomainStatus == DomainStatus.OK)
-            {
-                //cannot set domain default user as master
-                if (domain.m_DefaultUsersIDs != null && domain.m_DefaultUsersIDs.Contains(nNewMasterID))
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
-                }
-                //cannot change master to user that's not in domain
-                else if (domain.m_UsersIDs == null || !domain.m_UsersIDs.Contains(nNewMasterID))
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
-                }
-                // No change required, return OK 
-                else if (nNewMasterID == nCurrentMasterID)
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.OK;
-                }
-                else
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = domain.ChangeDomainMaster(m_nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
-                }
-            }
-            else
-            {
-                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
-            }
 
             return oDomainResponseObject;
         }

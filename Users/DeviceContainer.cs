@@ -21,6 +21,19 @@ namespace Users
         {
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("DeviceContainer: ");
+            sb.Append(String.Concat(" Family Name: ", m_deviceFamilyName));
+            sb.Append(String.Concat(" Device Family ID: ", m_deviceFamilyID));
+            sb.Append(String.Concat(" Device Limit: ", m_deviceLimit));
+            sb.Append(String.Concat(" Device concurrent limit: ", m_deviceConcurrentLimit));
+            sb.Append(String.Concat(" num of devices: ", DeviceInstances.Count));
+            sb.Append(String.Concat(" Lmts Mngr: ", m_oLimitationsManager != null ? m_oLimitationsManager.ToString() : "null"));
+
+            return sb.ToString();
+        }
+
         public DeviceContainer(int id, string name, int limit, int nConcurrentLimit = 1)
         {
             m_deviceFamilyID = id;
