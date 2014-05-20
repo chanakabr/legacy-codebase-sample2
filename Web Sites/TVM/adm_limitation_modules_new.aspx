@@ -56,7 +56,7 @@
         switch (json.eventType) {
             case "move":
                 if (json.callerID == 'DualList') {
-                    RS.Execute("adm_limitation_modules_new", "changeItemStatus", json.id, json.kind, json.index, callback_changeItemStatus, errorCallback);
+                    RS.Execute("adm_limitation_modules_new.aspx", "changeItemStatus", json.id, json.kind, json.index, callback_changeItemStatus, errorCallback);
                 }
                 break;
             case "ready":

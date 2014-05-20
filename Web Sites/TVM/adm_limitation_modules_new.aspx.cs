@@ -21,24 +21,6 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         Int32 nMenuID = 0;
         if (!IsPostBack)
         {
-            m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
-            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
-            if (Request.QueryString["limit_id"] != null &&
-                Request.QueryString["limit_id"].ToString().Length > 0)
-            {
-                Session["limit_id"] = int.Parse(Request.QueryString["limit_id"].ToString());
-
-                Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("groups_device_limitation_modules", "group_id", int.Parse(Session["limit_id"].ToString())).ToString());
-                Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-                if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
-                {
-                    LoginManager.LogoutFromSite("login.html");
-                    return;
-                }
-            }
-            else
-                Session["limit_id"] = 0;
-
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork();
@@ -85,7 +67,26 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                         }
                     }
                 }
+
+                return;
             }
+            m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
+            if (Request.QueryString["limit_id"] != null &&
+                Request.QueryString["limit_id"].ToString().Length > 0)
+            {
+                Session["limit_id"] = int.Parse(Request.QueryString["limit_id"].ToString());
+
+                Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("groups_device_limitation_modules", "group_id", int.Parse(Session["limit_id"].ToString())).ToString());
+                Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+                if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
+                {
+                    LoginManager.LogoutFromSite("login.html");
+                    return;
+                }
+            }
+            else
+                Session["limit_id"] = 0;
 
         }
     }
@@ -117,7 +118,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
 
     public void GetHeader()
     {
-        string sRet = PageUtils.GetPreHeader() + ": Device Lmitation Module";
+        string sRet = PageUtils.GetPreHeader() + ": Override Limitation";
         if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 && Session["limit_id"].ToString().Trim() != "0")
             sRet += " - Edit";
         else
@@ -149,9 +150,6 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         dr_Name.Initialize("Name", "adm_table_header_nbg", "FormInput", "Description", true);
         theRecord.AddRecord(dr_Name);
 
-        //DataRecordShortIntField dr_limit_type = new DataRecordShortIntField(true, 9, 9);
-        //dr_limit_type.Initialize("Limit Type", "adm_table_header_nbg", "FormInput", "Type", true);
-        //theRecord.AddRecord(dr_limit_type);
         DataRecordDropDownField dr_limit_type = new DataRecordDropDownField("lu_device_limitation_modules", "Description", "ID", string.Empty, string.Empty, 60, true);
         string sQuery = "select Description as txt,ID from lu_device_limitation_modules with (nolock) where status=1 order by id asc";
         dr_limit_type.SetSelectsQuery(sQuery);
@@ -161,6 +159,11 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         DataRecordShortIntField dr_limit_val = new DataRecordShortIntField(true, 9, 9);
         dr_limit_val.Initialize("Value", "adm_table_header_nbg", "FormInput", "Value", true);
         theRecord.AddRecord(dr_limit_val);
+
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+        dr_groups.SetValue(nGroupID.ToString());
+        theRecord.AddRecord(dr_groups);
 
         string sTable = theRecord.GetTableHTML("adm_limitation_modules_new.aspx?submited=1");
 
