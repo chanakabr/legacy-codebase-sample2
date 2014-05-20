@@ -1765,14 +1765,18 @@ namespace ConditionalAccess
                         return p;
 
                     //collections check
-                    TvinciPricing.Collection[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION) as TvinciPricing.Collection[];
+                    //TvinciPricing.Collection[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION) as TvinciPricing.Collection[];
+
+                    TvinciPricing.PPVModule[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION);
 
                     if (relevantValidCollections != null)
                     {
-                        List<TvinciPricing.Collection> priorityCollections = relevantValidCollections.ToList();
-                        for (int i = 0; i < priorityCollections.Count; i++)
+                        //List<TvinciPricing.Collection> priorityCollections = //relevantValidCollections.ToList();
+                        //for (int i = 0; i < priorityCollections.Count; i++)
+                        //{
+                        for (int i = 0; i < relevantValidCollections.Length; i++)
                         {
-                            TvinciPricing.Collection collection   = priorityCollections[i];
+                            TvinciPricing.Collection collection   =  (TvinciPricing.Collection) relevantValidCollections[i];  
                             TvinciPricing.DiscountModule discount = (TvinciPricing.DiscountModule)(collection.m_oDiscountModule);
                             TvinciPricing.Price collectionsPrice  = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, collection.m_sObjectCode)));
                             if (collectionsPrice != null)
