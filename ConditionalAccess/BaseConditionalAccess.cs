@@ -6137,125 +6137,133 @@ namespace ConditionalAccess
         {
 
             string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
             string sFirstDeviceNameFound = string.Empty;
 
             MediaFileItemPricesContainer[] ret = null;
-            TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
-            string sWSURL = Utils.GetWSURL("pricing_ws");
-            if (sWSURL != "")
-                m.Url = sWSURL;
-            string nMediasForCache = Utils.ConvertArrayIntToStr(nMediaFiles);
-            TvinciPricing.MediaFilePPVModule[] oModules = null;
-            string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-            if (CachingManager.CachingManager.Exist("GetPPVModuleListForMediaFiles" + nMediasForCache + "_" + m_nGroupID.ToString() + sLocaleForCache) == true)
-                oModules = TVinciShared.ObjectCopier.Clone<TvinciPricing.MediaFilePPVModule[]>((TvinciPricing.MediaFilePPVModule[])(CachingManager.CachingManager.GetCachedData("GetPPVModuleListForMediaFiles" + nMediasForCache + "_" + m_nGroupID.ToString() + sLocaleForCache)));
-            else
+            using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
             {
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleListForMediaFiles", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                TvinciPricing.MediaFilePPVModule[] oModulesCopy = TVinciShared.ObjectCopier.Clone<TvinciPricing.MediaFilePPVModule[]>(oModules);
-                CachingManager.CachingManager.SetCachedData("GetPPVModuleListForMediaFiles" + nMediasForCache + "_" + m_nGroupID.ToString() + sLocaleForCache, oModulesCopy, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-            }
-
-            Int32 nCount = 0;
-            if (oModules != null)
-                nCount = oModules.Length;
-            if (nCount > 0)
-                ret = new MediaFileItemPricesContainer[nCount];
-
-            else
-            {
-
-                ret = new MediaFileItemPricesContainer[1];
-                MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
-                foreach (int mediaFileID in nMediaFiles)
-                {
-                    ItemPriceContainer freeContainer = new ItemPriceContainer();
-                    freeContainer.m_PriceReason = PriceReason.Free;
-                    ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
-                    priceContainer[0] = freeContainer;
-
-                    mc.Initialize(mediaFileID, priceContainer);
-                }
-                ret[0] = mc;
-            }
-
-            for (int i = 0; i < nCount; i++)
-            {
-
-                Int32 nMediaFileID = oModules[i].m_nMediaFileID;
-                TvinciPricing.PPVModule[] ppvModules = oModules[i].m_oPPVModules;
-                MediaFileItemPricesContainer mf = new MediaFileItemPricesContainer();
-                if (ppvModules != null)
-                {
-                    ItemPriceContainer[] itemPriceCont = null;
-                    if (ppvModules.Length > 0)
-                        itemPriceCont = new ItemPriceContainer[ppvModules.Length];
-                    Int32 nLowestIndex = 0;
-                    double dLowest = -1;
-                    TvinciPricing.Price pLowest = null;
-                    PriceReason theLowestReason = PriceReason.UnKnown;
-                    TvinciPricing.Subscription relevantLowestSub = null;
-                    TvinciPricing.Collection relevantLowestCol = null;
-                    TvinciPricing.PrePaidModule relevantLowestPrePaid = null;
-                    string sProductCode = string.Empty;
-                    for (int j = 0; j < ppvModules.Length; j++)
-                    {
-                        string sPPVCode = ppvModules[j].m_sObjectCode;
-                        PriceReason theReason = PriceReason.UnKnown;
-                        TvinciPricing.Subscription relevantSub = null;
-                        TvinciPricing.Collection relevantCol = null;
-                        TvinciPricing.PrePaidModule relevantPrePaid = null;
-
-                        TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP);
-                        sProductCode = oModules[i].m_sProductCode;
-                        if (bOnlyLowest == false)
-                        {
-                            itemPriceCont[j] = new ItemPriceContainer();
-                            itemPriceCont[j].Initialize(p, ppvModules[j].m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].m_sDescription, theReason, relevantSub, relevantCol, ppvModules[j].m_bSubscriptionOnly, relevantPrePaid, sFirstDeviceNameFound);
-                        }
-                        else
-                        {
-                            if (p.m_dPrice < dLowest || j == 0)
-                            {
-                                nLowestIndex = j;
-                                dLowest = p.m_dPrice;
-                                pLowest = p;
-                                theLowestReason = theReason;
-                                relevantLowestSub = relevantSub;
-                                relevantLowestCol = relevantCol;
-                                relevantLowestPrePaid = relevantPrePaid;
-                            }
-                        }
-                    }
-                    if (ppvModules.Length > 0 && bOnlyLowest == true)
-                    {
-                        itemPriceCont[0] = new ItemPriceContainer();
-                        itemPriceCont[0].Initialize(pLowest, ppvModules[nLowestIndex].m_oPriceCode.m_oPrise, ppvModules[nLowestIndex].m_sObjectCode, ppvModules[nLowestIndex].m_sDescription, theLowestReason, relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].m_bSubscriptionOnly, relevantLowestPrePaid, sFirstDeviceNameFound);
-                    }
-                    mf.Initialize(nMediaFileID, itemPriceCont, sProductCode);
-                }
+                string sWSURL = Utils.GetWSURL("pricing_ws");
+                if (sWSURL.Length > 0)
+                    m.Url = sWSURL;
+                string nMediasForCache = Utils.ConvertArrayIntToStr(nMediaFiles);
+                TvinciPricing.MediaFilePPVModule[] oModules = null;
+                string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                if (CachingManager.CachingManager.Exist("GetPPVModuleListForMediaFiles" + nMediasForCache + "_" + m_nGroupID.ToString() + sLocaleForCache) == true)
+                    oModules = TVinciShared.ObjectCopier.Clone<TvinciPricing.MediaFilePPVModule[]>((TvinciPricing.MediaFilePPVModule[])(CachingManager.CachingManager.GetCachedData("GetPPVModuleListForMediaFiles" + nMediasForCache + "_" + m_nGroupID.ToString() + sLocaleForCache)));
                 else
                 {
+                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleListForMediaFiles", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                    oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                    TvinciPricing.MediaFilePPVModule[] oModulesCopy = TVinciShared.ObjectCopier.Clone<TvinciPricing.MediaFilePPVModule[]>(oModules);
+                    CachingManager.CachingManager.SetCachedData("GetPPVModuleListForMediaFiles" + nMediasForCache + "_" + m_nGroupID.ToString() + sLocaleForCache, oModulesCopy, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                }
+
+                Int32 nCount = 0;
+                if (oModules != null)
+                    nCount = oModules.Length;
+                if (nCount > 0)
+                    ret = new MediaFileItemPricesContainer[nCount];
+                else
+                {
+
+                    ret = new MediaFileItemPricesContainer[1];
                     MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
                     foreach (int mediaFileID in nMediaFiles)
                     {
                         ItemPriceContainer freeContainer = new ItemPriceContainer();
                         freeContainer.m_PriceReason = PriceReason.Free;
-                        freeContainer.m_oPrice = new TvinciPricing.Price();
-                        freeContainer.m_oPrice.m_dPrice = 0.0;
                         ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
                         priceContainer[0] = freeContainer;
 
-                        mf.Initialize(mediaFileID, priceContainer);
+                        mc.Initialize(mediaFileID, priceContainer);
                     }
                     ret[0] = mc;
                 }
-                ret[i] = mf;
-            }
-            return ret;
+
+                for (int i = 0; i < nCount; i++)
+                {
+
+                    Int32 nMediaFileID = oModules[i].m_nMediaFileID;
+                    TvinciPricing.PPVModule[] ppvModules = oModules[i].m_oPPVModules;
+                    MediaFileItemPricesContainer mf = new MediaFileItemPricesContainer();
+                    if (ppvModules != null)
+                    {
+                        ItemPriceContainer[] itemPriceCont = null;
+                        if (ppvModules.Length > 0)
+                            itemPriceCont = new ItemPriceContainer[ppvModules.Length];
+
+                        Int32 nLowestIndex = 0;
+                        double dLowest = -1;
+                        TvinciPricing.Price pLowest = null;
+                        PriceReason theLowestReason = PriceReason.UnKnown;
+                        TvinciPricing.Subscription relevantLowestSub = null;
+                        TvinciPricing.Collection relevantLowestCol = null;
+                        TvinciPricing.PrePaidModule relevantLowestPrePaid = null;
+                        string sProductCode = string.Empty;
+
+                        for (int j = 0; j < ppvModules.Length; j++)
+                        {
+                            string sPPVCode = ppvModules[j].m_sObjectCode;
+                            PriceReason theReason = PriceReason.UnKnown;
+                            TvinciPricing.Subscription relevantSub = null;
+                            TvinciPricing.Collection relevantCol = null;
+                            TvinciPricing.PrePaidModule relevantPrePaid = null;
+
+                            TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP);
+                            sProductCode = oModules[i].m_sProductCode;
+                            if (!bOnlyLowest)
+                            {
+                                itemPriceCont[j] = new ItemPriceContainer();
+                                itemPriceCont[j].Initialize(p, ppvModules[j].m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].m_sDescription, theReason, relevantSub, relevantCol, ppvModules[j].m_bSubscriptionOnly, relevantPrePaid, sFirstDeviceNameFound);
+                            }
+                            else
+                            {
+                                if (p.m_dPrice < dLowest || j == 0)
+                                {
+                                    nLowestIndex = j;
+                                    dLowest = p.m_dPrice;
+                                    pLowest = p;
+                                    theLowestReason = theReason;
+                                    relevantLowestSub = relevantSub;
+                                    relevantLowestCol = relevantCol;
+                                    relevantLowestPrePaid = relevantPrePaid;
+                                }
+                            }
+                        } // end for
+
+
+                        if (ppvModules.Length > 0 && bOnlyLowest)
+                        {
+                            itemPriceCont[0] = new ItemPriceContainer();
+                            itemPriceCont[0].Initialize(pLowest, ppvModules[nLowestIndex].m_oPriceCode.m_oPrise, ppvModules[nLowestIndex].m_sObjectCode, ppvModules[nLowestIndex].m_sDescription, theLowestReason, relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].m_bSubscriptionOnly, relevantLowestPrePaid, sFirstDeviceNameFound);
+                        }
+                        mf.Initialize(nMediaFileID, itemPriceCont, sProductCode);
+                    }
+                    else
+                    {
+                        MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
+
+                        foreach (int mediaFileID in nMediaFiles)
+                        {
+                            ItemPriceContainer freeContainer = new ItemPriceContainer();
+                            freeContainer.m_PriceReason = PriceReason.Free;
+                            freeContainer.m_oPrice = new TvinciPricing.Price();
+                            freeContainer.m_oPrice.m_dPrice = 0.0;
+                            ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
+                            priceContainer[0] = freeContainer;
+
+                            mf.Initialize(mediaFileID, priceContainer);
+                        } // end foreach
+
+                        ret[0] = mc;
+                    }
+
+                    ret[i] = mf;
+                }
+                return ret;
+            } // end using
         }
 
 
