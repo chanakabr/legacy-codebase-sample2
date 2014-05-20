@@ -1267,8 +1267,6 @@ namespace Users
                 string[] currentDeviceFamily = dbDeviceFamilies[i];
 
                 int nFamilyID = string.IsNullOrEmpty(currentDeviceFamily[0]) ? 0 : Int32.Parse(currentDeviceFamily[0]);
-                //int nFamilyLimit = string.IsNullOrEmpty(currentDeviceFamily[1]) ? 0 : Int32.Parse(currentDeviceFamily[1]);
-                //int nFamilyConcurrentLimit = string.IsNullOrEmpty(currentDeviceFamily[2]) ? 0 : Int32.Parse(currentDeviceFamily[2]);
                 string sFamilyName = currentDeviceFamily[1];
                 int nOverrideQuantityLimit = 0;
                 int nOverrideConcurrencyLimit = 0;
@@ -1281,8 +1279,15 @@ namespace Users
                     nOverrideQuantityLimit = quantityOverride[nFamilyID];
                 }
                 DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > 0 ? nOverrideQuantityLimit : m_oLimitationsManager.Quantity, nOverrideConcurrencyLimit > 0 ? nOverrideConcurrencyLimit : m_oLimitationsManager.Concurrency);
-                m_deviceFamilies.Add(dc);
-                m_oDeviceFamiliesMapping.Add(nFamilyID, dc);
+                if (!m_oDeviceFamiliesMapping.ContainsKey(nFamilyID))
+                {
+                    m_deviceFamilies.Add(dc);
+                    m_oDeviceFamiliesMapping.Add(nFamilyID, dc);
+                }
+                else
+                {
+                    Logger.Logger.Log("DeviceFamiliesInitializer Error", String.Concat("DeviceContainer duplicate: ", dc.ToString()) , "Domain");
+                }
             }
         }
 
@@ -1612,7 +1617,7 @@ namespace Users
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             if (!string.IsNullOrEmpty(sUDID))
             {
-                Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, string.Empty, (int) lDomainID);
+                Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, string.Empty, (int)lDomainID);
                 DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
                 if (dc != null)
                 {

@@ -511,11 +511,11 @@ namespace DAL
         public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, string sCoGuid = null, int? nOperatorID = null)
         {
             bool bInserRes = false;
-
+            ODBCWrapper.InsertQuery insertQuery = null;
             try
             {
                 //Insert New Domain to DB
-                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("domains");
+                insertQuery = new ODBCWrapper.InsertQuery("domains");
                 insertQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
@@ -539,12 +539,19 @@ namespace DAL
                 }
 
                 bInserRes = insertQuery.Execute();
-                insertQuery.Finish();
-                insertQuery = null;
+
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (insertQuery != null)
+                {
+                    insertQuery.Finish();
+                    insertQuery = null;
+                }
             }
 
             return bInserRes;
@@ -555,13 +562,13 @@ namespace DAL
                                             ref string sName, ref string sDbDescription, ref int nDbDomainID, ref int nDbIsActive, ref int nDbStatus, ref string sCoGuid)
         {
             bool res = false;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                selectQuery += "SELECT * FROM DOMAINS WITH (NOLOCK) WHERE ";
+                selectQuery += "SELECT name,description,id,is_active,status,CoGuid FROM DOMAINS WITH (NOLOCK) WHERE ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", sName);
@@ -583,13 +590,20 @@ namespace DAL
                     }
                 }
 
-                selectQuery.Finish();
-                selectQuery = null;
+
 
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                    selectQuery = null;
+                }
             }
 
             return res;
