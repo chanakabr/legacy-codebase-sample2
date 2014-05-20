@@ -288,7 +288,7 @@ public partial class adm_notofication_tag_type_values : System.Web.UI.Page
         string tagName = ODBCWrapper.Utils.GetTableSingleVal("media_tags_types", "NAME", tagTypeID).ToString();
 
         DataRecordMultiField dr_tags = new DataRecordMultiField("Tvinci.dbo.tags", "id", "id", "notifications_parameters", "notification_id", "value", false, "ltr", 60, "tags");
-        dr_tags.Initialize(tagName, "adm_table_header_nbg", "FormInput", "VALUE", false);
+        dr_tags.Initialize(tagName, "adm_table_header_nbg", "FormInput", "VALUE", false);  
         string sQuery = " select top 25 VALUE as txt,id as val from Tvinci.dbo.tags where  status in (1,3,4) and group_id " + PageUtils.GetFullChildGroupsStr(LoginManager.GetLoginGroupID(), "MAIN_CONNECTION_STRING");
         sQuery += " and TAG_TYPE_ID = " + tagTypeID;
         sQuery += "  order by id ";
