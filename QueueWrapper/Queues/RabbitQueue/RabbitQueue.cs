@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QueueWrapper.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,8 @@ namespace QueueWrapper
 {
     public class RabbitQueue : IQueueImpl
     {
+        #region Members
+
         private string m_sHostName = string.Empty;
         private string m_sUserName = string.Empty;
         private string m_sPassword = string.Empty;
@@ -16,8 +19,11 @@ namespace QueueWrapper
         private string m_sQueue = string.Empty;
         private string m_sVirtualHost = string.Empty;
         private string m_sExchangeType = string.Empty;
-        private string m_sType = string.Empty;
         private bool m_bSetContentType = false;
+        private ConfigType m_eConfigType = ConfigType.DefaultConfig;
+
+        #endregion
+
         #region CTOR
 
         public RabbitQueue()
@@ -25,15 +31,13 @@ namespace QueueWrapper
             ReadRabbitParameters();
         }
 
-
         //the parameter will ensure that the config values are the ones relevent for the speceific Queue Type 
-        public RabbitQueue(string sType, bool bSetContentType)
+        public RabbitQueue(ConfigType eType, bool bSetContentType)
         {
-            m_sType = sType;
+            m_eConfigType = eType;
             m_bSetContentType = bSetContentType;
             ReadRabbitParameters();
         }
-
 
         #endregion
 
@@ -48,7 +52,7 @@ namespace QueueWrapper
                 {
                     RabbitConfigurationData configData = CreateRabbitConfigurationData();
                     configData.RoutingKey = sRouteKey;
-                                       
+
                     if (configData != null)
                     {
                         bIsEnqueueSucceeded = RabbitConnection.Instance.Publish(configData, sDataToIndex);
@@ -117,22 +121,29 @@ namespace QueueWrapper
             m_sPassword = Utils.GetConfigValue("password");
             m_sPort = Utils.GetConfigValue("port");
 
-            if (m_sType == string.Empty)
-            {   
-                m_sRoutingKey = Utils.GetConfigValue("routingKey");
-                m_sExchange = Utils.GetConfigValue("exchange");
-                m_sQueue = Utils.GetConfigValue("queue");
-                m_sVirtualHost = Utils.GetConfigValue("virtualHost");
-                m_sExchangeType = Utils.GetConfigValue("exchangeType");
-            }
-            else if (m_sType == "picture")
+            switch (m_eConfigType)
             {
-                m_sRoutingKey = Utils.GetConfigValue("routingKeyPicture");
-                m_sExchange = Utils.GetConfigValue("exchangePicture");
-                m_sQueue = Utils.GetConfigValue("queuePicture");
-                m_sVirtualHost = Utils.GetConfigValue("virtualHostPicture");
-                m_sExchangeType = Utils.GetConfigValue("exchangeTypePicture");
-            }           
+                case ConfigType.DefaultConfig:
+                    {
+                        m_sRoutingKey = Utils.GetConfigValue("routingKey");
+                        m_sExchange = Utils.GetConfigValue("exchange");
+                        m_sQueue = Utils.GetConfigValue("queue");
+                        m_sVirtualHost = Utils.GetConfigValue("virtualHost");
+                        m_sExchangeType = Utils.GetConfigValue("exchangeType");
+                        break;
+                    }
+                case ConfigType.PictureConfig:
+                    {
+                        m_sRoutingKey = Utils.GetConfigValue("routingKeyPicture");
+                        m_sExchange = Utils.GetConfigValue("exchangePicture");
+                        m_sQueue = Utils.GetConfigValue("queuePicture");
+                        m_sVirtualHost = Utils.GetConfigValue("virtualHostPicture");
+                        m_sExchangeType = Utils.GetConfigValue("exchangeTypePicture");
+                        break;
+                    }
+                default:
+                    break;
+            }
         }
 
         protected virtual RabbitConfigurationData CreateRabbitConfigurationData()
