@@ -47,14 +47,20 @@ namespace ElasticSearch.Common
 
             sBuildIndex.Append(@"{ ""settings"": {");
 
+            bool bShards = false;
             if (nShards > 0 && nReplicas > 0)
             {
+                bShards = true;
                 sBuildIndex.Append(@"""index"": {");
                 sBuildIndex.AppendFormat(" \"number_of_shards\": {0}, \"number_of_replicas\": {1}", nShards, nReplicas);
                 sBuildIndex.Append("} ");
             }
 
             #region add analyzers/filters
+
+            if (bShards)
+                sBuildIndex.Append(","); 
+            
             sBuildIndex.Append("\"analysis\": {");
             bool bAnalyzer = false;
             if (lAnalyzers != null && lAnalyzers.Count > 0)
