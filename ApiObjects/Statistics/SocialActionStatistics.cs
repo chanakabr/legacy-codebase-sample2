@@ -1,29 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft;
-using Newtonsoft.Json;
 
 namespace ApiObjects.Statistics
 {
     [Serializable]
-    [JsonObject(Id = "view_stats")]
-    public class ViewStatistics
-    {
-        [JsonProperty("count")]
-        public long Counter { get; set; }
-
-        public ViewStatistics()
-        {
-            Counter = 0;
-        }
-
-    }
-
-    [Serializable]
-    [JsonObject(Id = "media_view")]
-    public class MediaView
+    [JsonObject(Id = "social_action")]
+    public class SocialActionStatistics
     {
         [JsonProperty("media_id")]
         public int MediaID { get; set; }
@@ -36,17 +21,16 @@ namespace ApiObjects.Statistics
         public DateTime Date { get; set; }
         [JsonProperty("action")]
         public string Action { get; set; }
-        [JsonProperty("location")]
-        public int Location { get; set; }
+        [JsonProperty("rate_value", NullValueHandling=NullValueHandling.Ignore)]
+        public int RateValue { get; set; }
 
-        public MediaView()
+        public SocialActionStatistics()
         {
             GroupID = 0;
             MediaType = string.Empty;
             Date = DateTime.UtcNow;
             Action = string.Empty;
-            Location = 0;
-
+            RateValue = 0;
         }
     }
 }

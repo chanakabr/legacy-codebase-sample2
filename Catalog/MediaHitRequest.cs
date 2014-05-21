@@ -21,8 +21,7 @@ namespace Catalog
     public class MediaHitRequest : BaseRequest, IRequestImp
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private static readonly string INDEX = "statistics";
-        private static readonly string TYPE = "stats";
+        
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -125,17 +124,8 @@ namespace Catalog
             //we only record channel/series views on hits that are of type play/first_play actions
             if (oGroup != null && resultParse && (action == MediaPlayActions.PLAY || action == MediaPlayActions.FIRST_PLAY))
             {
-                string sMediaTypeFromConfig = Utils.GetWSURL(string.Format("LinearTypeId_{0}", oGroup.m_nParentGroupID)); 
-
-                if (!string.IsNullOrEmpty(sMediaTypeFromConfig))
-                {
-                    string[] lSplitMediaTypes = sMediaTypeFromConfig.Split('|');
-                    if (lSplitMediaTypes.Contains(mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId))
-                    {
-                        MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId, Action = mediaHitRequest.m_oMediaPlayRequestData.m_sAction, Date = DateTime.UtcNow };
-                        WriteLiveViewsToES(view);                       
-                    }
-                }
+                MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId, Action = mediaHitRequest.m_oMediaPlayRequestData.m_sAction, Date = DateTime.UtcNow };
+                WriteLiveViewsToES(view);                       
             }
 
             string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);                      
@@ -171,15 +161,16 @@ namespace Catalog
             ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
 
             string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
+            string index = Utils.GetStatisticsIndexAlias(oMediaView.GroupID);
 
-            if (oESApi.IndexExists(INDEX) && !string.IsNullOrEmpty(sJsonView))
+            if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
             {
                 Guid guid = Guid.NewGuid();
 
-                bRes = oESApi.InsertRecord(INDEX, TYPE, guid.ToString(), sJsonView);
+                bRes = oESApi.InsertRecord(index, Utils.ES_STATISTICS_TYPE, guid.ToString(), sJsonView);
 
                 if (!bRes)
-                    _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", INDEX, TYPE, sJsonView));
+                    _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, Utils.ES_STATISTICS_TYPE, sJsonView));
             }
 
             return bRes;
