@@ -230,7 +230,7 @@ namespace BuzzFeeder
 
             //facets caluclate on data based on these times
             ESRange dateRange = new ESRange(false);
-            dateRange.Key = "date";
+            dateRange.Key = "action_date";
             dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, startTime.ToString("yyyyMMddHHmmss")));
             dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, endTime.ToString("yyyyMMddHHmmss")));
 
@@ -250,7 +250,7 @@ namespace BuzzFeeder
             BaseFilterCompositeType facetFilter = new FilterCompositeType(CutWith.AND);
             //facets caluclate on data based on these times
             ESRange dateRange = new ESRange(false);
-            dateRange.Key = "date";
+            dateRange.Key = "action_date";
             dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, startTime.ToString("yyyyMMddHHmmss")));
             dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, endTime.ToString("yyyyMMddHHmmss")));
 
