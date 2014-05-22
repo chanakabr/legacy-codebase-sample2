@@ -1308,5 +1308,16 @@ namespace DAL
         {
             return Get_GroupMediaTypesIDs(nGroupID, string.Empty);
         }
+
+        public static int Get_SubscriptionUseCount(string sSiteGuid, string sSubCode, int nGroupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_SubscriptionUseCount");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@SubCode", sSubCode);
+            sp.AddParameter("@GroupID", nGroupID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
     }
 }

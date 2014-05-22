@@ -71,6 +71,11 @@ namespace ConditionalAccess
         protected abstract bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid);
         #endregion
 
+        protected virtual string GetPPVCodeForGetItemsPrices(string ppvObjectCode, string ppvObjectVirtualName)
+        {
+            return ppvObjectCode;
+        }
+
         protected BaseConditionalAccess() { }
 
         protected BaseConditionalAccess(Int32 nGroupID)
@@ -170,8 +175,6 @@ namespace ConditionalAccess
             TvinciAPI.PurchaseMailRequest retVal = new TvinciAPI.PurchaseMailRequest();
             string sFirstName = "";
             string sLastName = "";
-            //TVinciShared.Mailer t = new TVinciShared.Mailer(0);
-            //t.SetMailServer(m_sMailServer, m_sMailServerUN, m_sMailServerPass, m_sMailFromName, m_sMailFromAdd);
             TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService();
             string sIP = "1.1.1.1";
             string sWSUserName = "";
@@ -6143,18 +6146,18 @@ namespace ConditionalAccess
             MediaFileItemPricesContainer[] ret = null;
             try
             {
-                string nMediasForCache = Utils.ConvertArrayIntToStr(nMediaFiles);
                 TvinciPricing.MediaFilePPVModule[] oModules = null;
-                string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                if (CachingManager.CachingManager.Exist("GetPPVModuleListForMediaFiles" + nMediasForCache + "_" + m_nGroupID.ToString() + sLocaleForCache))
-                    oModules = TVinciShared.ObjectCopier.Clone<TvinciPricing.MediaFilePPVModule[]>((TvinciPricing.MediaFilePPVModule[])(CachingManager.CachingManager.GetCachedData("GetPPVModuleListForMediaFiles" + nMediasForCache + "_" + m_nGroupID.ToString() + sLocaleForCache)));
+
+                string nMediasForCache = Utils.ConvertArrayIntToStr(nMediaFiles);
+                string sCacheKey = Utils.GetCachingManagerKey("GetPPVModuleListForMediaFiles", nMediasForCache, m_nGroupID, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                if (CachingManager.CachingManager.Exist(sCacheKey))
+                    oModules = TVinciShared.ObjectCopier.Clone<TvinciPricing.MediaFilePPVModule[]>((TvinciPricing.MediaFilePPVModule[])(CachingManager.CachingManager.GetCachedData(sCacheKey)));
                 else
                 {
-                    //TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleListForMediaFiles", "pricing", sIP, ref sWSUserName, ref sWSPass);
                     InitializePricingModule("GetPPVModuleListForMediaFiles", ref m, ref sWSUserName, ref sWSPass);
                     oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                     TvinciPricing.MediaFilePPVModule[] oModulesCopy = TVinciShared.ObjectCopier.Clone<TvinciPricing.MediaFilePPVModule[]>(oModules);
-                    CachingManager.CachingManager.SetCachedData("GetPPVModuleListForMediaFiles" + nMediasForCache + "_" + m_nGroupID.ToString() + sLocaleForCache, oModulesCopy, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    CachingManager.CachingManager.SetCachedData(sCacheKey, oModulesCopy, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
                 }
 
                 if (oModules != null && oModules.Length > 0)
@@ -6162,12 +6165,13 @@ namespace ConditionalAccess
                     ret = new MediaFileItemPricesContainer[oModules.Length];
                     Dictionary<int, int> mediaFileTypesMapping = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
                     List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID);
+
                     for (int i = 0; i < oModules.Length; i++)
                     {
-
                         Int32 nMediaFileID = oModules[i].m_nMediaFileID;
                         TvinciPricing.PPVModule[] ppvModules = oModules[i].m_oPPVModules;
                         MediaFileItemPricesContainer mf = new MediaFileItemPricesContainer();
+                        int nMediaFileTypeID = Utils.GetMediaFileTypeID(m_nGroupID, nMediaFileID);
 
                         if (ppvModules != null && ppvModules.Length > 0)
                         {
@@ -6184,13 +6188,13 @@ namespace ConditionalAccess
 
                             for (int j = 0; j < ppvModules.Length; j++)
                             {
-                                string sPPVCode = ppvModules[j].m_sObjectCode;
+                                string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].m_sObjectCode, ppvModules[j].m_sObjectVirtualName);
                                 PriceReason theReason = PriceReason.UnKnown;
                                 TvinciPricing.Subscription relevantSub = null;
                                 TvinciPricing.Collection relevantCol = null;
                                 TvinciPricing.PrePaidModule relevantPrePaid = null;
 
-                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping, allUsersInDomain);
+                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID);
                                 sProductCode = oModules[i].m_sProductCode;
 
                                 if (!bOnlyLowest)
