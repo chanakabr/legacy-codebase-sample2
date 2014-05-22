@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using ODBCWrapper;
 
 namespace DAL
 {
@@ -633,8 +634,25 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
+        //public static DataTable Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
+        //{
+        //    ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_MediaFileByID");
+        //    spGet_MediaFileByID.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //    spGet_MediaFileByID.AddParameter("@mediaFileID", nMediaFileID);
+        //    spGet_MediaFileByID.AddIDListParameter<int>("@fileTypes", relFileTypesStr, "Id");
+        //    spGet_MediaFileByID.AddParameter("@isThereFileTypes", isThereFileTypes);
+
+        //    DataSet ds = spGet_MediaFileByID.ExecuteDataSet();
+
+        //    if (ds != null)
+        //        return ds.Tables[0];
+        //    return null;
+        //}
+
+        public static List<int> Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
         {
+            List<int> res = null;
+
             ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_MediaFileByID");
             spGet_MediaFileByID.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGet_MediaFileByID.AddParameter("@mediaFileID", nMediaFileID);
@@ -643,10 +661,30 @@ namespace DAL
 
             DataSet ds = spGet_MediaFileByID.ExecuteDataSet();
 
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = new List<int>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        res.Add(ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]));
+                    }
+                }
+                else
+                {
+                    res = new List<int>(0);
+                }
+            }
+            else
+            {
+                res = new List<int>(0);
+            }
+
+            return res;
         }
+
         public static DataTable Get_PreviewModuleIDsForEntitlementCalc(int nGroupID, string sSiteGUID, string sSubCode, DateTime dtStartLookFromThisDate)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PreviewModuleIDsForEntitlementCalc");
@@ -719,6 +757,33 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
+        }
+
+        public static bool Get_AllUsersPurchases(List<int> UserIDs, List<int> FileIds, int fileID, ref int ppvID, ref string subCode,
+            ref string ppCode)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
+            spGet_AllUsersPurchases.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllUsersPurchases.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
+            spGet_AllUsersPurchases.AddIDListParameter<int>("@FileIDs", FileIds, "Id");
+            spGet_AllUsersPurchases.AddParameter("@nMediaFileID", fileID);
+
+            DataSet ds = spGet_AllUsersPurchases.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    ppvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
+                    subCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["subscription_code"]);
+                    ppCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["rel_pp"]);
+                }
+            }
+
+            return res;
         }
 
 
@@ -1203,6 +1268,45 @@ namespace DAL
             sp.AddParameter("@BillingMethod", nBillingMethod);
 
             return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static Dictionary<int, int> Get_GroupMediaTypesIDs(int nGroupID, string sConnKey)
+        {
+            Dictionary<int, int> res = null;
+            StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupMediaTypesIDs");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = new Dictionary<int, int>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        int id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]);
+                        int mediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["MEDIA_TYPE_ID"]);
+                        res.Add(id, mediaTypeID);
+                    }
+                }
+                else
+                {
+                    res = new Dictionary<int, int>(0);
+                }
+            }
+            else
+            {
+                res = new Dictionary<int, int>(0);
+            }
+
+            return res;
+        }
+
+        public static Dictionary<int, int> Get_GroupMediaTypesIDs(int nGroupID)
+        {
+            return Get_GroupMediaTypesIDs(nGroupID, string.Empty);
         }
     }
 }
