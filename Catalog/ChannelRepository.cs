@@ -130,7 +130,7 @@ namespace Catalog
                              }
                              catch (Exception ex)
                              {
-                                 Logger.Logger.Log("Error", string.Format("Error running SearchSubsciptionMedias. Exception {0}", ex.Message), "ElasticSearch");
+                                 Logger.Logger.Log("Error", string.Format("Error while building group channels. group_id={0}; channelId={1}; ex={2};stack={3}", oGroup.m_nParentGroupID, channelID[i], ex.Message, ex.StackTrace), "ElasticSearch");
                              }
                          }, i);
                     buildChannelTask[i].Start();
