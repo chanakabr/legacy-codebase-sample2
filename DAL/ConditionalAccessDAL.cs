@@ -1319,5 +1319,24 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>();
         }
+
+        public static int Get_PPVPurchaseCount(int nGroupID, string sSiteGuid, string sSubCode, long lMediaFileID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_PPVPurchaseCount");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            if (!string.IsNullOrEmpty(sSubCode))
+            {
+                sp.AddParameter("@SubCode", sSubCode);
+            }
+            else
+            {
+                sp.AddParameter("@SubCode", DBNull.Value);
+            }
+            sp.AddParameter("@MediaFileID", lMediaFileID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
     }
 }

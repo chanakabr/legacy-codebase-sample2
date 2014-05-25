@@ -168,64 +168,6 @@ namespace ConditionalAccess
             return discRetPrice;
         }
 
-        internal static Int32 GetSubUseCount(string sSiteGUID, string subCode, int nGroupID)
-        {
-            //Int32 nRet = 0;
-            //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            //selectQuery += "select count(*) as co from subscriptions_uses where ";
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-            //selectQuery += " and ";
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("is_Credit_downloaded", "=", 1);
-            //selectQuery += " and ";
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", subCode);
-
-            //if (selectQuery.Execute("query", true) != null)
-            //{
-            //    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            //    if (nCount > 0)
-            //        nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["co"].ToString());
-            //}
-            //selectQuery.Finish();
-            //selectQuery = null;
-            //return nRet;
-
-            return ConditionalAccessDAL.Get_SubscriptionUseCount(sSiteGUID, subCode, nGroupID);
-
-        }
-
-        static protected Int32 GetPPVPurchaseCount(Int32 nMediaFileID, string sSiteGUID, string subCode)
-        {
-            Int32 nRet = 0;
-            if (!string.IsNullOrEmpty(subCode))
-            {
-
-            }
-
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select count(*) as co from ppv_purchases where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-            if (!string.IsNullOrEmpty(subCode))
-            {
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", subCode);
-            }
-            else
-            {
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
-            }
-
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["co"].ToString());
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return nRet;
-        }
-
         static public string GetWSURL(string sKey)
         {
             return GetValueFromConfig(sKey);
@@ -348,30 +290,6 @@ namespace ConditionalAccess
             }
             return mapper;
         }
-
-        //internal static Int32 GetMediaFileTypeID(Int32 nGroupID, Int32 nMediaFileID)
-        //{
-        //    string sIP = "1.1.1.1";
-        //    string sWSUserName = string.Empty;
-        //    string sWSPass = string.Empty;
-        //    Int32 nRet = 0;
-        //    using (TvinciAPI.API m = new ConditionalAccess.TvinciAPI.API())
-        //    {
-        //        string apiUrl = GetWSURL("api_ws");
-        //        if (apiUrl.Length > 0)
-        //            m.Url = apiUrl;
-        //        if (CachingManager.CachingManager.Exist("GetMediaFileTypeID" + nMediaFileID.ToString() + "_" + nGroupID.ToString()))
-        //            nRet = (Int32)(CachingManager.CachingManager.GetCachedData("GetMediaFileTypeID" + nMediaFileID.ToString() + "_" + nGroupID.ToString()));
-        //        else
-        //        {
-        //            TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetMediaFileTypeID", "api", sIP, ref sWSUserName, ref sWSPass);
-        //            nRet = m.GetMediaFileTypeID(sWSUserName, sWSPass, nMediaFileID);
-        //            CachingManager.CachingManager.SetCachedData("GetMediaFileTypeID" + nMediaFileID.ToString() + "_" + nGroupID.ToString(), nRet, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-        //        }
-        //    }
-
-        //    return nRet;
-        //}
 
         internal static int GetMediaFileTypeID(int nGroupID, int nMediaFileID)
         {
@@ -780,11 +698,11 @@ namespace ConditionalAccess
                 int nPPVPurchaseCount = 0;
                 if (discModule.m_dPercent == 100 && !string.IsNullOrEmpty(subCode))
                 {
-                    nPPVPurchaseCount = GetSubUseCount(sSiteGUID, subCode, nGroupID);
+                    nPPVPurchaseCount = ConditionalAccessDAL.Get_SubscriptionUseCount(sSiteGUID, subCode, nGroupID);
                 }
                 else
                 {
-                    nPPVPurchaseCount = GetPPVPurchaseCount(nMediaFileID, sSiteGUID, subCode);
+                    nPPVPurchaseCount = ConditionalAccessDAL.Get_PPVPurchaseCount(nGroupID, sSiteGUID, subCode, nMediaFileID);
                 }
                 p = GetPriceAfterDiscount(p, discModule, nPPVPurchaseCount);
             }
@@ -1212,10 +1130,6 @@ namespace ConditionalAccess
 
         static public string ConvertArrayIntToStr(int[] theArray)
         {
-            //string sRet = string.Empty;
-            //for (int i = 0; i < theArray.Length; i++)
-            //    sRet += theArray[i].ToString() + "-";
-            //return sRet;
 
             StringBuilder sb = new StringBuilder();
             if (theArray != null && theArray.Length > 0)
@@ -1303,14 +1217,6 @@ namespace ConditionalAccess
 
         static public string GetLocaleStringForCache(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            //string sRet = "";
-            //if (String.IsNullOrEmpty(sCountryCd) == false)
-            //    sRet += "_" + sCountryCd;
-            //if (String.IsNullOrEmpty(sLANGUAGE_CODE) == false)
-            //    sRet += "_" + sLANGUAGE_CODE;
-            //if (String.IsNullOrEmpty(sDEVICE_NAME) == false)
-            //    sRet += "_" + sDEVICE_NAME;
-            //return sRet;
 
             StringBuilder sb = new StringBuilder();
             if (!string.IsNullOrEmpty(sCountryCd))
