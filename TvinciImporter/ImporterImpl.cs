@@ -2183,13 +2183,14 @@ namespace TvinciImporter
         static private string GetBasePath(int nGroupID)
         {
             string key = string.Format("pics_base_path_{0}", nGroupID);
-            if (!string.IsNullOrEmpty(TVinciShared.WS_Utils.GetTcmConfigValue(key)))
+
+            if (!string.IsNullOrEmpty(GetConfigVal(key)))
             {
-                return TVinciShared.WS_Utils.GetTcmConfigValue(key);
+                return GetConfigVal(key);
             }
-            if (!string.IsNullOrEmpty(TVinciShared.WS_Utils.GetTcmConfigValue("pics_base_path")))
+            if (!string.IsNullOrEmpty(GetConfigVal("pics_base_path"))) 
             {
-                return TVinciShared.WS_Utils.GetTcmConfigValue("pics_base_path");
+                return GetConfigVal("pics_base_path");
             }
 
             string sBasePath = string.Empty;
