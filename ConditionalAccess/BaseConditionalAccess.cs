@@ -8232,6 +8232,14 @@ namespace ConditionalAccess
             {
                 TimeSpan ts = new TimeSpan(2, 0, 0, 0);
 
+                string val = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", m_nGroupID));
+
+                if (!string.IsNullOrEmpty(val))
+                {
+                    DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(val), true);
+                    ts = dEndDate.Subtract(DateTime.UtcNow);
+                }
+
                 return ts.ToString();
             }
 
