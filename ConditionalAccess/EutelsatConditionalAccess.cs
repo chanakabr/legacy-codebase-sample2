@@ -564,6 +564,18 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at MakeTransactionNotification. ");
+                sb.Append(String.Concat("Household: ", sHouseholdUID));
+                sb.Append(String.Concat(" Asset ID: ", nAssetID));
+                sb.Append(String.Concat(" External Asset ID: ", sExternalAssetID));
+                sb.Append(String.Concat(" PPV Module: ", sPpvModuleCode));
+                sb.Append(String.Concat(" Coupon: ", sCouponCode));
+                sb.Append(String.Concat(" UDID: ", sDeviceUDID));
+                sb.Append(String.Concat(" Trans ID: ", nTransactionID));
+                sb.Append(String.Concat(" Trace: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+
                 int errorCode = System.Runtime.InteropServices.Marshal.GetExceptionCode();
                 res = new EutelsatTransactionResponse { Success = false, ErrorCode = errorCode, ErrorMessage = ex.Message, TransactionId = nTransactionID.ToString() };
             }
@@ -619,6 +631,19 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at MakeSubNotification. ");
+                sb.Append(String.Concat("Exception: ", ex.Message));
+                sb.Append(String.Concat(" Household ID: ", sHouseholdUID));
+                sb.Append(String.Concat(" Product ID: ", sProductID));
+                sb.Append(String.Concat(" Trans ID: ", nTransactionID));
+                sb.Append(String.Concat(" UDID: ", sDeviceUDID));
+                sb.Append(String.Concat(" Price: ", dPrice));
+                sb.Append(String.Concat(" Currency: ", sCurrency));
+                sb.Append(String.Concat(" Trace: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
+
                 int errorCode = System.Runtime.InteropServices.Marshal.GetExceptionCode();
                 res = new EutelsatTransactionResponse { Success = false, ErrorCode = errorCode, ErrorMessage = ex.Message, TransactionId = nTransactionID.ToString() };
             }
@@ -635,8 +660,15 @@ namespace ConditionalAccess
 
                 return (EutelsatTransactionResponse)objResponse;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at MakeJsonRequest. ");
+                sb.Append(String.Concat(" Msg: ", ex.Message));
+                sb.Append(String.Concat(" Req URI: ", requestUri != null ? requestUri.OriginalString : "null"));
+                sb.Append(String.Concat(" JSON: ", jsonContent));
+                sb.Append(String.Concat(" Trace: ", ex.StackTrace));
+
+                Logger.Logger.Log("MakeJsonRequest", sb.ToString(), "EutelsatConditionalAccess");
             }
 
             return null;
@@ -757,7 +789,7 @@ namespace ConditionalAccess
 
             TvinciBilling.BillingResponse ret = new TvinciBilling.BillingResponse();
 
-            if ((p == null) || (dPrice != p.m_dPrice) || (sCurrency != p.m_oCurrency.m_sCurrencyCD3))
+            if (p == null || dPrice != p.m_dPrice || sCurrency != p.m_oCurrency.m_sCurrencyCD3)
             {
                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
                 ret.m_sRecieptCode = "";
@@ -769,7 +801,7 @@ namespace ConditionalAccess
             }
 
 
-            string sCustomData = "";
+            string sCustomData = string.Empty;
 
             bool bIsRecurring = theSub.m_bIsRecurring;
             Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
@@ -792,7 +824,7 @@ namespace ConditionalAccess
                 TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "CC_ChargeUser", "billing", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("billing_ws");
 
-                if (sWSURL != "")
+                if (sWSURL.Length > 0)
                 {
                     bm.Url = sWSURL;
                 }
@@ -860,7 +892,7 @@ namespace ConditionalAccess
                     {
                         EutelsatTransactionResponse subNotificationRes = MakeSubNotification(sHouseholdUID, sSubscriptionCode, dPrice, sCurrency, sDEVICE_NAME, nReceiptCode);
 
-                        if (subNotificationRes.Success == false)
+                        if (!subNotificationRes.Success)
                         {
                             if (nReceiptCode > 0)
                             {
@@ -875,7 +907,18 @@ namespace ConditionalAccess
                             WriteToUserLog(sSiteGUID, "While trying to purchase product id(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
                         }
                     }
-                    catch { }
+                    catch(Exception ex) 
+                    {
+                        StringBuilder sb = new StringBuilder("Exception while trying to make sub notification. ");
+                        sb.Append(String.Concat(" Msg: ", ex.Message));
+                        sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
+                        sb.Append(String.Concat(" Household: ", sHouseholdUID));
+                        sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
+                        sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
+                        sb.Append(String.Concat(" Trace: ", ex.StackTrace));
+
+                        Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                    }
                 }
 
 
