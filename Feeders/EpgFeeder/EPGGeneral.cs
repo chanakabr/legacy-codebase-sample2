@@ -402,12 +402,26 @@ namespace EpgFeeder
             Dictionary<DateTime, List<int>> epgDateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());           
             List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
             EpgCB newEpgItem;            
-            BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId));
+           
 
             string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
             int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
             int nCount = 0;
             List<ulong> ulProgram = new List<ulong>();
+            
+            #region get Group ID (parent Group if possible)
+            int groupID = 0;
+            if (!string.IsNullOrEmpty(m_ParentGroupId))
+            {
+                groupID = int.Parse(m_ParentGroupId);
+            }
+            else
+            {
+                groupID = DAL.UtilsDal.GetParentGroupID(int.Parse(s_GroupID));
+            }
+            #endregion
+
+            BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
 
             foreach (tvChannel item in m_TvChannels.channel)
             {
@@ -482,18 +496,6 @@ namespace EpgFeeder
                            select p;
 
                 DeleteAllPrograms(channelID, prog);
-
-                #region get Group ID (parent Group if possible)
-                int groupID = 0;
-                if (!string.IsNullOrEmpty(m_ParentGroupId))
-                {
-                    groupID = int.Parse(m_ParentGroupId);
-                }
-                else
-                {
-                    groupID = DAL.UtilsDal.GetParentGroupID(int.Parse(s_GroupID));
-                }
-                #endregion
 
                 //List<FieldTypeEntity> lFieldTypeEntity = GetMappingFields();
                 Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();
@@ -571,13 +573,11 @@ namespace EpgFeeder
                     #endregion
 
                     #endregion
-
-                    ulong epgID = 0;
-                    bool bInsert = oEpgBL.InsertEpg(newEpgItem, out epgID);
+                 
                     epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
                 }
 
-                //insert EPGs to DB in batches
+                #region insert EPGs to DB in batches
                 Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
                 int nEpgCount = 0;
                 foreach (string sGuid in epgDic.Keys)
@@ -596,10 +596,16 @@ namespace EpgFeeder
                 {
                     InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
                 }
+                #endregion
 
                 foreach (EpgCB epg in epgDic.Values)
                 {
                     nCount++;
+
+                    #region Insert EpgProgram to CB
+                    ulong epgID = 0;
+                    bool bInsert = oEpgBL.InsertEpg(epg, out epgID);
+                    #endregion
 
                     #region Insert EpgProgram ES
 
