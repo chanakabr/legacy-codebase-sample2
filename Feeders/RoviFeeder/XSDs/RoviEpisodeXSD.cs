@@ -303,9 +303,9 @@ namespace RoviFeeder.EpisodeXSD
 
         private uint lastEditDateUnixField;
 
-        private System.DateTime creationDateField;
+        private object creationDateField;
 
-        private uint creationDateUnixField;
+        private byte creationDateUnixField;
 
         private string presentationStatusField;
 
@@ -385,7 +385,7 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public System.DateTime CreationDate
+        public object CreationDate
         {
             get
             {
@@ -398,7 +398,7 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public uint CreationDateUnix
+        public byte CreationDateUnix
         {
             get
             {
@@ -647,16 +647,16 @@ namespace RoviFeeder.EpisodeXSD
     public partial class RoviNowtilusVodApiPresentationPresentationMetaGroupVisibilityPeriod
     {
 
-        private System.DateTime visibilityPeriodStartField;
+        private object visibilityPeriodStartField;
 
-        private uint visibilityPeriodStartUnixField;
+        private byte visibilityPeriodStartUnixField;
 
         private System.DateTime visibilityPeriodEndField;
 
         private uint visibilityPeriodEndUnixField;
 
         /// <remarks/>
-        public System.DateTime VisibilityPeriodStart
+        public object VisibilityPeriodStart
         {
             get
             {
@@ -669,7 +669,7 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public uint VisibilityPeriodStartUnix
+        public byte VisibilityPeriodStartUnix
         {
             get
             {
@@ -721,11 +721,11 @@ namespace RoviFeeder.EpisodeXSD
 
         private uint lastEditDateUnixField;
 
-        private System.DateTime creationDateField;
+        private object creationDateField;
 
-        private uint creationDateUnixField;
+        private byte creationDateUnixField;
 
-        private ushort titleIdField;
+        private uint titleIdField;
 
         private object relatedTitleIdListField;
 
@@ -749,7 +749,7 @@ namespace RoviFeeder.EpisodeXSD
 
         private object descriptionField;
 
-        private object actorNameListField;
+        private string[] actorNameListField;
 
         private object roleNameListField;
 
@@ -761,7 +761,7 @@ namespace RoviFeeder.EpisodeXSD
 
         private object badgeListField;
 
-        private RoviNowtilusVodApiPresentationPresentationMetaGroupTitleDimensionList dimensionListField;
+        private object dimensionListField;
 
         /// <remarks/>
         public System.DateTime LastEditDate
@@ -790,7 +790,7 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public System.DateTime CreationDate
+        public object CreationDate
         {
             get
             {
@@ -803,7 +803,7 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public uint CreationDateUnix
+        public byte CreationDateUnix
         {
             get
             {
@@ -816,7 +816,7 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public ushort TitleId
+        public uint TitleId
         {
             get
             {
@@ -972,7 +972,8 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public object ActorNameList
+        [System.Xml.Serialization.XmlArrayItemAttribute("ActorName", IsNullable = false)]
+        public string[] ActorNameList
         {
             get
             {
@@ -1051,7 +1052,7 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public RoviNowtilusVodApiPresentationPresentationMetaGroupTitleDimensionList DimensionList
+        public object DimensionList
         {
             get
             {
@@ -1749,31 +1750,6 @@ namespace RoviFeeder.EpisodeXSD
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    public partial class RoviNowtilusVodApiPresentationPresentationMetaGroupTitleDimensionList
-    {
-
-        private string dimensionField;
-
-        /// <remarks/>
-        public string Dimension
-        {
-            get
-            {
-                return this.dimensionField;
-            }
-            set
-            {
-                this.dimensionField = value;
-            }
-        }
-    }
-
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.3038")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class RoviNowtilusVodApiPresentationLicense
     {
 
@@ -1784,17 +1760,15 @@ namespace RoviFeeder.EpisodeXSD
         private string commentField;
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CreationDate", typeof(System.DateTime))]
+        [System.Xml.Serialization.XmlElementAttribute("CreationDate", typeof(string))]
         [System.Xml.Serialization.XmlElementAttribute("CreationDateUnix", typeof(uint))]
         [System.Xml.Serialization.XmlElementAttribute("LastEditDate", typeof(System.DateTime))]
         [System.Xml.Serialization.XmlElementAttribute("LastEditDateUnix", typeof(uint))]
         [System.Xml.Serialization.XmlElementAttribute("LicenseBaseType", typeof(string))]
         [System.Xml.Serialization.XmlElementAttribute("LicenseCode", typeof(string))]
-        [System.Xml.Serialization.XmlElementAttribute("LicenseGraceTimeDays", typeof(byte))]
         [System.Xml.Serialization.XmlElementAttribute("LicenseGrantsList", typeof(RoviNowtilusVodApiPresentationLicenseLicenseGrantsList))]
         [System.Xml.Serialization.XmlElementAttribute("LicensePeriodGroup", typeof(RoviNowtilusVodApiPresentationLicenseLicensePeriodGroup))]
         [System.Xml.Serialization.XmlElementAttribute("LicensePriceList", typeof(RoviNowtilusVodApiPresentationLicenseLicensePriceList))]
-        [System.Xml.Serialization.XmlElementAttribute("LicenseRentDurationHours", typeof(byte))]
         [System.Xml.Serialization.XmlElementAttribute("LicenseSubTypeList", typeof(RoviNowtilusVodApiPresentationLicenseLicenseSubTypeList))]
         [System.Xml.Serialization.XmlElementAttribute("LicenseType", typeof(string))]
         [System.Xml.Serialization.XmlElementAttribute("LicenseTypeDisplay", typeof(RoviNowtilusVodApiPresentationLicenseLicenseTypeDisplay))]
@@ -2293,7 +2267,7 @@ namespace RoviFeeder.EpisodeXSD
 
         private string devcomField;
 
-        private ulong valueField;
+        private string valueField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -2311,7 +2285,7 @@ namespace RoviFeeder.EpisodeXSD
 
         /// <remarks/>
         [System.Xml.Serialization.XmlTextAttribute()]
-        public ulong Value
+        public string Value
         {
             get
             {
@@ -2484,9 +2458,6 @@ namespace RoviFeeder.EpisodeXSD
         LicenseCode,
 
         /// <remarks/>
-        LicenseGraceTimeDays,
-
-        /// <remarks/>
         LicenseGrantsList,
 
         /// <remarks/>
@@ -2494,9 +2465,6 @@ namespace RoviFeeder.EpisodeXSD
 
         /// <remarks/>
         LicensePriceList,
-
-        /// <remarks/>
-        LicenseRentDurationHours,
 
         /// <remarks/>
         LicenseSubTypeList,
@@ -3292,7 +3260,7 @@ namespace RoviFeeder.EpisodeXSD
     public partial class RoviNowtilusVodApiPresentationContentSeriesGroup
     {
 
-        private ushort seriesIdField;
+        private object seriesIdField;
 
         private ushort seasonIdField;
 
@@ -3300,8 +3268,10 @@ namespace RoviFeeder.EpisodeXSD
 
         private byte episodeNoField;
 
+        private uint episodeIdField;
+
         /// <remarks/>
-        public ushort SeriesId
+        public object SeriesId
         {
             get
             {
@@ -3349,6 +3319,19 @@ namespace RoviFeeder.EpisodeXSD
             set
             {
                 this.episodeNoField = value;
+            }
+        }
+
+        /// <remarks/>
+        public uint EpisodeId
+        {
+            get
+            {
+                return this.episodeIdField;
+            }
+            set
+            {
+                this.episodeIdField = value;
             }
         }
     }
@@ -3961,18 +3944,18 @@ namespace RoviFeeder.EpisodeXSD
     public partial class RoviNowtilusVodApiPresentationContentFormatListFormatMediaTypeMinimumMediaOutputProtectionLevelGroup
     {
 
-        private ushort compressedDigitalAudioField;
+        private byte compressedDigitalAudioField;
 
-        private ushort unompressedDigitalAudioField;
+        private byte unompressedDigitalAudioField;
 
         private ushort compressedDigitalVideoField;
 
-        private ushort unompressedDigitalVideoField;
+        private byte unompressedDigitalVideoField;
 
         private byte analogVideoField;
 
         /// <remarks/>
-        public ushort CompressedDigitalAudio
+        public byte CompressedDigitalAudio
         {
             get
             {
@@ -3985,7 +3968,7 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public ushort UnompressedDigitalAudio
+        public byte UnompressedDigitalAudio
         {
             get
             {
@@ -4011,7 +3994,7 @@ namespace RoviFeeder.EpisodeXSD
         }
 
         /// <remarks/>
-        public ushort UnompressedDigitalVideo
+        public byte UnompressedDigitalVideo
         {
             get
             {

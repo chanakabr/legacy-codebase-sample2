@@ -176,18 +176,18 @@ namespace RoviFeeder
                 RoviFeeder.EpisodeXSD.RoviNowtilusVodApi roviResult;
                 XmlSerializer serializer = new XmlSerializer(typeof(RoviFeeder.EpisodeXSD.RoviNowtilusVodApi));
 
-                using (TextReader reader = new StringReader(seasonsXML))
-                {
-                    roviResult = (RoviFeeder.EpisodeXSD.RoviNowtilusVodApi)serializer.Deserialize(reader);
+                //using (TextReader reader = new StringReader(seasonsXML))
+                //{
+                //    roviResult = (RoviFeeder.EpisodeXSD.RoviNowtilusVodApi)serializer.Deserialize(reader);
 
-                    RoviFeeder.EpisodeXSD.RoviNowtilusVodApiPresentation roviTitle = roviResult.Presentation;
+                //    RoviFeeder.EpisodeXSD.RoviNowtilusVodApiPresentation roviTitle = roviResult.Presentation;
 
-                    if (!RoviFeederUtils.Validate(roviTitle))
-                    {
-                        Logger.Logger.Log("Error", string.Format("roviTitle is not valid"), "RoviEpisodeFeeder");
-                        return false;
-                    }
-                }
+                //    if (!RoviFeederUtils.Validate(roviTitle))
+                //    {
+                //        Logger.Logger.Log("Error", string.Format("roviTitle is not valid"), "RoviEpisodeFeeder");
+                //        return false;
+                //    }
+                //}
             }
             catch
             {
