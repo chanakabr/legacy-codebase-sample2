@@ -1366,7 +1366,7 @@ namespace ConditionalAccess
             List<int> res = null;
             if (ppvRelatedFileTypes != null && ppvRelatedFileTypes.Length > 0)
             {
-                res = new List<int>(ppvRelatedFileTypes);
+                res = new List<int>(ppvRelatedFileTypes.Length);
                 if (mediaFileTypesMapping != null && mediaFileTypesMapping.Count > 0)
                 {
                     for (int i = 0; i < ppvRelatedFileTypes.Length; i++)
