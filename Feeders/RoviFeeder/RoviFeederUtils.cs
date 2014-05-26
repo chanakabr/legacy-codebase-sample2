@@ -15,53 +15,59 @@ namespace RoviFeeder
         public static Dictionary<int, string> GetPresentationsDict(string sVodListUrl)
         {
             Dictionary<int, string> dPresentationUrls = new Dictionary<int, string>();
+            
+            try
+            {                
+                //string roviVodUrl = ContentURL;
 
-            //string roviVodUrl = ContentURL;
+                if (string.IsNullOrEmpty(sVodListUrl))
+                {
+                    return dPresentationUrls;
+                }
 
-            if (string.IsNullOrEmpty(sVodListUrl))
-            {
-                return dPresentationUrls;
+                Uri vodListRes = new Uri(sVodListUrl);
+                if ((!Uri.TryCreate(sVodListUrl, UriKind.Absolute, out vodListRes)) || ((vodListRes.Scheme != Uri.UriSchemeHttp) && (vodListRes.Scheme != Uri.UriSchemeHttps)))
+                {
+                    return dPresentationUrls;
+                }
+
+                DateTime dNow = DateTime.UtcNow;
+                string roviXML = TVinciShared.WS_Utils.SendXMLHttpReq(sVodListUrl, "", "", "application/json", "", "", "", "", "get");
+                double dTime = DateTime.UtcNow.Subtract(dNow).TotalMilliseconds;
+
+                if (string.IsNullOrEmpty(roviXML))
+                {
+                    return dPresentationUrls;
+                }
+
+
+                var serializer = new XmlSerializer(typeof(RoviFeeder.ObjectList.RoviNowtilusVodApi));
+                RoviFeeder.ObjectList.RoviNowtilusVodApi roviResult;
+
+                using (TextReader reader = new StringReader(roviXML))
+                {
+                    roviResult = (RoviFeeder.ObjectList.RoviNowtilusVodApi)serializer.Deserialize(reader);
+                }
+
+                if (roviResult == null || roviResult.PresentationList == null || roviResult.PresentationList.Count() == 0)
+                {
+                    return dPresentationUrls;
+                }
+
+                for (int i = 0; i < roviResult.PresentationList.Count(); i++)
+                {
+                    RoviFeeder.ObjectList.RoviNowtilusVodApiPresentation item = roviResult.PresentationList[i];
+                    //int id = item.id;
+                    string url = item.href;
+                    int id = int.Parse(url.Split('/').Last());
+
+                    dPresentationUrls[id] = url;
+                }
             }
-
-            Uri vodListRes = new Uri(sVodListUrl);
-            if ((!Uri.TryCreate(sVodListUrl, UriKind.Absolute, out vodListRes)) || ((vodListRes.Scheme != Uri.UriSchemeHttp) && (vodListRes.Scheme != Uri.UriSchemeHttps)))
+            catch (Exception ex)
             {
-                return dPresentationUrls;
+                Logger.Logger.Log("Error", string.Format("exception in GetPresentationsDict {0}", ex.Message), "RoviFeeder");
             }
-
-            DateTime dNow = DateTime.UtcNow;
-            string roviXML = TVinciShared.WS_Utils.SendXMLHttpReq(sVodListUrl, "", "", "application/json", "", "", "", "", "get");
-            double dTime = DateTime.UtcNow.Subtract(dNow).TotalMilliseconds;
-
-            if (string.IsNullOrEmpty(roviXML))
-            {
-                return dPresentationUrls;
-            }
-
-
-            var serializer = new XmlSerializer(typeof(RoviFeeder.ObjectList.RoviNowtilusVodApi));
-            RoviFeeder.ObjectList.RoviNowtilusVodApi roviResult;
-
-            using (TextReader reader = new StringReader(roviXML))
-            {
-                roviResult = (RoviFeeder.ObjectList.RoviNowtilusVodApi)serializer.Deserialize(reader);
-            }
-
-            if (roviResult == null || roviResult.PresentationList == null || roviResult.PresentationList.Count() == 0)
-            {
-                return dPresentationUrls;
-            }
-
-            for (int i = 0; i < roviResult.PresentationList.Count(); i++)
-            {
-                RoviFeeder.ObjectList.RoviNowtilusVodApiPresentation item = roviResult.PresentationList[i];
-                //int id = item.id;
-                string url = item.href;
-                int id = int.Parse(url.Split('/').Last());
-
-                dPresentationUrls[id] = url;
-            }
-
 
             return dPresentationUrls;
         }

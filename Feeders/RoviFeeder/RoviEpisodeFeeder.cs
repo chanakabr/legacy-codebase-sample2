@@ -45,6 +45,7 @@ namespace RoviFeeder
 
             if (dSeasonsUrls == null || dSeasonsUrls.Count == 0)
             {
+                Logger.Logger.Log("Error", string.Format(" season url is null {0}", ContentURL), "RoviEpisodeFeeder");
                 return false;
             }
 
@@ -55,6 +56,7 @@ namespace RoviFeeder
 
             if (dSeasonsUrls == null || dSeasonsUrls.Count == 0)
             {
+                Logger.Logger.Log("Error", string.Format("not found season URLs in relevant IDs"), "RoviEpisodeFeeder");
                 return false;
             }
 
@@ -78,11 +80,13 @@ namespace RoviFeeder
                         string seasonsUrl = entry.Value;
 
                         res = TryIngestItem(seasonsUrl, transformer);
+                        Logger.Logger.Log("TryIngest", string.Format("{0}, {1}", seasonsUrl, res.ToString()), "RoviEpisodeFeeder");
 
                         if (res) { break; }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        Logger.Logger.Log("Error", string.Format("exception in Ingest: {0}, {1}", entry.Value, ex.Message), "RoviEpisodeFeeder");
                         dErrorSeasonsUrls[entry.Key] = entry.Value;
                         System.Threading.Thread.Sleep(1000);
                     }
@@ -125,8 +129,9 @@ namespace RoviFeeder
                                 dSeasonsUrls.Remove(entry.Key);
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            Logger.Logger.Log("Error", string.Format("exception in retryIngest: {0}, {1}", entry.Value, ex.Message), "RoviEpisodeFeeder");
                             continue;
                         }
                     }
@@ -158,6 +163,7 @@ namespace RoviFeeder
 
             if (string.IsNullOrEmpty(seasonsXML))
             {
+                Logger.Logger.Log("Error", string.Format("seasonXML is empty {0}", sVodUrl), "RoviEpisodeFeeder");
                 return false;
             }
 
@@ -178,12 +184,14 @@ namespace RoviFeeder
 
                     if (!RoviFeederUtils.Validate(roviTitle))
                     {
+                        Logger.Logger.Log("Error", string.Format("roviTitle is not valid"), "RoviEpisodeFeeder");
                         return false;
                     }
                 }
             }
             catch
             {
+                Logger.Logger.Log("Error", string.Format("Error in Deserialization"), "RoviEpisodeFeeder");
                 return false;
             }
 
@@ -195,6 +203,7 @@ namespace RoviFeeder
                 }
                 catch
                 {
+                    Logger.Logger.Log("Error", string.Format("Error in transforming"), "RoviEpisodeFeeder");
                     return false;
                 }
 
