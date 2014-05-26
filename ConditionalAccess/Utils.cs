@@ -298,7 +298,8 @@ namespace ConditionalAccess
             string sWSPass = string.Empty;
             Int32 nRet = 0;
 
-            if (CachingManager.CachingManager.Exist("GetMediaFileTypeID" + nMediaFileID.ToString() + "_" + nGroupID.ToString()))
+            string sCacheKey = GetCachingManagerKey("GetMediaFileTypeID", nMediaFileID + "", nGroupID, string.Empty, string.Empty, string.Empty);
+            if (CachingManager.CachingManager.Exist(sCacheKey))
                 nRet = (Int32)(CachingManager.CachingManager.GetCachedData("GetMediaFileTypeID" + nMediaFileID.ToString() + "_" + nGroupID.ToString()));
             else
             {
@@ -309,7 +310,7 @@ namespace ConditionalAccess
                         m.Url = apiUrl;
                     TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetMediaFileTypeID", "api", sIP, ref sWSUserName, ref sWSPass);
                     nRet = m.GetMediaFileTypeID(sWSUserName, sWSPass, nMediaFileID);
-                    CachingManager.CachingManager.SetCachedData("GetMediaFileTypeID" + nMediaFileID.ToString() + "_" + nGroupID.ToString(), nRet, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    CachingManager.CachingManager.SetCachedData(sCacheKey, nRet, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
                 }
             }
 
@@ -323,8 +324,8 @@ namespace ConditionalAccess
         {
             bool nIsCreditDownloaded = true;
             string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
 
             using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
             {
@@ -375,13 +376,13 @@ namespace ConditionalAccess
             return nIsCreditDownloaded;
         }
 
-        static public bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, string sSiteGUID, int mediaFileID, int groupID, eBundleType bundleType)
+        internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, string sSiteGUID, int mediaFileID, int groupID, eBundleType bundleType)
         {
 
             bool nIsCreditDownloaded = true;
             string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
 
             using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
             {
@@ -399,14 +400,14 @@ namespace ConditionalAccess
                     case eBundleType.SUBSCRIPTION:
                         {
                             TvinciPricing.Subscription theSub = null;
-
-                            if (CachingManager.CachingManager.Exist("GetSubscriptionData" + sBundleCd + "_" + groupID.ToString()) == true)
+                            string sCacheKey = GetCachingManagerKey("GetSubscriptionData", sBundleCd, groupID, string.Empty, string.Empty, string.Empty);
+                            if (CachingManager.CachingManager.Exist(sCacheKey))
                                 theSub = (TvinciPricing.Subscription)(CachingManager.CachingManager.GetCachedData("GetSubscriptionData" + sBundleCd + "_" + groupID.ToString()));
                             else
                             {
                                 TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                                 theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sBundleCd, String.Empty, String.Empty, String.Empty, false);
-                                CachingManager.CachingManager.SetCachedData("GetSubscriptionData" + sBundleCd + "_" + groupID.ToString(), theSub, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                                CachingManager.CachingManager.SetCachedData(sCacheKey, theSub, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
                             }
 
                             u = theSub.m_oSubscriptionUsageModule;
@@ -418,14 +419,14 @@ namespace ConditionalAccess
                     case eBundleType.COLLECTION:
                         {
                             TvinciPricing.Collection theCol = null;
-
-                            if (CachingManager.CachingManager.Exist("GetCollectionData" + sBundleCd + "_" + groupID.ToString()) == true)
+                            string sCacheKey = GetCachingManagerKey("GetCollectionData", sBundleCd, groupID, string.Empty, string.Empty, string.Empty);
+                            if (CachingManager.CachingManager.Exist(sCacheKey))
                                 theCol = (TvinciPricing.Collection)(CachingManager.CachingManager.GetCachedData("GetCollectionData" + sBundleCd + "_" + groupID.ToString()));
                             else
                             {
                                 TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                                 theCol = m.GetCollectionData(sWSUserName, sWSPass, sBundleCd, String.Empty, String.Empty, String.Empty, false);
-                                CachingManager.CachingManager.SetCachedData("GetCollectionData" + sBundleCd + "_" + groupID.ToString(), theCol, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                                CachingManager.CachingManager.SetCachedData(sCacheKey, theCol, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
                             }
 
                             u = theCol.m_oCollectionUsageModule;
@@ -1421,6 +1422,11 @@ namespace ConditionalAccess
             return String.Concat(sMethodName, sBusinessModuleCode, "_", nGroupID, GetLocaleStringForCache(sCountryCd, sLanguageCode, sDeviceName));
         }
 
+        internal static string GetCachingManagerKey(string sMethodName, string sBusinessModuleCode, int nGroupID)
+        {
+            return GetCachingManagerKey(sMethodName, sBusinessModuleCode, nGroupID, string.Empty, string.Empty, string.Empty);
+        }
+
         private static List<int> GetFileIDs(List<int> mediaFilesList, int nMediaFileID, bool isMultiMediaTypes)
         {
             if (mediaFilesList != null && mediaFilesList.Count > 0)
@@ -1453,7 +1459,6 @@ namespace ConditionalAccess
 
             if (!string.IsNullOrEmpty(sSiteGUID))
             {
-                TvinciAPI.API apiWS = null;
                 TvinciPricing.mdoule m = null;
                 try
                 {
@@ -1625,11 +1630,6 @@ namespace ConditionalAccess
                     {
                         m.Dispose();
                         m = null;
-                    }
-                    if (apiWS != null)
-                    {
-                        apiWS.Dispose();
-                        apiWS = null;
                     }
                     #endregion
                 }
