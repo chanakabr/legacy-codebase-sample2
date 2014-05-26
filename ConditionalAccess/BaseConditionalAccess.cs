@@ -6163,8 +6163,9 @@ namespace ConditionalAccess
                 if (oModules != null && oModules.Length > 0)
                 {
                     ret = new MediaFileItemPricesContainer[oModules.Length];
-                    Dictionary<int, int> mediaFileTypesMapping = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
-                    List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID);
+                    Dictionary<int, int> mediaFileTypesMapping = null;
+                    List<int> allUsersInDomain = null;
+                    GetAllUsersInDomainAndMediaFileTypes(oModules, sUserGUID, out mediaFileTypesMapping, out allUsersInDomain);
 
                     for (int i = 0; i < oModules.Length; i++)
                     {
@@ -6296,6 +6297,43 @@ namespace ConditionalAccess
             }
 
             return ret;
+        }
+
+        /*
+         * 1. This method is a helper function for GetItemsPrices.
+         * 2. It is used to optimize DB access. In case the data is not needed in the function Utils.GetMediaFileFinalPrice it will not attempt
+         * 3. to access the DB.
+         */ 
+        private void GetAllUsersInDomainAndMediaFileTypes(TvinciPricing.MediaFilePPVModule[] oModules, string sSiteGuid,
+            out Dictionary<int, int> mediaFileTypesMapping, out List<int> allUsersInDomain)
+        {
+            long lSiteGuid = 0;
+            if (!string.IsNullOrEmpty(sSiteGuid) && Int64.TryParse(sSiteGuid, out lSiteGuid) && lSiteGuid > 0 && IsExistPPVModule(oModules))
+            {
+                mediaFileTypesMapping = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
+                allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sSiteGuid, m_nGroupID);
+            }
+            else
+            {
+                mediaFileTypesMapping = new Dictionary<int, int>(0);
+                allUsersInDomain = new List<int>(0);
+            }
+        }
+
+        private bool IsExistPPVModule(TvinciPricing.MediaFilePPVModule[] oModules)
+        {
+            if (oModules != null && oModules.Length > 0)
+            {
+                for (int i = 0; i < oModules.Length; i++)
+                {
+                    PPVModule[] ppvModules = oModules[i].m_oPPVModules;
+                    if (ppvModules != null && ppvModules.Length > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         protected ItemPriceContainer GetFreeItemPriceContainer()
