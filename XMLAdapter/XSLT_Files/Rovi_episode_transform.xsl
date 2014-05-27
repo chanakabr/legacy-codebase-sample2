@@ -64,25 +64,15 @@
       <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'ShortName'] = 'M3U8'">
         <xsl:choose>
           <xsl:when test="./*[local-name() = 'DimensionList']/*[local-name() = 'Dimension'] = 'SD'">
-            <xsl:choose>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'Marlin'">
-                <!--M3U8/SD/Marlin-->
-                <xsl:attribute name="type">STB Main SD</xsl:attribute>
-              </xsl:when>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">
-                <!--M3U8/SD/PLAYREADY-->
+            <xsl:choose>                           
+              <xsl:when test="translate(./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'], $uppercase, $smallcase) = 'playready,marlin'">              
                 <xsl:attribute name="type">Mobile Devices Main SD</xsl:attribute>
               </xsl:when>
             </xsl:choose>
           </xsl:when>
           <xsl:when test="./*[local-name() = 'DimensionList']/*[local-name() = 'Dimension'] = 'HD'">
-            <xsl:choose>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'Marlin'">
-                <!--M3U8/HD/Marlin-->
-                <xsl:attribute name="type">STB Main HD</xsl:attribute>
-              </xsl:when>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">
-                <!--M3U8/HD/PLAYREADY-->
+            <xsl:choose>            
+              <xsl:when test="translate(./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'], $uppercase, $smallcase) = 'playready,marlin'">              
                 <xsl:attribute name="type">Mobile Devices Main HD</xsl:attribute>
               </xsl:when>
             </xsl:choose>
@@ -92,23 +82,15 @@
       <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'ShortName'] = 'ISM'">
         <xsl:choose>
           <xsl:when test="./*[local-name() = 'DimensionList']/*[local-name() = 'Dimension'] = 'SD'">
-            <xsl:choose>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'Marlin'">
-                <!--ISM/SD/Marlin-->
-              </xsl:when>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">
-                <!--ISM/SD/PLAYREADY-->
+            <xsl:choose>              
+              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">                
                 <xsl:attribute name="type">PC Main SD</xsl:attribute>
               </xsl:when>
             </xsl:choose>
           </xsl:when>
           <xsl:when test="./*[local-name() = 'DimensionList']/*[local-name() = 'Dimension'] = 'HD'">
-            <xsl:choose>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'Marlin'">
-                <!--ISM/HD/Marlin-->
-              </xsl:when>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">
-                <!--ISM/HD/PLAYREADY-->
+            <xsl:choose>            
+              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">               
                 <xsl:attribute name="type">PC Main HD</xsl:attribute>
               </xsl:when>
             </xsl:choose>
@@ -136,7 +118,7 @@
           <xsl:attribute name="billing_type"></xsl:attribute>
           <xsl:attribute name="assetwidth"></xsl:attribute>
           <xsl:attribute name="assetheight"></xsl:attribute>
-          <xsl:attribute name="assetduration"><xsl:value-of select="../../*[local-name() = 'RunTimeMinutes']"/></xsl:attribute>
+          <xsl:attribute name="assetduration"><xsl:value-of select="../../*[local-name() = 'RunTimeSeconds']"/></xsl:attribute>
           <xsl:attribute name="ppv_module">
             <xsl:variable name="contentID" select="../../*[local-name() = 'ContentId']"/>
             <xsl:for-each select="../../../../*[local-name() = 'LicenseList']/*[local-name() = 'License']">
@@ -336,8 +318,8 @@
         <xsl:element name="value">
           <xsl:attribute name="lang">
             <xsl:call-template name="Translate_Langueage"/>
-          </xsl:attribute>
-          <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'SynopsisList']/*[local-name() = 'Synopsis']"/>
+          </xsl:attribute>         
+          <xsl:value-of select="./*[local-name() = 'SynopsisList']/*[local-name() = 'Synopsis']"/>
         </xsl:element>
     </xsl:element>
     <xsl:element name="meta">
@@ -357,7 +339,7 @@
         <xsl:attribute name="lang">
           <xsl:call-template name="Translate_Langueage"/>
         </xsl:attribute>
-        <xsl:value-of select="./*[local-name() = 'RunTimeMinutes']"/>
+        <xsl:value-of select="./*[local-name() = 'RunTimeSeconds']"/>
       </xsl:element>
     </xsl:element>
   </xsl:template>
@@ -382,7 +364,7 @@
       <xsl:for-each select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'ActorNameList']/*[local-name() = 'ActorName']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
@@ -395,7 +377,7 @@
       <xsl:for-each select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'DirectorNameList']/*[local-name() = 'DirectorName']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
@@ -408,7 +390,7 @@
       <xsl:for-each select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'GenresNameList']/*[local-name() = 'GenreName']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
@@ -421,7 +403,7 @@
       <xsl:for-each select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'DimensionList']/*[local-name() = 'Dimension']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
@@ -433,7 +415,7 @@
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
       <xsl:element name="container">
         <xsl:element name="value">
-          <xsl:attribute name="lang">grm</xsl:attribute>
+          <xsl:attribute name="lang">de</xsl:attribute>
           <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'CopyrightDisplay']"/>
         </xsl:element>
       </xsl:element>
@@ -444,7 +426,7 @@
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'ProviderList']/*[local-name() = 'Provider']/*[local-name() = 'ProviderId']"/>
           </xsl:element>
         </xsl:element>
@@ -456,7 +438,7 @@
       <xsl:for-each select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'Production']/*[local-name() = 'ProductionCountryDisplay']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
@@ -468,7 +450,7 @@
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
       <xsl:element name="container">
         <xsl:element name="value">
-          <xsl:attribute name="lang">grm</xsl:attribute>
+          <xsl:attribute name="lang">de</xsl:attribute>
           <xsl:value-of select="./*[local-name() = 'FormatList']/*[local-name() = 'Format']/*[local-name() = 'AudioTrackList']/*[local-name() = 'AudioTrack']/*[local-name() = 'Language']"/>
         </xsl:element>
       </xsl:element>
@@ -479,7 +461,7 @@
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
       <xsl:element name="container">
         <xsl:element name="value">
-          <xsl:attribute name="lang">grm</xsl:attribute>
+          <xsl:attribute name="lang">de</xsl:attribute>
           <xsl:value-of select="./*[local-name() = 'FormatList']/*[local-name() = 'Format']/*[local-name() = 'SubtitleTrackList']"/>
         </xsl:element>
       </xsl:element>
@@ -490,7 +472,7 @@
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
       <xsl:element name="container">
         <xsl:element name="value">
-          <xsl:attribute name="lang">grm</xsl:attribute>
+          <xsl:attribute name="lang">de</xsl:attribute>
           <xsl:for-each select="./*[local-name() = 'ParentalControlList']/*[local-name() = 'ParentalControl']">
             <xsl:value-of select="./*[local-name() = 'ParentalControlId']"/>
           </xsl:for-each>
@@ -503,7 +485,7 @@
     <xsl:variable name="languageCode" select="./*[local-name() = 'ContentNameList']/*[local-name() = 'ContentNameLong']/@lang"/>
     <xsl:choose>
       <xsl:when test="$languageCode = 'de'">
-        <xsl:text>grm</xsl:text>
+        <xsl:text>de</xsl:text>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
