@@ -12,10 +12,10 @@ namespace XSLT_transform_handlar
 {
     public sealed class RoviTransform : BaseTransformHandler
     {
-        string XSL_Movie_FILE   = ConfigurationManager.AppSettings["ROVI_XSLT_PATH"] + "Rovi_movie_transform.xsl";
-        string XSL_Series_FILE  = ConfigurationManager.AppSettings["ROVI_XSLT_PATH"] + "Rovi_series_transform.xsl";
-        string XSL_Episode_FILE = ConfigurationManager.AppSettings["ROVI_XSLT_PATH"] + "Rovi_episode_transform.xsl";
-        string XSL_CMT_FILE     = ConfigurationManager.AppSettings["ROVI_XSLT_PATH"] + "Rovi_CMT_transform.xsl";
+        string XSL_Movie_FILE =     TVinciShared.WS_Utils.GetTcmConfigValue("ROVI_XSLT_PATH") + "Rovi_movie_transform.xsl";
+        string XSL_Series_FILE =    TVinciShared.WS_Utils.GetTcmConfigValue("ROVI_XSLT_PATH") + "Rovi_series_transform.xsl";
+        string XSL_Episode_FILE =   TVinciShared.WS_Utils.GetTcmConfigValue("ROVI_XSLT_PATH") + "Rovi_episode_transform.xsl";
+        string XSL_CMT_FILE =       TVinciShared.WS_Utils.GetTcmConfigValue("ROVI_XSLT_PATH") + "Rovi_CMT_transform.xsl";
 
         XslCompiledTransform m_oXsltMovies  = new XslCompiledTransform();
         XslCompiledTransform m_oXsltEpisode = new XslCompiledTransform();
