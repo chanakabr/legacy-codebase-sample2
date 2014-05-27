@@ -1501,5 +1501,72 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+        public static bool Get_ChannelsByBundles(int nGroupID, List<int> lstSubIDs, List<int> lstColIDs,
+            ref Dictionary<int, List<int>> channelsToSubsMapping, ref Dictionary<int, List<int>> channelsToColsMapping)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_ChannelsByBundles");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            if (lstSubIDs != null)
+                sp.AddIDListParameter("@Subscriptions", lstSubIDs, "ID");
+            else
+                sp.AddIDListParameter("@Subscriptions", new List<int>(0), "ID");
+            if (lstColIDs != null)
+                sp.AddIDListParameter("@Collections", lstColIDs, "ID");
+            else
+                sp.AddIDListParameter("@Collections", new List<int>(0), "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            {
+                res = true;
+                DataTable dtSubChannels = ds.Tables[0];
+                channelsToSubsMapping = new Dictionary<int, List<int>>();
+                if (dtSubChannels != null && dtSubChannels.Rows != null && dtSubChannels.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dtSubChannels.Rows.Count; i++)
+                    {
+                        int channelID = ODBCWrapper.Utils.GetIntSafeVal(dtSubChannels.Rows[i]["CHANNEL_ID"]);
+                        int subID = ODBCWrapper.Utils.GetIntSafeVal(dtSubChannels.Rows[i]["SUBSCRIPTION_ID"]);
+                        if (channelsToSubsMapping.ContainsKey(channelID))
+                        {
+                            channelsToSubsMapping[channelID].Add(subID);
+                        }
+                        else
+                        {
+                            channelsToSubsMapping.Add(channelID, new List<int>() { subID });
+                        }
+                    }
+                }
+
+                DataTable dtColChannels = ds.Tables[1];
+                channelsToColsMapping = new Dictionary<int, List<int>>();
+                if (dtColChannels != null && dtColChannels.Rows != null && dtColChannels.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dtColChannels.Rows.Count; i++)
+                    {
+                        int channelID = ODBCWrapper.Utils.GetIntSafeVal(dtSubChannels.Rows[i]["CHANNEL_ID"]);
+                        int colID = ODBCWrapper.Utils.GetIntSafeVal(dtSubChannels.Rows[i]["SUBSCRIPTION_ID"]);
+                        if (channelsToColsMapping.ContainsKey(channelID))
+                        {
+                            channelsToColsMapping[channelID].Add(colID);
+                        }
+                        else
+                        {
+                            channelsToColsMapping.Add(channelID, new List<int>() { colID });
+                        }
+                    }
+                }
+            }
+            else
+            {
+                channelsToSubsMapping = new Dictionary<int, List<int>>();
+                channelsToColsMapping = new Dictionary<int, List<int>>();
+            }
+
+            return res;
+        }
+
     }
 }

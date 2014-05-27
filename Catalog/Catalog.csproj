@@ -98,6 +98,8 @@
     <Compile Include="BaseEpg.cs" />
     <Compile Include="BaseProtocolRequest.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="BundlesContainingMediaRequest.cs" />
+    <Compile Include="BundlesContainingMediaResponse.cs" />
     <Compile Include="BuzzMeterRequest.cs" />
     <Compile Include="BuzzMeterResponse.cs" />
     <Compile Include="ChannelsContainingMediaRequest.cs" />

@@ -1407,12 +1407,12 @@ namespace Catalog
             {
                 case eBundleType.SUBSCRIPTION:
                     {
-                        channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsBySubscription(nGroupId, nBundleId);
+                        channelIdsDt = CatalogDAL.Get_ChannelsBySubscription(nGroupId, nBundleId);
                         break;
                     }
                 case eBundleType.COLLECTION:
                     {
-                        channelIdsDt = Tvinci.Core.DAL.CatalogDAL.Get_ChannelsByCollection(nGroupId, nBundleId);
+                        channelIdsDt = CatalogDAL.Get_ChannelsByCollection(nGroupId, nBundleId);
                         break;
                     }
                 default:
@@ -1425,7 +1425,7 @@ namespace Catalog
             List<int> lChannelIds = null;
             if (channelIdsDt != null && channelIdsDt.Rows.Count > 0)
             {
-                lChannelIds = new List<int>();
+                lChannelIds = new List<int>(channelIdsDt.Rows.Count);
                 foreach (DataRow permittedWatchRuleRow in channelIdsDt.Rows)
                 {
                     lChannelIds.Add(Utils.GetIntSafeVal(permittedWatchRuleRow, "ID"));
