@@ -47,6 +47,8 @@ namespace Catalog
                 if (request == null || request.m_nBundleID == 0)
                     throw new Exception("request object is null or Required variables is null");
 
+                CheckSignature(request);
+
                 string dataTable = string.Empty;
                 switch (request.m_eBundleType)
                 {
@@ -61,11 +63,6 @@ namespace Catalog
                         break;
                     }
                 }
-
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
 
                 Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
                 if (groupInCache != null)
@@ -132,6 +129,13 @@ namespace Catalog
 
                             //Wait for all parallel tasks to end
                             Task.WaitAll(channelsSearchObjectTasks);
+                            for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
+                            {
+                                if (channelsSearchObjectTasks[i] != null)
+                                {
+                                    channelsSearchObjectTasks[i].Dispose();
+                                }
+                            }
 
                             if (channelsSearchObjects != null && channelsSearchObjects.Count > 0)
                             {
