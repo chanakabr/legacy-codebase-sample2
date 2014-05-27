@@ -8,6 +8,8 @@ namespace ODBCWrapper
     public class Utils
     {
 
+        public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
+
         static public string GetSafeStr(object o)
         {
             if (o == DBNull.Value)

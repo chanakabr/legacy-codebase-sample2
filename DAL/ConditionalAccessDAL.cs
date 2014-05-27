@@ -1338,5 +1338,32 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>();
         }
+
+        public static bool Get_LatestCreateDateOfBundleUses(string sBundleCode, int nGroupID, string sSiteGuid, long lMediaFileID, 
+            bool bIsSub, ref DateTime dtCreateDateOfBundleUse, ref DateTime dtNow)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_LatestCreateDateOfBundleUses");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@BundleCode", sBundleCode);
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@MediaFileID", lMediaFileID);
+            sp.AddParameter("@IsSubscription", bIsSub);
+
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    dtCreateDateOfBundleUse = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
+                    dtNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["DATE_NOW"]);
+                    res = true;
+                }
+            }
+            return res;
+        }
     }
 }
