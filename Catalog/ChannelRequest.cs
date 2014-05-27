@@ -223,6 +223,9 @@ namespace Catalog
                 case ApiObjects.SearchObjects.OrderBy.RATING:
                     dt = CatalogDAL.Get_Media_By_SlidingWindow("Get_SlidingWindowMediaIds_ByRatings", media.ToList(), isDesc, pageSize, PageIndex, windowTime);
                     break;
+                case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
+                    dt = CatalogDAL.Get_Media_By_SlidingWindow("Get_SlidingWindowMediaIds_ByVotes", media.ToList(), isDesc, pageSize, PageIndex, windowTime);
+                    break;
                 case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
                     dt = CatalogDAL.Get_Media_By_SlidingWindow("Get_SlidingWindowMediaIds_ByLikes", media.ToList(), isDesc, pageSize, PageIndex, windowTime);
                     break;
