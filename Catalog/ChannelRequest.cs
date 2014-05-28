@@ -16,6 +16,8 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Server;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
+using ApiObjects.Cache;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -71,13 +73,26 @@ namespace Catalog
                 Group group = null;
                 Channel channel = null;
 
-                GroupsCache.Instance.GetGroupAndChannel(request.m_nChannelID, request.m_nGroupID, ref group, ref channel);
                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = null;
+
+                try
+                {
+                    GroupManager groupManager = new GroupManager();
+                    groupManager.GetGroupAndChannel(request.m_nChannelID, request.m_nGroupID, ref group, ref channel);                  
+                   
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("ChannelRequest", string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1}",request.m_nChannelID,ex.Message), "Catalog");
+                    group = null;
+                    channel = null;
+                }             
+
 
                 if (group != null && channel != null)
                 {
                     channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID);
-                 
+
                     DateTime start = DateTime.Now;
                     List<int> medias = new List<int>();
                     int nPageIndex = 0;
@@ -97,7 +112,8 @@ namespace Catalog
                         return response;
                     }
                     int nTotalItems = 0;
-                    SearchResultsObj oSearchResults = searcher.SearchMedias(channel.m_nGroupID, channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate);
+                                      
+                    SearchResultsObj oSearchResults = searcher.SearchMedias(channel.m_nGroupID, channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_nGroupID);
                     List<SearchResult> lMediaRes = null;
                     if (oSearchResults != null && oSearchResults.m_resultIDs != null && oSearchResults.m_resultIDs.Count > 0)
                     {
@@ -110,14 +126,13 @@ namespace Catalog
                             lMediaRes = oSearchResults.m_resultIDs.Select(item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
                         }
                     }
-                    
+
                     if (!IsSlidingWindow(channel))
                     {
                         OrderMediasByOrderNum(ref medias, channel.m_lManualMedias, channel.m_OrderObject);
                     }
                     else
-                    {
-                        //medias = OrderMediaBySlidingWindow(channelSearchObject.m_oOrder.m_eOrderBy, channelSearchObject.m_oOrder.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channelSearchObject.m_oOrder.m_dSlidingWindowStartTimeField);
+                    {                       
                         medias = OrderMediaBySlidingWindow(channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
 
                         nTotalItems = 0;
@@ -180,7 +195,7 @@ namespace Catalog
                     _logger.Info(string.Format("{0} : {1} ", medias.Count(), "MediasId returned"));
 
                     response.m_nTotalItems = nTotalItems;
-                    
+
                     if (searcher.GetType().Equals(typeof(LuceneWrapper)))   //if (lMediaRes == null) //LUCENE
                     {
                         lMediaRes = GetMediaUpdateDate(medias);
@@ -234,7 +249,7 @@ namespace Catalog
             {
                 return dt.AsEnumerable().Select(dr => ODBCWrapper.Utils.GetIntSafeVal(dr["MEDIA_ID"])).ToList();
             }
-            else 
+            else
                 return null;
         }
 
@@ -263,7 +278,7 @@ namespace Catalog
                     }
                 }
             }
-        }        
+        }
 
         protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(Channel channel, ChannelRequest request, int nParentGroupID)
         {

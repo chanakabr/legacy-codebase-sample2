@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Catalog
 {
+    [Serializable]
+    [JsonObject(Id = "manualmedia")]
     public class ManualMedia
     {
         #region Members

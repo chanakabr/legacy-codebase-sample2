@@ -16,6 +16,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.MediaIndexingObjects;
 using QueueWrapper;
 using EpgBL;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -580,7 +581,7 @@ namespace Catalog
                 {
                     isLucene = searcher is LuceneWrapper;
 
-                    SearchResultsObj resultObj = searcher.SearchMedias(oMediaRequest.m_nGroupID, search, 0, oMediaRequest.m_oFilter.m_bUseStartDate);
+                    SearchResultsObj resultObj = searcher.SearchMedias(oMediaRequest.m_nGroupID, search, 0, oMediaRequest.m_oFilter.m_bUseStartDate, oMediaRequest.m_nGroupID);
 
                     if (resultObj != null)
                     {
@@ -945,7 +946,9 @@ namespace Catalog
                     nLanguage = filterRequest.m_nLanguage;
                 }
 
-                DataSet ds = CatalogDAL.Build_MediaRelated(nGroupID, nMediaID, nLanguage);
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroupTree = groupManager.GetSubGroup(nGroupID);
+                DataSet ds = CatalogDAL.Build_MediaRelated(nGroupID, nMediaID, nLanguage, lSubGroupTree);
 
                 if (ds == null)
                     return null;
@@ -1318,7 +1321,11 @@ namespace Catalog
         {
             DataTable permittedWathRulesDt = null;
             if (extractedPermittedWatchRulesDT == null)
-                permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId);
+            {
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroup = groupManager.GetSubGroup(nGroupId);
+                permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, lSubGroup);
+            }
             else
                 permittedWathRulesDt = extractedPermittedWatchRulesDT;
             List<string> lWatchRulesIds = null;
@@ -1432,7 +1439,9 @@ namespace Catalog
 
             if (lIds != null && lIds.Count > 0)
             {
-                Group group = GroupsCache.Instance.GetGroup(nGroupId);
+                
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(nGroupId); 
 
                 if (group != null)
                 {
@@ -1455,8 +1464,9 @@ namespace Catalog
             bool bIsUpdateIndexSucceeded = false;
 
             if (lIds != null && lIds.Count > 0)
-            {
-                Group group = GroupsCache.Instance.GetGroup(nGroupId);
+            {   
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(nGroupId); 
 
                 if (group != null)
                 {
@@ -1500,7 +1510,7 @@ namespace Catalog
                         Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(request.m_nGroupID);
                         MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(request.m_nGroupID,
                             dict, jsonizedChannelsDefinitions);
-                        SearchResultsObj searcherAnswer = searcher.SearchMedias(request.m_nGroupID, linearChannelMediaIDsRequest, 0, true);
+                        SearchResultsObj searcherAnswer = searcher.SearchMedias(request.m_nGroupID, linearChannelMediaIDsRequest, 0, true, request.m_nGroupID);
 
                         if (searcherAnswer.n_TotalItems > 0)
                         {
@@ -1562,6 +1572,9 @@ namespace Catalog
                 searcherEpgSearch.m_bDesc = true;
                 searcherEpgSearch.m_sOrderBy = "start_date";
 
+                // set parent group by request.m_nGroupID                              
+                searcherEpgSearch.m_nGroupID = request.m_nGroupID;
+
                 //List<EpgSearchValue> esvList = new List<EpgSearchValue>();
                 string sVal = string.Empty;
 
@@ -1590,13 +1603,7 @@ namespace Catalog
                 //initialize the search list with And / Or values
                 searcherEpgSearch.m_lSearchOr = dOr;
                 searcherEpgSearch.m_lSearchAnd = dAnd;
-
-
-                // get parent group by request.m_nGroupID
-                Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
-                if (group != null)
-                    searcherEpgSearch.m_nGroupID = group.m_nParentGroupID;
-
+                
                 searcherEpgSearch.m_nPageIndex = request.m_nPageIndex;
                 searcherEpgSearch.m_nPageSize = request.m_nPageSize;
 
@@ -1644,7 +1651,10 @@ namespace Catalog
         {
             try
             {
-                DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID);
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+
+                DataSet ds = EpgDal.Get_GroupsTagsAndMetas(nGroupID, lSubGroup);
 
                 lSearchList.Add("name");
                 lSearchList.Add("description");
@@ -1961,9 +1971,8 @@ namespace Catalog
 
                 oEpgSearch.m_lSearch = dEsv;
 
-                // get parent group by request.m_nGroupID
-                int nParentGroup = UtilsDal.GetParentGroupID(request.m_nGroupID);
-                oEpgSearch.m_nGroupID = nParentGroup;
+                // set parent group by request.m_nGroupID                
+                oEpgSearch.m_nGroupID = request.m_nGroupID;
 
                 oEpgSearch.m_nPageIndex = request.m_nPageIndex;
                 oEpgSearch.m_nPageSize = request.m_nPageSize;
@@ -1994,8 +2003,10 @@ namespace Catalog
 
                     List<EpgResultsObj> epgResponse = new List<EpgResultsObj>();
                     EpgResultsObj resultPerChannel;
-                    BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
-                    Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+                    BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);                    
+                    GroupManager groupManager = new GroupManager();
+                    Group group = groupManager.GetGroup(request.m_nGroupID); 
+
                     if (group != null)
                     {
                         ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dicDocs = null;
@@ -2114,10 +2125,14 @@ namespace Catalog
                 {
                     if (eType == StatsType.MEDIA)
                     {
+                        GroupManager groupManager = new GroupManager();
+                        List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+
+
                         if (dStartDate == DateTime.MinValue && dEndDate == DateTime.MaxValue)
-                            ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, null, null);
+                            ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, null, null, lSubGroup);
                         else
-                            ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate);
+                            ds = CatalogDAL.GetMediasStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
                         if (ds != null)
                             resList = getMediaStatFromDataSet(ds, lAssetIDs);
                         else
@@ -2131,7 +2146,9 @@ namespace Catalog
                         }
                         else
                         {
-                            ds = CatalogDAL.GetEpgStats(nGroupID, lAssetIDs, dStartDate, dEndDate);
+                            GroupManager groupManager = new GroupManager();
+                            List<int> lSubGroup = groupManager.GetSubGroup(nGroupID);
+                            ds = CatalogDAL.GetEpgStats(nGroupID, lAssetIDs, dStartDate, dEndDate, lSubGroup);
                             if (ds != null)
                                 resList = getEpgStatFromDataSet(ds, lAssetIDs);
                             else
@@ -2386,8 +2403,11 @@ namespace Catalog
                     {
                         // we have operator id
                         res = true;
-                        List<long> channelsOfIPNO = GroupsCache.Instance.GetOperatorChannelIDs(oMediaRequest.m_nGroupID, operatorID);
-                        List<long> allChannelsOfAllIPNOs = GroupsCache.Instance.GetDistinctAllOperatorsChannels(oMediaRequest.m_nGroupID);
+                        GroupManager groupManager = new GroupManager();
+                        Group group = groupManager.GetGroup(oMediaRequest.m_nGroupID);
+                        List<long> channelsOfIPNO = group.GetOperatorChannelIDs(operatorID);
+                        List<long> allChannelsOfAllIPNOs = group.GetDistinctAllOperatorsChannels();
+
                         if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
                         {
                             // get channels definitions from ES Percolator

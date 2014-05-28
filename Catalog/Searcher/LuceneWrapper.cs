@@ -18,8 +18,8 @@ namespace Catalog
             m_EndPointAddress = Utils.GetWSURL("LUCENE_WCF");
         }
 
-        public SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate)
-        {
+        public SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate, int nIndex)
+        {                                    
             SearchResultsObj oRes = null;
 
             ISearcher searcher = Searchers.Helper.GetFactoryChannel<ISearcher>(m_EndPointAddress);
@@ -27,7 +27,7 @@ namespace Catalog
             {
                 if (searcher != null)
                 {
-                    oRes = searcher.SearchMedias(nGroupID, oSearch, nLangID, bUseStartDate);
+                    //oRes = searcher.SearchMedias(nGroupID, oSearch, nLangID, bUseStartDate);
                 }
             }
             catch { }

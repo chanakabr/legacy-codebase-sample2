@@ -102,6 +102,7 @@
     <Compile Include="FileTypeContainer.cs" />
     <Compile Include="ForgotPasswordMailRequest.cs" />
     <Compile Include="GenericWriteResponse.cs" />
+    <Compile Include="Cache\ICache.cs" />
     <Compile Include="GroupInfo.cs" />
     <Compile Include="GroupOperator.cs" />
     <Compile Include="GroupRule.cs" />

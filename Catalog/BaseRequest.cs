@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -112,24 +113,17 @@ namespace Catalog
             return sb.ToString();
         }
 
-        public List<SearchResult> GetMediaUpdateDate(List<int> mediaIds, int groupID = 0)
+        public List<SearchResult>  GetMediaUpdateDate(List<int> mediaIds, int groupID = 0)
         {
             List<SearchResult> lMediaRes = null;
-            int nGroupID = 0;
-            if (groupID != 0)
+           
+            if (groupID == 0)
             {
-                nGroupID = groupID;
-            }
-            else
-            {
-                nGroupID = m_nGroupID;
-            }
-            Group group = GroupsCache.Instance.GetGroup(nGroupID);
-            if (group != null)
-            {
-                lMediaRes = Utils.GetMediaUpdateDate(group.m_nParentGroupID, mediaIds);
+                groupID = m_nGroupID;
             }
 
+            lMediaRes = Utils.GetMediaUpdateDate(groupID, mediaIds);
+           
             return lMediaRes;
         }
 

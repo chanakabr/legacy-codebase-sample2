@@ -7,6 +7,7 @@ using Logger;
 using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -56,7 +57,9 @@ namespace Catalog
                 if (sCheckSignature != request.m_sSignature)
                     throw new Exception("Signatures dosen't match");
 
-                DataTable dt = CatalogDAL.Get_PersonalLasDevice(request.m_nMediaIDs ,request.m_nGroupID, request.m_sSiteGuid);
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
+                DataTable dt = CatalogDAL.Get_PersonalLasDevice(request.m_nMediaIDs, request.m_nGroupID, request.m_sSiteGuid, lSubGroupTree);
                 int startIndex = -1;
                 int count = -1;
 

@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
+using Catalog.Cache;
 using Logger;
 using TVinciShared;
 
@@ -66,14 +67,15 @@ namespace Catalog
                         }
                     }
                     else //LuceneWrapper
-                    {
-                        Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+                    {   
+                        GroupManager groupManager = new GroupManager();
+                        Group groupInCache = groupManager.GetGroup(request.m_nGroupID); 
                         List<int> channelIds = request.m_lChannles;
 
                         if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                         {
                             // Buils search Object per channelId call Searcher to return true/false result
-                            List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                            List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                             //    Build search object per channel
                             if (allChannels != null && allChannels.Count > 0)

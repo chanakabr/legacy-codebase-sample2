@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -92,7 +93,9 @@ namespace Catalog
 
                 _logger.Info(String.Concat(request.ToString(), " started at: ", DateTime.UtcNow, " ipno flow"));
 
-                DataTable dt = CatalogDAL.Get_IPersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize, nOperatorID);
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroup = groupManager.GetSubGroup(request.m_nGroupID);
+                DataTable dt = CatalogDAL.Get_IPersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize, nOperatorID, lSubGroup);
 
                 if (dt != null && dt.Columns != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
@@ -132,7 +135,10 @@ namespace Catalog
 
                 _logger.Info(String.Concat(request.ToString(), "started at: ", DateTime.UtcNow));
 
-                DataTable dt = CatalogDAL.Get_PersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize);
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroup = groupManager.GetSubGroup(request.m_nGroupID);
+
+                DataTable dt = CatalogDAL.Get_PersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize, lSubGroup);
 
                 if (dt != null && dt.Columns != null && dt.Rows != null && dt.Rows.Count > 0)
                 {

@@ -173,9 +173,12 @@ namespace ApiObjects
     //    }
     //}
 
+    [Serializable]
+    [JsonObject(Id = "epggroupsettings")]
     public class EpgGroupSettings
     {
         #region members
+
         public List<string> m_lTagsName;
         public List<string> m_lMetasName;
 

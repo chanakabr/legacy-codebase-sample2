@@ -11,6 +11,7 @@ using Tvinci.Core.DAL;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
 using System.Collections.Concurrent;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -43,7 +44,9 @@ namespace Catalog
                 if (request == null || request.m_nSubscriptionID == 0)
                     throw new Exception("request object is null or Required variables is null");
 
-                Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+                GroupManager groupManager = new GroupManager();
+                Group groupInCache = groupManager.GetGroup(request.m_nGroupID); 
+
                 if (groupInCache == null)
                 {
                     _logger.Error("Could not load group cache");
@@ -62,11 +65,11 @@ namespace Catalog
                 response.m_nTotalItems = 0;
 
                 List<int> channelIds = Catalog.GetSubscriptionChannelIds(request.m_nGroupID, request.m_nSubscriptionID);
-                List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                 if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                 {
-                    if (allChannels.Count > 0)
+                    if (allChannels != null && allChannels.Count > 0)
                     {
                         ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 

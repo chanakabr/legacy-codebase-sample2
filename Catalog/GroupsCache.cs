@@ -11,6 +11,8 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using Tvinci.Core.DAL;
+using DalCB;
+
 
 namespace Catalog
 {
@@ -72,6 +74,7 @@ namespace Catalog
             int nParentGroupID = ODBCWrapper.Utils.GetIntSafeVal(ODBCWrapper.Utils.GetTableSingleVal("groups", "PARENT_GROUP_ID", nGroupId));
 
             Group group = null;
+            
             m_GroupByParentGroupId.TryGetValue(nParentGroupID, out group);
 
             if (group != null)
@@ -108,6 +111,9 @@ namespace Catalog
                                 {
                                     _logger.Info("Entered critical section for inserting channel");
                                     bool res = m_GroupByParentGroupId[groupId].m_oGroupChannels.TryAdd(channel.m_nChannelID, channel);
+                                    //add channel to CB 
+                                    GroupsCacheDal_Couchbase groupsCacheDal = new GroupsCacheDal_Couchbase(groupId);
+                                    groupsCacheDal.UpdateGroup(groupId.ToString(), m_GroupByParentGroupId[groupId], DateTime.UtcNow.AddDays(10)); // how to use cas ?????
                                 }
                             }
                             catch
@@ -136,8 +142,11 @@ namespace Catalog
             List<Channel> lRes = null;
 
             // get all channel existing in Cache
+            GroupsCacheDal_Couchbase groupsCacheDal = new GroupsCacheDal_Couchbase(nOwnerGroup);
+            Group groupInCache = (Group)groupsCacheDal.GetGroup(nOwnerGroup.ToString());
 
-            Group groupInCache = GroupsCache.Instance.GetGroup(nOwnerGroup);
+            //Group
+                groupInCache = GroupsCache.Instance.GetGroup(nOwnerGroup);
 
             if (groupInCache != null && channelIds != null && channelIds.Count > 0)
             {
@@ -263,13 +272,13 @@ namespace Catalog
         public Group GetGroup(int nGroupID)
         {
             Group group = null;
-
+            
             if (!m_GroupByParentGroupId.ContainsKey(nGroupID))
             {
                 bool createdNew = false;
                 var mutexSecurity = Utils.CreateMutex();
 
-                using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
+                    using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
                 {
                     try
                     {
@@ -286,6 +295,7 @@ namespace Catalog
                             }
 
                             Group tempGroup = BuildGroup(nParentGroupID, true);
+                           
                             if (tempGroup != null)
                             {
                                 List<int> lSubGroups = Get_SubGroupsTree(nParentGroupID);
@@ -296,6 +306,7 @@ namespace Catalog
                                 }
 
                             }
+                           
                         }
                     }
                     catch
@@ -442,7 +453,7 @@ namespace Catalog
                     for (int i = 0; i < operators.Count; i++)
                     {
                         res &= group.AddChannelsToOperator(operators[i], new List<long>(1) { lChannelID });
-                    }
+                    }                  
                 }
                 else
                 {

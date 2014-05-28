@@ -9,30 +9,57 @@ using System.Security.AccessControl;
 using Logger;
 using Tvinci.Core.DAL;
 using DAL;
+using Newtonsoft.Json;
+using ApiObjects.Cache;
+using Enyim.Caching.Memcached;
+using System.Data;
+using Catalog.Cache;
 
 namespace Catalog
 {
+    [Serializable]
+    [JsonObject(Id = "group")]
     public class Group : IDisposable
     {
 
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private const string GROUP_LOG_FILENAME = "Group";
-        #region Members
 
+
+        #region Members
+        [JsonProperty("m_nParentGroupID")]
         public int m_nParentGroupID { get; set; }
+        [JsonProperty("m_nLangID")]
         public int m_nLangID { get; set; }
+        [JsonProperty("m_oMetasValuesByGroupId")]
         public Dictionary<int, Dictionary<string, string>> m_oMetasValuesByGroupId { get; set; } // Holds mapped meta columns (<groupId, <meta , meta name>>)
+        [JsonProperty("m_oGroupTags")]
         public Dictionary<int, string> m_oGroupTags { get; set; }
+        [JsonProperty("m_oGroupChannels")]
         public ConcurrentDictionary<int, Channel> m_oGroupChannels { get; set; }
+        [JsonProperty("m_oEpgGroupSettings")]
         public EpgGroupSettings m_oEpgGroupSettings { get; set; }
+        [JsonProperty("m_sPermittedWatchRules")]
         public List<string> m_sPermittedWatchRules { get; set; }
+        [JsonProperty("m_nSubGroup")]
+        public List<int> m_nSubGroup { get; set; }
+
+
+        [JsonProperty("m_oOperatorChannelIDs")]
         private Dictionary<int, List<long>> m_oOperatorChannelIDs; // channel ids for each operator. used for ipno filtering.
+        [JsonProperty("m_oLockers")]
         private ConcurrentDictionary<int, ReaderWriterLockSlim> m_oLockers; // readers-writers lockers for operator channel ids.
         #endregion
 
         #region CTOR
+        public Group()
+        {
+        }
 
-        public Group(int groupID)
+        #endregion
+
+        #region Public
+        public void Init(int groupID)
         {
             this.m_nParentGroupID = groupID;
             this.m_oMetasValuesByGroupId = new Dictionary<int, Dictionary<string, string>>();
@@ -43,6 +70,8 @@ namespace Catalog
             this.m_oOperatorChannelIDs = new Dictionary<int, List<long>>();
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
         }
+
+
 
         private void GetLocker(int nOperatorID, ref ReaderWriterLockSlim locker)
         {
@@ -71,6 +100,16 @@ namespace Catalog
         public List<long> GetOperatorChannelIDs(int nOperatorID)
         {
             return Read(nOperatorID);
+        }
+
+        public List<long> GetDistinctAllOperatorsChannels()
+        {
+            if (Utils.IsGroupIDContainedInConfig(this.m_nParentGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
+            {
+                return GetAllOperatorsChannelIDs();
+            }
+
+            return new List<long>(0);
         }
 
         private List<long> Read(int nOperatorID)
@@ -133,6 +172,8 @@ namespace Catalog
                     if (channelIDs != null && channelIDs.Count > 0)
                     {
                         m_oOperatorChannelIDs.Add(nOperatorID, channelIDs);
+                        GroupManager groupManager = new GroupManager();
+                        bool bUpdate = groupManager.UpdateoOperatorChannels(m_nParentGroupID, nOperatorID, channelIDs);
                     }
                     else
                     {
@@ -140,7 +181,6 @@ namespace Catalog
                         Logger.Logger.Log("Build", string.Format("No operator channel ids were extracted from DB. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
                         res = false;
                     }
-
                 }
                 else
                 {
@@ -180,6 +220,9 @@ namespace Catalog
                                 cachedChannels.Add(channelIDs[i]);
                         }
                         m_oOperatorChannelIDs[nOperatorID] = cachedChannels;
+
+                        GroupManager groupManager = new GroupManager();
+                        bool bAdd = groupManager.AddOperatorChannels(m_nParentGroupID, nOperatorID, channelIDs);
                     }
                     else
                     {
@@ -220,6 +263,11 @@ namespace Catalog
                         // failed to remove from dictionary
                         Logger.Logger.Log("Delete", string.Format("Failed to remove channel ids from dictionary. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
                     }
+                    else
+                    {
+                        GroupManager groupManager = new GroupManager();
+                        bool update = groupManager.DeleteOperator(m_nParentGroupID, nOperatorID);
+                    }
                 }
                 locker.ExitWriteLock();
             }
@@ -253,8 +301,6 @@ namespace Catalog
             return Delete(nOperatorID);
         }
 
-        #endregion
-
 
 
         public void Dispose()
@@ -278,6 +324,121 @@ namespace Catalog
                 } // end lock
                 Logger.Logger.Log("Dispose", String.Concat("Dispose. Unlocked. Group ID: ", m_nParentGroupID), GROUP_LOG_FILENAME);
             }
+        }
+
+
+        #endregion
+
+
+        #region Cache
+        internal bool AddChannelsToOperatorCache(int nOperatorID, List<long> channelIDs)
+        {
+            bool retVal = false;
+            try
+            {
+                if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+                {
+                    List<long> cachedChannels = m_oOperatorChannelIDs[nOperatorID];
+                    if (cachedChannels != null && cachedChannels.Count > 0)
+                    {
+                        int length = channelIDs.Count;
+                        for (int i = 0; i < length; i++)
+                        {
+                            if (!cachedChannels.Contains(channelIDs[i]))
+                                cachedChannels.Add(channelIDs[i]);
+                        }
+                        m_oOperatorChannelIDs[nOperatorID] = cachedChannels;
+                        retVal = true;
+
+                    }
+                }
+                else
+                {
+                    m_oOperatorChannelIDs.Add(nOperatorID, channelIDs);
+                    retVal = true; 
+                }
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool DeleteOperatorCache(int nOperatorID)
+        {
+            bool res = false;
+
+            if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+            {
+                res = m_oOperatorChannelIDs.Remove(nOperatorID);
+            }
+            return res;
+        }
+
+        public List<Channel> GetChannelsFromCache(List<int> channelIds, int nOwnerGroup)
+        {
+            List<Channel> lRes = null;
+
+            if (this != null && channelIds != null && channelIds.Count > 0)
+            {
+                lRes = new List<Channel>();
+                Channel oChannel;
+                foreach (int channelID in channelIds)
+                {
+                    if (this.m_oGroupChannels.TryGetValue(channelID, out oChannel))
+                    {
+                        lRes.Add(oChannel);
+                    }
+                }
+
+                //get all channels from DB
+                var channelsNotInCache = channelIds.Where(id => !lRes.Any(existId => existId.m_nChannelID == id));
+                if (channelsNotInCache != null)
+                {
+                    List<int> lNotIncludedInCache = channelsNotInCache.ToList<int>();
+                    if (lNotIncludedInCache.Count > 0)
+                    {
+                        List<Channel> lNewCreatedChannels = ChannelRepository.GetChannels(lNotIncludedInCache, this);
+                        //add the channels from DB to cache 
+                        
+                        GroupManager groupManager = new GroupManager();
+                        bool bAdd = groupManager.InsertChannels(lNewCreatedChannels, this.m_nParentGroupID);
+                        lRes.AddRange(lNewCreatedChannels);
+                    }
+                }
+            }
+            return lRes;
+        }
+
+        #endregion
+
+        internal bool AddChannels(int nGroupID, List<Channel> lNewCreatedChannels)
+        {
+            try
+            {
+                foreach (Channel channel in lNewCreatedChannels)
+                {
+                    if (!m_oGroupChannels.ContainsKey(channel.m_nChannelID))
+                    {
+                        m_oGroupChannels.TryAdd(channel.m_nChannelID, channel);
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        internal string GetSubTreeGroupIds()
+        {
+            if (m_nSubGroup != null && m_nSubGroup.Count > 0)
+            {
+                return string.Join(",", m_nSubGroup);
+            }
+            return string.Empty;
         }
     }
 }

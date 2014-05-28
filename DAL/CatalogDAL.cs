@@ -28,13 +28,14 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static DataSet Build_MediaRelated(int nGroupID, int nMediaID, int nLanguage)
+        public static DataSet Build_MediaRelated(int nGroupID, int nMediaID, int nLanguage,List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spBuild_MediaRelated = new ODBCWrapper.StoredProcedure("Build_MediaRelated");
             spBuild_MediaRelated.SetConnectionKey("MAIN_CONNECTION_STRING");
             spBuild_MediaRelated.AddParameter("@MediaID", nMediaID);
             spBuild_MediaRelated.AddParameter("@GroupID", nGroupID);
             spBuild_MediaRelated.AddParameter("@Language", nLanguage);
+            spBuild_MediaRelated.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spBuild_MediaRelated.ExecuteDataSet();
 
@@ -55,13 +56,14 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static DataSet Get_ChannelsListByCategory(int nCategoryID, int nGroupID, int nLanguage)
+        public static DataSet Get_ChannelsListByCategory(int nCategoryID, int nGroupID, int nLanguage, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spCategoryChannels = new ODBCWrapper.StoredProcedure("Get_ChannelsListByCategory");
             spCategoryChannels.SetConnectionKey("MAIN_CONNECTION_STRING");
             spCategoryChannels.AddParameter("@CategoryID", nCategoryID);
             spCategoryChannels.AddParameter("@GroupID", nGroupID);
             spCategoryChannels.AddParameter("@LanguageID", nLanguage);
+            spCategoryChannels.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spCategoryChannels.ExecuteDataSet();
 
@@ -82,26 +84,28 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static DataTable Get_PersonalLastWatched( int nGroupID, string sSiteGuid)
+        public static DataTable Get_PersonalLastWatched( int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spPersonalLastWatched = new ODBCWrapper.StoredProcedure("Get_PersonalLastWatched");
             spPersonalLastWatched.SetConnectionKey("MAIN_CONNECTION_STRING");
             spPersonalLastWatched.AddParameter("@GroupID", nGroupID);
             spPersonalLastWatched.AddParameter("@SiteGuid", sSiteGuid);
+            spPersonalLastWatched.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spPersonalLastWatched.ExecuteDataSet();
             if (ds != null)
                 return ds.Tables[0];
             return null;
         }
-        
-        public static DataTable Get_PersonalLasDevice(List<int> nMediaIDs,int nGroupID, string sSiteGuid)
+
+        public static DataTable Get_PersonalLasDevice(List<int> nMediaIDs, int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spPersonalLastDevice = new ODBCWrapper.StoredProcedure("Get_PersonalLasDevice");
             spPersonalLastDevice.SetConnectionKey("MAIN_CONNECTION_STRING");
             spPersonalLastDevice.AddParameter("@GroupID", nGroupID);
             spPersonalLastDevice.AddParameter("@SiteGuid", sSiteGuid);
             spPersonalLastDevice.AddIDListParameter("@MediaID", nMediaIDs, "Id");
+            spPersonalLastDevice.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spPersonalLastDevice.ExecuteDataSet();
             if (ds != null)
@@ -135,7 +139,7 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static DataTable Get_PersonalRecommended(int nGroupID, string sSiteGuid, int Top)
+        public static DataTable Get_PersonalRecommended(int nGroupID, string sSiteGuid, int Top, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spPersonalRecommended = new ODBCWrapper.StoredProcedure("Get_PersonalRecommended");
             spPersonalRecommended.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -143,6 +147,7 @@ namespace Tvinci.Core.DAL
             spPersonalRecommended.AddParameter("@GroupID", nGroupID);
             spPersonalRecommended.AddParameter("@SiteGuid", sSiteGuid);
             spPersonalRecommended.AddParameter("@Top", Top);
+            spPersonalRecommended.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spPersonalRecommended.ExecuteDataSet();
             if (ds != null)
@@ -208,13 +213,14 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static DataTable Get_PicProtocol(int nGroupID, List<int> nPicIDs)
+        public static DataTable Get_PicProtocol(int nGroupID, List<int> nPicIDs, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spPicProtocol = new ODBCWrapper.StoredProcedure("Get_PicProtocol");
             spPicProtocol.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             spPicProtocol.AddIDListParameter("@PicIdList", nPicIDs, "Id");
-            spPicProtocol.AddParameter("@GroupID", nGroupID);            
+            spPicProtocol.AddParameter("@GroupID", nGroupID);
+            spPicProtocol.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spPicProtocol.ExecuteDataSet();
 
@@ -262,7 +268,6 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
-
 
         public static int Get_BillingTypeID(string apiVal)
         {
@@ -458,11 +463,12 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static DataSet Get_MetasByGroup(int groupID)
+        public static DataSet Get_MetasByGroup(int groupID, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spMetas= new ODBCWrapper.StoredProcedure("Get_MetasByGroup");
             spMetas.SetConnectionKey("MAIN_CONNECTION_STRING");
             spMetas.AddParameter("@GroupId", groupID);
+            spMetas.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spMetas.ExecuteDataSet();
 
@@ -471,7 +477,7 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static DataTable GetMappedMetasByGroupId(int nParentGroupId)
+        public static DataTable GetMappedMetasByGroupId(int nParentGroupId, List<int> lSubGroupTree)
         {
             DataTable returnedDataTable = null;
 
@@ -480,6 +486,8 @@ namespace Tvinci.Core.DAL
                 ODBCWrapper.StoredProcedure spGroupsMappedMetaColumns = new ODBCWrapper.StoredProcedure("Get_MetasByGroup");
                 spGroupsMappedMetaColumns.SetConnectionKey("MAIN_CONNECTION_STRING");
                 spGroupsMappedMetaColumns.AddParameter("@GroupId", nParentGroupId);
+                spGroupsMappedMetaColumns.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+
                 DataSet mappedMetasDataSet = spGroupsMappedMetaColumns.ExecuteDataSet();
 
                 if (mappedMetasDataSet != null && mappedMetasDataSet.Tables.Count > 0)
@@ -620,7 +628,7 @@ namespace Tvinci.Core.DAL
             return returnedDataTable;
         }
 
-        public static DataTable GetPermittedWatchRulesByGroupId(int nGroupId)
+        public static DataTable GetPermittedWatchRulesByGroupId(int nGroupId, List<int> lSubGroupTree)
         {
             DataTable permittedWatchRules = null;
 
@@ -629,6 +637,8 @@ namespace Tvinci.Core.DAL
                 ODBCWrapper.StoredProcedure spPermittedWatchRulesID = new ODBCWrapper.StoredProcedure("Get_PermittedWatchRulesID");
                 spPermittedWatchRulesID.SetConnectionKey("MAIN_CONNECTION_STRING");
                 spPermittedWatchRulesID.AddParameter("@GroupID", nGroupId);
+                spPermittedWatchRulesID.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+
                 DataSet ds = spPermittedWatchRulesID.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -732,7 +742,7 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static DataSet Get_EPGCommentsList(int nEpgProgramID, int nGroupID, int nLanguage)
+        public static DataSet Get_EPGCommentsList(int nEpgProgramID, int nGroupID, int nLanguage, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spPersonalRecommended = new ODBCWrapper.StoredProcedure("Get_EpgCommentsList");
             spPersonalRecommended.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -740,6 +750,7 @@ namespace Tvinci.Core.DAL
             spPersonalRecommended.AddParameter("@GroupID", nGroupID);
             spPersonalRecommended.AddParameter("@EpgProgramID", nEpgProgramID);
             spPersonalRecommended.AddParameter("@LangID", nLanguage);
+            spPersonalRecommended.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spPersonalRecommended.ExecuteDataSet();
 
@@ -801,12 +812,14 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static DataTable Get_GroupChannels(int nGroupID)
+        public static DataTable Get_GroupChannels(int nGroupID, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spPersonalRecommended = new ODBCWrapper.StoredProcedure("Get_GroupChannels");
             spPersonalRecommended.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             spPersonalRecommended.AddParameter("@GroupID", nGroupID);
+            spPersonalRecommended.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+
             DataSet ds = spPersonalRecommended.ExecuteDataSet();
 
             if (ds != null)
@@ -854,20 +867,21 @@ namespace Tvinci.Core.DAL
         }
 
 
-        public static DataSet Get_GroupMedias(int m_nGroupID, int nMediaID)
+        public static DataSet Get_GroupMedias(int m_nGroupID, int nMediaID, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias");
             GroupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             GroupMedias.AddParameter("@GroupID", m_nGroupID);
             GroupMedias.AddParameter("@MediaID", nMediaID);
+            GroupMedias.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = GroupMedias.ExecuteDataSet();
 
             return ds;
         }
 
-        public static DataSet GetMediasStats(int nGroupID, List<int> mediaIDs, DateTime? dStartDate, DateTime? dEndDate)
+        public static DataSet GetMediasStats(int nGroupID, List<int> mediaIDs, DateTime? dStartDate, DateTime? dEndDate, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure MediaStats = new ODBCWrapper.StoredProcedure("Get_MediasStats");
             MediaStats.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -876,13 +890,14 @@ namespace Tvinci.Core.DAL
             MediaStats.AddParameter("@startDate", dStartDate);
             MediaStats.AddParameter("@endDate", dEndDate);
             MediaStats.AddIDListParameter("@MediasIDs", mediaIDs, "Id");
+            MediaStats.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = MediaStats.ExecuteDataSet();
             return ds;
         }
 
 
-        public static DataSet GetEpgStats(int nGroupID, List<int> epgIDs, DateTime? dStartDate, DateTime? dEndDate)
+        public static DataSet GetEpgStats(int nGroupID, List<int> epgIDs, DateTime? dStartDate, DateTime? dEndDate, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure MediaStats = new ODBCWrapper.StoredProcedure("Get_EpgStats");
             MediaStats.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -891,6 +906,8 @@ namespace Tvinci.Core.DAL
             MediaStats.AddParameter("@startDate", dStartDate);
             MediaStats.AddParameter("@endDate", dEndDate);
             MediaStats.AddIDListParameter("@EpgIDs", epgIDs, "Id");
+            MediaStats.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+
 
             DataSet ds = MediaStats.ExecuteDataSet();
             return ds;
@@ -1026,7 +1043,7 @@ namespace Tvinci.Core.DAL
             return new List<int>(0);
         }
 
-        public static DataTable Get_IPersonalRecommended(int nGroupID, string sSiteGuid, int nTop, int nOperatorID)
+        public static DataTable Get_IPersonalRecommended(int nGroupID, string sSiteGuid, int nTop, int nOperatorID, List<int> lSubGroupTree)
         {
             StoredProcedure sp = new StoredProcedure("Get_IPersonalRecommended");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1034,6 +1051,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@Top", nTop);
             sp.AddParameter("@OperatorID", nOperatorID);
+            sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -1041,7 +1059,6 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
-
 
         public static DataTable GetPicEpgURL(int groupID)
         {
