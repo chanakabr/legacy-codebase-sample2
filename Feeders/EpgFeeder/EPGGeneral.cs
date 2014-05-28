@@ -689,9 +689,9 @@ namespace EpgFeeder
             foreach (var progItem in prog)
             {
                 Utils.ParseEPGStrToDate(progItem.start, ref dProgStartDate);
-                if (!lDates.Contains(dProgStartDate))
+                if (!lDates.Contains(dProgStartDate.Date))
                 {
-                    lDates.Add(dProgStartDate);
+                    lDates.Add(dProgStartDate.Date);
                 }
             }
 

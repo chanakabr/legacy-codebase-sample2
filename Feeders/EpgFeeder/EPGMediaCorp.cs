@@ -200,7 +200,6 @@ namespace EpgFeeder
 
             try 
             {
-
                 if (channelID > 0)
                 {
                     Logger.Logger.Log("Media Corp: EPG", string.Format("\r\n###################################### START EPG Channel {0} ######################################\r\n", channelID), LogFileName);
@@ -227,8 +226,7 @@ namespace EpgFeeder
                     int nCount = 0;
                     List<ulong> ulProgram =  new List<ulong>();
                     List<DateTime> deletedDays = new List<DateTime>();
-                    Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();
-                                
+                    Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();                                
 
                     foreach (XmlNode node in xmlnodelist)
                     {     
@@ -455,7 +453,7 @@ namespace EpgFeeder
             {   
                 //BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId));
 
-                Logger.Logger.Log("InsertProgramScheduleCB", string.Format("EpgIdentifier '{0}' ", EPGGuid), LogFileName);
+                Logger.Logger.Log("generateEPGCB", string.Format("EpgIdentifier '{0}' ", EPGGuid), LogFileName);
                
                 newEpgItem.Name = string.Format("{0} {1} {2}", program_desc_english, program_desc_chinese, episode_no);
                 newEpgItem.Description = string.Format("{0} {1}", syp, syp_chi);
@@ -497,7 +495,7 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("InsertProgramSchedule", string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), LogFileName);
+                Logger.Logger.Log("generateEPGCB", string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), LogFileName);
             }
             return newEpgItem;
         }
