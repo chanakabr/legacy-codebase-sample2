@@ -3764,26 +3764,28 @@ namespace ConditionalAccess
         private List<int> GetDomainsUsers(int nDomainID)
         {
             string sIP = "1.1.1.1";
-            TvinciDomains.module bm = new ConditionalAccess.TvinciDomains.module();
-            string sWSUserName = "";
-            string sWSPass = "";
-            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetDomainUserList", "Domains", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = Utils.GetWSURL("domains_ws");
-            if (sWSURL != "")
-                bm.Url = sWSURL;
-
-            string[] usersList = bm.GetDomainUserList(sWSUserName, sWSPass, nDomainID);
-            List<int> intUsersList = new List<int>();
-
-            if (usersList != null && usersList.Length != 0)
+            using (TvinciDomains.module bm = new ConditionalAccess.TvinciDomains.module())
             {
-                foreach (string str in usersList)
-                {
-                    intUsersList.Add(int.Parse(str));
-                }
-            }
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
+                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetDomainUserList", "Domains", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = Utils.GetWSURL("domains_ws");
+                if (sWSURL.Length > 0)
+                    bm.Url = sWSURL;
 
-            return intUsersList;
+                string[] usersList = bm.GetDomainUserList(sWSUserName, sWSPass, nDomainID);
+                List<int> intUsersList = new List<int>();
+
+                if (usersList != null && usersList.Length != 0)
+                {
+                    foreach (string str in usersList)
+                    {
+                        intUsersList.Add(int.Parse(str));
+                    }
+                }
+
+                return intUsersList;
+            }
         }
         /// <summary>
         /// Get Domain Permitted Items
@@ -3947,7 +3949,7 @@ namespace ConditionalAccess
         public virtual PermittedCollectionContainer[] GetUserPermittedCollections(List<int> lUsersIDs, bool isExpired, int numOfItems)
         {
             PermittedCollectionContainer[] ret = null;
-            DataTable allCollectionsPurchases = DAL.ConditionalAccessDAL.Get_UsersPermittedCollections(lUsersIDs, isExpired);
+            DataTable allCollectionsPurchases = ConditionalAccessDAL.Get_UsersPermittedCollections(lUsersIDs, isExpired);
 
             if (allCollectionsPurchases != null)
             {
@@ -3995,7 +3997,7 @@ namespace ConditionalAccess
         public virtual PermittedSubscriptionContainer[] GetUserPermittedSubscriptions(List<int> lUsersIDs, bool isExpired, int numOfItems)
         {
             PermittedSubscriptionContainer[] ret = null;
-            DataTable allSubscriptionsPurchases = DAL.ConditionalAccessDAL.Get_UsersPermittedSubscriptions(lUsersIDs, isExpired);
+            DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(lUsersIDs, isExpired);
 
             if (allSubscriptionsPurchases != null)
             {

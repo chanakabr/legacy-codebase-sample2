@@ -1778,5 +1778,50 @@ namespace DAL
 
 
         //}
+
+        public static List<string> Get_FullUserListOfDomain(int nGroupID, int nDomainID)
+        {
+            List<string> res = null;
+            StoredProcedure sp = new StoredProcedure("Get_FullUserListOfDomain");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DomainID", nDomainID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = new List<string>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        long lSiteGuid = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["USER_ID"]);
+                        int nStatus = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["STATUS"]);
+                        if (nStatus == 1)
+                        {
+                            // user is approved for this domain
+                            res.Add(lSiteGuid + "");
+                        }
+                        else
+                        {
+                            // user is pending.
+                            res.Add((lSiteGuid * (-1)) + "");
+                        }
+                    }
+                }
+                else
+                {
+                    res = new List<string>(0);
+                }
+            }
+            else
+            {
+                res = new List<string>(0);
+            }
+
+            return res;
+
+        }
     }
 }

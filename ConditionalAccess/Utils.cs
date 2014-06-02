@@ -231,24 +231,27 @@ namespace ConditionalAccess
         static public bool ValidateBaseLink(Int32 nGroupID, Int32 nMediaFileID, string sBaseLink)
         {
             string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            TvinciAPI.API m = new ConditionalAccess.TvinciAPI.API();
-            if (GetWSURL("api_ws") != "")
-                m.Url = GetWSURL("api_ws");
-            bool bRet = false;
-            if (CachingManager.CachingManager.Exist("ValidateBaseLink" + nMediaFileID.ToString() + "_" + sBaseLink + "_" + nGroupID.ToString()) == true)
-                bRet = (bool)(CachingManager.CachingManager.GetCachedData("ValidateBaseLink" + nMediaFileID.ToString() + "_" + sBaseLink + "_" + nGroupID.ToString()));
-            else
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
+            using (TvinciAPI.API m = new ConditionalAccess.TvinciAPI.API())
             {
-                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "ValidateBaseLink", "api", sIP, ref sWSUserName, ref sWSPass);
-                bRet = m.ValidateBaseLink(sWSUserName, sWSPass, nMediaFileID, sBaseLink);
-                CachingManager.CachingManager.SetCachedData("ValidateBaseLink" + nMediaFileID.ToString() + "_" + sBaseLink + "_" + nGroupID.ToString(), bRet, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                string apiUrl = GetWSURL("api_ws");
+                if (apiUrl.Length > 0)
+                    m.Url = apiUrl;
+                bool bRet = false;
+                if (CachingManager.CachingManager.Exist("ValidateBaseLink" + nMediaFileID.ToString() + "_" + sBaseLink + "_" + nGroupID.ToString()) == true)
+                    bRet = (bool)(CachingManager.CachingManager.GetCachedData("ValidateBaseLink" + nMediaFileID.ToString() + "_" + sBaseLink + "_" + nGroupID.ToString()));
+                else
+                {
+                    TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "ValidateBaseLink", "api", sIP, ref sWSUserName, ref sWSPass);
+                    bRet = m.ValidateBaseLink(sWSUserName, sWSPass, nMediaFileID, sBaseLink);
+                    CachingManager.CachingManager.SetCachedData("ValidateBaseLink" + nMediaFileID.ToString() + "_" + sBaseLink + "_" + nGroupID.ToString(), bRet, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                }
+                return bRet;
             }
-            return bRet;
         }
 
-        static public TvinciAPI.MeidaMaper[] GetMediaMapper(Int32 nGroupID, Int32[] nMediaFilesIDs)
+        internal static TvinciAPI.MeidaMaper[] GetMediaMapper(Int32 nGroupID, Int32[] nMediaFilesIDs)
         {
             if (nMediaFilesIDs == null)
                 return null;
@@ -648,7 +651,7 @@ namespace ConditionalAccess
         {
             bool retVal = false;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select CREATE_DATE,getdate() as dNow from campaigns_uses where ";
+            selectQuery += "select CREATE_DATE,getdate() as dNow from campaigns_uses with (nolock) where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("campaign_id", "=", campaignID);
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", nOwnerGuid);
@@ -1406,6 +1409,11 @@ namespace ConditionalAccess
             return new List<int>(0);
         }
 
+        private static bool IsPurchasedAsPurePPV(string sSubCode, string sPrePaidCode)
+        {
+            return sSubCode.Length == 0 && sPrePaidCode.Length == 0;
+        }
+
         internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, TvinciPricing.PPVModule ppvModule, string sSiteGUID,
             string sCouponCode, Int32 nGroupID, ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub,
             ref TvinciPricing.Collection relevantCol, ref TvinciPricing.PrePaidModule relevantPP, ref string sFirstDeviceNameFound,
@@ -1460,7 +1468,7 @@ namespace ConditionalAccess
                     {
                         p.m_dPrice = 0;
 
-                        if (sSubCode.Length == 0 && sPPCode.Length == 0)
+                        if (IsPurchasedAsPurePPV(sSubCode, sPPCode))
                         {
                             theReason = PriceReason.PPVPurchased;
                             if (ppvModule.m_bFirstDeviceLimitation && !IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, allUserIDsInDomain, sDEVICE_NAME, ref sFirstDeviceNameFound))
@@ -1472,6 +1480,7 @@ namespace ConditionalAccess
                         {
                             if (sSubCode.Length > 0)
                             {
+                                // purchased as part of subscription
                                 theReason = PriceReason.SubscriptionPurchased;
                                 string sCacheKey = GetCachingManagerKey("GetSubscriptionData", sSubCode, nGroupID, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                                 if (CachingManager.CachingManager.Exist(sCacheKey))
@@ -1487,6 +1496,7 @@ namespace ConditionalAccess
                             {
                                 if (sPPCode.Length > 0)
                                 {
+                                    // purchased as part of pre paid
                                     theReason = PriceReason.PrePaidPurchased;
                                     string sCacheKey = GetCachingManagerKey("GetPrePaidModuleData", sPPCode, nGroupID, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                                     if (CachingManager.CachingManager.Exist(sCacheKey))
@@ -1516,7 +1526,7 @@ namespace ConditionalAccess
                         return p;
                     }
 
-                    //subscriptions check
+                    //check here if it is part of a purchased subscription
                     TvinciPricing.Subscription[] relevantValidSubscriptions = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, eBundleType.SUBSCRIPTION) as TvinciPricing.Subscription[];
 
                     if (relevantValidSubscriptions != null)
@@ -1561,6 +1571,7 @@ namespace ConditionalAccess
                         return p;
                     }
 
+                    // check here if its part of a purchased collection
                     TvinciPricing.PPVModule[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, eBundleType.COLLECTION);
 
                     if (relevantValidCollections != null)
@@ -1581,11 +1592,11 @@ namespace ConditionalAccess
                             }
                         }
                     }
-                    //If was not purchase in any way
                     else
                     {
+                        // the media file was not purchased in any way. calculate its price as a single media file and its price reason
                         p = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty);
-                        if (p != null && p.m_dPrice == 0 && theReason != PriceReason.ForPurchaseSubscriptionOnly)
+                        if (IsFreeMediaFile(theReason, p))
                         {
                             theReason = PriceReason.Free;
                         }
@@ -1620,6 +1631,11 @@ namespace ConditionalAccess
             }
 
             return p;
+        }
+
+        private static bool IsFreeMediaFile(PriceReason reason, Price p)
+        {
+            return p != null && p.m_dPrice == 0 && reason != PriceReason.ForPurchaseSubscriptionOnly;
         }
 
         private static bool IsItemPurchased(TvinciPricing.Price initialPrice, TvinciPricing.Price businessModulePrice, PPVModule ppvModule)
