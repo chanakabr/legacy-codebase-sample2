@@ -228,7 +228,7 @@ namespace ConditionalAccess
             return nRet;
         }
 
-        static public bool ValidateBaseLink(Int32 nGroupID, Int32 nMediaFileID, string sBaseLink)
+        internal static bool ValidateBaseLink(Int32 nGroupID, Int32 nMediaFileID, string sBaseLink)
         {
             string sIP = "1.1.1.1";
             string sWSUserName = string.Empty;
