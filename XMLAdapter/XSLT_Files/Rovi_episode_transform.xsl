@@ -130,6 +130,7 @@
           <xsl:attribute name="ppv_module">
             <xsl:variable name="contentID" select="../../*[local-name() = 'ContentId']"/>
             <xsl:for-each select="../../../../*[local-name() = 'LicenseList']/*[local-name() = 'License']">
+              <xsl:if test="./*[local-name() = 'LicenseGrantType'] = 'EPISODE'">
               <xsl:for-each select="./*[local-name() = 'LicenseGrantsList']/*[local-name() = 'ContentIdList']/*[local-name() = 'ContentId']">
                 <xsl:if test=". = $contentID">      
                   <xsl:variable name="LSfullTime" select="../../../*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStart']"/>
@@ -149,6 +150,7 @@
                   <xsl:value-of select="concat(../../../*[local-name() = 'LicenseCode'],';',$LS,';',$LE,';')"/>
                 </xsl:if>
               </xsl:for-each>
+              </xsl:if> 
             </xsl:for-each>
           </xsl:attribute>
           <xsl:attribute name="co_guid"><xsl:value-of select="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionKeyId']"/></xsl:attribute>
@@ -403,7 +405,7 @@
 
   <xsl:template name="build_strings_data">
     <xsl:element name="meta">
-      <xsl:attribute name="name">Short summary</xsl:attribute>
+      <xsl:attribute name="name">Summary short</xsl:attribute>
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
         <xsl:element name="value">
           <xsl:attribute name="lang">
