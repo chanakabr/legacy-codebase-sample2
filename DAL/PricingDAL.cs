@@ -520,5 +520,15 @@ namespace DAL
             return res;
         }
 
+        public static DataSet Get_CollectionsData(int nGroupID, List<long> lstCollCodes)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_CollectionsData");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddIDListParameter("@Collections", lstCollCodes, "ID");
+
+            return sp.ExecuteDataSet();
+        }
+
     }
 }
