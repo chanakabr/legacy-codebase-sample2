@@ -13,7 +13,7 @@ namespace FileUploadHandler
                 case "ftp":
                     uploader = new FTPUploader(request.upload_settings.address, request.upload_settings.user_name, request.upload_settings.password, request.upload_settings.prefix);  
                     break;
-                case "s3":
+                case "amazons3":
                     uploader = new AmazonS3Uploader(request.upload_settings.address, request.upload_settings.user_name, request.upload_settings.password, request.upload_settings.prefix, request.upload_settings.region);
                     break;
                 case "local":
