@@ -23,7 +23,9 @@ namespace RemoteTasksService
 
             try
             {
-                ITaskHandler taskHandler = (ITaskHandler)Activator.CreateInstance(Type.GetType(string.Format("{0}.TaskHandler, {0}", ConfigurationManager.AppSettings[request.task])));
+                string taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
+
+                ITaskHandler taskHandler = (ITaskHandler)Activator.CreateInstance(Type.GetType(string.Format("{0}.TaskHandler, {0}", taskHandlerName)));
 
                 response.retval = taskHandler.HandleTask(request.data);
                 response.status = "success";
