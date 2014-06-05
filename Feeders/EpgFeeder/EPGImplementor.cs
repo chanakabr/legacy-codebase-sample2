@@ -1267,6 +1267,45 @@ namespace EpgFeeder
             #endregion
         }
 
+
+        protected void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping)
+        {
+            Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
+            int nEpgCount = 0;
+            foreach (string sGuid in epgDic.Keys)
+            {
+                epgBatch.Add(sGuid, epgDic[sGuid]);
+                nEpgCount++;
+                if (nEpgCount >= nCountPackage)
+                {
+                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
+                    nEpgCount = 0;
+                    foreach (string guid in epgBatch.Keys)
+                    {
+                        if (epgBatch[guid].EpgID > 0)
+                        {
+                            epgDic[guid].EpgID = epgBatch[guid].EpgID;
+                        }
+                    }
+                    epgBatch.Clear();
+                }
+            }
+
+            if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
+            {
+                InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
+                foreach (string guid in epgBatch.Keys)
+                {
+                    if (epgBatch[guid].EpgID > 0)
+                    {
+                        epgDic[guid].EpgID = epgBatch[guid].EpgID;
+                    }
+                }
+            }
+        }
+        
+        
+        
         //this FUnction inserts Epgs, thier Metas and tags to DB, and updates the EPGID in the EpgCB object according to the ID of the epg_channels_schedule in the DB
         protected void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping)
         {
@@ -1317,43 +1356,52 @@ namespace EpgFeeder
             Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nGroupID, int nUpdaterID)
         {
             Dictionary<KeyValuePair<string, int>, int> tagValueWithID = new Dictionary<KeyValuePair<string, int>, int>();
-            string sConn = "MAIN_CONNECTION_STRING";
-            //insert all New tag values from dtEpgTagsValues to DB
-            InsertBulk(dtEpgTagsValues, "EPG_tags", sConn); 
-
-            //retrun back all the IDs of the new Tags_Values
             Dictionary<int, List<string>> dicTagTypeIDAndValues = new Dictionary<int, List<string>>();
-            if (dtEpgTagsValues != null && dtEpgTagsValues.Rows != null)
+            string sConn = "MAIN_CONNECTION_STRING";
+          
+            if (dtEpgTagsValues != null && dtEpgTagsValues.Rows != null && dtEpgTagsValues.Rows.Count > 0)
             {
+                //insert all New tag values from dtEpgTagsValues to DB
+                InsertBulk(dtEpgTagsValues, "EPG_tags", sConn);
+
+                //retrun back all the IDs of the new Tags_Values
                 for (int k = 0; k < dtEpgTagsValues.Rows.Count; k++)
                 {
                     DataRow row = dtEpgTagsValues.Rows[k];
                     string sTagValue = ODBCWrapper.Utils.GetSafeStr(row, "value");
                     int nTagTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
-                    dicTagTypeIDAndValues.Add(nTagTypeID, new List<string>() { sTagValue });
-                }
-            }
-            DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(nGroupID, dicTagTypeIDAndValues);
-
-            //update the IDs in tagValueWithID
-            if (dtTagValueID != null && dtTagValueID.Rows != null)
-            {
-                for (int i = 0; i < dtTagValueID.Rows.Count; i++)
-                {
-                    DataRow row = dtTagValueID.Rows[i];
-                    if (row != null)
+                    if (!dicTagTypeIDAndValues.Keys.Contains(nTagTypeID))
                     {
-                        int nTagValueID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                        string sTagValue = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
-                        int nTagType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
+                        dicTagTypeIDAndValues.Add(nTagTypeID, new List<string>() { sTagValue });
+                    }
+                    else
+                    {
+                        dicTagTypeIDAndValues[nTagTypeID].Add(sTagValue);
+                    }
+                }
 
-                        KeyValuePair<string, int> tagValueAndType = new KeyValuePair<string, int>(sTagValue, nTagType);
-                        tagValueWithID.Add(tagValueAndType, nTagValueID);
+                DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(nGroupID, dicTagTypeIDAndValues);
+
+                //update the IDs in tagValueWithID
+                if (dtTagValueID != null && dtTagValueID.Rows != null)
+                {
+                    for (int i = 0; i < dtTagValueID.Rows.Count; i++)
+                    {
+                        DataRow row = dtTagValueID.Rows[i];
+                        if (row != null)
+                        {
+                            int nTagValueID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                            string sTagValue = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
+                            int nTagType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
+
+                            KeyValuePair<string, int> tagValueAndType = new KeyValuePair<string, int>(sTagValue, nTagType);
+                            tagValueWithID.Add(tagValueAndType, nTagValueID);
+                        }
                     }
                 }
             }
 
-            //go over all epgWithNewValues and update the EPG_Program_Tags
+            //go over all newTagValueEpgs and update the EPG_Program_Tags
             foreach (KeyValuePair<string, int> kvpUpdated in newTagValueEpgs.Keys)
             {
                 int TagValueID = 0;
@@ -1395,7 +1443,13 @@ namespace EpgFeeder
                         KeyValuePair<string, int> kvp = new KeyValuePair<string, int>(sValue, nID);
                         if (dicTagTypeWithValues.ContainsKey(nTagTypeID))
                         {
-                            dicTagTypeWithValues[nTagTypeID].Add(kvp);
+                            //check if the value exists already in the dictionary (maybe in UpperCase\LowerCase)
+                            List <KeyValuePair <string, int>> resultList = new List<KeyValuePair<string,int>>();
+                            resultList = dicTagTypeWithValues[nTagTypeID].Where(x => x.Key.ToLower() == sValue.ToLower() && x.Value == nID).ToList();
+                            if (resultList.Count == 0)
+                            {
+                                dicTagTypeWithValues[nTagTypeID].Add(kvp);
+                            }
                         }
                         else
                         {                             

@@ -502,7 +502,7 @@ namespace EpgFeeder
 
                 foreach (var progItem in prog)
                 {
-                    nCount++;
+                    //nCount++;
                     DateTime dProgStartDate = DateTime.MinValue;
                     DateTime dProgEndDate = DateTime.MinValue;
                     if (!ParseEPGStrToDate(progItem.start, ref dProgStartDate) || !ParseEPGStrToDate(progItem.stop, ref dProgEndDate))
@@ -575,28 +575,10 @@ namespace EpgFeeder
                     #endregion
                  
                     epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
-                }
+                }                             
 
-                #region insert EPGs to DB in batches
-                Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
-                int nEpgCount = 0;
-                foreach (string sGuid in epgDic.Keys)
-                {
-                    epgBatch.Add(sGuid, epgDic[sGuid]);
-                    nEpgCount++;
-                    if (nEpgCount >= nCountPackage)
-                    {
-                        InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
-                        nEpgCount = 0;
-                        epgBatch.Clear();
-                    }
-                }
-
-                if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
-                {
-                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
-                }
-                #endregion
+                //insert EPGs to DB in batches
+                InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping);              
 
                 foreach (EpgCB epg in epgDic.Values)
                 {
@@ -611,6 +593,7 @@ namespace EpgFeeder
 
                     if (nCount >= nCountPackage)
                     {
+                        ulProgram.Add(epg.EpgID);
                         int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
                         bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
 
@@ -657,7 +640,7 @@ namespace EpgFeeder
             Dictionary<DateTime, bool> deletedChannelDates = new Dictionary<DateTime, bool>();
             DateTime dProgStartDate = DateTime.MinValue;
             DateTime dProgEndDate = DateTime.MinValue;
-
+                        
             #region Delete all existing programs in DB that have start/end dates within the new schedule
             foreach (var progItem in prog)
             {
@@ -681,6 +664,7 @@ namespace EpgFeeder
                 Tvinci.Core.DAL.EpgDal.DeleteProgramsOnDate(progStartDate, s_GroupID, channelID);
             }
             #endregion
+
             #region Delete all existing programs in CB that have start/end dates within the new schedule
             int nParentGroupID = int.Parse(m_ParentGroupId);            
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);

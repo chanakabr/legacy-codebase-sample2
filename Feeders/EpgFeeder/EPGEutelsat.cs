@@ -301,26 +301,8 @@ namespace EpgFeeder
                 epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
             }
 
-            #region insert EPGs to DB in batches
-            Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
-            int nEpgCount = 0;
-            foreach(string sGuid in epgDic.Keys)
-            {
-                epgBatch.Add(sGuid, epgDic[sGuid]);
-                nEpgCount++;
-                if (nEpgCount >= nCountPackage)
-                {
-                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
-                    nEpgCount = 0;
-                    epgBatch.Clear();
-                }
-            }
-
-            if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
-            {
-                InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
-            }
-            #endregion
+            //insert EPGs to DB in batches
+            InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping);
 
             foreach (EpgCB epg in epgDic.Values)
             {
@@ -334,7 +316,8 @@ namespace EpgFeeder
                 #region Insert EpgProgram ES
 
                 if (nCount >= nCountPackage)
-                {                  
+                {
+                    ulProgram.Add(epg.EpgID);
                     bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
                     ulProgram = new List<ulong>();
                     nCount = 0;
