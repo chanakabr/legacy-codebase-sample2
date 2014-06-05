@@ -20,7 +20,7 @@ namespace Catalog
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         [DataMember]
-        public eBundleType m_eBundleType;
+        public CatalogBundleType m_eBundleType;
         [DataMember]
         public int m_nBundleID;
         [DataMember]
@@ -52,12 +52,12 @@ namespace Catalog
                 string dataTable = string.Empty;
                 switch (request.m_eBundleType)
                 {
-                    case eBundleType.SUBSCRIPTION:
+                    case CatalogBundleType.SUBSCRIPTION:
                     {
                         dataTable = SUB_DATA_TABLE;
                         break;
                     }
-                    case eBundleType.COLLECTION:
+                    case CatalogBundleType.COLLECTION:
                     {
                         dataTable = COL_DATA_TABLE;
                         break;

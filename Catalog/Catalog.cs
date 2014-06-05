@@ -1400,17 +1400,17 @@ namespace Catalog
             }
         }
 
-        internal static List<int> GetBundleChannelIds(int nGroupId, int nBundleId, eBundleType bundleType)
+        internal static List<int> GetBundleChannelIds(int nGroupId, int nBundleId, CatalogBundleType bundleType)
         {
             DataTable channelIdsDt;
             switch (bundleType)
             {
-                case eBundleType.SUBSCRIPTION:
+                case CatalogBundleType.SUBSCRIPTION:
                     {
                         channelIdsDt = CatalogDAL.Get_ChannelsBySubscription(nGroupId, nBundleId);
                         break;
                     }
-                case eBundleType.COLLECTION:
+                case CatalogBundleType.COLLECTION:
                     {
                         channelIdsDt = CatalogDAL.Get_ChannelsByCollection(nGroupId, nBundleId);
                         break;

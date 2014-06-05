@@ -48,7 +48,7 @@ namespace Catalog
                 response.m_nTotalItems = 0;
 
                 Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
-                List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nSubscriptionID, eBundleType.SUBSCRIPTION);
+                List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nSubscriptionID, CatalogBundleType.SUBSCRIPTION);
                 if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                 {
                     // Buils search Object per channelId call Searcher to return true/false result
