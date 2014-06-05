@@ -145,4 +145,11 @@ namespace ConditionalAccess
         UserHadNewSub = 5,
         Error = 6
     }
+
+    internal enum BundleToUse : byte
+    {
+        All = 0,
+        Subscription = 1,
+        Collection = 2
+    }
 }

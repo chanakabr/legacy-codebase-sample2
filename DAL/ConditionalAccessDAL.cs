@@ -1365,5 +1365,15 @@ namespace DAL
             }
             return res;
         }
+
+        public static DataSet Get_AllBundlesInfoByUserIDs(List<int> lstUsers, List<int> lstFileTypes)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AllBundlesInfoByUserIDs");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@Users", lstUsers, "ID");
+            sp.AddIDListParameter("@FileTypes", lstFileTypes, "ID");
+
+            return sp.ExecuteDataSet();
+        }
     }
 }

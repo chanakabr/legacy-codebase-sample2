@@ -352,7 +352,7 @@ namespace ConditionalAccess
 
                 int nCollectionID = 0;
                 Int32.TryParse(sCollectionCode, out nCollectionID);
-                DataTable dtPPVUses = DAL.ConditionalAccessDAL.Get_allDomainsPPVUsesUsingCollection(lUsersIds, groupID, nMediaFileID, nCollectionID);
+                DataTable dtPPVUses = ConditionalAccessDAL.Get_allDomainsPPVUsesUsingCollection(lUsersIds, groupID, nMediaFileID, nCollectionID);
 
                 if (dtPPVUses != null)
                 {
@@ -453,6 +453,77 @@ namespace ConditionalAccess
             }
 
             return nIsCreditDownloaded;
+        }
+
+        internal static bool GetUserValidBundlesFromListNew(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
+            int[] nFileTypes, List<int> lstUserIDs)
+        {
+            bool res = false;
+            DataSet ds = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs(lstUserIDs, nFileTypes != null && nFileTypes.Length > 0 ? nFileTypes.ToList<int>() : new List<int>(0));
+            if (IsBundlesDataSetValid(ds))
+            {
+                // iterate over subscriptions
+                DataTable subs = ds.Tables[0];
+                if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
+                {
+                    for (int i = 0; i < subs.Rows.Count; i++)
+                    {
+                        int numOfUses = 0;
+                        int maxNumOfUses = 0;
+                        string bundleCode = string.Empty;
+                        GetBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode);
+                        if (numOfUses == 0 || numOfUses < maxNumOfUses)
+                        {
+                            // add to Catalog's BundlesContainingMediaRequest
+                        }
+                        else
+                        {
+                            // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
+                        }
+                    }
+                }
+
+                //iterate over collections
+                DataTable colls = ds.Tables[1];
+                if (colls != null && colls.Rows != null && colls.Rows.Count > 0)
+                {
+                    for (int i = 0; i < colls.Rows.Count; i++)
+                    {
+                        int numOfUses = 0;
+                        int maxNumOfUses = 0;
+                        string bundleCode = string.Empty;
+                        GetBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode);
+                        if (numOfUses == 0 || numOfUses < maxNumOfUses)
+                        {
+                            // add to Catalog's BundlesContainingMediaRequest
+                        }
+                        else
+                        {
+                            // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // log or throw?
+
+            }
+
+            return res;
+        }
+
+        private static void GetBundlePurchaseData(DataRow dr, string codeColumnName, ref int numOfUses, ref int maxNumOfUses, 
+            ref string bundleCode) 
+        {
+            numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["NUM_OF_USES"]);
+            maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["MAX_NUM_OF_USES"]);
+            bundleCode = ODBCWrapper.Utils.GetSafeStr(dr[codeColumnName]);
+        }
+
+        private static bool IsBundlesDataSetValid(DataSet ds)
+        {
+            return ds != null && ds.Tables != null && ds.Tables.Count == 2;
         }
 
         internal static TvinciPricing.PPVModule[] GetUserValidBundlesFromList(string sSiteGUID, int mediaID, int mediaFileID, int groupID, int[] nFileTypes, List<int> lUsersIds, eBundleType bundleType)
@@ -1560,6 +1631,7 @@ namespace ConditionalAccess
                                         }
 
                                         bEnd = true;
+                                        break;
                                     }
                                 }
                             }
@@ -1588,6 +1660,7 @@ namespace ConditionalAccess
                                     p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(collectionsPrice));
                                     relevantCol = TVinciShared.ObjectCopier.Clone<TvinciPricing.Collection>((TvinciPricing.Collection)(collection));
                                     theReason = PriceReason.CollectionPurchased;
+                                    break;
                                 }
                             }
                         }
