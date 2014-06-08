@@ -613,7 +613,7 @@ namespace ElasticSearch.Searcher
                     BoolQuery oValueBoolQuery = new BoolQuery();
                     if (!string.IsNullOrEmpty(searchValue.m_sKey))
                     {
-                        string sSearchKey = string.Concat(Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey, searchValue.m_sKeyPrefix),
+                        string sSearchKey = string.Concat(Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(), searchValue.m_sKeyPrefix),
                                                           ".analyzed");
 
                         foreach (string sValue in searchValue.m_lValue)
