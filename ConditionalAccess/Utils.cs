@@ -377,6 +377,148 @@ namespace ConditionalAccess
             return nIsCreditDownloaded;
         }
 
+        // pass string or numeric as T
+        internal static TvinciPricing.Collection[] GetCollectionsDataWithCaching<T>(List<T> lstCollsCodes, string sWSUsername, string sWSPassword, int nGroupID) where T: IComparable, IComparable<T>, IEquatable<T>, IConvertible 
+        {
+            Collection[] res = null;
+            if(lstCollsCodes != null && lstCollsCodes.Count > 0) 
+            {
+                List<T> distinctLstCollsCodes = lstCollsCodes.Distinct().ToList<T>();
+
+                res = new Collection[distinctLstCollsCodes.Count];
+                List<string> collsCodesToQueryPricing = new List<string>();
+                Dictionary<string, int> colToIndexMapping = new Dictionary<string, int>();
+                Dictionary<string, string> colToCacheKeyMapping = new Dictionary<string, string>();
+
+                for (int i = 0; i < distinctLstCollsCodes.Count; i++)
+                {
+                    Collection col = null;
+                    string sColCode = distinctLstCollsCodes[i].ToString();
+                    string sCacheKey = GetCachingManagerKey("GetCollectionData", sColCode, nGroupID);
+                    if (CachingManager.CachingManager.Exist(sCacheKey))
+                    {
+                        col = (TvinciPricing.Collection)(CachingManager.CachingManager.GetCachedData(sCacheKey));
+                        res[i] = col;
+                    }
+                    else
+                    {
+                        colToIndexMapping.Add(sColCode, i);
+                        colToCacheKeyMapping.Add(sColCode, sCacheKey);
+                        collsCodesToQueryPricing.Add(sColCode);
+                    }
+                } // end for
+
+                // if we encountered un-cached collections query pricing and then cache the results
+                if (collsCodesToQueryPricing.Count > 0)
+                {
+                    using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
+                    {
+                        string pricingUrl = GetWSURL("pricing_ws");
+                        if (pricingUrl.Length > 0)
+                            m.Url = pricingUrl;
+                        Collection[] pricingAnswer = m.GetCollectionsData(sWSUsername, sWSPassword, collsCodesToQueryPricing.ToArray(),
+                            string.Empty, string.Empty, string.Empty);
+                        if (pricingAnswer != null && pricingAnswer.Length > 0)
+                        {
+                            for (int i = 0; i < pricingAnswer.Length; i++)
+                            {
+                                Collection c = pricingAnswer[i];
+                                if (c != null && colToIndexMapping.ContainsKey(c.m_CollectionCode))
+                                {
+                                    res[colToIndexMapping[c.m_CollectionCode]] = c;
+                                    CachingManager.CachingManager.SetCachedData(colToCacheKeyMapping[c.m_CollectionCode], c, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return res;
+        }
+
+        // pass either list of string or list of numerics.
+        internal static TvinciPricing.Subscription[] GetSubscriptiosDataWithCaching<T>(List<T> lstSubsCodes, string sWSUsername, string sWSPassword, int nGroupID) where T: IComparable, IComparable<T>, IEquatable<T>, IConvertible
+        {
+            Subscription[] res = null;
+            if (lstSubsCodes != null && lstSubsCodes.Count > 0)
+            {
+                List<T> distinctLstSubCodes = lstSubsCodes.Distinct().ToList<T>();
+
+                res = new Subscription[distinctLstSubCodes.Count];
+                List<string> subCodesToQueryPricing = new List<string>();
+                Dictionary<string, int> subToIndexMapping = new Dictionary<string, int>();
+                Dictionary<string, string> subToCacheKeyMapping = new Dictionary<string, string>();
+
+                // try fetch subscriptions data from cache
+                for (int i = 0; i < distinctLstSubCodes.Count; i++)
+                {
+                    Subscription sub = null;
+                    string subCode = distinctLstSubCodes[i].ToString();
+                    string sCacheKey = GetCachingManagerKey("GetSubscriptionData", subCode, nGroupID);
+                    if (CachingManager.CachingManager.Exist(sCacheKey))
+                    {
+                        sub = (TvinciPricing.Subscription)(CachingManager.CachingManager.GetCachedData(sCacheKey));
+                        res[i] = sub;
+                    }
+                    else
+                    {
+                        subToIndexMapping.Add(subCode, i);
+                        subToCacheKeyMapping.Add(subCode, sCacheKey);
+                        subCodesToQueryPricing.Add(subCode);
+                    }
+
+                } // end for
+
+                // if we encountered un-cached subscriptions query pricing
+                if (subCodesToQueryPricing.Count > 0)
+                {
+                    using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
+                    {
+                        string pricingUrl = GetWSURL("pricing_ws");
+                        if (pricingUrl.Length > 0)
+                            m.Url = pricingUrl;
+                        Subscription[] pricingAnswer = m.GetSubscriptionsData(sWSUsername, sWSPassword, subCodesToQueryPricing.ToArray(), string.Empty, string.Empty, string.Empty);
+                        if (pricingAnswer != null && pricingAnswer.Length > 0)
+                        {
+                            // fill result array and cache pricing answer
+                            for (int i = 0; i < pricingAnswer.Length; i++)
+                            {
+                                Subscription s = pricingAnswer[i];
+                                if (s != null && subToIndexMapping.ContainsKey(s.m_SubscriptionCode))
+                                {
+                                    res[subToIndexMapping[s.m_SubscriptionCode]] = s;
+                                    CachingManager.CachingManager.SetCachedData(subToCacheKeyMapping[s.m_SubscriptionCode], s, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+            }
+
+            return res;
+        }
+
+        // bulk version of Bundle_DoesCreditNeedToDownloaded
+        internal static void DoBundlesCreditNeedToBeDownloaded(List<string> lstSubCodes, List<string> lstColCodes,
+            int nMediaFileID, int nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword,
+            ref Dictionary<string, bool> subsRes, ref Dictionary<string, bool> collsRes)
+        {
+            Subscription[] subs = null;
+            Collection[] colls = null;
+            if (lstSubCodes != null && lstSubCodes.Count > 0)
+            {
+                subs = GetSubscriptiosDataWithCaching(lstSubCodes, sPricingUsername, sPricingPassword, nGroupID);
+            }
+            if (lstColCodes != null && lstColCodes.Count > 0)
+            {
+                colls = GetCollectionsDataWithCaching(lstColCodes, sPricingUsername, sPricingPassword, nGroupID);
+            }
+        }
+
         internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, string sSiteGUID, int mediaFileID, int groupID, eBundleType bundleType)
         {
             bool bIsSub = true;
@@ -455,6 +597,36 @@ namespace ConditionalAccess
             return nIsCreditDownloaded;
         }
 
+        private static void FillCatalogSignature(WS_Catalog.BaseRequest request)
+        {
+            request.m_sSignString = Guid.NewGuid().ToString();
+            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, GetWSURL("CatalogSignatureKey"));
+        }
+
+        private static WS_Catalog.BundlesContainingMediaRequest InitializeCatalogRequest(int nGroupID, int nMediaID,
+            List<int> lstDistinctSubs, List<int> lstDistinctColls)
+        {
+            WS_Catalog.BundlesContainingMediaRequest request = new WS_Catalog.BundlesContainingMediaRequest();
+            request.m_nGroupID = nGroupID;
+            request.m_nMediaID = nMediaID;
+            request.m_oFilter = new WS_Catalog.Filter();
+            FillCatalogSignature(request);
+            int sizeOfArr = lstDistinctSubs.Count + lstDistinctColls.Count, i = 0;
+            request.m_oBundles = new WS_Catalog.BundleKeyValue[sizeOfArr];
+            for (i = 0; i < lstDistinctSubs.Count; i++)
+            {
+                request.m_oBundles[i] = new WS_Catalog.BundleKeyValue() { m_nBundleCode = lstDistinctSubs[i], m_eBundleType = WS_Catalog.CatalogBundleType.SUBSCRIPTION };
+            }
+            for (int j = 0; j < lstDistinctColls.Count; j++)
+            {
+                request.m_oBundles[j + i] = new WS_Catalog.BundleKeyValue() { m_nBundleCode = lstDistinctColls[j], m_eBundleType = WS_Catalog.CatalogBundleType.COLLECTION };
+            }
+
+            return request;
+        }
+
+
+        // pass by reference list of subscription and list of collections
         internal static bool GetUserValidBundlesFromListNew(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
             int[] nFileTypes, List<int> lstUserIDs)
         {
@@ -462,8 +634,14 @@ namespace ConditionalAccess
             DataSet ds = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs(lstUserIDs, nFileTypes != null && nFileTypes.Length > 0 ? nFileTypes.ToList<int>() : new List<int>(0));
             if (IsBundlesDataSetValid(ds))
             {
+                // the subscriptions and collections we add to those list will be sent to the Catalog in order to determine whether the media
+                // given as input belongs to it.
+                List<int> subsToSendToCatalog = new List<int>();
+                List<int> collsToSendToCatalog = new List<int>();
+
                 // iterate over subscriptions
                 DataTable subs = ds.Tables[0];
+
                 if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
                 {
                     for (int i = 0; i < subs.Rows.Count; i++)
@@ -475,10 +653,20 @@ namespace ConditionalAccess
                         if (numOfUses == 0 || numOfUses < maxNumOfUses)
                         {
                             // add to Catalog's BundlesContainingMediaRequest
+                            int subCode = 0;
+                            if (Int32.TryParse(bundleCode, out subCode) && subCode > 0)
+                            {
+                                subsToSendToCatalog.Add(subCode);
+                            }
+                            else
+                            {
+                                // log
+                            }
                         }
                         else
                         {
                             // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
+                            //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
                         }
                     }
                 }
@@ -496,13 +684,35 @@ namespace ConditionalAccess
                         if (numOfUses == 0 || numOfUses < maxNumOfUses)
                         {
                             // add to Catalog's BundlesContainingMediaRequest
+                            int collCode = 0;
+                            if (Int32.TryParse(bundleCode, out collCode) && collCode > 0)
+                            {
+                                collsToSendToCatalog.Add(collCode);
+                            }
+                            else
+                            {
+                                //log
+                            }
                         }
                         else
                         {
                             // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
+                            //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
+                            // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
                         }
                     }
                 }
+
+                // get distinct subs from subs list, same for collection
+                List<int> distinctSubs = subsToSendToCatalog.Distinct().ToList<int>();
+                List<int> distinctColls = collsToSendToCatalog.Distinct().ToList<int>();
+
+                List<int> validatedSubs = null;
+                List<int> validatedColls = null;
+
+                ValidateMediaContainedInBundles(nMediaID, nGroupID, distinctSubs, distinctColls, ref validatedSubs, ref validatedColls);
+
+                // get distinct colls from colls list
             }
             else
             {
@@ -511,6 +721,51 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private static void ValidateMediaContainedInBundles(int nMediaID, int nGroupID, List<int> distinctSubs, List<int> distinctColls,
+            ref List<int> subsRes, ref List<int> collsRes)
+        {
+            WS_Catalog.BundlesContainingMediaRequest request = InitializeCatalogRequest(nGroupID, nMediaID, distinctSubs, distinctColls);
+            WS_Catalog.IserviceClient client = null;
+
+            subsRes = new List<int>();
+            collsRes = new List<int>();
+            try
+            {
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+                WS_Catalog.BundlesContainingMediaResponse response = client.GetResponse(request) as WS_Catalog.BundlesContainingMediaResponse;
+                if (response != null && response.m_oBundles != null && response.m_oBundles.Length > 0)
+                {
+                    for (int i = 0; i < response.m_oBundles.Length; i++)
+                    {
+                        WS_Catalog.BundleTriple bt = response.m_oBundles[i];
+                        if (bt.m_bIsContained)
+                        {
+                            switch (bt.m_eBundleType)
+                            {
+                                case WS_Catalog.CatalogBundleType.SUBSCRIPTION:
+                                    subsRes.Add(bt.m_nBundleCode);
+                                    break;
+                                case WS_Catalog.CatalogBundleType.COLLECTION:
+                                    collsRes.Add(bt.m_nBundleCode);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
         }
 
         private static void GetBundlePurchaseData(DataRow dr, string codeColumnName, ref int numOfUses, ref int maxNumOfUses, 
