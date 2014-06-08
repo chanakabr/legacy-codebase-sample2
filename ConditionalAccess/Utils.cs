@@ -517,6 +517,7 @@ namespace ConditionalAccess
             {
                 colls = GetCollectionsDataWithCaching(lstColCodes, sPricingUsername, sPricingPassword, nGroupID);
             }
+
         }
 
         internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, string sSiteGUID, int mediaFileID, int groupID, eBundleType bundleType)
