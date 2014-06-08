@@ -288,7 +288,15 @@ namespace M1BL
                     int nBillingTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowPPV["BillingTransactionID"]);
                     string sChargedNumber = ODBCWrapper.Utils.GetSafeStr(rowPPV["charged_mobile_number"]);
                     //string sFormattedChargedNumber = m_sSubscriptionBodyChargedNumberPrefix + sChargedNumber;
-                    DateTime dCallDateTime = ODBCWrapper.Utils.GetDateSafeVal(rowPPV["create_date"]); 
+
+                    DateTime dCallDateTime = ODBCWrapper.Utils.GetDateSafeVal(rowPPV["create_date"]);
+                    string sGMTOffset = GetTcmConfigValue(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
+                    if (!string.IsNullOrEmpty(sGMTOffset))
+                    {
+                        int hoursOffset = int.Parse(sGMTOffset);
+                        dCallDateTime = dCallDateTime.AddHours(hoursOffset);
+                    }
+
                     string sServiceDescription =   ODBCWrapper.Utils.GetSafeStr(rowPPV["item_description"]);
                     double nPrice = ODBCWrapper.Utils.GetDoubleSafeVal(rowPPV["price"]);
                     nPrice = nPrice / (1 + (m_dGst / 100));
@@ -358,6 +366,15 @@ namespace M1BL
                     string sServiceDescription = Regex.Replace(ODBCWrapper.Utils.GetSafeStr(rowSubscription["item_description"]), "[^A-Za-z0-9 - + ( )]", ""); 
                     DateTime dSubscriptionStartDate  = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["item_start_date"]);
                     DateTime dSubscriptionEndDate = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["item_end_date"]);
+
+                    string sGMTOffset = GetTcmConfigValue(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
+                    if (!string.IsNullOrEmpty(sGMTOffset))
+                    {
+                        int hoursOffset = int.Parse(sGMTOffset);
+                        dSubscriptionStartDate = dSubscriptionStartDate.AddHours(hoursOffset);
+                        dSubscriptionEndDate = dSubscriptionEndDate.AddHours(hoursOffset);
+                    }
+                    
                     double nPrice = ODBCWrapper.Utils.GetDoubleSafeVal(rowSubscription["price"]);
                     nPrice = nPrice / (1 +  (m_dGst / 100));
 
@@ -574,6 +591,21 @@ namespace M1BL
             public const int TRAILER_TAPE_SEQUENCE_NUMBER = 4;  
             public const int TRAILER_TOTAL_RECORDS = 8; 
             public const int TRAILER_TOTAL_PRICE = 12;        
+        }
+
+        private string GetTcmConfigValue(string sKey)
+        {
+            string result = string.Empty;
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
+            }
+            catch (Exception ex)
+            {
+                result = string.Empty;
+                Logger.Logger.Log("M1FilesManager", "Key=" + sKey + "," + ex.Message, "Tcm");
+            }
+            return result;
         }
     
     }
