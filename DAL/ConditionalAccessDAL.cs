@@ -1375,5 +1375,61 @@ namespace DAL
 
             return sp.ExecuteDataSet();
         }
+
+        public static bool Get_LatestCreateDateOfBundlesUses(List<string> subscriptionsIDs, List<string> collectionsIDs,
+            List<string> domainUserIDs, long mediaFileID, int nGroupID, ref Dictionary<string, DateTime> subsToCreateDateMapping,
+            ref Dictionary<string, DateTime> colsToCreateDateMapping, ref DateTime dateNowDBTime)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_LatestCreateDateOfBundlesUses");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@Subscriptions", subscriptionsIDs, "ID");
+            sp.AddIDListParameter("@Collections", collectionsIDs, "ID");
+            sp.AddIDListParameter("@DomainUserIDs", domainUserIDs, "ID");
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@GroupID", nGroupID);
+
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 2)
+                {
+                    res = true;
+                    subsToCreateDateMapping = new Dictionary<string, DateTime>();
+                    colsToCreateDateMapping = new Dictionary<string, DateTime>();
+
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        string bundleCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["BUNDLE_CODE"]);
+                        if (bundleCode.Length > 0)
+                        {
+                            DateTime latestCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["LATEST_CREATE_DATE"]);
+                            bool isSub = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["BUNDLE_TYPE"]) == 0;
+                            if (isSub)
+                            {
+                                subsToCreateDateMapping.Add(bundleCode, latestCreateDate);
+                            }
+                            else
+                            {
+                                colsToCreateDateMapping.Add(bundleCode, latestCreateDate);
+                            }
+                        }
+                        
+                    } // end for
+                }
+
+                DataTable dbTime = ds.Tables[1];
+                if (dbTime != null && dbTime.Rows != null && dbTime.Rows.Count > 0)
+                {
+                    dateNowDBTime = ODBCWrapper.Utils.GetDateSafeVal(dbTime.Rows[0]["DATE_NOW"]);
+                }
+                if (dateNowDBTime.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
+                    dateNowDBTime = DateTime.UtcNow;
+            }
+
+            return res;
+        }
     }
 }

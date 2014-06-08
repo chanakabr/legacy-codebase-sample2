@@ -502,6 +502,57 @@ namespace ConditionalAccess
             return res;
         }
 
+        private static List<string> GetSubCodesForDBQuery(Subscription[] subs)
+        {
+            List<string> res = new List<string>();
+            if (subs != null && subs.Length > 0)
+            {
+                for (int i = 0; i < subs.Length; i++)
+                {
+                    if (subs[i] != null)
+                    {
+                        res.Add(subs[i].m_SubscriptionCode);
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        private static List<string> GetColCodesForDBQuery(Collection[] colls)
+        {
+            List<string> res = new List<string>();
+            if (colls != null && colls.Length > 0)
+            {
+                for (int i = 0; i < colls.Length; i++)
+                {
+                    if (colls[i] != null)
+                    {
+                        res.Add(colls[i].m_CollectionCode);
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        private static Dictionary<string, bool> InitializeCreditDownloadedDict(List<string> lst)
+        {
+            Dictionary<string, bool> res = new Dictionary<string, bool>();
+            if (lst != null && lst.Count > 0)
+            {
+                for (int i = 0; i < lst.Count; i++)
+                {
+                    if (!res.ContainsKey(lst[i]))
+                    {
+                        res.Add(lst[i], true);
+                    }
+                }
+            }
+
+            return res;
+        }
+
         // bulk version of Bundle_DoesCreditNeedToDownloaded
         internal static void DoBundlesCreditNeedToBeDownloaded(List<string> lstSubCodes, List<string> lstColCodes,
             int nMediaFileID, int nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword,
@@ -509,6 +560,10 @@ namespace ConditionalAccess
         {
             Subscription[] subs = null;
             Collection[] colls = null;
+
+            subsRes = InitializeCreditDownloadedDict(lstSubCodes);
+            collsRes = InitializeCreditDownloadedDict(lstColCodes);
+
             if (lstSubCodes != null && lstSubCodes.Count > 0)
             {
                 subs = GetSubscriptiosDataWithCaching(lstSubCodes, sPricingUsername, sPricingPassword, nGroupID);
@@ -518,6 +573,64 @@ namespace ConditionalAccess
                 colls = GetCollectionsDataWithCaching(lstColCodes, sPricingUsername, sPricingPassword, nGroupID);
             }
 
+            Dictionary<string, DateTime> subsToCreateDateMapping = null;
+            Dictionary<string, DateTime> colsToCreateDateMapping = null;
+            DateTime dbTimeNow = ODBCWrapper.Utils.FICTIVE_DATE;
+            List<string> subsLst = GetSubCodesForDBQuery(subs);
+            List<string> colsLst = GetColCodesForDBQuery(colls);
+            List<string> domainUsers = allUsersInDomain.Select(item => item.ToString()).ToList<string>();
+            if (ConditionalAccessDAL.Get_LatestCreateDateOfBundlesUses(subsLst, colsLst, domainUsers, nMediaFileID, nGroupID,
+                ref subsToCreateDateMapping, ref colsToCreateDateMapping, ref dbTimeNow))
+            {
+                if (subs != null && subs.Length > 0)
+                {
+                    for (int i = 0; i < subs.Length; i++)
+                    {
+                        if (subs[i] != null && subsToCreateDateMapping.ContainsKey(subs[i].m_SubscriptionCode))
+                        {
+                            subsRes[subs[i].m_SubscriptionCode] = CalcIsCreditNeedToBeDownloadedForSub(dbTimeNow, subsToCreateDateMapping[subs[i].m_SubscriptionCode], subs[i]);
+                        }
+                    }
+                }
+
+                if (colls != null && colls.Length > 0)
+                {
+                    for (int i = 0; i < colls.Length; i++)
+                    {
+                        if (colls[i] != null && colsToCreateDateMapping.ContainsKey(colls[i].m_CollectionCode))
+                        {
+                            collsRes[colls[i].m_CollectionCode] = CalcIsCreditNeedToBeDownloadedForCol(dbTimeNow, colsToCreateDateMapping[colls[i].m_CollectionCode], colls[i]);
+                        }
+                    }
+                }
+            }
+
+        }
+
+        private static bool CalcIsCreditNeedToBeDownloadedForSub(DateTime dbTimeNow, DateTime lastCreateDate, Subscription s)
+        {
+            bool res = true;
+            if (s.m_oSubscriptionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE) 
+                && !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE) 
+                && (dbTimeNow - lastCreateDate).TotalMinutes < s.m_oSubscriptionUsageModule.m_tsViewLifeCycle)
+            {
+                res = false;
+            }
+
+            return res;
+        }
+
+        private static bool CalcIsCreditNeedToBeDownloadedForCol(DateTime dbTimeNow, DateTime lastCreateDate, Collection c)
+        {
+            bool res = true;
+            if (c.m_oCollectionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE) &&
+                !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
+                && (dbTimeNow - lastCreateDate).TotalMinutes < c.m_oCollectionUsageModule.m_tsViewLifeCycle)
+            {
+                res = false;
+            }
+
+            return res;
         }
 
         internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, string sSiteGUID, int mediaFileID, int groupID, eBundleType bundleType)
@@ -629,7 +742,7 @@ namespace ConditionalAccess
 
         // pass by reference list of subscription and list of collections
         internal static bool GetUserValidBundlesFromListNew(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
-            int[] nFileTypes, List<int> lstUserIDs)
+            int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword)
         {
             bool res = false;
             DataSet ds = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs(lstUserIDs, nFileTypes != null && nFileTypes.Length > 0 ? nFileTypes.ToList<int>() : new List<int>(0));
@@ -639,6 +752,9 @@ namespace ConditionalAccess
                 // given as input belongs to it.
                 List<int> subsToSendToCatalog = new List<int>();
                 List<int> collsToSendToCatalog = new List<int>();
+
+                List<string> subsToBundleCreditDownloadedQuery = new List<string>();
+                List<string> colsToBundleCreditDownloadedQuery = new List<string>();
 
                 // iterate over subscriptions
                 DataTable subs = ds.Tables[0];
@@ -668,6 +784,7 @@ namespace ConditionalAccess
                         {
                             // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
                             //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
+                            subsToBundleCreditDownloadedQuery.Add(bundleCode);
                         }
                     }
                 }
@@ -697,12 +814,17 @@ namespace ConditionalAccess
                         }
                         else
                         {
+                            colsToBundleCreditDownloadedQuery.Add(bundleCode);
                             // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
                             //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
                             // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
                         }
                     }
                 }
+
+                HandleBundleCreditNeedToDownloadedQuery(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery,
+                    nMediaFileID, nGroupID, lstUserIDs, sPricingUsername, sPricingPassword, ref subsToSendToCatalog,
+                    ref collsToSendToCatalog);
 
                 // get distinct subs from subs list, same for collection
                 List<int> distinctSubs = subsToSendToCatalog.Distinct().ToList<int>();
@@ -713,6 +835,9 @@ namespace ConditionalAccess
 
                 ValidateMediaContainedInBundles(nMediaID, nGroupID, distinctSubs, distinctColls, ref validatedSubs, ref validatedColls);
 
+                // now validate bulk collections - PPV_CreditNeedToDownloadedUsingCollection
+
+
                 // get distinct colls from colls list
             }
             else
@@ -722,6 +847,43 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private static void HandleBundleCreditNeedToDownloadedQuery(List<string> subsToBundleCreditDownloadedQuery,
+            List<string> colsToBundleCreditDownloadedQuery, int nMediaFileID, int nGroupID, List<int> lstUserIDs,
+            string sPricingUsername, string sPricingPassword, ref List<int> subsToSendToCatalog,
+            ref List<int> collsToSendToCatalog)
+        {
+            if (subsToBundleCreditDownloadedQuery.Count > 0 || colsToBundleCreditDownloadedQuery.Count > 0)
+            {
+                Dictionary<string, bool> subsRes = null;
+                Dictionary<string, bool> colsRes = null;
+                DoBundlesCreditNeedToBeDownloaded(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery, nMediaFileID,
+                    nGroupID, lstUserIDs, sPricingUsername, sPricingPassword, ref subsRes, ref colsRes);
+                if (subsRes.Count > 0)
+                {
+                    foreach (KeyValuePair<string, bool> kvp in subsRes)
+                    {
+                        int temp = 0;
+                        if (!kvp.Value && Int32.TryParse(kvp.Key, out temp) && temp > 0)
+                        {
+
+                            subsToSendToCatalog.Add(temp);
+                        }
+                    }
+                }
+                if (colsRes.Count > 0)
+                {
+                    foreach (KeyValuePair<string, bool> kvp in colsRes)
+                    {
+                        int temp = 0;
+                        if (!kvp.Value && Int32.TryParse(kvp.Key, out temp) && temp > 0)
+                        {
+                            collsToSendToCatalog.Add(temp);
+                        }
+                    }
+                }
+            }
         }
 
         private static void ValidateMediaContainedInBundles(int nMediaID, int nGroupID, List<int> distinctSubs, List<int> distinctColls,
