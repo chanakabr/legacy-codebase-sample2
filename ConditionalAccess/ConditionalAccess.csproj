@@ -63,6 +63,7 @@
     </Reference>
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Services" />
@@ -86,6 +87,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PermittedCollectionContainer.cs" />
+    <Compile Include="Service References\WS_Catalog\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="UserBillingTransactionResponse.cs" />
     <Compile Include="Eutelsat3SSObjects.cs" />
     <Compile Include="EutelsatConditionalAccess.cs" />
@@ -163,6 +169,41 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.BaseResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.EpgProgramResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.MediaResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.Response.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WS_Catalog\Service.wsdl" />
+    <None Include="Service References\WS_Catalog\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service1.wsdl" />
+    <None Include="Service References\WS_Catalog\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service6.xsd">
+      <SubType>Designer</SubType>
     </None>
     <None Include="Web References\NotificationService\ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1KeyValueOfstringArrayOfstringty7Ep6D1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -556,6 +597,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\TvinciAPI\api.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\WS_Catalog\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
