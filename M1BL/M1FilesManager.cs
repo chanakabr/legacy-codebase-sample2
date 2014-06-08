@@ -288,7 +288,7 @@ namespace M1BL
                     int nBillingTransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowPPV["BillingTransactionID"]);
                     string sChargedNumber = ODBCWrapper.Utils.GetSafeStr(rowPPV["charged_mobile_number"]);
                     //string sFormattedChargedNumber = m_sSubscriptionBodyChargedNumberPrefix + sChargedNumber;
-                    
+
                     DateTime dCallDateTime = ODBCWrapper.Utils.GetDateSafeVal(rowPPV["create_date"]);
                     string sGMTOffset = GetTcmConfigValue(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
                     if (!string.IsNullOrEmpty(sGMTOffset))
