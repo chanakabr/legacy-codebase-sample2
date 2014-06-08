@@ -37,8 +37,8 @@ namespace Users
             {
                 domain.m_DomainStatus = DomainStatus.Error;
                 oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-            }
-
+                return oDomainResponseObject;
+            }                
 
             //Check if CoGuid already exists
             int nDomainID = DomainDal.GetDomainIDByCoGuid(sCoGuid);
