@@ -318,6 +318,30 @@ namespace ConditionalAccess
             return nRet;
         }
 
+        internal static Dictionary<int, bool> PPVBulkDoCreditNeedToDownloadedUsingCollections(int nGroupID, int nMediaFileID,
+            List<int> lstAllUsersInDomain, List<int> lstCollectionCodes)
+        {
+            Dictionary<int, bool> res = new Dictionary<int, bool>();
+            if (lstCollectionCodes != null && lstCollectionCodes.Count > 0)
+            {
+                InitializePPVBulkDoCreditNeedDownloadedDictionary(ref res, lstCollectionCodes);
+
+            }
+
+            return res;
+        }
+
+        private static void InitializePPVBulkDoCreditNeedDownloadedDictionary(ref Dictionary<int, bool> dict, List<int> lstCollectionCodes)
+        {
+            for (int i = 0; i < lstCollectionCodes.Count; i++)
+            {
+                if (!dict.ContainsKey(lstCollectionCodes[i]))
+                {
+                    dict.Add(lstCollectionCodes[i], true);
+                }
+            }
+        }
+
         /// <summary>
         /// PPV Does Credit Need To Downloaded
         /// </summary>
@@ -378,10 +402,10 @@ namespace ConditionalAccess
         }
 
         // pass string or numeric as T
-        internal static TvinciPricing.Collection[] GetCollectionsDataWithCaching<T>(List<T> lstCollsCodes, string sWSUsername, string sWSPassword, int nGroupID) where T: IComparable, IComparable<T>, IEquatable<T>, IConvertible 
+        internal static TvinciPricing.Collection[] GetCollectionsDataWithCaching<T>(List<T> lstCollsCodes, string sWSUsername, string sWSPassword, int nGroupID) where T : IComparable, IComparable<T>, IEquatable<T>, IConvertible
         {
             Collection[] res = null;
-            if(lstCollsCodes != null && lstCollsCodes.Count > 0) 
+            if (lstCollsCodes != null && lstCollsCodes.Count > 0)
             {
                 List<T> distinctLstCollsCodes = lstCollsCodes.Distinct().ToList<T>();
 
@@ -439,7 +463,7 @@ namespace ConditionalAccess
         }
 
         // pass either list of string or list of numerics.
-        internal static TvinciPricing.Subscription[] GetSubscriptiosDataWithCaching<T>(List<T> lstSubsCodes, string sWSUsername, string sWSPassword, int nGroupID) where T: IComparable, IComparable<T>, IEquatable<T>, IConvertible
+        internal static TvinciPricing.Subscription[] GetSubscriptiosDataWithCaching<T>(List<T> lstSubsCodes, string sWSUsername, string sWSPassword, int nGroupID) where T : IComparable, IComparable<T>, IEquatable<T>, IConvertible
         {
             Subscription[] res = null;
             if (lstSubsCodes != null && lstSubsCodes.Count > 0)
@@ -610,8 +634,8 @@ namespace ConditionalAccess
         private static bool CalcIsCreditNeedToBeDownloadedForSub(DateTime dbTimeNow, DateTime lastCreateDate, Subscription s)
         {
             bool res = true;
-            if (s.m_oSubscriptionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE) 
-                && !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE) 
+            if (s.m_oSubscriptionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
+                && !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
                 && (dbTimeNow - lastCreateDate).TotalMinutes < s.m_oSubscriptionUsageModule.m_tsViewLifeCycle)
             {
                 res = false;
@@ -931,8 +955,8 @@ namespace ConditionalAccess
             }
         }
 
-        private static void GetBundlePurchaseData(DataRow dr, string codeColumnName, ref int numOfUses, ref int maxNumOfUses, 
-            ref string bundleCode) 
+        private static void GetBundlePurchaseData(DataRow dr, string codeColumnName, ref int numOfUses, ref int maxNumOfUses,
+            ref string bundleCode)
         {
             numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["NUM_OF_USES"]);
             maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["MAX_NUM_OF_USES"]);
@@ -972,6 +996,8 @@ namespace ConditionalAccess
                             dt = ConditionalAccessDAL.Get_AllCollectionInfoByUsersIDs(lUsersIds);
                             break;
                         }
+                    default:
+                        break;
                 }
 
 
