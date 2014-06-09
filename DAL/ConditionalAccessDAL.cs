@@ -1432,5 +1432,82 @@ namespace DAL
             return res;
         }
 
+        public static bool Get_AllDomainsPPVUsesUsingCollections(List<int> lstDomainUsers,
+            int nGroupID, int nMediaFileID, List<int> lstCollections, ref DateTime dbTimeNow, ref Dictionary<int, DateTime> initializedDictCollectionUses)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_AllDomainsPPVUsesUsingCollections");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@Users", lstDomainUsers, "ID");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@MediaFileID", nMediaFileID);
+            sp.AddIDListParameter("@Collections", lstCollections, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            {
+                res = true;
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        int collectionID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["rel_box_set"]);
+                        DateTime latestCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["LATEST_CREATE_DATE"]);
+                        if (!initializedDictCollectionUses.ContainsKey(collectionID) && !latestCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
+                        {
+                            initializedDictCollectionUses.Add(collectionID, latestCreateDate);
+                        }
+                    }
+                }
+
+                DataTable dtTimeTable = ds.Tables[1];
+                if (dtTimeTable != null && dtTimeTable.Rows != null && dtTimeTable.Rows.Count > 0)
+                {
+                    dbTimeNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["DATE_NOW"]);
+                }
+                if (dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
+                {
+                    dbTimeNow = DateTime.UtcNow;
+                }
+            }
+
+            return res;
+
+        }
+
+        public static Dictionary<string, string[]> Get_MultipleWSCredentials(int groupID, List<string> services)
+        {
+            Dictionary<string, string[]> res = new Dictionary<string, string[]>();
+            for (int i = 0; i < services.Count; i++)
+            {
+                if (!res.ContainsKey(services[i]))
+                {
+                    res.Add(services[i], new string[2] { string.Empty, string.Empty });
+                }
+            }
+            StoredProcedure sp = new StoredProcedure("Get_MultipleWSCredentials");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@Services", services, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        string serviceName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ws_name"]).Trim().ToLower();
+                        string serviceUser = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["username"]);
+                        string servicePass = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["password"]);
+                    }
+                }
+            }
+
+            return res;
+        }
+
     }
 }
