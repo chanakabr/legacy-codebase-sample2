@@ -269,16 +269,16 @@ namespace ConditionalAccess
             TvinciAPI.MeidaMaper[] mapper = null;
             try
             {
-                m = new ConditionalAccess.TvinciAPI.API();
-                string sWSUrl = GetWSURL("api_ws");
-                if (sWSUrl.Length > 0)
-                    m.Url = sWSUrl;
                 string nMediaFilesIDsToCache = ConvertArrayIntToStr(nMediaFilesIDs);
                 string sCacheKey = Utils.GetCachingManagerKey("MapMediaFiles", nMediaFilesIDsToCache, nGroupID);
                 if (CachingManager.CachingManager.Exist(sCacheKey))
                     mapper = (TvinciAPI.MeidaMaper[])(CachingManager.CachingManager.GetCachedData(sCacheKey));
                 else
                 {
+                    m = new ConditionalAccess.TvinciAPI.API();
+                    string sWSUrl = GetWSURL("api_ws");
+                    if (sWSUrl.Length > 0)
+                        m.Url = sWSUrl;
 
                     if (string.IsNullOrEmpty(sAPIUsername) || string.IsNullOrEmpty(sAPIPassword))
                     {

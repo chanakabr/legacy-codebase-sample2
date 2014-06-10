@@ -38,7 +38,7 @@ namespace Catalog
             cols = new List<int>();
             for (int i = 0; i < request.m_oBundles.Length; i++)
             {
-                if (m_oBundles[i].m_eBundleType == CatalogBundleType.SUBSCRIPTION)
+                if (request.m_oBundles[i].m_eBundleType == CatalogBundleType.SUBSCRIPTION)
                 {
                     subs.Add(request.m_oBundles[i].m_nBundleCode);
                 }
@@ -122,7 +122,7 @@ namespace Catalog
 
                 response = new BundlesContainingMediaResponse(request.m_oBundles);
 
-                List<int> channelsOfMedia = searcher.GetMediaChannels(m_nGroupID, m_nMediaID);
+                List<int> channelsOfMedia = searcher.GetMediaChannels(request.m_nGroupID, request.m_nMediaID);
 
                 FillResponse(channelsOfMedia, channelsToSubsMapping, channelsToColsMapping, ref response);
 
