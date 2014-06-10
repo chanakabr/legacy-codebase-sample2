@@ -963,7 +963,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    programs = new EPGSearchContentLoader(groupID, SiteHelper.GetClientIP(), pageSize, pageIndex, text)
+                    programs = new APIEPGSearchContentLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, text, initObj.Locale.LocaleLanguage)
                     {
                         SiteGuid = initObj.SiteGuid,
                     }.Execute() as List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>;
@@ -2319,7 +2319,7 @@ namespace TVPApiServices
                     
                     List<int> channelIDs = new List<int>() { int.Parse(channelID) };
 
-                    EPGLoader loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, fromDate, toDate, 0, 0);
+                    APIEPGLoader loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, fromDate, toDate, 0, 0, initObj.Locale.LocaleLanguage);
                     
                     loader.DeviceId = initObj.UDID;
                     loader.SiteGuid = initObj.SiteGuid;
@@ -2351,23 +2351,23 @@ namespace TVPApiServices
             {
                 try
                 {
-                    EPGLoader loader;
+                    APIEPGLoader loader;
                     List<int> channelIDs = new List<int>() { int.Parse(sEPGChannelID) };
                     DateTime _offsetNow = DateTime.UtcNow.AddHours(iUTCOffSet);
                     switch (oUnit)
                     {
                         case EPGUnit.Days:
                             DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0), to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0);
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(iFromOffset), to.AddDays(iToOffset), 0, 0);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(iFromOffset), to.AddDays(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
                             break;
                         case EPGUnit.Hours:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
                             break;
                         case EPGUnit.Current:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset, initObj.Locale.LocaleLanguage);
                             break;
                         default:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset, initObj.Locale.LocaleLanguage);
                             break;
                     }
 
@@ -2402,23 +2402,23 @@ namespace TVPApiServices
             {
                 try
                 {
-                    EPGLoader loader;
+                    APIEPGLoader loader;
                     List<int> channelIDs = sEPGChannelID.Select(c => int.Parse(c)).ToList();
                     DateTime _offsetNow = DateTime.UtcNow.AddHours(iUTCOffSet);
                     switch (oUnit)
                     {
                         case EPGUnit.Days:
                             DateTime from = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0), to = new DateTime(_offsetNow.Year, _offsetNow.Month, _offsetNow.Day, 0, 0, 0);
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(iFromOffset), to.AddDays(iToOffset), 0, 0);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, from.AddDays(-iFromOffset), to.AddDays(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
                             break;
                         case EPGUnit.Hours:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.ByDate, _offsetNow.AddHours(iFromOffset), _offsetNow.AddHours(iToOffset), 0, 0, initObj.Locale.LocaleLanguage);
                             break;
                         case EPGUnit.Current:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset, initObj.Locale.LocaleLanguage);
                             break;
                         default:
-                            loader = new EPGLoader(groupId, SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset);
+                            loader = new APIEPGLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), 0, 0, channelIDs, EpgSearchType.Current, _offsetNow, _offsetNow, iFromOffset, iToOffset, initObj.Locale.LocaleLanguage);
                             break;
                     }
 
@@ -2874,7 +2874,10 @@ namespace TVPApiServices
                 try
                 {
                     Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = orderDir, m_eOrderBy = orderBy };
-                    APIBundleMediaLoader loader = new APIBundleMediaLoader(bundleId, mediaType, orderObj, groupID, groupID, initObj.Platform.ToString(), clientIp, string.Empty, pageIndex, pageSize, bundleType);
+                    APIBundleMediaLoader loader = new APIBundleMediaLoader(bundleId, mediaType, orderObj, groupID, groupID, initObj.Platform.ToString(), clientIp, string.Empty, pageIndex, pageSize, bundleType)
+                        {
+                            Culture = initObj.Locale.LocaleLanguage
+                        };
                     dsItemInfo returnedRows = loader.Execute() as dsItemInfo;
                     if (returnedRows != null && returnedRows.Tables != null && returnedRows.Tables[0].Rows != null && returnedRows.Tables[0].Rows.Count > 0)
                     {

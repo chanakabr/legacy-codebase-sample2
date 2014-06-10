@@ -80,6 +80,8 @@
     <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelsListsLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGAutoCompleteLoader.cs" />
+    <Compile Include="CatalogLoaders\APIEPGLoader.cs" />
+    <Compile Include="CatalogLoaders\APIEPGSearchContentLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGSearchLoader.cs" />
     <Compile Include="CatalogLoaders\APIMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIPeopleWhoLikedLoader.cs" />

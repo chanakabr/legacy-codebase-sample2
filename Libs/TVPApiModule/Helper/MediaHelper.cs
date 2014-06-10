@@ -237,7 +237,8 @@ namespace TVPApi
                 OrderMetaMame = orderMeta, 
                 OrderBy = orderBy, 
                 OrderDir = orderDir ,
-                SiteGuid = initObj.SiteGuid
+                SiteGuid = initObj.SiteGuid,
+                Culture = initObj.Locale.LocaleLanguage
             };
 
             //Removed 30/12/2013. Using orderBy and orderDir and orderMeta from request.
@@ -308,7 +309,23 @@ namespace TVPApi
             dictMetas.Add("Base ID", sSubID);
 
             //Remote paging
-            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) { SearchTokenSignature = sSubID, GroupID = groupID, Platform = initObj.Platform, dictMetas = dictMetas, WithInfo = true, PageSize = arrValues.Length, PictureSize = picSize, PageIndex = 0, OrderBy = (OrderBy)orderBy, MetaValues = sSubID, UseFinalEndDate = "true", DeviceUDID = initObj.UDID, Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), Language = initObj.Locale.LocaleLanguage, SiteGuid = initObj.SiteGuid };
+            APISearchLoader searchLoader = new APISearchLoader(account.TVMUser, account.TVMPass) 
+            { 
+                SearchTokenSignature = sSubID, 
+                GroupID = groupID, 
+                Platform = initObj.Platform, 
+                dictMetas = dictMetas, 
+                WithInfo = true, 
+                PageSize = arrValues.Length, 
+                PictureSize = picSize, 
+                PageIndex = 0, 
+                OrderBy = (OrderBy)orderBy, 
+                MetaValues = sSubID, 
+                UseFinalEndDate = "true", 
+                DeviceUDID = initObj.UDID, 
+                Country = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IpToCountry(TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()), 
+                Language = initObj.Locale.LocaleLanguage, 
+                SiteGuid = initObj.SiteGuid };
             dsItemInfo mediaInfo = searchLoader.Execute();
             long mediaCount = 0;
             searchLoader.TryGetItemsCount(out mediaCount);
