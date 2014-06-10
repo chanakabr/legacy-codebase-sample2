@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Data;
 using System.Configuration;
+using System.Xml.Serialization;
 
 namespace ADIFeeder
 {
@@ -25,8 +26,9 @@ namespace ADIFeeder
             public string m_PostProviderID;
             public string m_Breakpoints;
             public string m_Overlaypoints;
+            public string m_ProductCode;
 
-            public FileStruct(string id, string url, string duration, string CDN, string preProviderID, string breakProviderID, string overlayProviderID, string postProviderID, string breakpoints, string overlaypoints)
+            public FileStruct(string id, string url, string duration, string CDN, string preProviderID, string breakProviderID, string overlayProviderID, string postProviderID, string breakpoints, string overlaypoints, string productCode)
             {
                 m_url = url;
                 m_id = id;
@@ -38,26 +40,27 @@ namespace ADIFeeder
                 m_PostProviderID = postProviderID;
                 m_Breakpoints = breakpoints;
                 m_Overlaypoints = overlaypoints;
+                m_ProductCode = productCode;
             }
         }
 
-        private Dictionary<string, string> m_basicsDict;
-        private Dictionary<string, string> m_stringMetaDict;
-        private Dictionary<string, string> m_numMetaDict;
-        private Dictionary<string, string> m_boolMetaDict;
-        private Dictionary<string, List<string>> m_tagsDict;
-        private Dictionary<string, FileStruct> m_filesDict;
-        private Dictionary<string, string> m_picRatios;
+        public Dictionary<string, string> m_basicsDict;
+        public Dictionary<string, string> m_stringMetaDict;
+        public Dictionary<string, string> m_numMetaDict;
+        public Dictionary<string, string> m_boolMetaDict;
+        public Dictionary<string, List<string>> m_tagsDict;
+        public Dictionary<string, FileStruct> m_filesDict;
+        public Dictionary<string, string> m_picRatios;
+        public List<string> m_virtualTags;
+        public List<string> m_regularTags;
 
-        private const string GEO_BLOCK_RULE_KEY = "Geo Block Rule";
-        private const string DEVICE_RULE_KEY = "Device Rule";
-
+        public const string GEO_BLOCK_RULE_KEY = "Geo Block Rule";
+        public const string DEVICE_RULE_KEY = "Device Rule";
 
         private string m_sResXml;
 
         private int m_nGroupID = 0;
         private string m_sXML;
-        List<object> mmm;
         public ADIFeeder(Int32 nTaskID, Int32 nIntervalInSec, string engrameters, int groupID)
             : base(nTaskID, nIntervalInSec, engrameters)
         {
@@ -70,392 +73,329 @@ namespace ADIFeeder
             return new ADIFeeder(nTaskID, nIntervalInSec, engrameters, groupID);
         }
 
-        private string getBoolStr(string sVal)
-        {
-            string retVal = "0";
-            if (sVal.ToLower().Equals("y"))
-            {
-                retVal = "1";
-            }
-            return retVal;
-        }
-
         private bool isCreateSeriesXML()
         {
-            bool retVal = false;
-            if (m_tagsDict != null && m_tagsDict.Count > 0)
-            {
-                if (m_tagsDict.ContainsKey("Series name"))
-                {
-                    if (!isSeriesExist(m_tagsDict["Series name"][0], 149))
-                    {
-                        if (m_numMetaDict != null && m_numMetaDict.ContainsKey("Episode number"))
-                        {
-                            int episodeNum = int.Parse(m_numMetaDict["Episode number"]);
-                            if (episodeNum == 1)
-                            {
-                                retVal = true;
-                                return retVal;
-                            }
-                        }
-                        if (m_boolMetaDict != null && m_boolMetaDict.ContainsKey("Season Premiere"))
-                        {
-                            int seasonPremiere = int.Parse(m_boolMetaDict["Season Premiere"]);
-                            if (seasonPremiere == 1)
-                            {
-                                retVal = true;
-                                return retVal;
-                            }
-                        }
-                    }
-                }
+            string sMediaType = GetMetaValue(m_basicsDict, "mediatype");
 
+            if (!sMediaType.ToLower().Equals("news") &&
+                !sMediaType.ToLower().Equals("education") &&
+                !sMediaType.ToLower().Equals("episode"))
+            {
+                return false;
             }
 
-            return retVal;
+            // check if series exist, if so, we don't have to create it again
+            if (!isSeriesExist(GetTagValueByIndex(m_tagsDict, "Series name", 0), 149))
+            {
+                // check if first episode or if it premiere, only in these cases we create media series
+                if (GetMetaValue(m_numMetaDict, "Episode number") == "1" || GetMetaValue(m_numMetaDict, "Season Premiere") == "1")
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-        private string BuildSeriesXML()
+        private string GetRegularMediaName()
         {
-            string retVal = string.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("<feed>");
-            sb.Append("<export>");
-            sb.Append("<media ");
-            if (m_basicsDict != null && m_basicsDict.Count > 0)
+            string sName = string.Empty;
+            if (m_nGroupID == 148)
             {
-                if (m_basicsDict.ContainsKey("co_guid"))
+                string sMediaType = GetMetaValue(m_basicsDict, "mediatype");
+
+                if (sMediaType.ToLower().Equals("episode"))
                 {
-                    if (m_basicsDict.ContainsKey("is_active"))
-                    {
-                        sb.AppendFormat(" co_guid=\"{0}\" action=\"insert\" is_active=\"{1}\" >", m_basicsDict["co_guid"], m_basicsDict["is_active"]);
-                    }
-                    else
-                    {
-                        sb.AppendFormat(" co_guid=\"{0}\" action=\"insert\" is_active=\"true\" >", m_basicsDict["co_guid"]);
-                    }  
+                    string seriesId = GetTagValueByIndex(m_tagsDict, "Series name", 0);
+                    string episodeID = GetMetaValue(m_numMetaDict, "episode id");
+
+                    sName = string.Format("{0} -  Episode  {1}", seriesId, episodeID);
                 }
-                sb.Append("<basic>");
-                if (m_basicsDict.ContainsKey("name"))
+                else if (sMediaType.ToLower().Equals("news") || sMediaType.ToLower().Equals("education"))
                 {
+                    string seriesId = GetTagValueByIndex(m_tagsDict, "Series name", 0);
+                    string episodeName = GetMetaValue(m_stringMetaDict, "Episode name");
 
-                    string seriesName = string.Empty;
-
-                    if (m_tagsDict != null && m_tagsDict.ContainsKey("Series name"))
-                    {
-                        seriesName = m_tagsDict["Series name"][0];
-                    }
-
-                    sb.AppendFormat("<name><value lang=\"eng\">{0}</value></name>", seriesName);
+                    sName = string.Format("{0} - {1}", seriesId, episodeName);
 
                 }
-                if (m_basicsDict.ContainsKey("description"))
+                else if (sMediaType.ToLower().Equals("extra"))
                 {
-                    sb.AppendFormat("<description><value lang=\"eng\">{0}</value></description>", m_basicsDict["description"]);
+                    sName = GetMetaValue(m_stringMetaDict, "Episode name");
                 }
-
-                sb.AppendFormat("<media_type>{0}</media_type>", "Series");
-
-
-                if (m_basicsDict.ContainsKey("thumb"))
+                else
                 {
-
-                    sb.AppendFormat("<thumb url=\"{0}\"/>", m_basicsDict["thumb"]);
-
+                    sName = GetMetaValue(m_basicsDict, "name");
                 }
-                sb.AppendFormat("<epg_identifier>0</epg_identifier>");
-                sb.Append("<rules>");
-                //sb.Append("<watch_per_rule></watch_per_rule>");
-                sb.Append("<watch_per_rule>Parent allowed</watch_per_rule>");
-                if(m_basicsDict.ContainsKey(DEVICE_RULE_KEY))
-                    sb.Append(String.Concat("<device_rule>", m_basicsDict[DEVICE_RULE_KEY], "</device_rule>"));
-                sb.Append("</rules>");
-
-
-                sb.Append("<dates>");
-                if (m_basicsDict.ContainsKey("start"))
-                {
-                    sb.AppendFormat("<start>{0}</start>", m_basicsDict["start"]); //parseDateTimeSTR(m_basicsDict["start"]));
-                }
-                if (m_basicsDict.ContainsKey("end"))
-                {
-                    sb.AppendFormat("<catalog_end>{0}</catalog_end>", m_basicsDict["end"]); //parseDateTimeSTR(m_basicsDict["end"]));
-                }
-                if (m_basicsDict.ContainsKey("final"))
-                {
-                    sb.AppendFormat("<final_end>{0}</final_end>", m_basicsDict["final"]); //parseDateTimeSTR(m_basicsDict["final"]));
-                }
-                sb.AppendFormat("</dates>");
-                if (m_picRatios != null && m_picRatios.Count > 0)
-                {
-                    sb.Append("<pic_ratios>");
-                    foreach (KeyValuePair<string, string> kvp in m_picRatios)
-                    {
-                        sb.AppendFormat("<ratio thumb=\"{0}\" ratio=\"{1}\" />", kvp.Value, kvp.Key);
-                    }
-                    sb.Append("</pic_ratios>");
-                }
-                sb.Append("</basic>");
 
             }
-            sb.Append("<structure>");
-            if (m_stringMetaDict != null && m_stringMetaDict.Count > 0)
+            else if (m_nGroupID == 149)
             {
-                sb.Append("<strings>");
-                foreach (KeyValuePair<string, string> kvp in m_stringMetaDict)
-                {
-                    sb.AppendFormat("<meta name=\"{0}\" ml_handling=\"duplicate\"><value lang=\"eng\">{1}</value></meta>", kvp.Key, kvp.Value);
-                }
-                sb.Append("</strings>");
+                sName = GetTagValueByIndex(m_tagsDict, "Series name", 0);
+                updateSeriesCoGuid(sName, GetMetaValue(m_basicsDict, "co_guid"), 149);
             }
-            if (m_boolMetaDict != null && m_boolMetaDict.Count > 0)
-            {
-                sb.Append("<booleans>");
-                foreach (KeyValuePair<string, string> kvp in m_boolMetaDict)
-                {
-                    sb.AppendFormat("<meta name=\"{0}\">{1}</meta>", kvp.Key, kvp.Value);
-                }
-                sb.Append("</booleans>");
-            }
-            if (m_numMetaDict != null && m_numMetaDict.Count > 0)
-            {
-                sb.Append("<doubles>");
-                foreach (KeyValuePair<string, string> kvp in m_numMetaDict)
-                {
-                    sb.AppendFormat("<meta name=\"{0}\">{1}</meta>", kvp.Key, kvp.Value);
-                }
-                sb.Append("</doubles>");
-            }
-            if (m_tagsDict != null && m_tagsDict.Count > 0)
-            {
-                sb.Append("<metas>");
-                foreach (KeyValuePair<string, List<string>> kvp in m_tagsDict)
-                {
-                    sb.AppendFormat("<meta name=\"{0}\" ml_handling=\"unique\">", kvp.Key);
-                    foreach (string value in kvp.Value)
-                    {
-                        sb.Append("<container>");
-                        sb.AppendFormat("<value lang=\"eng\">{0}</value>", value);
-                        sb.Append("</container>");
-                    }
-                    sb.Append("</meta>");
-                }
-                sb.Append("</metas>");
-            }
-            sb.Append("</structure>");
 
-            sb.Append("</media>");
-            sb.Append("</export>");
-            sb.Append("</feed>");
-
-            return sb.ToString();
+            return sName;
         }
 
-        private string BuildNormalizedXML()
+        private void InitTvinciXMLObject(ref ADIFeederXSD.feed CmediaFeed)
         {
-            string retVal = string.Empty;
-            StringBuilder sb = new StringBuilder();
-            StringBuilder seriesSB = new StringBuilder();
-            sb.Append("<feed>");
-            sb.Append("<export>");
-            sb.Append("<media ");
-            if (m_basicsDict != null && m_basicsDict.Count > 0)
-            {
-                if (m_basicsDict.ContainsKey("co_guid"))
-                {
-                    if (m_basicsDict.ContainsKey("is_active"))
-                    {
-                        sb.AppendFormat(" co_guid=\"{0}\" action=\"insert\" is_active=\"{1}\" >", m_basicsDict["co_guid"], m_basicsDict["is_active"]);
-                    }
-                    else
-                    {
-                        sb.AppendFormat(" co_guid=\"{0}\" action=\"insert\" is_active=\"true\" >", m_basicsDict["co_guid"]);
-                    }        
+            CmediaFeed.export = new ADIFeederXSD.feedExport();
+            CmediaFeed.export.media = new ADIFeederXSD.feedExportMedia();
+            CmediaFeed.export.media.basic = new ADIFeederXSD.feedExportMediaBasic();
+            CmediaFeed.export.media.basic.name = new ADIFeederXSD.feedExportMediaBasicName();
+            CmediaFeed.export.media.basic.name.value = new ADIFeederXSD.feedExportMediaBasicNameValue();
 
-                }
-                sb.Append("<basic>");
-                if (m_basicsDict.ContainsKey("name"))
+            CmediaFeed.export.media.basic.description = new ADIFeederXSD.feedExportMediaBasicDescription();
+            CmediaFeed.export.media.basic.description.value = new ADIFeederXSD.feedExportMediaBasicDescriptionValue();
+            CmediaFeed.export.media.basic.thumb = new ADIFeederXSD.feedExportMediaBasicThumb();
+            CmediaFeed.export.media.basic.rules = new ADIFeederXSD.feedExportMediaBasicRules();
+            CmediaFeed.export.media.basic.dates = new ADIFeederXSD.feedExportMediaBasicDates();
+            CmediaFeed.export.media.basic.pic_ratios = new ADIFeederXSD.feedExportMediaBasicPic_ratios();
+            CmediaFeed.export.media.basic.pic_ratios.ratio = new ADIFeederXSD.feedExportMediaBasicPic_ratiosRatio();
+        }
+
+        private string BuildNormalizedXML(bool isSeries)
+        {
+            ADIFeederXSD.feed CmediaFeed = new ADIFeederXSD.feed();
+
+            InitTvinciXMLObject(ref CmediaFeed);
+
+            CmediaFeed.export.media.co_guid = GetMetaValue(m_basicsDict, "co_guid");
+            CmediaFeed.export.media.action = "insert";
+
+            string sIsActive = GetMetaValue(m_basicsDict, "Active");
+            if (string.IsNullOrEmpty(sIsActive))
+            {
+                CmediaFeed.export.media.is_active = true;
+            }
+            else
+            {
+                CmediaFeed.export.media.is_active = sIsActive.ToLower().Equals("true") ? true : false;
+            }
+
+            CmediaFeed.export.media.basic.name.value.Value = isSeries == false ? GetRegularMediaName() : GetTagValueByIndex(m_tagsDict, "Series name", 0);
+            CmediaFeed.export.media.basic.name.value.lang = "eng";
+            string sDescription = GetMetaValue(m_basicsDict, "description");
+
+            if (string.IsNullOrEmpty(sDescription))
+            {
+                sDescription = GetMetaValue(m_stringMetaDict, "Short summary");
+            }
+
+            CmediaFeed.export.media.basic.description.value.Value = sDescription;
+            CmediaFeed.export.media.basic.description.value.lang = "eng";
+
+            if (isSeries == false)
+            {
+                CmediaFeed.export.media.basic.media_type = GetMetaValue(m_basicsDict, "mediatype");
+            }
+            else
+            {
+                switch (GetMetaValue(m_basicsDict, "mediatype"))
                 {
-                    string sName = string.Empty;
-                    if (m_nGroupID == 148)
-                    {
-                        if (m_basicsDict.ContainsKey("mediatype"))
+                    case "Episode":
                         {
-                            string sMediaType = m_basicsDict["mediatype"];
-                            string seriesName = string.Empty;
-                            string seasonNum = string.Empty;
-                            string episodeNum = string.Empty;
-                            if (sMediaType.ToLower().Equals("episode") && m_stringMetaDict != null && m_stringMetaDict.ContainsKey("Episode name"))
-                            {
-                                if (m_tagsDict != null && m_tagsDict.ContainsKey("Series name"))
-                                {
-                                    seriesName = m_tagsDict["Series name"][0];
-                                    sName = seriesName + " - ";
-                                }
-                                if (m_numMetaDict != null && m_numMetaDict.ContainsKey("Season number"))
-                                {
-                                    seasonNum = m_numMetaDict["Season number"];
-                                    if (seasonNum != "0")
-                                    {
-                                        sName = string.Format(sName + "Season {0}, ", seasonNum);
-                                    }
-                                }
-                                if (m_numMetaDict != null && m_numMetaDict.ContainsKey("Episode number"))
-                                {
-                                    episodeNum = m_numMetaDict["Episode number"];
-                                    sName = string.Format(sName + "Episode {0}", episodeNum);
-                                }
-
-                                //sName = string.Format("{0}-{1}{2}", seriesName, string.isseasonNum, episodeNum);
-                            }
-                            else
-                            {
-                                sName = m_basicsDict["name"];
-                            }
+                            CmediaFeed.export.media.basic.media_type = "Series";
+                            break;
                         }
-
-                    }
-                    else if (m_nGroupID == 149)
-                    {
-                        if (m_tagsDict != null && m_tagsDict.ContainsKey("Series name") && m_tagsDict["Series name"].Count > 0)
+                    case "News":
                         {
-                            sName = m_tagsDict["Series name"][0];
-                            updateSeriesCoGuid(sName, m_basicsDict["co_guid"], 149);
+                            CmediaFeed.export.media.basic.media_type = "News Series";
+                            break;
                         }
-                    }
-
-                    sb.AppendFormat("<name><value lang=\"eng\">{0}</value></name>", sName);
-
+                    case "Education":
+                        {
+                            CmediaFeed.export.media.basic.media_type = "Education Series";
+                            break;
+                        }
+                    default:
+                        {
+                            CmediaFeed.export.media.basic.media_type = string.Empty;
+                            break;
+                        }
                 }
-                if (m_basicsDict.ContainsKey("description"))
-                {
-                    string sDescription = m_basicsDict["description"];
-
-                    if (string.IsNullOrEmpty(sDescription) && !string.IsNullOrEmpty(m_stringMetaDict["Short summary"]))
-                    {
-                        sDescription = m_stringMetaDict["Short summary"];
-                    }
-
-                    sb.AppendFormat("<description><value lang=\"eng\">{0}</value></description>", sDescription);
-                }
-                if (m_basicsDict.ContainsKey("mediatype"))
-                {
-                    sb.AppendFormat("<media_type>{0}</media_type>", m_basicsDict["mediatype"]);
-
-                }
-                if (m_basicsDict.ContainsKey("thumb"))
-                {
-                    sb.AppendFormat("<thumb url=\"{0}\"/>", m_basicsDict["thumb"]);
-
-                }
-                sb.AppendFormat("<epg_identifier>0</epg_identifier>");
-                sb.Append("<rules>");
-                sb.Append("<watch_per_rule>Parent allowed</watch_per_rule>");
-                if(m_basicsDict.ContainsKey(GEO_BLOCK_RULE_KEY))
-                    sb.Append(String.Concat("<geo_block_rule>", m_basicsDict[GEO_BLOCK_RULE_KEY], "</geo_block_rule>"));
-                if(m_basicsDict.ContainsKey(DEVICE_RULE_KEY))
-                    sb.Append(String.Concat("<device_rule>", m_basicsDict[DEVICE_RULE_KEY], "</device_rule>"));
-                sb.Append("</rules>");
-
-
-                sb.Append("<dates>");
-                if (m_basicsDict.ContainsKey("start"))
-                {
-                    sb.AppendFormat("<start>{0}</start>", m_basicsDict["start"]); //parseDateTimeSTR(m_basicsDict["start"]));
-                }
-                if (m_basicsDict.ContainsKey("end"))
-                {
-                    sb.AppendFormat("<catalog_end>{0}</catalog_end>", m_basicsDict["end"]); //parseDateTimeSTR(m_basicsDict["end"]));
-                }
-                if (m_basicsDict.ContainsKey("final"))
-                {
-                    sb.AppendFormat("<final_end>{0}</final_end>", m_basicsDict["final"]); //parseDateTimeSTR(m_basicsDict["final"]));
-                }
-                sb.AppendFormat("</dates>");
-                if (m_picRatios != null && m_picRatios.Count > 0)
-                {
-                    sb.Append("<pic_ratios>");
-                    foreach (KeyValuePair<string, string> kvp in m_picRatios)
-                    {
-                        sb.AppendFormat("<ratio thumb=\"{0}\" ratio=\"{1}\" />", kvp.Value, kvp.Key);
-                    }
-                    sb.Append("</pic_ratios>");
-                }
-                sb.Append("</basic>");
-
             }
-            sb.Append("<structure>");
-            if (m_stringMetaDict != null && m_stringMetaDict.Count > 0)
-            {
-                sb.Append("<strings>");
-                foreach (KeyValuePair<string, string> kvp in m_stringMetaDict)
-                {
-                    sb.AppendFormat("<meta name=\"{0}\" ml_handling=\"duplicate\"><value lang=\"eng\">{1}</value></meta>", kvp.Key, kvp.Value);
-                }
-                sb.Append("</strings>");
-            }
-            if (m_boolMetaDict != null && m_boolMetaDict.Count > 0)
-            {
-                sb.Append("<booleans>");
-                foreach (KeyValuePair<string, string> kvp in m_boolMetaDict)
-                {
-                    sb.AppendFormat("<meta name=\"{0}\">{1}</meta>", kvp.Key, kvp.Value);
-                }
-                sb.Append("</booleans>");
-            }
-            if (m_numMetaDict != null && m_numMetaDict.Count > 0)
-            {
-                sb.Append("<doubles>");
-                foreach (KeyValuePair<string, string> kvp in m_numMetaDict)
-                {
-                    sb.AppendFormat("<meta name=\"{0}\">{1}</meta>", kvp.Key, kvp.Value);
-                }
-                sb.Append("</doubles>");
-            }
-            if (m_tagsDict != null && m_tagsDict.Count > 0)
-            {
-                sb.Append("<metas>");
-                foreach (KeyValuePair<string, List<string>> kvp in m_tagsDict)
-                {
-                    sb.AppendFormat("<meta name=\"{0}\" ml_handling=\"unique\">", kvp.Key);
 
-                    foreach (string value in kvp.Value)
-                    {
-                        sb.Append("<container>");
-                        sb.AppendFormat("<value lang=\"eng\">{0}</value>", value);
-                        sb.Append("</container>");
-                    }
+            CmediaFeed.export.media.basic.thumb.url = GetMetaValue(m_basicsDict, "thumb");
+            CmediaFeed.export.media.basic.epg_identifier = 0;
+            CmediaFeed.export.media.basic.rules.watch_per_rule = "Parent allowed";
+            CmediaFeed.export.media.basic.rules.geo_block_rule = GetMetaValue(m_basicsDict, GEO_BLOCK_RULE_KEY);
+            CmediaFeed.export.media.basic.rules.device_rule = GetMetaValue(m_basicsDict, DEVICE_RULE_KEY);
+            CmediaFeed.export.media.basic.dates.start = GetMetaValue(m_basicsDict, "start");
+            CmediaFeed.export.media.basic.dates.catalog_end = GetMetaValue(m_basicsDict, "end");
+            CmediaFeed.export.media.basic.dates.final_end = GetMetaValue(m_basicsDict, "final");
 
-                    sb.Append("</meta>");
-                }
-                sb.Append("</metas>");
-            }
-            sb.Append("</structure>");
-            if (m_filesDict != null && m_filesDict.Count > 0)
+            foreach (KeyValuePair<string, string> kvp in m_picRatios)
             {
-                sb.Append("<files>");
+                CmediaFeed.export.media.basic.pic_ratios.ratio.ratio = kvp.Key;
+                CmediaFeed.export.media.basic.pic_ratios.ratio.thumb = kvp.Value;
+            }
+
+            List<ADIFeederXSD.feedExportMediaStructureMeta> ExportMediaStringList = new List<ADIFeederXSD.feedExportMediaStructureMeta>();
+            foreach (KeyValuePair<string, string> kvp in m_stringMetaDict)
+            {
+                ADIFeederXSD.feedExportMediaStructureMeta currStringMeta = new ADIFeederXSD.feedExportMediaStructureMeta();
+                currStringMeta.name = kvp.Key;
+                currStringMeta.value = new ADIFeederXSD.feedExportMediaStructureMetaValue();
+                currStringMeta.value.lang = "eng";
+                currStringMeta.ml_handling = "duplicate";
+                currStringMeta.value.Value = kvp.Value;
+
+                ExportMediaStringList.Add(currStringMeta);
+            }
+
+            List<ADIFeederXSD.feedExportMediaStructureMeta1> ExportMediaBoolList = new List<ADIFeederXSD.feedExportMediaStructureMeta1>();
+            foreach (KeyValuePair<string, string> kvp in m_boolMetaDict)
+            {
+                ADIFeederXSD.feedExportMediaStructureMeta1 currBoolMeta = new ADIFeederXSD.feedExportMediaStructureMeta1();
+                currBoolMeta.name = kvp.Key;
+                currBoolMeta.Value = kvp.Value;
+
+                ExportMediaBoolList.Add(currBoolMeta);
+            }
+
+            List<ADIFeederXSD.feedExportMediaStructureMeta2> ExportMediaNumList = new List<ADIFeederXSD.feedExportMediaStructureMeta2>();
+            foreach (KeyValuePair<string, string> kvp in m_numMetaDict)
+            {
+                double dRes;
+                bool res = double.TryParse(kvp.Value, out dRes);
+                if (res)
+                {
+                    ADIFeederXSD.feedExportMediaStructureMeta2 currNumMeta = new ADIFeederXSD.feedExportMediaStructureMeta2();
+                    currNumMeta.name = kvp.Key;
+                    currNumMeta.Value = dRes;
+                    ExportMediaNumList.Add(currNumMeta);
+                }
+            }
+
+            Dictionary<string, List<string>> metaTags = new Dictionary<string, List<string>>();
+            List<ADIFeederXSD.feedExportMediaStructureMeta3> ExportTagsNumList = new List<ADIFeederXSD.feedExportMediaStructureMeta3>();
+            foreach (KeyValuePair<string, List<string>> kvp in m_tagsDict)
+            {
+                // validate tag in group
+                bool isTagExist = IsTagExist(isSeries, kvp.Key);
+
+                if (!isTagExist)
+                {
+                    string logMassage = string.Format("Group tag: {0} doesn't exist", kvp.Key);
+                    Logger.Logger.Log("Tags Validation", logMassage, "IngetLog");
+                    continue;
+                }
+
+                ADIFeederXSD.feedExportMediaStructureMeta3 currTag = new ADIFeederXSD.feedExportMediaStructureMeta3();
+                currTag.name = kvp.Key;
+                currTag.ml_handling = "unique";
+
+                List<ADIFeederXSD.feedExportMediaStructureMetaContainer> conList = new List<ADIFeederXSD.feedExportMediaStructureMetaContainer>();
+                foreach (string value in kvp.Value)
+                {
+                    ADIFeederXSD.feedExportMediaStructureMetaContainer currCon = new ADIFeederXSD.feedExportMediaStructureMetaContainer();
+                    currCon.value = new ADIFeederXSD.feedExportMediaStructureMetaContainerValue();
+                    currCon.value.lang = "eng";
+                    currCon.value.Value = value;
+
+                    conList.Add(currCon);
+                }
+
+                currTag.container = conList.ToArray();
+                ExportTagsNumList.Add(currTag);
+            }
+
+            CmediaFeed.export.media.structure = new ADIFeederXSD.feedExportMediaStructure();
+
+            CmediaFeed.export.media.structure.strings = ExportMediaStringList.ToArray();
+            CmediaFeed.export.media.structure.booleans = ExportMediaBoolList.ToArray();
+            CmediaFeed.export.media.structure.doubles = ExportMediaNumList.ToArray();
+            CmediaFeed.export.media.structure.metas = ExportTagsNumList.ToArray();
+
+            if (isSeries == false)
+            {
+                List<ADIFeederXSD.feedExportMediaFile> ExFileList = new List<ADIFeederXSD.feedExportMediaFile>();
                 foreach (KeyValuePair<string, FileStruct> kvp in m_filesDict)
                 {
-                    string ppvModule = m_stringMetaDict["PPVModule"];
-                    if (string.IsNullOrEmpty(ppvModule) || ppvModule.Equals("PREV99990") || kvp.Key.ToLower().Equals("trailer"))
+                    ADIFeederXSD.feedExportMediaFile currFileList = new ADIFeederXSD.feedExportMediaFile();
+                    string ppvModule = GetMetaValue(m_stringMetaDict, "PPVModule");
+                    string DTWppvModule = string.Empty;
+
+                    string sDTWProduct = GetMetaValue(m_stringMetaDict, "DTW Product");
+                    string sDTWBillingCode = GetMetaValue(m_stringMetaDict, "DTW Billing Code");
+                    if (!string.IsNullOrEmpty(sDTWProduct) && !string.IsNullOrEmpty(sDTWBillingCode))
                     {
-                        sb.AppendFormat("<file handling_type=\"Clip\" assetDuration=\"{0}\"  type=\"{1}\" quality=\"HIGH\" billing_type=\"none\" cdn_name=\"Direct Link\" cdn_code=\"{2}\" co_guid=\"{3}\" pre_rule=\"{4}\" break_rule=\"{5}\" overlay_rule=\"{6}\" post_rule=\"{7}\" break_points=\"{8}\" overlay_points=\"{9}\" />", kvp.Value.m_duration, kvp.Key, kvp.Value.m_url, kvp.Value.m_id, kvp.Value.m_PreProviderID, kvp.Value.m_BreakProviderID, kvp.Value.m_OverlayProviderID, kvp.Value.m_PostProviderID, kvp.Value.m_Breakpoints, kvp.Value.m_Overlaypoints);
+                        DTWppvModule = string.Format("{0}{1}", sDTWProduct, sDTWBillingCode);
+                    }
+
+                    currFileList.handling_type = "Clip";
+                    long duration;
+                    if (long.TryParse(kvp.Value.m_duration, out duration))
+                    {
+                        currFileList.assetDuration = duration;
+                    }
+                    currFileList.type = kvp.Key;
+                    currFileList.quality = "HIGH";
+                    currFileList.billing_type = "Tvinci";
+                    currFileList.cdn_name = "Direct Link";
+                    currFileList.cdn_code = kvp.Value.m_url;
+                    currFileList.co_guid = kvp.Value.m_id;
+                    currFileList.pre_rule = kvp.Value.m_PreProviderID;
+                    currFileList.break_rule = kvp.Value.m_BreakProviderID;
+                    currFileList.overlay_rule = kvp.Value.m_OverlayProviderID;
+                    currFileList.post_rule = kvp.Value.m_PostProviderID;
+                    currFileList.break_points = kvp.Value.m_Breakpoints;
+                    currFileList.overlay_points = kvp.Value.m_Overlaypoints;
+                    currFileList.product_code = kvp.Value.m_ProductCode;
+
+                    if (!kvp.Key.ToLower().Equals("download main") && !kvp.Key.ToLower().Equals("download high"))
+                    {
+                        currFileList.ppv_module = ppvModule;
                     }
                     else
                     {
-                        sb.AppendFormat("<file handling_type=\"Clip\" assetDuration=\"{0}\"  type=\"{1}\" quality=\"HIGH\" billing_type=\"Tvinci\" cdn_name=\"Direct Link\" cdn_code=\"{2}\" co_guid=\"{3}\" ppv_module=\"{4}\" pre_rule=\"{5}\" break_rule=\"{6}\" overlay_rule=\"{7}\" post_rule=\"{8}\" break_points=\"{9}\" overlay_points=\"{10}\" />", kvp.Value.m_duration, kvp.Key, kvp.Value.m_url, kvp.Value.m_id, ppvModule, kvp.Value.m_PreProviderID, kvp.Value.m_BreakProviderID, kvp.Value.m_OverlayProviderID, kvp.Value.m_PostProviderID, kvp.Value.m_Breakpoints, kvp.Value.m_Overlaypoints);
+                        currFileList.ppv_module = DTWppvModule;
                     }
+
+                    if ((string.IsNullOrEmpty(ppvModule) && string.IsNullOrEmpty(DTWppvModule))
+                        || ppvModule.Equals("PREV99990")
+                        || kvp.Key.ToLower().Equals("trailer"))
+                    {
+                        currFileList.billing_type = "none";
+                    }
+
+                    ExFileList.Add(currFileList);
                 }
-                sb.Append("</files>");
 
+                CmediaFeed.export.media.files = ExFileList.ToArray();
             }
-            sb.Append("</media>");
-            sb.Append("</export>");
-            sb.Append("</feed>");
 
-            return sb.ToString();
+            string theXML = string.Empty;
+            try
+            {
+                using (StringWriter sw = new StringWriter())
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(ADIFeederXSD.feed));
+                    serializer.Serialize(sw, CmediaFeed);
+                    theXML = sw.ToString();
+                }
+            }
+            catch
+            {
+            }
+
+            return theXML;
         }
+
+        public string sStartDate = string.Empty;
+        public string sEndDate = string.Empty;
+        public string sFinalEndDate = string.Empty;
+        public string sDescription = string.Empty;
+        public string sDuration = string.Empty;
+        public string sMediaType = string.Empty;
+        public string sBreakpoints = string.Empty;
+        public string assetProduct = string.Empty;
+        public string sAssetType = string.Empty;
+        public string sPCode = string.Empty;
+
+        private ADIMapping m_ADIMapItems = new ADIMapping();
 
         protected override bool DoTheTaskInner()
         {
@@ -466,7 +406,11 @@ namespace ADIFeeder
             m_basicsDict = new Dictionary<string, string>();
             m_filesDict = new Dictionary<string, FileStruct>();
             m_picRatios = new Dictionary<string, string>();
-            bool retVal = false;
+            m_virtualTags = new List<string>();
+            m_regularTags = new List<string>();
+
+            SetupAllTagsValues();
+
             int nGroupID = m_nGroupID;
 
             m_sResXml = string.Empty;
@@ -474,320 +418,75 @@ namespace ADIFeeder
             if (m_nGroupID != 0 && !string.IsNullOrEmpty(m_sXML))
             {
                 XmlDocument theDoc = new XmlDocument();
-                theDoc.LoadXml(m_sXML);
                 XmlNodeList adiNodes = theDoc.SelectNodes("/ADI");
+
+                theDoc.LoadXml(m_sXML);
+
                 for (int i = 0; i < adiNodes.Count; i++)
                 {
                     XmlNode adiNode = adiNodes[i];
                     string sCoGuid = XmlUtils.GetNodeParameterVal(ref adiNode, "Metadata/AMS", "Asset_ID");
                     string sProvider = XmlUtils.GetNodeParameterVal(ref adiNode, "Metadata/AMS", "Provider");
                     string sPrviderID = XmlUtils.GetNodeParameterVal(ref adiNode, "Metadata/AMS", "Provider_ID");
+
                     m_basicsDict.Add("co_guid", sCoGuid);
                     m_tagsDict.Add("Provider", sProvider.Split(';').ToList<string>());
                     m_tagsDict.Add("Provider ID", sPrviderID.Split(';').ToList<string>());
-                    string sStartDate = string.Empty;
-                    string sEndDate = string.Empty;
-                    string sFinalEndDate = string.Empty;
-                    string sMediaName = string.Empty;
-                    string sDescription = string.Empty;
-                    string sSummaryShort = string.Empty;
-                    string sDuration = string.Empty;
-                    string sMediaType = string.Empty;
-                    string sBreakpoints = string.Empty;
-                    bool isEpisode = false;
-                    bool isSeriesType = false;
+
                     XmlNodeList assetsList = adiNode.SelectNodes("Asset");
                     if (assetsList != null)
                     {
                         for (int j = 0; j < assetsList.Count; j++)
                         {
                             XmlNode assetNode = assetsList[j];
-                            string sAssetType = XmlUtils.GetNodeParameterVal(ref assetNode, "Metadata/AMS", "Asset_Class");
-                            string assetProduct = XmlUtils.GetNodeParameterVal(ref assetNode, "Metadata/AMS", "Product");
+                            sAssetType = XmlUtils.GetNodeParameterVal(ref assetNode, "Metadata/AMS", "Asset_Class");
+                            assetProduct = XmlUtils.GetNodeParameterVal(ref assetNode, "Metadata/AMS", "Product");
                             XmlNode metaNode = assetNode.SelectSingleNode("Metadata");
                             XmlNodeList appDataList = metaNode.SelectNodes("App_Data");
-                            switch (sAssetType.ToLower())
+
+                            if (!string.IsNullOrEmpty(assetProduct))
                             {
-                                case ("title"):
-                                    {
-                                        for (int k = 0; k < appDataList.Count; k++)
-                                        {
-                                            XmlNode appDataNode = appDataList[k];
-                                            string sName = XmlUtils.GetItemParameterVal(ref appDataNode, "Name");
-                                            string sValue = XmlUtils.GetItemParameterVal(ref appDataNode, "Value");
-                                            switch (sName.ToLower())
-                                            {
-                                                case ("licensing_window_start"):
-                                                    {
-                                                        DateTime dDate = DateTime.Parse(sValue);
-                                                        string sStart = dDate.AddHours(-8).ToString("dd/MM/yyyy HH:mm:ss");
-                                                        m_basicsDict.Add("start", sStart);
-                                                        m_stringMetaDict.Add("Licensing window start", sStart);
-                                                        break;
-                                                    }
-                                                case ("show_type"):
-                                                    {
-                                                        if (string.IsNullOrEmpty(sMediaType))
-                                                        {
-                                                            sMediaType = sValue;
-                                                        }
-                                                        if (sMediaType.ToLower().Equals("movie") || sMediaType.ToLower().Equals("episode"))
-                                                        {
-                                                            nGroupID = 148;
-                                                        }
-                                                        else
-                                                        {
-                                                            nGroupID = 149;
-                                                        }
-                                                        break;
-                                                    }
-                                                case ("licensing_window_end"):
-                                                    {
-                                                        //Todo : - 1 month
-                                                        DateTime dDate = DateTime.Parse(sValue);
-
-                                                        sFinalEndDate = DateTime.MaxValue.ToString("dd/MM/yyyy HH:mm:ss");
-                                                        sEndDate = dDate.AddHours(-8).ToString("dd/MM/yyyy HH:mm:ss");
-                                                        m_basicsDict.Add("end", sEndDate);
-                                                        m_basicsDict.Add("final", sFinalEndDate);
-                                                        m_stringMetaDict.Add("Licensing window end", sEndDate);
-                                                        break;
-                                                    }
-                                                case ("title"):
-                                                    {
-                                                        m_basicsDict.Add("name", sValue);
-                                                        break;
-                                                    }
-                                                case ("run_time"):
-                                                    {
-                                                        sDuration = sValue;
-                                                        break;
-                                                    }
-                                                case ("summary_long"):
-                                                    {
-                                                        m_basicsDict.Add("description", sValue);
-                                                        break;
-                                                    }
-                                                case ("summary_short"):
-                                                    {
-                                                        m_stringMetaDict.Add("Short summary", sValue);
-                                                        break;
-                                                    }
-                                                case ("title_brief"):
-                                                    {
-                                                        m_stringMetaDict.Add("Short title", sValue);
-                                                        break;
-                                                    }
-                                                case ("year"):
-                                                    {
-                                                        m_numMetaDict.Add("Release year", sValue);
-                                                        break;
-                                                    }
-                                                case ("billing_id"):
-                                                    {
-                                                        m_stringMetaDict.Add("Billing ID", sValue);
-                                                        m_stringMetaDict.Add("PPVModule", string.Format("{0}{1}", assetProduct, sValue));
-                                                        break;
-                                                    }
-
-                                                case ("episode_id"):
-                                                    {
-                                                        string sEpisodeNum = string.Empty;
-                                                        string sSeasonNum = "0";
-
-                                                        string sPattern = "^s(?<season>[0-9]*):ep(?<episode>[0-9]*)$";
-
-                                                        Match m = Regex.Match(sValue.ToLower(), sPattern);
-
-                                                        if (m.Success)
-                                                        {
-                                                            sSeasonNum = m.Groups["season"].Value;
-                                                            sEpisodeNum = m.Groups["episode"].Value;
-                                                        }
-                                                        else
-                                                        {
-                                                            sEpisodeNum = sValue;
-                                                            sSeasonNum = "0";
-                                                        }
-
-                                                        if (!string.IsNullOrEmpty(sEpisodeNum))
-                                                        {
-                                                            m_numMetaDict.Add("Episode number", sEpisodeNum);
-                                                        }
-                                                        if (!string.IsNullOrEmpty(sSeasonNum))
-                                                        {
-                                                            m_numMetaDict.Add("Season number", sSeasonNum);
-                                                        }
-
-                                                        isEpisode = true;
-
-                                                        break;
-                                                    }
-                                                //case ("seasonnumber"):
-                                                //    {
-                                                //        isEpisode = true;
-                                                //        m_numMetaDict.Add("Season number", sValue);
-                                                //        break;
-                                                //    }
-                                                //case ("season_number"):
-                                                //    {
-                                                //        m_numMetaDict.Add("Episode number", sValue);
-                                                //        break;
-                                                //    }
-                                                case ("episode_name"):
-                                                    {
-                                                        m_stringMetaDict.Add("Episode name", sValue);
-                                                        break;
-                                                    }
-                                                case ("season_premiere"):
-                                                    {
-                                                        m_boolMetaDict.Add("Season premiere", getBoolStr(sValue));
-                                                        break;
-                                                    }
-                                                case ("season_finale"):
-                                                    {
-                                                        m_boolMetaDict.Add("season_finale", getBoolStr(sValue));
-                                                        break;
-                                                    }
-                                                case ("closed_captioning"):
-                                                    {
-                                                        m_boolMetaDict.Add("Closed captions available", getBoolStr(sValue));
-                                                        break;
-                                                    }
-                                                case ("interactive"):
-                                                    {
-                                                        m_boolMetaDict.Add("interactive", getBoolStr(sValue));
-                                                        break;
-                                                    }
-                                                case ("seasonpackageassetid"):
-                                                    {
-                                                        m_stringMetaDict.Add("SeasonPackageAssetID", sValue);
-                                                        break;
-                                                    }
-                                                case ("rating"):
-                                                    {
-                                                        AddTag("Rating", sValue);
-                                                        break;
-                                                    }
-                                                case ("genre"):
-                                                    {
-                                                        AddTag("Genre", sValue);
-                                                        break;
-                                                    }
-                                                case ("product"):
-                                                    {
-                                                        AddTag("Product", sValue);
-                                                        break;
-                                                    }
-                                                case ("seriesid"):
-                                                    {
-                                                        AddTag("Series name", sValue);
-                                                        break;
-                                                    }
-                                                case ("actors_display"):
-                                                    {
-                                                        AddTag("Main cast", sValue);
-                                                        break;
-                                                    }
-                                                case ("category"):
-                                                    {
-                                                        AddTag("Category", sValue);
-                                                        break;
-                                                    }
-                                                case ("advisories"):
-                                                    {
-                                                        AddTag("Rating advisories", sValue);
-                                                        break;
-                                                    }
-                                                case ("director"):
-                                                    {
-                                                        AddTag("Director", sValue);
-                                                        break;
-                                                    }
-                                                case ("territory"):
-                                                    {
-                                                        AddTag("Territory", sValue);
-                                                        break;
-                                                    }
-                                                case ("ad_tag_1"):
-                                                    {
-                                                        if (sValue.EndsWith(";"))
-                                                            AddTag("Ad Tag 1", sValue.Substring(0, sValue.Length - 1));
-                                                        else
-                                                            AddTag("Ad Tag 1", sValue);
-                                                        break;
-                                                    }
-                                                case ("ad_tag_2"):
-                                                    {
-                                                        if (sValue.EndsWith(";"))
-                                                            AddTag("Ad Tag 2", sValue.Substring(0, sValue.Length - 1));
-                                                        else
-                                                            AddTag("Ad Tag 2", sValue);
-                                                        break;
-                                                    }
-                                                case ("ad_tag_3"):
-                                                    {
-                                                        if (sValue.EndsWith(";"))
-                                                            AddTag("Ad Tag 3", sValue.Substring(0, sValue.Length - 1));
-                                                        else
-                                                            AddTag("Ad Tag 3", sValue);
-                                                        break;
-                                                    }
-                                                case ("hash_tag"):
-                                                    {
-                                                        m_stringMetaDict.Add("Hashtag", sValue);
-                                                        break;
-                                                    }
-                                                case ("ad_break"):
-                                                    {
-                                                        if (sValue.EndsWith(";"))
-                                                            sBreakpoints = sValue.Substring(0, sValue.Length - 1);
-                                                        else
-                                                            sBreakpoints = sValue;
-                                                        break;
-                                                    }
-                                                case ("geo_block_rule"):
-                                                    {
-                                                        if (sValue.ToLower() == "singapore")
-                                                            m_basicsDict.Add(GEO_BLOCK_RULE_KEY, "Singapore only");
-                                                        else
-                                                            m_basicsDict.Add(GEO_BLOCK_RULE_KEY, string.Empty);
-                                                        break;
-                                                    }
-                                                case ("device_rule"):
-                                                    {
-                                                        m_basicsDict.Add(DEVICE_RULE_KEY, sValue);
-                                                        break;
-                                                    }
-                                                case ("asset_is_active"):
-                                                    {
-                                                        m_boolMetaDict.Add("is_active", sValue.ToLower());
-                                                        break;
-                                                    }
-                                                case ("i_channel_category"):
-                                                    {
-                                                        AddTag("Free", sValue);
-                                                        break;
-                                                    }
-                                                default:
-                                                    break;
-                                            }
-                                        }
-                                        sStartDate = string.Empty;
-                                        break;
-                                    }
-                                default:
-                                    break;
+                                AddTag("Product", assetProduct);
                             }
-                            sMediaType = GetTVMMediaTyoe(sMediaType, ref nGroupID);
+
+
+                            if (sAssetType.ToLower().Equals("title"))
+                            {
+                                for (int k = 0; k < appDataList.Count; k++)
+                                {
+                                    XmlNode appDataNode = appDataList[k];
+                                    string sName = XmlUtils.GetItemParameterVal(ref appDataNode, "Name").ToLower();
+                                    string sValue = XmlUtils.GetItemParameterVal(ref appDataNode, "Value");
+
+                                    if (sValue == null)
+                                    {
+                                        continue;
+                                    }
+
+                                    if (m_ADIMapItems.lMapItems.ContainsKey(sName))
+                                    {
+                                        string key = m_ADIMapItems.lMapItems[sName].m_key;
+                                        m_ADIMapItems.lMapItems[sName].m_method(this, sValue, key);
+                                    }
+                                }
+
+                                sStartDate = string.Empty;
+
+                                if (!m_numMetaDict.ContainsKey(""))
+                                {
+                                }
+                            }
+
+                            sMediaType = GetTVMMediaType(sMediaType, ref nGroupID);
                             m_nGroupID = nGroupID;
                             m_basicsDict.Add("mediatype", sMediaType);
+
                             XmlNodeList fileNodes = assetNode.SelectNodes("Asset");
                             if (fileNodes != null && fileNodes.Count > 0)
                             {
                                 string[] durationArr = sDuration.Split(':');
                                 TimeSpan ts = new TimeSpan(int.Parse(durationArr[0]), int.Parse(durationArr[1]), int.Parse(durationArr[2]));
-                                int durationSec = (int)ts.TotalSeconds;
+
                                 for (int f = 0; f < fileNodes.Count; f++)
                                 {
                                     XmlNode fileNode = fileNodes[f];
@@ -795,115 +494,64 @@ namespace ADIFeeder
                                     string assetID = XmlUtils.GetNodeParameterVal(ref fileNode, "Metadata/AMS", "Asset_ID");
                                     string assetType = XmlUtils.GetNodeParameterVal(ref fileNode, "Metadata/AMS", "Asset_Class");
                                     string assetName = XmlUtils.GetNodeParameterVal(ref fileNode, "Metadata/AMS", "Asset_Name");
-
-                                    string duration = string.Empty;
-                                    string url = string.Empty;
-                                    string cdn = "Direct Link";
                                     string fileURL = XmlUtils.GetNodeParameterVal(ref fileNode, "Content", "Value");
 
-                                    string fileType = "Main";
-                                    if (!(assetType.ToLower().Equals("preview")) && !(assetType.ToLower().Equals("movie")) && !(assetType.ToLower().Equals("box cover")) && !(assetType.ToLower().Equals("poster")) && nGroupID != 149)
+                                    if (assetType.ToLower().Equals("encrypted") && nGroupID == 149 ||
+                                        assetType.ToLower().Equals("movie") && nGroupID == 149 ||
+                                        assetType.ToLower().Equals("preview") && nGroupID == 149)
                                     {
-                                        fileType = GetFileType(assetID);
-                                        //if (fileURL.ToLower().Contains("iphone"))
-                                        //{
-                                        //    fileType = "iPhone Main";
-                                        //}
-
-                                        //else if (fileURL.ToLower().Contains("stb"))
-                                        //{
-                                        //    fileType = "STB Main";
-                                        //}
-                                        //else if (fileURL.ToLower().Contains("ipad"))
-                                        //{
-                                        //    fileType = "iPad Main";
-                                        //}
-                                        //else if (fileURL.ToLower().Contains("pc"))
-                                        //{
-                                        //    fileType = "Main";
-                                        //}
-                                        FileStruct file = createFileStruct(assetID, fileURL, durationSec.ToString(), "Akamai", sBreakpoints, string.Empty, true);
-                                        if (!m_filesDict.ContainsKey(fileType))
-                                        {
-                                            m_filesDict.Add(fileType, file);
-                                        }
+                                        continue;
                                     }
-                                    else
+
+                                    XmlNodeList fileAppData = fileMetaNode.SelectNodes("App_Data");
+                                    int prevDurationSec = 0;
+                                    if (fileAppData != null && fileAppData.Count > 0)
                                     {
-                                        if (assetType.Equals("movie") && nGroupID != 149)
-                                        {
-                                            fileType = "iOS Clear";
-                                            XmlNodeList fileAppData = fileMetaNode.SelectNodes("App_Data");
-                                            int prevDurationSec = 0;
-                                            if (fileAppData != null && fileAppData.Count > 0)
+                                        SetMetasFromFilesContant(fileAppData, ref prevDurationSec);
+                                    }
+
+                                    int durationSec = (int)ts.TotalSeconds;
+                                    string fileType = string.Empty;
+                                    string cdn = string.Empty;
+                                    sPCode = string.Empty;
+                                    switch (assetType.ToLower())
+                                    {
+                                        case "encrypted":
                                             {
-                                                for (int t = 0; t < fileAppData.Count; t++)
-                                                {
-                                                    XmlNode fileAppDataNode = fileAppData[t];
-                                                    string sFileNameData = XmlUtils.GetItemParameterVal(ref fileAppDataNode, "Name");
-                                                    string sFileValueData = XmlUtils.GetItemParameterVal(ref fileAppDataNode, "Value");
-                                                    if (sFileNameData.ToLower().Equals("run_time"))
-                                                    {
-                                                        string[] prevDurArr = sFileValueData.Split(':');
-                                                        TimeSpan prevTS = new TimeSpan(int.Parse(prevDurArr[0]), int.Parse(prevDurArr[1]), int.Parse(prevDurArr[2]));
-                                                        prevDurationSec = (int)prevTS.TotalSeconds;
-
-                                                    }
-                                                    else if (sFileNameData.ToLower().Equals("languages"))
-                                                    {
-                                                        string[] isoLangsArr = sFileValueData.Split(';');
-                                                        if (isoLangsArr != null && isoLangsArr.Length > 0)
-                                                        {
-                                                            foreach (string str in isoLangsArr)
-                                                            {
-                                                                string langStr = getFullLanguageStr(str);
-                                                                AddTag("Audio language", langStr);
-                                                            }
-                                                        }
-                                                    }
-
-                                                }
-
+                                                fileType = GetFileType(assetID);
+                                                cdn = "Akamai";
+                                                break;
                                             }
-                                            FileStruct file = createFileStruct(assetID, fileURL, durationSec.ToString(), "Direct Link", sBreakpoints, string.Empty, true);
-                                            m_filesDict.Add(fileType, file);
-                                        }
-                                        else if (assetType.Equals("preview") && nGroupID != 149)
-                                        {
-                                            fileType = "Trailer";
-                                            XmlNodeList fileAppData = fileMetaNode.SelectNodes("App_Data");
-                                            int prevDurationSec = 0;
-                                            if (fileAppData != null && fileAppData.Count > 0)
+                                        case "movie":
                                             {
-                                                for (int t = 0; t < fileAppData.Count; t++)
-                                                {
-                                                    XmlNode fileAppDataNode = fileAppData[t];
-                                                    string sFileNameData = XmlUtils.GetItemParameterVal(ref fileAppDataNode, "Name");
-                                                    string sFileValueData = XmlUtils.GetItemParameterVal(ref fileAppDataNode, "Value");
-                                                    if (sFileNameData.ToLower().Equals("run_time"))
-                                                    {
-                                                        string[] prevDurArr = sFileValueData.Split(':');
-                                                        TimeSpan prevTS = new TimeSpan(int.Parse(prevDurArr[0]), int.Parse(prevDurArr[1]), int.Parse(prevDurArr[2]));
-                                                        prevDurationSec = (int)prevTS.TotalSeconds;
-
-                                                        break;
-                                                    }
-
-                                                }
-
+                                                fileType = "iOS Clear";
+                                                cdn = "Direct Link";
+                                                break;
                                             }
-                                            FileStruct file = createFileStruct(assetID, fileURL, prevDurationSec.ToString(), "Direct Link", sBreakpoints, string.Empty, false);
-                                            m_filesDict.Add(fileType, file);
-                                        }
-                                        else if (assetType.Equals("poster"))
-                                        {
-                                            m_basicsDict.Add("thumb", fileURL);
-                                            m_picRatios.Add("16:9", fileURL);
-                                        }
-                                        else if (assetType.Equals("box cover"))
-                                        {
-                                            m_picRatios.Add("2:3", fileURL);
-                                        }
+                                        case "preview":
+                                            {
+                                                fileType = "Trailer";
+                                                cdn = "Direct Link";
+                                                durationSec = prevDurationSec;
+                                                break;
+                                            }
+                                        case "poster":
+                                            {
+                                                m_picRatios.Add("3:4", fileURL);
+                                                continue;
+                                            }
+                                        case "box cover":
+                                            {
+                                                m_basicsDict.Add("thumb", fileURL);
+                                                //m_picRatios.Add("16:9", fileURL);
+                                                continue;
+                                            }
+                                    }
+
+                                    FileStruct file = createFileStruct(assetID, fileURL, durationSec.ToString(), "Akamai", sBreakpoints, string.Empty, true, sPCode);
+                                    if (!m_filesDict.ContainsKey(fileType))
+                                    {
+                                        m_filesDict.Add(fileType, file);
                                     }
                                 }
                             }
@@ -912,38 +560,96 @@ namespace ADIFeeder
                 }
             }
 
-            string normXml = BuildNormalizedXML();
+            string normXml = BuildNormalizedXML(false);
             string seriesXML = string.Empty;
             if (isCreateSeriesXML())
             {
-                seriesXML = BuildSeriesXML();
+                seriesXML = BuildNormalizedXML(true);
             }
+
+            bool retVal = false;
             if (!string.IsNullOrEmpty(normXml))
             {
-                //string notifyXml = string.Empty;
                 m_sResXml = string.Empty;
                 retVal = TvinciImporter.ImporterImpl.DoTheWorkInner(normXml, nGroupID, string.Empty, ref m_sResXml, false);
                 if (!string.IsNullOrEmpty(seriesXML))
                 {
                     string refXml = string.Empty;
                     TvinciImporter.ImporterImpl.DoTheWorkInner(seriesXML, 149, string.Empty, ref refXml, false);
-                    // TvinciImporter.ImporterImpl.UploadDirectory(149);
                 }
-                // TvinciImporter.ImporterImpl.UploadDirectory(nGroupID);
+
                 ADDIngestToDBAndSaveFiles(m_sXML, normXml, m_sResXml);
             }
             return retVal;
         }
 
-        private FileStruct createFileStruct(string assetID, string fileURL, string durationInSec, string cdn, string breakpoints, string overlaypoints, bool isPutAdDetails)
+        private void SetMetasFromFilesContant(XmlNodeList fileAppData, ref int prevDurationSec)
+        {
+            for (int t = 0; t < fileAppData.Count; t++)
+            {
+                XmlNode fileAppDataNode = fileAppData[t];
+                string sFileNameData = XmlUtils.GetItemParameterVal(ref fileAppDataNode, "Name");
+                string sFileValueData = XmlUtils.GetItemParameterVal(ref fileAppDataNode, "Value");
+
+                if (sFileNameData.ToLower().Equals("run_time"))
+                {
+                    string[] prevDurArr = sFileValueData.Split(':');
+                    TimeSpan prevTS = new TimeSpan(int.Parse(prevDurArr[0]), int.Parse(prevDurArr[1]), int.Parse(prevDurArr[2]));
+                    prevDurationSec = (int)prevTS.TotalSeconds;
+
+                }
+                else if (sFileNameData.ToLower().Equals("languages"))
+                {
+                    string[] isoLangsArr = sFileValueData.Split(';');
+                    if (isoLangsArr != null && isoLangsArr.Length > 0)
+                    {
+                        foreach (string str in isoLangsArr)
+                        {
+                            string langStr = getFullLanguageStr(str);
+
+                            if (!m_tagsDict.ContainsKey("Audio language"))
+                            {
+                                AddTag("Audio language", langStr);
+                            }
+                            else if (!m_tagsDict["Audio language"].Contains(langStr))
+                            {
+                                AddTag("Audio language", langStr);
+                            }
+                        }
+                    }
+                }
+                else if (sFileNameData.ToLower().Equals("subtitle_languages"))
+                {
+                    string[] isoLangsArr = sFileValueData.Split(';');
+                    if (isoLangsArr != null && isoLangsArr.Length > 0)
+                    {
+                        foreach (string str in isoLangsArr)
+                        {
+                            string langStr = getFullLanguageStr(str);
+
+                            if (!m_tagsDict.ContainsKey("Subtitle language"))
+                            {
+                                AddTag("Subtitle language", langStr);
+                            }
+                            else if (!m_tagsDict["Subtitle language"].Contains(langStr))
+                            {
+                                AddTag("Subtitle language", langStr);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private FileStruct createFileStruct(string assetID, string fileURL, string durationInSec, string cdn, string breakpoints, string overlaypoints, bool isPutAdDetails, string pCode)
         {
             string adProvider;
             if (!isPutAdDetails)
-                return new FileStruct(assetID, fileURL, durationInSec, cdn, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+                return new FileStruct(assetID, fileURL, durationInSec, cdn, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
             adProvider = ConfigurationManager.AppSettings["ADIFeederDefaultAdProvider"];
             if (adProvider == null)
                 adProvider = string.Empty;
-            return new FileStruct(assetID, fileURL, durationInSec, cdn, adProvider, adProvider, adProvider, adProvider, breakpoints, overlaypoints);
+            return new FileStruct(assetID, fileURL, durationInSec, cdn, adProvider, adProvider, adProvider, adProvider, breakpoints, overlaypoints, pCode);
         }
 
         private void ADDIngestToDBAndSaveFiles(string sOrigXML, string sNormXML, string sResponseXML)
@@ -976,51 +682,6 @@ namespace ADIFeeder
             IngestionUtils.UploadIngestToFTP(ingestID, files);
             Logger.Logger.Log("AddIngestToFTP", "End", "IngetLog");
         }
-
-        //private void InsertIngestFileData(int nIngestID, int nMediaID, string sCoGuid, string sStatus)
-        //{
-        //    ODBCWrapper.DataSetInsertQuery insertQuery = new ODBCWrapper.DataSetInsertQuery("ingest_media");
-        //    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ingest_id", nIngestID);
-        //    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", nMediaID);
-        //    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("co_guid", sCoGuid);
-        //    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("result_status", sStatus);
-
-        //    insertQuery.Execute();
-        //    insertQuery.Finish();
-
-        //}
-
-        //private int InsertIngestToDB(DateTime createDate, string ingestFileType, string sIP)
-        //{
-        //    ODBCWrapper.DataSetInsertQuery insertQuery = new ODBCWrapper.DataSetInsertQuery("ingests");
-        //    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("orig_type", ingestFileType);
-        //    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", m_nGroupID);
-        //    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("create_date", createDate);
-        //    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IP", sIP);
-
-        //    insertQuery.Execute();
-        //    insertQuery.Finish();
-
-        //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        //    selectQuery += "SELECT ID FROM ingests WHERE ";
-        //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
-        //    selectQuery += "AND";
-        //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("create_date", "=", createDate);
-        //    DataTable dt = selectQuery.Execute("query", true);
-        //    selectQuery.Finish();
-
-        //    int ingestID = 0;
-
-        //    if (dt != null)
-        //    {
-        //        if (dt.DefaultView.Count > 0)
-        //        {
-        //            ingestID = int.Parse(dt.Rows[0][0].ToString());
-        //        }
-        //    }
-
-        //    return ingestID;
-        //}
 
         private string getFullLanguageStr(string isoLangStr)
         {
@@ -1128,11 +789,23 @@ namespace ADIFeeder
                     case ("2"):
                         {
                             retVal = "iPhone Main";
+                            sPCode = GetMetaValue(m_stringMetaDict, "Product Code");
                             break;
                         }
                     case ("3"):
                         {
                             retVal = "iPad Main";
+                            sPCode = GetMetaValue(m_stringMetaDict, "Product Code");
+                            break;
+                        }
+                    case ("4"):
+                        {
+                            retVal = "Download Main";
+                            break;
+                        }
+                    case ("5"):
+                        {
+                            retVal = "Download High";
                             break;
                         }
                     default:
@@ -1228,24 +901,82 @@ namespace ADIFeeder
             return retVal;
         }
 
-        private string GetTVMMediaTyoe(string mediaType, ref int groupID)
+        private string GetTVMMediaType(string mediaType, ref int groupID)
         {
-            string retVal = string.Empty;
-            if (mediaType.ToLower().Equals("movie"))
+            switch (mediaType.ToLower())
             {
-                retVal = "Movie";
-                groupID = 148;
+                case "movie":
+                    {
+                        groupID = 148;
+                        return "Movie";
+                    }
+                case "series":
+                    {
+                        groupID = 148;
+                        return "Episode";
+                    }
+                case "extra":
+                    {
+                        groupID = 148;
+                        return "Extra";
+                    }
+                case "news":
+                    {
+                        groupID = 148;
+                        return "News";
+                    }
+                case "education":
+                    {
+                        groupID = 148;
+                        return "Education";
+                    }
+                default:
+                    {
+                        return string.Empty;
+                    }
             }
-            else if (mediaType.ToLower().Equals("series"))
-            {
-                retVal = "Episode";
-                groupID = 148;
-            }
-            return retVal;
         }
 
-        private void AddTag(string tagName, string tagValue)
+        private string GetMetaValue(Dictionary<string, string> dic, string sKey)
         {
+            string ret = string.Empty;
+
+            // check if dictinary contains key, if it does'nt return empty string
+
+            ret = dic.ContainsKey(sKey) == true ? dic[sKey] : string.Empty;
+
+            return ret;
+        }
+
+        private List<string> GetTagValues(Dictionary<string, List<string>> dic, string sKey)
+        {
+            List<string> ret = null;
+
+            // check if dictinary contains key, if it does'nt return null
+            ret = dic.ContainsKey(sKey) == true ? dic[sKey] : null;
+
+            return ret;
+        }
+
+        private string GetTagValueByIndex(Dictionary<string, List<string>> dic, string sKey, int index)
+        {
+            // check if dictinary contains key, if it does return its value by index provided
+            List<string> tagsList = dic.ContainsKey(sKey) == true ? dic[sKey] : null;
+
+            if (tagsList != null && tagsList.Count >= index)
+            {
+                return tagsList[index];
+            }
+
+            return string.Empty;
+        }
+
+        public void AddTag(string tagName, string tagValue)
+        {
+
+            if (tagValue.EndsWith(";"))
+                tagValue = tagValue.Substring(0, tagValue.Length - 1);
+
             if (!m_tagsDict.ContainsKey(tagName))
             {
                 List<string> categoryList = tagValue.Split(';').ToList<string>();
@@ -1256,6 +987,53 @@ namespace ADIFeeder
                 List<string> catValues = m_tagsDict[tagName];
                 catValues.Add(tagValue);
                 m_tagsDict[tagName] = catValues;
+            }
+        }
+
+        private void SetupAllTagsValues()
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += "select NAME, GROUP_ID from media_tags_types where GROUP_ID in (149, 148) and [STATUS] = 1";
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int count = selectQuery.Table("query").DefaultView.Count;
+
+                for (int i = 0; i < count; ++i)
+                {
+                    int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "GROUP_ID", i);
+                    string sCurrTag = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "NAME", i);
+
+                    if (nGroupID == 149)
+                    {
+                        m_virtualTags.Add(sCurrTag);
+                    }
+                    else
+                    {
+                        m_regularTags.Add(sCurrTag);
+                    }
+                }
+
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+
+        private bool IsTagExist(bool isSeries, string key)
+        {
+            // All common group tags, return true
+            if (key.ToLower().Equals("free"))
+            {
+                return true;
+            }
+
+            if (isSeries == true)
+            {
+                return m_virtualTags.Contains(key);
+            }
+            else
+            {
+                return m_regularTags.Contains(key);
             }
         }
 
