@@ -681,12 +681,24 @@ namespace ConditionalAccess
 
         private static bool CalcIsCreditNeedToBeDownloadedForSub(DateTime dbTimeNow, DateTime lastCreateDate, Subscription s)
         {
+            //bool res = true;
+            //if (s.m_oSubscriptionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
+            //    && !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
+            //    && (dbTimeNow - lastCreateDate).TotalMinutes < s.m_oSubscriptionUsageModule.m_tsViewLifeCycle)
+            //{
+            //    res = false;
+            //}
+
+            //return res;
+
             bool res = true;
             if (s.m_oSubscriptionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-                && !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-                && (dbTimeNow - lastCreateDate).TotalMinutes < s.m_oSubscriptionUsageModule.m_tsViewLifeCycle)
+                && !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
             {
-                res = false;
+                if (GetEndDateTime(lastCreateDate, s.m_oSubscriptionUsageModule.m_tsViewLifeCycle) > dbTimeNow)
+                {
+                    res = false;
+                }
             }
 
             return res;
@@ -694,12 +706,24 @@ namespace ConditionalAccess
 
         private static bool CalcIsCreditNeedToBeDownloadedForCol(DateTime dbTimeNow, DateTime lastCreateDate, Collection c)
         {
+            //bool res = true;
+            //if (c.m_oCollectionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE) &&
+            //    !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
+            //    && (dbTimeNow - lastCreateDate).TotalMinutes < c.m_oCollectionUsageModule.m_tsViewLifeCycle)
+            //{
+            //    res = false;
+            //}
+
+            //return res;
+
             bool res = true;
             if (c.m_oCollectionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE) &&
-                !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-                && (dbTimeNow - lastCreateDate).TotalMinutes < c.m_oCollectionUsageModule.m_tsViewLifeCycle)
+                !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
             {
-                res = false;
+                if (GetEndDateTime(lastCreateDate, c.m_oCollectionUsageModule.m_tsViewLifeCycle) > dbTimeNow)
+                {
+                    res = false;
+                }
             }
 
             return res;
