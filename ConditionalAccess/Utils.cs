@@ -929,7 +929,10 @@ namespace ConditionalAccess
                 List<int> validatedSubs = null;
                 List<int> validatedColls = null;
 
-                ValidateMediaContainedInBundles(nMediaID, nGroupID, distinctSubs, distinctColls, ref validatedSubs, ref validatedColls);
+                if (distinctSubs.Count > 0 || distinctColls.Count > 0)
+                {
+                    ValidateMediaContainedInBundles(nMediaID, nGroupID, distinctSubs, distinctColls, ref validatedSubs, ref validatedColls);
+                }
 
                 if (validatedSubs != null && validatedSubs.Count > 0)
                 {

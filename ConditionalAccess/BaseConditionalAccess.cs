@@ -5556,7 +5556,7 @@ namespace ConditionalAccess
 
                                             ret = ExecuteCCSubscriprionPurchaseFlow(theBundle as TvinciPricing.Subscription, sBundleCode, sSiteGUID, dPrice, sCurrency, sCouponCode,
                                                                         sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bIsEntitledToPreviewModule, bDummy, sExtraParams,
-                                                                        sPaymentMethodID, sEncryptedCVV, p, ref bm);
+                                                                        sPaymentMethodID, sEncryptedCVV, p, ref bm, sWSUserName, sWSPass);
                                             break;
                                         }
                                     case eBundleType.COLLECTION:
@@ -5646,7 +5646,7 @@ namespace ConditionalAccess
         private TvinciBilling.BillingResponse ExecuteCCSubscriprionPurchaseFlow(TvinciPricing.Subscription theSub, string sBundleCode, string sSiteGUID, double dPrice,
                                     string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
                                     bool bIsEntitledToPreviewModule, bool bDummy, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, TvinciPricing.Price p,
-                                    ref TvinciBilling.module bm)
+                                    ref TvinciBilling.module bm, string sBillingUsername, string sBillingPassword)
         {
             string sCustomData = string.Empty;
             TvinciBilling.BillingResponse ret = null;
@@ -5660,12 +5660,9 @@ namespace ConditionalAccess
             bool bIsRecurring = theSub.m_bIsRecurring;
             Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
 
-            string sWSUserName = string.Empty;
-            string sWSPass = string.Empty;
-
             if (p.m_dPrice != 0 || bDummy)
             {
-                ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
+                ret = HandleCCChargeUser(sBillingUsername, sBillingPassword, sSiteGUID, dPrice, sCurrency, sUserIP,
                     sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
                     bDummy, bIsEntitledToPreviewModule, ref bm);
             }
