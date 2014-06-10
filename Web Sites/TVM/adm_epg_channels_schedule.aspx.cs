@@ -219,31 +219,31 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
 
     private void FillDataTable(ref CBTableWebEditor<EPGChannelProgrammeObject> theTable)
     {
-        DataTable dt;
+        DataTable dt = new DataTable();
+        
+        // Build DataTable
+        foreach (DictionaryEntry item in theTable.GetHTMLFields())
+        {
+            dt.Columns.Add(item.Key.ToString());
+        }
+        foreach (DictionaryEntry item in theTable.GetHiddenFields())
+        {
+            string sKey = item.Key.ToString();
+            dt.Columns.Add(sKey);
+            dt.Columns[sKey].ColumnMapping = MappingType.Hidden;
+        }
+        foreach (DictionaryEntry item in theTable.GetOnOffFields())
+        {
+            dt.Columns.Add(item.Key.ToString());
+        }
+
         List<EPGChannelProgrammeObject> lEpg = theTable.GetData();
         if (lEpg != null && lEpg.Count > 0)
         {
             //get all media description from DB 
             List<string> lEpgIdentifier = lEpg.Select(x => x.EPG_IDENTIFIER).ToList();
             List<KeyValuePair<string,string>> lMediaDescription = DAL.TvmDAL.GetMediaDescription(lEpgIdentifier);
-
-            dt = new DataTable();
-            // Build DataTable
-            foreach (DictionaryEntry item in theTable.GetHTMLFields())
-            {
-                dt.Columns.Add(item.Key.ToString());
-            }
-            foreach (DictionaryEntry item in theTable.GetHiddenFields())
-            {
-                string sKey = item.Key.ToString();
-                dt.Columns.Add(sKey);
-                dt.Columns[sKey].ColumnMapping = MappingType.Hidden;
-            }
-            foreach (DictionaryEntry item in theTable.GetOnOffFields())
-            {
-		        dt.Columns.Add(item.Key.ToString());
-            }
-
+            
             #region Fill DataTable Rows
             DataRow row; 
             foreach (EPGChannelProgrammeObject epg in lEpg)
@@ -331,9 +331,9 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
                 dt.Rows.Add(row);
             }
             #endregion
-
-            theTable.FillDataTable(dt);
         }
+
+        theTable.FillDataTable(dt);
     }
 
     public static string GetDescription(string item, List<KeyValuePair<string, string>> list)
