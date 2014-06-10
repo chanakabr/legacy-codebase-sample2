@@ -15,6 +15,7 @@ namespace M1BL
         private DataTable m_dtTransactions;        
 
         private int m_nGroupID;
+        private int m_nHoursOffset;
 
         private string m_sFtpDirectory;
         private string m_sFtpUser;
@@ -132,6 +133,15 @@ namespace M1BL
             try
             {
                 m_nGroupID = nGroupID;
+                m_nHoursOffset = 0;
+                
+                string sGMTOffset = GetTcmConfigValue(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
+                Logger.Logger.Log("GMTOffset", string.Format("sGMTOffset:{0}", sGMTOffset), "M1_ProcessCdrFile");
+                if (!string.IsNullOrEmpty(sGMTOffset))
+                {
+                    m_nHoursOffset = int.Parse(sGMTOffset);
+                }
+
                 DataSet dsGroupParams = BillingDAL.Get_M1GroupParameters(m_nGroupID, null);
                 if (dsGroupParams != null && dsGroupParams.Tables.Count > 0)
                 {
@@ -290,12 +300,7 @@ namespace M1BL
                     //string sFormattedChargedNumber = m_sSubscriptionBodyChargedNumberPrefix + sChargedNumber;
 
                     DateTime dCallDateTime = ODBCWrapper.Utils.GetDateSafeVal(rowPPV["create_date"]);
-                    string sGMTOffset = GetTcmConfigValue(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
-                    if (!string.IsNullOrEmpty(sGMTOffset))
-                    {
-                        int hoursOffset = int.Parse(sGMTOffset);
-                        dCallDateTime = dCallDateTime.AddHours(hoursOffset);
-                    }
+                    dCallDateTime = dCallDateTime.AddHours(m_nHoursOffset);
 
                     string sServiceDescription =   ODBCWrapper.Utils.GetSafeStr(rowPPV["item_description"]);
                     double nPrice = ODBCWrapper.Utils.GetDoubleSafeVal(rowPPV["price"]);
@@ -367,14 +372,9 @@ namespace M1BL
                     DateTime dSubscriptionStartDate  = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["item_start_date"]);
                     DateTime dSubscriptionEndDate = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["item_end_date"]);
 
-                    string sGMTOffset = GetTcmConfigValue(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
-                    if (!string.IsNullOrEmpty(sGMTOffset))
-                    {
-                        int hoursOffset = int.Parse(sGMTOffset);
-                        dSubscriptionStartDate = dSubscriptionStartDate.AddHours(hoursOffset);
-                        dSubscriptionEndDate = dSubscriptionEndDate.AddHours(hoursOffset);
-                    }
-
+                    dSubscriptionStartDate = dSubscriptionStartDate.AddHours(m_nHoursOffset);
+                    dSubscriptionEndDate = dSubscriptionEndDate.AddHours(m_nHoursOffset);
+                    
                     double nPrice = ODBCWrapper.Utils.GetDoubleSafeVal(rowSubscription["price"]);
                     nPrice = nPrice / (1 +  (m_dGst / 100));
 
