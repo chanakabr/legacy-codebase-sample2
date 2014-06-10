@@ -5865,7 +5865,7 @@ namespace ConditionalAccess
 
                                             ret = ExecuteCCSubscriprionPurchaseFlow(theBundle as TvinciPricing.Subscription, sBundleCode, sSiteGUID, dPrice, sCurrency, sCouponCode,
                                                                         sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bIsEntitledToPreviewModule, bDummy, sExtraParams,
-                                                                        sPaymentMethodID, sEncryptedCVV, p, ref bm);
+                                                                        sPaymentMethodID, sEncryptedCVV, p, ref bm, sWSUserName, sWSPass);
                                             break;
                                         }
                                     case eBundleType.COLLECTION:
@@ -5955,7 +5955,7 @@ namespace ConditionalAccess
         private TvinciBilling.BillingResponse ExecuteCCSubscriprionPurchaseFlow(TvinciPricing.Subscription theSub, string sBundleCode, string sSiteGUID, double dPrice,
                                     string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
                                     bool bIsEntitledToPreviewModule, bool bDummy, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, TvinciPricing.Price p,
-                                    ref TvinciBilling.module bm)
+                                    ref TvinciBilling.module bm, string sBillingUsername, string sBillingPassword)
         {
             string sCustomData = string.Empty;
             TvinciBilling.BillingResponse ret = null;
