@@ -164,6 +164,10 @@ namespace Catalog
             {
                 return new MediaLastPositionRequest((MediaLastPositionRequest)this.m_oBaseRequest);
             }
+            if (m_oBaseRequest is BundlesContainingMediaRequest)
+            {
+                return new BundlesContainingMediaRequest();
+            }
 
             return null;
         }
