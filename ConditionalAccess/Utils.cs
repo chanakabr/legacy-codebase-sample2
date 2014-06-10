@@ -385,7 +385,7 @@ namespace ConditionalAccess
             {
                 if (!dict.ContainsKey(lstCollectionCodes[i]))
                 {
-                    dict.Add(lstCollectionCodes[i], true);
+                    dict.Add(lstCollectionCodes[i], false);
                 }
             }
         }
@@ -2324,6 +2324,18 @@ namespace ConditionalAccess
             return res;
         }
 
+        private static void GetUsersAndDomainsCredentials(int nGroupID, ref string sUsersUsername, ref string sUsersPassword, 
+            ref string sDomainsUsername, ref string sDomainsPassword)
+        {
+            Dictionary<string, string[]> dict = ConditionalAccessDAL.Get_MultipleWSCredentials(nGroupID, new List<string>(2) { "users", "domains" });
+            string[] usersCreds = dict["users"];
+            sUsersUsername = usersCreds[0];
+            sUsersPassword = usersCreds[1];
+            string[] domainsCreds = dict["domains"];
+            sDomainsUsername = domainsCreds[0];
+            sDomainsPassword = domainsCreds[1];
+        }
+
 
         internal static List<int> GetAllUsersDomainBySiteGUID(string sSiteGUID, Int32 nGroupID)
         {
@@ -2334,21 +2346,23 @@ namespace ConditionalAccess
                 return lDomainsUsers;
             }
 
-            string sIP = "1.1.1.1";
             using (TvinciUsers.UsersService u = new TvinciUsers.UsersService())
             {
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetUserData", "Users", sIP, ref sWSUserName, ref sWSPass);
+                string sUsersUsername = string.Empty;
+                string sUsersPassword = string.Empty;
+                string sDomainsUsername = string.Empty;
+                string sDomainsPassword = string.Empty;
+                GetUsersAndDomainsCredentials(nGroupID, ref sUsersUsername, ref sUsersPassword, ref sDomainsUsername, ref sDomainsPassword);
+                //TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetUserData", "Users", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
                 if (sWSURL.Length > 0)
                     u.Url = sWSURL;
 
-                TvinciUsers.UserResponseObject userResponseObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                TvinciUsers.UserResponseObject userResponseObj = u.GetUserData(sUsersUsername, sUsersPassword, sSiteGUID);
 
                 if (userResponseObj.m_RespStatus == TvinciUsers.ResponseStatus.OK && userResponseObj.m_user.m_domianID != 0)
                 {
-                    lDomainsUsers = GetDomainsUsers(userResponseObj.m_user.m_domianID, nGroupID);
+                    lDomainsUsers = GetDomainsUsers(userResponseObj.m_user.m_domianID, nGroupID, sDomainsUsername, sDomainsPassword, true);
                 }
                 else
                 {
@@ -2358,8 +2372,13 @@ namespace ConditionalAccess
 
             return lDomainsUsers;
         }
+        private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID)
+        {
+            return GetDomainsUsers(nDomainID, nGroupID, string.Empty, string.Empty, true);
+        }
 
-        static private List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID)
+        private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID, string sDomainsUsername, string sDomainsPassword, 
+            bool bGetAlsoPendingUsers)
         {
             string sIP = "1.1.1.1";
             List<int> intUsersList = new List<int>();
@@ -2367,31 +2386,31 @@ namespace ConditionalAccess
             {
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetDomainUserList", "Domains", sIP, ref sWSUserName, ref sWSPass);
+                string[] usersList = null;
                 string sWSURL = Utils.GetWSURL("domains_ws");
                 if (sWSURL.Length > 0)
                     bm.Url = sWSURL;
-                try
+                if (string.IsNullOrEmpty(sDomainsUsername) || string.IsNullOrEmpty(sDomainsPassword))
                 {
-                    string[] usersList = bm.GetDomainUserList(sWSUserName, sWSPass, nDomainID);
-                    if (usersList != null && usersList.Length > 0)
+                    TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetDomainUserList", "Domains", sIP, ref sWSUserName, ref sWSPass);
+                    usersList = bm.GetDomainUserList(sWSUserName, sWSPass, nDomainID);
+                }
+                else
+                {
+                    usersList = bm.GetDomainUserList(sDomainsUsername, sDomainsPassword, nDomainID);
+                }
+                if (usersList != null && usersList.Length > 0)
+                {
+                    for (int i = 0; i < usersList.Length; i++)
                     {
-                        foreach (string str in usersList)
+                        int temp = 0;
+                        // pending users are returned with domains with a minus before their site guid.
+                        // for example: site 123456 which is pending in the domain will be returned as -123456
+                        if (Int32.TryParse(usersList[i], out temp) && (bGetAlsoPendingUsers || temp > 0))
                         {
-                            intUsersList.Add(Int32.Parse(str));
+                            intUsersList.Add(temp);
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    #region Logging
-                    StringBuilder sb = new StringBuilder("Exception at GetDomainsUsers. ");
-                    sb.Append(String.Concat(" Msg: ", ex.Message));
-                    sb.Append(String.Concat(" Domain ID: ", nDomainID));
-                    sb.Append(String.Concat(" Group ID: ", nGroupID));
-                    sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
-                    Logger.Logger.Log("Exception", sb.ToString(), "GetDomainsUsers");
-                    #endregion
                 }
             }
 

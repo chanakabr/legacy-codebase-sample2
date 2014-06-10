@@ -1499,12 +1499,15 @@ namespace DAL
                 {
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        string serviceName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ws_name"]).Trim().ToLower();
+                        string serviceName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ws_name"]);
                         string serviceUser = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["username"]);
                         string servicePass = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["password"]);
+                        res[serviceName][0] = serviceUser;
+                        res[serviceName][1] = servicePass;
                     }
                 }
             }
+
 
             return res;
         }
