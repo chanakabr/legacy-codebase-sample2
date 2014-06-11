@@ -296,11 +296,11 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
         theRecord.AddRecord(dr_name);
 
         DataRecordDateTimeField dr_start_date = new DataRecordDateTimeField(true);
-        dr_start_date.Initialize("Start Date/Time", "adm_table_header_nbg", "FormInput", "START_DATE", epg.StartDate.ToString(), true);        
+        dr_start_date.Initialize("Start Date/Time", "adm_table_header_nbg", "FormInput", "START_DATE", epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"), true);        
         theRecord.AddRecord(dr_start_date);
 
         DataRecordDateTimeField dr_end_date = new DataRecordDateTimeField(true);
-        dr_end_date.Initialize("End Date/Time", "adm_table_header_nbg", "FormInput", "END_DATE", epg.EndDate.ToString(), true);        
+        dr_end_date.Initialize("End Date/Time", "adm_table_header_nbg", "FormInput", "END_DATE", epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), true);        
         theRecord.AddRecord(dr_end_date);
 
         DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField();

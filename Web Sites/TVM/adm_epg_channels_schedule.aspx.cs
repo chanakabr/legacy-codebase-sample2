@@ -172,6 +172,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         FillDataTable(ref theTable);
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
+        Session["ContentPage"] = "adm_epg_channels.aspx?search_save=1";
 
         theTable.Finish();
         theTable = null;
