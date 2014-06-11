@@ -835,8 +835,13 @@ namespace ConditionalAccess
             return request;
         }
 
+        private static bool IsUserCanStillUseSub(int numOfUses, int maxNumOfUses)
+        {
+            // maxNumOfUses==0 means unlimited uses.
+            return maxNumOfUses == 0 || numOfUses == 0 || numOfUses < maxNumOfUses;
+        }
 
-        // pass by reference list of subscription and list of collections
+
         internal static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
             int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword,
             ref Subscription[] subsRes, ref Collection[] collsRes)
@@ -863,7 +868,7 @@ namespace ConditionalAccess
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
                         GetBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode);
-                        if (numOfUses == 0 || numOfUses < maxNumOfUses)
+                        if (IsUserCanStillUseSub(numOfUses, maxNumOfUses))
                         {
                             // add to Catalog's BundlesContainingMediaRequest
                             int subCode = 0;
@@ -2098,10 +2103,6 @@ namespace ConditionalAccess
                 TvinciPricing.mdoule m = null;
                 try
                 {
-                    m = new ConditionalAccess.TvinciPricing.mdoule();
-                    string pricingUrl = GetWSURL("pricing_ws");
-                    if (pricingUrl.Length > 0)
-                        m.Url = pricingUrl;
                     string relFileTypesStr = string.Empty;
                     int[] ppvRelatedFileTypes = ppvModule.m_relatedFileTypes;
                     bool isMultiMediaTypes = false;
@@ -2167,6 +2168,10 @@ namespace ConditionalAccess
                                     else
                                     {
                                         //TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetPrePaidModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                                        m = new ConditionalAccess.TvinciPricing.mdoule();
+                                        string pricingUrl = GetWSURL("pricing_ws");
+                                        if (pricingUrl.Length > 0)
+                                            m.Url = pricingUrl;
                                         relevantPP = m.GetPrePaidModuleData(sPricingUsername, sPricingPassword, int.Parse(sPPCode), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                                         CachingManager.CachingManager.SetCachedData(sCacheKey, relevantPP, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
                                     }
@@ -2282,7 +2287,6 @@ namespace ConditionalAccess
                     if (m != null)
                     {
                         m.Dispose();
-                        m = null;
                     }
                     #endregion
                 }

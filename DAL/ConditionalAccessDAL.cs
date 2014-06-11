@@ -1391,10 +1391,10 @@ namespace DAL
 
 
             DataSet ds = sp.ExecuteDataSet();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
             {
                 DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count == 2)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     res = true;
                     subsToCreateDateMapping = new Dictionary<string, DateTime>();

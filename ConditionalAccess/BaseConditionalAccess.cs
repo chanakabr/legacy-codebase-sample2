@@ -2662,87 +2662,103 @@ namespace ConditionalAccess
 
         protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME)
         {
+            TvinciUsers.UsersService u = null;
+            TvinciDomains.module domainsWS = null;
             bool isDeviceRecognized = false;
-            TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService();
-            string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = Utils.GetWSURL("users_ws");
-            if (sWSURL != "")
-                u.Url = sWSURL;
-            TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
-            if (userRepObj != null && userRepObj.m_user != null && userRepObj.m_RespStatus == ResponseStatus.OK)
+            try
             {
-                Logger.Logger.Log("LicensedLink", "User Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
-                int domainID = userRepObj.m_user.m_domianID;
-                if (domainID != 0)
+                u = new ConditionalAccess.TvinciUsers.UsersService();
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = Utils.GetWSURL("users_ws");
+                if (sWSURL != "")
+                    u.Url = sWSURL;
+                TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                if (userRepObj != null && userRepObj.m_user != null && userRepObj.m_RespStatus == ResponseStatus.OK)
                 {
-                    Logger.Logger.Log("LicensedLink", "Domain Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
-                    TvinciDomains.module domainsWS = new TvinciDomains.module();
-                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetDomainData", "domains", sIP, ref sWSUserName, ref sWSPass);
-                    sWSURL = Utils.GetWSURL("domains_ws");
-                    if (sWSURL != "")
-                        domainsWS.Url = sWSURL;
-                    TvinciDomains.Domain userDomain = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
-                    if (userDomain != null)
+                    Logger.Logger.Log("LicensedLink", "User Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
+                    int domainID = userRepObj.m_user.m_domianID;
+                    if (domainID != 0)
                     {
-                        Logger.Logger.Log("LicensedLink", "Domain Info Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
-                        TvinciDomains.DeviceContainer[] deviceContainers = userDomain.m_deviceFamilies;
-                        if (deviceContainers != null && deviceContainers.Length > 0)
+                        Logger.Logger.Log("LicensedLink", "Domain Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
+                        domainsWS = new TvinciDomains.module();
+                        TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetDomainData", "domains", sIP, ref sWSUserName, ref sWSPass);
+                        sWSURL = Utils.GetWSURL("domains_ws");
+                        if (sWSURL != "")
+                            domainsWS.Url = sWSURL;
+                        TvinciDomains.Domain userDomain = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
+                        if (userDomain != null)
                         {
-                            Logger.Logger.Log("LicensedLink", "Domain Containers Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
-                            List<int> familyIDs = new List<int>();
-                            for (int i = 0; i < deviceContainers.Length; i++)
+                            Logger.Logger.Log("LicensedLink", "Domain Info Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
+                            TvinciDomains.DeviceContainer[] deviceContainers = userDomain.m_deviceFamilies;
+                            if (deviceContainers != null && deviceContainers.Length > 0)
                             {
-                                TvinciDomains.DeviceContainer container = deviceContainers[i];
-
-                                if (container != null)
+                                Logger.Logger.Log("LicensedLink", "Domain Containers Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
+                                List<int> familyIDs = new List<int>();
+                                for (int i = 0; i < deviceContainers.Length; i++)
                                 {
-                                    if (!familyIDs.Contains(container.m_deviceFamilyID))
-                                    {
-                                        familyIDs.Add(container.m_deviceFamilyID);
-                                    }
+                                    TvinciDomains.DeviceContainer container = deviceContainers[i];
 
-                                    if (container.DeviceInstances != null && container.DeviceInstances.Length > 0)
+                                    if (container != null)
                                     {
-                                        for (int j = 0; j < container.DeviceInstances.Length; j++)
+                                        if (!familyIDs.Contains(container.m_deviceFamilyID))
                                         {
-                                            TvinciDomains.Device device = container.DeviceInstances[j];
-                                            if (string.Compare(device.m_deviceUDID.Trim(), sDEVICE_NAME.Trim()) == 0)
+                                            familyIDs.Add(container.m_deviceFamilyID);
+                                        }
+
+                                        if (container.DeviceInstances != null && container.DeviceInstances.Length > 0)
+                                        {
+                                            for (int j = 0; j < container.DeviceInstances.Length; j++)
                                             {
-                                                isDeviceRecognized = true;
-                                                break;
+                                                TvinciDomains.Device device = container.DeviceInstances[j];
+                                                if (string.Compare(device.m_deviceUDID.Trim(), sDEVICE_NAME.Trim()) == 0)
+                                                {
+                                                    isDeviceRecognized = true;
+                                                    break;
+                                                }
                                             }
                                         }
-                                    }
-                                    else
-                                    {
-                                        //Patch!!
-                                        if (container.m_deviceFamilyID == 5 && (string.IsNullOrEmpty(sDEVICE_NAME) || sDEVICE_NAME.ToLower().Equals("web site")))
+                                        else
                                         {
-                                            isDeviceRecognized = true;
+                                            //Patch!!
+                                            if (container.m_deviceFamilyID == 5 && (string.IsNullOrEmpty(sDEVICE_NAME) || sDEVICE_NAME.ToLower().Equals("web site")))
+                                            {
+                                                isDeviceRecognized = true;
+                                            }
                                         }
-                                    }
-                                    if (isDeviceRecognized)
-                                    {
-                                        break;
-                                    }
+                                        if (isDeviceRecognized)
+                                        {
+                                            break;
+                                        }
 
+                                    }
+                                }
+                                if (!familyIDs.Contains(5) && string.IsNullOrEmpty(sDEVICE_NAME) || (familyIDs.Contains(5) && familyIDs.Count == 0) || (!familyIDs.Contains(5) && sDEVICE_NAME.ToLower().Equals("web site")))
+                                {
+                                    isDeviceRecognized = true;
                                 }
                             }
-                            if (!familyIDs.Contains(5) && string.IsNullOrEmpty(sDEVICE_NAME) || (familyIDs.Contains(5) && familyIDs.Count == 0) || (!familyIDs.Contains(5) && sDEVICE_NAME.ToLower().Equals("web site")))
-                            {
-                                isDeviceRecognized = true;
-                            }
-                        }
 
+                        }
+                    }
+                    else
+                    {
+                        // No Domain - No device check!!
+                        isDeviceRecognized = true;
                     }
                 }
-                else
+            }
+            finally
+            {
+                if (u != null)
                 {
-                    // No Domain - No device check!!
-                    isDeviceRecognized = true;
+                    u.Dispose();
+                }
+                if (domainsWS != null)
+                {
+                    domainsWS.Dispose();
                 }
             }
             return isDeviceRecognized;
@@ -2840,7 +2856,10 @@ namespace ConditionalAccess
 
             int nReleventCollectionID = 0;
 
-            int.TryParse(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, out nReleventCollectionID);
+            if (price != null && price.m_oItemPrices != null && price.m_oItemPrices.Length > 0 && price.m_oItemPrices[0].m_relevantCol != null)
+            {
+                int.TryParse(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, out nReleventCollectionID);
+            }
 
             HandleCouponUses(price.m_oItemPrices[0].m_relevantSub, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID,
             price.m_oItemPrices[0].m_oPrice.m_dPrice, price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3,
