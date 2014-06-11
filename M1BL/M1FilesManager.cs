@@ -476,9 +476,6 @@ namespace M1BL
         
         private bool SendFileViaFtp(string sFileName, string sFtpFolder)
         {
-# if DEBUG
-            return true;
-# endif
             bool result = true;
             FileInfo fileInf = new FileInfo(sFileName);
             string uri = "ftp://" + m_sFtpDirectory + "/" + sFtpFolder + "/" + fileInf.Name;
