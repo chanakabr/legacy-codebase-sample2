@@ -2673,7 +2673,7 @@ namespace ConditionalAccess
                 string sWSPass = "";
                 TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL != "")
+                if (sWSURL.Length > 0)
                     u.Url = sWSURL;
                 TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
                 if (userRepObj != null && userRepObj.m_user != null && userRepObj.m_RespStatus == ResponseStatus.OK)
@@ -2686,7 +2686,7 @@ namespace ConditionalAccess
                         domainsWS = new TvinciDomains.module();
                         TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetDomainData", "domains", sIP, ref sWSUserName, ref sWSPass);
                         sWSURL = Utils.GetWSURL("domains_ws");
-                        if (sWSURL != "")
+                        if (sWSURL.Length > 0)
                             domainsWS.Url = sWSURL;
                         TvinciDomains.Domain userDomain = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
                         if (userDomain != null)
