@@ -838,7 +838,12 @@ namespace ConditionalAccess
         private static bool IsUserCanStillUseSub(int numOfUses, int maxNumOfUses)
         {
             // maxNumOfUses==0 means unlimited uses.
-            return maxNumOfUses == 0 || numOfUses == 0 || numOfUses < maxNumOfUses;
+            return maxNumOfUses == 0 || numOfUses < maxNumOfUses;
+        }
+
+        private static bool IsUserCanStillUseCol(int numOfUses, int maxNumOfUses)
+        {
+            return maxNumOfUses == 0 || numOfUses < maxNumOfUses;
         }
 
 
@@ -900,7 +905,7 @@ namespace ConditionalAccess
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
                         GetBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode);
-                        if (numOfUses == 0 || numOfUses < maxNumOfUses)
+                        if (IsUserCanStillUseCol(numOfUses, maxNumOfUses))
                         {
                             // add to Catalog's BundlesContainingMediaRequest
                             int collCode = 0;
@@ -2136,15 +2141,6 @@ namespace ConditionalAccess
                             {
                                 // purchased as part of subscription
                                 theReason = PriceReason.SubscriptionPurchased;
-                                //string sCacheKey = GetCachingManagerKey("GetSubscriptionData", sSubCode, nGroupID, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                                //if (CachingManager.CachingManager.Exist(sCacheKey))
-                                //    relevantSub = (ConditionalAccess.TvinciPricing.Subscription)(CachingManager.CachingManager.GetCachedData(sCacheKey));
-                                //else
-                                //{
-                                //    TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetSubscriptionData", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                                //    relevantSub = m.GetSubscriptionData(sWSUserName, sWSPass, sSubCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
-                                //    CachingManager.CachingManager.SetCachedData(sCacheKey, relevantSub, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-                                //}
                                 Subscription[] sub = GetSubscriptionsDataWithCaching(new List<string>(1) { sSubCode }, sPricingUsername, sPricingPassword, nGroupID);
                                 if (sub != null && sub.Length > 0)
                                 {
@@ -2167,7 +2163,6 @@ namespace ConditionalAccess
                                         relevantPP = (ConditionalAccess.TvinciPricing.PrePaidModule)(CachingManager.CachingManager.GetCachedData(sCacheKey));
                                     else
                                     {
-                                        //TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetPrePaidModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
                                         m = new ConditionalAccess.TvinciPricing.mdoule();
                                         string pricingUrl = GetWSURL("pricing_ws");
                                         if (pricingUrl.Length > 0)
@@ -2198,7 +2193,6 @@ namespace ConditionalAccess
                     Subscription[] relevantValidSubscriptions = null;
                     Collection[] relevantValidCollections = null;
                     GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, ref relevantValidSubscriptions, ref relevantValidCollections);
-                    //TvinciPricing.Subscription[] relevantValidSubscriptions = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, eBundleType.SUBSCRIPTION) as TvinciPricing.Subscription[];
 
                     if (relevantValidSubscriptions != null)
                     {
