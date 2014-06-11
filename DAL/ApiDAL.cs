@@ -1106,14 +1106,14 @@ namespace DAL
            string sCellPhone, long lGroupID, long lBillingProvider, long lBillingProviderReference, double dPaymentMethodAddition,
            double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
            string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
-           long lPreviewModuleID)
+           long lPreviewModuleID, string sCollectionCode)
         {
 
             return Insert_NewBillingTransaction(sSiteGuid, sLastFourDigits, dPrice, sPriceCode, sCurrencyCode,
                 sCustomData, nBillingStatus, sBillingReason, bIsRecurring, lMediaFileID, lMediaID, sPPVModuleCode,
                 sSubscriptionCode, sCellPhone, lGroupID, lBillingProvider, lBillingProviderReference, dPaymentMethodAddition,
                 dTotalPrice, nPaymentNumber, nNumberOfPayments, sExtraParams, sCountryCode, sLanguageCode, sDeviceName,
-                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty);
+                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty, sCollectionCode);
         }
 
         public static long Insert_NewBillingTransaction(string sSiteGuid, string sLastFourDigits, double dPrice,
@@ -1122,7 +1122,8 @@ namespace DAL
             string sCellPhone, long lGroupID, long lBillingProvider, long lBillingProviderReference, double dPaymentMethodAddition,
             double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
             string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
-            long lPreviewModuleID, long lPurchaseID, int nFinancialProcessingStatus, int? nNewRenewableStatus, string sRemarks)
+            long lPreviewModuleID, long lPurchaseID, int nFinancialProcessingStatus, int? nNewRenewableStatus, string sRemarks,
+            string sCollectionCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewBillingTransaction");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1171,7 +1172,14 @@ namespace DAL
             sp.AddParameter("@Remarks", sRemarks);
             sp.AddParameter("@PrePaidCode", sPrePaidCode);
             sp.AddParameter("@PreviewModuleID", lPreviewModuleID);
-
+            if (string.IsNullOrEmpty(sCollectionCode))
+            {
+                sp.AddParameter("@CollectionCode", DBNull.Value);
+            }
+            else
+            {
+                sp.AddParameter("@CollectionCode", sCollectionCode);
+            }
             return sp.ExecuteReturnValue<long>();
 
         }
