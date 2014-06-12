@@ -2788,29 +2788,25 @@ namespace ConditionalAccess
                 TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
                 u = new TvinciUsers.UsersService();
                 string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
                     u.Url = sWSURL;
                 TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
                 if (userRepObj != null && userRepObj.m_user != null && userRepObj.m_RespStatus == ResponseStatus.OK)
                 {
-                    Logger.Logger.Log("LicensedLink", "User Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
                     int domainID = userRepObj.m_user.m_domianID;
                     if (domainID != 0)
                     {
-                        Logger.Logger.Log("LicensedLink", "Domain Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
                         domainsWS = new TvinciDomains.module();
                         TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetDomainData", "domains", sIP, ref sWSUserName, ref sWSPass);
                         sWSURL = Utils.GetWSURL("domains_ws");
-                        if (sWSURL.Length > 0)
+                        if (!string.IsNullOrEmpty(sWSURL))
                             domainsWS.Url = sWSURL;
                         TvinciDomains.Domain userDomain = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
                         if (userDomain != null)
                         {
-                            Logger.Logger.Log("LicensedLink", "Domain Info Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
                             TvinciDomains.DeviceContainer[] deviceContainers = userDomain.m_deviceFamilies;
                             if (deviceContainers != null && deviceContainers.Length > 0)
                             {
-                                Logger.Logger.Log("LicensedLink", "Domain Containers Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
                                 List<int> familyIDs = new List<int>();
                                 for (int i = 0; i < deviceContainers.Length; i++)
                                 {
@@ -2891,7 +2887,6 @@ namespace ConditionalAccess
         /// </summary>
         public virtual string GetLicensedLink(string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
         {
-            Logger.Logger.Log("LicensedLink", "Start", "LicensedLink");
             Int32[] nMediaFileIDs = { nMediaFileID };
 
             if (sBasicLink.Contains(string.Format("||{0}", nMediaFileID)))
@@ -2900,32 +2895,26 @@ namespace ConditionalAccess
             }
             bool isDeviceRecognized = isDevicePlayValid(sSiteGUID, sDEVICE_NAME);
 
-
             if (!isDeviceRecognized)
             {
-                Logger.Logger.Log("LicensedLink", "Device Not Recognized for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
+                Logger.Logger.Log("Device Not Recognized", string.Format("User:{0}, MediaFile:{1}, Device:{2}", sSiteGUID, nMediaFileID.ToString(), sDEVICE_NAME), "LicensedLink");
                 return string.Empty;
             }
-            Logger.Logger.Log("LicensedLink", "Device Recognized for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
 
             MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sUserIP);
             if (prices.Length == 0)
             {
-                Logger.Logger.Log("LicensedLink", "Price Length 0", "LicensedLink");
                 return "";
             }
             if (prices[0].m_oItemPrices == null || prices[0].m_oItemPrices.Length == 0 || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.Free)
             {
-                Logger.Logger.Log("LicensedLink", "Free Item for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
                 return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
             }
 
             if (prices[0].m_oItemPrices[0].m_oPrice.m_dPrice == 0 && (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PrePaidPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.CollectionPurchased))
             {
-                Logger.Logger.Log("LicensedLink", "Purchased for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
                 if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink) == true)
                 {
-                    Logger.Logger.Log("LicensedLink", "Validated for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
                     HandlePlayUses(prices[0], sSiteGUID, nMediaFileID, sUserIP, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
                     return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
                 }
