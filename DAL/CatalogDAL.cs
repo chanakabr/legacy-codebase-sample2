@@ -101,11 +101,11 @@ namespace Tvinci.Core.DAL
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<int> nMediaIDs = mediaMarksList.Where(x => x.CreatedAt >= DateTime.UtcNow.AddDays(-8)).Select(x => x.MediaID).ToList();
             //Complete details from db
-            ODBCWrapper.StoredProcedure spPersonalLastWatched = new ODBCWrapper.StoredProcedure("Get_PersonalLastWatched");
-            spPersonalLastWatched.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spPersonalLastWatched.AddIDListParameter("@MediaID", nMediaIDs, "Id");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaUpdateDate");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter("@MediaID", nMediaIDs, "Id");
 
-            DataSet ds = spPersonalLastWatched.ExecuteDataSet();
+            DataSet ds = sp.ExecuteDataSet();
             if (ds != null)
                 return ds.Tables[0];
             return null;
