@@ -328,14 +328,10 @@ namespace Catalog.Cache
                     if (groupId != 0)
                     {
                         lGroups.Add(groupId);
-                        
-                        //Set ParentGroup to Cache
-                        CachingManager.CachingManager.SetCachedData("ParentGroup" + groupId.ToString(), nGroupID, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
                     }
-
-                }
-                
+                }                
             }
+
             return lGroups;
         }
 
