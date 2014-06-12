@@ -422,7 +422,7 @@ namespace Catalog.Cache
 
 
 
-        internal bool UpdateoOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs) 
+        internal bool UpdateoOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator) 
         {
             try
             {
@@ -442,7 +442,7 @@ namespace Catalog.Cache
                         {
                             group = casResult.Result;                            
                             //try update to CB
-                            if (group.AddChannelsToOperatorCache(nOperatorID, channelIDs))
+                            if (group.AddChannelsToOperatorCache(nOperatorID, channelIDs, bAddNewOperator))
                             {
                                 bUpdate = cache.Update(nGroupID.ToString(), group, DateTime.UtcNow.AddDays(GROUP_CACHE_EXPIRY), casResult.Cas);
                             }
@@ -496,7 +496,7 @@ namespace Catalog.Cache
             }
         }
 
-        internal bool AddOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs)
+        internal bool AddOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator = false)
         {
             try
             {
@@ -516,7 +516,7 @@ namespace Catalog.Cache
                         {
                             group = casResult.Result;                            
                             //try update to CB
-                            if (group.AddChannelsToOperatorCache(nOperatorID, channelIDs))
+                            if (group.AddChannelsToOperatorCache(nOperatorID, channelIDs,bAddNewOperator))
                             {
                                 bAdd = cache.Update(nGroupID.ToString(), group, DateTime.UtcNow.AddDays(GROUP_CACHE_EXPIRY), casResult.Cas);
                             }

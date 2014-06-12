@@ -114,6 +114,9 @@ namespace Catalog
 
         private List<long> Read(int nOperatorID)
         {
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(this.m_nParentGroupID);
+
             ReaderWriterLockSlim locker = null;
             GetLocker(nOperatorID, ref locker);
             if (locker == null)
@@ -123,9 +126,9 @@ namespace Catalog
             }
             locker.EnterReadLock();
             List<long> res = null;
-            if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+            if (group.m_oOperatorChannelIDs.ContainsKey(nOperatorID))
             {
-                res = m_oOperatorChannelIDs[nOperatorID];
+                res = group.m_oOperatorChannelIDs[nOperatorID];
                 if (res != null && res.Count > 0)
                 {
                     locker.ExitReadLock();
@@ -169,18 +172,10 @@ namespace Catalog
                 if (!m_oOperatorChannelIDs.ContainsKey(nOperatorID))
                 {
                     List<long> channelIDs = PricingDAL.Get_OperatorChannelIDs(m_nParentGroupID, nOperatorID, "pricing_connection");
-                    if (channelIDs != null && channelIDs.Count > 0)
-                    {
-                        m_oOperatorChannelIDs.Add(nOperatorID, channelIDs);
-                        GroupManager groupManager = new GroupManager();
-                        bool bUpdate = groupManager.UpdateoOperatorChannels(m_nParentGroupID, nOperatorID, channelIDs);
-                    }
-                    else
-                    {
-                        m_oOperatorChannelIDs.Add(nOperatorID, new List<long>(1) { 0 });
-                        Logger.Logger.Log("Build", string.Format("No operator channel ids were extracted from DB. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
-                        res = false;
-                    }
+                  
+                    // update group with operator anyway (with or without channels)
+                    GroupManager groupManager = new GroupManager();
+                    res = groupManager.UpdateoOperatorChannels(m_nParentGroupID, nOperatorID, channelIDs, true);
                 }
                 else
                 {
@@ -209,26 +204,9 @@ namespace Catalog
                 }
                 locker.EnterWriteLock();
                 if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
-                {
-                    List<long> cachedChannels = m_oOperatorChannelIDs[nOperatorID];
-                    if (cachedChannels != null && cachedChannels.Count > 0)
-                    {
-                        int length = channelIDs.Count;
-                        for (int i = 0; i < length; i++)
-                        {
-                            if (!cachedChannels.Contains(channelIDs[i]))
-                                cachedChannels.Add(channelIDs[i]);
-                        }
-                        m_oOperatorChannelIDs[nOperatorID] = cachedChannels;
-
-                        GroupManager groupManager = new GroupManager();
-                        bool bAdd = groupManager.AddOperatorChannels(m_nParentGroupID, nOperatorID, channelIDs);
-                    }
-                    else
-                    {
-                        // no channel ids in cache. we wait for the next read command that will lazy evaluate initialize the cache.
-                        retVal = false;
-                    }
+                {  
+                    GroupManager groupManager = new GroupManager();
+                    retVal = groupManager.AddOperatorChannels(m_nParentGroupID, nOperatorID, channelIDs);
                 }
                 else
                 {
@@ -256,18 +234,14 @@ namespace Catalog
                 }
                 locker.EnterWriteLock();
                 if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
-                {
-                    res = m_oOperatorChannelIDs.Remove(nOperatorID);
+                {                    
+                    GroupManager groupManager = new GroupManager();
+                    res = groupManager.DeleteOperator(m_nParentGroupID, nOperatorID);
                     if (!res)
                     {
                         // failed to remove from dictionary
-                        Logger.Logger.Log("Delete", string.Format("Failed to remove channel ids from dictionary. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
-                    }
-                    else
-                    {
-                        GroupManager groupManager = new GroupManager();
-                        bool update = groupManager.DeleteOperator(m_nParentGroupID, nOperatorID);
-                    }
+                        Logger.Logger.Log("Delete", string.Format("Failed to remove channel ids from cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                    }                   
                 }
                 locker.ExitWriteLock();
             }
@@ -331,7 +305,7 @@ namespace Catalog
 
 
         #region Cache
-        internal bool AddChannelsToOperatorCache(int nOperatorID, List<long> channelIDs)
+        internal bool AddChannelsToOperatorCache(int nOperatorID, List<long> channelIDs, bool bAddNewOperator)
         {
             bool retVal = false;
             try
@@ -354,8 +328,21 @@ namespace Catalog
                 }
                 else
                 {
-                    m_oOperatorChannelIDs.Add(nOperatorID, channelIDs);
-                    retVal = true; 
+                    if (bAddNewOperator)
+                    {
+                        if (channelIDs == null || channelIDs.Count == 0)
+                        {
+                            channelIDs = new List<long>(1) { 0 };
+                        }
+
+                        m_oOperatorChannelIDs.Add(nOperatorID, channelIDs);
+
+                        retVal = true;
+                    }
+                    else
+                    {
+                        retVal = false;  // if operator dosn't exsits - don't add it now (it will build next Read call)
+                    }
                 }
                 return retVal;
             }
@@ -401,7 +388,7 @@ namespace Catalog
                     {
                         List<Channel> lNewCreatedChannels = ChannelRepository.GetChannels(lNotIncludedInCache, this);
                         //add the channels from DB to cache 
-                        
+
                         GroupManager groupManager = new GroupManager();
                         bool bAdd = groupManager.InsertChannels(lNewCreatedChannels, this.m_nParentGroupID);
                         lRes.AddRange(lNewCreatedChannels);

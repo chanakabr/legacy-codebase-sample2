@@ -61,6 +61,8 @@ namespace Catalog
                     dMediaObj.TryAdd(nMedia, null);
                 }
 
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroup = groupManager.GetSubGroup(mediaRequest.m_nGroupID);
 
                 //complete media id details 
                 for (int i = nStartIndex; i < nEndIndex; i++)
@@ -74,7 +76,7 @@ namespace Catalog
                              {
                                  int taskMediaID = (int)obj;
 
-                                 dMediaObj[taskMediaID] = GetMediaDetails(taskMediaID, mediaRequest, bIsMainLang);
+                                 dMediaObj[taskMediaID] = GetMediaDetails(taskMediaID, mediaRequest, bIsMainLang, lSubGroup);
                              }
                              catch (Exception ex)
                              {
@@ -106,7 +108,7 @@ namespace Catalog
             }
         }
 
-        private static MediaObj GetMediaDetails(int nMedia, MediasProtocolRequest mediaRequest, bool bIsMainLang)
+        private static MediaObj GetMediaDetails(int nMedia, MediasProtocolRequest mediaRequest, bool bIsMainLang, List<int> lSubGroup)
         {
             bool result = true;
             try
@@ -129,7 +131,7 @@ namespace Catalog
                     nLanguage = mediaRequest.m_oFilter.m_nLanguage;
                 }
 
-                DataSet ds = CatalogDAL.Get_MediaDetails(mediaRequest.m_nGroupID, nMedia, mediaRequest.m_sSiteGuid, bOnlyActiveMedia, nLanguage, sEndDate, bUseStartDate);
+                DataSet ds = CatalogDAL.Get_MediaDetails(mediaRequest.m_nGroupID, nMedia, mediaRequest.m_sSiteGuid, bOnlyActiveMedia, nLanguage, sEndDate, bUseStartDate, lSubGroup);
 
                 if (ds == null)
                     return null;

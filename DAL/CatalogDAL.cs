@@ -11,7 +11,7 @@ namespace Tvinci.Core.DAL
     public class CatalogDAL : BaseDal
     {
      
-        public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate)
+        public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate,List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spGet_MediaDetails = new ODBCWrapper.StoredProcedure("Get_MediaDetails");
             spGet_MediaDetails.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -22,6 +22,7 @@ namespace Tvinci.Core.DAL
             spGet_MediaDetails.AddParameter("@Language", nLanguage);
             spGet_MediaDetails.AddParameter("@EndDate", sEndDate);
             spGet_MediaDetails.AddParameter("@UseStartDate", bUseStartDate);
+            spGet_MediaDetails.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = spGet_MediaDetails.ExecuteDataSet();
 

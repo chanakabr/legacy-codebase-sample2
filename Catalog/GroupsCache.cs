@@ -90,93 +90,9 @@ namespace Catalog
             return isRemovingChannelSucceded;
         }
 
-        internal void InsertChannels(List<Channel> lChannels, int groupId)
-        {
-            if (lChannels != null)
-            {
-                foreach (Channel channel in lChannels)
-                {
-                    if (!m_GroupByParentGroupId[groupId].m_oGroupChannels.ContainsKey(channel.m_nChannelID))
-                    {
-                        bool createdNew = false;
-                        var mutexSecurity = Utils.CreateMutex();
-
-                        using (Mutex mutex = new Mutex(false, string.Concat("Catalog ChannelID_", channel.m_nChannelID), out createdNew, mutexSecurity))
-                        {
-                            try
-                            {
-                                _logger.Info(string.Format("{0} : {1}", "Lock", string.Concat("Catalog ChannelID_", channel.m_nChannelID)));
-                                mutex.WaitOne(-1);
-                                if (!m_GroupByParentGroupId[groupId].m_oGroupChannels.ContainsKey(channel.m_nChannelID))
-                                {
-                                    _logger.Info("Entered critical section for inserting channel");
-                                    bool res = m_GroupByParentGroupId[groupId].m_oGroupChannels.TryAdd(channel.m_nChannelID, channel);
-                                    //add channel to CB 
-                                    GroupsCacheDal_Couchbase groupsCacheDal = new GroupsCacheDal_Couchbase(groupId);
-                                    groupsCacheDal.UpdateGroup(groupId.ToString(), m_GroupByParentGroupId[groupId], DateTime.UtcNow.AddDays(10)); // how to use cas ?????
-                                }
-                            }
-                            catch
-                            {
-                                _logger.Error(string.Format("Couldn't get channel {0}", channel.m_nChannelID));
-                            }
-                            finally
-                            {
-                                mutex.ReleaseMutex();
-                                _logger.Info(string.Format("{0} : {1}", "Release", string.Concat("Catalog ChannelID_", channel.m_nChannelID)));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// This function gets channel objects from cache or from DB by given channel ids and parent group id
-        /// </summary>
-        /// <param name="channelIds">Channels ids for Channel objects building</param>
-        /// <param name="nOwnerGroup">Parent group id</param>
-        /// <returns>Channel objects</returns>
-        public List<Channel> GetChannelsFromCache(List<int> channelIds, int nOwnerGroup)
-        {
-            List<Channel> lRes = null;
-
-            // get all channel existing in Cache
-            GroupsCacheDal_Couchbase groupsCacheDal = new GroupsCacheDal_Couchbase(nOwnerGroup);
-            Group groupInCache = (Group)groupsCacheDal.GetGroup(nOwnerGroup.ToString());
-
-            //Group
-                groupInCache = GroupsCache.Instance.GetGroup(nOwnerGroup);
-
-            if (groupInCache != null && channelIds != null && channelIds.Count > 0)
-            {
-                lRes = new List<Channel>();
-                Channel oChannel;
-                foreach (int channelID in channelIds)
-                {
-                    if (groupInCache.m_oGroupChannels.TryGetValue(channelID, out oChannel))
-                    {
-                        lRes.Add(oChannel);
-                    }
-                }
-
-                //get all channels from DB
-                var channelsNotInCache = channelIds.Where(id => !lRes.Any(existId => existId.m_nChannelID == id));
-                if (channelsNotInCache != null)
-                {
-                    List<int> lNotIncludedInCache = channelsNotInCache.ToList<int>();
-                    if (lNotIncludedInCache.Count > 0)
-                    {
-                        List<Channel> lNewCreatedChannels = ChannelRepository.GetChannels(lNotIncludedInCache, groupInCache);
-                        //add the channels from DB to cache 
-                        GroupsCache.Instance.InsertChannels(lNewCreatedChannels, groupInCache.m_nParentGroupID);
-                        lRes.AddRange(lNewCreatedChannels);
-                    }
-                }
-            }
-            return lRes;
-        }
-
+     
+       
+        
         public bool RemoveGroup(int groupId)
         {
             bool bIsGroupRemoved = false;
