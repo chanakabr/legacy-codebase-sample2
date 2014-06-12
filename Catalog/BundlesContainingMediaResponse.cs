@@ -31,7 +31,7 @@ namespace Catalog
         {
             m_oBundles = new List<BundleTriple>(oIncomingBundles.Length);
             m_oSubsToIndexMapping = new Dictionary<int,int>();
-            m_oSubsToIndexMapping = new Dictionary<int,int>();
+            m_oColsToIndexMapping = new Dictionary<int,int>();
             for (int i = 0; i < oIncomingBundles.Length; i++)
             {
                 m_oBundles.Add(new BundleTriple(oIncomingBundles[i].m_nBundleCode, oIncomingBundles[i].m_eBundleType, false));

@@ -1546,8 +1546,8 @@ namespace Tvinci.Core.DAL
                 {
                     for (int i = 0; i < dtColChannels.Rows.Count; i++)
                     {
-                        int channelID = ODBCWrapper.Utils.GetIntSafeVal(dtSubChannels.Rows[i]["CHANNEL_ID"]);
-                        int colID = ODBCWrapper.Utils.GetIntSafeVal(dtSubChannels.Rows[i]["SUBSCRIPTION_ID"]);
+                        int channelID = ODBCWrapper.Utils.GetIntSafeVal(dtColChannels.Rows[i]["CHANNEL_ID"]);
+                        int colID = ODBCWrapper.Utils.GetIntSafeVal(dtColChannels.Rows[i]["COLLECTION_ID"]);
                         if (channelsToColsMapping.ContainsKey(channelID))
                         {
                             channelsToColsMapping[channelID].Add(colID);

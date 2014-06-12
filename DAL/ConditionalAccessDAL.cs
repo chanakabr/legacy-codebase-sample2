@@ -1464,7 +1464,7 @@ namespace DAL
                 DataTable dtTimeTable = ds.Tables[1];
                 if (dtTimeTable != null && dtTimeTable.Rows != null && dtTimeTable.Rows.Count > 0)
                 {
-                    dbTimeNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["DATE_NOW"]);
+                    dbTimeNow = ODBCWrapper.Utils.GetDateSafeVal(dtTimeTable.Rows[0]["DATE_NOW"]);
                 }
                 if (dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
                 {
