@@ -2564,6 +2564,27 @@ namespace Catalog
 
             if (!bHasTagPrefix)
             {
+                //var t = (from c in ((from b in (from r in oGroup.m_oMetasValuesByGroupId select r.Value) select b.Values)) select c.FirstOrDefault()).ToList();
+                List<string> metas = new List<string>();
+                foreach (var group in oGroup.m_oMetasValuesByGroupId.Keys)
+                {
+                    Dictionary<string, string> dMetas = oGroup.m_oMetasValuesByGroupId[group];
+                    metas.AddRange(dMetas.Values);
+                }
+
+                foreach (var val in metas)
+                {
+                    if (val.Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        searchKey = string.Concat(METAS, ".", val.ToLower());
+                        bHasTagPrefix = true;
+                        break;
+                    }
+                }
+
+                
+
+                /*
                 if (oGroup.m_oMetasValuesByGroupId.ContainsKey(oGroup.m_nParentGroupID))
                 {
                     Dictionary<string, string> dMetas = oGroup.m_oMetasValuesByGroupId[oGroup.m_nParentGroupID];
@@ -2577,6 +2598,7 @@ namespace Catalog
                         }
                     }
                 }
+                */ 
             }
 
             return searchKey;
