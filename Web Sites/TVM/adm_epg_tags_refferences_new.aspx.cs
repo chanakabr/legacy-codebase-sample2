@@ -92,6 +92,9 @@ public partial class adm_epg_tags_refferences_new : System.Web.UI.Page
 
         string sTable = theRecord.GetTableHTML("adm_epg_tags_refferences_new.aspx?submited=1");
 
+        Session["ContentPage"] = "adm_epg_tags.aspx";
+        
+
         return sTable;
     }
 }

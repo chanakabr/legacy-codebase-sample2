@@ -14,6 +14,7 @@ public partial class adi_api : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
+        TVinciShared.WS_Utils.InitTcmConfig();
 
         string sXML = GetFormParameters();
         Logger.Logger.Log("ADI_API", "Start request - input is " + sXML, "ADI_API");

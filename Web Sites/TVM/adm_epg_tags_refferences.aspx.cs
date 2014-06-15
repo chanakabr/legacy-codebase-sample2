@@ -14,7 +14,7 @@ public partial class adm_epg_tags_refferences : System.Web.UI.Page
     {
         if (LoginManager.CheckLogin() == false)
             Response.Redirect("login.html");
-        if (LoginManager.IsPagePermitted() == false)
+        if (LoginManager.IsPagePermitted("adm_epg_tags.aspx") == false)
             LoginManager.LogoutFromSite("login.html");
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
@@ -32,9 +32,9 @@ public partial class adm_epg_tags_refferences : System.Web.UI.Page
                 Request.QueryString["epg_tag_id"].ToString() != "")
         {
             Session["epg_tag_id"] = int.Parse(Request.QueryString["epg_tag_id"].ToString());
-            Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("device_rules", "group_id", int.Parse(Session["epg_tag_id"].ToString())).ToString());
+            Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("EPG_tags_types", "group_id", int.Parse(Session["epg_tag_id"].ToString())).ToString());
             Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-            if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
+            if (nLogedInGroupID != nOwnerGroupID)// && PageUtils.IsTvinciUser() == false)
             {
                 LoginManager.LogoutFromSite("login.html");
                 return;
@@ -72,9 +72,10 @@ public partial class adm_epg_tags_refferences : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
 
-        theTable += "select efm.id as id, efm.external_ref as Refference, efm.order_num as ORDER, efm.status, efm.is_active from EPG_fields_mapping efm where efm.type=1 and emt.status<>2 and ";
+        theTable += "select efm.id as id, efm.external_ref as Refference, efm.order_num as OrderNum, efm.status, efm.is_active from EPG_fields_mapping efm where efm.type=3 and efm.status<>2 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("efm.group_id", "=", nGroupID);
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("emf.field_id", "=", Session["epg_tag_id"]);
+        theTable += " and ";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("efm.field_id", "=", Session["epg_tag_id"]);
         if (sOrderBy != "")
         {
             theTable += " order by ";
@@ -84,20 +85,20 @@ public partial class adm_epg_tags_refferences : System.Web.UI.Page
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&
-LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+        if (LoginManager.IsActionPermittedOnPage("adm_epg_tags.aspx", LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&
+            LoginManager.IsActionPermittedOnPage("adm_epg_tags.aspx" , LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             theTable.AddActivationField("EPG_fields_mapping");
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+        if (LoginManager.IsActionPermittedOnPage("adm_epg_tags.aspx" ,LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_epg_tags_refferences_new.aspx", "Edit", "");
             linkColumn1.AddQueryStringValue("epg_ref_id", "field=id");
             theTable.AddLinkColumn(linkColumn1);
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+        if (LoginManager.IsActionPermittedOnPage("adm_epg_tags.aspx", LoginManager.PAGE_PERMISION_TYPE.REMOVE))
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=id");
@@ -107,10 +108,11 @@ LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
             linkColumn.AddQueryStringValue("sub_menu", "1");
             linkColumn.AddQueryStringValue("rep_field", "username");
             linkColumn.AddQueryStringValue("rep_name", "Username");
+
             theTable.AddLinkColumn(linkColumn);
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
+        if (LoginManager.IsActionPermittedOnPage("adm_epg_tags.aspx", LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
@@ -123,7 +125,7 @@ LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
             theTable.AddLinkColumn(linkColumn);
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+        if (LoginManager.IsActionPermittedOnPage("adm_epg_tags.aspx", LoginManager.PAGE_PERMISION_TYPE.REMOVE))
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
@@ -146,6 +148,8 @@ LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         FillTheTableEditor(ref theTable, sOrderBy);
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
+
+        Session["ContentPage"] = "adm_epg_tags.aspx";
 
         theTable.Finish();
         theTable = null;
