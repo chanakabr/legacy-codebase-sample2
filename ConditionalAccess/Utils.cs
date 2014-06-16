@@ -1687,9 +1687,9 @@ namespace ConditionalAccess
                         return p;
 
                     //subscriptions check
-                    TvinciPricing.Subscription[] relevantValidSubscriptions = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.SUBSCRIPTION) as TvinciPricing.Subscription[];
-
-                    if (relevantValidSubscriptions != null)
+                    TvinciPricing.PPVModule[] tempRelevantValidSubscriptions = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.SUBSCRIPTION); // as TvinciPricing.Subscription[];
+                    TvinciPricing.Subscription[] relevantValidSubscriptions = ConvertToSubArr(tempRelevantValidSubscriptions);
+                    if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
                     {
                         Dictionary<long, List<TvinciPricing.Subscription>> groupedSubs = (from s in relevantValidSubscriptions
                                                                                           group s by s.m_Priority).OrderByDescending(gr => gr.Key).ToDictionary(gr => gr.Key, gr => gr.ToList());
@@ -1855,6 +1855,27 @@ namespace ConditionalAccess
             }
 
             return p;
+        }
+
+        private static TvinciPricing.Subscription[] ConvertToSubArr(TvinciPricing.PPVModule[] subsList)
+        {
+            List<TvinciPricing.Subscription> res = null;
+            if (subsList != null && subsList.Length > 0)
+            {
+                res = new List<Subscription>(subsList.Length);
+                for (int i = 0; i < subsList.Length; i++)
+                {
+                    Subscription s = subsList[i] as Subscription;
+                    if (s != null)
+                    {
+                        res.Add(s);
+                    }
+                }
+            }
+
+            if (res != null)
+                return res.ToArray();
+            return null;
         }
 
 
