@@ -5966,12 +5966,9 @@ namespace ConditionalAccess
             bool bIsRecurring = theSub.m_bIsRecurring;
             Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
 
-            string sWSUserName = string.Empty;
-            string sWSPass = string.Empty;
-
             if (p.m_dPrice != 0 || bDummy)
             {
-                ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
+                ret = HandleCCChargeUser(sBillingUsername, sBillingPassword, sSiteGUID, dPrice, sCurrency, sUserIP,
                     sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
                     bDummy, bIsEntitledToPreviewModule, ref bm);
             }

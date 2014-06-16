@@ -26,7 +26,7 @@
 
   <xsl:template name="handle_media">
     <xsl:element name="media">
-      <xsl:variable name="isMediaVerifed" select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'PresentationStatus']"/>
+      <xsl:variable name="isMediaVerifed" select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'PresentationStatus']"/>      
       <xsl:choose>
         <xsl:when test="translate($isMediaVerifed, $uppercase, $smallcase) = 'deleted'">
           <xsl:attribute name="is_active">false</xsl:attribute>
@@ -36,7 +36,7 @@
         </xsl:otherwise>
       </xsl:choose>
       <xsl:attribute name="co_guid">
-        <xsl:value-of select="./*[local-name() = 'ContentId']"/>
+        <xsl:value-of select="./*[local-name() = 'SeriesGroup']/*[local-name() = 'EpisodeId']"/>
       </xsl:attribute>
       <xsl:attribute name="action">insert</xsl:attribute>
       <xsl:call-template name="build_basic_data"/>
@@ -111,17 +111,30 @@
           <xsl:attribute name="post_rule">null</xsl:attribute>
           <xsl:attribute name="handling_type">CLIP</xsl:attribute>
           <xsl:attribute name="duration"><xsl:value-of select="../../*[local-name() = 'RunTimeMinutes']"/></xsl:attribute>
-          <xsl:attribute name="cdn_name">Default CDN</xsl:attribute>
+          <xsl:attribute name="cdn_name">Prefix URL VOD</xsl:attribute>
           <xsl:attribute name="cdn_code"><xsl:value-of select="./*[local-name() = 'StartUrl']"/></xsl:attribute>
           <xsl:attribute name="break_rule"></xsl:attribute>
           <xsl:attribute name="break_points"></xsl:attribute>
-          <xsl:attribute name="billing_type"></xsl:attribute>
+          <xsl:attribute name="billing_type">Tvinci</xsl:attribute>
           <xsl:attribute name="assetwidth"></xsl:attribute>
           <xsl:attribute name="assetheight"></xsl:attribute>
           <xsl:attribute name="assetduration"><xsl:value-of select="../../*[local-name() = 'RunTimeSeconds']"/></xsl:attribute>
+          <xsl:for-each select="//*[local-name() = 'Presentation']">
+            <xsl:attribute  name="file_start_date">
+              <xsl:call-template name="SetStartDateEpisode">
+                <xsl:with-param name="contentIDEpisode" select ="./*[local-name() = 'ContentId']"/>
+              </xsl:call-template>
+            </xsl:attribute>
+            <xsl:attribute  name="file_end_date">
+              <xsl:call-template name="SetEndDateEpisode">
+                <xsl:with-param name="contentIDEpisode" select ="./*[local-name() = 'ContentId']"/>
+              </xsl:call-template>
+            </xsl:attribute>
+          </xsl:for-each>
           <xsl:attribute name="ppv_module">
             <xsl:variable name="contentID" select="../../*[local-name() = 'ContentId']"/>
             <xsl:for-each select="../../../../*[local-name() = 'LicenseList']/*[local-name() = 'License']">
+              <xsl:if test="./*[local-name() = 'LicenseGrantType'] = 'EPISODE'">
               <xsl:for-each select="./*[local-name() = 'LicenseGrantsList']/*[local-name() = 'ContentIdList']/*[local-name() = 'ContentId']">
                 <xsl:if test=". = $contentID">      
                   <xsl:variable name="LSfullTime" select="../../../*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStart']"/>
@@ -131,16 +144,17 @@
                   <xsl:variable name="LStime" select="substring-before(substring-after($LSfullTime,'T'),'Z')"/>
                   <xsl:variable name="LS" select="concat($LSday,'/',$LSmonth,'/',$LSyear,' ',$LStime)"/>
 
-                  <xsl:variable name="LEfullTime" select="../../../*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodEnd']"/>
-                  <xsl:variable name="LEday" select="substring-after(substring-after(substring-before($LSfullTime,'T'),'-'),'-')"/>
-                  <xsl:variable name="LEmonth" select="substring-before(substring-after(substring-before($LSfullTime,'T'),'-'),'-')"/>
-                  <xsl:variable name="LEyear" select="substring-before($LSfullTime,'-')"/>
-                  <xsl:variable name="LEtime" select="substring-before(substring-after($LSfullTime,'T'),'Z')"/>
-                  <xsl:variable name="LE" select="concat($LSday,'/',$LSmonth,'/',$LSyear,' ',$LStime)"/>
+                  <xsl:variable name="LEfullTime" select="../../../*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodEnd']"/>   
+                  <xsl:variable name="LEday" select="substring-after(substring-after(substring-before($LEfullTime,'T'),'-'),'-')"/>                  
+                  <xsl:variable name="LEmonth" select="substring-before(substring-after(substring-before($LEfullTime,'T'),'-'),'-')"/>                  
+                  <xsl:variable name="LEyear" select="substring-before($LEfullTime,'-')"/> 
+                  <xsl:variable name="LEtime" select="substring-before(substring-after($LEfullTime,'T'),'Z')"/>
+                  <xsl:variable name="LE" select="concat($LEday,'/',$LEmonth,'/',$LEyear,' ',$LEtime)"/>
 
                   <xsl:value-of select="concat(../../../*[local-name() = 'LicenseCode'],';',$LS,';',$LE,';')"/>
                 </xsl:if>
               </xsl:for-each>
+              </xsl:if> 
             </xsl:for-each>
           </xsl:attribute>
           <xsl:attribute name="co_guid"><xsl:value-of select="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionKeyId']"/></xsl:attribute>
@@ -182,7 +196,7 @@
           <xsl:attribute name="lang">
             <xsl:call-template name="Translate_Langueage"/>
           </xsl:attribute>
-          <xsl:value-of select="./*[local-name() = 'ContentNameList']/*[local-name() = 'ContentNameLong']"/>
+          <xsl:value-of select="./*[local-name() = 'ContentNameList']/*[local-name() = 'ContentName']"/>
           </xsl:element>
       </xsl:element>
       <xsl:element name="description">
@@ -219,7 +233,18 @@
           <xsl:text>Parent account allowed</xsl:text>
         </xsl:element>
       </xsl:element>
-      <xsl:element name="dates">
+      <xsl:element name="dates">        
+        <xsl:element name="start">
+          <xsl:call-template name="SetStartDateEpisode">
+            <xsl:with-param name="contentIDEpisode" select ="./*[local-name() = 'ContentId']"/>
+          </xsl:call-template>          
+        </xsl:element>
+        
+        <xsl:element name="final_end">
+          <xsl:call-template name="SetEndDateEpisode">
+            <xsl:with-param name="contentIDEpisode" select ="./*[local-name() = 'ContentId']"/>
+          </xsl:call-template>
+        </xsl:element>
         <xsl:element name="catalog_start">
           <xsl:call-template name="SetStartViewDate"/>
         </xsl:element>
@@ -257,6 +282,241 @@
     </xsl:element>
   </xsl:template>
 
+
+  <xsl:template name="SetStartDateEpisode">
+    <xsl:param name="index" select="1" />
+    <xsl:param name="MostSooner" select="1" />
+    <xsl:param name="total" select="count(//*[local-name() = 'LicenseList']/*[local-name() = 'License']) + 1" />
+    <xsl:param name="wasInitialized" select ="0" />
+    <xsl:param name="contentIDEpisode" select= "0"/>    
+    <xsl:if test="not($index = $total)">
+      <xsl:choose>
+        <xsl:when test="//*[local-name() = 'LicenseList']/License[$index]/*[local-name() = 'LicenseGrantType'] = 'EPISODE'">
+          <xsl:choose>
+            <xsl:when test="//*[local-name() = 'LicenseList']/License[$index]/*[local-name() = 'LicenseGrantsList']/*[local-name() = 'ContentIdList']/*[local-name() = 'ContentId'] = $contentIDEpisode "> 
+              <xsl:choose>                    
+                <xsl:when test ="$wasInitialized = 0 ">  <!--if the MostSooner was not initialized yet, we take by default the value related to the specific episode-->                         
+                  <xsl:call-template name="SetStartDateEpisode">
+                    <xsl:with-param name="wasInitialized" select ="1" />
+                    <xsl:with-param name="index" select="$index + 1" />
+                    <xsl:with-param name="MostSooner" select="$index" />
+                  </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>  <!--if the MostSooner was already intialized once, check to see if there is an earlier date matching to the same content ID--> 
+                  <xsl:choose>    
+                    <xsl:when test="//*[local-name() = 'LicenseList']/License[$index]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStartUnix'] &lt; //*[local-name() = 'LicenseList']/License[$MostSooner]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStartUnix']">         
+                      <xsl:call-template name="SetStartDateEpisode">                           
+                        <xsl:with-param name="index" select="$index + 1" />
+                        <xsl:with-param name="MostSooner" select="$index" />
+                      </xsl:call-template>                      
+                    </xsl:when>
+                    <xsl:otherwise> <!--if the startDate is not earlier than the one held in MostSooner, continue-->
+                      <xsl:call-template name="SetStartDateEpisode">
+                        <xsl:with-param name="index" select="$index + 1" />
+                        <xsl:with-param name="MostSooner" select="$MostSooner" /> 
+                      </xsl:call-template>
+                    </xsl:otherwise>
+                  </xsl:choose> 
+                </xsl:otherwise>
+              </xsl:choose>                 
+            </xsl:when>
+            <xsl:otherwise> <!--if the Licence Content ID does not match the one of Episode, continue -->
+              <xsl:call-template name="SetStartDateEpisode">
+                <xsl:with-param name="index" select="$index + 1" />
+                <xsl:with-param name="MostSooner" select="$MostSooner" />
+              </xsl:call-template>
+            </xsl:otherwise>                     
+          </xsl:choose>
+        </xsl:when>       
+        <xsl:otherwise>  <!--if the Licence is not of type 'Episode', continue-->  
+          <xsl:call-template name="SetStartDateEpisode">
+            <xsl:with-param name="index" select="$index + 1" />
+            <xsl:with-param name="MostSooner" select="$MostSooner" />
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>  
+      </xsl:if>
+
+    <xsl:if test="$index = $total">
+      <xsl:variable name="fullTime" select="//*[local-name() = 'LicenseList']/License[$MostSooner]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStart']"/>
+      <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
+      <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
+      <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
+      <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
+      <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
+      <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
+      <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
+      <xsl:value-of select="concat($day_month_year_s,$time)"/>
+    </xsl:if>
+  </xsl:template>
+
+
+  <xsl:template name="SetEndDateEpisode">
+    <xsl:param name="index" select="1" />
+    <xsl:param name="MostLatest" select="1" />
+    <xsl:param name="total" select="count(//*[local-name() = 'LicenseList']/*[local-name() = 'License']) + 1" />
+    <xsl:param name="wasInitialized" select = "0" />
+    <xsl:param name="contentIDEpisode" select= "0"/>
+
+    <xsl:if test="not($index = $total)">
+      <xsl:choose>
+        <xsl:when test="//*[local-name() = 'LicenseList']/License[$index]/*[local-name() = 'LicenseGrantType'] = 'EPISODE'">
+          <xsl:choose>
+            <xsl:when test="//*[local-name() = 'LicenseList']/License[$index]/*[local-name() = 'LicenseGrantsList']/*[local-name() = 'ContentIdList']/*[local-name() = 'ContentId'] = $contentIDEpisode ">
+              <xsl:choose>
+                <xsl:when test ="$wasInitialized = 0 ">
+                  <!--if the $MostLatest was not initialized yet, we take by default the value related to the specific episode-->
+                  <xsl:call-template name="SetEndDateEpisode">
+                    <xsl:with-param name="wasInitialized" select ="1" />
+                    <xsl:with-param name="index" select="$index + 1" />
+                    <xsl:with-param name="MostLatest" select="$index" />
+                  </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise> <!--if the MostLatest was already intialized once, check to see if there is a later date matching to the same content ID-->
+                  <xsl:choose>
+                    <xsl:when test="//*[local-name() = 'LicenseList']/License[$index]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEndUnix'] &gt; //*[local-name() = 'LicenseList']/License[$MostLatest]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEndUnix']">
+                      <xsl:call-template name="SetEndDateEpisode">
+                        <xsl:with-param name="index" select="$index + 1" />
+                        <xsl:with-param name="MostLatest" select="$index" />
+                      </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise> <!--if the endDate is not later than the one held in MostLatest, continue-->
+                      <xsl:call-template name="SetEndDateEpisode">
+                        <xsl:with-param name="index" select="$index + 1" />
+                        <xsl:with-param name="MostLatest" select="$MostLatest" />
+                      </xsl:call-template>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise> <!--if the Licence Content ID does not match the one of Episode, continue -->
+              <xsl:call-template name="SetEndDateEpisode">
+                <xsl:with-param name="index" select="$index + 1" />
+                <xsl:with-param name="MostLatest" select="$MostLatest" />
+              </xsl:call-template>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise> <!--if the Licence is not of type 'Episode', continue-->
+          <xsl:call-template name="SetEndDateEpisode">
+            <xsl:with-param name="index" select="$index + 1" />
+            <xsl:with-param name="MostLatest" select="$MostLatest" />
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+
+    <xsl:if test="$index = $total">
+      <xsl:variable name="fullTime" select="//*[local-name() = 'LicenseList']/License[$MostLatest]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEnd']"/>
+      <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
+      <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
+      <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
+      <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
+      <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
+      <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
+      <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
+      <xsl:value-of select="concat($day_month_year_s,$time)"/>
+    </xsl:if>
+  </xsl:template>
+  
+  <!--not used - using the setStartDateEpisdoe\SetEndDateEpisode instead
+  <xsl:template name="SetStartDate">
+    <xsl:param name="index" select="1" />
+    <xsl:param name="MostSooner" select="1" />
+    <xsl:param name="total" select="count(./*[local-name() = 'LicenseList']/*[local-name() = 'License']) + 1" />
+
+    <xsl:if test="not($index = $total)">
+      <xsl:choose>
+        <xsl:when test="./*[local-name() = 'LicenseList']/License[$index]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStartUnix'] &lt; ./*[local-name() = 'LicenseList']/License[$MostSooner]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStartUnix']">
+          <xsl:call-template name="SetStartDate">
+            <xsl:with-param name="index" select="$index + 1" />
+            <xsl:with-param name="MostSooner" select="$index" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="SetStartDate">
+            <xsl:with-param name="index" select="$index + 1" />
+            <xsl:with-param name="MostSooner" select="$MostSooner" />
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+
+    <xsl:if test="$index = $total">
+      <xsl:variable name="fullTime" select="./*[local-name() = 'LicenseList']/License[$MostSooner]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStart']"/>
+      <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
+      <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
+      <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
+      <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
+      <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
+      <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
+      <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
+      <xsl:value-of select="concat($day_month_year_s,$time)"/>
+    </xsl:if>
+  </xsl:template>
+  
+  
+  <xsl:template name="SetEndDate">
+    <xsl:param name="index" select="1" />
+    <xsl:param name="MostLatest" select="1" />
+    <xsl:param name="total" select="count(./*[local-name() = 'LicenseList']/*[local-name() = 'License']) + 1" />
+
+    <xsl:if test="not($index = $total)">
+      <xsl:choose>
+        <xsl:when test="./*[local-name() = 'LicenseList']/License[$index]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEndUnix'] &gt; ./*[local-name() = 'LicenseList']/License[$MostLatest]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEndUnix']">
+          <xsl:call-template name="SetEndDate">
+            <xsl:with-param name="index" select="$index + 1" />
+            <xsl:with-param name="MostLatest" select="$index" />
+          </xsl:call-template>
+        </xsl:when>
+        
+        <xsl:otherwise>
+          <xsl:call-template name="SetEndDate">
+            <xsl:with-param name="index" select="$index + 1" />
+            <xsl:with-param name="MostLatest" select="$MostLatest" />
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+
+    <xsl:if test="$index = $total">
+      <xsl:variable name="fullTime" select="//*[local-name() = 'LicenseList']/License[$MostLatest]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEnd']"/>
+      <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
+      <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
+      <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
+      <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
+      <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
+      <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
+      <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
+      <xsl:value-of select="concat($day_month_year_s,$time)"/>
+    </xsl:if>
+  </xsl:template>-->
+  
+  <xsl:template name="SetStartViewDate">
+    <xsl:if test="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'VisibilityPeriod']/*[local-name() = 'VisibilityPeriodStart']">
+      <xsl:variable name="fullTime" select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'VisibilityPeriod']/*[local-name() = 'VisibilityPeriodStart']"/>
+      <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+      <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
+      <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
+      <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
+      <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
+      <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
+      <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
+      <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
+      <xsl:value-of select="concat($day_month_year_s,$time)"/>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template name="SetEndViewDate">
     <xsl:choose>
       <xsl:when test="not(//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'VisibilityPeriod']/*[local-name() = 'VisibilityPeriodEnd'] = '')">
@@ -276,22 +536,6 @@
         <xsl:text>1/1/2099 00:00:00</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-  </xsl:template>
-
-  <xsl:template name="SetStartViewDate">
-    <xsl:if test="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'VisibilityPeriod']/*[local-name() = 'VisibilityPeriodStart']">
-      <xsl:variable name="fullTime" select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'VisibilityPeriod']/*[local-name() = 'VisibilityPeriodStart']"/>
-      <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
-      <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
-      <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
-      <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
-      <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
-      <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
-      <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
-      <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
-      <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
-      <xsl:value-of select="concat($day_month_year_s,$time)"/>
-    </xsl:if>
   </xsl:template>
   
   <xsl:template name="build_structure_data">
@@ -313,7 +557,7 @@
 
   <xsl:template name="build_strings_data">
     <xsl:element name="meta">
-      <xsl:attribute name="name">Short summary</xsl:attribute>
+      <xsl:attribute name="name">Summary short</xsl:attribute>
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
         <xsl:element name="value">
           <xsl:attribute name="lang">
@@ -323,25 +567,46 @@
         </xsl:element>
     </xsl:element>
     <xsl:element name="meta">
-      <xsl:attribute name="name">Short title</xsl:attribute>
-      <xsl:attribute name="ml_handling">unique</xsl:attribute>
-      <xsl:element name="value">
-        <xsl:attribute name="lang">
-          <xsl:call-template name="Translate_Langueage"/>
-        </xsl:attribute>
-        <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'TitleNameList']/*[local-name() = 'TitleName']"/>
-      </xsl:element>
-    </xsl:element>
-    <xsl:element name="meta">
       <xsl:attribute name="name">Runtime</xsl:attribute>
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
       <xsl:element name="value">
         <xsl:attribute name="lang">
           <xsl:call-template name="Translate_Langueage"/>
         </xsl:attribute>
-        <xsl:value-of select="./*[local-name() = 'RunTimeSeconds']"/>
+        <xsl:value-of select="./*[local-name() = 'RunTimeMinutes']"/>       
       </xsl:element>
     </xsl:element>
+    <xsl:element name="meta">
+      <xsl:attribute name="name">Short title</xsl:attribute>
+      <xsl:attribute name="ml_handling">unique</xsl:attribute>
+      <xsl:element name="value">
+        <xsl:attribute name="lang">
+          <xsl:call-template name="Translate_Langueage"/>
+        </xsl:attribute>
+        <xsl:value-of select="./*[local-name() = 'ContentNameList']/*[local-name() = 'ContentName']"/>
+      </xsl:element>
+    </xsl:element>
+    <xsl:element name="meta">
+      <xsl:attribute name="name">Episode name</xsl:attribute>
+      <xsl:attribute name="ml_handling">unique</xsl:attribute>
+      <xsl:element name="value">
+        <xsl:attribute name="lang">
+          <xsl:call-template name="Translate_Langueage"/>
+        </xsl:attribute>      
+        <xsl:value-of select="./*[local-name() = 'ContentNameList']/*[local-name() = 'ContentName']"/>
+      </xsl:element>
+    </xsl:element>
+    <xsl:element name="meta">
+      <xsl:attribute name="name">Series ID</xsl:attribute>
+      <xsl:attribute name="ml_handling">unique</xsl:attribute>
+      <xsl:element name="value">
+        <xsl:attribute name="lang">
+          <xsl:call-template name="Translate_Langueage"/>
+        </xsl:attribute>
+        <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'SeriesGroup']/*[local-name() = 'SeriesId']"/>
+      </xsl:element>
+    </xsl:element>
+   
   </xsl:template>
 
   <xsl:template name="build_doubles_data">
@@ -349,6 +614,17 @@
       <xsl:attribute name="name">Release year</xsl:attribute>
       <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'Production']/*[local-name() = 'ReleaseYear']"/>
     </xsl:element>
+
+    <xsl:element name="meta">
+      <xsl:attribute name="name">Season number</xsl:attribute>
+      <xsl:value-of select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'SeriesGroup']/*[local-name() = 'SeasonNo']"/>    
+    </xsl:element>
+
+    <xsl:element name="meta">
+      <xsl:attribute name="name">Episode number</xsl:attribute>     
+      <xsl:value-of select="//*[local-name() = 'ContentList']/*[local-name() = 'Content']/*[local-name() = 'SeriesGroup']/*[local-name() = 'EpisodeNo']"/>    
+    </xsl:element>
+    
   </xsl:template>
 
   <xsl:template name="build_booleans_data">
@@ -479,6 +755,18 @@
         </xsl:element>
       </xsl:element>
     </xsl:element>
+
+    <xsl:element name="meta">
+      <xsl:attribute name="name">Series name</xsl:attribute>
+      <xsl:attribute name="ml_handling">unique</xsl:attribute>
+      <xsl:element name="container">
+        <xsl:element name="value">
+          <xsl:attribute name="lang">de</xsl:attribute>
+          <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'TitleNameList']/*[local-name() = 'SeriesTitleName']"/>
+        </xsl:element>
+      </xsl:element>
+    </xsl:element>
+
   </xsl:template>
 
   <xsl:template name="Translate_Langueage">
