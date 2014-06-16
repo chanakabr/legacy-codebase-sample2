@@ -392,7 +392,12 @@ public partial class adm_utils : System.Web.UI.Page
             eAction eAction;
             bool result = false;
             int nAction = int.Parse(sStatus);
+            int nId = int.Parse(sID);
             List<int> idsToUpdate = new List<int>();
+            if (nId != 0)
+            {
+                idsToUpdate.Add(nId);
+            }
 
             if (nAction == 0)
             {

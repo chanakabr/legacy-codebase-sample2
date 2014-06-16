@@ -1,0 +1,149 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using TVinciShared;
+
+public partial class adm_limitation_modules : System.Web.UI.Page
+{
+    protected string m_sMenu;
+    protected string m_sSubMenu;
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!LoginManager.CheckLogin())
+            Response.Redirect("login.html");
+        if (!LoginManager.IsPagePermitted("adm_device_limitation_modules"))
+            LoginManager.LogoutFromSite("login.html");
+        if (AMS.Web.RemoteScripting.InvokeMethod(this))
+            return;
+        if (!IsPostBack)
+        {
+            Int32 nMenuID = 0;
+            m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 4, false);
+            if (Request.QueryString["search_save"] != null)
+                Session["search_save"] = "1";
+            else
+                Session["search_save"] = null;
+
+        }
+    }
+
+    protected void GetMainMenu()
+    {
+        Response.Write(m_sMenu);
+    }
+
+    protected void GetSubMenu()
+    {
+        Response.Write(m_sSubMenu);
+    }
+
+    public string GetTableCSV()
+    {
+        string sOldOrderBy = "";
+        if (Session["order_by"] != null)
+            sOldOrderBy = Session["order_by"].ToString();
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        FillTheTableEditor(ref theTable, sOldOrderBy);
+
+        string sCSVFile = theTable.OpenCSV();
+        theTable.Finish();
+        theTable = null;
+        return sCSVFile;
+    }
+
+    protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
+    {
+        Int32 nGroupID = LoginManager.GetLoginGroupID();
+        //theTable += "select a.is_active,a.id as id,a.NAME as 'Name', a.max_limit as 'Limit',  q1.DESCRIPTION as 'Frequency', a.concurrent_max_limit as 'Concurrent Limit', a.status, a.Home_network_quantity as 'Home networks limit', q2.DESCRIPTION as 'Home network frequency', env.description as 'Environment Type'";
+        //theTable += "from groups_device_limitation_modules a with (nolock) ";
+        //theTable += "left join (select lmp1.ID, lmp1.description from lu_min_periods lmp1 with (nolock)) q1 on q1.ID=a.freq_period_id ";
+        //theTable += "left join (select lmp2.ID, lmp2.description from lu_min_periods lmp2 with (nolock)) q2 on q2.ID=a.Home_Network_Frequency ";
+        //theTable += "left join lu_domain_environment env with (nolock) on env.ID = a.environment_type where ";
+        //theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
+        //theTable += "and (";
+        //theTable += ODBCWrapper.Parameter.NEW_PARAM("a.STATUS", "=", 1);
+        //theTable += "or ";
+        //theTable += ODBCWrapper.Parameter.NEW_PARAM("a.STATUS", "=", 4);
+        //theTable += ")";
+        theTable += "select gdflm.is_active, gdflm.id, gdflm.status, gdflm.description as 'Name', gdflm.value as 'Value', ludlm.description as 'Type' from groups_device_families_limitation_modules gdflm with (nolock) ";
+        theTable += "inner join lu_device_limitation_modules ludlm with (nolock) on ludlm.ID=gdflm.type where ";
+        theTable += "gdflm.status=1 and gdflm.is_active=1 and ludlm.status=1 and ";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("gdflm.group_id", "=", nGroupID);
+        if (sOrderBy.Length > 0)
+        {
+            theTable += " order by ";
+            theTable += sOrderBy;
+        }
+        theTable.AddHiddenField("ID");
+        theTable.AddHiddenField("status");
+        theTable.AddActivationField("groups_device_families_limitation_modules");
+        theTable.AddHiddenField("is_active");
+
+        //DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_device_management.aspx", "Device Families", "");
+        //linkColumn1.AddQueryStringValue("limit_module_id", "field=id");
+        //linkColumn1.AddQueryCounterValue("select count(*) as val from groups_device_families with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and device_family_id=", "field=id");
+        //theTable.AddLinkColumn(linkColumn1);
+
+        DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_limitation_modules_new.aspx", "Edit", "");
+        linkColumn1.AddQueryStringValue("limit_id", "field=id");
+        theTable.AddLinkColumn(linkColumn1);
+
+        DataTableLinkColumn linkColumn2 = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
+        linkColumn2.AddQueryStringValue("id", "field=id");
+        linkColumn2.AddQueryStringValue("table", "groups_device_families_limitation_modules");
+        linkColumn2.AddQueryStringValue("confirm", "true");
+        linkColumn2.AddQueryStringValue("main_menu", "2");
+        linkColumn2.AddQueryStringValue("sub_menu", "3");
+        linkColumn2.AddQueryStringValue("rep_field", "username");
+        linkColumn2.AddQueryStringValue("rep_name", "Username");
+        theTable.AddLinkColumn(linkColumn2);
+
+
+        DataTableLinkColumn linkColumn3 = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
+        linkColumn3.AddQueryStringValue("id", "field=id");
+        linkColumn3.AddQueryStringValue("table", "groups_device_families_limitation_modules");
+        linkColumn3.AddQueryStringValue("confirm", "true");
+        linkColumn3.AddQueryStringValue("main_menu", "2");
+        linkColumn3.AddQueryStringValue("sub_menu", "3");
+        linkColumn3.AddQueryStringValue("rep_field", "username");
+        linkColumn3.AddQueryStringValue("rep_name", "Username");
+        theTable.AddLinkColumn(linkColumn3);
+
+
+        DataTableLinkColumn linkColumn4 = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
+        linkColumn4.AddQueryStringValue("id", "field=id");
+        linkColumn4.AddQueryStringValue("table", "groups_device_families_limitation_modules");
+        linkColumn4.AddQueryStringValue("confirm", "false");
+        linkColumn4.AddQueryStringValue("main_menu", "2");
+        linkColumn4.AddQueryStringValue("sub_menu", "3");
+        linkColumn4.AddQueryStringValue("rep_field", "username");
+        linkColumn4.AddQueryStringValue("rep_name", "Username");
+        theTable.AddLinkColumn(linkColumn4);
+    }
+
+    public string GetPageContent(string sOrderBy, string sPageNum)
+    {
+        string sOldOrderBy = "";
+        if (Session["order_by"] != null)
+            sOldOrderBy = Session["order_by"].ToString();
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        FillTheTableEditor(ref theTable, sOrderBy);
+
+        string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
+        theTable.Finish();
+        Session["ContentPage"] = "adm_device_limitation_modules.aspx";
+
+        theTable = null;
+        return sTable;
+    }
+
+    public void GetHeader()
+    {
+        Response.Write(PageUtils.GetPreHeader() + " : Device Families");
+    }
+}
