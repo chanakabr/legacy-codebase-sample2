@@ -74,6 +74,7 @@
     <Compile Include="Searcher\BoolQuery.cs" />
     <Compile Include="Searcher\ESEpgQueryBuilder.cs" />
     <Compile Include="Searcher\ESFacet.cs" />
+    <Compile Include="Searcher\ESMatchQuery.cs" />
     <Compile Include="Searcher\ESMediaQueryBuilder.cs" />
     <Compile Include="Searcher\FilterCompositeType.cs" />
     <Compile Include="Searcher\FilteredQuery.cs" />

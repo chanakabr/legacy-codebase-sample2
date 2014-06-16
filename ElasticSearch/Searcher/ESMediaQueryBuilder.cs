@@ -621,20 +621,8 @@ namespace ElasticSearch.Searcher
                             if (string.IsNullOrEmpty(sValue))
                                 continue;
 
-                            string[] lSplitedValues = sValue.Split(splitChars);
-
-                            BoolQuery tempBQ = new BoolQuery();
-                            if (lSplitedValues.Length > 0)
-                            {
-                                foreach (string splitedValue in lSplitedValues)
-                                {
-                                    tempBQ.AddChild(
-                                        new ESTerm(false) { Key = sSearchKey, Value = splitedValue },
-                                        CutWith.AND
-                                        );
-                                }
-                            }
-                            oValueBoolQuery.AddChild(tempBQ, searchValue.m_eInnerCutWith);
+                            ESMatchQuery matchQuery = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match) { eOperator = CutWith.AND, Field = sSearchKey, Query = sValue };
+                            oValueBoolQuery.AddChild(matchQuery, searchValue.m_eInnerCutWith);
                         }
                     }
 
