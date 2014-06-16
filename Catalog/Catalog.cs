@@ -2563,10 +2563,9 @@ namespace Catalog
             }
 
             if (!bHasTagPrefix)
-            {               
-                var metaValues = oGroup.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
-
-                List<string> metas = new List<string>(metaValues);
+            {
+                var metas = oGroup.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+                               
                
                 foreach (var val in metas)
                 {
