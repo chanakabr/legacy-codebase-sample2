@@ -2563,15 +2563,11 @@ namespace Catalog
             }
 
             if (!bHasTagPrefix)
-            {
-                //var t = (from c in ((from b in (from r in oGroup.m_oMetasValuesByGroupId select r.Value) select b.Values)) select c.FirstOrDefault()).ToList();
-                List<string> metas = new List<string>();
-                foreach (var group in oGroup.m_oMetasValuesByGroupId.Keys)
-                {
-                    Dictionary<string, string> dMetas = oGroup.m_oMetasValuesByGroupId[group];
-                    metas.AddRange(dMetas.Values);
-                }
+            {               
+                var metaValues = oGroup.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
 
+                List<string> metas = new List<string>(metaValues);
+               
                 foreach (var val in metas)
                 {
                     if (val.Equals(sKey, StringComparison.OrdinalIgnoreCase))
