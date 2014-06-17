@@ -579,19 +579,26 @@ namespace Catalog
             }
         }
 
-        public static int GetUserType(int nSiteGuid)
+        public static int GetUserType(string sSiteGuid, int nGroupID)
         {
-            bool result = true;
             int nUserTypeID = 0;
-
-            DataTable dtUserType = DAL.UsersDal.GetUserBasicData(nSiteGuid);
-            if (dtUserType != null && dtUserType.Rows.Count > 0)
+            try
             {
-                nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserType.Rows[0]["user_type_id"]);
+                ws_users.UsersService u = new ws_users.UsersService();
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetUserType", "users", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = Utils.GetWSURL("users_ws");
+                if (sWSURL != "")
+                    u.Url = sWSURL;
+                nUserTypeID = u.GetUserType(sWSUserName, sWSPass, sSiteGuid);
+                return nUserTypeID;
             }
-            result = DAL.ApiDAL.Is_MediaExistsToUserType(nMediaID, nUserTypeID);
-
-            return result;
+            catch (Exception ex)
+            {
+                return 0;
+            }
         }
 
 
