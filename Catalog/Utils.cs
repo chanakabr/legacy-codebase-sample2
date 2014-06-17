@@ -578,5 +578,23 @@ namespace Catalog
                 return null;
             }
         }
+
+        public static int GetUserType(int nSiteGuid)
+        {
+            bool result = true;
+            int nUserTypeID = 0;
+
+            DataTable dtUserType = DAL.UsersDal.GetUserBasicData(nSiteGuid);
+            if (dtUserType != null && dtUserType.Rows.Count > 0)
+            {
+                nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserType.Rows[0]["user_type_id"]);
+            }
+            result = DAL.ApiDAL.Is_MediaExistsToUserType(nMediaID, nUserTypeID);
+
+            return result;
+        }
+
+
+
     }
 }
