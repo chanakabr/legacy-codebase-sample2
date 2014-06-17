@@ -41,6 +41,9 @@ namespace Catalog
                 {
                     MediaSearchObj searchObj = new MediaSearchObj();
                     searchObj.m_nGroupId = request.m_nGroupID;
+                    
+                    searchObj.m_nPageSize = request.m_nPageSize;
+                    searchObj.m_nPageIndex = request.m_nPageIndex;
 
                     Group oGroup = GroupsCache.Instance.GetGroup(request.m_nGroupID);
                     if (oGroup != null)
