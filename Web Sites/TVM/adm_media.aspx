@@ -26,7 +26,11 @@
         search_tag = GetSafeDocumentIDVal("search_tag");
         search_free = GetSafeDocumentIDVal("search_free");
         search_tag_type = GetSafeDocumentIDVal("search_tag_type");
-        RS.Execute("adm_media.aspx", "GetPageContent", orderBy, pageNum, search_tag, search_free, search_on_off, search_only_unapproved_comments, search_tag_type , callback_page_content, errorCallback);
+        RS.Execute("adm_media.aspx", "GetPageContent", orderBy, pageNum, search_tag, search_free, search_on_off, search_only_unapproved_comments, search_tag_type, callback_page_content, errorCallback);
+        var err = document.getElementById("<%= hfError.ClientID %>").value;
+        if (err) {
+            alert(err);
+        }
     }
     function create_csv()
     {
@@ -149,6 +153,7 @@
 			</td>
 		</tr>
 	</table>
+    <input id="hfError" type="hidden" name="hfError" value="" runat="server" />
 </form>
 <div class="footer">
 	<table>

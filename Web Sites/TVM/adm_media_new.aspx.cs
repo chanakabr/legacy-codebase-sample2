@@ -52,8 +52,22 @@ public partial class adm_media_new : System.Web.UI.Page
                 {
                     Notifiers.BaseMediaNotifier t = null;
                     Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
+
+                    string errorMessage = "";
+
                     if (t != null)
-                        t.NotifyChange(nID.ToString());
+                    {
+                        t.NotifyChange(nID.ToString(), ref errorMessage);
+                    }
+
+                    if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        HttpContext.Current.Session["error_msg_sub"] = "Error in Package ID " + nID + ":\r\n" + errorMessage;
+                    }
+
+
+                    //if (t != null)
+                    //    t.NotifyChange(nID.ToString());
                     return;
                 }
                 catch (Exception ex)

@@ -19,6 +19,10 @@
     function GetPageTable(orderBy , pageNum)
     {
         RS.Execute("adm_subscriptions.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
+        var err = document.getElementById("<%= hfError.ClientID %>").value;
+        if (err) {
+            alert(err);
+        }
     }
     function create_csv()
     {
@@ -144,6 +148,7 @@
 			</td>
 		</tr>
 	</table>
+    <input id="hfError" type="hidden" name="hfError" value="" runat="server" />
 </div>
 </body>
 </html>
