@@ -33,6 +33,9 @@ namespace EpgFeeder
         protected static readonly Regex HebrewRegex = new Regex(@"\p{IsHebrew}");
         protected static readonly Regex RussianRegex = new Regex(@"\p{IsCyrillic}");
         protected static readonly Regex ArabicRegex = new Regex(@"\p{IsArabic}");
+
+        protected static readonly int MaxDescriptionSize = 1024;
+
         #endregion
 
         #region Public Members
@@ -594,19 +597,13 @@ namespace EpgFeeder
                 reader = new StreamReader(stream);
                 string[] spleter = { " " };
 
-
-
-
                 while (reader.Peek() > 0)
                 {
 
                     filename = reader.ReadLine();
 
-
-
-                    if (!string.IsNullOrEmpty(filename))
+                    if (!string.IsNullOrEmpty(filename) && (filename.EndsWith("xml") || filename.EndsWith("XML")))
                     {
-
                         Stream fileStream = null;
                         try
                         {
@@ -1026,69 +1023,67 @@ namespace EpgFeeder
         /// <returns>retur true if success else return false</returns>
         private bool MoveFile(string sFileName)
         {
-            bool res = false;
+            bool moveSucceeded = false;           
+            string sTargetDirectoryPath = GetMoveFilePath();
             FtpWebResponse response = null;
             Stream stream = null;
             FtpWebResponse Uploadresponse = null;
-            string sTargetDirectoryPath = GetMoveFilePath();
-            try
+            int retryCount = 3;
+            for (int i = 0; i < retryCount && !moveSucceeded; i++)
             {
-                // Get the object used to communicate with the server.
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(string.Format("{0}/{1}", sTargetDirectoryPath, sFileName)));
-                request.Method = WebRequestMethods.Ftp.UploadFile;
+                try
+                {
+                    // Get the object used to communicate with the server.
+                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(string.Format("{0}/{1}", sTargetDirectoryPath, sFileName)));
+                    request.Method = WebRequestMethods.Ftp.UploadFile;
+                    request.Credentials = m_NetCredential;
+                    stream = GetFTPStreamFile(sFileName, out response);
+                    // Copy the contents of the file to the request stream.                
+                    StreamReader sourceStream = new StreamReader(stream);
+                    byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
+                    sourceStream.Close();
 
-                // This example assumes the FTP site uses anonymous logon.
-                request.Credentials = m_NetCredential;
-                stream = GetFTPStreamFile(sFileName, out response);
-                // Copy the contents of the file to the request stream.
-                StreamReader sourceStream = new StreamReader(stream);
+                    request.ContentLength = fileContents.Length;               
 
+                    Stream requestStream = request.GetRequestStream();
+                    requestStream.Write(fileContents, 0, fileContents.Length);
+                    requestStream.Close();
+                   
 
-                byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
-                sourceStream.Close();
+                    Uploadresponse = (FtpWebResponse)request.GetResponse();
 
-                if (response != null)
-                    response.Close();
+                    moveSucceeded = true;
 
-                if (stream != null)
-                    stream.Close();
+                    Logger.Logger.Log("EPG Move file", string.Format("Move source file '{0}' to directory path '{1}' success .! , response status: {2}", sFileName, sTargetDirectoryPath, Uploadresponse.StatusDescription), LogFileName);
+                }
+                catch (Exception exp)
+                { 
+                    Logger.Logger.Log("EPG Move file", string.Format("there an error occurring during move file process, Move file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG Moves source file faild.");
+                }
+                finally
+                {
+                    if (response != null)
+                    {
+                        response.Close();
+                        response = null;                      
+                    }
 
-                request.ContentLength = fileContents.Length;
-                Stream requestStream = request.GetRequestStream();
-                requestStream.Write(fileContents, 0, fileContents.Length);
-                requestStream.Close();
+                    if (stream != null)
+                    {
+                        stream.Close();
+                        stream = null;                     
+                    }
 
-                Uploadresponse = (FtpWebResponse)request.GetResponse();
+                    if (Uploadresponse != null)
+                    {
+                        Uploadresponse.Close();
+                        Uploadresponse = null;
+                    }
 
-                res = true;
-
-                Logger.Logger.Log("EPG Move file", string.Format("Move source file '{0}' to directory path '{1}' success .! , response status: {2}", sFileName, sTargetDirectoryPath, Uploadresponse.StatusDescription), LogFileName);
+                    i++;
+                }
             }
-            catch (Exception exp)
-            {
-                if (response != null)
-                    response.Close();
-
-                if (stream != null)
-                    stream.Close();
-
-                if (Uploadresponse != null)
-                    Uploadresponse.Close();
-
-                Logger.Logger.Log("EPG Move file", string.Format("there an error occurring during move file process, Move file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG Moves source file faild.");
-            }
-            finally
-            {
-                if (response != null)
-                    response.Close();
-
-                if (stream != null)
-                    stream.Close();
-
-                if (Uploadresponse != null)
-                    Uploadresponse.Close();
-            }
-            return res;
+            return moveSucceeded;
         }
         /// <summary>
         /// Delete file from source 
@@ -1270,16 +1265,33 @@ namespace EpgFeeder
 
         protected void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping)
         {
+          
             Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
             int nEpgCount = 0;
-            foreach (string sGuid in epgDic.Keys)
+            try
             {
-                epgBatch.Add(sGuid, epgDic[sGuid]);
-                nEpgCount++;
-                if (nEpgCount >= nCountPackage)
+                foreach (string sGuid in epgDic.Keys)
+                {
+                    epgBatch.Add(sGuid, epgDic[sGuid]);
+                    nEpgCount++;
+                    if (nEpgCount >= nCountPackage)
+                    {
+                        InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
+                        nEpgCount = 0;
+                        foreach (string guid in epgBatch.Keys)
+                        {
+                            if (epgBatch[guid].EpgID > 0)
+                            {
+                                epgDic[guid].EpgID = epgBatch[guid].EpgID;
+                            }
+                        }
+                        epgBatch.Clear();
+                    }
+                }
+
+                if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
                 {
                     InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
-                    nEpgCount = 0;
                     foreach (string guid in epgBatch.Keys)
                     {
                         if (epgBatch[guid].EpgID > 0)
@@ -1287,20 +1299,12 @@ namespace EpgFeeder
                             epgDic[guid].EpgID = epgBatch[guid].EpgID;
                         }
                     }
-                    epgBatch.Clear();
                 }
             }
-
-            if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
+            catch (Exception exc)
             {
-                InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
-                foreach (string guid in epgBatch.Keys)
-                {
-                    if (epgBatch[guid].EpgID > 0)
-                    {
-                        epgDic[guid].EpgID = epgBatch[guid].EpgID;
-                    }
-                }
+                Logger.Logger.Log("InsertEpgsDBBatches", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgFeeder");
+                return;
             }
         }
         
@@ -1689,7 +1693,7 @@ namespace EpgFeeder
                         row["EPG_CHANNEL_ID"] = epg.ChannelID;
                         row["EPG_IDENTIFIER"] = epg.EpgIdentifier;
                         row["NAME"] = epg.Name;
-                        row["DESCRIPTION"] = epg.Description;
+                        row["DESCRIPTION"] = epg.Description.Substring(0, MaxDescriptionSize); //insert only 1024 chars (limitation of the column in the DB)
                         row["START_DATE"] = epg.StartDate;
                         row["END_DATE"] = epg.EndDate;
                         row["PIC_ID"] = epg.PicID;
