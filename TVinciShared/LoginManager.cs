@@ -709,7 +709,8 @@ namespace TVinciShared
 
                 string sIP = PageUtils.GetCallerIP();
 
-                if (WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK") != string.Empty && WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK") == "true")
+                if (WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK") != string.Empty && 
+                    WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK").ToLower() == "true")
                 {
                     //Logger.Logger.Log("SKIP_LOGIN_IP_CHECK", "UN: " + sUserName + " || Pass: " + sPassword + " || IP: " + sIP, "login_errors");
                 }

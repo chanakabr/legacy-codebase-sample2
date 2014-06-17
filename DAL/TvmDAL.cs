@@ -373,6 +373,19 @@ namespace DAL
         {
             return Get_DeviceFamiliesLimitationsData(nGroupID, nLimitationID, string.Empty);
         }
+
+        public static long GetPackageMediaID(int nGroupID, string sMediaID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PackageMediaID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@MediaID", sMediaID);
+
+            long mediaID = sp.ExecuteReturnValue<long>();
+
+            return mediaID;
+        }
+
     }
     
 }
