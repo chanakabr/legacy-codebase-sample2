@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DAL;
 using ODBCWrapper;
 
 namespace Notifiers
@@ -23,20 +24,15 @@ namespace Notifiers
         {
             if (IsNotifyProduct(sMediaID))
             {
-                //tikle_ws.Service t = new Notifiers.tikle_ws.Service();
-                //string sTikleWSURL = Utils.GetWSURL("tikle_ws");
-                //t.Url = sTikleWSURL;
-                //tikle_ws.Response resp = t.NotifyProduct(sMediaID, m_nGroupID);
-                //Logger.Logger.Log("Notify", sMediaID + " : " + resp.ResultDetail, "media_notifier");
-
-                EutelsatProductNotificationResponse resp = MakePackageNotification(sMediaID);
+                PackageNotificationResponse resp = MakePackageNotification(sMediaID);
 
                 errorMessage = "";
 
-                if (resp != null && !resp.success && resp.errors != null)
+                if (resp != null && !resp.success && !string.IsNullOrEmpty(resp.message))
                 {
-                    string[] errors = resp.errors.Select(e => "type: " + e.error_type + "; error: " + e.error_message).ToArray();
-                    errorMessage = string.Join("\n", errors);
+                    errorMessage = resp.message;
+                    //string[] errors = resp.errors.Select(e => "type: " + e.error_type + "; error: " + e.error_message).ToArray();
+                    //errorMessage = string.Join("\n", errors);
                 }
 
                 Logger.Logger.Log("Notify", sMediaID + " : " + (resp.success ? "notification success" : errorMessage), "package_notifier");
@@ -47,9 +43,9 @@ namespace Notifiers
             }
         }
 
-        private EutelsatProductNotificationResponse MakePackageNotification(string sMediaID)
+        private PackageNotificationResponse MakePackageNotification(string sMediaID)
         {
-            EutelsatProductNotificationResponse res = new EutelsatProductNotificationResponse();
+            PackageNotificationResponse res = new PackageNotificationResponse();
             res.success = false;
 
             try
@@ -99,22 +95,20 @@ namespace Notifiers
                     EndDate = endDate
                 };
 
-                //List<string> lOperatorCoGuids = DAL.TvmDAL.GetSubscriptionOperatorCoGuids(m_nGroupID, sMediaID);
-                //pack.IPNO_IDs = lOperatorCoGuids.Select(id => new ObjIPNO_ID() { IPNO_ID = id }).ToList();
 
                 EutelsatPackageNotification packNotification = new EutelsatPackageNotification() { Product = pack };
 
-                //string jsonTransactionContent = trans.Serialize();
                 var jsonTransactionContent = Newtonsoft.Json.JsonConvert.SerializeObject(packNotification);
 
                 //string requestURL = MakeTransNotificationURL(sWSURL, sHouseholdUID, dPrice, sCurrency, nExternalAssetID, sPpvModuleCode, sCouponCode, nRoviID, nTransactionID, nDeviceBrandID);
+
                 Uri requestUri = null;
                 bool isGoodUri = Uri.TryCreate(sWSURL, UriKind.Absolute, out requestUri) && requestUri.Scheme == Uri.UriSchemeHttp;
 
                 if (isGoodUri)
                 {
-                    res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatProductNotificationResponse;
-                    //object 3ssRes = Utils.MakeJsonRequest(checkTvodUrl, 
+                    string sRes = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent);
+                    res = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(PackageNotificationResponse)) as PackageNotificationResponse;    
                 }
             }
             catch (Exception ex)
@@ -129,31 +123,19 @@ namespace Notifiers
         private bool IsNotifyProduct(string sMediaID)
         {
             bool retVal = false;
-            int nMediaID;
+
+            int nMediaID = 0;
 
             if (int.TryParse(sMediaID, out nMediaID))
             {
-                DataSetSelectQuery selectQuery = new DataSetSelectQuery();
-                selectQuery += " select ID from media with (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nMediaID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
-                selectQuery += " and (end_date > getdate() or end_date IS NULL)";
-                if (selectQuery.Execute("query", true) != null)
+                long virtualMediaID = DAL.TvmDAL.GetPackageMediaID(m_nGroupID, sMediaID);
+
+                if (virtualMediaID > 0)
                 {
-                    int count = selectQuery.Table("query").DefaultView.Count;
-                    if (count > 0)
-                    {
-                        retVal = true;
-                    }
+                    retVal = true;
                 }
-                selectQuery.Finish();
-                selectQuery = null;
             }
+
             return retVal;
         }
     }

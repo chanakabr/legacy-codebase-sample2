@@ -28,14 +28,7 @@ namespace Notifiers
 
         override public void NotifyChange(string sSubscriptionID, ref string errorMessage, int create0update1assign2)
         {
-            //WS_3SS.Service t = new Notifiers.tikle_ws.Service();
-            //string sTikleWSURL = Utils.GetWSURL("tikle_ws");
-            //t.Url = sTikleWSURL;
-            //tikle_ws.Response resp = t.NotifySubscription(sSubscriptionID, m_nGroupID);
-            
-            //Logger.Logger.Log("Notify", sSubscriptionID + " : "  + resp.ResultDetail, "subscriptions_notifier");
-
-            EutelsatProductNotificationResponse resp = MakeProductNotification(sSubscriptionID, create0update1assign2);
+            ProductNotificationResponse resp = MakeProductNotification(sSubscriptionID, create0update1assign2);
 
             errorMessage = "";
             
@@ -45,15 +38,14 @@ namespace Notifiers
                 errorMessage = string.Join("\n",  errors);
             }
 
-            Logger.Logger.Log("Notify", sSubscriptionID + " : " + (resp.success ? "notification success" : errorMessage), "subscriptions_notifier");
-            
+            Logger.Logger.Log("Notify", sSubscriptionID + " : " + (resp.success ? "notification success" : errorMessage), "subscriptions_notifier");            
         }
 
 
-        protected EutelsatProductNotificationResponse MakeProductNotification(string sSubscriptionID, int create0update1assign2)
+        protected ProductNotificationResponse MakeProductNotification(string sSubscriptionID, int create0update1assign2)
         {
 
-            EutelsatProductNotificationResponse res = new EutelsatProductNotificationResponse();
+            ProductNotificationResponse res = new ProductNotificationResponse();
             res.success = false;
 
             string sWSURL = Utils.GetWSURL("Eutelsat_ProductBase"); //+(update ? "/update" : "/create");
@@ -124,7 +116,11 @@ namespace Notifiers
 
             if (isGoodUri)
             {
-                res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatProductNotificationResponse;
+                string sRes = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent);
+                res = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(ProductNotificationResponse)) as ProductNotificationResponse;    
+                //res = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(NotificationResponse)) as NotificationResponse;    
+
+                //res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatProductNotificationResponse;
             }
 
             return res;
