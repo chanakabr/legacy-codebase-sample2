@@ -1063,16 +1063,20 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-                List<string> lstRet = new List<String>();
+                List<string> lstRet = new APIMediaAutoCompleteLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIdx, initObj.Locale.LocaleLanguage, prefixText, iMediaTypes.ToList())
+                    .Execute() as List<string>;
 
-                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
-                    prefixText, initObj.Locale.LocaleLanguage, pageIdx, pageSize);
+                if (lstRet != null)
+                    retVal = lstRet.ToArray();
 
-                foreach (String sTitle in lstResponse)
-                {
-                    if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
-                }
-                retVal = lstRet.ToArray();
+                //List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
+                //    prefixText, initObj.Locale.LocaleLanguage, pageIdx, pageSize);
+
+                //foreach (String sTitle in lstResponse)
+                //{
+                //    if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
+                //}
+                //retVal = lstRet.ToArray();
             }
 
             return retVal;
