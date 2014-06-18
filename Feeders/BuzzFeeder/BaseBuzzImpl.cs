@@ -12,7 +12,7 @@ namespace BuzzFeeder
 {
     public abstract class BaseBuzzImpl
     {
-
+        
         #region members
         protected int m_nGroupID;
         protected DateTime m_dtTimePeriod;
@@ -151,8 +151,7 @@ namespace BuzzFeeder
             string facetJSON = groupedFacet.ToString();
             #endregion
 
-            string retval = m_oESApi.Search("statistics", "stats", ref facetJSON);
-
+            string retval = m_oESApi.Search(ElasticSearch.Common.Utils.GetGroupStatisticsIndex(m_nGroupID), ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetJSON);
 
             Dictionary<string, Dictionary<string, int>> dFacetResults = ESTermsFacet.FacetResults(ref retval);
 
