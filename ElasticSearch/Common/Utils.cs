@@ -8,6 +8,8 @@ namespace ElasticSearch.Common
 {
     public static class Utils
     {
+        public static readonly string ES_STATS_TYPE = "stats";
+
         public static string GetWSURL(string sKey)
         {
             string result = string.Empty;
@@ -73,6 +75,11 @@ namespace ElasticSearch.Common
         public static string GetLangCodeFilterKey(string sLanguageCode)
         {
             return string.Concat(sLanguageCode, "_filter");
+        }
+
+        public static string GetGroupStatisticsIndex(int nParentGroupId)
+        {
+            return string.Concat(nParentGroupId, "_statistics");
         }
     }
 }

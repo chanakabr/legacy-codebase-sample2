@@ -63,6 +63,8 @@ namespace Catalog
         public string m_sAssetType;
         [JsonProperty("action")]
         public string m_Action;
+        [JsonProperty("group_id")]
+        public int GroupID;
 
         public Comments()
         {

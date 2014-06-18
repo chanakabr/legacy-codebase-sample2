@@ -80,14 +80,16 @@ namespace Catalog
                     m_sSiteGuid = oCommentReq.m_sSiteGuid,
                     m_sWriter = oCommentReq.m_sWriter,
                     m_nLang = oCommentReq.m_oFilter.m_nLanguage,
-                    m_sAssetType = (oCommentReq is MediaCommentRequest) ? "media" : "epg"
+                    m_sAssetType = (oCommentReq is MediaCommentRequest) ? "media" : "epg",
+                    m_Action = "comment",
+                    GroupID = group.m_nParentGroupID,
                 };
 
                 string sJson = Newtonsoft.Json.JsonConvert.SerializeObject(comment);
                 ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
                 Guid guid = Guid.NewGuid();
-                
-                bResult = esApi.InsertRecord("statistics", "stats", guid.ToString(), sJson);
+
+                bResult = esApi.InsertRecord(ElasticSearch.Common.Utils.GetGroupStatisticsIndex(group.m_nParentGroupID), ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJson);
             }
 
             return bResult;

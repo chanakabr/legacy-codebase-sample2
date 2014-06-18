@@ -22,7 +22,6 @@ namespace Catalog
     public class Utils
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        public static readonly string ES_STATISTICS_TYPE = "stats";
 
         /*Build some of the "where" query part : the range date by the params*/
         static public string GetDateRangeQuery(string sEndDateField, bool bUseStartDate)
@@ -590,9 +589,9 @@ namespace Catalog
             string sFacetQuery = facet.ToString();
 
             //Search
-            string index = Utils.GetStatisticsIndexAlias(nGroupID);
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupID);
             ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ES_STATISTICS_TYPE, ref sFacetQuery);
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
 
             if (!string.IsNullOrEmpty(retval))
             {
@@ -666,9 +665,9 @@ namespace Catalog
 
 
             //Search
-            string index = Utils.GetStatisticsIndexAlias(nGroupId);
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
             ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ES_STATISTICS_TYPE, ref sFacetQuery);
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
 
             if (!string.IsNullOrEmpty(retval))
             {
@@ -741,9 +740,9 @@ namespace Catalog
 
 
             //Search
-            string index = Utils.GetStatisticsIndexAlias(nGroupId);
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
             ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ES_STATISTICS_TYPE, ref sFacetQuery);
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
 
             if (!string.IsNullOrEmpty(retval))
             {
@@ -850,11 +849,6 @@ namespace Catalog
             }
 
             return result;
-        }
-
-        public static string GetStatisticsIndexAlias(int nParentGroupId)
-        {
-            return string.Concat(nParentGroupId, "_statistics");
         }
     }
 }

@@ -13,7 +13,7 @@ namespace ElasticSearch.Common
     public class ElasticSearchApi
     {
         public static readonly string ES_URL = Common.Utils.GetWSURL("ES_URL");
-        private const string ES_LOG_FILENAME = "ElasticSearch";
+        private static readonly string ES_LOG_FILENAME = "ElasticSearch";
 
         public string GetDoc(string sIndex, string sType, string sDocId)
         {
@@ -29,7 +29,7 @@ namespace ElasticSearch.Common
 
             if (nStatus != 200)
             {
-                Logger.Logger.Log("Error", string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId), "ElasticSearch");
+                Logger.Logger.Log("Error", string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId), ES_LOG_FILENAME);
                 sRes = string.Empty;
             }
 
@@ -111,7 +111,7 @@ namespace ElasticSearch.Common
                 bResult = (nStatus == 200) ? true : false;
 
                 if (!bResult)
-                    Logger.Logger.Log("Error", string.Format("Failed creating map. Explaination: {0}", sRetval), "ElasticSearch");
+                    Logger.Logger.Log("Error", string.Format("Failed creating map. Explaination: {0}", sRetval), ES_LOG_FILENAME);
             }
 
             return bResult;
@@ -153,7 +153,7 @@ namespace ElasticSearch.Common
                 bResult = (nStatus == 200) ? true : false;
 
                 if (bResult == false)
-                    Logger.Logger.Log("Error", string.Format("error received when trying to switch indices. Message: {0}", sRetVal), "ElasticSearch");
+                    Logger.Logger.Log("Error", string.Format("error received when trying to switch indices. Message: {0}", sRetVal), ES_LOG_FILENAME);
 
             }
 
@@ -173,7 +173,7 @@ namespace ElasticSearch.Common
                     string bRetval = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty);
 
                     if (nStatus != 200)
-                        Logger.Logger.Log("Error", string.Format("Unable to delete index. index={0}", sIndex), "ElasticSearch");
+                        Logger.Logger.Log("Error", string.Format("Unable to delete index. index={0}", sIndex), ES_LOG_FILENAME);
                 }
 
             }
@@ -318,7 +318,7 @@ namespace ElasticSearch.Common
 
             bRes = (nStatus == 200) ? true : false;
             if (!bRes)
-                Logger.Logger.Log("Error", string.Format("Unable to insert record into elasticsearch. url={0};document={1}", sUrl, sDoc), "ElasticSearch");
+                Logger.Logger.Log("Error", string.Format("Unable to insert record into elasticsearch. url={0};document={1}", sUrl, sDoc), ES_LOG_FILENAME);
 
             return bRes;
         }
@@ -428,7 +428,7 @@ namespace ElasticSearch.Common
 
             if (nStatus != 200)
             {
-                Logger.Logger.Log("Error", string.Format("Search query failed. url={0};query={1}", sUrl, sSearchQuery), "ElasticSearch");
+                Logger.Logger.Log("Error", string.Format("Search query failed. url={0};query={1}", sUrl, sSearchQuery), ES_LOG_FILENAME);
                 sRes = string.Empty;
             }
             Logger.Logger.Log("Search Query", string.Format("Query:{0} Response:{1}", sSearchQuery, sRes), "ELasticSearchQueries"); 
@@ -469,7 +469,7 @@ namespace ElasticSearch.Common
 
             if (nStatus != 200)
             {
-                Logger.Logger.Log("Error", string.Format("Search query failed. url={0};query={1}", sUrl, sb.ToString()), "ElasticSearch");
+                Logger.Logger.Log("Error", string.Format("Search query failed. url={0};query={1}", sUrl, sb.ToString()), ES_LOG_FILENAME);
                 sRes = string.Empty;
             }
 
@@ -490,7 +490,7 @@ namespace ElasticSearch.Common
 
             if (nStatus != 200)
             {
-                Logger.Logger.Log("Error", string.Format("Search Percolator query failed. url={0};doc={1}", sUrl, sDoc), "ElasticSearch");
+                Logger.Logger.Log("Error", string.Format("Search Percolator query failed. url={0};doc={1}", sUrl, sDoc), ES_LOG_FILENAME);
             }
             else
             {
@@ -513,7 +513,7 @@ namespace ElasticSearch.Common
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("SearchPercolator Could not parse response. Ex={0}", ex.Message), "ElasticSearch");
+                    Logger.Logger.Log("Error", string.Format("SearchPercolator Could not parse response. Ex={0}", ex.Message), ES_LOG_FILENAME);
                 }
             }
 
@@ -538,7 +538,7 @@ namespace ElasticSearch.Common
             }
             else
             {
-                Logger.Logger.Log("Error", string.Format("Adding Query to Percolator failed. url={0};query={1}", sUrl, sQuery), "ElasticSearch");
+                Logger.Logger.Log("Error", string.Format("Adding Query to Percolator failed. url={0};query={1}", sUrl, sQuery), ES_LOG_FILENAME);
             }
 
             return bResult;
@@ -612,42 +612,6 @@ namespace ElasticSearch.Common
             }
             return res;
         }
-
-        //public static List<ESSearchResults> DecodeESResults(List<string> lReturnFields, ref string sResultJson)
-        //{
-        //    List<ESSearchResults> lResults = new List<ESSearchResults>();
-
-        //    if (!string.IsNullOrEmpty(sResultJson))
-        //    {
-        //        try
-        //        {
-        //            var jsonObj = JObject.Parse(sResultJson);
-
-        //            if (jsonObj != null)
-        //            {
-        //                JToken tempToken;
-        //                int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
-        //                if (totalItems > 0)
-        //                {
-        //                    lResults = jsonObj.SelectToken("hits.hits").Select(item => new ESSearchResults
-        //                    {
-
-        //                        index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
-        //                        type = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken),
-        //                        id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
-        //                        results = lReturnFields.Select(field => new KeyValuePair<string,string>(field, ((tempToken = item.SelectToken(string.Concat("fields.",field))) == null ? string.Empty : (string)tempToken))).ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value)
-        //                    }).ToList();
-        //                }
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), "BuzzFeeder");
-        //        }
-        //    }
-        //    return lResults;
-        //}
-
 
         private string BuildDirectIDsQuery<T>(List<T> oIDsList, int nNumOfResultsToReturn)
         {
