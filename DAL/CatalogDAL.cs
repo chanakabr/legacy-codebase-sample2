@@ -1327,12 +1327,20 @@ namespace Tvinci.Core.DAL
 
         public static int Get_MediaTypeIdByMediaId(int nMediaID)
         {
+            int result = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaTypeIdByMediaId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             sp.AddParameter("@MediaId", nMediaID);
 
-            int result = sp.ExecuteReturnValue<int>();
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
+            {
+                DataRow row = ds.Tables[0].Rows[0];
+                result = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_TYPE_ID");
+            }
+
             return result;
 		}
 
