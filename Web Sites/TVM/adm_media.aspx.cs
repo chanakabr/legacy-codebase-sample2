@@ -15,6 +15,21 @@ public partial class adm_media : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
+
+    
+    // Handle error messages from package propagations (Eutelsat) 
+    protected void Page_PreRender(object sender, EventArgs e)
+    {
+        if (HttpContext.Current.Session["error_msg_sub"] != null || Session["error_msg_sub"] != null)
+        {
+            hfError.Value = (HttpContext.Current.Session["error_msg_sub"] != null)
+                ? Session["error_msg_sub"].ToString()
+                : HttpContext.Current.Session["error_msg_sub"].ToString();
+
+            HttpContext.Current.Session["error_msg_sub"] = null;
+        }
+    }
+
     protected void Page_Load(object sender, EventArgs e)
     {
         Logger.Logger.Log("MediaPage", "MediaPage", "TempLogin");

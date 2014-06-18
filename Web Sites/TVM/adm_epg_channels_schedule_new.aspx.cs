@@ -38,8 +38,11 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 int epgID = 0;
-                if (Session["epg_channels_schedule_id"] != null && Session["epg_channels_schedule_id"].ToString() != "")
-                    epgID = int.Parse(Session["epg_channels_schedule_id"].ToString());
+                //if (Session["epg_channels_schedule_id"] != null && Session["epg_channels_schedule_id"].ToString() != "")
+                //    epgID = int.Parse(Session["epg_channels_schedule_id"].ToString());
+
+                int progID = DBManipulator.DoTheWork();//insert the EPG to DB first
+                epgID = progID;
 
                 //retreive all tags and Metas IDs from DB
                 Dictionary<int, string> tagsDic = getMetaTag(false);
@@ -53,9 +56,15 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
 
                 ulong nID = 0;
                 if (epg.EpgID == 0)
+                {
+                    epg.EpgID = (ulong)epgID;
                     epgBLTvinci.InsertEpg(epg, out nID);
+                }
                 else
+                {
+                    epg.EpgID = (ulong)epgID;
                     epgBLTvinci.UpdateEpg(epg);
+                }
 
                 bool result = false;
                
@@ -287,11 +296,11 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
         theRecord.AddRecord(dr_name);
 
         DataRecordDateTimeField dr_start_date = new DataRecordDateTimeField(true);
-        dr_start_date.Initialize("Start Date/Time", "adm_table_header_nbg", "FormInput", "START_DATE", epg.StartDate.ToString(), true);        
+        dr_start_date.Initialize("Start Date/Time", "adm_table_header_nbg", "FormInput", "START_DATE", epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"), true);        
         theRecord.AddRecord(dr_start_date);
 
         DataRecordDateTimeField dr_end_date = new DataRecordDateTimeField(true);
-        dr_end_date.Initialize("End Date/Time", "adm_table_header_nbg", "FormInput", "END_DATE", epg.EndDate.ToString(), true);        
+        dr_end_date.Initialize("End Date/Time", "adm_table_header_nbg", "FormInput", "END_DATE", epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), true);        
         theRecord.AddRecord(dr_end_date);
 
         DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField();

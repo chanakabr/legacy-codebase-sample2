@@ -433,7 +433,7 @@ public partial class adm_collections_new : System.Web.UI.Page
             }
         }
         dr_discExternal.SetSelectsDT(discCodesExternalDT);
-        dr_discExternal.Initialize("Discount", "adm_table_header_nbg", "FormInput", "DISCOUNT_ID", false);
+        dr_discExternal.Initialize("Discounts (Internal Item)", "adm_table_header_nbg", "FormInput", "DISCOUNT_ID", false);
         dr_discExternal.SetDefault(0);
         theRecord.AddRecord(dr_discExternal);
 

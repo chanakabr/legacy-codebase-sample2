@@ -51,6 +51,7 @@ namespace EpgFeeder
         private string m_FailedPath;
         private bool m_ProcessError = false;
         private string UpdaterID = "700";
+        
         #endregion
 
 
@@ -1250,9 +1251,9 @@ namespace EpgFeeder
             foreach (var progItem in prog)
             {
                 Utils.ParseEPGStrToDate(progItem.start, ref dProgStartDate);
-                if (!lDates.Contains(dProgStartDate))
+                if (!lDates.Contains(dProgStartDate.Date))
                 {
-                    lDates.Add(dProgStartDate);
+                    lDates.Add(dProgStartDate.Date);
                 }
             }
 
@@ -1264,6 +1265,488 @@ namespace EpgFeeder
             #region Delete all existing programs in ES that have start/end dates within the new schedule
             bool resDelete = Utils.DeleteEPGDocFromES(m_ParentGroupId, channelID, lDates);
             #endregion
-        }      
+        }
+
+
+        protected void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping)
+        {
+            Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
+            int nEpgCount = 0;
+            foreach (string sGuid in epgDic.Keys)
+            {
+                epgBatch.Add(sGuid, epgDic[sGuid]);
+                nEpgCount++;
+                if (nEpgCount >= nCountPackage)
+                {
+                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
+                    nEpgCount = 0;
+                    foreach (string guid in epgBatch.Keys)
+                    {
+                        if (epgBatch[guid].EpgID > 0)
+                        {
+                            epgDic[guid].EpgID = epgBatch[guid].EpgID;
+                        }
+                    }
+                    epgBatch.Clear();
+                }
+            }
+
+            if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
+            {
+                InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
+                foreach (string guid in epgBatch.Keys)
+                {
+                    if (epgBatch[guid].EpgID > 0)
+                    {
+                        epgDic[guid].EpgID = epgBatch[guid].EpgID;
+                    }
+                }
+            }
+        }
+        
+        
+        
+        //this FUnction inserts Epgs, thier Metas and tags to DB, and updates the EPGID in the EpgCB object according to the ID of the epg_channels_schedule in the DB
+        protected void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping)
+        {
+            try
+            {
+                DataTable dtEpgMetas = InitEPGProgramMetaDataTable();
+                DataTable dtEpgTags = InitEPGProgramTagsDataTable();
+                DataTable dtEpgTagsValues = InitEPG_Tags_Values();
+
+                int nUpdaterID = 0;
+                if (!int.TryParse(UpdaterID, out nUpdaterID))
+                    nUpdaterID = 700;
+                string sConn = "MAIN_CONNECTION_STRING";
+
+                List<FieldTypeEntity> FieldEntityMappingMetas = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Meta).ToList();
+                List<FieldTypeEntity> FieldEntityMappingTags = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Tag).ToList();
+
+                Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs = new Dictionary<KeyValuePair<string, int>, List<string>>();// new tag values and the EPGs that have them
+                Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithAllValues(nGroupID, FieldEntityMappingTags);  //all the tag types IDs and thier values that are in the DB (can be more than one) 
+
+                InsertEPG_Channels_sched(ref epgDic);
+
+                foreach (EpgCB epg in epgDic.Values)
+                {
+                    if (epg != null)
+                    {
+                        //update Metas
+                        UpdateMetasPerEPG(ref dtEpgMetas, epg, FieldEntityMappingMetas, nUpdaterID);
+                        //update Tags                    
+                        UpdateExistingTagValuesPerEPG(epg, FieldEntityMappingTags, ref dtEpgTags, ref dtEpgTagsValues, TagTypeIdWithValue, ref newTagValueEpgs, nUpdaterID);
+                    }
+                }
+
+                InsertNewTagValues(epgDic, dtEpgTagsValues, ref dtEpgTags, newTagValueEpgs, nGroupID, nUpdaterID);
+
+                InsertBulk(dtEpgMetas, "EPG_program_metas", sConn); //insert EPG Metas to DB
+                InsertBulk(dtEpgTags, "EPG_program_tags", sConn); //insert EPG Tags to DB
+            }
+            catch (Exception exc)
+            {
+                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", nGroupID, exc.Message), "EpgFeeder");
+                return;
+            }
+        }
+
+        //insert new tag values and update the tag value ID in tagValueWithID
+        protected void InsertNewTagValues(Dictionary<string, EpgCB> epgDic, DataTable dtEpgTagsValues, ref DataTable dtEpgTags,
+            Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nGroupID, int nUpdaterID)
+        {
+            Dictionary<KeyValuePair<string, int>, int> tagValueWithID = new Dictionary<KeyValuePair<string, int>, int>();
+            Dictionary<int, List<string>> dicTagTypeIDAndValues = new Dictionary<int, List<string>>();
+            string sConn = "MAIN_CONNECTION_STRING";
+          
+            if (dtEpgTagsValues != null && dtEpgTagsValues.Rows != null && dtEpgTagsValues.Rows.Count > 0)
+            {
+                //insert all New tag values from dtEpgTagsValues to DB
+                InsertBulk(dtEpgTagsValues, "EPG_tags", sConn);
+
+                //retrun back all the IDs of the new Tags_Values
+                for (int k = 0; k < dtEpgTagsValues.Rows.Count; k++)
+                {
+                    DataRow row = dtEpgTagsValues.Rows[k];
+                    string sTagValue = ODBCWrapper.Utils.GetSafeStr(row, "value");
+                    int nTagTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
+                    if (!dicTagTypeIDAndValues.Keys.Contains(nTagTypeID))
+                    {
+                        dicTagTypeIDAndValues.Add(nTagTypeID, new List<string>() { sTagValue });
+                    }
+                    else
+                    {
+                        dicTagTypeIDAndValues[nTagTypeID].Add(sTagValue);
+                    }
+                }
+
+                DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(nGroupID, dicTagTypeIDAndValues);
+
+                //update the IDs in tagValueWithID
+                if (dtTagValueID != null && dtTagValueID.Rows != null)
+                {
+                    for (int i = 0; i < dtTagValueID.Rows.Count; i++)
+                    {
+                        DataRow row = dtTagValueID.Rows[i];
+                        if (row != null)
+                        {
+                            int nTagValueID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                            string sTagValue = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
+                            int nTagType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
+
+                            KeyValuePair<string, int> tagValueAndType = new KeyValuePair<string, int>(sTagValue, nTagType);
+                            tagValueWithID.Add(tagValueAndType, nTagValueID);
+                        }
+                    }
+                }
+            }
+
+            //go over all newTagValueEpgs and update the EPG_Program_Tags
+            foreach (KeyValuePair<string, int> kvpUpdated in newTagValueEpgs.Keys)
+            {
+                int TagValueID = 0;
+                List<KeyValuePair<string, int>> tempTagValue = tagValueWithID.Keys.Where(x => x.Key == kvpUpdated.Key && x.Value == kvpUpdated.Value).ToList();
+                if (tempTagValue != null && tempTagValue.Count > 0)
+                {
+                    TagValueID = tagValueWithID[tempTagValue[0]];
+                    if (TagValueID > 0)
+                    {
+                        foreach (string epgGUID in newTagValueEpgs[kvpUpdated])
+                        {
+                            EpgCB epgToUpdate = epgDic[epgGUID];
+                            FillEpgExtraDataTable(ref dtEpgTags, false, "", epgToUpdate.EpgID, TagValueID, epgToUpdate.GroupID, epgToUpdate.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
+                        }
+                    }
+                }
+            } 
+        }
+
+
+
+        protected Dictionary<int, List<KeyValuePair<string, int>>> getTagTypeWithAllValues(int nGroupID, List<FieldTypeEntity> FieldEntityMappingTags)
+        {
+            List<int> lTagTypeIDs = new List<int>();           
+            foreach (FieldTypeEntity field in FieldEntityMappingTags)
+                lTagTypeIDs.Add(field.ID);
+            Dictionary<int, List<KeyValuePair<string, int>>> dicTagTypeWithValues = new Dictionary<int, List<KeyValuePair<string, int>>>();//per tag type, thier values and IDs
+            DataTable dtTagValues = EpgDal.Get_EPGAllValuesPerTagType(nGroupID, lTagTypeIDs);
+            if (dtTagValues != null && dtTagValues.Rows != null)
+            {
+                for(int i=0; i < dtTagValues.Rows.Count; i++)
+                {
+                    DataRow row = dtTagValues.Rows[i];
+                    if (row != null)
+                    {
+                        int nTagTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
+                        string sValue = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
+                        int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        KeyValuePair<string, int> kvp = new KeyValuePair<string, int>(sValue, nID);
+                        if (dicTagTypeWithValues.ContainsKey(nTagTypeID))
+                        {
+                            //check if the value exists already in the dictionary (maybe in UpperCase\LowerCase)
+                            List <KeyValuePair <string, int>> resultList = new List<KeyValuePair<string,int>>();
+                            resultList = dicTagTypeWithValues[nTagTypeID].Where(x => x.Key.ToLower() == sValue.ToLower() && x.Value == nID).ToList();
+                            if (resultList.Count == 0)
+                            {
+                                dicTagTypeWithValues[nTagTypeID].Add(kvp);
+                            }
+                        }
+                        else
+                        {                             
+                            List <KeyValuePair<string,int>> lValues = new List<KeyValuePair<string,int>>() {kvp};                          
+                            dicTagTypeWithValues.Add(nTagTypeID, lValues);
+                        }
+                    }
+                }
+            }
+            return dicTagTypeWithValues;
+        }
+
+
+        protected void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags,
+            ref DataTable dtEpgTagsValues, Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
+        {         
+            KeyValuePair<string, int> kvp  = new KeyValuePair<string,int>();
+           
+            foreach (string sTagName in epg.Tags.Keys)
+            {
+                List<FieldTypeEntity> tagField = FieldEntityMappingTags.Where(x => x.Name == sTagName).ToList();//get the tag_type_ID
+                int nTagTypeID = 0;
+
+                if (tagField != null && tagField.Count > 0)
+                {
+                    nTagTypeID = tagField[0].ID;
+                }
+                else
+                {
+                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder"); 
+                    continue;//missing tag definition in DB (in FieldEntityMapping)                        
+                }
+
+                foreach (string sTagValue in epg.Tags[sTagName])
+                {
+                    if (sTagValue != "")
+                    {
+                        kvp = new KeyValuePair<string, int>(sTagValue, nTagTypeID);
+
+                        if (TagTypeIdWithValue.ContainsKey(nTagTypeID))
+                        {
+                            List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key == sTagValue).ToList();
+                            if (list != null && list.Count > 0)
+                            {
+                                //Insert New EPG Tag Value in EPG_Program_Tags, we are assuming this tag value was not assigned to the program because the program is new                                                    
+                                FillEpgExtraDataTable(ref dtEpgTags, false, "", epg.EpgID, list[0].Value, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
+                            }
+                            else//tha tag value does not exist in the DB
+                            {
+                                //the newTagValueEpgs has this tag + value: only need to update that this specific EPG is using it
+                                if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count > 0) //check if need to add check for list not being null
+                                {
+                                    newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
+                                }
+                                else //need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
+                                {
+                                    FillEpgTagValueTable(ref dtEpgTagsValues, sTagValue, epg.EpgID, nTagTypeID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
+                                    List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
+                                    newTagValueEpgs.Add(kvp, lEpgGUID);
+                                }
+                            }
+                        }
+                        else //this tag type does not have any values in the DB, need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
+                        {
+                            //check if it was not already added to the newTagValueEpgs
+                            if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count == 0)
+                            {
+                                FillEpgTagValueTable(ref dtEpgTagsValues, sTagValue, epg.EpgID, nTagTypeID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
+                                List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
+                                newTagValueEpgs.Add(kvp, lEpgGUID);
+                            }
+                            else ////the newTagValueEpgs has this tag + value: only need to update that this  specific EPG is using it
+                            {
+                                newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
+                            }
+                        }
+                    }
+                    tagField = null;
+                }
+            }
+        }
+
+        protected void UpdateMetasPerEPG(ref DataTable dtEpgMetas, EpgCB epg, List<FieldTypeEntity> FieldEntityMappingMetas, int nUpdaterID)
+        {           
+            List<FieldTypeEntity> metaField = new List<FieldTypeEntity>();
+            foreach (string sMetaName in epg.Metas.Keys)
+            {
+                metaField = FieldEntityMappingMetas.Where(x => x.Name == sMetaName).ToList();
+                int nID = 0;
+                if (metaField != null && metaField.Count > 0)
+                {
+                    nID = metaField[0].ID;
+                    if (epg.Metas[sMetaName].Count > 0)
+                    {
+                        string sValue = epg.Metas[sMetaName][0];                       
+                        FillEpgExtraDataTable(ref dtEpgMetas, true, sValue, epg.EpgID, nID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
+                    }
+                }
+                else
+                {   //missing meta definition in DB (in FieldEntityMapping)
+                    Logger.Logger.Log("UpdateMetasPerEPG", string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}",sMetaName, epg.EpgID), "EpgFeeder");                        
+                }
+                metaField = null;
+            }            
+        }
+
+        protected void InsertEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic)
+        {
+            EpgCB epg;
+            Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
+
+            DataTable dtEPG = InitEPGDataTable();       
+            FillEPGDataTable(epgDic, ref dtEPG);
+            string sConn = "MAIN_CONNECTION_STRING";
+            InsertBulk(dtEPG, "epg_channels_schedule", sConn); //insert EPGs to DB
+
+            //get back the IDs list of the EPGs          
+            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(epgDic.Keys.ToList());
+            if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null)
+            {
+                for (int i = 0; i < dtEpgIDGUID.Rows.Count; i++)
+                {
+                    DataRow row = dtEpgIDGUID.Rows[i];
+                    if (row != null)
+                    {
+                        string sGuid = ODBCWrapper.Utils.GetSafeStr(row, "EPG_IDENTIFIER");
+                        ulong nEPG_ID = (ulong)ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        if (epgDic.TryGetValue(sGuid, out epg) && epg != null)
+                            epgDic[sGuid].EpgID = nEPG_ID;  //update the EPGCB with the ID
+                    }
+                }
+            }
+        }
+
+       //Insert rows of table to the db at once using bulk operation.      
+        protected void InsertBulk(DataTable dt, string sTableName, string sConnName)
+        {
+            if (dt != null)
+            {
+                ODBCWrapper.InsertQuery insertMessagesBulk = new ODBCWrapper.InsertQuery();
+                insertMessagesBulk.SetConnectionKey(sConnName);
+                try
+                {
+                    insertMessagesBulk.InsertBulk(sTableName, dt);
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    //insert Logs
+
+                    #endregion
+                }
+                finally
+                {
+                    if (insertMessagesBulk != null)
+                    {
+                        insertMessagesBulk.Finish();
+                    }
+                    insertMessagesBulk = null;
+                }              
+            }
+        }
+
+        private DataTable InitEPGDataTable()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("EPG_CHANNEL_ID", typeof(long));
+            dt.Columns.Add("EPG_IDENTIFIER", typeof(string));
+            dt.Columns.Add("NAME", typeof(string));
+            dt.Columns.Add("DESCRIPTION", typeof(string));
+            dt.Columns.Add("START_DATE", typeof(DateTime));
+            dt.Columns.Add("END_DATE", typeof(DateTime));
+            dt.Columns.Add("PIC_ID", typeof(long));
+            dt.Columns.Add("STATUS", typeof(int));
+            dt.Columns.Add("IS_ACTIVE", typeof(int));
+            dt.Columns.Add("GROUP_ID", typeof(long));
+            dt.Columns.Add("UPDATER_ID", typeof(long));
+            dt.Columns.Add("UPDATE_DATE", typeof(DateTime));
+            dt.Columns.Add("PUBLISH_DATE", typeof(DateTime));
+            dt.Columns.Add("CREATE_DATE", typeof(DateTime));
+            dt.Columns.Add("EPG_TAG", typeof(string));
+            dt.Columns.Add("media_id", typeof(long));
+            dt.Columns.Add("FB_OBJECT_ID", typeof(string));
+            dt.Columns.Add("like_counter", typeof(long));
+            return dt;
+        }
+
+        private DataTable InitEPGProgramMetaDataTable()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("value", typeof(string));
+            dt.Columns.Add("epg_meta_id", typeof(int));
+            dt.Columns.Add("program_id", typeof(int));
+            dt.Columns.Add("group_id", typeof(int));
+            dt.Columns.Add("status", typeof(int));
+            dt.Columns.Add("updater_id", typeof(int));
+            dt.Columns.Add("create_date", typeof(DateTime));
+            dt.Columns.Add("update_date", typeof(DateTime));       
+            return dt;
+        }
+
+        private DataTable InitEPGProgramTagsDataTable()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("program_id", typeof(int));
+            dt.Columns.Add("epg_tag_id", typeof(int));
+            dt.Columns.Add("group_id", typeof(int));
+            dt.Columns.Add("status", typeof(int));
+            dt.Columns.Add("updater_id", typeof(int));
+            dt.Columns.Add("create_date", typeof(DateTime));
+            dt.Columns.Add("update_date", typeof(DateTime));           
+            return dt;
+        }
+
+        private DataTable InitEPG_Tags_Values()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("value", typeof(string));
+            dt.Columns.Add("epg_tag_type_id", typeof(string));
+            dt.Columns.Add("group_id", typeof(int));
+            dt.Columns.Add("status", typeof(int));
+            dt.Columns.Add("updater_id", typeof(int));
+            dt.Columns.Add("create_date", typeof(DateTime));
+            dt.Columns.Add("update_date", typeof(DateTime));
+            return dt;
+        }
+
+        protected void FillEPGDataTable(Dictionary<string, EpgCB> epgDic, ref DataTable dtEPG)
+        {
+            if (epgDic != null && epgDic.Count > 0)
+            {
+                foreach (EpgCB epg in epgDic.Values)
+                {
+                    if (epg != null)
+                    {
+                        DataRow row = dtEPG.NewRow();
+                        row["EPG_CHANNEL_ID"] = epg.ChannelID;
+                        row["EPG_IDENTIFIER"] = epg.EpgIdentifier;
+                        row["NAME"] = epg.Name;
+                        row["DESCRIPTION"] = epg.Description;
+                        row["START_DATE"] = epg.StartDate;
+                        row["END_DATE"] = epg.EndDate;
+                        row["PIC_ID"] = epg.PicID;
+                        row["STATUS"] = epg.Status;
+                        row["IS_ACTIVE"] = epg.isActive;
+                        row["GROUP_ID"] = epg.GroupID;
+                        row["UPDATER_ID"] = 400;
+                        row["UPDATE_DATE"] = epg.UpdateDate;
+                        row["PUBLISH_DATE"] = DateTime.UtcNow;
+                        row["CREATE_DATE"] = epg.CreateDate;
+                        row["EPG_TAG"] = null;
+                        row["media_id"] = epg.ExtraData.MediaID;
+                        row["FB_OBJECT_ID"] = epg.ExtraData.FBObjectID;
+                        row["like_counter"] =  epg.Statistics.Likes;
+                        dtEPG.Rows.Add(row);
+                    }
+                }
+            }
+
+        }
+
+        protected void FillEpgExtraDataTable(ref DataTable dtEPGExtra,bool bIsMeta, string sValue, ulong nProgID, int nID, int nGroupID, int nStatus, 
+            int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)
+        {
+            DataRow row = dtEPGExtra.NewRow();
+            if (bIsMeta)
+            {
+                row["value"] = sValue;
+                row["epg_meta_id"] = nID;
+            }
+            else
+            {
+                row["epg_tag_id"] = nID;
+            }
+
+            row["program_id"] = nProgID;
+            row["group_id"] = nGroupID;
+            row["status"] = nStatus;
+            row["updater_id"] = nUpdaterID;
+            row["create_date"] = dCreateTime;
+            row["update_date"] = dUpdateTime;
+            dtEPGExtra.Rows.Add(row);
+        }
+
+        protected void FillEpgTagValueTable(ref DataTable dtEPGTagValue, string sValue, ulong nProgID, int nTagTypeID, int nGroupID, int nStatus,
+           int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)
+        {
+            DataRow row = dtEPGTagValue.NewRow();           
+            row["value"] = sValue;
+            row["epg_tag_type_id"] = nTagTypeID;
+            row["group_id"] = nGroupID;
+            row["status"] = nStatus;
+            row["updater_id"] = nUpdaterID;
+            row["create_date"] = dCreateTime;
+            row["update_date"] = dUpdateTime;
+            dtEPGTagValue.Rows.Add(row);
+        }
+
     }
 }

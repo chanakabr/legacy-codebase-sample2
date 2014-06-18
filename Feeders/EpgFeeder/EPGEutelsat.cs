@@ -137,8 +137,7 @@ namespace EpgFeeder
 
         private Dictionary<DateTime, List<int>> SaveTvChannels()
         {
-            Dictionary<DateTime, List<int>> epgDateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());
-            List<int> programIds = new List<int>();
+            Dictionary<DateTime, List<int>> epgDateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());           
             List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
 
             kabel.tvChannel item = m_TvChannels.channel;
@@ -216,28 +215,31 @@ namespace EpgFeeder
                        where p.channel == item.id
                        select p;
 
-           DeleteAllPrograms(channelID, prog);
+            DeleteAllPrograms(channelID, prog);
 
-            EpgCB newEpgItem;
+            #region get Group ID (parent Group if possible)
             int groupID = 0;
+            int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
             if (!string.IsNullOrEmpty(m_ParentGroupId))
             {
                 groupID = int.Parse(m_ParentGroupId);
             }
             else
             {
-                groupID = DAL.UtilsDal.GetParentGroupID(int.Parse(s_GroupID));
+                groupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
             }
+            #endregion
 
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
-
             string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
             int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
             int nCount = 0;
-            List<ulong> ulProgram = new List<ulong>();			
+            List<ulong> ulProgram = new List<ulong>();
+            Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();
+            EpgCB newEpgItem;
+
             foreach (var progItem in prog)
             {
-                nCount++;
                 DateTime dProgStartDate = DateTime.MinValue;
                 DateTime dProgEndDate = DateTime.MinValue;
                 if (!Utils.ParseEPGStrToDate(progItem.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(progItem.stop, ref dProgEndDate))
@@ -248,68 +250,9 @@ namespace EpgFeeder
 
                 //need this for both DB and CB!!!!!!!!!
                 Kabel_SetMappingValues(FieldEntityMapping, progItem);
-
-                #region Insert EpgProgram To DB
-                ODBCWrapper.InsertQuery insertProgQuery = new ODBCWrapper.InsertQuery("epg_channels_schedule");
-                string progTitle = "";
-                if (progItem.title != null && progItem.title.Length > 0)
-                {
-                    progTitle = progItem.title;
-                    insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", progItem.title);
-                }
-                if (progItem.desc != null && progItem.desc.Length > 0)
-                {
-                    if (!string.IsNullOrEmpty(progItem.desc))
-                    {
-                        insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", progItem.desc);
-                    }
-                }
                 
-
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", s_GroupID);
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_CHANNEL_ID", "=", channelID);
-                Guid EPGGuid = Guid.NewGuid();
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_IDENTIFIER", "=", EPGGuid.ToString());
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", 0);
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dProgStartDate);
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dProgEndDate);
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                insertProgQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 400);
-
-                insertProgQuery.Execute();
-                insertProgQuery.Finish();
-                insertProgQuery = null;
-
-                int ProgramID = 0;
-                ProgramID = GetProgramIDByEPGIdentifier(EPGGuid);
-
-                if (ProgramID > 0)
-                {
-                    DateTime progDate = new DateTime(dProgStartDate.Year, dProgStartDate.Month, dProgStartDate.Day);
-
-                    if (!epgDateWithChannelIds.ContainsKey(progDate))
-                    {
-                        List<int> channelIds = new List<int>();
-                        epgDateWithChannelIds.Add(progDate, channelIds);
-                    }
-
-                    if (epgDateWithChannelIds[progDate].FindIndex(i => i == channelID) == -1)
-                    {
-                        epgDateWithChannelIds[progDate].Add(channelID);
-                    }
-
-                    programIds.Add(ProgramID);
-
-                    InserEPGMetas(FieldEntityMapping, ProgramID);
-                    InsertEPGTags(FieldEntityMapping, ProgramID);                  
-                }
-                #endregion
-
-                #region Insert EpgProgram Doc To CB
-                newEpgItem = new EpgCB();
-                ulong uProgramID = (ulong)ProgramID;
-                newEpgItem.EpgID = uProgramID;
+                #region GenerateEpgCB
+                newEpgItem = new EpgCB();               
                 newEpgItem.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(channelID);
                 newEpgItem.Name = progItem.title;
                 if (!string.IsNullOrEmpty(progItem.desc))
@@ -318,7 +261,8 @@ namespace EpgFeeder
                 }
                 
                 newEpgItem.GroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);               
-                newEpgItem.ParentGroupID = groupID;                
+                newEpgItem.ParentGroupID = groupID;
+                Guid EPGGuid = Guid.NewGuid();
                 newEpgItem.EpgIdentifier = EPGGuid.ToString();               
 
                 newEpgItem.StartDate = dProgStartDate;
@@ -330,32 +274,7 @@ namespace EpgFeeder
 
                 newEpgItem.Metas = Utils.GetEpgProgramMetas(FieldEntityMapping);
                 // When We stop insert to DB , we still need to insert new tags to DB !!!!!!!
-                newEpgItem.Tags = Utils.GetEpgProgramTags(FieldEntityMapping);               
-
-                newEpgItem.ExtraData = new EpgExtraData();
-                // not include in the DATA we get 
-                //newEpgItem.ExtraData.MediaID = 0;
-                //newEpgItem.ExtraData.FBObjectID = ""; 
-                ulong epgID = 0;                              
-                bool bInsert = oEpgBL.InsertEpg(newEpgItem, out epgID);
-                #endregion 
-                
-                #region Insert EpgProgram ES
-
-                if (nCount >= nCountPackage)
-                {
-                    int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
-                    bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
-
-                    ulProgram = new List<ulong>();
-                    nCount = 0;
-                }
-                else
-                {
-                    ulProgram.Add(uProgramID);
-                }
-
-                #endregion
+                newEpgItem.Tags = Utils.GetEpgProgramTags(FieldEntityMapping);
 
                 #region Upload Picture
 
@@ -365,41 +284,73 @@ namespace EpgFeeder
 
                     if (!string.IsNullOrEmpty(imgurl))
                     {
-                        int nPicID = ImporterImpl.DownloadEPGPic(imgurl, progTitle, int.Parse(s_GroupID), ProgramID, channelID);
-                        #region Update EpgProgram with the PicID
+                        int nPicID = ImporterImpl.DownloadEPGPic(imgurl, progItem.title, int.Parse(s_GroupID), 0, channelID);//verify this is OK - the epgID is not used in the function itself
+                       
                         if (nPicID != 0)
                         {
-                            //Update DB
-                            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
-                            updateQuery += " where ";
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", ProgramID);
-                            updateQuery.Execute();
-                            updateQuery.Finish();
-                            updateQuery = null;
-
-                            //Update CB
+                            //Update CB, the DB is updated in the end with all other data
                             newEpgItem.PicID = nPicID;
                             newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
-                            newEpgItem.EpgID = epgID;                           
-                            oEpgBL.UpdateEpg(newEpgItem);
-                        }
-                        #endregion
+                        }                       
                     }
+                }
+                #endregion
+
+                #endregion
+                
+                epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
+            }
+
+            //insert EPGs to DB in batches
+            InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping);
+
+            foreach (EpgCB epg in epgDic.Values)
+            {
+                nCount++;
+
+                #region Insert EpgProgram to CB
+                ulong epgID = 0;
+                bool bInsert = oEpgBL.InsertEpg(epg, out epgID);
+                #endregion
+
+                #region Insert EpgProgram ES
+
+                if (nCount >= nCountPackage)
+                {
+                    ulProgram.Add(epg.EpgID);
+                    bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
+                    ulProgram = new List<ulong>();
+                    nCount = 0;
+                }
+                else
+                {
+                    ulProgram.Add(epg.EpgID);
                 }
 
                 #endregion
-            }
+                           
+                DateTime progDate = new DateTime(epg.StartDate.Year, epg.StartDate.Month, epg.StartDate.Day);
+
+                if (!epgDateWithChannelIds.ContainsKey(progDate))
+                {
+                    List<int> channelIds = new List<int>();
+                    epgDateWithChannelIds.Add(progDate, channelIds);
+                }
+
+                if (epgDateWithChannelIds[progDate].FindIndex(i => i == channelID) == -1)
+                {
+                    epgDateWithChannelIds[progDate].Add(channelID);
+                }
+            }          
 
             if (nCount > 0 && ulProgram != null && ulProgram.Count > 0)
-            {
-                int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+            {                
                 bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
             }
 
             //start Upload proccess Queue
-            UploadQueue.UploadQueueHelper.SetJobsForUpload(int.Parse(s_GroupID));
-            //return programIds;
+            UploadQueue.UploadQueueHelper.SetJobsForUpload(nGroupID);           
+            
             return epgDateWithChannelIds;
         }
 
