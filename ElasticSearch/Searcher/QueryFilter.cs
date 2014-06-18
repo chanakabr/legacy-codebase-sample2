@@ -345,7 +345,8 @@ namespace ElasticSearch.Searcher
         WILDCARD,
         BOOL_QUERY,
         MULTI_MATCH,
-        EXISTS
+        EXISTS,
+        MATCH
     }
 
     public enum eRangeComp

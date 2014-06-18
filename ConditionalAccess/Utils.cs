@@ -1687,9 +1687,9 @@ namespace ConditionalAccess
                         return p;
 
                     //subscriptions check
-                    TvinciPricing.Subscription[] relevantValidSubscriptions = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.SUBSCRIPTION) as TvinciPricing.Subscription[];
-
-                    if (relevantValidSubscriptions != null)
+                    TvinciPricing.PPVModule[] tempRelevantValidSubscriptions = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.SUBSCRIPTION); // as TvinciPricing.Subscription[];
+                    TvinciPricing.Subscription[] relevantValidSubscriptions = ConvertToSubArr(tempRelevantValidSubscriptions);
+                    if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
                     {
                         Dictionary<long, List<TvinciPricing.Subscription>> groupedSubs = (from s in relevantValidSubscriptions
                                                                                           group s by s.m_Priority).OrderByDescending(gr => gr.Key).ToDictionary(gr => gr.Key, gr => gr.ToList());
@@ -1765,14 +1765,18 @@ namespace ConditionalAccess
                         return p;
 
                     //collections check
-                    TvinciPricing.Collection[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION) as TvinciPricing.Collection[];
+                    //TvinciPricing.Collection[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION) as TvinciPricing.Collection[];
+
+                    TvinciPricing.PPVModule[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, lUsersIds, eBundleType.COLLECTION);
 
                     if (relevantValidCollections != null)
                     {
-                        List<TvinciPricing.Collection> priorityCollections = relevantValidCollections.ToList();
-                        for (int i = 0; i < priorityCollections.Count; i++)
+                        //List<TvinciPricing.Collection> priorityCollections = //relevantValidCollections.ToList();
+                        //for (int i = 0; i < priorityCollections.Count; i++)
+                        //{
+                        for (int i = 0; i < relevantValidCollections.Length; i++)
                         {
-                            TvinciPricing.Collection collection   = priorityCollections[i];
+                            TvinciPricing.Collection collection   =  (TvinciPricing.Collection) relevantValidCollections[i];  
                             TvinciPricing.DiscountModule discount = (TvinciPricing.DiscountModule)(collection.m_oDiscountModule);
                             TvinciPricing.Price collectionsPrice  = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, collection.m_sObjectCode)));
                             if (collectionsPrice != null)
@@ -1851,6 +1855,27 @@ namespace ConditionalAccess
             }
 
             return p;
+        }
+
+        private static TvinciPricing.Subscription[] ConvertToSubArr(TvinciPricing.PPVModule[] subsList)
+        {
+            List<TvinciPricing.Subscription> res = null;
+            if (subsList != null && subsList.Length > 0)
+            {
+                res = new List<Subscription>(subsList.Length);
+                for (int i = 0; i < subsList.Length; i++)
+                {
+                    Subscription s = subsList[i] as Subscription;
+                    if (s != null)
+                    {
+                        res.Add(s);
+                    }
+                }
+            }
+
+            if (res != null)
+                return res.ToArray();
+            return null;
         }
 
 

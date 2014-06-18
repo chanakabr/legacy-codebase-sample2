@@ -784,7 +784,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure spGet_CollectionByCollectionCodeAndUserIDs = new ODBCWrapper.StoredProcedure("Get_CollectionByCollectionCodeAndUserIDs");
             spGet_CollectionByCollectionCodeAndUserIDs.SetConnectionKey("CONNECTION_STRING");
             spGet_CollectionByCollectionCodeAndUserIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
-            spGet_CollectionByCollectionCodeAndUserIDs.AddParameter("@subscriptionCode", collectionCode);
+            spGet_CollectionByCollectionCodeAndUserIDs.AddParameter("@collectionCode", collectionCode);
 
             DataSet ds = spGet_CollectionByCollectionCodeAndUserIDs.ExecuteDataSet();
 

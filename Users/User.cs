@@ -310,13 +310,20 @@ namespace Users
                 m_oDynamicData = oDynamicData;
                 if (!string.IsNullOrEmpty(m_sSiteGUID))
                 {
-                    m_domianID = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);     //GetUserDomainID(nGroupID);
+                    m_domianID = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
                 }
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                StringBuilder sb = new StringBuilder("Exception at User.Initialize ");
+                sb.Append(String.Concat(" Basic Data: ", oBasicData.ToString()));
+                sb.Append(String.Concat(" Group ID: ", nGroupID));
+                sb.Append(String.Concat(" Msg: ", ex.Message));
+                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), "User");
             }
 
             return false;
@@ -330,19 +337,17 @@ namespace Users
             {
                 res         = m_oBasicData.Initialize(nUserID, nGroupID);
                 bool res2   = m_oDynamicData.Initialize(nUserID, nGroupID);
-                //res         = res && res2;
 
                 m_sSiteGUID = nUserID.ToString();
-                m_domianID  = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
+                m_domianID  = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster);
 
                 if (m_domianID <= 0)
                 {
-                    m_domianID = DAL.DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster);
+                    m_domianID = DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster);
                 }
 
                 m_eUserState = GetCurrentUserState(nUserID);
 
-                //return true;
             }
             catch
             {

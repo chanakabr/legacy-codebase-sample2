@@ -187,5 +187,41 @@ namespace Tvinci.Core.DAL
 
             return data;
         }
+
+        public static DataTable Get_EpgIDbyEPGIdentifier(List<string> EPGIdentifiers)
+        {
+            ODBCWrapper.StoredProcedure spGetEpgIDbyEPGIdentifier = new ODBCWrapper.StoredProcedure("Get_EpgIDbyEPGIdentifier");
+            spGetEpgIDbyEPGIdentifier.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetEpgIDbyEPGIdentifier.AddIDListParameter<string>("@EPGIdentifiers", EPGIdentifiers, "Id");
+            DataSet ds = spGetEpgIDbyEPGIdentifier.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_EPGTagValueIDs(int nGroupID, Dictionary<int, List<string>> lTagTypeAndValues)
+        {
+            ODBCWrapper.StoredProcedure spGetEPGTagValueID = new ODBCWrapper.StoredProcedure("Get_EPGTagValueIDs");
+            spGetEPGTagValueID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetEPGTagValueID.AddKeyValueListParameter<int, string>("@TagTypeAndValue", lTagTypeAndValues, "key", "value");
+            spGetEPGTagValueID.AddParameter("@GroupID", nGroupID);
+            DataSet ds = spGetEPGTagValueID.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_EPGAllValuesPerTagType(int nGroupID, List<int> lTagTypes)
+        {
+            ODBCWrapper.StoredProcedure spGetEPGAllValues = new ODBCWrapper.StoredProcedure("Get_EPGAllValuesPerTagType");
+            spGetEPGAllValues.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetEPGAllValues.AddIDListParameter<int>("@TagTypes", lTagTypes, "Id");
+            spGetEPGAllValues.AddParameter("@GroupID", nGroupID);
+            DataSet ds = spGetEPGAllValues.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }  
+
     }
 }

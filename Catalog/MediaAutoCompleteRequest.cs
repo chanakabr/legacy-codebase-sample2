@@ -17,8 +17,8 @@ namespace Catalog
         public List<string> m_lTags { get; set; }
         [DataMember]
         public string m_sPrefix { get; set; }
-
-        public int m_nLangID { get; set; }
+        [DataMember]
+        public List<int> m_MediaTypes { get; set; }
 
         public MediaAutoCompleteRequest() : base() { }
 
@@ -41,11 +41,14 @@ namespace Catalog
                 {
                     MediaSearchObj searchObj = new MediaSearchObj();
                     searchObj.m_nGroupId = request.m_nGroupID;
+                    
+                    searchObj.m_nPageSize = request.m_nPageSize;
+                    searchObj.m_nPageIndex = request.m_nPageIndex;
 
                     Group oGroup = GroupsCache.Instance.GetGroup(request.m_nGroupID);
-                    if (oGroup != null)
+                    if (oGroup != null && request.m_oFilter != null)
                     {
-                        searchObj.m_oLangauge = oGroup.GetLanguage(request.m_nLangID);
+                        searchObj.m_oLangauge = oGroup.GetLanguage(request.m_oFilter.m_nLanguage);
                     }
 
                     searchObj.m_sName = request.m_sPrefix;
@@ -65,7 +68,7 @@ namespace Catalog
                         }
                     }
 
-                    response.lResults = searcher.GetAutoCompleteList(request.m_nGroupID, searchObj, request.m_nLangID, ref nTotalItems);
+                    response.lResults = searcher.GetAutoCompleteList(request.m_nGroupID, searchObj, request.m_oFilter.m_nLanguage, ref nTotalItems);
                     response.m_nTotalItems = nTotalItems;
                 }
                 else

@@ -37,8 +37,8 @@ namespace Users
             {
                 domain.m_DomainStatus = DomainStatus.Error;
                 oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-            }
-
+                return oDomainResponseObject;
+            }                
 
             //Check if CoGuid already exists
             int nDomainID = DomainDal.GetDomainIDByCoGuid(sCoGuid);
@@ -110,7 +110,7 @@ namespace Users
         {
             Domain d = null;
 
-            DateTime dDateTime = DateTime.Now;
+            DateTime dDateTime = DateTime.UtcNow;
 
             int nDeviceLimit = 0;
             int nUserLimit = 0;
@@ -119,11 +119,12 @@ namespace Users
             int nDomainLimitID = 0;
             int nOperatorSubGroupID = 0;
             int nOperatorID = (-1);
+            int nDeviceFreqLimit = 0;
 
             // Get domain's default limits identifier from parent group
             if (string.IsNullOrEmpty(sCoGuid))
             {
-                nDomainLimitID = DAL.DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit);
+                nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit);
             }
             else // Get domain's default limits identifier from sub-account group
             {
@@ -137,7 +138,7 @@ namespace Users
                         nOperatorSubGroupID = nGroupID;
                     }
 
-                    nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nOperatorSubGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit);
+                    nDomainLimitID = DomainDal.GetDomainDefaultLimitsID(nOperatorSubGroupID, ref nDeviceLimit, ref nUserLimit, ref nConcurrentLimit, ref nGroupConcurrentLimit, ref nDeviceFreqLimit);
                 }
             }
 
@@ -168,21 +169,20 @@ namespace Users
                     d.m_nDeviceLimit = d.m_nLimit = nDeviceLimit;
                     d.m_nUserLimit = nUserLimit;
                     d.m_nConcurrentLimit = nConcurrentLimit;
+                    d.InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceFreqLimit, Utils.FICTIVE_DATE);
 
                     d.m_DomainStatus = DomainStatus.OK;
 
                     if (nOperatorSubGroupID > 0)
                     {
-                        //d.m_deviceFamilies = d.InitializeDeviceFamilies(nDomainLimitID, nOperatorSubGroupID);
                         d.DeviceFamiliesInitializer(nDomainLimitID, nOperatorSubGroupID);
                     }
                     else
                     {
-                        //d.m_deviceFamilies = d.InitializeDeviceFamilies(nDomainLimitID, nGroupID);
                         d.DeviceFamiliesInitializer(nDomainLimitID, nGroupID);
                     }
 
-                    DomainResponseStatus res = d.AddUserToDomain(m_nGroupID, d.m_nDomainID, nMasterGuID, nMasterGuID, UserDomainType.Master);    //AddUserToDomain(m_nGroupID, m_nDomainID, nMasterGuID, true);
+                    DomainResponseStatus res = d.AddUserToDomain(m_nGroupID, d.m_nDomainID, nMasterGuID, nMasterGuID, UserDomainType.Master);
 
                     d.m_UsersIDs = new List<int>();
                     d.m_UsersIDs.Add(nMasterGuID);
@@ -190,32 +190,6 @@ namespace Users
             }
 
             return d;
-        }
-
-        public override DomainResponseStatus RemoveDomain(int nDomainID)
-        {
-            if (nDomainID <= 0)
-            {
-                return DomainResponseStatus.DomainNotExists;
-            }
-
-            //New domain
-            Domain domain = InitializeDomain(m_nGroupID, nDomainID);
-
-            if (domain == null)
-            {
-                return DomainResponseStatus.DomainNotExists;
-            }
-
-
-            // Create new response
-            DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
-
-            //Init The Domain
-            eDomainResponseStatus = domain.Remove();
-
-
-            return eDomainResponseStatus;
         }
 
 
@@ -240,101 +214,6 @@ namespace Users
             domain = InitializeDomain(nGroupID, masterUser.m_domianID);
 
             oDomainResponseObject = domain.SubmitAddUserToDomainRequest(nGroupID, nUserGuid, sMasterUsername);
-
-            return oDomainResponseObject;
-        }
-
-        public override DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType = 0)
-        {
-            // Create new response
-            DomainResponseObject oDomainResponseObject;
-
-            //New domain
-            Domain domain = InitializeDomain(m_nGroupID, nDomainID);
-
-            //Reset the domain
-            DomainResponseStatus eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
-
-            //Re-Init domain to return updated data
-            domain = InitializeDomain(m_nGroupID, nDomainID);
-
-            oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
-
-            return oDomainResponseObject;
-        }
-
-        public override DomainResponseObject SetDomainInfo(int nDomainID, string sDomainName, int nGroupID, string sDomainDescription)
-        {
-
-            // Create new response
-            DomainResponseObject oDomainResponseObject;
-
-            //Init the domain according to domainId
-            // Init Domain
-            Domain domain = InitializeDomain(m_nGroupID, nDomainID);
-            domain.m_sName = sDomainName;
-            domain.m_sDescription = sDomainDescription;
-
-            //Update the domain fields
-            domain.Update();
-
-            if (domain.m_DomainStatus == DomainStatus.OK)
-            {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
-            }
-            else
-            {
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-            }
-
-            return oDomainResponseObject;
-        }
-
-        public override DomainResponseObject ChangeDomainMaster(int nDomainID, int nCurrentMasterID, int nNewMasterID)
-        {
-            //New domain
-            Domain domain = new Domain();
-
-            // Create new response
-            DomainResponseObject oDomainResponseObject;
-
-            //Check if user IDs are valid
-            if (!User.IsUserValid(m_nGroupID, nCurrentMasterID) || !User.IsUserValid(m_nGroupID, nNewMasterID))
-            {
-                domain.m_DomainStatus = DomainStatus.Error;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-            }
-
-            //Init The Domain
-            domain = InitializeDomain(m_nGroupID, nDomainID);
-            oDomainResponseObject = new DomainResponseObject() { m_oDomain = domain };
-
-            if (domain != null && domain.m_DomainStatus == DomainStatus.OK)
-            {
-                //cannot set domain default user as master
-                if (domain.m_DefaultUsersIDs != null && domain.m_DefaultUsersIDs.Contains(nNewMasterID))
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
-                }
-                //cannot change master to user that's not in domain
-                else if (domain.m_UsersIDs == null || !domain.m_UsersIDs.Contains(nNewMasterID))
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
-                }
-                // No change required, return OK 
-                else if (nNewMasterID == nCurrentMasterID)
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.OK;
-                }
-                else
-                {
-                    oDomainResponseObject.m_oDomainResponseStatus = domain.ChangeDomainMaster(m_nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
-                }
-            }
-            else
-            {
-                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
-            }
 
             return oDomainResponseObject;
         }
@@ -364,36 +243,6 @@ namespace Users
             }
 
             return null;
-        }
-
-
-        protected UserResponseObject ValidateMasterUser(int nGroupID, int nUserID)
-        {
-
-            User masterUser = new User(nGroupID, nUserID);
-
-            UserResponseObject resp = new UserResponseObject();
-
-            if ((masterUser == null) || (string.IsNullOrEmpty(masterUser.m_oBasicData.m_sUserName)))
-            {
-                resp.Initialize(ResponseStatus.UserDoesNotExist, masterUser);
-                return resp;
-            }
-
-            if (!string.IsNullOrEmpty(masterUser.m_oBasicData.m_sEmail))
-            {
-                List<int> lDomainsByMail = DAL.DomainDal.GetDomainIDsByEmail(nGroupID, masterUser.m_oBasicData.m_sEmail);
-
-                if (lDomainsByMail != null && lDomainsByMail.Count > 0)
-                {
-                    resp.Initialize(ResponseStatus.UserEmailAlreadyExists, masterUser);
-                    return resp;
-                }
-            }
-
-            resp.Initialize(ResponseStatus.OK, masterUser);
-            return resp;
-
         }
 
 

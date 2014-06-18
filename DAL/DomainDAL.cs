@@ -150,32 +150,27 @@ namespace DAL
         {
             bool res = false;
 
-            try
+
+            ODBCWrapper.StoredProcedure spGetDeviceIDandBrandByPIN = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_ID_AND_BRAND_BY_PIN);
+            spGetDeviceIDandBrandByPIN.SetConnectionKey("USERS_CONNECTION_STRING");
+            spGetDeviceIDandBrandByPIN.AddParameter("@groupID", nGroupID);
+            spGetDeviceIDandBrandByPIN.AddParameter("@PIN", sPIN);
+
+            DataSet ds = spGetDeviceIDandBrandByPIN.ExecuteDataSet();
+
+            if (ds != null && ds.Tables[0].DefaultView.Count > 0)
             {
-                ODBCWrapper.StoredProcedure spGetDeviceIDandBrandByPIN = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_ID_AND_BRAND_BY_PIN);
-                spGetDeviceIDandBrandByPIN.SetConnectionKey("USERS_CONNECTION_STRING");
-                spGetDeviceIDandBrandByPIN.AddParameter("@groupID", nGroupID);
-                spGetDeviceIDandBrandByPIN.AddParameter("@PIN", sPIN);
-
-                DataSet ds = spGetDeviceIDandBrandByPIN.ExecuteDataSet();
-
-                if ((ds != null) && (ds.Tables[0].DefaultView.Count > 0))
+                int nCount = ds.Tables[0].DefaultView.Count;
+                if (nCount > 0)
                 {
-                    int nCount = ds.Tables[0].DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        DataRow dr = ds.Tables[0].DefaultView[0].Row;
-                        sUDID = ODBCWrapper.Utils.GetSafeStr(dr["device_id"]);
-                        nBrandID = ODBCWrapper.Utils.GetIntSafeVal(dr, "device_brand_id");
-                    }
+                    DataRow dr = ds.Tables[0].DefaultView[0].Row;
+                    sUDID = ODBCWrapper.Utils.GetSafeStr(dr["device_id"]);
+                    nBrandID = ODBCWrapper.Utils.GetIntSafeVal(dr, "device_brand_id");
                 }
+            }
 
-                res = true;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
+            res = true;
+
 
             return res;
         }
@@ -369,40 +364,32 @@ namespace DAL
         {
             Dictionary<int, int> dTypedUsers = new Dictionary<int, int>();
 
-            try
+            ODBCWrapper.StoredProcedure spGetUsersInDomain = new ODBCWrapper.StoredProcedure(SP_GET_USERS_IN_DOMAIN);
+            spGetUsersInDomain.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            spGetUsersInDomain.AddParameter("@domainID", nDomainID);
+            spGetUsersInDomain.AddParameter("@groupID", nGroupID);
+            spGetUsersInDomain.AddParameter("@status", status);
+            spGetUsersInDomain.AddParameter("@isActive", isActive);
+
+            DataSet ds = spGetUsersInDomain.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                ODBCWrapper.StoredProcedure spGetUsersInDomain = new ODBCWrapper.StoredProcedure(SP_GET_USERS_IN_DOMAIN);
-                spGetUsersInDomain.SetConnectionKey("USERS_CONNECTION_STRING");
+                int nCount = ds.Tables[0].DefaultView.Count;
 
-                spGetUsersInDomain.AddParameter("@domainID", nDomainID);
-                spGetUsersInDomain.AddParameter("@groupID", nGroupID);
-                spGetUsersInDomain.AddParameter("@status", status);
-                spGetUsersInDomain.AddParameter("@isActive", isActive);
-
-                DataSet ds = spGetUsersInDomain.ExecuteDataSet();
-
-                if (ds != null && ds.Tables[0].DefaultView.Count > 0)
+                for (int i = 0; i < nCount; i++)
                 {
-                    int nCount = ds.Tables[0].DefaultView.Count;
+                    int nUserId = int.Parse(ds.Tables[0].DefaultView[i].Row["user_id"].ToString());
+                    int nUserType = int.Parse(ds.Tables[0].DefaultView[i].Row["is_master"].ToString());
 
-                    for (int i = 0; i < nCount; i++)
-                    {
-                        int nUserId = int.Parse(ds.Tables[0].DefaultView[i].Row["user_id"].ToString());
-                        int nUserType = int.Parse(ds.Tables[0].DefaultView[i].Row["is_master"].ToString());
-
-                        dTypedUsers[nUserId] = nUserType;
-                    }
-
+                    dTypedUsers[nUserId] = nUserType;
                 }
 
-                return dTypedUsers;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
             }
 
             return dTypedUsers;
+
 
         }
 
@@ -524,11 +511,11 @@ namespace DAL
         public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, string sCoGuid = null, int? nOperatorID = null)
         {
             bool bInserRes = false;
-
+            ODBCWrapper.InsertQuery insertQuery = null;
             try
             {
                 //Insert New Domain to DB
-                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("domains");
+                insertQuery = new ODBCWrapper.InsertQuery("domains");
                 insertQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
@@ -552,12 +539,19 @@ namespace DAL
                 }
 
                 bInserRes = insertQuery.Execute();
-                insertQuery.Finish();
-                insertQuery = null;
+
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (insertQuery != null)
+                {
+                    insertQuery.Finish();
+                    insertQuery = null;
+                }
             }
 
             return bInserRes;
@@ -568,13 +562,13 @@ namespace DAL
                                             ref string sName, ref string sDbDescription, ref int nDbDomainID, ref int nDbIsActive, ref int nDbStatus, ref string sCoGuid)
         {
             bool res = false;
-
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                selectQuery += "SELECT * FROM DOMAINS WITH (NOLOCK) WHERE ";
+                selectQuery += "SELECT name,description,id,is_active,status,CoGuid FROM DOMAINS WITH (NOLOCK) WHERE ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", sName);
@@ -596,13 +590,20 @@ namespace DAL
                     }
                 }
 
-                selectQuery.Finish();
-                selectQuery = null;
+
 
             }
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                    selectQuery = null;
+                }
             }
 
             return res;
@@ -768,46 +769,46 @@ namespace DAL
             return null;
         }
 
-        public static List<string[]> InitializeDeviceFamilies(int nDomainLimitID, int nGroupID)
-        {
-            List<string[]> dbDeviceFamilies = new List<string[]>();
+        //public static List<string[]> InitializeDeviceFamilies(int nDomainLimitID, int nGroupID)
+        //{
+        //    List<string[]> dbDeviceFamilies = new List<string[]>();
 
-            ODBCWrapper.StoredProcedure spGetDeviceFamiliesLimits = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_FAMILIES_LIMITS);
-            spGetDeviceFamiliesLimits.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //    ODBCWrapper.StoredProcedure spGetDeviceFamiliesLimits = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_FAMILIES_LIMITS);
+        //    spGetDeviceFamiliesLimits.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-            spGetDeviceFamiliesLimits.AddParameter("@groupID", nGroupID);
-            spGetDeviceFamiliesLimits.AddParameter("@domainLimitID", nDomainLimitID);
-            DataSet ds = spGetDeviceFamiliesLimits.ExecuteDataSet();
+        //    spGetDeviceFamiliesLimits.AddParameter("@groupID", nGroupID);
+        //    spGetDeviceFamiliesLimits.AddParameter("@domainLimitID", nDomainLimitID);
+        //    DataSet ds = spGetDeviceFamiliesLimits.ExecuteDataSet();
 
-            if (ds == null || ds.Tables == null || ds.Tables.Count == 0 || ds.Tables[0].DefaultView.Count == 0)
-            {
-                return dbDeviceFamilies;
-            }
+        //    if (ds == null || ds.Tables == null || ds.Tables.Count == 0 || ds.Tables[0].DefaultView.Count == 0)
+        //    {
+        //        return dbDeviceFamilies;
+        //    }
 
-            int nCount = ds.Tables[0].DefaultView.Count;
+        //    int nCount = ds.Tables[0].DefaultView.Count;
 
-            for (int i = 0; i < nCount; i++)
-            {
-                DataRow dr = ds.Tables[0].DefaultView[i].Row;
+        //    for (int i = 0; i < nCount; i++)
+        //    {
+        //        DataRow dr = ds.Tables[0].DefaultView[i].Row;
 
-                if (dr == null)
-                {
-                    break;
-                }
+        //        if (dr == null)
+        //        {
+        //            break;
+        //        }
 
-                string sFamilyID = dr["ID"].ToString();
-                string sFamilyLimit = ODBCWrapper.Utils.GetSafeStr(dr["MAX_LIMIT"]);
-                string sFamilyConcurrentLimit = ODBCWrapper.Utils.GetSafeStr(dr["MAX_CONCURRENT_LIMIT"]);
-                string sFamilyName = ODBCWrapper.Utils.GetSafeStr(dr["NAME"]);
-                string[] dbDeviceContainer = new string[] { sFamilyID, sFamilyLimit, sFamilyConcurrentLimit, sFamilyName };
-                dbDeviceFamilies.Add(dbDeviceContainer);
-            }
+        //        string sFamilyID = dr["ID"].ToString();
+        //        string sFamilyLimit = ODBCWrapper.Utils.GetSafeStr(dr["MAX_LIMIT"]);
+        //        string sFamilyConcurrentLimit = ODBCWrapper.Utils.GetSafeStr(dr["MAX_CONCURRENT_LIMIT"]);
+        //        string sFamilyName = ODBCWrapper.Utils.GetSafeStr(dr["NAME"]);
+        //        string[] dbDeviceContainer = new string[] { sFamilyID, sFamilyLimit, sFamilyConcurrentLimit, sFamilyName };
+        //        dbDeviceFamilies.Add(dbDeviceContainer);
+        //    }
 
 
 
-            return dbDeviceFamilies;
+        //    return dbDeviceFamilies;
 
-        }
+        //}
 
         public static bool UpdateDomain(string sName, string sDescription, int nDomainID, int nGroupID, int nDomainRestriciton = 0)
         {
@@ -932,10 +933,11 @@ namespace DAL
         private static int GetGroupUserMinPeriodId(int nGroupID)
         {
             int nMinPeriod = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
 
             try
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 selectQuery += "select mp.ID from groups g WITH (nolock), groups_device_limitation_modules lm WITH (nolock), lu_min_periods mp WITH (nolock) where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.ID", "=", nGroupID);
@@ -953,6 +955,14 @@ namespace DAL
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                    selectQuery = null;
+                }
             }
 
             return nMinPeriod;
@@ -1661,5 +1671,112 @@ namespace DAL
             return res;
 
         }
+
+        public static List<string[]> Get_DeviceFamiliesLimits(int nGroupID, int nDomainLimitID, ref Dictionary<int, int> concurrenyOverride, ref Dictionary<int, int> quantityOverride)
+        {
+            List<string[]> res = null;
+            StoredProcedure sp = new StoredProcedure("Get_DeviceFamiliesLimits");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DomainLimitID", nDomainLimitID);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = new List<string[]>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        string sFamilyID = dt.Rows[i]["ID"].ToString();
+                        //string sFamilyLimit = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["MAX_LIMIT"]);
+                        //string sFamilyConcurrentLimit = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["MAX_CONCURRENT_LIMIT"]);
+                        string sFamilyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NAME"]);
+                        string[] dbDeviceContainer = new string[2] { sFamilyID, /*sFamilyLimit, sFamilyConcurrentLimit,*/ sFamilyName };
+                        res.Add(dbDeviceContainer);
+                    } // end for
+
+                    DataTable dtSpecificLimits = ds.Tables[1];
+                    if (dtSpecificLimits != null && dtSpecificLimits.Rows != null && dtSpecificLimits.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dtSpecificLimits.Rows.Count; i++)
+                        {
+                            int nFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dtSpecificLimits.Rows[i]["device_family_id"]);
+                            string sLimitationType = ODBCWrapper.Utils.GetSafeStr(dtSpecificLimits.Rows[i]["description"]);
+                            int nLimitationValue = ODBCWrapper.Utils.GetIntSafeVal(dtSpecificLimits.Rows[i]["value"]);
+
+                            if (nFamilyID > 0 && nLimitationValue > 0 && sLimitationType.Length > 0)
+                            {
+                                if (String.Compare(sLimitationType, "concurrency", true) == 0)
+                                {
+                                    concurrenyOverride.Add(nFamilyID, nLimitationValue);
+                                }
+                                else
+                                {
+                                    if (String.Compare(sLimitationType, "quantity", true) == 0)
+                                    {
+                                        quantityOverride.Add(nFamilyID, nLimitationValue);
+                                    }
+                                }
+                            }
+                        } // end for
+                    }
+
+
+                }
+                else
+                {
+                    res = new List<string[]>(0);
+                }
+            }
+            else
+            {
+                res = new List<string[]>(0);
+            }
+
+            return res;
+        }
+
+        //public static bool Get_DeviceFamiliesLimits(int nGroupID, int nDomainLimitID, ref Dictionary<int, int> concurrenyOverride, ref Dictionary<int, int> quantityOverride)
+        //{
+        //    bool res = false;
+        //    StoredProcedure sp = new StoredProcedure("Get_DeviceFamiliesLimits");
+        //    sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //    sp.AddParameter("@GroupID", nGroupID);
+        //    sp.AddParameter("@DomainLimitID", nDomainLimitID);
+        //    DataSet ds = sp.ExecuteDataSet();
+        //    if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+        //    {
+        //        DataTable dt = ds.Tables[0];
+        //        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+        //        {
+        //            res = true;
+        //            for (int i = 0; i < dt.Rows.Count; i++)
+        //            {
+        //                int nFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_family_id"]);
+        //                string sLimitationType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["description"]);
+        //                int nLimitationValue = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["value"]);
+        //                if (nFamilyID > 0 && nLimitationValue > 0 && sLimitationType.Length > 0)
+        //                {
+        //                    if (String.Compare(sLimitationType, "concurrency", true) == 0)
+        //                    {
+        //                        concurrenyOverride.Add(nFamilyID, nLimitationValue);
+        //                    }
+        //                    else
+        //                    {
+        //                        if (String.Compare(sLimitationType, "quantity", true) == 0)
+        //                        {
+        //                            quantityOverride.Add(nFamilyID, nLimitationValue);
+        //                        }
+        //                    }
+        //                }
+        //            } // end for
+        //        }
+        //    }
+
+        //    return res;
+
+
+        //}
     }
 }

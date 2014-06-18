@@ -197,11 +197,6 @@ namespace TVinciShared
             if (nPageNum == 0)
                 nPageNum = 1;
 
-            if (m_theDataTable == null || m_theDataTable.Rows == null || m_theDataTable.Rows.Count == 0)
-            {
-                return "";
-            }
-
             if (bEnterToSession == true)
             {
                 HttpContext.Current.Session["LastTablePageNum"] = nPageNum;
@@ -226,9 +221,7 @@ namespace TVinciShared
             nPages = (Int32)dPages + 1;
             if (dPages == (Int32)dPages && nPages > 1)
                 nPages--;
-            Int32 nRowsCount = m_theDataTable.Columns.Count;
-            if (nRowsCount == 0)
-                return "";
+            Int32 nRowsCount = m_theDataTable.Columns.Count;       
 
             //string sTable = "<table cellpadding=0 cellspacing=1 width=100%>";
             StringBuilder sTable = new StringBuilder();

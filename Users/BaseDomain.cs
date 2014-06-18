@@ -23,18 +23,112 @@ namespace Users
 
         public abstract DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID);
 
-        public abstract DomainResponseStatus RemoveDomain(int nDomainID);
-
-        public abstract DomainResponseObject SetDomainInfo(int nDomainID, string sDomainName, int nGroupID, string sDomainDescription);
-
         public abstract DomainResponseObject SubmitAddUserToDomainRequest(int nGroupID, int nUserGuid, string sMasterUsername);
 
-        public abstract DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType);
-
-        public abstract DomainResponseObject ChangeDomainMaster(int nDomainID, int nCurrentMasterID, int nNewMasterID);
         #endregion
 
         #region Public Virtual
+
+        public virtual DomainResponseObject ChangeDomainMaster(int nDomainID, int nCurrentMasterID, int nNewMasterID)
+        {
+            //New domain
+            Domain domain = new Domain();
+
+            // Create new response
+            DomainResponseObject oDomainResponseObject;
+
+            //Check if user IDs are valid
+            if (!User.IsUserValid(m_nGroupID, nCurrentMasterID) || !User.IsUserValid(m_nGroupID, nNewMasterID))
+            {
+                domain.m_DomainStatus = DomainStatus.Error;
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+            }
+
+            //Init The Domain
+            domain = DomainInitializer(m_nGroupID, nDomainID);
+            oDomainResponseObject = new DomainResponseObject() { m_oDomain = domain };
+
+            if (domain != null && domain.m_DomainStatus == DomainStatus.OK)
+            {
+                //cannot set domain default user as master
+                if (domain.m_DefaultUsersIDs != null && domain.m_DefaultUsersIDs.Contains(nNewMasterID))
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
+                }
+                //cannot change master to user that's not in domain
+                else if (domain.m_UsersIDs == null || !domain.m_UsersIDs.Contains(nNewMasterID))
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
+                }
+                // No change required, return OK 
+                else if (nNewMasterID == nCurrentMasterID)
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.OK;
+                }
+                else
+                {
+                    oDomainResponseObject.m_oDomainResponseStatus = domain.ChangeDomainMaster(m_nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
+                }
+            }
+            else
+            {
+                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
+            }
+
+            return oDomainResponseObject;
+        }
+
+        public virtual DomainResponseObject SetDomainInfo(int nDomainID, string sDomainName, int nGroupID, string sDomainDescription)
+        {
+            DomainResponseObject res = null;
+
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+            if (domain != null)
+            {
+                domain.m_sName = sDomainName;
+                domain.m_sDescription = sDomainDescription;
+
+                if (domain.Update() && domain.m_DomainStatus == DomainStatus.OK)
+                {
+                    res = new DomainResponseObject(domain, DomainResponseStatus.OK);
+                }
+                else
+                {
+                    res = new DomainResponseObject(domain, DomainResponseStatus.Error);
+                }
+            }
+            else
+            {
+                res = new DomainResponseObject(domain, DomainResponseStatus.DomainNotExists);
+            }
+
+            return res;
+
+        }
+
+        public virtual DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType)
+        {
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+
+            DomainResponseStatus eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
+
+            domain = DomainInitializer(m_nGroupID, nDomainID);
+
+            return new DomainResponseObject(domain, eDomainResponseStatus);
+        }
+
+        public virtual DomainResponseStatus RemoveDomain(int nDomainID)
+        {
+            if (nDomainID < 1)
+                return DomainResponseStatus.DomainNotExists;
+
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID);
+
+            if (domain == null)
+                return DomainResponseStatus.DomainNotExists;
+
+            return domain.Remove();
+        }
 
         public virtual DomainResponseObject AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string sDeviceName, int nBrandID)
         {
@@ -89,7 +183,7 @@ namespace Users
 
             if (nDomainID <= 0 || nUserGUID <= 0)
             {
-                return (new DomainResponseObject(null, DomainResponseStatus.UnKnown));
+                return new DomainResponseObject(null, DomainResponseStatus.UnKnown);
             }
 
             //Init the Domain
@@ -491,6 +585,35 @@ namespace Users
         #endregion
 
         #region Protected implemented
+
+        protected UserResponseObject ValidateMasterUser(int nGroupID, int nUserID)
+        {
+
+            User masterUser = new User(nGroupID, nUserID);
+
+            UserResponseObject resp = new UserResponseObject();
+
+            if (masterUser == null || string.IsNullOrEmpty(masterUser.m_oBasicData.m_sUserName))
+            {
+                resp.Initialize(ResponseStatus.UserDoesNotExist, masterUser);
+                return resp;
+            }
+
+            if (!string.IsNullOrEmpty(masterUser.m_oBasicData.m_sEmail))
+            {
+                List<int> lDomainsByMail = DAL.DomainDal.GetDomainIDsByEmail(nGroupID, masterUser.m_oBasicData.m_sEmail);
+
+                if (lDomainsByMail != null && lDomainsByMail.Count > 0)
+                {
+                    resp.Initialize(ResponseStatus.UserEmailAlreadyExists, masterUser);
+                    return resp;
+                }
+            }
+
+            resp.Initialize(ResponseStatus.OK, masterUser);
+            return resp;
+
+        }
 
         protected bool IsSatisfiesFrequencyConstraint(DateTime dtLastDeactivationDate, int frequency)
         {

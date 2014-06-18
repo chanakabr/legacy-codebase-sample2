@@ -84,9 +84,6 @@ namespace Users
                 return false;
             }
 
-                //Int32 nCount = dtUserBasicData.DefaultView.Count;
-                //if (nCount > 0)
-                //{
             string sUserName                = dtUserBasicData.DefaultView[0].Row["USERNAME"].ToString();
             string sPass                    = dtUserBasicData.DefaultView[0].Row["PASSWORD"].ToString();
             string sSalt                    = dtUserBasicData.DefaultView[0].Row["SALT"].ToString();
@@ -209,22 +206,6 @@ namespace Users
 
         public bool Initialize(string sXML)
         {
-            /*
-                <basicdata>
-                    <username></username>
-                    <password></password>
-             *      <salt></salt>
-                    <firstname></firstname>
-                    <lastname></lastname>
-                    <email></email>
-                    <address></address>
-                    <city></city>
-                    <state></state>
-                    <country></country>
-                    <zip></zip>
-                    <phone></phone>
-               </basicdata>
-            */
 
             System.Xml.XmlDocument theDoc = new System.Xml.XmlDocument();
 
@@ -287,6 +268,16 @@ namespace Users
             var copy = (UserBasicData)MemberwiseClone();
 
             return copy;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("UserBasicData: ");
+            sb.Append(String.Concat(" Username: ", m_sUserName));
+            sb.Append(String.Concat(" First Name: ", m_sFirstName));
+            sb.Append(String.Concat(" Last Name: ", m_sLastName));
+
+            return sb.ToString();
         }
 
 

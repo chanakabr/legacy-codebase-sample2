@@ -2564,6 +2564,22 @@ namespace Catalog
 
             if (!bHasTagPrefix)
             {
+                var metas = oGroup.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+                               
+               
+                foreach (var val in metas)
+                {
+                    if (val.Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        searchKey = string.Concat(METAS, ".", val.ToLower());
+                        bHasTagPrefix = true;
+                        break;
+                    }
+                }
+
+                
+
+                /*
                 if (oGroup.m_oMetasValuesByGroupId.ContainsKey(oGroup.m_nParentGroupID))
                 {
                     Dictionary<string, string> dMetas = oGroup.m_oMetasValuesByGroupId[oGroup.m_nParentGroupID];
@@ -2577,6 +2593,7 @@ namespace Catalog
                         }
                     }
                 }
+                */ 
             }
 
             return searchKey;

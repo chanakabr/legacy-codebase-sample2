@@ -936,8 +936,8 @@ namespace DAL
                     Dictionary<int, int> dictMediasMaxDuration = new Dictionary<int, int>();
                     foreach (DataRow rowDuration in dtMediasMaxDurations.Rows)
                     {
-                        int nMediaID = ODBCWrapper.Utils.GetIntSafeVal("media_id");
-                        int nMaxDuration = ODBCWrapper.Utils.GetIntSafeVal("max_duration");
+                        int nMediaID = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["media_id"]);
+                        int nMaxDuration = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["max_duration"]);
                         dictMediasMaxDuration.Add(nMediaID, nMaxDuration);
                     }
 
@@ -964,6 +964,18 @@ namespace DAL
                 int.TryParse(siteGuid, out nSiteGuid);
 
                 var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+
+                if (lMediaIDs.Count == 0)
+                {
+                    var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_medias", true).Key(nSiteGuid);
+                    List<MediaMarkLog> sortedMediaMarksList = res.ToList();
+
+                    if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
+                    {
+                        lMediaIDs = sortedMediaMarksList.Select(x => x.LastMark.MediaID).ToList();
+                    }
+                }
+
                 Random r = new Random();
                 foreach (int nMediaID in lMediaIDs)
                 {
@@ -1094,14 +1106,14 @@ namespace DAL
            string sCellPhone, long lGroupID, long lBillingProvider, long lBillingProviderReference, double dPaymentMethodAddition,
            double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
            string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
-           long lPreviewModuleID)
+           long lPreviewModuleID, string sCollectionCode)
         {
 
             return Insert_NewBillingTransaction(sSiteGuid, sLastFourDigits, dPrice, sPriceCode, sCurrencyCode,
                 sCustomData, nBillingStatus, sBillingReason, bIsRecurring, lMediaFileID, lMediaID, sPPVModuleCode,
                 sSubscriptionCode, sCellPhone, lGroupID, lBillingProvider, lBillingProviderReference, dPaymentMethodAddition,
                 dTotalPrice, nPaymentNumber, nNumberOfPayments, sExtraParams, sCountryCode, sLanguageCode, sDeviceName,
-                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty);
+                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty, sCollectionCode);
         }
 
         public static long Insert_NewBillingTransaction(string sSiteGuid, string sLastFourDigits, double dPrice,
@@ -1110,7 +1122,8 @@ namespace DAL
             string sCellPhone, long lGroupID, long lBillingProvider, long lBillingProviderReference, double dPaymentMethodAddition,
             double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
             string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
-            long lPreviewModuleID, long lPurchaseID, int nFinancialProcessingStatus, int? nNewRenewableStatus, string sRemarks)
+            long lPreviewModuleID, long lPurchaseID, int nFinancialProcessingStatus, int? nNewRenewableStatus, string sRemarks,
+            string sCollectionCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewBillingTransaction");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1159,7 +1172,14 @@ namespace DAL
             sp.AddParameter("@Remarks", sRemarks);
             sp.AddParameter("@PrePaidCode", sPrePaidCode);
             sp.AddParameter("@PreviewModuleID", lPreviewModuleID);
-
+            if (string.IsNullOrEmpty(sCollectionCode))
+            {
+                sp.AddParameter("@CollectionCode", DBNull.Value);
+            }
+            else
+            {
+                sp.AddParameter("@CollectionCode", sCollectionCode);
+            }
             return sp.ExecuteReturnValue<long>();
 
         }

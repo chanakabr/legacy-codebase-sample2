@@ -82,9 +82,6 @@
         </xsl:element>
       </xsl:element>
       <xsl:element name="dates">
-        <xsl:element name="start">
-          <xsl:call-template name="SetStartViewDate"/>
-        </xsl:element>
         <xsl:element name="catalog_start">
           <xsl:call-template name="SetStartViewDate"/>
         </xsl:element>
@@ -122,9 +119,7 @@
             <xsl:text>16:9</xsl:text>
           </xsl:attribute>
         </xsl:element>
-
-      </xsl:element>
-      
+      </xsl:element>      
     </xsl:element>
   </xsl:template>
 
@@ -337,16 +332,14 @@
         </xsl:element>
       </xsl:for-each>
     </xsl:element>
-
   </xsl:template>
 
   <xsl:template name="Translate_Langueage">
     <xsl:variable name="languageCode" select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'TitleNameList']/*[local-name() = 'TitleName']/@lang"/>
     <xsl:choose>
-      <xsl:when test="$languageCode = 'deu'">
+      <xsl:when test="$languageCode = 'ger'"> 
         <xsl:text>grm</xsl:text>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
-
 </xsl:stylesheet>

@@ -62,16 +62,14 @@
         <xsl:choose>
           <xsl:when test="./*[local-name() = 'DimensionList']/*[local-name() = 'Dimension'] = 'SD'">
             <xsl:choose>
-              <xsl:when test="translate(./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'], $uppercase, $smallcase) = 'playready,marlin'">
-                <!--M3U8/SD/playready,marlin-->
+              <xsl:when test="translate(./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'], $uppercase, $smallcase) = 'playready,marlin'">               
                 <xsl:attribute name="type">Mobile Devices Main SD</xsl:attribute>
               </xsl:when>
             </xsl:choose>
           </xsl:when>
           <xsl:when test="./*[local-name() = 'DimensionList']/*[local-name() = 'Dimension'] = 'HD'">
             <xsl:choose>
-              <xsl:when test="translate(./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'], $uppercase, $smallcase) = 'playready,marlin'">
-                <!--M3U8/HD/playready,marlin-->
+              <xsl:when test="translate(./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'], $uppercase, $smallcase) = 'playready,marlin'">              
                 <xsl:attribute name="type">Mobile Devices Main HD</xsl:attribute>
               </xsl:when>
             </xsl:choose>
@@ -81,23 +79,15 @@
       <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'ShortName'] = 'ISM'">
         <xsl:choose>
           <xsl:when test="./*[local-name() = 'DimensionList']/*[local-name() = 'Dimension'] = 'SD'">
-            <xsl:choose>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'Marlin'">
-                <!--ISM/SD/Marlin-->
-              </xsl:when>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">
-                <!--ISM/SD/PLAYREADY-->
+            <xsl:choose>              
+              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">               
                 <xsl:attribute name="type">PC Main SD</xsl:attribute>
               </xsl:when>
             </xsl:choose>
           </xsl:when>
           <xsl:when test="./*[local-name() = 'DimensionList']/*[local-name() = 'Dimension'] = 'HD'">
-            <xsl:choose>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'Marlin'">
-                <!--ISM/HD/Marlin-->
-              </xsl:when>
-              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">
-                <!--ISM/HD/PLAYREADY-->
+            <xsl:choose>             
+              <xsl:when test="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionType'] = 'PLAYREADY'">               
                 <xsl:attribute name="type">PC Main HD</xsl:attribute>
               </xsl:when>
             </xsl:choose>
@@ -109,55 +99,59 @@
 
   <xsl:template name="build_files_data">
     <xsl:element name="files">
-      <xsl:for-each select="./*[local-name() = 'ContentList']/*[local-name() = 'Content']/*[local-name() = 'FormatList']/*[local-name() = 'Format']" >
+      <xsl:for-each select="./*[local-name() = 'ContentList']/*[local-name() = 'Content']" >
+        <xsl:for-each select="./*[local-name() = 'FormatList']/*[local-name() = 'Format']" >
 
-        <xsl:element name="file">
-          <xsl:call-template name="Set_File_Type"/>
-          <xsl:attribute  name="quality">HIGH</xsl:attribute>
-          <xsl:attribute  name="pre_rule">null</xsl:attribute>
-          <xsl:attribute  name="post_rule">null</xsl:attribute>
-          <xsl:attribute  name="handling_type">CLIP</xsl:attribute>
-          <xsl:attribute  name="duration"><xsl:value-of select="../../*[local-name() = 'RunTimeMinutes']"/></xsl:attribute>
-          <xsl:attribute  name="cdn_name">Default CDN</xsl:attribute>
-          <xsl:attribute  name="cdn_code"><xsl:value-of select="./*[local-name() = 'StartUrl']"/></xsl:attribute>
-          <xsl:attribute  name="break_rule"></xsl:attribute>
-          <xsl:attribute  name="break_points"></xsl:attribute>
-          <xsl:attribute  name="billing_type"></xsl:attribute>
-          <xsl:attribute  name="assetwidth"></xsl:attribute>
-          <xsl:for-each select="//*[local-name() = 'Presentation']">
-            <xsl:attribute  name="file_start_date"><xsl:call-template name="SetStartDate"/></xsl:attribute>
-            <xsl:attribute  name="file_end_date"><xsl:call-template name="SetEndDate"/></xsl:attribute>
-          </xsl:for-each>
-          <xsl:attribute  name="assetheight"></xsl:attribute>
-          <xsl:attribute  name="assetduration"><xsl:value-of select="../../*[local-name() = 'RunTimeMinutes']"/></xsl:attribute>
-          <xsl:attribute  name="ppv_module">
-            <xsl:variable name="contentID" select="../../*[local-name() = 'ContentId']"/>
-            <xsl:for-each select="../../../../*[local-name() = 'LicenseList']/*[local-name() = 'License']">
-              <xsl:for-each select="./*[local-name() = 'LicenseGrantsList']/*[local-name() = 'ContentIdList']/*[local-name() = 'ContentId']">
-                <xsl:if test=". = $contentID">      
-                  <xsl:variable name="LSfullTime" select="../../../*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStart']"/>
-                  <xsl:variable name="LSday" select="substring-after(substring-after(substring-before($LSfullTime,'T'),'-'),'-')"/>
-                  <xsl:variable name="LSmonth" select="substring-before(substring-after(substring-before($LSfullTime,'T'),'-'),'-')"/>
-                  <xsl:variable name="LSyear" select="substring-before($LSfullTime,'-')"/>
-                  <xsl:variable name="LStime" select="substring-before(substring-after($LSfullTime,'T'),'Z')"/>
-                  <xsl:variable name="LS" select="concat($LSday,'/',$LSmonth,'/',$LSyear,' ',$LStime)"/>
-
-                  <xsl:variable name="LEfullTime" select="../../../*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodEnd']"/>
-                  <xsl:variable name="LEday" select="substring-after(substring-after(substring-before($LEfullTime,'T'),'-'),'-')"/>
-                  <xsl:variable name="LEmonth" select="substring-before(substring-after(substring-before($LEfullTime,'T'),'-'),'-')"/>
-                  <xsl:variable name="LEyear" select="substring-before($LEfullTime,'-')"/>
-                  <xsl:variable name="LEtime" select="substring-before(substring-after($LEfullTime,'T'),'Z')"/>
-                  <xsl:variable name="LE" select="concat($LEday,'/',$LEmonth,'/',$LEyear,' ',$LEtime)"/>
-
-                  <xsl:value-of select="concat(../../../*[local-name() = 'LicenseCode'],';',$LS,';',$LE,';')"/>
-                </xsl:if>
-              </xsl:for-each>
+          <xsl:element name="file">
+            <xsl:call-template name="Set_File_Type"/>
+            <xsl:attribute  name="quality">HIGH</xsl:attribute>
+            <xsl:attribute  name="pre_rule">null</xsl:attribute>
+            <xsl:attribute  name="post_rule">null</xsl:attribute>
+            <xsl:attribute  name="handling_type">CLIP</xsl:attribute>
+            <xsl:attribute  name="duration"><xsl:value-of select="../../*[local-name() = 'RunTimeMinutes']"/></xsl:attribute>
+            <xsl:attribute  name="cdn_name">Prefix URL VOD</xsl:attribute>
+            <xsl:attribute  name="cdn_code"><xsl:value-of select="./*[local-name() = 'StartUrl']"/></xsl:attribute>
+            <xsl:attribute  name="break_rule"></xsl:attribute>
+            <xsl:attribute  name="break_points"></xsl:attribute>
+            <xsl:attribute  name="billing_type">Tvinci</xsl:attribute>
+            <xsl:attribute  name="assetwidth"></xsl:attribute>
+            <xsl:for-each select="//*[local-name() = 'Presentation']">
+              <xsl:attribute  name="file_start_date"><xsl:call-template name="SetStartDate"/></xsl:attribute>
+              <xsl:attribute  name="file_end_date"><xsl:call-template name="SetEndDate"/></xsl:attribute>
             </xsl:for-each>
-          </xsl:attribute>
-          <xsl:attribute name="co_guid"><xsl:value-of select="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionKeyId']"/></xsl:attribute>
-          <xsl:attribute name="output_protection_level"><xsl:value-of select="./*[local-name() = 'MediaType']/*[local-name() = 'MinimumMediaOutputProtectionLevelGroup']/*[local-name() = 'Name']"/></xsl:attribute>
-        </xsl:element>
+            <xsl:attribute  name="assetheight"></xsl:attribute>
+            <xsl:attribute  name="assetduration"><xsl:value-of select="../../*[local-name() = 'RunTimeSeconds']"/></xsl:attribute>
+            <xsl:attribute  name="ppv_module">
+              <xsl:variable name="contentID" select="../../*[local-name() = 'ContentId']"/>
+              <xsl:for-each select="//*[local-name() = 'LicenseList']/*[local-name() = 'License']">
+                <xsl:for-each select="./*[local-name() = 'LicenseGrantsList']/*[local-name() = 'ContentIdList']/*[local-name() = 'ContentId']">
+                  <xsl:if test=". = $contentID">      
+                    <xsl:variable name="LSfullTime" select="../../../*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStart']"/>
+                    <xsl:variable name="LSday" select="substring-after(substring-after(substring-before($LSfullTime,'T'),'-'),'-')"/>
+                    <xsl:variable name="LSmonth" select="substring-before(substring-after(substring-before($LSfullTime,'T'),'-'),'-')"/>
+                    <xsl:variable name="LSyear" select="substring-before($LSfullTime,'-')"/>
+                    <xsl:variable name="LStime" select="substring-before(substring-after($LSfullTime,'T'),'Z')"/>
+                    <xsl:variable name="LS" select="concat($LSday,'/',$LSmonth,'/',$LSyear,' ',$LStime)"/>
 
+                    <xsl:variable name="LEfullTime" select="../../../*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodEnd']"/>
+                    <xsl:variable name="LEday" select="substring-after(substring-after(substring-before($LEfullTime,'T'),'-'),'-')"/>
+                    <xsl:variable name="LEmonth" select="substring-before(substring-after(substring-before($LEfullTime,'T'),'-'),'-')"/>
+                    <xsl:variable name="LEyear" select="substring-before($LEfullTime,'-')"/>
+                    <xsl:variable name="LEtime" select="substring-before(substring-after($LEfullTime,'T'),'Z')"/>
+                    <xsl:variable name="LE" select="concat($LEday,'/',$LEmonth,'/',$LEyear,' ',$LEtime)"/>
+
+                    
+                      <xsl:value-of select="concat(../../../*[local-name() = 'LicenseCode'],';',$LS,';',$LE,';')"/>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+            </xsl:attribute>
+          
+            <xsl:attribute name="co_guid"><xsl:value-of select="./*[local-name() = 'MediaType']/*[local-name() = 'EncryptionKeyId']"/></xsl:attribute>
+            <xsl:attribute name="output_protection_level"><xsl:value-of select="./*[local-name() = 'MediaType']/*[local-name() = 'MinimumMediaOutputProtectionLevelGroup']/*[local-name() = 'Name']"/></xsl:attribute>
+          </xsl:element>
+
+        </xsl:for-each>
       </xsl:for-each>
 
       <xsl:for-each select="./*[local-name() = 'PromotionContentList']/*[local-name() = 'PromotionContent']/*[local-name() = 'ContentType'][translate(., $uppercase, $smallcase) = 'trailer']" >
@@ -171,7 +165,7 @@
             <xsl:attribute name="post_rule">null</xsl:attribute>
             <xsl:attribute name="handling_type">CLIP</xsl:attribute>
             <xsl:attribute name="duration">0</xsl:attribute>
-            <xsl:attribute name="cdn_name">Default CDN</xsl:attribute>
+            <xsl:attribute name="cdn_name">Prefix URL VOD</xsl:attribute>
             <xsl:attribute name="cdn_code"><xsl:value-of select="./*[local-name() = 'StartUrl']"/></xsl:attribute>
             <xsl:attribute name="break_rule"></xsl:attribute>
             <xsl:attribute name="break_points"></xsl:attribute>
@@ -289,13 +283,13 @@
         <xsl:when test="./*[local-name() = 'LicenseList']/License[$index]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStartUnix'] &lt; ./*[local-name() = 'LicenseList']/License[$MostSooner]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStartUnix']">
             <xsl:call-template name="SetStartDate">
               <xsl:with-param name="index" select="$index + 1" />
-              <xsl:with-param name="MostLatest" select="$index" />
+              <xsl:with-param name="MostSooner" select="$index" />
             </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="SetStartDate">
             <xsl:with-param name="index" select="$index + 1" />
-            <xsl:with-param name="MostLatest" select="$MostSooner" />
+            <xsl:with-param name="MostSooner" select="$MostSooner" />
           </xsl:call-template>
         </xsl:otherwise>
       </xsl:choose>
@@ -435,7 +429,7 @@
         <xsl:attribute name="lang">
           <xsl:call-template name="Translate_Langueage"/>
         </xsl:attribute>
-        <xsl:value-of select="./*[local-name() = 'ContentList']/Content[1]/*[local-name() = 'RunTimeMinutes']"/>
+        <xsl:value-of select="./*[local-name() = 'ContentList']/Content[1]/*[local-name() = 'RunTimeSeconds']"/>
       </xsl:element>
     </xsl:element>
   </xsl:template>
@@ -547,9 +541,7 @@
       <xsl:element name="container">
         <xsl:element name="value">
           <xsl:attribute name="lang">de</xsl:attribute>
-          <xsl:for-each select="./*[local-name() = 'ContentList']/*[local-name() = 'Content']">
-            <xsl:value-of select="./*[local-name() = 'FormatList']/*[local-name() = 'Format']/*[local-name() = 'AudioTrackList']/*[local-name() = 'AudioTrack']/*[local-name() = 'Language']"/>
-          </xsl:for-each>
+          <xsl:value-of select="./*[local-name() = 'ContentList']/*[local-name() = 'Content']/*[local-name() = 'FormatList']/*[local-name() = 'Format']/*[local-name() = 'AudioTrackList']/*[local-name() = 'AudioTrack']/*[local-name() = 'Language']"/>
         </xsl:element>
       </xsl:element>
     </xsl:element>
@@ -560,9 +552,7 @@
       <xsl:element name="container">
         <xsl:element name="value">
           <xsl:attribute name="lang">de</xsl:attribute>
-          <xsl:for-each select="./*[local-name() = 'ContentList']/*[local-name() = 'Content']">
-            <xsl:value-of select="./*[local-name() = 'FormatList']/*[local-name() = 'Format']/*[local-name() = 'SubtitleTrackList']"/>
-          </xsl:for-each>
+          <xsl:value-of select="./*[local-name() = 'ContentList']/*[local-name() = 'Content']/*[local-name() = 'FormatList']/*[local-name() = 'Format']/*[local-name() = 'SubtitleTrackList']"/>
         </xsl:element>
       </xsl:element>
     </xsl:element>
@@ -573,9 +563,7 @@
       <xsl:element name="container">
         <xsl:element name="value">
           <xsl:attribute name="lang">de</xsl:attribute>
-          <xsl:for-each select="./*[local-name() = 'ContentList']/Content/*[local-name() = 'ParentalControlList']/*[local-name() = 'ParentalControl']">
-            <xsl:value-of select="./*[local-name() = 'ParentalControlId']"/>
-          </xsl:for-each>
+          <xsl:value-of select="./*[local-name() = 'ContentList']/Content/*[local-name() = 'ParentalControlList']/*[local-name() = 'ParentalControl']/*[local-name() = 'ParentalControlId']"/>
         </xsl:element>
       </xsl:element>
     </xsl:element>

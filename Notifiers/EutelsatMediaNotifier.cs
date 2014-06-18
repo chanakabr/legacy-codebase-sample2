@@ -33,7 +33,7 @@ namespace Notifiers
 
                 errorMessage = "";
 
-                if (!resp.success)
+                if (resp != null && !resp.success && resp.errors != null)
                 {
                     string[] errors = resp.errors.Select(e => "type: " + e.error_type + "; error: " + e.error_message).ToArray();
                     errorMessage = string.Join("\n", errors);

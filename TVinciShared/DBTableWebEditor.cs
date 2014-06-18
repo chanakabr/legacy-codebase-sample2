@@ -1432,7 +1432,12 @@ namespace TVinciShared
                 {
                     Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
                     //Int32 nActive = int.Parse(ODBCWrapper.Utils.GetTableSingleVal(m_sActivationTable, "IS_ACTIVE", nID , m_sConnectionKey).ToString());
-                    Int32 nActive = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["IS_ACTIVE"].ToString());
+                    Int32 nActive = -1;
+                    if (!Int32.TryParse(m_theDataTable.DefaultView[pageIndx].Row["IS_ACTIVE"].ToString(), out nActive) || nActive < 0)
+                    {
+                        nActive = Boolean.Parse(m_theDataTable.DefaultView[pageIndx].Row["IS_ACTIVE"].ToString()) ? 1 : 0;
+                    }
+
                     sTable.Append("<td nowrap id=\"activation_" + nID.ToString() + "\">");
                     if (nActive == 1)
                     {

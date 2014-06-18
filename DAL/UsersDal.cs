@@ -452,35 +452,31 @@ namespace DAL
 
         public static List<int> GetUserDomainIDs(int nGroupID, int nUserID)
         {
-            List<int> lDomainIDs = new List<int>();
+            List<int> lDomainIDs = null;
 
-            try
+
+            ODBCWrapper.StoredProcedure spGetUserDomains = new ODBCWrapper.StoredProcedure(SP_GET_USER_DOMAINS);
+            spGetUserDomains.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            spGetUserDomains.AddParameter("@groupID", nGroupID);
+            spGetUserDomains.AddNullableParameter<long?>("@userID", nUserID);
+            DataSet ds = spGetUserDomains.ExecuteDataSet();
+
+            if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].DefaultView.Count == 0)
             {
-                ODBCWrapper.StoredProcedure spGetUserDomains = new ODBCWrapper.StoredProcedure(SP_GET_USER_DOMAINS);
-                spGetUserDomains.SetConnectionKey("USERS_CONNECTION_STRING");
-
-                spGetUserDomains.AddParameter("@groupID", nGroupID);
-                spGetUserDomains.AddNullableParameter<long?>("@userID", nUserID);
-                DataSet ds = spGetUserDomains.ExecuteDataSet();
-
-                if ((ds == null) || (ds.Tables.Count == 0) || (ds.Tables[0].DefaultView.Count == 0))
-                {
-                    return lDomainIDs;
-                }
-
-                int nCount = ds.Tables[0].DefaultView.Count;
-                for (int i = 0; i < nCount; i++)
-                {
-                    int nDomainID = int.Parse(ds.Tables[0].DefaultView[i].Row["DOMAIN_ID"].ToString());
-                    lDomainIDs.Add(nDomainID);
-                }
-
-                spGetUserDomains = null;
-
+                return new List<int>(0);
             }
-            catch (Exception ex)
+
+            int nCount = ds.Tables[0].DefaultView.Count;
+            lDomainIDs = new List<int>(nCount);
+            
+            for (int i = 0; i < nCount; i++)
             {
-                HandleException(ex);
+                int tempDomainID = 0;
+                if (Int32.TryParse(ds.Tables[0].DefaultView[i].Row["DOMAIN_ID"].ToString(), out tempDomainID) && tempDomainID > 0)
+                {
+                    lDomainIDs.Add(tempDomainID);
+                }
             }
 
             return lDomainIDs;
@@ -1142,11 +1138,11 @@ namespace DAL
 
                         nActivateStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ACTIVATE_STATUS", 0);
                         DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "CREATE_DATE", 0);
-                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "DNOW", 0); 
+                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "DNOW", 0);
 
                         bool isActive = ((nActivateStatus == 1) || !(nActivateStatus == 0 && dCreateDate.AddHours(nActivationMustHours) < dNow));
 
-                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;                 
+                        res = isActive ? DALUserActivationState.Activated : DALUserActivationState.NotActivated;
                     }
                     else
                     {
@@ -1159,8 +1155,8 @@ namespace DAL
                 selectQuery = null;
 
                 if (res == DALUserActivationState.UserDoesNotExist || (res == DALUserActivationState.NotActivated && GetIsActivationNeeded(nParentGroupID)))
-                { 
-                    return res; 
+                {
+                    return res;
                 }
                 else
                 {
@@ -1187,12 +1183,12 @@ namespace DAL
                     if (nCount > 0)
                     {
 
-                        int isMaster = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_MASTER", 0); 
-                        int isActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_ACTIVE", 0); 
-                        int nStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "STATUS", 0); 
+                        int isMaster = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_MASTER", 0);
+                        int isActive = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "IS_ACTIVE", 0);
+                        int nStatus = ODBCWrapper.Utils.GetIntSafeVal(selectQuery1, "STATUS", 0);
 
-                        DateTime dCreateDate1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "CREATE_DATE", 0); 
-                        DateTime dNow1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "DNOW", 0); 
+                        DateTime dCreateDate1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "CREATE_DATE", 0);
+                        DateTime dNow1 = ODBCWrapper.Utils.GetDateSafeVal(selectQuery1, "DNOW", 0);
 
                         bool isActive1 = ((isMaster > 0) || !(isActive == 0 && dCreateDate1.AddHours(nActivationMustHours) < dNow1));
 

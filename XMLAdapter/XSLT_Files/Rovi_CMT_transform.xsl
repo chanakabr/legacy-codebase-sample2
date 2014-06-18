@@ -10,7 +10,7 @@
         <xsl:apply-templates select="//*[local-name()='Campaign']"/>
       </export>
     </feed>
-  </xsl:template>
+  </xsl:template> 
 
   <xsl:template match="//*[local-name()='Campaign']">
     <xsl:element name="channel">
@@ -57,5 +57,5 @@
       </xsl:element>
     </xsl:element>
   </xsl:template>
-
+  
 </xsl:stylesheet>
