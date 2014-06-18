@@ -161,16 +161,16 @@ namespace Catalog
             ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
 
             string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
-            string index = Utils.GetStatisticsIndexAlias(oMediaView.GroupID);
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
 
             if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
             {
                 Guid guid = Guid.NewGuid();
 
-                bRes = oESApi.InsertRecord(index, Utils.ES_STATISTICS_TYPE, guid.ToString(), sJsonView);
+                bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
 
                 if (!bRes)
-                    _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, Utils.ES_STATISTICS_TYPE, sJsonView));
+                    _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView));
             }
 
             return bRes;
