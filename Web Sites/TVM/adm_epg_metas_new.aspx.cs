@@ -80,6 +80,24 @@ public partial class adm_epg_metas_new : System.Web.UI.Page
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
 
+        DataRecordShortIntField dr_type = new DataRecordShortIntField(false, 9, 9);
+        dr_type.Initialize("Type", "adm_table_header_nbg", "FormInput", "type", false);
+        dr_type.SetValue("2");
+        theRecord.AddRecord(dr_type);
+
+        DataRecordShortIntField dr_IsActive = new DataRecordShortIntField(false, 9, 9);
+        dr_IsActive.Initialize("IsActive", "adm_table_header_nbg", "FormInput", "is_active", false);
+        dr_IsActive.SetValue("1");
+        theRecord.AddRecord(dr_IsActive);
+
+        DataRecordShortIntField dr_order_num = new DataRecordShortIntField(false, 3, 3);
+        dr_order_num.Initialize("Order number", "adm_table_header_nbg", "FormInput", "ORDER_NUM", false);
+        dr_order_num.SetValue("1");
+        theRecord.AddRecord(dr_order_num);
+
+
+
+
         //is_searchable true/ false
         DataRecordCheckBoxField dr_Searchable = new DataRecordCheckBoxField(true);
         dr_Searchable.Initialize("is searchable", "adm_table_header_nbg", "FormInput", "is_searchable", false);

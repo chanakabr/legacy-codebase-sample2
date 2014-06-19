@@ -90,11 +90,10 @@ public partial class adm_epg_metas_refferences_new : System.Web.UI.Page
         DataRecordShortIntField dr_Order = new DataRecordShortIntField(true, 60, 128);
         dr_Order.Initialize("Order", "adm_table_header_nbg", "FormInput", "order_num", true);
         theRecord.AddRecord(dr_Order);
-
-        //ask ira about it 
+               
         DataRecordShortIntField dr_type = new DataRecordShortIntField(false, 9, 9);
         dr_type.Initialize("Type", "adm_table_header_nbg", "FormInput", "type", false);
-        dr_type.SetValue("1");
+        dr_type.SetValue("2");
         theRecord.AddRecord(dr_type);
 
         DataRecordShortIntField dr_meta = new DataRecordShortIntField(false, 9, 9);
