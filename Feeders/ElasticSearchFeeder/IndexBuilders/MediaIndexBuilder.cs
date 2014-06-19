@@ -96,6 +96,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             if (dGroupMedias != null)
             {
+                Logger.Logger.Log("Info", string.Format("Start indexing medias. total medias={0}", dGroupMedias.Count), "ESFeeder");
                 List<ESBulkRequestObj<int>> lBulkObj = new List<ESBulkRequestObj<int>>();
 
                 foreach (int nMediaID in dGroupMedias.Keys)
@@ -135,36 +136,44 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             if (oGroup.m_oGroupChannels != null)
             {
+                Logger.Logger.Log("Info", string.Format("Start indexing channels. total channels={0}", oGroup.m_oGroupChannels.Count), "ESFeeder");
+
                 MediaSearchObj oSearchObj;
                 string sQueryStr;
                 ESMediaQueryBuilder oQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
 
-
                 List<KeyValuePair<int, string>> lChannelRequests = new List<KeyValuePair<int, string>>();
-                foreach (int channelId in oGroup.m_oGroupChannels.Keys)
+                try
                 {
-                    Channel oChannel = oGroup.m_oGroupChannels[channelId];
+                    foreach (int channelId in oGroup.m_oGroupChannels.Keys)
+                    {
+                        Channel oChannel = oGroup.m_oGroupChannels[channelId];
 
-                    if (oChannel == null || oChannel.m_nIsActive != 1)
-                        continue;
+                        if (oChannel == null || oChannel.m_nIsActive != 1)
+                            continue;
 
-                    oQueryParser.m_nGroupID = oChannel.m_nGroupID;
-                    oSearchObj = BuildBaseChannelSearchObject(oChannel);
-                    oQueryParser.oSearchObject = oSearchObj;
-                    sQueryStr = oQueryParser.BuildSearchQueryString(false);
+                        oQueryParser.m_nGroupID = oChannel.m_nGroupID;
+                        oSearchObj = BuildBaseChannelSearchObject(oChannel);
+                        oQueryParser.oSearchObject = oSearchObj;
+                        sQueryStr = oQueryParser.BuildSearchQueryString(false);
 
-                    lChannelRequests.Add(new KeyValuePair<int, string>(oChannel.m_nChannelID, sQueryStr));
+                        lChannelRequests.Add(new KeyValuePair<int, string>(oChannel.m_nChannelID, sQueryStr));
 
-                    if (lChannelRequests.Count > 50)
+                        if (lChannelRequests.Count > 50)
+                        {
+                            m_oESApi.CreateBulkIndexRequest("_percolator", sNewIndex, lChannelRequests);
+                            lChannelRequests.Clear();
+                        }
+                    }
+
+                    if (lChannelRequests.Count > 0)
                     {
                         m_oESApi.CreateBulkIndexRequest("_percolator", sNewIndex, lChannelRequests);
-                        lChannelRequests.Clear();
                     }
                 }
-
-                if (lChannelRequests.Count > 0)
+                catch (Exception ex)
                 {
-                    m_oESApi.CreateBulkIndexRequest("_percolator", sNewIndex, lChannelRequests);
+                    Logger.Logger.Log("Error", string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace), "ESFeeder");
                 }
             }
 
