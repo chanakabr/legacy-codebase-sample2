@@ -81,6 +81,20 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
         dr_Name.Initialize("tag name", "adm_table_header_nbg", "FormInput", "Name", true);
         theRecord.AddRecord(dr_Name);
 
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        theRecord.AddRecord(dr_groups);
+
+        DataRecordShortIntField dr_IsActive = new DataRecordShortIntField(false, 9, 9);
+        dr_IsActive.Initialize("IsActive", "adm_table_header_nbg", "FormInput", "is_active", false);
+        dr_IsActive.SetValue("1");
+        theRecord.AddRecord(dr_IsActive);
+
+        DataRecordShortIntField dr_order_num = new DataRecordShortIntField(true, 3, 3);
+        dr_order_num.Initialize("Order number", "adm_table_header_nbg", "FormInput", "ORDER_NUM", false);
+        theRecord.AddRecord(dr_order_num);
+
         string sTable = theRecord.GetTableHTML("adm_epg_tags_new.aspx?submited=1");
 
         return sTable;
