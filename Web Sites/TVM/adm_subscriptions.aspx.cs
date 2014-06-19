@@ -35,6 +35,18 @@ public partial class adm_subscriptions : System.Web.UI.Page
         return false;
     }
 
+    protected void Page_PreRender(object sender, EventArgs e)
+    {
+        if (HttpContext.Current.Session["error_msg_sub"] != null || Session["error_msg_sub"] != null)
+        {
+            hfError.Value = (HttpContext.Current.Session["error_msg_sub"] != null)
+                ? Session["error_msg_sub"].ToString()
+                : HttpContext.Current.Session["error_msg_sub"].ToString();
+
+            HttpContext.Current.Session["error_msg_sub"] = null;
+        }
+    }
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)
