@@ -25,6 +25,7 @@ namespace DAL
         private const string SP_GET_DEVICES_TO_USERS_NON_PUSH = "Get_DevicesToUsersNonPushAction";
         private const string SP_GET_DEVICES_TO_USERS_PUSH = "Get_DevicesToUsersPushAction";
         private const string SP_GENERATE_TOKEN = "GenerateToken";
+        private const string SP_GET_USER_TYPE = "Get_UserType";
 
         #endregion
 
@@ -1605,5 +1606,30 @@ namespace DAL
 
             return null;
         }
-    }
+
+        public static DataTable GetUserType(long groupID, long lSiteGuid)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetUserType = new ODBCWrapper.StoredProcedure(SP_GET_USER_TYPE);
+                spGetUserType.SetConnectionKey("USERS_CONNECTION_STRING");
+
+                spGetUserType.AddParameter("@groupID", groupID);
+                spGetUserType.AddParameter("@User", lSiteGuid);
+                DataSet ds = spGetUserType.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    return (ds.Tables[0]);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return null;
+        }
+    } 
 }

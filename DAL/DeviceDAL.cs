@@ -41,7 +41,7 @@ namespace DAL
                         sDbDeviceUDID = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "device_id", 0);
                         nDbDeviceBrandID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_brand_id", 0);
                         sDbDeviceName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "Name", 0);
-                        nGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "group_id", 0);
+                        //nGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "group_id", 0);
                         nDbDeviceFamilyID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_family_id", 0);
                         sDbPin = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "pin", 0);
 
@@ -57,6 +57,8 @@ namespace DAL
                             selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", nDeviceID);
                             selectQuery1 += " and ";
                             selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("domain_id", "=", nDomainID);
+                            selectQuery1 += " and ";
+                            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                             if (selectQuery1.Execute("query", true) != null)
                             {
                                 count = selectQuery1.Table("query").DefaultView.Count;
@@ -179,12 +181,13 @@ namespace DAL
             return Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID, string.Empty);
         }
 
-        public static DataTable Get_DeviceInfo(string sID, bool isUDID)
-        {           
+        public static DataTable Get_DeviceInfo(string sID, bool isUDID, int nGroupID)
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DeviceInfo");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@ID", sID);
             sp.AddParameter("@IsUDID", isUDID);
+            sp.AddParameter("@GroupID", nGroupID);
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables.Count > 0)
@@ -192,7 +195,7 @@ namespace DAL
             return null;
         }
 
-        public static int GetDeviceID(string sDeviceUDID, int? nGroupID = null, int? nDeviceBrandID = null, int? nDeviceFamilyID = null, int? nStatus = null)
+        public static int GetDeviceID(string sDeviceUDID, int nGroupID, int? nDeviceBrandID = null, int? nDeviceFamilyID = null, int? nStatus = null)
         {
             int retVal = 0;
 
@@ -210,11 +213,11 @@ namespace DAL
                 selectQuery += "and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_family_id", "=", nDeviceFamilyID);
             }
-            if (nGroupID.HasValue)
-            {
-                selectQuery += "and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-            }
+            //if (nGroupID.HasValue)
+            //{
+            selectQuery += "and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            //}
             if (nStatus.HasValue)
             {
                 selectQuery += "and ";

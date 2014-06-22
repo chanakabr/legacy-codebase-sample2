@@ -69,7 +69,7 @@ namespace DAL
                         sDbDeviceUDID = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "device_id", 0);
                         nDbDeviceBrandID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_brand_id", 0);
                         sDbDeviceName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "Name", 0);
-                        nGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "group_id", 0);
+                        //nGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "group_id", 0);
                         nDbDeviceFamilyID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "device_family_id", 0);
                         sDbPin = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "pin", 0);
 
@@ -85,6 +85,8 @@ namespace DAL
                             selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", nDeviceID);
                             selectQuery1 += " and ";
                             selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("domain_id", "=", nDomainID);
+                            selectQuery1 += " and ";
+                            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                             if (selectQuery1.Execute("query", true) != null)
                             {
                                 count = selectQuery1.Table("query").DefaultView.Count;

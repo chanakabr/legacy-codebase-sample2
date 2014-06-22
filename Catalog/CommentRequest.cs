@@ -80,7 +80,7 @@ namespace Catalog
                     m_sSiteGuid = oCommentReq.m_sSiteGuid,
                     m_sWriter = oCommentReq.m_sWriter,
                     m_nLang = oCommentReq.m_oFilter.m_nLanguage,
-                    m_sAssetType = (oCommentReq is MediaCommentRequest) ? "media" : "epg",
+                    m_sAssetType = CatalogDAL.Get_MediaTypeIdByMediaId(oCommentReq.m_nAssetID).ToString(),
                     m_Action = "comment",
                     m_nGroupID = group.m_nParentGroupID,
                 };

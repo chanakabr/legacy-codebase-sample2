@@ -228,10 +228,10 @@ namespace Catalog
                     result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, MediaPlayActions.FIRST_PLAY.ToString());
                     break;
                 case OrderBy.RATING:
-                    result = Utils.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, "rate", "rate_value", ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
+                    result = Utils.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, "rates", "rate_value", ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
                     break;
                 case OrderBy.VOTES_COUNT:
-                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "rate");
+                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "rates");
                     break;
                 case OrderBy.LIKE_COUNTER:
                     result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "like");

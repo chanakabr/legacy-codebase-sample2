@@ -526,7 +526,7 @@ namespace DAL
         }
 
 
-        public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID)
+        public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
         {
             MediaMarkObject ret = new MediaMarkObject();
             int nUserID = 0;
@@ -547,7 +547,7 @@ namespace DAL
                 }
                 else
                 {
-                    DataTable dtDeviceInfo = DeviceDal.Get_DeviceInfo(mediaMarkLogObject.LastMark.UDID, true);
+                    DataTable dtDeviceInfo = DeviceDal.Get_DeviceInfo(mediaMarkLogObject.LastMark.UDID, true, nGroupID);
                     if (dtDeviceInfo != null && dtDeviceInfo.Rows.Count > 0)
                     {
                         ret.sDeviceName = ODBCWrapper.Utils.GetSafeStr(dtDeviceInfo.Rows[0]["name"]);

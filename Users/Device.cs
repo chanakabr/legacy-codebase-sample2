@@ -86,7 +86,6 @@ namespace Users
         public Device()
             : this(string.Empty, 0, 0)
         {
-
         }
 
         public bool Initialize(string sDeviceUDID)
@@ -341,7 +340,7 @@ namespace Users
                     return false;
                 }
 
-                DataTable dtDeviceInfo = DeviceDal.Get_DeviceInfo(sID, isUDID);
+                DataTable dtDeviceInfo = DeviceDal.Get_DeviceInfo(sID, isUDID, m_groupID);
 
                 if (dtDeviceInfo == null)
                 {
