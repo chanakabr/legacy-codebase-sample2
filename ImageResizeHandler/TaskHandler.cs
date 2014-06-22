@@ -22,37 +22,49 @@ namespace ImageResizeHandler
             {
                 bool _useFileSystem = false;
 
-                if (System.Configuration.ConfigurationSettings.AppSettings["ImageResizer.UseFileSystem"] != null)
+                string _sUseFileSystem = TCMClient.Settings.Instance.GetValue<string>("TASK_HANDLERS.IMAGE_RESIZER.USE_FILE_SYSTEM");
+
+                if (!string.IsNullOrEmpty(_sUseFileSystem))
                 {
-                    bool.TryParse(System.Configuration.ConfigurationSettings.AppSettings["ImageResizer.UseFileSystem"], out _useFileSystem);
+                    bool.TryParse(_sUseFileSystem, out _useFileSystem);
                 }
 
                 if (_useFileSystem)
                 {
-                    string imagesBasePath = string.Empty;
-
-                    if (System.Configuration.ConfigurationSettings.AppSettings["ImageResizer.ImagesBasePath"] != null)
+                    try
                     {
-                        imagesBasePath = System.Configuration.ConfigurationSettings.AppSettings["ImageResizer.ImagesBasePath"];
-                    }
+                        string imagesBasePath = TCMClient.Settings.Instance.GetValue<string>("TASK_HANDLERS.IMAGE_RESIZER.IMAGES_BASE_PATH");
 
-                    FileInfo fileInf = new FileInfo(imagesBasePath + System.IO.Path.GetFileName(uri.LocalPath));
-
-                    if (fileInf.Exists)
-                    {
-                        using (FileStream fs = fileInf.OpenRead())
+                        if (!string.IsNullOrEmpty(imagesBasePath))
                         {
-                            source = fs.ToByteArray();
-                        } 
+                            if (!Directory.Exists(imagesBasePath))
+                            {
+                                Directory.CreateDirectory(imagesBasePath);
+                            }
+                        }
+
+                        FileInfo fileInf = new FileInfo(imagesBasePath + System.IO.Path.GetFileName(uri.LocalPath));
+
+                        if (fileInf.Exists)
+                        {
+                            using (FileStream fs = fileInf.OpenRead())
+                            {
+                                source = fs.ToByteArray();
+                            }
+                        }
+                        else
+                        {
+                            source = uri.ToByteArray();
+
+                            using (FileStream fs = fileInf.OpenWrite())
+                            {
+                                fs.Write(source, 0, source.Length);
+                            }
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
                         source = uri.ToByteArray();
-
-                        using (FileStream fs = fileInf.OpenWrite())
-                        {
-                            fs.Write(source, 0, source.Length);
-                        } 
                     }
                 }
                 else

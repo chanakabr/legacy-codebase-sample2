@@ -15,6 +15,8 @@ namespace RemoteTasksService
         protected void Application_Start(object sender, EventArgs e)
         {
             RouteTable.Routes.Add(new ServiceRoute("", new WebServiceHostFactory(), typeof(Service)));
+            TCMClient.Settings.Instance.Init();
+
         }
 
         protected void Session_Start(object sender, EventArgs e)
