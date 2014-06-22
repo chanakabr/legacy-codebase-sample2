@@ -136,7 +136,7 @@ namespace M1BL
                 m_nHoursOffset = 0;
                 
                 string sGMTOffset = GetTcmConfigValue(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
-                Logger.Logger.Log("GMTOffset", string.Format("sGMTOffset:{0}", sGMTOffset), "M1_ProcessCdrFile");
+                //Logger.Logger.Log("GMTOffset", string.Format("sGMTOffset:{0}", sGMTOffset), "M1_ProcessCdrFile");
                 if (!string.IsNullOrEmpty(sGMTOffset))
                 {
                     m_nHoursOffset = int.Parse(sGMTOffset);
@@ -372,6 +372,7 @@ namespace M1BL
                     DateTime dSubscriptionStartDate  = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["item_start_date"]);
                     DateTime dSubscriptionEndDate = ODBCWrapper.Utils.GetDateSafeVal(rowSubscription["item_end_date"]);
 
+                    dTransactionDateTime = dTransactionDateTime.AddHours(m_nHoursOffset);
                     dSubscriptionStartDate = dSubscriptionStartDate.AddHours(m_nHoursOffset);
                     dSubscriptionEndDate = dSubscriptionEndDate.AddHours(m_nHoursOffset);
                     

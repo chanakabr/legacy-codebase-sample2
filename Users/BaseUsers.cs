@@ -616,5 +616,26 @@ namespace Users
             ResponseStatus ret = u.SetUserTypeByUserID(m_nGroupID, sSiteGUID, nUserTypeID);
             return ret;
         }
+
+        public virtual int GetUserType(string sSiteGUID)
+        {
+            long lSiteGuid = 0;
+            int nUserTypeID = 0;
+
+            if (long.TryParse(sSiteGUID, out lSiteGuid))
+            {
+                DataTable dtUserType = UsersDal.GetUserType(m_nGroupID, lSiteGuid);
+
+                if (dtUserType != null && dtUserType.Rows.Count > 0)
+                {
+                    foreach (DataRow drUserType in dtUserType.Rows)
+                    {
+                        nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserType["User_Type"]);
+                    }
+                }
+            }
+
+            return nUserTypeID;
+        }
     }
 }
