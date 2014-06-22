@@ -72,7 +72,7 @@ public partial class adm_epg_metas_refferences : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
 
-        theTable += "select efm.id as id, efm.external_ref as Refference, efm.order_num as OrderNum, efm.status, efm.is_active from EPG_fields_mapping efm where efm.type=1 and efm.status<>2 and ";
+        theTable += "select efm.id as id, efm.external_ref as Refference, efm.order_num as OrderNum, efm.status, efm.is_active from EPG_fields_mapping efm where efm.type=2 and efm.status<>2 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("efm.group_id", "=", nGroupID);
         theTable += " and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("efm.field_id", "=", Session["epg_meta_id"]);
