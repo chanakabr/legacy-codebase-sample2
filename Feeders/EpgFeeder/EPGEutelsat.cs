@@ -240,65 +240,72 @@ namespace EpgFeeder
 
             foreach (var progItem in prog)
             {
-                DateTime dProgStartDate = DateTime.MinValue;
-                DateTime dProgEndDate = DateTime.MinValue;
-                if (!Utils.ParseEPGStrToDate(progItem.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(progItem.stop, ref dProgEndDate))
+                newEpgItem = new EpgCB();
+                try
                 {
-                    Logger.Logger.Log("Program Dates Error", string.Format("start:{0}, end:{1}", progItem.start, progItem.stop), "EPG");
-                    continue;
-                }
-
-                //need this for both DB and CB!!!!!!!!!
-                Kabel_SetMappingValues(FieldEntityMapping, progItem);
-                
-                #region GenerateEpgCB
-                newEpgItem = new EpgCB();               
-                newEpgItem.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(channelID);
-                newEpgItem.Name = progItem.title;
-                if (!string.IsNullOrEmpty(progItem.desc))
-                {
-                    newEpgItem.Description = progItem.desc;
-                }
-                
-                newEpgItem.GroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);               
-                newEpgItem.ParentGroupID = groupID;
-                Guid EPGGuid = Guid.NewGuid();
-                newEpgItem.EpgIdentifier = EPGGuid.ToString();               
-
-                newEpgItem.StartDate = dProgStartDate;
-                newEpgItem.EndDate = dProgEndDate;
-                newEpgItem.UpdateDate = DateTime.UtcNow;
-                newEpgItem.CreateDate = DateTime.UtcNow;
-                newEpgItem.isActive = true;
-                newEpgItem.Status = 1;
-
-                newEpgItem.Metas = Utils.GetEpgProgramMetas(FieldEntityMapping);
-                // When We stop insert to DB , we still need to insert new tags to DB !!!!!!!
-                newEpgItem.Tags = Utils.GetEpgProgramTags(FieldEntityMapping);
-
-                #region Upload Picture
-
-                if (progItem.icon != null)
-                {
-                    string imgurl = progItem.icon.src;
-
-                    if (!string.IsNullOrEmpty(imgurl))
+                    DateTime dProgStartDate = DateTime.MinValue;
+                    DateTime dProgEndDate = DateTime.MinValue;
+                    if (!Utils.ParseEPGStrToDate(progItem.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(progItem.stop, ref dProgEndDate))
                     {
-                        int nPicID = ImporterImpl.DownloadEPGPic(imgurl, progItem.title, int.Parse(s_GroupID), 0, channelID);//verify this is OK - the epgID is not used in the function itself
-                       
-                        if (nPicID != 0)
-                        {
-                            //Update CB, the DB is updated in the end with all other data
-                            newEpgItem.PicID = nPicID;
-                            newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
-                        }                       
+                        Logger.Logger.Log("Program Dates Error", string.Format("start:{0}, end:{1}", progItem.start, progItem.stop), "EPG");
+                        continue;
                     }
-                }
-                #endregion
 
-                #endregion
-                
-                epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
+                    //need this for both DB and CB!!!!!!!!!
+                    Kabel_SetMappingValues(FieldEntityMapping, progItem);
+
+                    #region GenerateEpgCB                    
+                    newEpgItem.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(channelID);
+                    newEpgItem.Name = progItem.title;
+                    if (!string.IsNullOrEmpty(progItem.desc))
+                    {
+                        newEpgItem.Description = progItem.desc;
+                    }
+
+                    newEpgItem.GroupID = ODBCWrapper.Utils.GetIntSafeVal(s_GroupID);
+                    newEpgItem.ParentGroupID = groupID;
+                    Guid EPGGuid = Guid.NewGuid();
+                    newEpgItem.EpgIdentifier = EPGGuid.ToString();
+
+                    newEpgItem.StartDate = dProgStartDate;
+                    newEpgItem.EndDate = dProgEndDate;
+                    newEpgItem.UpdateDate = DateTime.UtcNow;
+                    newEpgItem.CreateDate = DateTime.UtcNow;
+                    newEpgItem.isActive = true;
+                    newEpgItem.Status = 1;
+
+                    newEpgItem.Metas = Utils.GetEpgProgramMetas(FieldEntityMapping);
+                    // When We stop insert to DB , we still need to insert new tags to DB !!!!!!!
+                    newEpgItem.Tags = Utils.GetEpgProgramTags(FieldEntityMapping);
+
+                    #region Upload Picture
+
+                    if (progItem.icon != null)
+                    {
+                        string imgurl = progItem.icon.src;
+
+                        if (!string.IsNullOrEmpty(imgurl))
+                        {
+                            int nPicID = ImporterImpl.DownloadEPGPic(imgurl, progItem.title, int.Parse(s_GroupID), 0, channelID);//verify this is OK - the epgID is not used in the function itself
+
+                            if (nPicID != 0)
+                            {
+                                //Update CB, the DB is updated in the end with all other data
+                                newEpgItem.PicID = nPicID;
+                                newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
+                            }
+                        }
+                    }
+                    #endregion
+
+                    #endregion
+
+                    epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
+                }
+                catch (Exception exc)
+                {
+                    Logger.Logger.Log("Genarate Epgs", string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, groupID, exc.Message), "EpgFeeder");                    
+                }
             }
 
             //insert EPGs to DB in batches

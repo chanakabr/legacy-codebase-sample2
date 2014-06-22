@@ -33,6 +33,9 @@ namespace EpgFeeder
         protected static readonly Regex HebrewRegex = new Regex(@"\p{IsHebrew}");
         protected static readonly Regex RussianRegex = new Regex(@"\p{IsCyrillic}");
         protected static readonly Regex ArabicRegex = new Regex(@"\p{IsArabic}");
+
+        protected static readonly int MaxDescriptionSize = 1024;
+
         #endregion
 
         #region Public Members
@@ -594,19 +597,13 @@ namespace EpgFeeder
                 reader = new StreamReader(stream);
                 string[] spleter = { " " };
 
-
-
-
                 while (reader.Peek() > 0)
                 {
 
                     filename = reader.ReadLine();
 
-
-
-                    if (!string.IsNullOrEmpty(filename))
+                    if (!string.IsNullOrEmpty(filename) && (filename.EndsWith("xml") || filename.EndsWith("XML")))
                     {
-
                         Stream fileStream = null;
                         try
                         {
@@ -1026,69 +1023,67 @@ namespace EpgFeeder
         /// <returns>retur true if success else return false</returns>
         private bool MoveFile(string sFileName)
         {
-            bool res = false;
+            bool moveSucceeded = false;           
+            string sTargetDirectoryPath = GetMoveFilePath();
             FtpWebResponse response = null;
             Stream stream = null;
             FtpWebResponse Uploadresponse = null;
-            string sTargetDirectoryPath = GetMoveFilePath();
-            try
+            int retryCount = 3;
+            for (int i = 0; i < retryCount && !moveSucceeded; i++)
             {
-                // Get the object used to communicate with the server.
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(string.Format("{0}/{1}", sTargetDirectoryPath, sFileName)));
-                request.Method = WebRequestMethods.Ftp.UploadFile;
+                try
+                {
+                    // Get the object used to communicate with the server.
+                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(string.Format("{0}/{1}", sTargetDirectoryPath, sFileName)));
+                    request.Method = WebRequestMethods.Ftp.UploadFile;
+                    request.Credentials = m_NetCredential;
+                    stream = GetFTPStreamFile(sFileName, out response);
+                    // Copy the contents of the file to the request stream.                
+                    StreamReader sourceStream = new StreamReader(stream);
+                    byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
+                    sourceStream.Close();
 
-                // This example assumes the FTP site uses anonymous logon.
-                request.Credentials = m_NetCredential;
-                stream = GetFTPStreamFile(sFileName, out response);
-                // Copy the contents of the file to the request stream.
-                StreamReader sourceStream = new StreamReader(stream);
+                    request.ContentLength = fileContents.Length;               
 
+                    Stream requestStream = request.GetRequestStream();
+                    requestStream.Write(fileContents, 0, fileContents.Length);
+                    requestStream.Close();
+                   
 
-                byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
-                sourceStream.Close();
+                    Uploadresponse = (FtpWebResponse)request.GetResponse();
 
-                if (response != null)
-                    response.Close();
+                    moveSucceeded = true;
 
-                if (stream != null)
-                    stream.Close();
+                    Logger.Logger.Log("EPG Move file", string.Format("Move source file '{0}' to directory path '{1}' success .! , response status: {2}", sFileName, sTargetDirectoryPath, Uploadresponse.StatusDescription), LogFileName);
+                }
+                catch (Exception exp)
+                { 
+                    Logger.Logger.Log("EPG Move file", string.Format("there an error occurring during move file process, Move file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG Moves source file faild.");
+                }
+                finally
+                {
+                    if (response != null)
+                    {
+                        response.Close();
+                        response = null;                      
+                    }
 
-                request.ContentLength = fileContents.Length;
-                Stream requestStream = request.GetRequestStream();
-                requestStream.Write(fileContents, 0, fileContents.Length);
-                requestStream.Close();
+                    if (stream != null)
+                    {
+                        stream.Close();
+                        stream = null;                     
+                    }
 
-                Uploadresponse = (FtpWebResponse)request.GetResponse();
+                    if (Uploadresponse != null)
+                    {
+                        Uploadresponse.Close();
+                        Uploadresponse = null;
+                    }
 
-                res = true;
-
-                Logger.Logger.Log("EPG Move file", string.Format("Move source file '{0}' to directory path '{1}' success .! , response status: {2}", sFileName, sTargetDirectoryPath, Uploadresponse.StatusDescription), LogFileName);
+                    i++;
+                }
             }
-            catch (Exception exp)
-            {
-                if (response != null)
-                    response.Close();
-
-                if (stream != null)
-                    stream.Close();
-
-                if (Uploadresponse != null)
-                    Uploadresponse.Close();
-
-                Logger.Logger.Log("EPG Move file", string.Format("there an error occurring during move file process, Move file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG Moves source file faild.");
-            }
-            finally
-            {
-                if (response != null)
-                    response.Close();
-
-                if (stream != null)
-                    stream.Close();
-
-                if (Uploadresponse != null)
-                    Uploadresponse.Close();
-            }
-            return res;
+            return moveSucceeded;
         }
         /// <summary>
         /// Delete file from source 
@@ -1270,16 +1265,39 @@ namespace EpgFeeder
 
         protected void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping)
         {
+          
             Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
+            Dictionary<int, List<string>> tagsAndValues = new Dictionary<int, List<string>>();
             int nEpgCount = 0;
-            foreach (string sGuid in epgDic.Keys)
+            try
             {
-                epgBatch.Add(sGuid, epgDic[sGuid]);
-                nEpgCount++;
-                if (nEpgCount >= nCountPackage)
+                foreach (string sGuid in epgDic.Keys)
                 {
-                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
-                    nEpgCount = 0;
+                    epgBatch.Add(sGuid, epgDic[sGuid]);
+                    nEpgCount++;
+
+                    //generate a Dictionary of all tag and values in the epg
+                    GenerateTagsAndValues(epgDic[sGuid], FieldEntityMapping, ref tagsAndValues);                  
+
+                    if (nEpgCount >= nCountPackage)
+                    {
+                        InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues);
+                        nEpgCount = 0;
+                        foreach (string guid in epgBatch.Keys)
+                        {
+                            if (epgBatch[guid].EpgID > 0)
+                            {
+                                epgDic[guid].EpgID = epgBatch[guid].EpgID;
+                            }
+                        }
+                        epgBatch.Clear();
+                        tagsAndValues.Clear();
+                    }
+                }
+
+                if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
+                {
+                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues);
                     foreach (string guid in epgBatch.Keys)
                     {
                         if (epgBatch[guid].EpgID > 0)
@@ -1287,27 +1305,47 @@ namespace EpgFeeder
                             epgDic[guid].EpgID = epgBatch[guid].EpgID;
                         }
                     }
-                    epgBatch.Clear();
                 }
             }
-
-            if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
+            catch (Exception exc)
             {
-                InsertEpgs(groupID, ref epgBatch, FieldEntityMapping);
-                foreach (string guid in epgBatch.Keys)
+                Logger.Logger.Log("InsertEpgsDBBatches", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgFeeder");
+                return;
+            }
+        }
+
+        //generate a Dictionary of all tag and values in the epg
+        protected void GenerateTagsAndValues(EpgCB epg, List<FieldTypeEntity> FieldEntityMapping, ref  Dictionary<int, List<string>> tagsAndValues)
+        {            
+            foreach (string tagType in epg.Tags.Keys)
+            {
+                string tagTypel = tagType.ToLower();
+                int tagTypeID = 0;
+                List<FieldTypeEntity> tagField = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Tag && x.Name.ToLower() == tagTypel).ToList();
+                if (tagField != null && tagField.Count > 0)
                 {
-                    if (epgBatch[guid].EpgID > 0)
-                    {
-                        epgDic[guid].EpgID = epgBatch[guid].EpgID;
-                    }
+                    tagTypeID = tagField[0].ID;
+                }
+                else
+                {
+                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID), "EpgFeeder");
+                    continue;//missing tag definition in DB (in FieldEntityMapping)                        
+                }
+
+                if (!tagsAndValues.ContainsKey(tagTypeID))
+                {
+                    tagsAndValues.Add(tagTypeID, new List<string>());
+                }
+                foreach (string tagValue in epg.Tags[tagType])
+                {
+                    if (!tagsAndValues[tagTypeID].Contains(tagValue.ToLower()))
+                        tagsAndValues[tagTypeID].Add(tagValue.ToLower());
                 }
             }
         }
         
-        
-        
         //this FUnction inserts Epgs, thier Metas and tags to DB, and updates the EPGID in the EpgCB object according to the ID of the epg_channels_schedule in the DB
-        protected void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping)
+        protected void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, Dictionary<int, List<string>> tagsAndValues)
         {
             try
             {
@@ -1324,7 +1362,9 @@ namespace EpgFeeder
                 List<FieldTypeEntity> FieldEntityMappingTags = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Tag).ToList();
 
                 Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs = new Dictionary<KeyValuePair<string, int>, List<string>>();// new tag values and the EPGs that have them
-                Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithAllValues(nGroupID, FieldEntityMappingTags);  //all the tag types IDs and thier values that are in the DB (can be more than one) 
+            //    Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithAllValues(nGroupID, FieldEntityMappingTags);  //all the tag types IDs and thier values that are in the DB (can be more than one) 
+
+                Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithRelevantValues(nGroupID, FieldEntityMappingTags, tagsAndValues);//return relevant tag value ID, if they exist in the DB
 
                 InsertEPG_Channels_sched(ref epgDic);
 
@@ -1395,7 +1435,10 @@ namespace EpgFeeder
                             int nTagType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
 
                             KeyValuePair<string, int> tagValueAndType = new KeyValuePair<string, int>(sTagValue, nTagType);
-                            tagValueWithID.Add(tagValueAndType, nTagValueID);
+                            if (!tagValueWithID.Keys.Contains(tagValueAndType))
+                            {
+                                tagValueWithID.Add(tagValueAndType, nTagValueID);
+                            }
                         }
                     }
                 }
@@ -1423,18 +1466,18 @@ namespace EpgFeeder
 
 
 
-        protected Dictionary<int, List<KeyValuePair<string, int>>> getTagTypeWithAllValues(int nGroupID, List<FieldTypeEntity> FieldEntityMappingTags)
+
+        protected Dictionary<int, List<KeyValuePair<string, int>>> getTagTypeWithRelevantValues(int nGroupID, List<FieldTypeEntity> FieldEntityMappingTags, Dictionary<int, List<string>> tagsAndValues)
         {
-            List<int> lTagTypeIDs = new List<int>();           
-            foreach (FieldTypeEntity field in FieldEntityMappingTags)
-                lTagTypeIDs.Add(field.ID);
             Dictionary<int, List<KeyValuePair<string, int>>> dicTagTypeWithValues = new Dictionary<int, List<KeyValuePair<string, int>>>();//per tag type, thier values and IDs
-            DataTable dtTagValues = EpgDal.Get_EPGAllValuesPerTagType(nGroupID, lTagTypeIDs);
-            if (dtTagValues != null && dtTagValues.Rows != null)
+                        
+            DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(nGroupID, tagsAndValues);
+
+            if (dtTagValueID != null && dtTagValueID.Rows != null)
             {
-                for(int i=0; i < dtTagValues.Rows.Count; i++)
+                for (int i = 0; i < dtTagValueID.Rows.Count; i++)
                 {
-                    DataRow row = dtTagValues.Rows[i];
+                    DataRow row = dtTagValueID.Rows[i];
                     if (row != null)
                     {
                         int nTagTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
@@ -1444,7 +1487,7 @@ namespace EpgFeeder
                         if (dicTagTypeWithValues.ContainsKey(nTagTypeID))
                         {
                             //check if the value exists already in the dictionary (maybe in UpperCase\LowerCase)
-                            List <KeyValuePair <string, int>> resultList = new List<KeyValuePair<string,int>>();
+                            List<KeyValuePair<string, int>> resultList = new List<KeyValuePair<string, int>>();
                             resultList = dicTagTypeWithValues[nTagTypeID].Where(x => x.Key.ToLower() == sValue.ToLower() && x.Value == nID).ToList();
                             if (resultList.Count == 0)
                             {
@@ -1452,8 +1495,8 @@ namespace EpgFeeder
                             }
                         }
                         else
-                        {                             
-                            List <KeyValuePair<string,int>> lValues = new List<KeyValuePair<string,int>>() {kvp};                          
+                        {
+                            List<KeyValuePair<string, int>> lValues = new List<KeyValuePair<string, int>>() { kvp };
                             dicTagTypeWithValues.Add(nTagTypeID, lValues);
                         }
                     }
@@ -1463,11 +1506,52 @@ namespace EpgFeeder
         }
 
 
+
+        //protected Dictionary<int, List<KeyValuePair<string, int>>> getTagTypeWithAllValues(int nGroupID, List<FieldTypeEntity> FieldEntityMappingTags)
+        //{
+        //    List<int> lTagTypeIDs = new List<int>();           
+        //    foreach (FieldTypeEntity field in FieldEntityMappingTags)
+        //        lTagTypeIDs.Add(field.ID);
+        //    Dictionary<int, List<KeyValuePair<string, int>>> dicTagTypeWithValues = new Dictionary<int, List<KeyValuePair<string, int>>>();//per tag type, thier values and IDs
+        //    DataTable dtTagValues = EpgDal.Get_EPGAllValuesPerTagType(nGroupID, lTagTypeIDs);
+        //    if (dtTagValues != null && dtTagValues.Rows != null)
+        //    {
+        //        for(int i=0; i < dtTagValues.Rows.Count; i++)
+        //        {
+        //            DataRow row = dtTagValues.Rows[i];
+        //            if (row != null)
+        //            {
+        //                int nTagTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
+        //                string sValue = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
+        //                int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+        //                KeyValuePair<string, int> kvp = new KeyValuePair<string, int>(sValue, nID);
+        //                if (dicTagTypeWithValues.ContainsKey(nTagTypeID))
+        //                {
+        //                    //check if the value exists already in the dictionary (maybe in UpperCase\LowerCase)
+        //                    List <KeyValuePair <string, int>> resultList = new List<KeyValuePair<string,int>>();
+        //                    resultList = dicTagTypeWithValues[nTagTypeID].Where(x => x.Key.ToLower() == sValue.ToLower() && x.Value == nID).ToList();
+        //                    if (resultList.Count == 0)
+        //                    {
+        //                        dicTagTypeWithValues[nTagTypeID].Add(kvp);
+        //                    }
+        //                }
+        //                else
+        //                {                             
+        //                    List <KeyValuePair<string,int>> lValues = new List<KeyValuePair<string,int>>() {kvp};                          
+        //                    dicTagTypeWithValues.Add(nTagTypeID, lValues);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return dicTagTypeWithValues;
+        //}
+
+
         protected void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags,
-            ref DataTable dtEpgTagsValues, Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
-        {         
-            KeyValuePair<string, int> kvp  = new KeyValuePair<string,int>();
-           
+           ref DataTable dtEpgTagsValues, Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
+        {
+            KeyValuePair<string, int> kvp = new KeyValuePair<string, int>();
+
             foreach (string sTagName in epg.Tags.Keys)
             {
                 List<FieldTypeEntity> tagField = FieldEntityMappingTags.Where(x => x.Name == sTagName).ToList();//get the tag_type_ID
@@ -1479,7 +1563,7 @@ namespace EpgFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder"); 
+                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder");
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
@@ -1491,7 +1575,7 @@ namespace EpgFeeder
 
                         if (TagTypeIdWithValue.ContainsKey(nTagTypeID))
                         {
-                            List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key == sTagValue).ToList();
+                            List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key == sTagValue.ToLower()).ToList();
                             if (list != null && list.Count > 0)
                             {
                                 //Insert New EPG Tag Value in EPG_Program_Tags, we are assuming this tag value was not assigned to the program because the program is new                                                    
@@ -1500,7 +1584,7 @@ namespace EpgFeeder
                             else//tha tag value does not exist in the DB
                             {
                                 //the newTagValueEpgs has this tag + value: only need to update that this specific EPG is using it
-                                if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count > 0) //check if need to add check for list not being null
+                                if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count > 0) 
                                 {
                                     newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
                                 }
@@ -1512,7 +1596,7 @@ namespace EpgFeeder
                                 }
                             }
                         }
-                        else //this tag type does not have any values in the DB, need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
+                        else //this tag type does not have the relevant values in the DB, need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
                         {
                             //check if it was not already added to the newTagValueEpgs
                             if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count == 0)
@@ -1531,6 +1615,75 @@ namespace EpgFeeder
                 }
             }
         }
+
+        //protected void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags,
+        //    ref DataTable dtEpgTagsValues, Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
+        //{         
+        //    KeyValuePair<string, int> kvp  = new KeyValuePair<string,int>();
+           
+        //    foreach (string sTagName in epg.Tags.Keys)
+        //    {
+        //        List<FieldTypeEntity> tagField = FieldEntityMappingTags.Where(x => x.Name == sTagName).ToList();//get the tag_type_ID
+        //        int nTagTypeID = 0;
+
+        //        if (tagField != null && tagField.Count > 0)
+        //        {
+        //            nTagTypeID = tagField[0].ID;
+        //        }
+        //        else
+        //        {
+        //            Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder"); 
+        //            continue;//missing tag definition in DB (in FieldEntityMapping)                        
+        //        }
+
+        //        foreach (string sTagValue in epg.Tags[sTagName])
+        //        {
+        //            if (sTagValue != "")
+        //            {
+        //                kvp = new KeyValuePair<string, int>(sTagValue, nTagTypeID);
+
+        //                if (TagTypeIdWithValue.ContainsKey(nTagTypeID))
+        //                {
+        //                    List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key == sTagValue).ToList();
+        //                    if (list != null && list.Count > 0)
+        //                    {
+        //                        //Insert New EPG Tag Value in EPG_Program_Tags, we are assuming this tag value was not assigned to the program because the program is new                                                    
+        //                        FillEpgExtraDataTable(ref dtEpgTags, false, "", epg.EpgID, list[0].Value, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
+        //                    }
+        //                    else//tha tag value does not exist in the DB
+        //                    {
+        //                        //the newTagValueEpgs has this tag + value: only need to update that this specific EPG is using it
+        //                        if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count > 0) //check if need to add check for list not being null
+        //                        {
+        //                            newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
+        //                        }
+        //                        else //need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
+        //                        {
+        //                            FillEpgTagValueTable(ref dtEpgTagsValues, sTagValue, epg.EpgID, nTagTypeID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
+        //                            List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
+        //                            newTagValueEpgs.Add(kvp, lEpgGUID);
+        //                        }
+        //                    }
+        //                }
+        //                else //this tag type does not have any values in the DB, need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
+        //                {
+        //                    //check if it was not already added to the newTagValueEpgs
+        //                    if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count == 0)
+        //                    {
+        //                        FillEpgTagValueTable(ref dtEpgTagsValues, sTagValue, epg.EpgID, nTagTypeID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
+        //                        List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
+        //                        newTagValueEpgs.Add(kvp, lEpgGUID);
+        //                    }
+        //                    else ////the newTagValueEpgs has this tag + value: only need to update that this  specific EPG is using it
+        //                    {
+        //                        newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
+        //                    }
+        //                }
+        //            }
+        //            tagField = null;
+        //        }
+        //    }
+        //}
 
         protected void UpdateMetasPerEPG(ref DataTable dtEpgMetas, EpgCB epg, List<FieldTypeEntity> FieldEntityMappingMetas, int nUpdaterID)
         {           
@@ -1689,7 +1842,10 @@ namespace EpgFeeder
                         row["EPG_CHANNEL_ID"] = epg.ChannelID;
                         row["EPG_IDENTIFIER"] = epg.EpgIdentifier;
                         row["NAME"] = epg.Name;
-                        row["DESCRIPTION"] = epg.Description;
+                        if (epg.Description.Length >= MaxDescriptionSize)
+                            row["DESCRIPTION"] = epg.Description.Substring(0, MaxDescriptionSize); //insert only 1024 chars (limitation of the column in the DB)
+                        else
+                            row["DESCRIPTION"] = epg.Description;
                         row["START_DATE"] = epg.StartDate;
                         row["END_DATE"] = epg.EndDate;
                         row["PIC_ID"] = epg.PicID;
