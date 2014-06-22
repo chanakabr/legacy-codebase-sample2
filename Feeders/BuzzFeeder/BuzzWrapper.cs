@@ -90,6 +90,9 @@ namespace BuzzFeeder
             //calculate normalization factor
             double factor = (nSBIMax - nSBIMin) / (nMaxSum - nMinSum);
 
+            if (factor == 0 || factor == double.NaN || double.IsInfinity(factor))
+                factor = 1.0;
+
             Couchbase.CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.STATISTICS);
 
             #region Calculate normalized weighted average score and update CB

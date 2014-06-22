@@ -35,7 +35,7 @@ namespace BuzzFeeder.BuzzCalculator
             CalculateDeltaFromAverage(m_nCurSampleGroupAverage);
             CalculateRelativePeriocialGrowth();
             CalculateCumulativePeriocialGrowth();
-            CalculateRelativePeriocialGrowth();
+            CalculateActivityMeasurement();
         }
 
         private void InitItemStats()

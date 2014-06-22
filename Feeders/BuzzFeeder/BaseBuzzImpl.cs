@@ -139,7 +139,7 @@ namespace BuzzFeeder
             ESTerms actions = new ESTerms(false) { Key = "action" };
             actions.Value.AddRange(m_lActions);
 
-            ESTerms assetTypes = new ESTerms(false) { Key = "asset_type" };
+            ESTerms assetTypes = new ESTerms(false) { Key = "media_type" };
             assetTypes.Value.AddRange(m_lAssetTypes);
 
             filterParent.AddChild(groupIdTerm);
