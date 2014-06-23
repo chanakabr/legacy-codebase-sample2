@@ -60,7 +60,7 @@ public partial class adm_user_limitation_modules : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable += "select a.is_active, a.id as id, a.NAME as 'Name', a.user_max_limit as 'Limit',  lmp.DESCRIPTION as 'Frequency', a.status from groups_device_limitation_modules a WITH (NOLOCK) " + 
-                    "join lu_min_periods lmp WITH (NOLOCK) on a.user_freq_period_id = lmp.ID where ";
+                    "left join lu_min_periods lmp WITH (NOLOCK) on a.user_freq_period_id = lmp.ID where ";
 
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
         theTable += "and (";
