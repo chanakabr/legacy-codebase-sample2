@@ -109,7 +109,7 @@ namespace Catalog
 
                 for (int i = 0; i < channelIDList.Count; i++)
                 {
-                    buildChannelTask[i] = new Task(
+                    buildChannelTask[i] = Task.Factory.StartNew(
                          (obj) =>
                          {
                              try
@@ -120,12 +120,18 @@ namespace Catalog
                              }
                              catch (Exception ex)
                              {
-                                 Logger.Logger.Log("Error", string.Format("Error running SearchSubsciptionMedias. Exception {0}", ex.Message), "ElasticSearch");
+                                 Logger.Logger.Log("Error", string.Format("Error running SearchSubsciptionMedias. Exception {0} , Stack trace: {1}", ex.Message, ex.StackTrace), "ElasticSearch");
                              }
                          }, i);
-                    buildChannelTask[i].Start();
                 }
                 Task.WaitAll(buildChannelTask);
+                for (int i = 0; i < buildChannelTask.Length; i++)
+                {
+                    if (buildChannelTask[i] != null)
+                    {
+                        buildChannelTask[i].Dispose();
+                    }
+                }
             }
 
         }        
@@ -247,8 +253,10 @@ namespace Catalog
                                 oChannel.m_lManualMedias = lManualMedias.ToList();
                             }
                         }
-
-                        UpdateOrderByObject(ref oChannel, group.m_oMetasValuesByGroupId[oChannel.m_nGroupID]);
+                        if (group.m_oMetasValuesByGroupId.ContainsKey(oChannel.m_nGroupID))
+                        {
+                            UpdateOrderByObject(ref oChannel, group.m_oMetasValuesByGroupId[oChannel.m_nGroupID]);
+                        }
                     }
                     else
                     {
