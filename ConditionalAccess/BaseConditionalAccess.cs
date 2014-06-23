@@ -9076,7 +9076,7 @@ namespace ConditionalAccess
                         {
                             userSubOld = userOldSubList[0];
                             //check if the Subscription has autorenewal  
-                            if (!userSubOld.m_bIsSubRenewable)
+                            if (!userSubOld.m_bRecurringStatus)
                             {
                                 Logger.Logger.Log("ChangeSubscription", "Previous Subscription ID: " + nOldSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
                                 return ChangeSubscriptionStatus.OldSubNotRenewable;
