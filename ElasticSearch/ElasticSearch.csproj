@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\DeleteResults\ESDeleteResult.cs" />
     <Compile Include="Common\ElasticSearchApi.cs" />
     <Compile Include="Common\ESMappingObj.cs" />
     <Compile Include="Common\ESRouting.cs" />
