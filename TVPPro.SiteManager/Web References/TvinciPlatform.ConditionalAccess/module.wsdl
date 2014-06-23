@@ -1925,6 +1925,7 @@
           <s:enumeration value="OldSubNotExists" />
           <s:enumeration value="NewSubNotExits" />
           <s:enumeration value="OldSubNotRenewable" />
+          <s:enumeration value="NewSubNotRenewable" />
           <s:enumeration value="UserHadNewSub" />
           <s:enumeration value="Error" />
         </s:restriction>
@@ -5950,13 +5951,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.16.176/webservices/cas/module.asmx" />
+      <soap:address location="http://192.168.192.146/webservices/cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.16.176/webservices/cas/module.asmx" />
+      <soap12:address location="http://192.168.192.146/webservices/cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.16.176/webservices/cas/module.asmx" />
+      <http:address location="http://192.168.192.146/webservices/cas/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
