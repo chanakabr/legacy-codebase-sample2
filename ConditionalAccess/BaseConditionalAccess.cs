@@ -9060,9 +9060,12 @@ namespace ConditionalAccess
                     PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(sSiteGuid);//get all the valid subscriptions that this user has
                     Subscription userSubNew;
                     PermittedSubscriptionContainer userSubOld = new PermittedSubscriptionContainer();
-
+                    List<PermittedSubscriptionContainer> userOldSubList = new List<PermittedSubscriptionContainer>();
                     //check if old sub exists
-                    List<PermittedSubscriptionContainer> userOldSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nOldSub.ToString()).ToList();
+                    if (userSubsArray != null)
+                    {
+                        userOldSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nOldSub.ToString()).ToList();
+                    }
                     if (userOldSubList == null || userOldSubList.Count == 0)
                     {
                         return ChangeSubscriptionStatus.OldSubNotExists;
@@ -9073,7 +9076,7 @@ namespace ConditionalAccess
                         {
                             userSubOld = userOldSubList[0];
                             //check if the Subscription has autorenewal  
-                            if (!userSubOld.m_bIsSubRenewable)
+                            if (!userSubOld.m_bRecurringStatus)
                             {
                                 Logger.Logger.Log("ChangeSubscription", "Previous Subscription ID: " + nOldSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
                                 return ChangeSubscriptionStatus.OldSubNotRenewable;
@@ -9090,10 +9093,16 @@ namespace ConditionalAccess
                     }
 
                     userSubNew = Utils.GetSubscriptionData(nNewSub.ToString(), m_nGroupID);
-
+                                        
                     //set new subscprion
                     if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
                     {
+                        if (!userSubNew.m_bIsRecurring)
+                        {
+                            Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
+                            return ChangeSubscriptionStatus.NewSubNotRenewable;
+                        }
+                        
                         return setSubscriptionChange(sSiteGuid, userSubNew, userSubOld);
                     }
                     else

@@ -589,7 +589,7 @@ namespace TVinciShared
             string id = Guid.NewGuid().ToString();
             string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskPicture");  
             ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, task, args);
-            Logger.Logger.Log("File download", "Picture will be downloaded from: " + sFullUrlDownload + "to:" + sBasePath, "DownloadFile");
+            Logger.Logger.Log("Queue", string.Format("{0}, {1}, {2}", nParentGroupID, id, task), "SendPictureDataToQueue");
 
             //update the Queue with picture data
             if (data != null)
@@ -598,7 +598,7 @@ namespace TVinciShared
                 string sRoutingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyPicture");
                 bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);                
             }
-            Logger.Logger.Log("File download", "file was downloaded successfully :" + bIsUpdateSucceeded, "DownloadFile");
+            Logger.Logger.Log("Res", bIsUpdateSucceeded.ToString(), "SendPictureDataToQueue");
             return bIsUpdateSucceeded;
         }
 

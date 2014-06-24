@@ -563,6 +563,17 @@ namespace Catalog
                 List<List<string>> jsonizedChannelsDefinitions = null;
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
                 ApiObjects.SearchObjects.MediaSearchObj search = null;
+                
+                // Group have user types per media  +  siteGuid != empty
+                if (!string.IsNullOrEmpty(oMediaRequest.m_sSiteGuid) &&  IsGroupHaveUserType(oMediaRequest))
+                {                    
+                    if (oMediaRequest.m_oFilter == null)
+                    {
+                        oMediaRequest.m_oFilter = new Filter();
+                    }
+                    //call ws_users to get userType                  
+                    oMediaRequest.m_oFilter.m_nUserTypeID = Utils.GetUserType(oMediaRequest.m_sSiteGuid, oMediaRequest.m_nGroupID);
+                }
 
                 if (IsUseIPNOFiltering(oMediaRequest, ref searcher, ref jsonizedChannelsDefinitions))
                 {
@@ -607,6 +618,18 @@ namespace Catalog
             #endregion
 
             return lSearchResults;
+        }
+
+        private static bool IsGroupHaveUserType(BaseMediaSearchRequest oMediaRequest)
+        {
+            try
+            {
+                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';');
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         #region Build Search object for Searcher project.

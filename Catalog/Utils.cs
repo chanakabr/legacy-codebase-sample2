@@ -849,5 +849,27 @@ namespace Catalog
 
             return result;
         }
+
+        public static int GetUserType(string sSiteGuid, int nGroupID)
+        {
+            int nUserTypeID = 0;
+            try
+            {
+                ws_users.UsersService u = new ws_users.UsersService();
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetUserType", "users", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = Utils.GetWSURL("users_ws");
+                if (sWSURL != "")
+                    u.Url = sWSURL;
+                nUserTypeID = u.GetUserType(sWSUserName, sWSPass, sSiteGuid);
+                return nUserTypeID;
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
     }
 }
