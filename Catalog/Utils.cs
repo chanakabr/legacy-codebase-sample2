@@ -575,8 +575,7 @@ namespace Catalog
 
             #region define action filter
             ESTerms esActionTerm = new ESTerms(false) { Key = "action" };
-            esActionTerm.Value.Add(MediaPlayActions.FIRST_PLAY.ToString());
-            esActionTerm.Value.Add(MediaPlayActions.PLAY.ToString());
+            esActionTerm.Value.Add("mediahit");
             filter.AddChild(esActionTerm);
             #endregion
 
