@@ -118,15 +118,7 @@ namespace Catalog
             
             Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
 
-            Group oGroup = GroupsCache.Instance.GetGroup(mediaHitRequest.m_nGroupID);
             bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
-
-            //we only record channel/series views on hits that are of type play/first_play actions
-            if (oGroup != null)
-            {
-                MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId, Action = "mediahit", Date = DateTime.UtcNow };
-                WriteLiveViewsToES(view);                       
-            }
 
             string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);                      
 
@@ -134,11 +126,15 @@ namespace Catalog
                                           nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser,
                                           nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
 
-
-            
-
             if (!resultParse || (resultParse == true && action != MediaPlayActions.BITRATE_CHANGE))
             {
+                Group oGroup = GroupsCache.Instance.GetGroup(mediaHitRequest.m_nGroupID);
+                if (oGroup != null)
+                {
+                    MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };
+                    WriteLiveViewsToES(view);
+                }
+
                 Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, this.m_oMediaPlayRequestData.m_sUDID);
             }
 
