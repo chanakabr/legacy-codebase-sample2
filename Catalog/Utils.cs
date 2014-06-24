@@ -854,22 +854,31 @@ namespace Catalog
         public static int GetUserType(string sSiteGuid, int nGroupID)
         {
             int nUserTypeID = 0;
+            ws_users.UsersService u = null;
             try
             {
-                ws_users.UsersService u = new ws_users.UsersService();
+                u = new ws_users.UsersService();
                 string sIP = "1.1.1.1";
-                string sWSUserName = "";
-                string sWSPass = "";
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
                 TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetUserType", "users", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL != "")
+                if (sWSURL.Length > 0)
                     u.Url = sWSURL;
                 nUserTypeID = u.GetUserType(sWSUserName, sWSPass, sSiteGuid);
                 return nUserTypeID;
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log("Exception", string.Format("Failed to obtain user type. Site Guid: {0} , Ex Msg: {1} , Stack Trace: {2}", sSiteGuid, ex.Message, ex.StackTrace), "GetUserType");
                 return 0;
+            }
+            finally
+            {
+                if (u != null)
+                {
+                    u.Dispose();
+                }
             }
         }
     }

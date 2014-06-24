@@ -476,8 +476,9 @@ namespace ElasticSearch.Searcher
             
             ESTerm isActiveTerm = new ESTerm(true) { Key = "is_active", Value = "1" };
             QueryFilter filter = new QueryFilter();
-            filter.FilterSettings = new FilterCompositeType(CutWith.AND);
-            filter.FilterSettings.AddChild(isActiveTerm);
+            BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
+            filterParent.AddChild(isActiveTerm);
+            //filter.FilterSettings.AddChild(isActiveTerm);
 
             string sNow = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             string sMax = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
@@ -496,10 +497,10 @@ namespace ElasticSearch.Searcher
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sNow));
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
 
-            filter.FilterSettings.AddChild(isActiveTerm);
-            filter.FilterSettings.AddChild(startDateRange);
-            filter.FilterSettings.AddChild(endDateRange);
-
+            filterParent.AddChild(isActiveTerm);
+            filterParent.AddChild(startDateRange);
+            filterParent.AddChild(endDateRange);
+            FillFilterSettings(ref filter, filterParent);
 
             MultiMatchQuery multiMatchQuery = new MultiMatchQuery();
             foreach (SearchValue searchValue in oSearchObject.m_dOr)
