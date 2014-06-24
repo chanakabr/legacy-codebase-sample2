@@ -225,7 +225,7 @@ namespace Catalog
             switch (orderBy)
             {
                 case OrderBy.VIEWS:
-                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, MediaPlayActions.FIRST_PLAY.ToString());
+                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "mediahit");
                     break;
                 case OrderBy.RATING:
                     result = Utils.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, "rates", "rate_value", ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);

@@ -122,9 +122,9 @@ namespace Catalog
             bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
 
             //we only record channel/series views on hits that are of type play/first_play actions
-            if (oGroup != null && resultParse && (action == MediaPlayActions.PLAY || action == MediaPlayActions.FIRST_PLAY))
+            if (oGroup != null)
             {
-                MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId, Action = mediaHitRequest.m_oMediaPlayRequestData.m_sAction, Date = DateTime.UtcNow };
+                MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = mediaHitRequest.m_oMediaPlayRequestData.m_sMediaTypeId, Action = "mediahit", Date = DateTime.UtcNow };
                 WriteLiveViewsToES(view);                       
             }
 
@@ -155,7 +155,7 @@ namespace Catalog
             return oMediaHitResponse;         
         }
 
-        private bool WriteLiveViewsToES(MediaView oMediaView )
+        private bool WriteLiveViewsToES(MediaView oMediaView)
         {
             bool bRes = false;
             ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
