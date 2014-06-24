@@ -244,7 +244,8 @@ namespace M1BL
 
         private string GetFormattedNextFileCounter(int currentCounter, int startCounter, int maxCounter, int len)
         {                      
-           int nNextCounter = (currentCounter < maxCounter) ? ((currentCounter % maxCounter) + 1) : startCounter;
+           //int nNextCounter = (currentCounter < maxCounter) ? ((currentCounter % maxCounter) + 1) : startCounter;
+           int nNextCounter = (currentCounter % maxCounter) + 1;
            return nNextCounter.ToString().PadLeft(len, '0');
         }
 
