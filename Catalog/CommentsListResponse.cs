@@ -50,7 +50,7 @@ namespace Catalog
         [JsonProperty("text")]
         public string m_sContentText;
         [DataMember]
-        [JsonProperty("date")]
+        [JsonProperty("action_date")]
         [JsonConverter(typeof(ApiObjects.JsonSerializers.BaseTimeConverter))]
         public DateTime m_dCreateDate;
         [DataMember]
