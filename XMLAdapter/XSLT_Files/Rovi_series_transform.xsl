@@ -161,35 +161,45 @@
   </xsl:template>
 
   <xsl:template name="SetFStartViewDate">
-    <xsl:if test="./*[local-name() = 'LicenseList']/License[1]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStart']">
+    <xsl:choose>
+      <xsl:when test="./*[local-name() = 'LicenseList']/License[1]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStart']">
       <xsl:variable name="fullTime" select="./*[local-name() = 'LicenseList']/License[1]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicensePurchasePeriodStart']"/>
-      <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
-      <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
-      <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
-      <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
-      <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
-      <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
-      <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
-      <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
-      <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
-      <xsl:value-of select="concat($day_month_year_s,$time)"/>
-    </xsl:if>
+        <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+        <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+        <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
+        <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
+        <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
+        <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
+        <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
+        <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
+        <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
+        <xsl:value-of select="concat($day_month_year_s,$time)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="SetStartViewDate"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template name="SetFEndViewDate">
-    <xsl:if test="./*[local-name() = 'LicenseList']/License[1]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEnd']">
-      <xsl:variable name="fullTime" select="./*[local-name() = 'LicenseList']/License[1]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEnd']"/>
-      <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
-      <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
-      <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
-      <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
-      <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
-      <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
-      <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
-      <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
-      <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
-      <xsl:value-of select="concat($day_month_year_s,$time)"/>
-    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="./*[local-name() = 'LicenseList']/License[1]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEnd']">
+        <xsl:variable name="fullTime" select="./*[local-name() = 'LicenseList']/License[1]/*[local-name() = 'LicensePeriodGroup']/*[local-name() = 'LicenseUsagePeriodEnd']"/>
+        <xsl:variable name="day" select="substring-after(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+        <xsl:variable name="month" select="substring-before(substring-after(substring-before($fullTime,'T'),'-'),'-')"/>
+        <xsl:variable name="year" select="substring-before($fullTime,'-')"/>
+        <xsl:variable name="time" select="substring-before(substring-after($fullTime,'T'),'Z')"/>
+        <xsl:variable name="with_day_slash" select="concat($day,'/')"/>
+        <xsl:variable name="with_month_slash" select="concat($month,'/')"/>
+        <xsl:variable name="day_month" select="concat($with_day_slash,$with_month_slash)"/>
+        <xsl:variable name="day_month_year" select="concat($day_month,$year)"/>
+        <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
+        <xsl:value-of select="concat($day_month_year_s,$time)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="SetEndViewDate"/>
+      </xsl:otherwise>
+      </xsl:choose>
   </xsl:template>
   
   <xsl:template name="build_structure_data">
@@ -210,8 +220,8 @@
   </xsl:template>
 
   <xsl:template name="build_strings_data">
-    <xsl:element name="meta">
-      <xsl:attribute name="name">Short summary</xsl:attribute>
+    <!--<xsl:element name="meta">
+      <xsl:attribute name="name">Summary short</xsl:attribute>
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
         <xsl:element name="value">
           <xsl:attribute name="lang">
@@ -219,17 +229,19 @@
           </xsl:attribute>
           <xsl:value-of select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'SynopsisList']/*[local-name() = 'Synopsis']"/>
         </xsl:element>
-    </xsl:element>
-    <xsl:element name="meta">
-      <xsl:attribute name="name">Series name</xsl:attribute>
+    </xsl:element>-->
+
+   <xsl:element name="meta">
+      <xsl:attribute name="name">Short title</xsl:attribute>
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
-      <xsl:element name="value">
-        <xsl:attribute name="lang">
-          <xsl:call-template name="Translate_Langueage"/>
-        </xsl:attribute>
-        <xsl:value-of select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'SynopsisList']/*[local-name() = 'Synopsis']"/>
-      </xsl:element>
+        <xsl:element name="value">
+          <xsl:attribute name="lang">
+            <xsl:call-template name="Translate_Langueage"/>
+          </xsl:attribute>
+          <xsl:value-of select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'TitleNameList']/*[local-name() = 'TitleName']"/>
+        </xsl:element>
     </xsl:element>
+    
   </xsl:template>
 
   <xsl:template name="build_doubles_data">
@@ -249,23 +261,37 @@
     <xsl:element name="meta">
       <xsl:attribute name="name">Main cast</xsl:attribute>
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
-      <xsl:for-each select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'ActorNameList']/*[local-name() = 'ActorName']">
+      <xsl:for-each select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'ActorNameList']/*[local-name() = 'ActorName']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
       </xsl:for-each>
     </xsl:element>
 
+
+    <xsl:element name="meta">
+      <xsl:attribute name="name">Series name</xsl:attribute>
+      <xsl:attribute name="ml_handling">unique</xsl:attribute>      
+      <xsl:for-each select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'TitleNameList']/*[local-name() = 'TitleName']">
+      <xsl:element name="container">
+        <xsl:element name="value">
+          <xsl:attribute name="lang">de</xsl:attribute>
+          <xsl:value-of select="."/>
+        </xsl:element>
+      </xsl:element>
+      </xsl:for-each>     
+    </xsl:element>      
+    
     <xsl:element name="meta">
       <xsl:attribute name="name">Director</xsl:attribute>
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
-      <xsl:for-each select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'DirectorNameList']/*[local-name() = 'DirectorName']">
+      <xsl:for-each select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'DirectorNameList']/*[local-name() = 'DirectorName']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
@@ -278,7 +304,7 @@
       <xsl:for-each select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'GenreNameList']/*[local-name() = 'GenreName']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
@@ -290,8 +316,8 @@
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
       <xsl:element name="container">
         <xsl:element name="value">
-          <xsl:attribute name="lang">grm</xsl:attribute>
-          <xsl:value-of select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'CopyrightDisplay']"/>
+          <xsl:attribute name="lang">de</xsl:attribute>
+          <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'CopyrightDisplay']"/>
         </xsl:element>
       </xsl:element>
     </xsl:element>
@@ -299,10 +325,10 @@
     <xsl:element name="meta">
       <xsl:attribute name="name">Dimension</xsl:attribute>
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
-      <xsl:for-each select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'DimensionList']/*[local-name() = 'Dimension']">
+      <xsl:for-each select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'DimensionList']/*[local-name() = 'Dimension']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
@@ -314,7 +340,7 @@
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'ProviderList']/*[local-name() = 'Provider']/*[local-name() = 'ProviderId']"/>
           </xsl:element>
         </xsl:element>
@@ -326,7 +352,7 @@
       <xsl:for-each select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'Production']/*[local-name() = 'ProductionCountryList']/*[local-name() = 'ProductionCountry']">
         <xsl:element name="container">
           <xsl:element name="value">
-            <xsl:attribute name="lang">grm</xsl:attribute>
+            <xsl:attribute name="lang">de</xsl:attribute>
             <xsl:value-of select="."/>
           </xsl:element>
         </xsl:element>
@@ -337,8 +363,8 @@
   <xsl:template name="Translate_Langueage">
     <xsl:variable name="languageCode" select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'TitleNameList']/*[local-name() = 'TitleName']/@lang"/>
     <xsl:choose>
-      <xsl:when test="$languageCode = 'ger'"> 
-        <xsl:text>grm</xsl:text>
+      <xsl:when test="$languageCode = 'de'"> 
+        <xsl:text>de</xsl:text>
       </xsl:when>
     </xsl:choose>
   </xsl:template>

@@ -118,19 +118,17 @@
           <xsl:attribute name="billing_type">Tvinci</xsl:attribute>
           <xsl:attribute name="assetwidth"></xsl:attribute>
           <xsl:attribute name="assetheight"></xsl:attribute>
-          <xsl:attribute name="assetduration"><xsl:value-of select="../../*[local-name() = 'RunTimeSeconds']"/></xsl:attribute>
-          <xsl:for-each select="//*[local-name() = 'Presentation']">
-            <xsl:attribute  name="file_start_date">
-              <xsl:call-template name="SetStartDateEpisode">
-                <xsl:with-param name="contentIDEpisode" select ="./*[local-name() = 'ContentId']"/>
-              </xsl:call-template>
-            </xsl:attribute>
-            <xsl:attribute  name="file_end_date">
-              <xsl:call-template name="SetEndDateEpisode">
-                <xsl:with-param name="contentIDEpisode" select ="./*[local-name() = 'ContentId']"/>
-              </xsl:call-template>
-            </xsl:attribute>
-          </xsl:for-each>
+          <xsl:attribute name="assetduration"><xsl:value-of select="../../*[local-name() = 'RunTimeSeconds']"/></xsl:attribute>          
+          <xsl:attribute  name="file_start_date">
+            <xsl:call-template name="SetStartDateEpisode">
+              <xsl:with-param name="contentIDEpisode" select ="../../*[local-name() = 'ContentId']"/>
+            </xsl:call-template>
+          </xsl:attribute>
+          <xsl:attribute  name="file_end_date">
+            <xsl:call-template name="SetEndDateEpisode">
+              <xsl:with-param name="contentIDEpisode" select ="../../*[local-name() = 'ContentId']"/>
+            </xsl:call-template>
+          </xsl:attribute>          
           <xsl:attribute name="ppv_module">
             <xsl:variable name="contentID" select="../../*[local-name() = 'ContentId']"/>
             <xsl:for-each select="../../../../*[local-name() = 'LicenseList']/*[local-name() = 'License']">
@@ -233,13 +231,12 @@
           <xsl:text>Parent account allowed</xsl:text>
         </xsl:element>
       </xsl:element>
-      <xsl:element name="dates">        
+      <xsl:element name="dates">       
         <xsl:element name="start">
           <xsl:call-template name="SetStartDateEpisode">
-            <xsl:with-param name="contentIDEpisode" select ="./*[local-name() = 'ContentId']"/>
+            <xsl:with-param name="contentIDEpisode" select ="./*[local-name() = 'ContentId']"/>           
           </xsl:call-template>          
-        </xsl:element>
-        
+        </xsl:element>        
         <xsl:element name="final_end">
           <xsl:call-template name="SetEndDateEpisode">
             <xsl:with-param name="contentIDEpisode" select ="./*[local-name() = 'ContentId']"/>
@@ -276,7 +273,6 @@
             <xsl:text>16:9</xsl:text>
           </xsl:attribute>
         </xsl:element>
-
       </xsl:element>
       
     </xsl:element>
@@ -300,6 +296,7 @@
                     <xsl:with-param name="wasInitialized" select ="1" />
                     <xsl:with-param name="index" select="$index + 1" />
                     <xsl:with-param name="MostSooner" select="$index" />
+                    <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>  <!--if the MostSooner was already intialized once, check to see if there is an earlier date matching to the same content ID--> 
@@ -308,12 +305,14 @@
                       <xsl:call-template name="SetStartDateEpisode">                           
                         <xsl:with-param name="index" select="$index + 1" />
                         <xsl:with-param name="MostSooner" select="$index" />
+                        <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
                       </xsl:call-template>                      
                     </xsl:when>
                     <xsl:otherwise> <!--if the startDate is not earlier than the one held in MostSooner, continue-->
                       <xsl:call-template name="SetStartDateEpisode">
                         <xsl:with-param name="index" select="$index + 1" />
-                        <xsl:with-param name="MostSooner" select="$MostSooner" /> 
+                        <xsl:with-param name="MostSooner" select="$MostSooner" />
+                        <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
                       </xsl:call-template>
                     </xsl:otherwise>
                   </xsl:choose> 
@@ -324,6 +323,7 @@
               <xsl:call-template name="SetStartDateEpisode">
                 <xsl:with-param name="index" select="$index + 1" />
                 <xsl:with-param name="MostSooner" select="$MostSooner" />
+                <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
               </xsl:call-template>
             </xsl:otherwise>                     
           </xsl:choose>
@@ -332,6 +332,7 @@
           <xsl:call-template name="SetStartDateEpisode">
             <xsl:with-param name="index" select="$index + 1" />
             <xsl:with-param name="MostSooner" select="$MostSooner" />
+            <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
           </xsl:call-template>
         </xsl:otherwise>
       </xsl:choose>  
@@ -353,7 +354,9 @@
   </xsl:template>
 
 
-  <xsl:template name="SetEndDateEpisode">
+
+  
+  <xsl:template name="SetEndDateEpisode">    
     <xsl:param name="index" select="1" />
     <xsl:param name="MostLatest" select="1" />
     <xsl:param name="total" select="count(//*[local-name() = 'LicenseList']/*[local-name() = 'License']) + 1" />
@@ -372,6 +375,7 @@
                     <xsl:with-param name="wasInitialized" select ="1" />
                     <xsl:with-param name="index" select="$index + 1" />
                     <xsl:with-param name="MostLatest" select="$index" />
+                    <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise> <!--if the MostLatest was already intialized once, check to see if there is a later date matching to the same content ID-->
@@ -380,12 +384,14 @@
                       <xsl:call-template name="SetEndDateEpisode">
                         <xsl:with-param name="index" select="$index + 1" />
                         <xsl:with-param name="MostLatest" select="$index" />
+                        <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
                       </xsl:call-template>
                     </xsl:when>
                     <xsl:otherwise> <!--if the endDate is not later than the one held in MostLatest, continue-->
                       <xsl:call-template name="SetEndDateEpisode">
                         <xsl:with-param name="index" select="$index + 1" />
                         <xsl:with-param name="MostLatest" select="$MostLatest" />
+                        <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
                       </xsl:call-template>
                     </xsl:otherwise>
                   </xsl:choose>
@@ -396,6 +402,7 @@
               <xsl:call-template name="SetEndDateEpisode">
                 <xsl:with-param name="index" select="$index + 1" />
                 <xsl:with-param name="MostLatest" select="$MostLatest" />
+                <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
               </xsl:call-template>
             </xsl:otherwise>
           </xsl:choose>
@@ -404,6 +411,7 @@
           <xsl:call-template name="SetEndDateEpisode">
             <xsl:with-param name="index" select="$index + 1" />
             <xsl:with-param name="MostLatest" select="$MostLatest" />
+            <xsl:with-param name="contentIDEpisode" select ="$contentIDEpisode"/>
           </xsl:call-template>
         </xsl:otherwise>
       </xsl:choose>
@@ -424,7 +432,7 @@
     </xsl:if>
   </xsl:template>
   
-  <!--not used - using the setStartDateEpisdoe\SetEndDateEpisode instead
+ <!-- not used
   <xsl:template name="SetStartDate">
     <xsl:param name="index" select="1" />
     <xsl:param name="MostSooner" select="1" />
@@ -499,7 +507,8 @@
       <xsl:variable name="day_month_year_s" select="concat($day_month_year,' ')"/>
       <xsl:value-of select="concat($day_month_year_s,$time)"/>
     </xsl:if>
-  </xsl:template>-->
+  </xsl:template>
+  -->
   
   <xsl:template name="SetStartViewDate">
     <xsl:if test="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'VisibilityPeriod']/*[local-name() = 'VisibilityPeriodStart']">
@@ -596,7 +605,7 @@
         <xsl:value-of select="./*[local-name() = 'ContentNameList']/*[local-name() = 'ContentName']"/>
       </xsl:element>
     </xsl:element>
-    <xsl:element name="meta">
+    <!--<xsl:element name="meta">
       <xsl:attribute name="name">Series ID</xsl:attribute>
       <xsl:attribute name="ml_handling">unique</xsl:attribute>
       <xsl:element name="value">
@@ -605,7 +614,7 @@
         </xsl:attribute>
         <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'SeriesGroup']/*[local-name() = 'SeriesId']"/>
       </xsl:element>
-    </xsl:element>
+    </xsl:element>-->
    
   </xsl:template>
 
@@ -617,12 +626,12 @@
 
     <xsl:element name="meta">
       <xsl:attribute name="name">Season number</xsl:attribute>
-      <xsl:value-of select="./*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'SeriesGroup']/*[local-name() = 'SeasonNo']"/>    
+      <xsl:value-of select="//*[local-name() = 'PresentationMetaGroup']/*[local-name() = 'Title']/*[local-name() = 'SeriesGroup']/*[local-name() = 'SeasonNo']"/>    
     </xsl:element>
 
     <xsl:element name="meta">
-      <xsl:attribute name="name">Episode number</xsl:attribute>     
-      <xsl:value-of select="//*[local-name() = 'ContentList']/*[local-name() = 'Content']/*[local-name() = 'SeriesGroup']/*[local-name() = 'EpisodeNo']"/>    
+      <xsl:attribute name="name">Episode number</xsl:attribute>
+      <xsl:value-of select ="./*[local-name() = 'SeriesGroup']/*[local-name() = 'EpisodeNo']"/>         
     </xsl:element>
     
   </xsl:template>
