@@ -80,6 +80,7 @@ namespace BuzzFeeder
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log("Error", string.Format("caught error when trying to get group items from cb. ex={0};stack={1}", ex.Message, ex.StackTrace), "BuzzFeeder");
             }
 
             return res;
@@ -109,6 +110,7 @@ namespace BuzzFeeder
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log("Error", string.Format("caught error when trying to get group items from cb. ex={0};stack={1}", ex.Message, ex.StackTrace), "BuzzFeeder");
             }
 
             return res;
@@ -215,6 +217,7 @@ namespace BuzzFeeder
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log("Error", string.Format("caught error when trying to get group previous sample from cb. ex={0};stack={1}", ex.Message, ex.StackTrace), "BuzzFeeder");
             }
 
             return dRes;

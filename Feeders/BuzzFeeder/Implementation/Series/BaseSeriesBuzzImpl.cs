@@ -92,6 +92,7 @@ namespace BuzzFeeder.Implementation.Series
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log("Error", string.Format("caught error when storing item stats in couchbase. ex={0};stack={1}",ex.Message, ex.StackTrace), "BuzzFeeder");
             }
         }
 
@@ -134,12 +135,12 @@ namespace BuzzFeeder.Implementation.Series
         {
             FilteredQuery filteredQuery = new FilteredQuery() { PageIndex = 0, PageSize = 100000 };
             filteredQuery.ReturnFields.Clear();
-            filteredQuery.ReturnFields.Add(ESMediaFields.TAGS_FILL.Fill("series name"));
+            filteredQuery.ReturnFields.Add(ESMediaFields.TAGS_FILL.Fill(m_sSeriesTagType));
 
 
             FilterCompositeType filter = new FilterCompositeType(ApiObjects.SearchObjects.CutWith.AND);
             ESTerm isActiveTerm = new ESTerm(true) { Key = ESMediaFields.IS_ACTIVE, Value = "1" };
-            ESExists seriesNameExists = new ESExists() { Value = ESMediaFields.TAGS_FILL.Fill("series name") };
+            ESExists seriesNameExists = new ESExists() { Value = ESMediaFields.TAGS_FILL.Fill(m_sSeriesTagType) };
 
             ESTerms mediaTypeTerms = new ESTerms(true) { Key = ESMediaFields.MEDIA_TYPE_ID };
             mediaTypeTerms.Value.AddRange(m_lAssetTypes);

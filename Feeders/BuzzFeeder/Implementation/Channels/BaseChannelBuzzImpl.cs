@@ -97,6 +97,7 @@ namespace BuzzFeeder.Implementation.Channels
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log("Error", string.Format("caught error when storing item stats in couchbase. ex={0};stack={1}", ex.Message, ex.StackTrace), "BuzzFeeder");
             }
         }
     }
