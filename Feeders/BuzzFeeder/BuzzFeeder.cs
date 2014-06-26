@@ -95,7 +95,7 @@ namespace BuzzFeeder
                             m_sSeriesTagType = splitString[4];
                             m_sSeriesMediaTypeId = splitString[5].Split('#');
 
-                            if (m_sSeriesMediaTypeId.Length == 0 || m_sSeriesMediaTypeId.Length == 0)
+                            if (m_sSeriesMediaTypeId.Length == 0 || m_sSeriesTagType.Length == 0)
                             {
                                 bSuccess = false;
                                 Logger.Logger.Log("Error", "series series tag type/series media type id are empty", "BuzzFeeder");
