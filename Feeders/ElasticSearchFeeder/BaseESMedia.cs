@@ -13,6 +13,7 @@ using ElasticSearch.Searcher;
 using ElasticSearch.Common;
 using ApiObjects;
 using ElasticSearchFeeder.IndexBuilders;
+using ElasticSearch.Common.DeleteResults;
 
 namespace ElasticSearchFeeder
 {
@@ -246,18 +247,22 @@ namespace ElasticSearchFeeder
 
         private bool Delete(List<int> lIDs, ApiObjects.eObjectType eObjectType)
         {
-            bool bRes = false;
+            bool bRes = true;
 
             if (lIDs == null || lIDs.Count == 0)
                 return bRes;
 
             string sIndex = m_nGroupID.ToString();
+            ESDeleteResult deleteResult;
 
             if (eObjectType == ApiObjects.eObjectType.Media)
             {
                 foreach (int id in lIDs)
                 {
-                    bRes = m_oESApi.DeleteDoc(sIndex, MEDIA, id.ToString());
+                    deleteResult = m_oESApi.DeleteDoc(sIndex, MEDIA, id.ToString());
+
+                    if (!deleteResult.Ok)
+                        bRes = false;
                 }
             }
             else if (eObjectType == ApiObjects.eObjectType.Channel)
@@ -269,7 +274,10 @@ namespace ElasticSearchFeeder
                     {
                         foreach (string index in aliases)
                         {
-                            bRes = m_oESApi.DeleteDoc("_percolator", index, nChannelID.ToString());
+                            deleteResult = m_oESApi.DeleteDoc("_percolator", index, nChannelID.ToString());
+
+                            if (!deleteResult.Ok)
+                                bRes = false;
                         }
                     }
                 }
