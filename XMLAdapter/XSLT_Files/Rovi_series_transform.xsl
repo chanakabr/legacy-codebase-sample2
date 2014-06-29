@@ -58,25 +58,7 @@
       <xsl:element name="media_type">
         <xsl:text>series</xsl:text>
       </xsl:element>
-      <xsl:element name="rules">
-        <xsl:element name="geo_block_rule">
-          <xsl:variable name="Number_Of_Countries" select="count(./*[local-name() = 'LicenseList']/License[1]/*[local-name() = 'LicenseGrantsList']/*[local-name() = 'TerritoryWhitelist']/*[local-name() = 'Territory'])"/>
-          <xsl:choose>
-            <xsl:when test="$Number_Of_Countries = 2">
-              <xsl:text>Germany and Austria only</xsl:text>  
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:choose>
-                <xsl:when test="../../*[local-name() = 'LicenseList']/License[1]/*[local-name() = 'LicenseGrantsList']/*[local-name() = 'TerritoryWhitelist']/Territory[1] = 'DE'">
-                  <xsl:text>Germany Only</xsl:text>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:text>Austria Only</xsl:text>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:element>
+      <xsl:element name="rules">       
         <xsl:element name="watch_per_rule">
           <xsl:text>Parent account allowed</xsl:text>
         </xsl:element>
