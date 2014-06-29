@@ -14,7 +14,6 @@ using TVPApiModule.yes.tvinci.ITProxy;
 using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPPro.SiteManager.CatalogLoaders;
 
 

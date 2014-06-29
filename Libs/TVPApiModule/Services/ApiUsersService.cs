@@ -9,7 +9,6 @@ using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPPro.SiteManager.Helper;
 using System.Web;
-using TVPPro.SiteManager.TvinciPlatform.api;
 
 namespace TVPApiModule.Services
 {
