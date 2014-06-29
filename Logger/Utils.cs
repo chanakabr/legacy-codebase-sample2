@@ -21,5 +21,10 @@ namespace Logger
             }
             return result;
         }
+
+        public static long DateTimeToUnixTimestamp(DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+        }
     }
 }
