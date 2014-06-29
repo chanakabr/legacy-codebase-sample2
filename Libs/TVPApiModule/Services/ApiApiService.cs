@@ -11,7 +11,7 @@ using TVPPro.SiteManager.CatalogLoaders;
 
 namespace TVPApiModule.Services
 {
-    public class ApiApiService
+    public class ApiApiService : ApiServiceBase
     {
         #region Variables
         private static ILog logger = LogManager.GetLogger(typeof(ApiService));
@@ -54,12 +54,26 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public GroupOperator[] GetOperators(int[] operatorIds)
+        public GroupOperator[] GetOperators(string platform, int[] operatorIds)
         {
             GroupOperator[] operators = null;
             try
             {
                 operators = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
+
+                foreach (GroupOperator oper in operators)
+                {
+                    string platformName = platform == "ConnectedTV" ? "CTV" : platform;
+                    foreach (KeyValuePair menuPair in oper.Groups_operators_menus)
+                    {
+                        if (menuPair.key == SupportedPlatforms[platformName])
+                        {
+                            oper.Groups_operators_menus = new KeyValuePair[] { menuPair };
+                            break;
+                        }
+                    }
+                }
+
             }
             catch (Exception ex)
             {
@@ -246,7 +260,7 @@ namespace TVPApiModule.Services
         {
             bool res = false;
             try
-            {
+            {                
                 res = m_Module.CheckParentalPIN(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN);
             }
             catch (Exception ex)

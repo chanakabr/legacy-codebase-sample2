@@ -10,7 +10,7 @@ using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.Services
 {
-    public class ApiConditionalAccessService
+    public class ApiConditionalAccessService : ApiServiceBase
     {
         #region Variables
         private static ILog logger = log4net.LogManager.GetLogger(typeof(ApiConditionalAccessService));

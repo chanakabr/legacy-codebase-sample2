@@ -12,7 +12,7 @@ using System.Web;
 
 namespace TVPApiModule.Services
 {
-    public class ApiUsersService
+    public class ApiUsersService : ApiServiceBase
     {
         #region Variables
         private readonly ILog logger = LogManager.GetLogger(typeof(ApiUsersService));

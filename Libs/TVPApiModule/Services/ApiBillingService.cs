@@ -11,7 +11,7 @@ using TVPPro.SiteManager.TvinciPlatform.Billing;
 
 namespace TVPApiModule.Services
 {
-    public class ApiBillingService 
+    public class ApiBillingService : ApiServiceBase
     {
         #region Variables
         private static ILog logger = LogManager.GetLogger(typeof(ApiBillingService));
