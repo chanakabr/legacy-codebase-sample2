@@ -165,27 +165,28 @@ namespace RoviFeeder
 
             XMLD.LoadXml(SeriesXML);
 
-            try
-            {
-                RoviFeeder.SeriesXSD.RoviNowtilusVodApi roviResult;
-                XmlSerializer serializer = new XmlSerializer(typeof(RoviFeeder.SeriesXSD.RoviNowtilusVodApi));
+            //removed - the xsd does not match the current XML
+            //try
+            //{
+            //    RoviFeeder.SeriesXSD.RoviNowtilusVodApi roviResult;
+            //    XmlSerializer serializer = new XmlSerializer(typeof(RoviFeeder.SeriesXSD.RoviNowtilusVodApi));
 
-                using (TextReader reader = new StringReader(SeriesXML))
-                {
-                    roviResult = (RoviFeeder.SeriesXSD.RoviNowtilusVodApi)serializer.Deserialize(reader);
+            //    using (TextReader reader = new StringReader(SeriesXML))
+            //    {
+            //        roviResult = (RoviFeeder.SeriesXSD.RoviNowtilusVodApi)serializer.Deserialize(reader);
 
-                    RoviFeeder.SeriesXSD.RoviNowtilusVodApiPresentation roviTitle = roviResult.Presentation;
+            //        RoviFeeder.SeriesXSD.RoviNowtilusVodApiPresentation roviTitle = roviResult.Presentation;
 
-                    if (!RoviFeederUtils.Validate(roviTitle))
-                    {
-                        return false;
-                    }
-                }
-            }
-            catch
-            {
-                return false;
-            }
+            //        if (!RoviFeederUtils.Validate(roviTitle))
+            //        {
+            //            return false;
+            //        }
+            //    }
+            //}
+            //catch
+            //{
+            //    return false;
+            //}
 
             using (StringWriter writer = new StringWriter())
             {

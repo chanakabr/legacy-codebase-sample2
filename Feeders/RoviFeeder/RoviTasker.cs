@@ -44,25 +44,25 @@ namespace RoviFeeder
             switch (m_IngestID)
             {
                 case FeederImplEnum.CMT:
-                    {
-                        m_feeder = new RoviCMTFeeder(m_url, m_fromID, GROUP_ID);
-                        break;
-                    }
+                {
+                    m_feeder = new RoviCMTFeeder(m_url, m_fromID, m_groupID);
+                    break;
+                }
                 case FeederImplEnum.MOVIE:
-                    {
-                        m_feeder = new RoviMovieFeeder(m_url, m_fromID, GROUP_ID);
-                        break;
-                    }
+                {
+                    m_feeder = new RoviMovieFeeder(m_url, m_fromID, m_groupID);
+                    break;
+                }
                 case FeederImplEnum.EPISODE:
-                    {
-                        m_feeder = new RoviEpisodeFeeder(m_url, m_fromID, GROUP_ID);
-                        break;
-                    }
+                {
+                    m_feeder = new RoviEpisodeFeeder(m_url, m_fromID, m_groupID);
+                    break;
+                }
                 case FeederImplEnum.SERIES:
-                    {
-                        m_feeder = new RoviSeriesFeeder(m_url, m_fromID, GROUP_ID);
-                        break;
-                    }
+                {
+                    m_feeder = new RoviSeriesFeeder(m_url, m_fromID, m_groupID);
+                    break;
+                }
             }
 
             //m_url = "https://choice-ce.nowtilus.tv/services/tvinci/v1.1/content/movies";
