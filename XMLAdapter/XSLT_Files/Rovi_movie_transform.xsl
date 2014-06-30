@@ -429,7 +429,7 @@
         <xsl:attribute name="lang">
           <xsl:call-template name="Translate_Langueage"/>
         </xsl:attribute>
-        <xsl:value-of select="./*[local-name() = 'ContentList']/Content[1]/*[local-name() = 'RunTimeSeconds']"/>
+        <xsl:value-of select="./*[local-name() = 'ContentList']/Content[1]/*[local-name() = 'RunTimeMinutes']"/>
       </xsl:element>
     </xsl:element>
   </xsl:template>
