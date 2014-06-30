@@ -82,7 +82,7 @@ namespace ApiObjects
         PROGRAM = 4
     }
 
-
+    [Serializable]
     public class KeyValuePair
     {
         public string key { get; set; }
