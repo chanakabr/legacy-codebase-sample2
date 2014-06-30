@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
-    public class DiscountModule
+    public class DiscountModule : PriceCode
     {
         public double percent { get; set; }
 

@@ -195,6 +195,16 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.SendNewPassword(request);
         }
 
+        public object Get(GetLastBillingTypeUserInfoRequest request)
+        {
+            return _repository.GetLastBillingTypeUserInfo(request);
+        }
+
+        public object Get(GetUserPermittedCollectionsRequest request)
+        {
+            return _repository.GetUserPermittedCollections(request);
+        }
+
         #endregion
 
         #region PUT
@@ -258,6 +268,11 @@ namespace RestfulTVPApi.ServiceInterface
         {
             return _repository.SetUserInternalActionPrivacy(request);
         }
+
+        public object Put(ChangeSubscriptionRequest request)
+        {
+            return _repository.ChangeSubscription(request);
+        }
         
         #endregion
 
@@ -286,6 +301,56 @@ namespace RestfulTVPApi.ServiceInterface
         public object Post(InApp_ChargeUserForMediaFileRequest request)
         {
             return _repository.InApp_ChargeUserForMediaFile(request);
+        }
+
+        public object Post(CreatePurchaseTokenRequest request)
+        {
+            return _repository.CreatePurchaseToken(request);
+        }
+
+        public object Post(DummyChargeUserForCollectionRequest request)
+        {
+            return _repository.DummyChargeUserForCollection(request);
+        }
+
+        public object Post(ChargeUserForCollectionRequest request)
+        {
+            return _repository.ChargeUserForCollection(request);
+        }
+
+        public object Post(CellularChargeUserForSubscriptionRequest request)
+        {
+            return _repository.CellularChargeUserForSubscription(request);
+        }
+
+        public object Post(ChargeUserForSubscriptionByPaymentMethodRequest request)
+        {
+            return _repository.ChargeUserForSubscriptionByPaymentMethod(request);
+        }
+
+        public object Post(ChargeUserForMediaFileByPaymentMethodRequest request)
+        {
+            return _repository.ChargeUserForMediaFileByPaymentMethod(request);
+        }
+
+        public object Post(CellularChargeUserForMediaFileRequest request)
+        {
+            return _repository.CellularChargeUserForMediaFile(request);
+        }
+
+        public object Post(ChargeUserForMediaFileUsingCCRequest request)
+        {
+            return _repository.ChargeUserForMediaFileUsingCC(request);
+        }
+
+        public object Post(ChargeUserForMediaSubscriptionUsingCCRequest request)
+        {
+            return _repository.ChargeUserForMediaSubscriptionUsingCC(request);
+        }
+
+        public object Post(SignInWithTokenRequest request)
+        {
+            return _repository.SignInWithToken(request);
         }
 
         #endregion

@@ -57,5 +57,25 @@ namespace RestfulTVPApi.ServiceInterface
         List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(GetDomainPermittedSubscriptionsRequest request);
 
         bool SetRuleState(SetRuleStateRequest request);
+
+        bool SetDomainRestriction(SetDomainRestrictionRequest request);
+
+        DomainResponseObject SubmitAddDeviceToDomainRequest(SubmitAddDeviceToDomainRequest request);
+
+        NetworkResponseObject AddHomeNetworkToDomain(AddHomeNetworkToDomainRequest request);
+
+        NetworkResponseObject UpdateDomainHomeNetwork(UpdateDomainHomeNetworkRequest request);
+
+        NetworkResponseObject RemoveDomainHomeNetwork(RemoveDomainHomeNetworkRequest request);
+
+        List<HomeNetwork> GetDomainHomeNetworks(GetDomainHomeNetworksRequest request);
+
+        DeviceResponseObject GetDeviceInfo(GetDeviceInfoRequest request);
+
+        DomainResponseObject ChangeDomainMaster(ChangeDomainMasterRequest request);
+
+        DomainResponseObject ResetDomainFrequency(ResetDomainFrequencyRequest request);
+
+        List<PermittedCollectionContainer> GetDomainPermittedCollections(GetDomainPermittedCollectionsRequest request);
     }
 }

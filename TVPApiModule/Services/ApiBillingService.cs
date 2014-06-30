@@ -90,5 +90,23 @@ namespace TVPApiModule.Services
             return response;
         }
         #endregion
+
+        public AdyenBillingDetail GetLastBillingTypeUserInfo(string siteGuid)
+        {
+            AdyenBillingDetail billingDetail = null;
+
+            billingDetail = Execute(() =>
+                {
+                    var res = Billing.GetLastBillingTypeUserInfo(m_wsUserName, m_wsPassword, siteGuid);
+                    if (res != null)
+                    {
+                        billingDetail = res.ToApiObject();
+                    }
+
+                    return billingDetail;
+                }) as AdyenBillingDetail;
+
+            return billingDetail;
+        }
     }
 }

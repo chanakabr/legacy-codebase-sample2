@@ -26,5 +26,9 @@ namespace RestfulTVPApi.ServiceInterface
         List<GroupRule> GetEPGProgramRules(GetEPGProgramRulesRequest request);
 
         string GetEPGLicensedLink(GetEPGLicensedLinkRequest request);
+
+        List<EPGChannelProgrammeObject> SearchEPGByAndOrList(SearchEPGByAndOrListRequest request);
+
+        List<EPGChannelProgrammeObject> GetEPGChannelsPrograms(GetEPGChannelsProgramsRequest request);
     }
 }

@@ -24,7 +24,6 @@ namespace RestfulTVPApi.ServiceInterface
         {
             try
             {
-                //IApi _3ScaleAPI = new Api(ConfigurationManager.AppSettings["3SCALE_PROVIDER_KEY"]);
                 IApi _3ScaleAPI = new Api(TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "3Scale", "3SCALE_PROVIDER_KEY")));
 
                 Hashtable parameters = new Hashtable();
@@ -65,7 +64,7 @@ namespace RestfulTVPApi.ServiceInterface
                 }
                 if (ex.Message.Contains("metric_invalid"))
                 {
-
+                    // TODO: As soon as a decision will be made regarding the use of 3Scale, handle this exception. Don't forget to invclude metrics in 3Scale's manager
                 }
                 else
                 {

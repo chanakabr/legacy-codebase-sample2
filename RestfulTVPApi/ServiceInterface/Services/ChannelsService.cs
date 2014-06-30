@@ -42,6 +42,11 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.GetFullCategory(request);
         }
 
+        public object Get(GetOrderedChannelMultiFilterRequest request)
+        {
+            return _repository.GetOrderedChannelMultiFilter(request);
+        }
+
         #endregion
 
         #region PUT

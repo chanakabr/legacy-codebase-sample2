@@ -105,7 +105,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<FriendWatchedObject> GetAllFriendsWatched(GetAllFriendsWatchedRequest request);
 
-        SocialActionResponseStatus DoUserAction(DoUserActionRequest request);
+        TVPApiModule.Objects.Responses.DoSocialActionResponse DoUserAction(DoUserActionRequest request);
 
         List<UserSocialActionObject> GetFriendsActions(GetFriendsActionsRequest request);
 
@@ -130,5 +130,31 @@ namespace RestfulTVPApi.ServiceInterface
         int GetCustomDataID(GetCustomDataIDRequest request);
 
         BillingResponse InApp_ChargeUserForMediaFile(InApp_ChargeUserForMediaFileRequest request);
+
+        AdyenBillingDetail GetLastBillingTypeUserInfo(GetLastBillingTypeUserInfoRequest request);
+
+        List<PermittedCollectionContainer> GetUserPermittedCollections(GetUserPermittedCollectionsRequest request);
+
+        ChangeSubscriptionStatus ChangeSubscription(ChangeSubscriptionRequest request);
+
+        int CreatePurchaseToken(CreatePurchaseTokenRequest request);
+
+        string DummyChargeUserForCollection(DummyChargeUserForCollectionRequest request);
+
+        BillingResponse ChargeUserForCollection(ChargeUserForCollectionRequest request);
+
+        BillingResponse CellularChargeUserForSubscription(CellularChargeUserForSubscriptionRequest request);
+
+        string ChargeUserForSubscriptionByPaymentMethod(ChargeUserForSubscriptionByPaymentMethodRequest request);
+
+        string ChargeUserForMediaFileByPaymentMethod(ChargeUserForMediaFileByPaymentMethodRequest request);
+
+        string CellularChargeUserForMediaFile(CellularChargeUserForMediaFileRequest request);
+
+        string ChargeUserForMediaFileUsingCC(ChargeUserForMediaFileUsingCCRequest request);
+
+        string ChargeUserForMediaSubscriptionUsingCC(ChargeUserForMediaSubscriptionUsingCCRequest request);
+
+        TVPApiModule.Services.ApiUsersService.LogInResponseData SignInWithToken(SignInWithTokenRequest request);
     }
 }

@@ -49,6 +49,12 @@ namespace TVPApiModule.Objects.Responses
 
         /// <remarks/>
         CONFIG_ERROR,
+
+        /// <remarks/>
+        MEDIA_ALREADY_RATED,
+
+        /// <remarks/>
+        NOT_ALLOWED,
     }
     
 }

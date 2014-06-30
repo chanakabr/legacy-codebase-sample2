@@ -27,5 +27,7 @@ namespace TVPApiModule.Objects.Responses
         public int[] related_file_types { get; set; }
 
         public string product_code{ get; set; }
+
+        public bool first_device_limitation { get; set; }
     }
 }

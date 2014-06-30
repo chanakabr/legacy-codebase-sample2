@@ -42,5 +42,7 @@ namespace TVPApiModule.Objects.Responses
         public bool is_infinite_recurring { get; set; }
 
         public PreviewModule preview_module { get; set; }
+
+        public UserType[] user_types { get; set; }
     }
 }

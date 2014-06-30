@@ -20,5 +20,7 @@ namespace RestfulTVPApi.ServiceInterface
         Category GetCategory(GetCategoryRequest request);
 
         Category GetFullCategory(GetFullCategoryRequest request);
+
+        List<Media> GetOrderedChannelMultiFilter(GetOrderedChannelMultiFilterRequest request);
     }
 }

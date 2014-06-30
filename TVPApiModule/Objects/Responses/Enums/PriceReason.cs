@@ -37,5 +37,8 @@ namespace TVPApiModule.Objects.Responses
 
         /// <remarks/>
         EntitledToPreviewModule,
+
+        /// <remarks/>
+        FirstDeviceLimitation
     }
 }

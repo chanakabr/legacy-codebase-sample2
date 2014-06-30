@@ -200,5 +200,56 @@ namespace RestfulTVPApi.ServiceInterface
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetDomainPermittedSubscriptions(request.domain_id);                            
         }
+
+        public bool SetDomainRestriction(SetDomainRestrictionRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).SetDomainRestriction(request.domain_id, request.restriction);
+        }
+
+        public DomainResponseObject SubmitAddDeviceToDomainRequest(SubmitAddDeviceToDomainRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).SubmitAddDeviceToDomainRequest(request.udid, request.domain_id, request.site_guid, request.device_name, request.brand_id);
+        }
+
+        public NetworkResponseObject AddHomeNetworkToDomain(AddHomeNetworkToDomainRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).AddHomeNetworkToDomain(request.domain_id, request.network_id, request.network_name, request.network_description);
+        }
+
+        public NetworkResponseObject UpdateDomainHomeNetwork(UpdateDomainHomeNetworkRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).UpdateDomainHomeNetwork(request.domain_id, request.network_id, request.network_name, request.network_description, request.is_active);         
+        }
+
+
+        public NetworkResponseObject RemoveDomainHomeNetwork(RemoveDomainHomeNetworkRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).RemoveDomainHomeNetwork(request.domain_id, request.network_id);         
+        }
+        
+        public List<HomeNetwork> GetDomainHomeNetworks(GetDomainHomeNetworksRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDomainHomeNetworks(request.domain_id); 
+        }
+
+        public DeviceResponseObject GetDeviceInfo(GetDeviceInfoRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDeviceInfo(request.id, request.is_udid); 
+        }
+
+        public DomainResponseObject ChangeDomainMaster(ChangeDomainMasterRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).ChangeDomainMaster(request.domain_id, request.current_master_id, request.new_master_id); 
+        }
+        
+        public DomainResponseObject ResetDomainFrequency(ResetDomainFrequencyRequest request)
+        {
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).ResetDomainFrequency(request.domain_id, request.frequency_type); 
+        }
+
+        public List<PermittedCollectionContainer> GetDomainPermittedCollections(GetDomainPermittedCollectionsRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetDomainPermittedCollections(request.domain_id); 
+        }
     }
 }

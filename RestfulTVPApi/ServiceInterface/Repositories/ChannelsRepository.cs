@@ -36,5 +36,10 @@ namespace RestfulTVPApi.ServiceInterface
         {
             return CategoryTreeHelper.GetFullCategoryTree(request.category_id, request.pic_size, request.GroupID, request.InitObj.Platform);
         }
+
+        public List<Media> GetOrderedChannelMultiFilter(GetOrderedChannelMultiFilterRequest request)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

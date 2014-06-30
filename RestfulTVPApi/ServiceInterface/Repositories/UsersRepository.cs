@@ -300,7 +300,7 @@ namespace RestfulTVPApi.ServiceInterface
             return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetAllFriendsWatched(request.site_guid, request.page_size);                            
         }
 
-        public SocialActionResponseStatus DoUserAction(DoUserActionRequest request)
+        public TVPApiModule.Objects.Responses.DoSocialActionResponse DoUserAction(DoUserActionRequest request)
         {
             return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).DoUserAction(request.site_guid, request.InitObj.UDID, request.user_action, request.extra_params, request.social_platform, request.asset_type, request.asset_id);
         }
@@ -363,6 +363,71 @@ namespace RestfulTVPApi.ServiceInterface
         public BillingResponse InApp_ChargeUserForMediaFile(InApp_ChargeUserForMediaFileRequest request)
         {
             return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).InApp_ChargeUserForMediaFile(request.site_guid, request.price, request.currency, request.product_code, request.ppv_module_code, request.InitObj.UDID, request.receipt);                            
+        }
+
+        public AdyenBillingDetail GetLastBillingTypeUserInfo(GetLastBillingTypeUserInfoRequest request)
+        {
+            return ServicesManager.BillingService(request.GroupID, request.InitObj.Platform).GetLastBillingTypeUserInfo(request.site_guid);                            
+        }
+
+        public List<PermittedCollectionContainer> GetUserPermittedCollections(GetUserPermittedCollectionsRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUserPermittedCollections(request.site_guid);
+        }
+
+        public ChangeSubscriptionStatus ChangeSubscription(ChangeSubscriptionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).ChangeSubscription(request.site_guid, request.old_subscription, request.new_subscription);
+        }
+
+        public int CreatePurchaseToken(CreatePurchaseTokenRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CreatePurchaseToken(request.site_guid, request.price, request.currency_code, request.asset_id, request.ppv_module_code, request.campaign_code, request.coupon_code, request.payment_method, SiteHelper.GetClientIP(), request.country_code, request.language_code, request.device_name, request.asset_type, request.override_end_date, request.preview_module_id);
+        }
+
+        public string DummyChargeUserForCollection(DummyChargeUserForCollectionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).DummyChargeUserForCollection(request.site_guid, request.collection_id, request.price, request.currency, request.coupon_code, SiteHelper.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid);
+        }
+
+        public BillingResponse ChargeUserForCollection(ChargeUserForCollectionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).ChargeUserForCollection(request.site_guid, request.collection_code, request.price, request.currency, request.encrypted_cvv, request.coupon_code, SiteHelper.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid, request.payment_method_id);
+        }
+        
+        public BillingResponse CellularChargeUserForSubscription(CellularChargeUserForSubscriptionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CellularChargeUserForSubscription(request.site_guid, request.price, request.currency, request.subscription_code, request.coupon_code, SiteHelper.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid);
+        }
+
+        public string ChargeUserForSubscriptionByPaymentMethod(ChargeUserForSubscriptionByPaymentMethodRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).ChargeUserForSubscriptionByPaymentMethod(request.site_guid, request.price, request.currency, request.subscription_code, request.coupon_code, SiteHelper.GetClientIP(), request.extra_parameters, request.country_code, request.language_code, request.udid, request.payment_method_id, request.encrypted_cvv);
+        }
+
+        public string ChargeUserForMediaFileByPaymentMethod(ChargeUserForMediaFileByPaymentMethodRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).ChargeUserForMediaFileByPaymentMethod(request.price, request.currency, request.media_file_id, request.ppv_module_code, SiteHelper.GetClientIP(), request.site_guid, request.udid, request.extra_parameters, request.payment_method_id, request.encrypted_cvv);
+        }
+
+        public string CellularChargeUserForMediaFile(CellularChargeUserForMediaFileRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CellularChargeUserForMediaFileRequest(request.price, request.currency, request.media_file_id, request.ppv_module_code, SiteHelper.GetClientIP(), request.site_guid, request.udid, request.extra_parameters, request.coupon_code, request.language_code, request.country_code);
+        }
+
+        public string ChargeUserForMediaFileUsingCC(ChargeUserForMediaFileUsingCCRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).ChargeUserForMediaFileUsingCC(request.price, request.currency, request.media_file_id, request.ppv_module_code, request.coupon_code, SiteHelper.GetClientIP(), request.site_guid, request.udid, request.payment_method_id, request.encrypted_cvv);
+        }
+
+        public string ChargeUserForMediaSubscriptionUsingCC(ChargeUserForMediaSubscriptionUsingCCRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).ChargeUserForMediaSubscriptionUsingCC(request.price, request.currency, request.subscription_id, request.coupon_code, SiteHelper.GetClientIP(), request.site_guid, request.udid, request.payment_method_id, request.encrypted_cvv, request.extra_parameters, request.country_code, request.language_code);
+        }
+
+        public ApiUsersService.LogInResponseData SignInWithToken(SignInWithTokenRequest request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

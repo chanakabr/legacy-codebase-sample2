@@ -58,5 +58,29 @@ namespace TVPApiModule.Objects.Responses
 
         /// <remarks/>
         DomainNotExists,
+
+        /// <remarks/>
+        HouseholdUserFailed,
+
+        /// <remarks/>
+        DeviceExistsInOtherDomains,
+
+        /// <remarks/>
+        DomainNotInitialized,
+
+        /// <remarks/>
+        RequestSent,
+
+        /// <remarks/>
+        DeviceNotConfirmed,
+
+        /// <remarks/>
+        RequestFailed,
+
+        /// <remarks/>
+        InvalidUser,
+
+        /// <remarks/>
+        ConcurrencyLimitation,
     }
 }

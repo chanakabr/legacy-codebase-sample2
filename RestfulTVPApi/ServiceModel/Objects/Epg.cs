@@ -5,6 +5,8 @@ using ServiceStack.ServiceHost;
 using TVPPro.SiteManager.Objects;
 using TVPPro.SiteManager.TvinciPlatform.api;
 using TVPApiModule.Context;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+
 
 namespace RestfulTVPApi.ServiceModel
 {
@@ -53,7 +55,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/programs", "GET", Notes = "This method searches the EPG programs by search text")]
-    public class SearchEPGProgramsRequest : PagingRequest, IReturn<List<EPGChannelProgrammeObject>>
+    public class SearchEPGProgramsRequest : PagingRequest, IReturn<List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>>
     {
         [ApiMember(Name = "search_text", Description = "Search Text", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string search_text { get; set; }
@@ -87,7 +89,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/epg/programs/{program_id}/rules", "GET", Notes = "This method returns an array containing the EPG program’s rules. These are the same rules as GetGroupRules.")]
-    public class GetEPGProgramRulesRequest : RequestBase, IReturn<List<GroupRule>>
+    public class GetEPGProgramRulesRequest : RequestBase, IReturn<List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>>
     {
         [ApiMember(Name = "program_id", Description = "Program ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int program_id { get; set; }
@@ -95,6 +97,32 @@ namespace RestfulTVPApi.ServiceModel
         public int media_id { get; set; }
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
+    }
+
+    [Route("/epg/programs_by_and_ol_list", "GET", Notes = "Search Epg using an 'Or' list and an 'and' list. Key-Value pairs of tags and metas are expected in the lists. Between the two lists an AND logic will be implemented.")]
+    public class SearchEPGByAndOrListRequest : PagingRequest, IReturn<List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>>
+    {
+        [ApiMember(Name = "and_list", Description = "And key value pairs", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
+        public List<KeyValue> and_list { get; set; }
+        [ApiMember(Name = "or_list", Description = "Or key value pairs", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
+        public List<KeyValue> or_list { get; set; }
+    }
+
+    [Route("/epg/{epg_channel_id}/channels_program/from/{from_offset}/to/{to_offset}/utc_offset/{utc_offset}", "GET", Notes = "Gets an array of EPG channel programs")]
+    public class GetEPGChannelsProgramsRequest : RequestBase, IReturn<List<TVPApiModule.Objects.Responses.EPGChannelProgrammeObject>>
+    {
+        [ApiMember(Name = "epg_channel_id", Description = "EPG Channel Identifier", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int epg_channel_id { get; set; }
+        [ApiMember(Name = "pic_size", Description = "Picture Size. Options: 'full' - original picture size width x height for all the rest", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string pic_size { get; set; }
+        [ApiMember(Name = "unit", Description = "Days,Hours,Current", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public EPGUnit unit { get; set; }
+        [ApiMember(Name = "from_offset", Description = "From offset", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int from_offset { get; set; }
+        [ApiMember(Name = "to_offset", Description = "To offset", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int to_offset { get; set; }
+        [ApiMember(Name = "utc_offset", Description = "To offset", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int utc_offset { get; set; }
     }
 
     #endregion

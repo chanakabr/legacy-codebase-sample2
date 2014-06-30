@@ -6,6 +6,7 @@ using log4net;
 using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPApiModule.Extentions;
 using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Services
 {
@@ -199,6 +200,32 @@ namespace TVPApiModule.Services
                 }) as List<TVPApiModule.Objects.Responses.Subscription>;
 
             return subscriptions;
+        }
+
+        public TVPApiModule.Objects.Responses.Collection GetCollectionData(string collectionCode, string countryCd2, string languageCode3, string deviceName, bool getAlsoInactive)
+        {
+            TVPApiModule.Objects.Responses.Collection collection = null;
+
+            collection = Execute(() =>
+            {
+                var response = Pricing.GetCollectionData(m_wsUserName, m_wsPassword, collectionCode, countryCd2, languageCode3, deviceName, getAlsoInactive);
+                if (response != null)
+                {
+                    collection = response.ToApiObject();
+                }
+                //string sUserTypesIDs = string.Empty;
+
+                //var response = Pricing.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
+                //if (response != null)
+                //{
+                //    collection = response.Where(s => s != null).Select(s => s.ToApiObject()).ToList();
+                //}
+
+                //return collection;
+                return collection;
+            }) as TVPApiModule.Objects.Responses.Collection;
+
+            return collection;
         }
 
         #endregion

@@ -142,6 +142,7 @@
     <Compile Include="ServiceInterface\Filters\CustomServiceRunner.cs" />
     <Compile Include="ServiceInterface\Filters\RequiresAuthenticationAttribute.cs" />
     <Compile Include="ServiceInterface\Interfaces\IApiRepository.cs" />
+    <Compile Include="ServiceInterface\Interfaces\ICollectionRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\IDomainRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\ISiteRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\IGroupsRepository.cs" />
@@ -151,12 +152,14 @@
     <Compile Include="ServiceInterface\Interfaces\IMediasRepository.cs" />
     <Compile Include="ServiceInterface\Interfaces\IChannelsRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\ApiRepository.cs" />
+    <Compile Include="ServiceInterface\Repositories\CollectionRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\DomainRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\SiteRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\GroupsRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\NotificationsRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\EpgRepository.cs" />
     <Compile Include="ServiceInterface\Repositories\SubscriptionsRepository.cs" />
+    <Compile Include="ServiceInterface\Services\CollectionService.cs" />
     <Compile Include="ServiceInterface\Services\DomainService.cs" />
     <Compile Include="ServiceInterface\Services\UsersService.cs" />
     <Compile Include="ServiceInterface\Services\SiteService.cs" />
@@ -168,6 +171,7 @@
     <Compile Include="ServiceInterface\Services\InitService.cs" />
     <Compile Include="ServiceInterface\Utils\Utils.cs" />
     <Compile Include="ServiceModel\Objects\Channels.cs" />
+    <Compile Include="ServiceModel\Objects\Collections.cs" />
     <Compile Include="ServiceModel\Objects\Domains.cs" />
     <Compile Include="ServiceModel\Objects\Site.cs" />
     <Compile Include="ServiceModel\Objects\Groups.cs" />

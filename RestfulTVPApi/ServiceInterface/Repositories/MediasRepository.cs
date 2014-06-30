@@ -15,6 +15,8 @@ using TVPApiModule.Manager;
 using TVPApiModule.Helper;
 using TVPApiModule.Context;
 using RestfulTVPApi.ServiceModel;
+using TVPPro.SiteManager.CatalogLoaders;
+using TVPPro.SiteManager.DataEntities;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -182,6 +184,108 @@ namespace RestfulTVPApi.ServiceInterface
         public List<string> GetUsersLikedMedia(GetUsersLikedMediaRequest request)
         {
             return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUsersLikedMedia(request.site_guid, request.media_id, (int)TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK, request.only_friends, request.page_number, request.page_size);                            
+        }
+
+
+        public TVPApiModule.Objects.Responses.BuzzWeightedAverScore GetBuzzMeterData(GetBuzzMeterDataRequest request)
+        {
+            return new BuzzMeterLoader(request.GroupID, request.media_id).Execute() as TVPApiModule.Objects.Responses.BuzzWeightedAverScore;
+        }
+
+        public List<Media> GetChannelMultiFilter(GetChannelMultiFilterRequest request)
+        {
+            return new APIChannelMediaLoader(request.channel_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage, null, request.tags_metas, request.cut_with)
+            {
+                UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+            }.Execute() as List<Media>;
+        }
+
+        public List<TVPApiModule.Objects.Responses.AssetStatsResult> GetAssetsStats(GetAssetsStatsRequest request)
+        {
+            List<TVPApiModule.Objects.Responses.AssetStatsResult> retVal = null;
+
+            try
+            {
+                retVal = new AssetStatsLoader(request.GroupID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.asset_ids, request.asset_type, DateTime.MinValue, DateTime.MaxValue)
+                {
+                    Platform = request.InitObj.Platform.ToString(),
+                    DeviceId = request.InitObj.UDID,
+                    SiteGuid = request.InitObj.SiteGuid
+                }.Execute() as List<TVPApiModule.Objects.Responses.AssetStatsResult>;
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Items.Add("Error", ex);
+            }
+
+            return retVal;
+        }
+
+
+        public List<TVPApiModule.Objects.Responses.AssetStatsResult> GetAssetsStatsForTimePeriod(GetAssetsStatsForTimePeriodRequest request)
+        {
+            List<TVPApiModule.Objects.Responses.AssetStatsResult> retVal = null;
+
+            try
+            {
+                retVal = new AssetStatsLoader(request.GroupID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.asset_ids, request.asset_type, request.start_time, request.end_time)
+                {
+                    Platform = request.InitObj.Platform.ToString(),
+                    DeviceId = request.InitObj.UDID
+                }.Execute() as List<TVPApiModule.Objects.Responses.AssetStatsResult>;
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Items.Add("Error", ex);
+            }
+
+            return retVal;
+        }
+
+        public bool DoesBundleContainMedia(DoesBundleContainMediaRequest request)
+        {
+            bool isMediaInBundle = false;
+
+            try
+            {
+                //Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = orderDir, m_eOrderBy = orderBy };
+                BundleContainingMediaLoader loader = new BundleContainingMediaLoader()
+                {
+                    BundleID = request.bundle_id,
+                    BundleType = request.bundle_type,
+                    MediaID = request.media_id,
+                    GroupID = request.GroupID,
+                    MediaType = request.media_type,
+                };
+
+                isMediaInBundle = (bool)loader.Execute();
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Items.Add("Error", ex);
+            }
+
+            return isMediaInBundle;
+        }
+
+        public List<Media> GetBundleMedia(GetBundleMediaRequest request)
+        {
+            List<Media> lstMedia = null;
+
+            try
+            {
+                Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = request.order_dir, m_eOrderBy = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy)request.order_by };
+                APIBundleMediaLoader loader = new APIBundleMediaLoader(request.bundle_id, request.media_type, orderObj, request.GroupID, request.GroupID, request.InitObj.Platform, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, string.Empty, request.page_number, request.page_size, request.bundle_type);
+                
+                lstMedia = loader.Execute() as List<Media>;
+                
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Items.Add("Error", ex);
+            }
+
+            return lstMedia;
         }
     }
 }

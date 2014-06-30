@@ -9,7 +9,7 @@ namespace TVPApiModule.Objects.Responses
     {
         public string code { get; set; }
 
-        public Price prise { get; set; }
+        public Price price { get; set; }
 
         public int object_id { get; set; }
 

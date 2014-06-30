@@ -398,6 +398,20 @@ namespace RestfulTVPApi.ServiceModel
         public string user_name { get; set; }
     }
 
+    [Route("/users/{site_guid}/billingTypeUserInfo", "GET", Summary = "Gets a hashed string from Adyen for validation purposes", Notes = "")]
+    public class GetLastBillingTypeUserInfoRequest : RequestBase, IReturn<AdyenBillingDetail>
+    {
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+    }
+
+    [Route("/users/{site_guid}/collections/permitted", "GET", Summary = "Get the user's permitted colections", Notes = "")]
+    public class GetUserPermittedCollectionsRequest : RequestBase, IReturn<PermittedCollectionContainer>
+    {
+        [ApiMember(Name = "site_guid", Description = "User ID", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+    }
+
     #endregion
 
     #region PUT
@@ -530,6 +544,17 @@ namespace RestfulTVPApi.ServiceModel
     [Route("/users/{site_guid}/social_platforms/{social_platform}/actions/{user_action}/privacy_settings/internal", "PUT", Notes = "This method sets the user’s internal privacy level settings for a specific social action. Note: These settings determine whether the action can be viewed by the user’s social-network friends on the internal site.")]
     public class SetUserInternalActionPrivacyRequest : SetUserExternalActionShareRequest { }
 
+    [Route("/users/{site_guid}/subscription/{old_subscription}/change/{new_subscription}", "PUT", Summary = "ChangeSubscription enable customer care representative migrating user from an existing subscription to a new one, while maintaining the same renewal date and credit card but adapting to the subscription's new content and pricing. After a user has migrated from subscription A to B, he will not be charged until the end of the A's current billing cycle. Nevertheless, he will instantly receive subscription B's content entitlements. At the beginning of next billing cycle, he will be charged subscription B's price", Notes = "")]
+    public class ChangeSubscriptionRequest : RequestBase, IReturn<ChangeSubscriptionStatus>
+    {
+        [ApiMember(Name = "site_guid", Description = "User identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "old_subscription", Description = "Current subscription Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int old_subscription { get; set; }
+        [ApiMember(Name = "new_subscription", Description = "New subscription Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int new_subscription { get; set; }
+    }
+
     #endregion
 
     #region POST
@@ -567,6 +592,15 @@ namespace RestfulTVPApi.ServiceModel
         public string user_name { get; set; }
         [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string password { get; set; }
+    }
+
+    [Route("/users/{token}/token_sign_in", "POST", Notes = "This method signs-in a user with a token")]
+    public class SignInWithTokenRequest : RequestBase, IReturn<TVPApiModule.Services.ApiUsersService.LogInResponseData>
+    {
+        [ApiMember(Name = "token", Description = "Token", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string token { get; set; }
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
     }
 
     [Route("/users/{site_guid}/actions", "POST", Notes = "This method does a requested user social action")]
@@ -614,6 +648,217 @@ namespace RestfulTVPApi.ServiceModel
         public string user_name { get; set; }
         [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string password { get; set; }
+    }
+
+    [Route("/users/{site_guid}/purchase_token", "POST", Notes = "This method returns customer data. This is the first step in the purchase flow. Insert the method’s parameters (price, payment method, etc.,). Returns an integer. It’s the same method as GetCustomDataID only it also receives an extra parameter called 'previewModuleID' for the 'free trial' feature.")]
+    public class CreatePurchaseTokenRequest : GetCustomDataIDRequest, IReturn<int>
+    {
+        [ApiMember(Name = "preview_module_id", Description = "The Preview model Identifier that was predefined in the TVM", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string preview_module_id { get; set; }
+    }
+
+    [Route("/users/{site_guid}/dummy_charge_collection/{collection_id}", "POST", Notes = "")]
+    public class DummyChargeUserForCollectionRequest : RequestBase, IReturn<string>
+    {
+        [ApiMember(Name = "collection_id", Description = "Collection Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string collection_id { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }
+        [ApiMember(Name = "extra_parameters", Description = "Extra parameters", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string extra_parameters { get; set; }
+        [ApiMember(Name = "country_code", Description = "Country code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string country_code { get; set; }
+        [ApiMember(Name = "language_code", Description = "Language code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string language_code { get; set; }
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "coupon_code", Description = "Coupon code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string coupon_code { get; set; }        
+    }
+
+    [Route("/users/{site_guid}/charge_collection/{collection_id}", "POST", Notes = "")]
+    public class ChargeUserForCollectionRequest : RequestBase, IReturn<BillingResponse>
+    {
+        [ApiMember(Name = "collection_code", Description = "Collection Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string collection_code { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }
+        [ApiMember(Name = "extra_parameters", Description = "Extra parameters", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string extra_parameters { get; set; }
+        [ApiMember(Name = "country_code", Description = "Country code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string country_code { get; set; }
+        [ApiMember(Name = "language_code", Description = "Language code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string language_code { get; set; }
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "coupon_code", Description = "Coupon code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string coupon_code { get; set; }        
+        [ApiMember(Name = "payment_method_id", Description = "Payment method identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string payment_method_id { get; set; }
+        [ApiMember(Name = "encrypted_cvv", Description = "3 digits on card's back", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string encrypted_cvv { get; set; }
+    }
+
+    [Route("/users/{site_guid}/cellular_charge_subscription/{subscription_id}", "POST", Notes = "")]
+    public class CellularChargeUserForSubscriptionRequest : RequestBase, IReturn<BillingResponse>
+    {
+        [ApiMember(Name = "subscription_id", Description = "Subscription Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string subscription_code { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }
+        [ApiMember(Name = "extra_parameters", Description = "Extra parameters", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string extra_parameters { get; set; }
+        [ApiMember(Name = "country_code", Description = "Country code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string country_code { get; set; }
+        [ApiMember(Name = "language_code", Description = "Language code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string language_code { get; set; }
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "coupon_code", Description = "Coupon code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string coupon_code { get; set; }        
+    }
+
+    [Route("/users/{site_guid}/charge_subscription/{subscription_id}/payment_method/{payment_method_id}", "POST", Notes = "")]
+    public class ChargeUserForSubscriptionByPaymentMethodRequest : RequestBase, IReturn<string>
+    {
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "subscription_id", Description = "Subscription Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string subscription_code { get; set; }
+        [ApiMember(Name = "payment_method_id", Description = "Payment method Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string payment_method_id { get; set; }
+        [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }
+        [ApiMember(Name = "extra_parameters", Description = "Extra parameters", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string extra_parameters { get; set; }
+        [ApiMember(Name = "country_code", Description = "Country code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string country_code { get; set; }
+        [ApiMember(Name = "language_code", Description = "Language code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string language_code { get; set; }
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "coupon_code", Description = "Coupon code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string coupon_code { get; set; }
+        [ApiMember(Name = "encrypted_cvv", Description = "3 digits on card's back", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string encrypted_cvv { get; set; }
+    }
+
+    [Route("/users/{site_guid}/charge_media_file/{media_file_id}/payment_method/{payment_method_id}", "POST", Notes = "")]
+    public class ChargeUserForMediaFileByPaymentMethodRequest : RequestBase, IReturn<string>
+    {
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "media_file_id", Description = "Media file identifier", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int media_file_id { get; set; }
+        [ApiMember(Name = "payment_method_id", Description = "Payment method Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string payment_method_id { get; set; }
+        [ApiMember(Name = "ppv_module_code", Description = "PPV Module", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string ppv_module_code { get; set; }
+        [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }
+        [ApiMember(Name = "extra_parameters", Description = "Extra parameters", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string extra_parameters { get; set; }        
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }        
+        [ApiMember(Name = "encrypted_cvv", Description = "3 digits on card's back", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string encrypted_cvv { get; set; }
+    }
+
+    [Route("/users/{site_guid}/cellular_charge_media_file/{media_file_id}", "POST", Notes = "")]
+    public class CellularChargeUserForMediaFileRequest : RequestBase, IReturn<BillingResponse>
+    {
+        [ApiMember(Name = "media_file_id", Description = "Media file identifier", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int media_file_id { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }
+        [ApiMember(Name = "ppv_module_code", Description = "PPV Module", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string ppv_module_code { get; set; }
+        [ApiMember(Name = "extra_parameters", Description = "Extra parameters", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string extra_parameters { get; set; }
+        [ApiMember(Name = "country_code", Description = "Country code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string country_code { get; set; }
+        [ApiMember(Name = "language_code", Description = "Language code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string language_code { get; set; }
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "coupon_code", Description = "Coupon code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string coupon_code { get; set; }
+    }
+
+    [Route("/users/{site_guid}/charge_media_file_CC/{media_file_id}", "POST", Notes = "")]
+    public class ChargeUserForMediaFileUsingCCRequest : RequestBase, IReturn<string>
+    {
+        [ApiMember(Name = "media_file_id", Description = "Media file identifier", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int media_file_id { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }
+        [ApiMember(Name = "ppv_module_code", Description = "PPV Module", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string ppv_module_code { get; set; }
+        [ApiMember(Name = "extra_parameters", Description = "Extra parameters", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string extra_parameters { get; set; }
+        [ApiMember(Name = "country_code", Description = "Country code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string country_code { get; set; }
+        [ApiMember(Name = "language_code", Description = "Language code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string language_code { get; set; }
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "coupon_code", Description = "Coupon code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string coupon_code { get; set; }
+        [ApiMember(Name = "payment_method_id", Description = "Payment method Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string payment_method_id { get; set; }
+        [ApiMember(Name = "encrypted_cvv", Description = "3 digits on card's back", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string encrypted_cvv { get; set; }
+    }
+
+    [Route("/users/{site_guid}/charge_media_subscription_CC/{subscription_id}", "POST", Notes = "Perform a user purchase for subscription using credit card")]
+    public class ChargeUserForMediaSubscriptionUsingCCRequest : RequestBase, IReturn<string>
+    {
+        [ApiMember(Name = "subscription_id", Description = "Media file identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string subscription_id { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "price", Description = "Price to charge", ParameterType = "body", DataType = SwaggerType.Double, IsRequired = true)]
+        public double price { get; set; }
+        [ApiMember(Name = "currency", Description = "Currency", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string currency { get; set; }        
+        [ApiMember(Name = "extra_parameters", Description = "Extra parameters", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string extra_parameters { get; set; }
+        [ApiMember(Name = "country_code", Description = "Country code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string country_code { get; set; }
+        [ApiMember(Name = "language_code", Description = "Language code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string language_code { get; set; }
+        [ApiMember(Name = "udid", Description = "Device identifier", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "coupon_code", Description = "Coupon code", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string coupon_code { get; set; }
+        [ApiMember(Name = "payment_method_id", Description = "Payment method Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string payment_method_id { get; set; }
+        [ApiMember(Name = "encrypted_cvv", Description = "3 digits on card's back", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string encrypted_cvv { get; set; }
     }
 
     #endregion

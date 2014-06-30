@@ -35,10 +35,22 @@ namespace TVPApiModule.Objects.Responses
 
         public int[] master_guids { get; set; }
 
+        public int[] pending_users_ids { get; set; }
+
+        public int[] default_users_ids { get; set; }
+
         public DomainStatus domain_status { get; set; }
 
         public int frequency_flag { get; set; }
 
         public System.DateTime next_action_freq { get; set; }
+
+        public HomeNetwork[] home_networks { get; set; }
+
+        public DomainRestriction domain_restriction { get; set; }
+
+        public DateTime next_user_action_freq { get; set; }
+
+        public int sso_operator_id { get; set; }
     }
 }

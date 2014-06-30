@@ -383,6 +383,172 @@ namespace TVPApiModule.Services
                 }) as List<int>;
 
             return retVal;
-        }        
+        }
+
+        public bool SetDomainRestriction(int domainId, int restriction)
+        {
+            bool retVal = false;
+            retVal = Convert.ToBoolean(Execute(() =>
+            {
+                return Domains.SetDomainRestriction(m_wsUserName, m_wsPassword, domainId, restriction);                
+            }));
+
+            return retVal;            
+        }
+
+        public DomainResponseObject SubmitAddDeviceToDomainRequest(string udid, int domainId, int siteGuid, string deviceName, int brandId)
+        {
+            DomainResponseObject retVal = null;
+
+            retVal = Execute(() =>
+                {
+                    if (siteGuid > 0)
+                    {
+                        var res = Domains.SubmitAddDeviceToDomainRequest(m_wsUserName, m_wsPassword, domainId, siteGuid, udid, deviceName, brandId);
+                        if (res != null)
+                        {
+                            retVal = res.ToApiObject();
+                        }                        
+                    }
+                    else
+                    {
+                        retVal = null;
+                    }
+
+                    return retVal;
+
+                }) as DomainResponseObject;            
+
+            return retVal;
+        }
+
+        public NetworkResponseObject AddHomeNetworkToDomain(long domainId, string networkId, string networkName, string networkDescription)
+        {
+            NetworkResponseObject network = null;
+
+            network = Execute(() =>
+            {
+                var res = Domains.AddHomeNetworkToDomain(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDescription);
+                    if (res != null)
+                    {
+                        network = res.ToApiObject();
+                    }                
+
+                return network;
+
+            }) as NetworkResponseObject;
+
+            return network;
+        }
+
+        public NetworkResponseObject UpdateDomainHomeNetwork(long domainId, string networkId, string networkName, string networkDescription, bool isActive)
+        {
+            NetworkResponseObject network = null;
+
+            network = Execute(() =>
+            {
+                var res = Domains.UpdateDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDescription, isActive);
+                if (res != null)
+                {
+                    network = res.ToApiObject();
+                }
+
+                return network;
+
+            }) as NetworkResponseObject;
+
+            return network;
+        }
+
+        public NetworkResponseObject RemoveDomainHomeNetwork(long domainId, string networkId)
+        {
+            NetworkResponseObject network = null;
+
+            network = Execute(() =>
+            {
+                var res = Domains.RemoveDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId);
+                if (res != null)
+                {
+                    network = res.ToApiObject();
+                }
+
+                return network;
+
+            }) as NetworkResponseObject;
+
+            return network;
+        }
+
+        public List<HomeNetwork> GetDomainHomeNetworks(long domainId)
+        {
+            List<HomeNetwork> networks = null;
+
+            networks = Execute(() =>
+                {
+                    var response = Domains.GetDomainHomeNetworks(m_wsUserName, m_wsPassword, domainId);
+                    if (response != null)
+                    {
+                        networks = response.Where(network => network != null).Select(network => network.ToApiObject()).ToList();                         
+                    }
+
+                    return networks;
+                }) as List<HomeNetwork>;
+
+            return networks;
+        }
+
+        public DeviceResponseObject GetDeviceInfo(string id, bool isUDID)
+        {
+            DeviceResponseObject deviceInfo = null;
+
+            deviceInfo = Execute(() =>
+            {
+                var response = Domains.GetDeviceInfo(m_wsUserName, m_wsPassword, id, isUDID);
+                if (response != null)
+                {
+                    deviceInfo = response.ToApiObject();
+                }
+
+                return deviceInfo;
+            }) as DeviceResponseObject;
+
+            return deviceInfo;
+        }
+
+        public DomainResponseObject ChangeDomainMaster(int domainId, int currentMasterId, int newMasterId)
+        {
+            DomainResponseObject domainResponse = null;
+
+            domainResponse = Execute(() =>
+            {
+                var response = Domains.ChangeDomainMaster(m_wsUserName, m_wsPassword, domainId, currentMasterId, newMasterId);
+                if (response != null)
+                {
+                    domainResponse = response.ToApiObject();
+                }
+
+                return domainResponse;
+            }) as DomainResponseObject;
+
+            return domainResponse;
+        }
+
+        public DomainResponseObject ResetDomainFrequency(int domainId, int frequencyType)
+        {
+            DomainResponseObject domainResponse = null;
+
+            domainResponse = Execute(() =>
+            {
+                var response = Domains.ResetDomainFrequency(m_wsUserName, m_wsPassword, domainId, frequencyType);
+                if (response != null)
+                {
+                    domainResponse = response.ToApiObject();
+                }
+
+                return domainResponse;
+            }) as DomainResponseObject;
+
+            return domainResponse;
+        }
     }
 }

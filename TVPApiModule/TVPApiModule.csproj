@@ -85,9 +85,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CatalogLoaders\APIBundleMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelsListsLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGAutoCompleteLoader.cs" />
+    <Compile Include="CatalogLoaders\APIEPGLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGSearchLoader.cs" />
     <Compile Include="CatalogLoaders\APIMediaCommentsListLoader.cs" />
     <Compile Include="CatalogLoaders\APIMediaLoader.cs" />
@@ -170,9 +172,15 @@
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
     <Compile Include="Objects\Responses\AdyenBillingDetail.cs" />
+    <Compile Include="Objects\Responses\AssetStatsResult.cs" />
+    <Compile Include="Objects\Responses\BundleCodeContainer.cs" />
+    <Compile Include="Objects\Responses\BuzzWeightedAverScore.cs" />
+    <Compile Include="Objects\Responses\Collection.cs" />
+    <Compile Include="Objects\Responses\CollectionPricesContainer.cs" />
     <Compile Include="Objects\Responses\DeviceDomain.cs" />
     <Compile Include="Objects\Responses\DeviceInfo.cs" />
     <Compile Include="Objects\Responses\DeviceRegistration.cs" />
+    <Compile Include="Objects\Responses\DoSocialActionResponse.cs" />
     <Compile Include="Objects\Responses\Enums\BillingAction.cs" />
     <Compile Include="Objects\Responses\BillingInfo.cs" />
     <Compile Include="Objects\Responses\Enums\BillingItemsType.cs" />
@@ -181,10 +189,12 @@
     <Compile Include="Objects\Responses\BillingTransactionContainer.cs" />
     <Compile Include="Objects\Responses\BillingTransactionsResponse.cs" />
     <Compile Include="Objects\Responses\CampaignActionInfo.cs" />
+    <Compile Include="Objects\Responses\Enums\BundleType.cs" />
     <Compile Include="Objects\Responses\Enums\CampaignActionResult.cs" />
     <Compile Include="Objects\Responses\Country.cs" />
     <Compile Include="Objects\Responses\CouponData.cs" />
     <Compile Include="Objects\Responses\CouponsGroup.cs" />
+    <Compile Include="Objects\Responses\Enums\ChangeSubscriptionStatus.cs" />
     <Compile Include="Objects\Responses\Enums\CouponsStatus.cs" />
     <Compile Include="Objects\Responses\Enums\CouponType.cs" />
     <Compile Include="Objects\Responses\Currency.cs" />
@@ -198,12 +208,16 @@
     <Compile Include="Objects\Responses\DomainBillingTransactionsResponse.cs" />
     <Compile Include="Objects\Responses\DomainResponseObject.cs" />
     <Compile Include="Objects\Responses\Enums\DomainResponseStatus.cs" />
+    <Compile Include="Objects\Responses\Enums\DomainRestriction.cs" />
     <Compile Include="Objects\Responses\Enums\DomainStatus.cs" />
     <Compile Include="Objects\Responses\Enums\eAssetType.cs" />
     <Compile Include="Objects\Responses\Enums\eBlockType.cs" />
     <Compile Include="Objects\Responses\Enums\eDeviceRegistrationStatus.cs" />
     <Compile Include="Objects\Responses\Enums\eGroupRuleType.cs" />
     <Compile Include="Objects\Responses\Enums\eOperatorType.cs" />
+    <Compile Include="Objects\Responses\Enums\NetworkResponseStatus.cs" />
+    <Compile Include="Objects\Responses\HomeNetwork.cs" />
+    <Compile Include="Objects\Responses\NetworkResponseObject.cs" />
     <Compile Include="Objects\Responses\ResponseStatus.cs" />
     <Compile Include="Objects\Responses\EPGChannel.cs" />
     <Compile Include="Objects\Responses\EPGChannelProgrammeObject.cs" />
@@ -311,6 +325,7 @@
     <Compile Include="Services\ApiSocialService.cs" />
     <Compile Include="Services\ApiUsersService.cs" />
     <Compile Include="Services\ApiBillingService.cs" />
+    <Compile Include="Objects\Responses\PermittedCollectionContainer.cs" />
     <Compile Include="Services\ServicesCache\BaseService.cs" />
     <Compile Include="Services\ServicesCache\ServiceFactory.cs" />
     <Compile Include="Services\ServicesCache\ServicesManager.cs" />

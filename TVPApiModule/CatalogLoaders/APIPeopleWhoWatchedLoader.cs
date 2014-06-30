@@ -41,8 +41,7 @@ namespace TVPApiModule.CatalogLoaders
 
         public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)
         {
-            return APICatalogHelper.MediaObjToMedias(medias, PicSize, m_oResponse.m_nTotalItems, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));            
-
+            return APICatalogHelper.MediaObjToMedias(medias, PicSize, m_oResponse.m_nTotalItems, GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform));
         }
     }
 }

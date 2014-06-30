@@ -26,6 +26,14 @@ namespace RestfulTVPApi.ServiceModel
         public int domain_id { get; set; }
     }
 
+    //TODO: CONTINUEEEEEEEEE
+    //[Route("/domains/{domain_id}", "GET", Summary = "Confirmation with token invoked by domain master to approve adding pending device to the domain", Notes = "Usually called from landing page set in the email that was sent to the master")]
+    //public class ConfirmDeviceByDomainMaster : RequestBase, IReturn<DomainResponseObject>
+    //{
+    //    [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+    //    public int domain_id { get; set; }
+    //}
+
     ////Move to api?
     //[Route("/domains/{operator_co_guid}", "GET", Summary = "Returns all domain IDs belonging to a specific Operator by its co guid", Notes = "Returns all domain IDs belonging to a specific Operator by its co guid")]
     //public class GetDomainIDsByOperatorCoGuidRequest : RequestBase, IReturn<List<int>>
@@ -49,6 +57,15 @@ namespace RestfulTVPApi.ServiceModel
         public string udid { get; set; }
     }
 
+    [Route("/devices/{id}/info", "GET", Summary = "Get device info by device id or udid", Notes = "")]
+    public class GetDeviceInfoRequest : RequestBase, IReturn<DeviceResponseObject>
+    {
+        [ApiMember(Name = "id", Description = "Device id or device udid", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string id { get; set; }
+        [ApiMember(Name = "is_udid", Description = "Boolean flag which defines if device id or udid is sent. False - Device Id is sent. True - UDID is sent", ParameterType = "query", DataType = SwaggerType.Boolean, IsRequired = true)]
+        public bool is_udid { get; set; }
+    }
+
     [Route("/domains/{domain_id}/rules", "GET", Summary = "returns the rules for the domain", Notes = "returns the rules for the domain")]
     public class GetDomainGroupRulesRequest : RequestBase, IReturn<List<GroupRule>>
     {
@@ -65,6 +82,20 @@ namespace RestfulTVPApi.ServiceModel
 
     [Route("/domains/{domain_id}/subscriptions/permitted", "GET", Summary = "Gets all subscriptions permitted to the users in a given domain", Notes = "Gets all subscriptions permitted to the users in a given domain.")]
     public class GetDomainPermittedSubscriptionsRequest : RequestBase, IReturn<List<PermittedSubscriptionContainer>>
+    {
+        [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int domain_id { get; set; }
+    }
+
+    [Route("/domains/{domain_id}/homenetwork", "GET", Summary = "Get all home networks related to a domain", Notes = "")]
+    public class GetDomainHomeNetworksRequest : RequestBase, IReturn<HomeNetwork>
+    {        
+        [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
+        public long domain_id { get; set; }
+    }
+
+    [Route("/domains/{domain_id}/collections/permitted", "GET", Summary = "Gets all collections permitted to the domain", Notes = "")]
+    public class GetDomainPermittedCollectionsRequest : RequestBase, IReturn<List<PermittedCollectionContainer>>
     {
         [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
@@ -108,7 +139,7 @@ namespace RestfulTVPApi.ServiceModel
     [Route("/domains/{domain_id}/users", "POST", Summary = "A master user request to add another user to the domain", Notes = "Invokes AddUserToDomain")]
     public class SubmitAddUserToDomainRequest : RequestBase, IReturn<DomainResponseObject>
     {
-        [ApiMember(Name = "domain_id", Description = "Is active", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
         [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }
@@ -158,6 +189,34 @@ namespace RestfulTVPApi.ServiceModel
         public int master_guid { get; set; }
         [ApiMember(Name = "co_guid", Description = "Domain master co guid", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
         public string co_guid { get; set; }
+    }
+
+    [Route("/devices/{udid}/domains", "POST", Summary = "If domain is device-restricted (2, 3) and user is not master, method will send email to domain master to approve adding the device to domain. If domain is not device-restricted or the user is master, method will directly add the device to domain.URI")]
+    public class SubmitAddDeviceToDomainRequest : RequestBase, IReturn<DomainResponseObject>
+    {        
+        [ApiMember(Name = "udid", Description = "Device Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string udid { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User Ideftifier", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public int site_guid { get; set; }
+        [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
+        public int domain_id { get; set; }
+        [ApiMember(Name = "device_name", Description = "Device Name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string device_name { get; set; }
+        [ApiMember(Name = "brand_id", Description = "Brand Id", ParameterType = "body", DataType = SwaggerType.Int, IsRequired = true)]
+        public int brand_id { get; set; }
+    }
+
+    [Route("/domains/{domain_id}/homenetwork/{network_id}", "POST", Summary = "Adds a home network to a domain", Notes = "")]
+    public class AddHomeNetworkToDomainRequest : RequestBase, IReturn<NetworkResponseObject>
+    {
+        [ApiMember(Name = "network_id", Description = "The network's Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string network_id { get; set; }
+        [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
+        public long domain_id { get; set; }
+        [ApiMember(Name = "network_name", Description = "The network's name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string network_name { get; set; }
+        [ApiMember(Name = "network_description", Description = "The network's description", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string network_description { get; set; }
     }
 
     #endregion
@@ -218,6 +277,50 @@ namespace RestfulTVPApi.ServiceModel
         public int is_active { get; set; }
     }
 
+    [Route("/domains/{domain_id}/restriction/{restriction}", "PUT", Summary = "Sets a restriction on a given domain, usually from Self-Care", Notes = "(requiring master's approval on adding users/devices)")]
+    public class SetDomainRestrictionRequest : RequestBase, IReturn<bool>
+    {
+        [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int domain_id { get; set; }
+        [ApiMember(Name = "restriction", Description = "Restriction number", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int restriction { get; set; }        
+    }
+
+    [Route("/domains/{domain_id}/homenetwork/{network_id}", "PUT", Summary = "Updates the domain home network's values", Notes = "")]
+    public class UpdateDomainHomeNetworkRequest : RequestBase, IReturn<NetworkResponseObject>
+    {
+        [ApiMember(Name = "network_id", Description = "The network's Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string network_id { get; set; }
+        [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
+        public long domain_id { get; set; }
+        [ApiMember(Name = "network_name", Description = "The network's name", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string network_name { get; set; }
+        [ApiMember(Name = "network_description", Description = "The network's description", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string network_description { get; set; }
+        [ApiMember(Name = "is_active", Description = "The network's state (true - active, false - inactive", ParameterType = "body", DataType = SwaggerType.Boolean, IsRequired = true)]
+        public bool is_active { get; set; }
+    }
+
+    [Route("/domains/{domain_id}/currmaster/{current_master_id}/newmaster/{new_master_id}", "PUT", Summary = "Changes the domain master", Notes = "")]
+    public class ChangeDomainMasterRequest : RequestBase, IReturn<DomainResponseObject>
+    {
+        [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int domain_id { get; set; }
+        [ApiMember(Name = "current_master_id", Description = "Current master id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int current_master_id { get; set; }
+        [ApiMember(Name = "new_master_id", Description = "New master id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int new_master_id { get; set; }
+    }
+
+    [Route("/domains/{domain_id}/frequency/{frequency_type}", "PUT", Summary = "Resets the domain's frequency", Notes = "")]
+    public class ResetDomainFrequencyRequest : RequestBase, IReturn<DomainResponseObject>
+    {
+        [ApiMember(Name = "domain_id", Description = "Domain Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int domain_id { get; set; }
+        [ApiMember(Name = "frequency_type", Description = "Frequency type", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int frequency_type { get; set; }        
+    }
+
     #endregion
 
     #region DELETE
@@ -249,6 +352,15 @@ namespace RestfulTVPApi.ServiceModel
         public string site_guid { get; set; }
         [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int domain_id { get; set; }
+    }
+
+    [Route("/domains/{domain_id}/homenetwork/{network_id}", "DELETE", Summary = "Removes a home network from a domain by given networkId", Notes = "")]
+    public class RemoveDomainHomeNetworkRequest : RequestBase, IReturn<NetworkResponseObject>
+    {
+        [ApiMember(Name = "network_id", Description = "The network's Id", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string network_id { get; set; }
+        [ApiMember(Name = "domain_id", Description = "Domain ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
+        public long domain_id { get; set; }        
     }
 
     #endregion

@@ -30,15 +30,15 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     //Problematic routing - same as GetSubscriptionDataPricesRequest
-    [Route("/subscriptions/{subscription_ids}/prices", "GET", Summary = "Get Subscription Prices With Coupon", Notes = "Get Subscription Prices With Coupon")]
+    [Route("/subscriptions/{subscription_ids}/prices/{coupon_code}", "GET", Summary = "Get Subscription Prices With Coupon", Notes = "Get Subscription Prices With Coupon")]
     public class GetSubscriptionsPricesWithCouponRequest : RequestBase, IReturn<List<SubscriptionsPricesContainer>>
     {
-        [ApiMember(Name = "site_guid", Description = "User ID", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
-        public string site_guid { get; set; }
-        [ApiMember(Name = "subscription_ids", Description = "Subscriptions Identifiers", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
+        [ApiMember(Name = "subscription_ids", Description = "Subscriptions Identifiers", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
         public string[] subscription_ids { get; set; }
-        [ApiMember(Name = "coupon_code", Description = "Coupon Code", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiMember(Name = "coupon_code", Description = "Coupon Code", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string coupon_code { get; set; }
+        [ApiMember(Name = "site_guid", Description = "User ID", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }                
         [ApiMember(Name = "country_code", Description = "Country Code", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string country_code { get; set; }
         [ApiMember(Name = "language_code", Description = "Language Code", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]

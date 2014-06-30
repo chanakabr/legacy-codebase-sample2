@@ -80,6 +80,31 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.GetUsersLikedMedia(request);
         }
 
+        public object Get(GetBuzzMeterDataRequest request)
+        {
+            return _repository.GetBuzzMeterData(request);
+        }
+
+        public object Get(GetAssetsStatsRequest request)
+        {
+            return _repository.GetAssetsStats(request);
+        }
+
+        public object Get(GetAssetsStatsForTimePeriodRequest request)
+        {
+            return _repository.GetAssetsStatsForTimePeriod(request);
+        }
+
+        public object Get(DoesBundleContainMediaRequest request)
+        {
+            return _repository.DoesBundleContainMedia(request);
+        }
+
+        public object Get(GetBundleMediaRequest request)
+        {
+            return _repository.GetBundleMedia(request);
+        }
+
         #endregion
 
         #region PUT

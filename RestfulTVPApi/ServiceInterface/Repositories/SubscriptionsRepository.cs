@@ -39,8 +39,8 @@ namespace RestfulTVPApi.ServiceInterface
                     res.Add(new SubscriptionPrice
                     {
                         subscription_code = priceObj.object_code,
-                        price = priceObj.subscription_price_code.prise.price,
-                        currency = priceObj.subscription_price_code.prise.currency.currency_sign
+                        price = priceObj.subscription_price_code.price.price,
+                        currency = priceObj.subscription_price_code.price.currency.currency_sign
                     });
                 }
             

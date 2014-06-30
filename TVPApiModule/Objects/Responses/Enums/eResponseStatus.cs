@@ -52,6 +52,27 @@ namespace TVPApiModule.Objects.Responses
 
         /// <remarks/>
         UserTypeNotExist,
+
+        /// <remarks/>
+        UserNotMasterApproved,
+
+        /// <remarks/>
+        ErrorOnInitUser,
+
+        /// <remarks/>
+        ErrorOnSaveUser,
+
+        /// <remarks/>
+        UserNotIndDomain,
+
+        /// <remarks/>
+        TokenNotFound,
+
+        /// <remarks/>
+        UserAlreadyMasterApproved,
+
+        /// <remarks/>
+        UserWithNoDomain,
     }
 
 }

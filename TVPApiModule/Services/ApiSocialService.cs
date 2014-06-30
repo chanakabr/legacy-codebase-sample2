@@ -4,6 +4,7 @@ using System.Linq;
 using log4net;
 using TVPApiModule.Extentions;
 using TVPApiModule.Context;
+using TVPPro.SiteManager.TvinciPlatform.Social;
 
 namespace TVPApiModule.Services
 {
@@ -65,42 +66,42 @@ namespace TVPApiModule.Services
 
         #endregion
 
-        public TVPApiModule.Objects.Responses.SocialActionResponseStatus DoSocialAction(int mediaID,
+        public TVPApiModule.Objects.Responses.DoSocialActionResponse DoSocialAction(int mediaID,
                                                                                                   string siteGuid,
                                                                                                   string udid,
                                                                                                   TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
                                                                                                   TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                   string actionParam)
         {
+            TVPApiModule.Objects.Responses.DoSocialActionResponse eRes = null;
 
-            TVPApiModule.Objects.Responses.SocialActionResponseStatus eRes = TVPApiModule.Objects.Responses.SocialActionResponseStatus.UNKNOWN;
-
-            eRes = (Objects.Responses.SocialActionResponseStatus)Enum.Parse(typeof(Objects.Responses.SocialActionResponseStatus), Execute(() =>
+            eRes = Execute(() =>
                 {
-                    TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraPatams;
+                    TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams;
                     if (string.IsNullOrEmpty(actionParam))
-                        extraPatams = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[0];
+                        extraParams = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[0];
                     else
                     {
-                        extraPatams = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[1];
-                        extraPatams[0] = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "link", value = actionParam };
+                        extraParams = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[1];
+                        extraParams[0] = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "link", value = actionParam };
                     }
 
-                    TVPPro.SiteManager.TvinciPlatform.Social.BaseDoUserActionRequest actionRequest = new TVPPro.SiteManager.TvinciPlatform.Social.BaseDoUserActionRequest()
+                    BaseDoUserActionRequest actionRequest = new BaseDoUserActionRequest()
                     {
                         m_eAction = userAction,
-                        m_eAssetType = TVPPro.SiteManager.TvinciPlatform.Social.eAssetType.MEDIA,
+                        m_eAssetType = eAssetType.MEDIA,
                         m_eSocialPlatform = socialPlatform,
                         m_nAssetID = mediaID,
-                        m_oKeyValue = extraPatams,
+                        m_oKeyValue = extraParams,
                         m_sDeviceUDID = udid,
                         m_sSiteGuid = siteGuid
                     };
-                    var res = Social.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
-                    eRes = res != null ? (TVPApiModule.Objects.Responses.SocialActionResponseStatus)res.m_eActionResponseStatusIntern : TVPApiModule.Objects.Responses.SocialActionResponseStatus.UNKNOWN;
+                    DoSocialActionResponse response = Social.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                    if (response != null)
+                        eRes = response.ToApiObject();
 
                     return eRes;
-                }).ToString());
+                }) as TVPApiModule.Objects.Responses.DoSocialActionResponse;
 
             return eRes;
         }
@@ -431,14 +432,43 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.SocialActionResponseStatus DoUserAction(string siteGuid, string udid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID)
-        {
-            TVPApiModule.Objects.Responses.SocialActionResponseStatus res = TVPApiModule.Objects.Responses.SocialActionResponseStatus.UNKNOWN;
+        //public TVPApiModule.Objects.Responses.SocialActionResponseStatus DoUserAction(string siteGuid, string udid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID)
+        //{
+        //    TVPApiModule.Objects.Responses.SocialActionResponseStatus res = TVPApiModule.Objects.Responses.SocialActionResponseStatus.UNKNOWN;
 
-            res = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)Enum.Parse(typeof(TVPApiModule.Objects.Responses.SocialActionResponseStatus), Execute(() =>
+        //    res = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)Enum.Parse(typeof(TVPApiModule.Objects.Responses.SocialActionResponseStatus), Execute(() =>
+        //        {
+        //            // create request object
+        //            TVPPro.SiteManager.TvinciPlatform.Social.BaseDoUserActionRequest request = new TVPPro.SiteManager.TvinciPlatform.Social.BaseDoUserActionRequest()
+        //            {
+        //                m_eAction = userAction,
+        //                m_eSocialPlatform = socialPlatform,
+        //                m_oKeyValue = extraParams,
+        //                m_sSiteGuid = siteGuid,
+        //                m_eAssetType = assetType,
+        //                m_nAssetID = assetID,
+        //                m_sDeviceUDID = udid,
+
+        //            };
+        //            var response = Social.DoUserAction(m_wsUserName, m_wsPassword, request);
+        //            if (response != null)
+        //                res = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)response.m_eActionResponseStatusIntern;
+        //            //res = Social.DoUserAction(m_wsUserName, m_wsPassword, request);
+
+        //            return res;
+        //        }).ToString());
+
+        //    return res;            
+        //}
+
+        public TVPApiModule.Objects.Responses.DoSocialActionResponse DoUserAction(string siteGuid, string udid, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
+        {
+            TVPApiModule.Objects.Responses.DoSocialActionResponse response = null;
+
+            response = Execute(() =>
                 {
                     // create request object
-                    TVPPro.SiteManager.TvinciPlatform.Social.BaseDoUserActionRequest request = new TVPPro.SiteManager.TvinciPlatform.Social.BaseDoUserActionRequest()
+                    BaseDoUserActionRequest request = new BaseDoUserActionRequest()
                     {
                         m_eAction = userAction,
                         m_eSocialPlatform = socialPlatform,
@@ -449,15 +479,18 @@ namespace TVPApiModule.Services
                         m_sDeviceUDID = udid,
 
                     };
-                    var response = Social.DoUserAction(m_wsUserName, m_wsPassword, request);
-                    if (response != null)
-                        res = (TVPApiModule.Objects.Responses.SocialActionResponseStatus)response.m_eActionResponseStatusIntern;
-                    //res = Social.DoUserAction(m_wsUserName, m_wsPassword, request);
 
-                    return res;
-                }).ToString());
+                    var res = Social.DoUserAction(m_wsUserName, m_wsPassword, request);
+                    if (res != null)
+                    {
+                        response = res.ToApiObject();
+                    }
 
-            return res;            
+                    return response;
+
+                }) as TVPApiModule.Objects.Responses.DoSocialActionResponse;
+
+            return response;
         }
 
         public TVPApiModule.Objects.Responses.eSocialActionPrivacy GetUserExternalActionShare(string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform)

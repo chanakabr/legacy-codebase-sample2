@@ -6,6 +6,7 @@ using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Extentions;
 using TVPApiModule.Context;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.Services
 {
@@ -758,7 +759,251 @@ namespace TVPApiModule.Services
 
             return retVal;
         }
+
+        public List<CollectionPricesContainer> GetCollectionPrices(string[] collections, string userGuid, string countryCode2, string languageCode3, string deviceName)
+        {
+            List<TVPApiModule.Objects.Responses.CollectionPricesContainer> retVal = null;
+
+            retVal = Execute(() =>
+            {
+                var response = ConditionalAccess.GetCollectionsPrices(m_wsUserName, m_wsPassword, collections, userGuid, countryCode2, languageCode3, deviceName);
+                if (response != null)
+                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
+
+                return retVal;
+            }) as List<TVPApiModule.Objects.Responses.CollectionPricesContainer>;
+
+            return retVal;
+        }
+
+        public List<CollectionPricesContainer> GetCollectionPricesWithCoupon(string[] collections, string userGuid, string countryCode2, string languageCode3, string couponCode, string deviceName)
+        {
+            List<TVPApiModule.Objects.Responses.CollectionPricesContainer> retVal = null;
+
+            retVal = Execute(() =>
+            {
+                var response = ConditionalAccess.GetCollectionsPricesWithCoupon(m_wsUserName, m_wsPassword, collections, userGuid, couponCode, countryCode2, languageCode3, deviceName, SiteHelper.GetClientIP());
+                if (response != null)
+                    retVal = response.Where(cp => cp != null).Select(collection => collection.ToApiObject()).ToList();
+
+                return retVal;
+            }) as List<TVPApiModule.Objects.Responses.CollectionPricesContainer>;
+
+            return retVal;
+        }
         
         #endregion
+
+        public List<TVPApiModule.Objects.Responses.PermittedCollectionContainer> GetUserPermittedCollections(string siteGuid)
+        {
+            List<TVPApiModule.Objects.Responses.PermittedCollectionContainer> retVal = null;
+
+            retVal = Execute(() =>
+            {
+                var response = ConditionalAccess.GetUserPermittedCollections(m_wsUserName, m_wsPassword, siteGuid);
+
+                if (response != null)
+                {
+                    retVal = response.Where(pc => pc != null).Select(collection => collection.ToApiObject()).ToList();
+                    if (retVal != null)
+                    {
+                        retVal = retVal.OrderByDescending(r => r.purchase_date.Date).ThenByDescending(r => r.purchase_date.TimeOfDay).ToList();
+                    }
+                }
+
+                return retVal;
+            }) as List<TVPApiModule.Objects.Responses.PermittedCollectionContainer>;
+
+            return retVal;
+        }
+
+        public List<Objects.Responses.PermittedCollectionContainer> GetDomainPermittedCollections(int domainId)
+        {
+            List<TVPApiModule.Objects.Responses.PermittedCollectionContainer> retVal = null;
+
+            retVal = Execute(() =>
+            {
+                var response = ConditionalAccess.GetDomainPermittedCollections(m_wsUserName, m_wsPassword, domainId);
+                if (response != null)
+                    retVal = response.Where(ps => ps != null).Select(s => s.ToApiObject()).ToList();
+
+                return retVal;
+            }) as List<TVPApiModule.Objects.Responses.PermittedCollectionContainer>;
+
+            return retVal;
+        }
+
+        public Objects.Responses.ChangeSubscriptionStatus ChangeSubscription(string siteGuid, int oldSubscriptionId, int newSubscriptionId)
+        {
+            Objects.Responses.ChangeSubscriptionStatus status = Objects.Responses.ChangeSubscriptionStatus.Error;
+
+            status = (TVPApiModule.Objects.Responses.ChangeSubscriptionStatus)Enum.Parse(typeof(TVPApiModule.Objects.Responses.ChangeSubscriptionStatus), Execute(() =>
+            {
+                status = (TVPApiModule.Objects.Responses.ChangeSubscriptionStatus)ConditionalAccess.ChangeSubscription(m_wsUserName, m_wsPassword, siteGuid, oldSubscriptionId, newSubscriptionId);
+                return status;
+            }).ToString());
+
+            return status;
+        }
+
+        public int CreatePurchaseToken(string siteGuid, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string userIp,
+                                       string countryCd2, string languageCode3, string deviceName, int assetType, string overrideEndDate, string previewModuleID)
+        {
+            int res = 0;
+
+            res = Convert.ToInt32(Execute(() =>
+            {
+                res = ConditionalAccess.GetCustomDataID(m_wsUserName, m_wsPassword, siteGuid, price, currencyCode3, assetId, ppvModuleCode, campaignCode, couponCode, paymentMethod, userIp, countryCd2, languageCode3,
+                                                        deviceName, assetType, overrideEndDate, previewModuleID);                
+
+                return res;
+            }));
+
+            return res;            
+        }
+
+        public string DummyChargeUserForCollection(string siteGuid, string collectionId, double price, string currency, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3, string deviceId)
+        {
+            string res = string.Empty;
+
+            res = Execute(() =>
+            {
+                var response = ConditionalAccess.CC_DummyChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currency, collectionId, couponCode, userIP, extraParameters, countryCode2, languageCode3, deviceId);
+                if (response != null)
+                {
+                    res = response.m_oStatus.ToString() + "|" + response.m_sRecieptCode;
+                }
+
+                return res;
+            }) as string;
+
+            return res;
+        }
+
+        public TVPApiModule.Objects.Responses.BillingResponse ChargeUserForCollection(string siteGuid, string collectionId, double price, string currency, string encrypteCVV, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3, string deviceId, string paymentMethodId)
+        {
+            TVPApiModule.Objects.Responses.BillingResponse billingResponse = null;
+
+            billingResponse = Execute(() =>
+            {
+                var response = ConditionalAccess.CC_ChargeUserForCollection(m_wsUserName, m_wsPassword, siteGuid, price, currency, collectionId, couponCode, userIP, extraParameters, countryCode2, languageCode3, deviceId, paymentMethodId, encrypteCVV);
+                if (response != null)
+                {
+                    billingResponse = response.ToApiObject();
+                }
+
+                return billingResponse;
+            }) as TVPApiModule.Objects.Responses.BillingResponse;
+
+            return billingResponse;
+        }
+
+        public TVPApiModule.Objects.Responses.BillingResponse CellularChargeUserForSubscription(string siteGuid, double price, string currencyCode, string subscriptionCode, string couponCode, string userIP, string extraParameters, string countryCode, string languageCode3, string deviceName)
+        {
+            TVPApiModule.Objects.Responses.BillingResponse billingResponse = null;
+
+            billingResponse = Execute(() =>
+            {
+                var response = ConditionalAccess.Cellular_ChargeUserForSubscription(m_wsUserName, m_wsPassword, siteGuid, price, currencyCode, subscriptionCode, couponCode, userIP, extraParameters, countryCode, languageCode3, deviceName);
+                if (response != null)
+                {
+                    billingResponse = response.ToApiObject();
+                }
+
+                return billingResponse;
+            }) as TVPApiModule.Objects.Responses.BillingResponse;
+
+            return billingResponse;
+        }
+
+        public string ChargeUserForSubscriptionByPaymentMethod(string siteGuid, double price, string currencyCode, string subscriptionCode, string couponCode, string userIP, string extraParameters, string countryCode, string languageCode3, string deviceName, string paymentMethodId, string encryptedCVV)
+        {
+            string response = string.Empty;
+
+            response = Execute(() =>
+            {
+                var billingResponse = ConditionalAccess.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, siteGuid, price, currencyCode, subscriptionCode, couponCode, userIP, extraParameters, countryCode, languageCode3, deviceName, paymentMethodId, encryptedCVV);
+                if (billingResponse != null)
+                {
+                    response = billingResponse.m_oStatus.ToString() + "|" + billingResponse.m_sRecieptCode;
+                }
+
+                return response;
+            }) as string;
+
+            return response;
+        }
+
+        public string ChargeUserForMediaFileByPaymentMethod(double price, string currencyCode, int fileId, string ppvModuleCode, string userIP, string siteGuid, string deviceName, string extraParameters, string paymentMethodId, string encryptedCVV)
+        {
+            string response = string.Empty;
+
+            response = Execute(() =>
+            {
+                var billingResponse = ConditionalAccess.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currencyCode, fileId, ppvModuleCode, string.Empty, userIP, extraParameters, string.Empty, string.Empty, deviceName, paymentMethodId, encryptedCVV);
+                if (billingResponse != null)
+                {
+                    response = billingResponse.m_oStatus.ToString() + "|" + billingResponse.m_sRecieptCode;
+                }
+
+                return response;
+            }) as string;
+
+            return response;
+        }
+
+        public string CellularChargeUserForMediaFileRequest(double price, string currencyCode, int fileId, string ppvModuleCode, string userIP, string siteGuid, string deviceName, string extraParameters, string couponCode, string languageCode, string countryCode)
+        {
+            string response = string.Empty;
+
+            response = Execute(() =>
+            {
+                var billingResponse = ConditionalAccess.Cellular_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currencyCode, fileId, ppvModuleCode, couponCode, userIP, extraParameters, countryCode, languageCode, deviceName);
+                if (billingResponse != null)
+                {
+                    response = billingResponse.m_oStatus.ToString() + "|" + billingResponse.m_sRecieptCode;
+                }
+
+                return response;
+            }) as string;
+
+            return response;
+        }
+
+        public string ChargeUserForMediaFileUsingCC(double price, string currency, int fileId, string ppvModuleCode, string couponCode, string userIp, string siteGuid, string udid, string paymentMethodID, string encryptedCVV)
+        {
+            string response = string.Empty;
+
+            response = Execute(() =>
+            {
+                var billingResponse = ConditionalAccess.CC_ChargeUserForMediaFile(m_wsUserName, m_wsPassword, siteGuid, price, currency, fileId, ppvModuleCode, couponCode, userIp, string.Empty, string.Empty, string.Empty, udid, paymentMethodID, encryptedCVV);
+                if (billingResponse != null)
+                {
+                    response = billingResponse.m_oStatus.ToString() + "|" + billingResponse.m_sRecieptCode;
+                }
+
+                return response;
+            }) as string;
+
+            return response;
+        }
+
+        public string ChargeUserForMediaSubscriptionUsingCC(double price, string currency, string subscriptionId, string couponCode, string userIp, string siteGuid, string udid, string paymentMethodID, string encryptedCVV, string extraParameters, string countryCode, string languageCode)
+        {
+            string response = string.Empty;
+
+            response = Execute(() =>
+            {
+                var billingResponse = ConditionalAccess.CC_ChargeUserForSubscription(m_wsUserName, m_wsPassword, siteGuid, price, currency, subscriptionId, couponCode, userIp, extraParameters, countryCode, languageCode, udid, paymentMethodID, encryptedCVV);
+                if (billingResponse != null)
+                {
+                    response = billingResponse.m_oStatus.ToString() + "|" + billingResponse.m_sRecieptCode;
+                }
+
+                return response;
+            }) as string;
+
+            return response;
+        }        
     }
 }

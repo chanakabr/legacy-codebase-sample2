@@ -95,6 +95,21 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.GetDomainPermittedSubscriptions(request);
         }
 
+        public object Get(GetDomainHomeNetworksRequest request)
+        {
+            return _repository.GetDomainHomeNetworks(request);
+        }
+
+        public object Get(GetDeviceInfoRequest request)
+        {
+            return _repository.GetDeviceInfo(request);
+        }
+
+        public object Get(GetDomainPermittedCollectionsRequest request)
+        {
+            return _repository.GetDomainPermittedCollections(request);
+        }
+
         #endregion
 
         #region PUT
@@ -117,6 +132,26 @@ namespace RestfulTVPApi.ServiceInterface
         public object Put(SetRuleStateRequest request)
         {
             return _repository.SetRuleState(request);
+        }
+
+        public object Put(SetDomainRestrictionRequest request)
+        {
+            return _repository.SetDomainRestriction(request);
+        }
+
+        public object Put(UpdateDomainHomeNetworkRequest request)
+        {
+            return _repository.UpdateDomainHomeNetwork(request);
+        }
+
+        public object Put(ChangeDomainMasterRequest request)
+        {
+            return _repository.ChangeDomainMaster(request);
+        }
+
+        public object Put(ResetDomainFrequencyRequest request)
+        {
+            return _repository.ResetDomainFrequency(request);
         }
 
         #endregion
@@ -167,6 +202,16 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.AddDomainWithCoGuid(request);
         }
 
+        public object Post(SubmitAddDeviceToDomainRequest request)
+        {
+            return _repository.SubmitAddDeviceToDomainRequest(request);
+        }
+
+        public object Post(AddHomeNetworkToDomainRequest request)
+        {
+            return _repository.AddHomeNetworkToDomain(request);
+        }
+
         #endregion
 
         #region DELETE
@@ -184,6 +229,11 @@ namespace RestfulTVPApi.ServiceInterface
         public object Delete(RemoveUserFromDomainRequest request)
         {
             return _repository.RemoveUserFromDomain(request);
+        }
+
+        public object Delete(RemoveDomainHomeNetworkRequest request)
+        {
+            return _repository.RemoveDomainHomeNetwork(request);
         }
 
         #endregion        

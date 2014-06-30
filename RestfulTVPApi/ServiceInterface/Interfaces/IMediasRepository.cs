@@ -51,5 +51,15 @@ namespace RestfulTVPApi.ServiceInterface
         bool ActionDone(ActionDoneRequest request);
 
         List<string> GetUsersLikedMedia(GetUsersLikedMediaRequest request);
+
+        TVPApiModule.Objects.Responses.BuzzWeightedAverScore GetBuzzMeterData(GetBuzzMeterDataRequest request);
+
+        List<TVPApiModule.Objects.Responses.AssetStatsResult> GetAssetsStats(GetAssetsStatsRequest request);
+
+        List<TVPApiModule.Objects.Responses.AssetStatsResult> GetAssetsStatsForTimePeriod(GetAssetsStatsForTimePeriodRequest request);
+
+        bool DoesBundleContainMedia(DoesBundleContainMediaRequest request);
+
+        List<Media> GetBundleMedia(GetBundleMediaRequest request);
     }
 }

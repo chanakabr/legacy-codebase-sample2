@@ -50,6 +50,11 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.GetEPGProgramRules(request);
         }
 
+        public object Get(SearchEPGByAndOrListRequest request)
+        {
+            return _repository.SearchEPGByAndOrList(request);
+        }
+
         #endregion
 
         #region PUT

@@ -19,10 +19,14 @@ namespace TVPApiModule.Objects.Responses
 
         public Subscription relevant_sub { get; set; }
 
+        public Collection relevant_collection { get; set; }
+
         public PrePaidModule relevant_pp { get; set; }
 
         public LanguageContainer[] ppv_description { get; set; }
 
         public CouponsStatus coupon_status { get; set; }
+
+        public string first_device_name_found { get; set; }
     }
 }

@@ -30,6 +30,28 @@ namespace RestfulTVPApi.ServiceModel
         public CutWith cut_with { get; set; }
     }
 
+    [Route("/channels/{ChannelID}/ordered_medias_multi_filter", "GET", Notes = "Returnes channel's media, filtered and ordered by the requested parameters")]
+    public class GetOrderedChannelMultiFilterRequest : PagingRequest, IReturn<List<Media>>
+    {
+        [ApiMember(Name = "channel_id", Description = "Channel ID", ParameterType = "path", DataType = SwaggerType.Long, IsRequired = true)]
+        public long channel_id { get; set; }
+        [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string pic_size { get; set; }
+        [ApiMember(Name = "order_by", Description = "Order By", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
+        [ApiAllowableValues("order_by", typeof(TVPApiModule.Context.OrderBy))]
+        public TVPApiModule.Context.OrderBy order_by { get; set; }
+        [ApiMember(Name = "order_dir", Description = "Order Direction", ParameterType = "query", DataType = SwaggerType.String, IsRequired = false)]
+        [ApiAllowableValues("order_dir", typeof(eOrderDirection))]
+        public eOrderDirection order_dir { get; set; }
+        [ApiMember(Name = "tags_metas", Description = "Tags Metas", ParameterType = "query", DataType = SwaggerType.Array, IsRequired = true)]
+        public List<KeyValue> tags_metas { get; set; }
+        [ApiMember(Name = "cut_with", Description = "Cut With", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        [ApiAllowableValues("cut_with", typeof(CutWith))]
+        public CutWith cut_with { get; set; }
+        [ApiMember(Name = "order_value", Description = "Order value", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string order_value { get; set; }
+    }
+
     [Route("/channels/{ChannelID}", "GET", Notes = "This method returns an array of all channels that exist for this customer site")]
     public class GetChannelsListRequest : RequestBase, IReturn<List<Channel>>
     {

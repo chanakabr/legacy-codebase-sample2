@@ -199,25 +199,25 @@ namespace TVPApiModule.Helper
 
         internal static TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] GetExtraParamsFromConfig(ParamsParamCollection paramCollection, int mediaID, int groupID, PlatformType platform)
         {
-            List<KeyValuePair> retVal = null;
+            List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair> retVal = null;
 
             if (paramCollection != null && paramCollection.Count > 0)
             {
-                retVal = new List<KeyValuePair>();
-                KeyValuePair pair;
+                retVal = new List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair>();
+                TVPApiModule.yes.tvinci.ITProxy.KeyValuePair pair;
 
                 foreach (Param param in paramCollection)
                 {
-                    pair = new KeyValuePair();
+                    pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair();
                     if (param.name == "external_content_id")
                     {
                         // get media's 
                         string externalContentID = GetExternalContentIdForMedia(mediaID, groupID, platform);
                         if (!string.IsNullOrEmpty(externalContentID))
-                            pair = new KeyValuePair() { Key = param.key, Value = externalContentID };
+                            pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = externalContentID };
                     }
                     else
-                        pair = new KeyValuePair() { Key = param.key, Value = param.value };
+                        pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = param.value };
 
                     retVal.Add(pair);
                 }

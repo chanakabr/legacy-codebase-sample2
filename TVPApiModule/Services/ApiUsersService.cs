@@ -8,6 +8,7 @@ using System.Web;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Extentions;
 using TVPApiModule.Context;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.Services
 {
@@ -105,6 +106,38 @@ namespace TVPApiModule.Services
 
                     return loginData;
                 }) as LogInResponseData;
+
+            return loginData;
+        }
+
+        public TVPApiModule.Services.ApiUsersService.LogInResponseData SignInWithToken(string token, string udid, string sessionId, string ip, int groupId, PlatformType platform)
+        {
+            TVPApiModule.Services.ApiUsersService.LogInResponseData loginData = new TVPApiModule.Services.ApiUsersService.LogInResponseData();
+
+            loginData = Execute(() =>
+            {
+                TVPApiModule.Objects.Responses.UserResponseObject userResponse = null;
+                bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupId, platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject response = Users.SignInWithToken(m_wsUserName, m_wsPassword, token, sessionId, ip, udid, isSingleLogin);//.ToApiObject();
+
+                if (response != null)
+                {
+                    userResponse = response.ToApiObject();
+                    if (userResponse != null && response.m_user != null)
+                    {
+                        loginData.SiteGuid = userResponse.user.site_guid;
+                        loginData.DomainID = userResponse.user.domian_id;
+                        loginData.LoginStatus = userResponse.resp_status;
+                        loginData.UserData = userResponse.user;
+                    }
+                    else if (userResponse != null)
+                    {
+                        loginData.LoginStatus = userResponse.resp_status;
+                    }
+                }
+
+                return loginData;
+            }) as LogInResponseData;
 
             return loginData;
         }

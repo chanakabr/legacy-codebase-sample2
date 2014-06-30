@@ -172,6 +172,61 @@ namespace RestfulTVPApi.ServiceModel
         public bool only_friends { get; set; }
     }
 
+    [Route("/medias/{media_id}/buzz_meter_data", "GET", Notes = "Returns aggregated statistics for a series/linear channel")]
+    public class GetBuzzMeterDataRequest : RequestBase, IReturn<TVPApiModule.Objects.Responses.BuzzWeightedAverScore>
+    {
+        [ApiMember(Name = "media_id", Description = "Series or Linear Channel", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string media_id { get; set; }        
+    }
+
+    [Route("/assets/{asset_ids}", "GET", Notes = "Gets all the statistics for a list of assets (EPG / media)")]
+    public class GetAssetsStatsRequest : PagingRequest, IReturn<List<TVPApiModule.Objects.Responses.AssetStatsResult>>
+    {
+        [ApiMember(Name = "asset_ids", Description = "Asset ids", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
+        public List<int> asset_ids { get; set; }
+        [ApiMember(Name = "asset_type", Description = "Asset Type", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public StatsType asset_type { get; set; }
+    }
+
+    [Route("/assets/{asset_ids}/time_period", "GET", Notes = "Gets all the statistics for a list of assets (EPG / media) in a given period of time")]
+    public class GetAssetsStatsForTimePeriodRequest : GetAssetsStatsRequest, IReturn<List<TVPApiModule.Objects.Responses.AssetStatsResult>>
+    {
+        [ApiMember(Name = "asset_ids", Description = "Asset ids", ParameterType = "path", DataType = SwaggerType.Array, IsRequired = true)]
+        public List<int> asset_ids { get; set; }
+        [ApiMember(Name = "start_time", Description = "Period's start time", ParameterType = "query", DataType = SwaggerType.Date, IsRequired = true)]
+        public DateTime start_time { get; set; }
+        [ApiMember(Name = "end_time", Description = "Period's end time", ParameterType = "query", DataType = SwaggerType.Date, IsRequired = true)]
+        public DateTime end_time { get; set; }
+    }
+
+    [Route("/bundle/{bundle_id}/media/{media_id}", "GET", Notes = "Returns if a media is contained in a bundle")]
+    public class DoesBundleContainMediaRequest : RequestBase, IReturn<bool>
+    {
+        [ApiMember(Name = "bundle_id", Description = "Bundle id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int bundle_id { get; set; }
+        [ApiMember(Name = "media_id", Description = "The media which is being searched in the bundle", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int media_id { get; set; }
+        [ApiMember(Name = "media_type", Description = "Media Type", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string media_type { get; set; }
+        [ApiMember(Name = "bundle_type", Description = "Bundle type (Collection || Subscription)", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public eBundleType bundle_type { get; set; }
+    }
+
+    [Route("/bundle/{bundle_id}/bundle_medias", "GET", Notes = "Gets all medias in bundle")]
+    public class GetBundleMediaRequest : PagingRequest, IReturn<List<Media>>
+    {
+        [ApiMember(Name = "bundle_id", Description = "Bundle id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int bundle_id { get; set; }
+        [ApiMember(Name = "media_type", Description = "Media Type", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
+        public string media_type { get; set; }
+        [ApiMember(Name = "bundle_type", Description = "Bundle type (Collection || Subscription)", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public eBundleType bundle_type { get; set; }
+        [ApiMember(Name = "order_by", Description = "Order by", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public TVPApiModule.Context.OrderBy order_by { get; set; }
+        [ApiMember(Name = "order_dir", Description = "Order direction (asc/desc)", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public OrderDir order_dir { get; set; }        
+    }
+
     #endregion
 
     #region PUT
