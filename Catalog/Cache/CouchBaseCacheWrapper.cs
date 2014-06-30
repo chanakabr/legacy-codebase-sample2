@@ -20,8 +20,6 @@ namespace Catalog
 
         public CouchBaseCacheWrapper()
         {
-
-
         }
 
         public void Init()

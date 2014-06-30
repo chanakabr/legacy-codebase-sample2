@@ -141,4 +141,10 @@ namespace ApiObjects
         SUS,
         MUS
     }
+
+    public enum eCacheGroupType
+    {
+        GroupCacheExternal,
+        GroupCacheInternal
+    }
 }

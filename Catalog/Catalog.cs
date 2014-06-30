@@ -2405,11 +2405,10 @@ namespace Catalog
                     {
                         // we have operator id
                         res = true;
-                        GroupManager groupManager = new GroupManager();
-                        Group group = groupManager.GetGroup(oMediaRequest.m_nGroupID);
-                        List<long> channelsOfIPNO = group.GetOperatorChannelIDs(operatorID);
-                        List<long> allChannelsOfAllIPNOs = group.GetDistinctAllOperatorsChannels();
-
+                        GroupManager groupManager = new GroupManager();                        
+                        List<long> channelsOfIPNO = groupManager.GetOperatorChannelIDs(oMediaRequest.m_nGroupID, operatorID);//group.GetOperatorChannelIDs(operatorID);
+                        List<long> allChannelsOfAllIPNOs = groupManager.GetDistinctAllOperatorsChannels(oMediaRequest.m_nGroupID);// group.GetDistinctAllOperatorsChannels();
+                        
                         if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
                         {
                             // get channels definitions from ES Percolator

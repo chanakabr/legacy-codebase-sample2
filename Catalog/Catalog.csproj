@@ -107,7 +107,11 @@
     <Compile Include="BaseEpg.cs" />
     <Compile Include="BaseProtocolRequest.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Cache\BaseGroupCache.cs" />
     <Compile Include="Cache\CouchBaseCacheWrapper.cs" />
+    <Compile Include="Cache\GroupCacheExternal.cs" />
+    <Compile Include="Cache\GroupCacheInternal.cs" />
+    <Compile Include="Cache\GroupCacheUtils.cs" />
     <Compile Include="Cache\GroupManager.cs" />
     <Compile Include="ChannelsContainingMediaRequest.cs" />
     <Compile Include="ChannelsContainingMediaResponse.cs" />
@@ -139,7 +143,7 @@
     <Compile Include="EpgSearchRequest.cs" />
     <Compile Include="EpgSearchResponse.cs" />
     <Compile Include="Group.cs" />
-    <Compile Include="GroupsCache.cs" />
+    <Compile Include="Cache\GroupsCache.cs" />
     <Compile Include="ChannelsListRequest.cs" />
     <Compile Include="CommentsListRequest.cs" />
     <Compile Include="CommentsListResponse.cs" />

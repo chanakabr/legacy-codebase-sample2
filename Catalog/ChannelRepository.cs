@@ -69,8 +69,7 @@ namespace Catalog
            
             return lGroups;
         }
-
-
+        
         private static void GetGroupEpgTagsAndMetas(ref Group newGroup)
         {
             try

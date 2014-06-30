@@ -70,8 +70,142 @@ namespace Catalog
             this.m_oOperatorChannelIDs = new Dictionary<int, List<long>>();
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
         }
+      
+        public List<long> GetOperatorChannelIDs(int nOperatorID)
+        {
+            return Read(nOperatorID);
+        }
+
+     
+        public List<int> GetAllOperators()
+        {
+            try
+            {
+                if (m_oOperatorChannelIDs != null)
+                {
+                    return m_oOperatorChannelIDs.Keys.ToList<int>();
+                }
+                return new List<int>();
+            }
+            catch (Exception ex)
+            {
+                return new List<int>();
+            }
+        }
+
+        public List<long> GetAllOperatorsChannelIDs()
+        {
+            SortedSet<long> allChannelIDs = new SortedSet<long>();
+            List<int> operatorIDs = CatalogDAL.Get_GroupOperatorIDs(m_nParentGroupID);
+            _logger.Info(string.Format("Group ID: {0} , Operators extracted from DB: {1}", m_nParentGroupID, operatorIDs.Aggregate<int, string>(string.Empty, (res, item) => String.Concat(res, ";", item))));
+            if (operatorIDs.Count > 0)
+            {
+                for (int i = 0; i < operatorIDs.Count; i++)
+                {
+                    allChannelIDs.UnionWith(GetOperatorChannelIDs(operatorIDs[i]));
+                }
+            }
+
+            return allChannelIDs.ToList();
+        }
+
+        public void Dispose()
+        {
+            if (m_oLockers != null && m_oLockers.Count > 0)
+            {
+                lock (m_oLockers)
+                {
+                    Logger.Logger.Log("Dispose", String.Concat("Dispose. Locked. Group ID: ", m_nParentGroupID), GROUP_LOG_FILENAME);
+                    if (m_oLockers != null && m_oLockers.Count > 0)
+                    {
+                        foreach (KeyValuePair<int, ReaderWriterLockSlim> kvp in m_oLockers)
+                        {
+                            if (kvp.Value != null)
+                            {
+                                kvp.Value.Dispose();
+                            }
+                        } // end foreach
+                    }
+                    m_oLockers.Clear();
+                } // end lock
+                Logger.Logger.Log("Dispose", String.Concat("Dispose. Unlocked. Group ID: ", m_nParentGroupID), GROUP_LOG_FILENAME);
+            }
+        }
+
+        #endregion
+
+        #region Internal
+        internal bool AddChannels(int nGroupID, List<Channel> lNewCreatedChannels)
+        {
+            try
+            {
+                foreach (Channel channel in lNewCreatedChannels)
+                {
+                    if (!m_oGroupChannels.ContainsKey(channel.m_nChannelID))
+                    {
+                        m_oGroupChannels.TryAdd(channel.m_nChannelID, channel);
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        internal string GetSubTreeGroupIds()
+        {
+            if (m_nSubGroup != null && m_nSubGroup.Count > 0)
+            {
+                return string.Join(",", m_nSubGroup);
+            }
+            return string.Empty;
+        }
 
 
+
+        internal bool RemoveOperator(int nOperatorID)
+        {
+            bool bRes = false;
+            try
+            {
+                bRes = m_oOperatorChannelIDs.Remove(nOperatorID);
+                return bRes;
+            }
+            catch (Exception ex)
+            {
+                return bRes;                   
+            }
+        }
+
+        internal bool UpdateChannelsToOperator(int nOperatorID, List<long> channelIDs)
+        {
+            bool bRes = false;
+            try
+            {
+                if (channelIDs != null && channelIDs.Count > 0)
+                {
+                    m_oOperatorChannelIDs.Add(nOperatorID, channelIDs);
+                    bRes = true;
+                }
+                else
+                {
+                    m_oOperatorChannelIDs.Add(nOperatorID, new List<long>(1) { 0 });
+                    Logger.Logger.Log("Build", string.Format("No operator channel ids were extracted from DB. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                    bRes = false;
+                }
+                return bRes;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        #endregion
+
+        #region Private
 
         private void GetLocker(int nOperatorID, ref ReaderWriterLockSlim locker)
         {
@@ -96,22 +230,7 @@ namespace Catalog
                 Logger.Logger.Log("GetLocker", string.Format("Failed to read reader writer manager. operator id: {0} , group_id: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
             }
         }
-
-        public List<long> GetOperatorChannelIDs(int nOperatorID)
-        {
-            return Read(nOperatorID);
-        }
-
-        public List<long> GetDistinctAllOperatorsChannels()
-        {
-            if (Utils.IsGroupIDContainedInConfig(this.m_nParentGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
-            {
-                return GetAllOperatorsChannelIDs();
-            }
-
-            return new List<long>(0);
-        }
-
+        
         private List<long> Read(int nOperatorID)
         {
             GroupManager groupManager = new GroupManager();
@@ -168,20 +287,27 @@ namespace Catalog
                     Logger.Logger.Log("Build", string.Format("Build. Failed to obtain locker. Operator ID: {0}", nOperatorID), GROUP_LOG_FILENAME);
                     throw new Exception(string.Format("Build. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
                 }
-                locker.EnterWriteLock();
-                if (!m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+                try
                 {
-                    List<long> channelIDs = PricingDAL.Get_OperatorChannelIDs(m_nParentGroupID, nOperatorID, "pricing_connection");
-                  
-                    // update group with operator anyway (with or without channels)
-                    GroupManager groupManager = new GroupManager();
-                    res = groupManager.UpdateoOperatorChannels(m_nParentGroupID, nOperatorID, channelIDs, true);
+                    locker.EnterWriteLock();
+                    if (!m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+                    {
+                        List<long> channelIDs = PricingDAL.Get_OperatorChannelIDs(m_nParentGroupID, nOperatorID, "pricing_connection");
+
+                        // update group with operator anyway (with or without channels)
+                        GroupManager groupManager = new GroupManager();
+                        res = groupManager.UpdateoOperatorChannels(m_nParentGroupID, nOperatorID, channelIDs, true);
+                    }
+                    else
+                    {
+                        // no need to build. already built by another thread.
+                    }
+                    //locker.ExitWriteLock();
                 }
-                else
+                finally
                 {
-                    // no need to build. already built by another thread.
+                    locker.ExitWriteLock();
                 }
-                locker.ExitWriteLock();
             }
             else
             {
@@ -202,19 +328,26 @@ namespace Catalog
                     Logger.Logger.Log("Add", string.Format("Add. Failed to obtain locker. Operator ID: {0} , Channel IDs: {1}", nOperatorID, channelIDs.Aggregate<long, string>(string.Empty, (res, item) => String.Concat(res, ";", item))), GROUP_LOG_FILENAME);
                     throw new Exception(string.Format("Add. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
                 }
-                locker.EnterWriteLock();
-                if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
-                {  
-                    GroupManager groupManager = new GroupManager();
-                    retVal = groupManager.AddOperatorChannels(m_nParentGroupID, nOperatorID, channelIDs);
-                }
-                else
+                try
                 {
-                    // no channel ids in cache. we wait for the next read command that will lazy evaluate initialize the cache.
-                    retVal = false;
-                }
+                    locker.EnterWriteLock();
+                    if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+                    {
+                        GroupManager groupManager = new GroupManager();
+                        retVal = groupManager.AddChannelsToOperator(m_nParentGroupID, nOperatorID, channelIDs);
+                    }
+                    else
+                    {
+                        // no channel ids in cache. we wait for the next read command that will lazy evaluate initialize the cache.
+                        retVal = false;
+                    }
 
-                locker.ExitWriteLock();
+                    //locker.ExitWriteLock();
+                }
+                finally
+                {
+                    locker.ExitWriteLock();
+                }
             }
 
             return retVal;
@@ -248,62 +381,9 @@ namespace Catalog
 
             return res;
         }
-
-        public List<long> GetAllOperatorsChannelIDs()
-        {
-            SortedSet<long> allChannelIDs = new SortedSet<long>();
-            List<int> operatorIDs = CatalogDAL.Get_GroupOperatorIDs(m_nParentGroupID);
-            _logger.Info(string.Format("Group ID: {0} , Operators extracted from DB: {1}", m_nParentGroupID, operatorIDs.Aggregate<int, string>(string.Empty, (res, item) => String.Concat(res, ";", item))));
-            if (operatorIDs.Count > 0)
-            {
-                for (int i = 0; i < operatorIDs.Count; i++)
-                {
-                    allChannelIDs.UnionWith(GetOperatorChannelIDs(operatorIDs[i]));
-                }
-            }
-
-            return allChannelIDs.ToList();
-        }
-
-        public bool AddChannelsToOperator(int nOperatorID, List<long> channelIDs)
-        {
-            return Add(nOperatorID, channelIDs);
-        }
-
-        public bool DeleteOperatorChannels(int nOperatorID)
-        {
-            return Delete(nOperatorID);
-        }
-
-
-
-        public void Dispose()
-        {
-            if (m_oLockers != null && m_oLockers.Count > 0)
-            {
-                lock (m_oLockers)
-                {
-                    Logger.Logger.Log("Dispose", String.Concat("Dispose. Locked. Group ID: ", m_nParentGroupID), GROUP_LOG_FILENAME);
-                    if (m_oLockers != null && m_oLockers.Count > 0)
-                    {
-                        foreach (KeyValuePair<int, ReaderWriterLockSlim> kvp in m_oLockers)
-                        {
-                            if (kvp.Value != null)
-                            {
-                                kvp.Value.Dispose();
-                            }
-                        } // end foreach
-                    }
-                    m_oLockers.Clear();
-                } // end lock
-                Logger.Logger.Log("Dispose", String.Concat("Dispose. Unlocked. Group ID: ", m_nParentGroupID), GROUP_LOG_FILENAME);
-            }
-        }
-
-
-        #endregion
-
-
+        
+        #endregion 
+       
         #region Cache
         internal bool AddChannelsToOperatorCache(int nOperatorID, List<long> channelIDs, bool bAddNewOperator)
         {
@@ -400,32 +480,81 @@ namespace Catalog
 
         #endregion
 
-        internal bool AddChannels(int nGroupID, List<Channel> lNewCreatedChannels)
-        {
-            try
-            {
-                foreach (Channel channel in lNewCreatedChannels)
-                {
-                    if (!m_oGroupChannels.ContainsKey(channel.m_nChannelID))
-                    {
-                        m_oGroupChannels.TryAdd(channel.m_nChannelID, channel);
-                    }
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
-
-        internal string GetSubTreeGroupIds()
-        {
-            if (m_nSubGroup != null && m_nSubGroup.Count > 0)
-            {
-                return string.Join(",", m_nSubGroup);
-            }
-            return string.Empty;
-        }
+       
     }
 }
+   #region OLD CODE
+        /*public List<long> GetDistinctAllOperatorsChannels()
+        {
+            if (Utils.IsGroupIDContainedInConfig(this.m_nParentGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
+            {
+                return GetAllOperatorsChannelIDs();
+            }
+
+            return new List<long>(0);
+        }*/
+
+       /* public bool AddChannelsToOperator(int nOperatorID, List<long> channelIDs)
+        {
+            return Add(nOperatorID, channelIDs);
+        }*/
+
+       /* public bool DeleteOperatorChannels(int nOperatorID)
+        {
+            return Delete(nOperatorID);
+        }*/
+        /*internal bool AddChannelsToOperatorDict(int nOperatorID, List<long> channelIDs)
+        {
+            return AddToDictionary(nOperatorID, channelIDs);
+        }*/
+
+        /*private bool AddToDictionary(int nOperatorID, List<long> channelIDs)
+        {
+            bool retVal = true;
+            ReaderWriterLockSlim locker = null;
+            GetLocker(nOperatorID, ref locker);
+            if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+            {
+                if (locker == null)
+                {
+                    Logger.Logger.Log("Add", string.Format("Add. Failed to obtain locker. Operator ID: {0} , Channel IDs: {1}", nOperatorID, channelIDs.Aggregate<long, string>(string.Empty, (res, item) => String.Concat(res, ";", item))), GROUP_LOG_FILENAME);
+                    throw new Exception(string.Format("Add. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
+                }
+                try
+                {
+                    locker.EnterWriteLock();
+                    if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
+                    {
+                        List<long> cachedChannels = m_oOperatorChannelIDs[nOperatorID];
+                        if (cachedChannels != null && cachedChannels.Count > 0)
+                        {
+                            int length = channelIDs.Count;
+                            for (int i = 0; i < length; i++)
+                            {
+                                if (!cachedChannels.Contains(channelIDs[i]))
+                                    cachedChannels.Add(channelIDs[i]);
+                            }
+                            m_oOperatorChannelIDs[nOperatorID] = cachedChannels;
+                        }
+                        else
+                        {
+                            // no channel ids in cache. we wait for the next read command that will lazy evaluate initialize the cache.
+                            retVal = false;
+                        }
+                    }
+                    else
+                    {
+                        // no channel ids in cache. we wait for the next read command that will lazy evaluate initialize the cache.
+                        retVal = false;
+                    }
+                }
+                finally
+                {
+                    locker.ExitWriteLock();
+                }
+            }
+
+            return retVal;
+        }*/
+
+        #endregion
