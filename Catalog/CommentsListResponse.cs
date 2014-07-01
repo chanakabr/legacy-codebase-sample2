@@ -29,7 +29,7 @@ namespace Catalog
         [JsonIgnore]
         public Int32 Id;
         [DataMember]
-        [JsonProperty("asset_id")]
+        [JsonProperty("media_id")]
         public Int32 m_nAssetID;
         [DataMember]
         [JsonProperty("writer")]
@@ -50,7 +50,7 @@ namespace Catalog
         [JsonProperty("text")]
         public string m_sContentText;
         [DataMember]
-        [JsonProperty("date")]
+        [JsonProperty("action_date")]
         [JsonConverter(typeof(ApiObjects.JsonSerializers.BaseTimeConverter))]
         public DateTime m_dCreateDate;
         [DataMember]
@@ -59,10 +59,12 @@ namespace Catalog
         [DataMember]
         [JsonIgnore]
         public string m_sUserPicURL;
-        [JsonProperty("asset_type")]
+        [JsonProperty("media_type")]
         public string m_sAssetType;
         [JsonProperty("action")]
         public string m_Action;
+        [JsonProperty("group_id")]
+        public int m_nGroupID;
 
         public Comments()
         {

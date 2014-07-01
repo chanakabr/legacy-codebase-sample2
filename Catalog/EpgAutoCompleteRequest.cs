@@ -20,8 +20,9 @@ namespace Catalog
         [DataMember]
         public DateTime m_dEndDate;
         [DataMember]
-        public int m_nProgramID;      
-
+        public int m_nProgramID;
+        [DataMember]
+        public List<long> m_oEPGChannelIDs;
 
          public EpgAutoCompleteRequest() : base()
         {
@@ -51,19 +52,14 @@ namespace Catalog
         {
             try
             {
-                EpgAutoCompleteRequest request = (EpgAutoCompleteRequest)oBaseRequest;
+                EpgAutoCompleteRequest request = oBaseRequest as EpgAutoCompleteRequest;
                 EpgAutoCompleteResponse oResponse = new EpgAutoCompleteResponse();
 
                 if (request == null || string.IsNullOrEmpty(request.m_sSearch) || request.m_nGroupID == 0)
                 {
                     throw new Exception("request object null or miss 'must' parameters ");
                 }
-                //Check signature - security 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (!sCheckSignature.Equals(request.m_sSignature))
-                {
-                    throw new Exception("Signatures dosen't match");
-                }
+                CheckSignature(request);
 
                 //Auto Complete with Searcher               
                 List<string> epgAutoList = Catalog.EpgAutoComplete(request);

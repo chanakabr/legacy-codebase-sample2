@@ -12,11 +12,6 @@ namespace Users
 {
     public abstract class BaseUsers
     {
-
-        public static readonly string INDEX = "statistics";
-        public static readonly string TYPE = "stats";
-
-
         protected BaseUsers() { }
         protected BaseUsers(Int32 nGroupID)
         {
@@ -95,6 +90,7 @@ namespace Users
 
         private bool WriteFavoriteToES(ApiObjects.Statistics.MediaView oMediaView)
         {
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
             try
             {
                 bool bRes = false;
@@ -102,21 +98,21 @@ namespace Users
 
                   string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
 
-                  if (oESApi.IndexExists(INDEX) && !string.IsNullOrEmpty(sJsonView))
+                  if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
                   {
                       Guid guid = Guid.NewGuid();
 
-                      bRes = oESApi.InsertRecord(INDEX, TYPE, guid.ToString(), sJsonView);
+                      bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
 
                       if (!bRes)
-                          Logger.Logger.Log("WriteFavoriteToES", string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", INDEX, TYPE, sJsonView), "Users");
+                          Logger.Logger.Log("WriteFavoriteToES", string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView), "Users");
                   }
 
                 return bRes;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("WriteFavoriteToES", string.Format("Failed ex={0}, index={1};type={2}", ex.Message, INDEX, TYPE), "Users");
+                Logger.Logger.Log("WriteFavoriteToES", string.Format("Failed ex={0}, index={1};type={2}", ex.Message, index, ElasticSearch.Common.Utils.ES_STATS_TYPE), "Users");
                 return false;
             }
         }
@@ -676,6 +672,27 @@ namespace Users
             User u = new User();
             ResponseStatus ret = u.SetUserTypeByUserID(m_nGroupID, sSiteGUID, nUserTypeID);
             return ret;
+        }
+
+        public virtual int GetUserType(string sSiteGUID)
+        {
+            long lSiteGuid = 0;
+            int nUserTypeID = 0;
+
+            if (long.TryParse(sSiteGUID, out lSiteGuid))
+            {
+                DataTable dtUserType = UsersDal.GetUserType(m_nGroupID, lSiteGuid);
+
+                if (dtUserType != null && dtUserType.Rows.Count > 0)
+                {
+                    foreach (DataRow drUserType in dtUserType.Rows)
+                    {
+                        nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserType["User_Type"]);
+                    }
+                }
+            }
+
+            return nUserTypeID;
         }
     }
 }

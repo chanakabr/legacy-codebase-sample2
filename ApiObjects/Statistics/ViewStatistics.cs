@@ -32,7 +32,7 @@ namespace ApiObjects.Statistics
         [JsonProperty("media_type")]
         public string MediaType { get; set; }
         [JsonConverter(typeof(ApiObjects.JsonSerializers.BaseTimeConverter))]
-        [JsonProperty("date")]
+        [JsonProperty("action_date")]
         public DateTime Date { get; set; }
         [JsonProperty("action")]
         public string Action { get; set; }

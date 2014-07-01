@@ -169,6 +169,7 @@
     <Compile Include="SocialObjects.cs" />
     <Compile Include="Statistics\BuzzWeightedAverScore.cs" />
     <Compile Include="Statistics\ChannelBucket.cs" />
+    <Compile Include="Statistics\SocialActionStatistics.cs" />
     <Compile Include="Statistics\ViewStatistics.cs" />
     <Compile Include="TagRequestObject.cs" />
     <Compile Include="TagResponseObject.cs" />

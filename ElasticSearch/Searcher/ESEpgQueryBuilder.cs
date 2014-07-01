@@ -103,7 +103,6 @@ namespace ElasticSearch.Searcher
             filterComposite.AddChild(isActiveTerm);
 
             FillFilterSettings(ref filter, filterComposite);
-            //filter.FilterSettings = filterComposite;
 
 
             filteredQuery.Filter = filter;
@@ -161,7 +160,7 @@ namespace ElasticSearch.Searcher
 
             #region build filter - is_active, start/end date
             QueryFilter filter = new QueryFilter();
-            FilterCompositeType filterComposite = new FilterCompositeType(CutWith.AND);
+            BaseFilterCompositeType filterComposite = new FilterCompositeType(CutWith.AND);
 
             string sStartDate = this.m_oEpgSearchObj.m_dStartDate.ToString("yyyyMMddHHmmss");
             string sStartMin = this.m_oEpgSearchObj.m_dStartDate.AddDays(-1).ToString("yyyyMMddHHmmss");
@@ -180,7 +179,7 @@ namespace ElasticSearch.Searcher
             filterComposite.AddChild(minStartDateRange);
             filterComposite.AddChild(maxStartDateRange);
             filterComposite.AddChild(isActiveTerm);
-            filter.FilterSettings = filterComposite;
+            FillFilterSettings(ref filter, filterComposite);
 
 
             filteredQuery.Filter = filter;

@@ -476,8 +476,9 @@ namespace ElasticSearch.Searcher
             
             ESTerm isActiveTerm = new ESTerm(true) { Key = "is_active", Value = "1" };
             QueryFilter filter = new QueryFilter();
-            filter.FilterSettings = new FilterCompositeType(CutWith.AND);
-            filter.FilterSettings.AddChild(isActiveTerm);
+            BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
+            filterParent.AddChild(isActiveTerm);
+            //filter.FilterSettings.AddChild(isActiveTerm);
 
             string sNow = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             string sMax = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
@@ -496,10 +497,10 @@ namespace ElasticSearch.Searcher
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sNow));
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
 
-            filter.FilterSettings.AddChild(isActiveTerm);
-            filter.FilterSettings.AddChild(startDateRange);
-            filter.FilterSettings.AddChild(endDateRange);
-
+            filterParent.AddChild(isActiveTerm);
+            filterParent.AddChild(startDateRange);
+            filterParent.AddChild(endDateRange);
+            FillFilterSettings(ref filter, filterParent);
 
             MultiMatchQuery multiMatchQuery = new MultiMatchQuery();
             foreach (SearchValue searchValue in oSearchObject.m_dOr)
@@ -613,7 +614,7 @@ namespace ElasticSearch.Searcher
                     BoolQuery oValueBoolQuery = new BoolQuery();
                     if (!string.IsNullOrEmpty(searchValue.m_sKey))
                     {
-                        string sSearchKey = string.Concat(Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey, searchValue.m_sKeyPrefix),
+                        string sSearchKey = string.Concat(Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(), searchValue.m_sKeyPrefix),
                                                           ".analyzed");
 
                         foreach (string sValue in searchValue.m_lValue)
@@ -621,20 +622,8 @@ namespace ElasticSearch.Searcher
                             if (string.IsNullOrEmpty(sValue))
                                 continue;
 
-                            string[] lSplitedValues = sValue.Split(splitChars);
-
-                            BoolQuery tempBQ = new BoolQuery();
-                            if (lSplitedValues.Length > 0)
-                            {
-                                foreach (string splitedValue in lSplitedValues)
-                                {
-                                    tempBQ.AddChild(
-                                        new ESTerm(false) { Key = sSearchKey, Value = splitedValue },
-                                        CutWith.AND
-                                        );
-                                }
-                            }
-                            oValueBoolQuery.AddChild(tempBQ, searchValue.m_eInnerCutWith);
+                            ESMatchQuery matchQuery = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match) { eOperator = CutWith.AND, Field = sSearchKey, Query = sValue };
+                            oValueBoolQuery.AddChild(matchQuery, searchValue.m_eInnerCutWith);
                         }
                     }
 

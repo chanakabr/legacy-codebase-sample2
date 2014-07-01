@@ -2667,35 +2667,31 @@ namespace ConditionalAccess
             bool isDeviceRecognized = false;
             try
             {
-                u = new ConditionalAccess.TvinciUsers.UsersService();
                 string sIP = "1.1.1.1";
-                string sWSUserName = "";
-                string sWSPass = "";
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
                 TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
+                u = new TvinciUsers.UsersService();
                 string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL.Length > 0)
+                if (!string.IsNullOrEmpty(sWSURL))
                     u.Url = sWSURL;
                 TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
                 if (userRepObj != null && userRepObj.m_user != null && userRepObj.m_RespStatus == ResponseStatus.OK)
                 {
-                    Logger.Logger.Log("LicensedLink", "User Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
                     int domainID = userRepObj.m_user.m_domianID;
                     if (domainID != 0)
                     {
-                        Logger.Logger.Log("LicensedLink", "Domain Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
                         domainsWS = new TvinciDomains.module();
                         TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetDomainData", "domains", sIP, ref sWSUserName, ref sWSPass);
                         sWSURL = Utils.GetWSURL("domains_ws");
-                        if (sWSURL.Length > 0)
+                        if (!string.IsNullOrEmpty(sWSURL))
                             domainsWS.Url = sWSURL;
                         TvinciDomains.Domain userDomain = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
                         if (userDomain != null)
                         {
-                            Logger.Logger.Log("LicensedLink", "Domain Info Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
                             TvinciDomains.DeviceContainer[] deviceContainers = userDomain.m_deviceFamilies;
                             if (deviceContainers != null && deviceContainers.Length > 0)
                             {
-                                Logger.Logger.Log("LicensedLink", "Domain Containers Found: " + sSiteGUID + " Device :" + sDEVICE_NAME, "LicensedLink");
                                 List<int> familyIDs = new List<int>();
                                 for (int i = 0; i < deviceContainers.Length; i++)
                                 {
@@ -2704,6 +2700,23 @@ namespace ConditionalAccess
                                     if (container != null)
                                     {
                                         if (!familyIDs.Contains(container.m_deviceFamilyID))
+                                        {
+                                            familyIDs.Add(container.m_deviceFamilyID);
+                                        }
+
+                                        if (container.DeviceInstances != null && container.DeviceInstances.Length > 0)
+                                        {
+                                            for (int j = 0; j < container.DeviceInstances.Length; j++)
+                                            {
+                                                TvinciDomains.Device device = container.DeviceInstances[j];
+                                                if (string.Compare(device.m_deviceUDID.Trim(), sDEVICE_NAME.Trim()) == 0)
+                                                {
+                                                    isDeviceRecognized = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        else
                                         {
                                             familyIDs.Add(container.m_deviceFamilyID);
                                         }
@@ -2776,7 +2789,6 @@ namespace ConditionalAccess
         /// </summary>
         public virtual string GetLicensedLink(string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
         {
-            Logger.Logger.Log("LicensedLink", "Start", "LicensedLink");
             Int32[] nMediaFileIDs = { nMediaFileID };
 
             if (sBasicLink.Contains(string.Format("||{0}", nMediaFileID)))
@@ -2785,32 +2797,26 @@ namespace ConditionalAccess
             }
             bool isDeviceRecognized = isDevicePlayValid(sSiteGUID, sDEVICE_NAME);
 
-
             if (!isDeviceRecognized)
             {
-                Logger.Logger.Log("LicensedLink", "Device Not Recognized for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
+                Logger.Logger.Log("Device Not Recognized", string.Format("User:{0}, MediaFile:{1}, Device:{2}", sSiteGUID, nMediaFileID.ToString(), sDEVICE_NAME), "LicensedLink");
                 return string.Empty;
             }
-            Logger.Logger.Log("LicensedLink", "Device Recognized for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
 
             MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sUserIP);
             if (prices.Length == 0)
             {
-                Logger.Logger.Log("LicensedLink", "Price Length 0", "LicensedLink");
                 return "";
             }
             if (prices[0].m_oItemPrices == null || prices[0].m_oItemPrices.Length == 0 || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.Free)
             {
-                Logger.Logger.Log("LicensedLink", "Free Item for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
                 return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
             }
 
             if (prices[0].m_oItemPrices[0].m_oPrice.m_dPrice == 0 && (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PrePaidPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.CollectionPurchased))
             {
-                Logger.Logger.Log("LicensedLink", "Purchased for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
                 if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink) == true)
                 {
-                    Logger.Logger.Log("LicensedLink", "Validated for user: " + sSiteGUID + " for media file :" + nMediaFileID.ToString(), "LicensedLink");
                     HandlePlayUses(prices[0], sSiteGUID, nMediaFileID, sUserIP, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
                     return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
                 }
@@ -2858,7 +2864,7 @@ namespace ConditionalAccess
 
             if (price != null && price.m_oItemPrices != null && price.m_oItemPrices.Length > 0 && price.m_oItemPrices[0].m_relevantCol != null)
             {
-                int.TryParse(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, out nReleventCollectionID);
+                Int32.TryParse(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, out nReleventCollectionID);
             }
 
             HandleCouponUses(price.m_oItemPrices[0].m_relevantSub, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID,
@@ -2873,7 +2879,7 @@ namespace ConditionalAccess
                 nRelPP = price.m_oItemPrices[0].m_relevantPP.m_ObjectCode;
             }
 
-            List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID);
+            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID);
 
             if (price.m_oItemPrices[0].m_relevantSub == null && price.m_oItemPrices[0].m_relevantCol == null)
             {
@@ -2899,10 +2905,6 @@ namespace ConditionalAccess
                     }
 
                     UpdatePPVPurchases(nMediaFileID, sSiteGUID, nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                    if (String.IsNullOrEmpty(sRelSub) == false)
-                    {
-                    }
                 }
             }
             else if (price.m_oItemPrices[0].m_relevantCol == null)
@@ -3002,15 +3004,17 @@ namespace ConditionalAccess
             string sWSUserName = "";
             string sWSPass = "";
 
-            TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
-            string sWSURL = Utils.GetWSURL("pricing_ws");
-            if (sWSURL != "")
-                m.Url = sWSURL;
+            using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
+            {
+                string sWSURL = Utils.GetWSURL("pricing_ws");
+                if (sWSURL.Length > 0)
+                    m.Url = sWSURL;
 
-            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
-            TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
+                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
 
-            return thePPVModule;
+                return thePPVModule;
+            }
         }
 
         /// <summary>
@@ -7847,6 +7851,14 @@ namespace ConditionalAccess
             {
                 TimeSpan ts = new TimeSpan(2, 0, 0, 0);
 
+                string val = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", m_nGroupID));
+
+                if (!string.IsNullOrEmpty(val))
+                {
+                    DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(val), true);
+                    ts = dEndDate.Subtract(DateTime.UtcNow);
+                }
+
                 return ts.ToString();
             }
 
@@ -8638,9 +8650,12 @@ namespace ConditionalAccess
                     PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(sSiteGuid);//get all the valid subscriptions that this user has
                     Subscription userSubNew;
                     PermittedSubscriptionContainer userSubOld = new PermittedSubscriptionContainer();
-
+                    List<PermittedSubscriptionContainer> userOldSubList = new List<PermittedSubscriptionContainer>();
                     //check if old sub exists
-                    List<PermittedSubscriptionContainer> userOldSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nOldSub.ToString()).ToList();
+                    if (userSubsArray != null)
+                    {
+                        userOldSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nOldSub.ToString()).ToList();
+                    }
                     if (userOldSubList == null || userOldSubList.Count == 0)
                     {
                         return ChangeSubscriptionStatus.OldSubNotExists;
@@ -8651,7 +8666,7 @@ namespace ConditionalAccess
                         {
                             userSubOld = userOldSubList[0];
                             //check if the Subscription has autorenewal  
-                            if (!userSubOld.m_bIsSubRenewable)
+                            if (!userSubOld.m_bRecurringStatus)
                             {
                                 Logger.Logger.Log("ChangeSubscription", "Previous Subscription ID: " + nOldSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
                                 return ChangeSubscriptionStatus.OldSubNotRenewable;
@@ -8668,10 +8683,16 @@ namespace ConditionalAccess
                     }
 
                     userSubNew = Utils.GetSubscriptionData(nNewSub.ToString(), m_nGroupID);
-
+                                        
                     //set new subscprion
                     if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
                     {
+                        if (!userSubNew.m_bIsRecurring)
+                        {
+                            Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
+                            return ChangeSubscriptionStatus.NewSubNotRenewable;
+                        }
+                        
                         return setSubscriptionChange(sSiteGuid, userSubNew, userSubOld);
                     }
                     else

@@ -93,20 +93,22 @@ namespace Notifiers
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
-        public static object MakeJsonRequest(Uri requestUri, string wsUsername, string wsPassword, string jsonContent = "")
+        public static string MakeJsonRequest(Uri requestUri, string wsUsername, string wsPassword, string jsonContent = "")
         {
+            string sRes = string.Empty;
+
             try
             {
-                string sRes = TVinciShared.WS_Utils.SendXMLHttpReq(requestUri.OriginalString, jsonContent, "", "application/json", "UserName", wsUsername, "Password", wsPassword);
-                object objResponse = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(EutelsatProductNotificationResponse));
-
-                return objResponse;
+                sRes = TVinciShared.WS_Utils.SendXMLHttpReq(requestUri.OriginalString, jsonContent, "", "application/json", "UserName", wsUsername, "Password", wsPassword);
+                
+                //object objResponse = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(EutelsatProductNotificationResponse));
+                //return objResponse;
             }
             catch
             {
             }
 
-            return null;
+            return sRes;
         }
     }
 }

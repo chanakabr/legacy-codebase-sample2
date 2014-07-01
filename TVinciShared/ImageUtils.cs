@@ -554,6 +554,21 @@ namespace TVinciShared
             bool bIsUpdateSucceeded = false;
             List<object> args = new List<object>();
 
+            int nParentGroupID = 0;
+
+            try
+            {
+                nParentGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", nGroupID, "MAIN_CONNECTION_STRING").ToString());
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", string.Format("group:{0}, msg:{1}", nGroupID, ex.Message), "SendPictureDataToQueue");
+                return false;
+            }
+
+      
+            args.Add(nParentGroupID.ToString());
+
             //check for Http and if it is missing, insert the the remotePicsURL
             if (sFullUrlDownload.ToLower().Trim().StartsWith("http://") == false &&
                 sFullUrlDownload.ToLower().Trim().StartsWith("https://") == false)
@@ -574,7 +589,7 @@ namespace TVinciShared
             string id = Guid.NewGuid().ToString();
             string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskPicture");  
             ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, task, args);
-            Logger.Logger.Log("File download", "Picture will be downloaded from: " + sFullUrlDownload + "to:" + sBasePath, "DownloadFile");
+            Logger.Logger.Log("Queue", string.Format("{0}, {1}, {2}", nParentGroupID, id, task), "SendPictureDataToQueue");
 
             //update the Queue with picture data
             if (data != null)
@@ -583,7 +598,7 @@ namespace TVinciShared
                 string sRoutingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyPicture");
                 bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);                
             }
-            Logger.Logger.Log("File download", "file was downloaded successfully :" + bIsUpdateSucceeded, "DownloadFile");
+            Logger.Logger.Log("Res", bIsUpdateSucceeded.ToString(), "SendPictureDataToQueue");
             return bIsUpdateSucceeded;
         }
 

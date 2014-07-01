@@ -2194,7 +2194,7 @@ namespace ConditionalAccess
                     Collection[] relevantValidCollections = null;
                     GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, ref relevantValidSubscriptions, ref relevantValidCollections);
 
-                    if (relevantValidSubscriptions != null)
+                    if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
                     {
                         Dictionary<long, List<TvinciPricing.Subscription>> groupedSubs = (from s in relevantValidSubscriptions
                                                                                           group s by s.m_Priority).OrderByDescending(gr => gr.Key).ToDictionary(gr => gr.Key, gr => gr.ToList());
@@ -2349,7 +2349,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        private static void GetUsersAndDomainsCredentials(int nGroupID, ref string sUsersUsername, ref string sUsersPassword, 
+        private static void GetUsersAndDomainsCredentials(int nGroupID, ref string sUsersUsername, ref string sUsersPassword,
             ref string sDomainsUsername, ref string sDomainsPassword)
         {
             Dictionary<string, string[]> dict = ConditionalAccessDAL.Get_MultipleWSCredentials(nGroupID, new List<string>(2) { "users", "domains" });
@@ -2360,7 +2360,6 @@ namespace ConditionalAccess
             sDomainsUsername = domainsCreds[0];
             sDomainsPassword = domainsCreds[1];
         }
-
 
         internal static List<int> GetAllUsersDomainBySiteGUID(string sSiteGUID, Int32 nGroupID)
         {

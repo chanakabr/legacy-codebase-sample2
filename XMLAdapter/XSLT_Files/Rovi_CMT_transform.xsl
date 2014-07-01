@@ -10,7 +10,7 @@
         <xsl:apply-templates select="//*[local-name()='Campaign']"/>
       </export>
     </feed>
-  </xsl:template>
+  </xsl:template> 
 
   <xsl:template match="//*[local-name()='Campaign']">
     <xsl:element name="channel">
@@ -24,26 +24,10 @@
             <xsl:value-of select="./*[local-name()='CampaignMetaGroup']/*[local-name()='TitleNameList']/*[local-name()='TitleName']"/>
           </xsl:element>
         </xsl:element>
-        <xsl:element name="unique_name">
-          <xsl:element name="value">
-            <xsl:attribute name="lang">de</xsl:attribute>
-            <xsl:value-of select="./*[local-name()='CampaignMetaGroup']/*[local-name()='CampaignId']"/>
-          </xsl:element>
-        </xsl:element>
-        <xsl:element name="description">
-          <xsl:element name="value">
-            <xsl:attribute name="lang">de</xsl:attribute>
-          </xsl:element>
-        </xsl:element>
-        <xsl:element name="enable_feed">true</xsl:element>
-        <xsl:element name="is_virtual"></xsl:element>
-        <xsl:element name="thumb"><xsl:value-of select="./*[local-name()='CampaignMetaGroup']/*[local-name()='BannerUrl']"/></xsl:element>
+        <xsl:element name="enable_feed">true</xsl:element>     
       </xsl:element>
       <xsl:element name="structure">
         <xsl:element name="cut_tags_type">and</xsl:element>
-        <xsl:element name="media_type"></xsl:element>
-        <xsl:element name="tags_metas">
-        </xsl:element>
       </xsl:element>
       <xsl:element name="order_by">create date</xsl:element>
       <xsl:element name="order_direction">asc</xsl:element>
@@ -57,5 +41,5 @@
       </xsl:element>
     </xsl:element>
   </xsl:template>
-
+  
 </xsl:stylesheet>

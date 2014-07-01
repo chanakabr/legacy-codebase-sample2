@@ -35,7 +35,7 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sbFilteredQuery = new StringBuilder();
 
-            if (PageSize < 0)
+            if (PageSize <= 0)
                 PageSize = MAX_RESULTS;
 
             int fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;

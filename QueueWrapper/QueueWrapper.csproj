@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\ConfigType.cs" />
     <Compile Include="Enums\QueueType.cs" />
     <Compile Include="Queues\Enums.cs" />
     <Compile Include="Queues\QueueObjects\BaseQueue.cs" />

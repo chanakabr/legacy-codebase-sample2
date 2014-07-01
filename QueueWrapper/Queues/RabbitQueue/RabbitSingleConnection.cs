@@ -233,7 +233,7 @@ namespace QueueWrapper
                         mutex.WaitOne(-1);
                         if (this.m_Connection == null)
                         {
-                            var factory = new ConnectionFactory() { HostName = m_Configuration.Host, Password = m_Configuration.Password };
+                            var factory = new ConnectionFactory() { HostName = m_Configuration.Host, Password = m_Configuration.Password, UserName = m_Configuration.Username };
                             this.m_Connection = factory.CreateConnection();
                             this.m_Model = this.m_Connection.CreateModel();
                             bIsGetInstanceSucceeded = true;
@@ -267,13 +267,20 @@ namespace QueueWrapper
             try
             {
                 string sFailCountLimit = Utils.GetTcmConfigValue("queue_fail_limit");
-                if (string.IsNullOrEmpty(sFailCountLimit))
+                bool isParseSucceeded = false;
+                if (string.IsNullOrEmpty(sFailCountLimit)) // If reading from TCM failed, try to read from extra.config. Else, convert to int
                 {
-                    bool isParseSucceeded = int.TryParse(ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
-                    if (!isParseSucceeded)
-                    {
-                        failCounterLimit = this.FAIL_COUNT_LIMIT;
-                    }
+                    isParseSucceeded = int.TryParse(ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
+                }
+                else
+                {
+                    isParseSucceeded = int.TryParse(sFailCountLimit, out failCounterLimit);
+                }
+
+                // If any reading failed, set the failCounterLimit as the constant
+                if (!isParseSucceeded)
+                {
+                    failCounterLimit = this.FAIL_COUNT_LIMIT;
                 }
             }
             catch (Exception ex)

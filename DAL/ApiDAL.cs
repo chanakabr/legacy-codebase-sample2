@@ -526,7 +526,7 @@ namespace DAL
         }
 
 
-        public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID)
+        public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
         {
             MediaMarkObject ret = new MediaMarkObject();
             int nUserID = 0;
@@ -547,7 +547,7 @@ namespace DAL
                 }
                 else
                 {
-                    DataTable dtDeviceInfo = DeviceDal.Get_DeviceInfo(mediaMarkLogObject.LastMark.UDID, true);
+                    DataTable dtDeviceInfo = DeviceDal.Get_DeviceInfo(mediaMarkLogObject.LastMark.UDID, true, nGroupID);
                     if (dtDeviceInfo != null && dtDeviceInfo.Rows.Count > 0)
                     {
                         ret.sDeviceName = ODBCWrapper.Utils.GetSafeStr(dtDeviceInfo.Rows[0]["name"]);
@@ -936,8 +936,8 @@ namespace DAL
                     Dictionary<int, int> dictMediasMaxDuration = new Dictionary<int, int>();
                     foreach (DataRow rowDuration in dtMediasMaxDurations.Rows)
                     {
-                        int nMediaID = ODBCWrapper.Utils.GetIntSafeVal("media_id");
-                        int nMaxDuration = ODBCWrapper.Utils.GetIntSafeVal("max_duration");
+                        int nMediaID = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["media_id"]);
+                        int nMaxDuration = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["max_duration"]);
                         dictMediasMaxDuration.Add(nMediaID, nMaxDuration);
                     }
 
@@ -964,6 +964,18 @@ namespace DAL
                 int.TryParse(siteGuid, out nSiteGuid);
 
                 var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+
+                if (lMediaIDs.Count == 0)
+                {
+                    var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_medias", true).Key(nSiteGuid);
+                    List<MediaMarkLog> sortedMediaMarksList = res.ToList();
+
+                    if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
+                    {
+                        lMediaIDs = sortedMediaMarksList.Select(x => x.LastMark.MediaID).ToList();
+                    }
+                }
+
                 Random r = new Random();
                 foreach (int nMediaID in lMediaIDs)
                 {

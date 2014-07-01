@@ -142,8 +142,9 @@ namespace ConditionalAccess
         OldSubNotExists = 2,
         NewSubNotExits = 3,
         OldSubNotRenewable = 4,
-        UserHadNewSub = 5,
-        Error = 6
+        NewSubNotRenewable = 5,
+        UserHadNewSub = 6,
+        Error = 7
     }
 
     internal enum BundleToUse : byte

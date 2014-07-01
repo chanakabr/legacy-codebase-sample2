@@ -563,6 +563,17 @@ namespace Catalog
                 List<List<string>> jsonizedChannelsDefinitions = null;
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
                 ApiObjects.SearchObjects.MediaSearchObj search = null;
+                
+                // Group have user types per media  +  siteGuid != empty
+                if (!string.IsNullOrEmpty(oMediaRequest.m_sSiteGuid) && IsGroupHaveUserType(oMediaRequest))
+                {                    
+                    if (oMediaRequest.m_oFilter == null)
+                    {
+                        oMediaRequest.m_oFilter = new Filter();
+                    }
+                    //call ws_users to get userType                  
+                    oMediaRequest.m_oFilter.m_nUserTypeID = Utils.GetUserType(oMediaRequest.m_sSiteGuid, oMediaRequest.m_nGroupID);
+                }
 
                 if (IsUseIPNOFiltering(oMediaRequest, ref searcher, ref jsonizedChannelsDefinitions))
                 {
@@ -607,6 +618,18 @@ namespace Catalog
             #endregion
 
             return lSearchResults;
+        }
+
+        private static bool IsGroupHaveUserType(BaseMediaSearchRequest oMediaRequest)
+        {
+            try
+            {
+                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';');
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         #region Build Search object for Searcher project.
@@ -1921,13 +1944,36 @@ namespace Catalog
                 _logger.InfoFormat("Build Epg Search Object And Call Search Epgs at serch service, groupID={0}", request.m_nGroupID);
                 try
                 {
-                    bool bWhiteSpace = false;
-                    if (searcher is LuceneWrapper)
+                    bool bWhiteSpace = searcher is LuceneWrapper;
+                    
+                    //EpgSearchObj epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
+                    EpgSearchObj epgSearch = null;
+                    List<List<string>> jsonizedChannelsDefinitions = null;
+                    if (IsUseIPNOFiltering(request, ref searcher, ref jsonizedChannelsDefinitions))
                     {
-                        bWhiteSpace = true;
-                    }
+                        Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(request.m_nGroupID);
+                        MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(request.m_nGroupID,
+                            dict, jsonizedChannelsDefinitions);
+                        SearchResultsObj searcherAnswer = searcher.SearchMedias(request.m_nGroupID, linearChannelMediaIDsRequest, 0, true);
 
-                    EpgSearchObj epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
+                        if (searcherAnswer.n_TotalItems > 0)
+                        {
+                            List<long> ipnoEPGChannelsMediaIDs = ExtractMediaIDs(searcherAnswer);
+                            List<long> epgChannelsIDs = GetEPGChannelsIDs(ipnoEPGChannelsMediaIDs);
+                            request.m_oEPGChannelIDs = epgChannelsIDs;
+                            epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
+                        }
+                        else
+                        {
+                            // no linear medias returned from searcher
+                            _logger.Info(String.Concat("No linear medias returned from searcher. ", request.ToString()));
+                            return new List<string>(0);
+                        }
+                    }
+                    else
+                    {
+                        epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
+                    }
 
                     if (epgSearch != null)
                         result = searcher.GetEpgAutoCompleteList(epgSearch);
@@ -1992,6 +2038,7 @@ namespace Catalog
 
                 oEpgSearch.m_nPageIndex = request.m_nPageIndex;
                 oEpgSearch.m_nPageSize = request.m_nPageSize;
+                oEpgSearch.m_oEpgChannelIDs = request.m_oEPGChannelIDs;
 
                 return oEpgSearch;
             }
@@ -2564,6 +2611,22 @@ namespace Catalog
 
             if (!bHasTagPrefix)
             {
+                var metas = oGroup.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+                               
+               
+                foreach (var val in metas)
+                {
+                    if (val.Equals(sKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        searchKey = string.Concat(METAS, ".", val.ToLower());
+                        bHasTagPrefix = true;
+                        break;
+                    }
+                }
+
+                
+
+                /*
                 if (oGroup.m_oMetasValuesByGroupId.ContainsKey(oGroup.m_nParentGroupID))
                 {
                     Dictionary<string, string> dMetas = oGroup.m_oMetasValuesByGroupId[oGroup.m_nParentGroupID];
@@ -2577,6 +2640,7 @@ namespace Catalog
                         }
                     }
                 }
+                */ 
             }
 
             return searchKey;
