@@ -18,6 +18,7 @@ namespace ConditionalAccess
         public PaymentMethod m_purchaseMethod;
         public string m_sDeviceUDID;
         public string m_sDeviceName;
+        public bool m_bCancelWindow;
 
         public PermittedMediaContainer()
         {
@@ -31,10 +32,12 @@ namespace ConditionalAccess
 
             m_sDeviceUDID = string.Empty;
             m_sDeviceName = string.Empty;
+
+            m_bCancelWindow = false;
         }
 
         public void Initialize(Int32 nMediaID, Int32 nMediaFileID, Int32 nMaxUses, Int32 nCurrentUses,
-            DateTime dEndTime, DateTime dCurrentDate, DateTime dPurchaseDate, PaymentMethod payMethod, string sDevicUDID)
+            DateTime dEndTime, DateTime dCurrentDate, DateTime dPurchaseDate, PaymentMethod payMethod, string sDevicUDID, bool bCancelWindow = false)
         {
             m_nMediaID = nMediaID;
             m_nMediaFileID = nMediaFileID;
@@ -44,6 +47,7 @@ namespace ConditionalAccess
             m_dCurrentDate = dCurrentDate;
             m_dPurchaseDate = dPurchaseDate;
             m_purchaseMethod = payMethod;
+            m_bCancelWindow = bCancelWindow;
 
             if (!string.IsNullOrEmpty(sDevicUDID))
             {

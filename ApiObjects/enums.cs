@@ -147,4 +147,17 @@ namespace ApiObjects
         SUBSCRIPTION = 0,
         COLLECTION = 1
     }
+
+
+    [Serializable]
+    public enum eTransactionType
+    {
+        [EnumMember]
+        PPV,
+        [EnumMember]
+        Subscription,
+        [EnumMember]
+        Collection
+    }
+
 }

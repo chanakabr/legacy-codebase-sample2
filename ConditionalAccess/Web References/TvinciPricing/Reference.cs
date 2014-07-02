@@ -113,11 +113,13 @@ namespace ConditionalAccess.TvinciPricing {
         
         private System.Threading.SendOrPostCallback GetPreviewModulesArrayByGroupIDForAdminOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetUsageModuleOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
         public mdoule() {
-            this.Url = global::ConditionalAccess.Properties.Settings.Default.ConditionalAccess_TvinciAPI_API;
+            this.Url = global::ConditionalAccess.Properties.Settings.Default.ConditionalAccess_TvinciPricing_mdoule;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -276,6 +278,9 @@ namespace ConditionalAccess.TvinciPricing {
         
         /// <remarks/>
         public event GetPreviewModulesArrayByGroupIDForAdminCompletedEventHandler GetPreviewModulesArrayByGroupIDForAdminCompleted;
+        
+        /// <remarks/>
+        public event GetUsageModuleCompletedEventHandler GetUsageModuleCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetCurrencyValues", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1810,6 +1815,41 @@ namespace ConditionalAccess.TvinciPricing {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetUsageModule", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UsageModule GetUsageModule(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
+            object[] results = this.Invoke("GetUsageModule", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sAssetCode,
+                        transactionType});
+            return ((UsageModule)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
+            this.GetUsageModuleAsync(sWSUserName, sWSPassword, sAssetCode, transactionType, null);
+        }
+        
+        /// <remarks/>
+        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType, object userState) {
+            if ((this.GetUsageModuleOperationCompleted == null)) {
+                this.GetUsageModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUsageModuleOperationCompleted);
+            }
+            this.InvokeAsync("GetUsageModule", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sAssetCode,
+                        transactionType}, this.GetUsageModuleOperationCompleted, userState);
+        }
+        
+        private void OnGetUsageModuleOperationCompleted(object arg) {
+            if ((this.GetUsageModuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUsageModuleCompleted(this, new GetUsageModuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -2541,6 +2581,10 @@ namespace ConditionalAccess.TvinciPricing {
         
         private int m_device_limit_idField;
         
+        private bool m_bWaiverField;
+        
+        private int m_nWaiverPeriodField;
+        
         /// <remarks/>
         public int m_nObjectID {
             get {
@@ -2678,6 +2722,26 @@ namespace ConditionalAccess.TvinciPricing {
             }
             set {
                 this.m_device_limit_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bWaiver {
+            get {
+                return this.m_bWaiverField;
+            }
+            set {
+                this.m_bWaiverField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nWaiverPeriod {
+            get {
+                return this.m_nWaiverPeriodField;
+            }
+            set {
+                this.m_nWaiverPeriodField = value;
             }
         }
     }
@@ -3643,6 +3707,22 @@ namespace ConditionalAccess.TvinciPricing {
         
         /// <remarks/>
         Event,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public enum eTransactionType {
+        
+        /// <remarks/>
+        PPV,
+        
+        /// <remarks/>
+        Subscription,
+        
+        /// <remarks/>
+        Collection,
     }
     
     /// <remarks/>
@@ -4733,6 +4813,32 @@ namespace ConditionalAccess.TvinciPricing {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((PreviewModule[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void GetUsageModuleCompletedEventHandler(object sender, GetUsageModuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUsageModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUsageModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UsageModule Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UsageModule)(this.results[0]));
             }
         }
     }

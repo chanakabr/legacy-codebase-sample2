@@ -327,5 +327,41 @@ namespace DAL
             return ds;
         }
 
+
+        public static DataTable GetUsageModulePPV(string sAssetCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUsageModulePPV");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@PPVCode", sAssetCode);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null )
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable GetUsageModuleSubscription(string sAssetCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUsageModuleSubscription");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@SubscriptiomCode", sAssetCode);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable GetUsageModuleCollection(string sAssetCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUsageModuleCollection");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@CollectionCode", sAssetCode);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null)
+                return ds.Tables[0];
+            return null;
+        }
     }
 }

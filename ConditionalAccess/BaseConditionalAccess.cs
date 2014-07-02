@@ -4170,6 +4170,8 @@ namespace ConditionalAccess
 
                     nMediaFilesIDs = new int[nCount];
                     int i = 0;
+                    
+                    TvinciPricing.UsageModule oUsageModule = null;
                     foreach (DataRow dataRow in allPPVModules.Rows)
                     {
                         Int32 nMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MEDIA_FILE_ID"]);
@@ -4193,8 +4195,23 @@ namespace ConditionalAccess
                         string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
 
                         nMediaFilesIDs[i] = nMediaFileID;
+
+                        #region Cancellation Window
+
+                        string sPPVCode = ODBCWrapper.Utils.GetSafeStr(dataRow, "ppv");
+                        
+                        bool bCancellationWindow = false;                        
+                        int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
+
+                        if (nWaiver == 0) // user didn't waiver yet
+                        {
+                            IsCancellationWindow(ref oUsageModule, sPPVCode, dCreateDate, ref bCancellationWindow, eTransactionType.PPV);
+                        }
+
+                        #endregion 
+
                         PermittedMediaContainer p = new PermittedMediaContainer();
-                        p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dCreateDate, payMet, sDeviceUDID);
+                        p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dCreateDate, payMet, sDeviceUDID, bCancellationWindow);
                         h[nMediaFileID] = p;
                         ++i;
                     }
@@ -4269,6 +4286,7 @@ namespace ConditionalAccess
                     ret = new PermittedCollectionContainer[nCount];
                 }
                 int i = 0;
+                TvinciPricing.UsageModule oUsageModule = null;
                 foreach (DataRow dataRow in allCollectionsPurchases.Rows)
                 {
                     string sCollectionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["COLLECTION_CODE"]);
@@ -4289,13 +4307,58 @@ namespace ConditionalAccess
                     Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
                     PaymentMethod payMet = GetBillingTransMethod(billingTransID);
                     string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
+
+                    bool bCancellationWindow = false;
+                    #region Cancellation Window
+                    int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
+                    if (nWaiver == 0) // user didn't waiver yet
+                    {
+                        IsCancellationWindow(ref oUsageModule, sCollectionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Collection);
+                    }
+                    #endregion
+
                     PermittedCollectionContainer pcc = new PermittedCollectionContainer();
-                    pcc.Initialize(sCollectionCode, dEnd, dCurrent, dLastViewDate, dCreateDate, nID, payMet, sDeviceUDID);
+                    pcc.Initialize(sCollectionCode, dEnd, dCurrent, dLastViewDate, dCreateDate, nID, payMet, sDeviceUDID, bCancellationWindow);
                     ret[i] = pcc;
                     ++i;
                 }
             }
             return ret;
+        }
+
+        private void IsCancellationWindow(ref TvinciPricing.UsageModule oUsageModule, string sAssetCode, DateTime dCreateDate, ref bool bCancellationWindow, eTransactionType transaction)
+        {
+            //get the right usage module for each ppv
+            TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
+            string sIP = "1.1.1.1";
+            string sWSURL = Utils.GetWSURL("pricing_ws");
+            if (sWSURL != "")
+                m.Url = sWSURL;
+
+            string transactionName = Enum.GetName(typeof(eTransactionType), transaction);
+
+            if (CachingManager.CachingManager.Exist("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString()) == true)
+                oUsageModule = (TvinciPricing.UsageModule)(CachingManager.CachingManager.GetCachedData("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString()));
+            else
+            {
+                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUsageModule", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                oUsageModule = m.GetUsageModule(sWSUserName, sWSPass, sAssetCode, TvinciPricing.eTransactionType.Collection);
+                CachingManager.CachingManager.SetCachedData("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString(), oUsageModule, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+            }
+
+            if (oUsageModule != null)
+            {
+                if (oUsageModule.m_bWaiver) // if this usage module need to be waiver - check the date
+                {
+                    DateTime waiverDate = Utils.GetEndDateTime(dCreateDate, oUsageModule.m_nWaiverPeriod); // dCreateDate = ppv purchase date
+                    if (DateTime.UtcNow <= waiverDate)
+                    {
+                        bCancellationWindow = true;
+                    }
+                }
+            }
         }
         /// <summary>
         /// Get User Permitted Subscriptions
@@ -4317,6 +4380,9 @@ namespace ConditionalAccess
                     ret = new PermittedSubscriptionContainer[nCount];
                 }
                 int i = 0;
+
+                TvinciPricing.UsageModule oUsageModule = null;
+
                 foreach (DataRow dataRow in allSubscriptionsPurchases.Rows)
                 {
                     DateTime dNextRenewalDate = DateTime.MaxValue;
@@ -4324,6 +4390,7 @@ namespace ConditionalAccess
                     bool bIsSubRenewable = false;
                     int nPurchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
                     string sSubscriptionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["SUBSCRIPTION_CODE"]);
+
                     Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
                     Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
                     int billingTransID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
@@ -4352,8 +4419,19 @@ namespace ConditionalAccess
                     Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
                     PaymentMethod payMet = GetBillingTransMethod(billingTransID);
                     string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
+
+
+                    bool bCancellationWindow = false;
+                    #region Cancellation Window
+                    int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
+                    if (nWaiver == 0) // user didn't waiver yet
+                    {
+                        IsCancellationWindow(ref oUsageModule, sSubscriptionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Subscription);                       
+                    }
+                    #endregion
+
                     PermittedSubscriptionContainer p = new PermittedSubscriptionContainer();
-                    p.Initialize(sSubscriptionCode, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, dNextRenewalDate, bRecurringStatus, bIsSubRenewable, nID, payMet, sDeviceUDID);
+                    p.Initialize(sSubscriptionCode, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, dNextRenewalDate, bRecurringStatus, bIsSubRenewable, nID, payMet, sDeviceUDID, bCancellationWindow);
                     ret[i] = p;
                     ++i;
                 }
@@ -9212,6 +9290,74 @@ namespace ConditionalAccess
                 return ChangeSubscriptionStatus.Error;
             }
             return status;
+        }
+
+
+        /* This method shall set the cancellation Date column in the user entitlement table (subscriptions/ppv/collection_purchases) to the current date 
+         * and set the is_active state to 0. 
+         * The method shall perform a call to the client specific billing gateway to perform a cancellation action on the external billing gateway*/
+        public virtual bool CancelTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
+        {
+            bool bRes = false;
+            try
+            {                
+                switch (transactionType)
+                {
+                    case eTransactionType.PPV:
+                        bRes = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                        break;
+                    case eTransactionType.Subscription:
+                        bRes = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                        break;
+                    case eTransactionType.Collection:
+                        bRes = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                        break;
+                    default:
+                        return false;                       
+                }
+                if (bRes)
+                {
+                    //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway
+                    // call ? for REFUND?????
+
+
+                }
+
+                return bRes;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
+         * and the waiver_date field to the current date.*/
+        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID,  eTransactionType transactionType)
+        {
+            bool bRes = false;
+            try
+            {
+                switch (transactionType)
+                {
+                    case eTransactionType.PPV:
+                        bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                        break;
+                    case eTransactionType.Subscription:
+                        DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                        break;
+                    case eTransactionType.Collection:
+                        DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                        break;
+                    default:
+                        return false;
+                }
+                return bRes;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 

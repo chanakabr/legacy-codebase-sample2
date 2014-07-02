@@ -18,6 +18,7 @@ namespace ConditionalAccess
         public string m_sDeviceUDID;
         public string m_sDeviceName;
 
+        public bool m_bCancelWindow;
 
 
         public PermittedCollectionContainer()
@@ -30,10 +31,12 @@ namespace ConditionalAccess
 
             m_sDeviceUDID = string.Empty;
             m_sDeviceName = string.Empty;
+
+            m_bCancelWindow = false;
         }
 
         public void Initialize(string sCollectionCode, DateTime dEndTime , DateTime dCurrentDate , DateTime dLastViewDate ,
-            DateTime dPurchaseDate, Int32 nCollectionPurchaseID, PaymentMethod payMethod, string sDeviceUDID)
+            DateTime dPurchaseDate, Int32 nCollectionPurchaseID, PaymentMethod payMethod, string sDeviceUDID, bool bCancelWindow = false)
         {
             m_nCollectionPurchaseID = nCollectionPurchaseID;
             m_sCollectionCode = sCollectionCode;
@@ -43,6 +46,7 @@ namespace ConditionalAccess
                 m_dLastViewDate = dLastViewDate;
             m_dPurchaseDate = dPurchaseDate;
             m_paymentMethod = payMethod;
+            m_bCancelWindow = bCancelWindow;
 
             if (!string.IsNullOrEmpty(sDeviceUDID))
             {

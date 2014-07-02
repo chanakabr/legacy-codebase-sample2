@@ -22,7 +22,7 @@ namespace ConditionalAccess
 
         public string m_sDeviceUDID;
         public string m_sDeviceName;
-
+        public bool m_bCancelWindow;
 
 
         public PermittedSubscriptionContainer()
@@ -38,11 +38,13 @@ namespace ConditionalAccess
 
             m_sDeviceUDID = string.Empty;
             m_sDeviceName = string.Empty;
+
+            m_bCancelWindow = false;
         }
 
         public void Initialize(string sSubscriptionCode , Int32 nMaxUses , Int32 nCurrentUses , 
             DateTime dEndTime , DateTime dCurrentDate , DateTime dLastViewDate , DateTime dPurchaseDate , DateTime dNextRenewalDate ,
-            bool bRecurringStatus, bool bIsSubRenewable, Int32 nSubscriptionPurchaseID, PaymentMethod payMethod, string sDeviceUDID)
+            bool bRecurringStatus, bool bIsSubRenewable, Int32 nSubscriptionPurchaseID, PaymentMethod payMethod, string sDeviceUDID, bool bCancelWindow = false)
         {
             m_nSubscriptionPurchaseID = nSubscriptionPurchaseID;
             m_sSubscriptionCode = sSubscriptionCode;
@@ -57,6 +59,7 @@ namespace ConditionalAccess
             m_bRecurringStatus = bRecurringStatus;
             m_bIsSubRenewable = bIsSubRenewable;
             m_paymentMethod = payMethod;
+            m_bCancelWindow = bCancelWindow;
 
             if (!string.IsNullOrEmpty(sDeviceUDID))
             {
