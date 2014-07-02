@@ -172,6 +172,33 @@ namespace TvinciImporter
             return nChannelID;
         }
 
+
+        protected static Dictionary<string, string> getMediaIDsbyCoGuids(int nGroupID, string[] sCoGuids)
+        {
+            Dictionary<string, string> dMediaIDs = new Dictionary<string, string>();
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += "select id, CO_GUID from media (nolock) where status=1 and CO_GUID in ( '" + string.Join("','", sCoGuids) + "' ) and ";        
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCount = selectQuery.Table("query").DefaultView.Count;
+              //  nMediaIDs = new int[nCount];
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
+                    string sSingleCoGuid = selectQuery.Table("query").DefaultView[i].Row["CO_GUID"].ToString();
+                    if (!dMediaIDs.Keys.Contains(sID))
+                        dMediaIDs.Add(sID, sSingleCoGuid);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return dMediaIDs;
+        }
+
+
+
         static protected Int32 GetMediaIDByCoGuid(Int32 nGroupID, string sCoGuid)
         {
             Int32 nMediaID = 0;
@@ -1001,54 +1028,71 @@ namespace TvinciImporter
             updateClearQuery.Finish();
             updateClearQuery = null;
 
-            for (int i = 0; i < theMedias.Length; ++i)
+            //generate Dictionary with the CO_GUID and the order_number
+            Dictionary<string,string> dCoGuids_OrderNum = new Dictionary<string,string>();
+            foreach (ChannelsSchema.media media in theMedias)
             {
-                // Convert co_guid to media ID
-                int mediaID = GetMediaIDByCoGuid(nGroupID, theMedias[i].ID);
+                if (!dCoGuids_OrderNum.Keys.Contains(media.ID))
+                    dCoGuids_OrderNum.Add(media.ID, media.order_number);
+            }
+            //get the media IDs according to the co_guids. Key = the media ID, Value = the CO_GUID
+            Dictionary<string, string> dMediaIDs = getMediaIDsbyCoGuids(nGroupID, dCoGuids_OrderNum.Keys.ToArray());
 
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select ID from channels_media where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
-
-                // check if media exist in channel, if so update the data, otherwise insert the new media
-                if (selectQuery.Execute("query", true) != null)
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select ID, MEDIA_ID from channels_media where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);                    
+            selectQuery += " and MEDIA_ID in (" + string.Join(",",(dMediaIDs.Keys.ToList()).ToArray()) + " ) ";
+            selectQuery.SetCachedSec(0);            
+            List<string> lUpdatedMediaIDs = new List<string>();
+            if (selectQuery.Execute("query", true) != null)
+            {
+                // update all the relevant medias 
+                for (int j = 0; j < selectQuery.Table("query").DefaultView.Count; j++)
                 {
-                    if (selectQuery.Table("query").DefaultView.Count != 0)
-                    {
-                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels_media");
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", int.Parse(theMedias[i].order_number));
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
-                        updateQuery += " where ";
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
-                        updateQuery.Execute();
-                        updateQuery.Finish();
-                        updateQuery = null;
-                    }
-                    else
-                    {
-                        ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("channels_media");
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", Int32.Parse(theMedias[i].order_number));
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
-                        insertQuery.Execute();
-                        insertQuery.Finish();
-                        insertQuery = null;
-                    }
-                }
+                    string sID = selectQuery.Table("query").DefaultView[j].Row["ID"].ToString();
+                    string sMediaID = selectQuery.Table("query").DefaultView[j].Row["MEDIA_ID"].ToString();
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels_media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", int.Parse(dCoGuids_OrderNum[dMediaIDs[sMediaID]]));
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);                 
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);                  
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", int.Parse(sID));
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
 
-                // clear and null
-                selectQuery.Finish();
-                selectQuery = null;
+                    //generate a list with all medias that were updated 
+                    if (!lUpdatedMediaIDs.Contains(sMediaID))
+                        lUpdatedMediaIDs.Add(sMediaID);                                   
+                }
+            }
+
+            //remove from ditionary every media that was updated
+            foreach (string sMediaIDInList in lUpdatedMediaIDs)
+            {
+                if (dMediaIDs.Keys.Contains(sMediaIDInList))
+                    dMediaIDs.Remove(sMediaIDInList); 
+            }
+
+            // clear and null
+            selectQuery.Finish();
+            selectQuery = null;
+
+            //insert all the medias that are left into channels_media
+            foreach (string sMediaID in dMediaIDs.Keys.ToList())
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("channels_media");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", int.Parse(sMediaID) );
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", int.Parse(dCoGuids_OrderNum[dMediaIDs[sMediaID]]));
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+                insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
             }
         }
 
