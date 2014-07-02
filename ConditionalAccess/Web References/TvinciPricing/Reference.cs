@@ -113,11 +113,11 @@ namespace ConditionalAccess.TvinciPricing {
         
         private System.Threading.SendOrPostCallback GetPreviewModulesArrayByGroupIDForAdminOperationCompleted;
         
-        private System.Threading.SendOrPostCallback GetUsageModuleOperationCompleted;
-
         private System.Threading.SendOrPostCallback GetSubscriptionsDataOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetCollectionsDataOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetUsageModuleOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -284,12 +284,13 @@ namespace ConditionalAccess.TvinciPricing {
         public event GetPreviewModulesArrayByGroupIDForAdminCompletedEventHandler GetPreviewModulesArrayByGroupIDForAdminCompleted;
         
         /// <remarks/>
-        public event GetUsageModuleCompletedEventHandler GetUsageModuleCompleted;
         public event GetSubscriptionsDataCompletedEventHandler GetSubscriptionsDataCompleted;
         
         /// <remarks/>
         public event GetCollectionsDataCompletedEventHandler GetCollectionsDataCompleted;
-
+        
+        /// <remarks/>
+        public event GetUsageModuleCompletedEventHandler GetUsageModuleCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetCurrencyValues", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1824,39 +1825,6 @@ namespace ConditionalAccess.TvinciPricing {
         }
         
         /// <remarks/>
-<<<<<<< HEAD
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetUsageModule", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UsageModule GetUsageModule(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
-            object[] results = this.Invoke("GetUsageModule", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        sAssetCode,
-                        transactionType});
-            return ((UsageModule)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
-            this.GetUsageModuleAsync(sWSUserName, sWSPassword, sAssetCode, transactionType, null);
-        }
-        
-        /// <remarks/>
-        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType, object userState) {
-            if ((this.GetUsageModuleOperationCompleted == null)) {
-                this.GetUsageModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUsageModuleOperationCompleted);
-            }
-            this.InvokeAsync("GetUsageModule", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        sAssetCode,
-                        transactionType}, this.GetUsageModuleOperationCompleted, userState);
-        }
-        
-        private void OnGetUsageModuleOperationCompleted(object arg) {
-            if ((this.GetUsageModuleCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetUsageModuleCompleted(this, new GetUsageModuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetSubscriptionsData", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Subscription[] GetSubscriptionsData(string sWSUsername, string sWSPassword, string[] oSubCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
             object[] results = this.Invoke("GetSubscriptionsData", new object[] {
@@ -1931,7 +1899,41 @@ namespace ConditionalAccess.TvinciPricing {
             if ((this.GetCollectionsDataCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetCollectionsDataCompleted(this, new GetCollectionsDataCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
->>>>>>> master
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetUsageModule", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UsageModule GetUsageModule(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
+            object[] results = this.Invoke("GetUsageModule", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sAssetCode,
+                        transactionType});
+            return ((UsageModule)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
+            this.GetUsageModuleAsync(sWSUserName, sWSPassword, sAssetCode, transactionType, null);
+        }
+        
+        /// <remarks/>
+        public void GetUsageModuleAsync(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType, object userState) {
+            if ((this.GetUsageModuleOperationCompleted == null)) {
+                this.GetUsageModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUsageModuleOperationCompleted);
+            }
+            this.InvokeAsync("GetUsageModule", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sAssetCode,
+                        transactionType}, this.GetUsageModuleOperationCompleted, userState);
+        }
+        
+        private void OnGetUsageModuleOperationCompleted(object arg) {
+            if ((this.GetUsageModuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUsageModuleCompleted(this, new GetUsageModuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4905,39 +4907,22 @@ namespace ConditionalAccess.TvinciPricing {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
-
-    public delegate void GetUsageModuleCompletedEventHandler(object sender, GetUsageModuleCompletedEventArgs e);
-
     public delegate void GetSubscriptionsDataCompletedEventHandler(object sender, GetSubscriptionsDataCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-
-    public partial class GetUsageModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetUsageModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-
     public partial class GetSubscriptionsDataCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
         internal GetSubscriptionsDataCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-
                 base(exception, cancelled, userState) {
             this.results = results;
         }
         
         /// <remarks/>
-
-        public UsageModule Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((UsageModule)(this.results[0]));
-
         public Subscription[] Result {
             get {
                 this.RaiseExceptionIfNecessary();
@@ -4968,7 +4953,32 @@ namespace ConditionalAccess.TvinciPricing {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Collection[])(this.results[0]));
-
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void GetUsageModuleCompletedEventHandler(object sender, GetUsageModuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUsageModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUsageModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UsageModule Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UsageModule)(this.results[0]));
             }
         }
     }

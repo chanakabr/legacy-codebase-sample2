@@ -365,6 +365,7 @@
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPricing\</RelPath>
       <UpdateFromURL>http://localhost/ws_Pricing/module.asmx</UpdateFromURL>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/WS_Pricing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPricing\</RelPath>

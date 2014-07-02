@@ -849,7 +849,8 @@ namespace ConditionalAccess
 
         internal static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
             int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword,
-            ref Subscription[] subsRes, ref Collection[] collsRes)
+            ref Subscription[] subsRes, ref Collection[] collsRes,
+            ref  Dictionary<string, KeyValuePair<int, DateTime>> subsPurchase, ref Dictionary<string, KeyValuePair<int, DateTime>> collPurchase)
         {
             DataSet ds = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs(lstUserIDs, nFileTypes != null && nFileTypes.Length > 0 ? nFileTypes.ToList<int>() : new List<int>(0));
             if (IsBundlesDataSetValid(ds))
@@ -857,13 +858,15 @@ namespace ConditionalAccess
                 // the subscriptions and collections we add to those list will be sent to the Catalog in order to determine whether the media
                 // given as input belongs to it.
                 List<int> subsToSendToCatalog = new List<int>();
-                List<int> collsToSendToCatalog = new List<int>();
+                List<int> collsToSendToCatalog = new List<int>();              
 
                 List<string> subsToBundleCreditDownloadedQuery = new List<string>();
                 List<string> colsToBundleCreditDownloadedQuery = new List<string>();
 
                 // iterate over subscriptions
                 DataTable subs = ds.Tables[0];
+                 int nWaiver = 0;
+                DateTime dPurchaseDate = DateTime.MinValue;
 
                 if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
                 {
@@ -872,7 +875,10 @@ namespace ConditionalAccess
                         int numOfUses = 0;
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
-                        GetBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode);
+                        nWaiver = 0;
+                        dPurchaseDate = DateTime.MinValue;
+
+                        GetBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate);
                         if (IsUserCanStillUseSub(numOfUses, maxNumOfUses))
                         {
                             // add to Catalog's BundlesContainingMediaRequest
@@ -880,6 +886,10 @@ namespace ConditionalAccess
                             if (Int32.TryParse(bundleCode, out subCode) && subCode > 0)
                             {
                                 subsToSendToCatalog.Add(subCode);
+                                if (!subsPurchase.ContainsKey(bundleCode))
+                                {
+                                    subsPurchase.Add(bundleCode, new KeyValuePair<int, DateTime>(nWaiver, dPurchaseDate));
+                                }
                             }
                             else
                             {
@@ -904,7 +914,10 @@ namespace ConditionalAccess
                         int numOfUses = 0;
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
-                        GetBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode);
+                        nWaiver = 0;
+                        dPurchaseDate = DateTime.MinValue;
+
+                        GetBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate);
                         if (IsUserCanStillUseCol(numOfUses, maxNumOfUses))
                         {
                             // add to Catalog's BundlesContainingMediaRequest
@@ -912,6 +925,10 @@ namespace ConditionalAccess
                             if (Int32.TryParse(bundleCode, out collCode) && collCode > 0)
                             {
                                 collsToSendToCatalog.Add(collCode);
+                                if (!collPurchase.ContainsKey(bundleCode))
+                                {
+                                    collPurchase.Add(bundleCode, new KeyValuePair<int, DateTime>(nWaiver, dPurchaseDate));
+                                }
                             }
                             else
                             {
@@ -1100,11 +1117,14 @@ namespace ConditionalAccess
         }
 
         private static void GetBundlePurchaseData(DataRow dr, string codeColumnName, ref int numOfUses, ref int maxNumOfUses,
-            ref string bundleCode)
+            ref string bundleCode, ref int nWaiver, ref DateTime dPurchaseDate)
         {
             numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["NUM_OF_USES"]);
             maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["MAX_NUM_OF_USES"]);
             bundleCode = ODBCWrapper.Utils.GetSafeStr(dr[codeColumnName]);
+
+            nWaiver= ODBCWrapper.Utils.GetIntSafeVal(dr, "WAIVER");
+            dPurchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
         }
 
         private static bool IsBundlesDataSetValid(DataSet ds)
@@ -1996,9 +2016,10 @@ namespace ConditionalAccess
                 allUsersInDomain = new List<int>(0);
                 mediaFileTypesMapping = new Dictionary<int, int>(0);
             }
+            bool bCancellationWindow = false;
             return GetMediaFileFinalPrice(nMediaFileID, ppvModule, sSiteGUID, sCouponCode, nGroupID, ref theReason, ref relevantSub, 
-                ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, 
-                mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword);
+                ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
+                mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow);
         }
 
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,
@@ -2084,7 +2105,7 @@ namespace ConditionalAccess
             ref TvinciPricing.Collection relevantCol, ref TvinciPricing.PrePaidModule relevantPP, ref string sFirstDeviceNameFound,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
-            string sPricingPassword)
+            string sPricingPassword, ref bool bCancellationWindow)
         {
             if (ppvModule == null)
             {
@@ -2122,14 +2143,19 @@ namespace ConditionalAccess
                     int ppvID = 0;
                     string sSubCode = string.Empty;
                     string sPPCode = string.Empty;
+                    int nWaiver = 0;
+                    DateTime dPurchaseDate = DateTime.MinValue;
 
-                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ref ppvID, ref sSubCode, ref sPPCode))
+                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate))
                     {
                         p.m_dPrice = 0;
+                        // Cancellation Window check by ppvUsageModule + purchase date
+                        bCancellationWindow = IsCancellationWindowPerPurchase(ppvModule.m_oUsageModule, bCancellationWindow, nWaiver, dPurchaseDate);
 
                         if (IsPurchasedAsPurePPV(sSubCode, sPPCode))
                         {
                             theReason = PriceReason.PPVPurchased;
+                            
                             if (ppvModule.m_bFirstDeviceLimitation && !IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, allUserIDsInDomain, sDEVICE_NAME, ref sFirstDeviceNameFound))
                             {
                                 theReason = PriceReason.FirstDeviceLimitation;
@@ -2192,7 +2218,11 @@ namespace ConditionalAccess
                     //check here if it is part of a purchased subscription or part of purchased collections
                     Subscription[] relevantValidSubscriptions = null;
                     Collection[] relevantValidCollections = null;
-                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, ref relevantValidSubscriptions, ref relevantValidCollections);
+                    Dictionary<string, KeyValuePair<int, DateTime>> subsPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();/*dictionary(subscriptionCode, KeyValuePair<nWaiver, dPurchaseDate>)*/
+                    Dictionary<string, KeyValuePair<int, DateTime>> collPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();
+
+                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, 
+                        ref relevantValidSubscriptions, ref relevantValidCollections, ref subsPurchase, ref collPurchase);
 
                     if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
                     {
@@ -2227,7 +2257,18 @@ namespace ConditionalAccess
 
                                         bEnd = true;
                                         break;
-                                    }
+                                    }                                    
+                                }
+                            }
+
+                            //cancellationWindow by relevantSub
+                            if (relevantSub.m_MultiSubscriptionUsageModule != null && relevantSub.m_MultiSubscriptionUsageModule.Count() > 0)
+                            {
+                                if (subsPurchase.ContainsKey(relevantSub.m_SubscriptionCode))
+                                {
+                                    nWaiver = subsPurchase[relevantSub.m_SubscriptionCode].Key;
+                                    dPurchaseDate = subsPurchase[relevantSub.m_SubscriptionCode].Value;
+                                    bCancellationWindow = IsCancellationWindowPerPurchase(relevantSub.m_MultiSubscriptionUsageModule[0], bCancellationWindow, nWaiver, dPurchaseDate);
                                 }
                             }
                         }
@@ -2238,8 +2279,7 @@ namespace ConditionalAccess
                         return p;
                     }
 
-                    // check here if its part of a purchased collection
-                    //TvinciPricing.PPVModule[] relevantValidCollections = GetUserValidBundlesFromList(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, eBundleType.COLLECTION);
+                    // check here if its part of a purchased collection                    
 
                     if (relevantValidCollections != null)
                     {
@@ -2257,6 +2297,17 @@ namespace ConditionalAccess
                                     theReason = PriceReason.CollectionPurchased;
                                     break;
                                 }
+                            }
+                        }
+
+                        //cancellationWindow by relevantSub
+                        if (relevantCol.m_oCollectionUsageModule != null)
+                        {
+                            if (subsPurchase.ContainsKey(relevantCol.m_CollectionCode))
+                            {
+                                nWaiver = subsPurchase[relevantCol.m_CollectionCode].Key;
+                                dPurchaseDate = subsPurchase[relevantCol.m_CollectionCode].Value;
+                                bCancellationWindow = IsCancellationWindowPerPurchase(relevantCol.m_oCollectionUsageModule, bCancellationWindow, nWaiver, dPurchaseDate);
                             }
                         }
                     }
@@ -2300,6 +2351,30 @@ namespace ConditionalAccess
             }
 
             return p;
+        }
+
+        private static bool IsCancellationWindowPerPurchase(TvinciPricing.UsageModule oUsageModule, bool bCancellationWindow, int nWaiver, DateTime dCreateDate)
+        {
+            try
+            {
+                if (nWaiver == 0) // user never waiver the cancel transaction option  - so bCancellationWindow = true
+                {
+                    // check date 
+                    if (oUsageModule != null && oUsageModule.m_bWaiver)
+                    {
+                        DateTime waiverDate = Utils.GetEndDateTime(dCreateDate, oUsageModule.m_nWaiverPeriod); // dCreateDate = ppv purchase date
+                        if (DateTime.UtcNow <= waiverDate)
+                        {
+                            bCancellationWindow = true;
+                        }                        
+                    }
+                }
+                return bCancellationWindow;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         private static bool IsFreeMediaFile(PriceReason reason, Price p)

@@ -760,7 +760,7 @@ namespace DAL
         }
 
         public static bool Get_AllUsersPurchases(List<int> UserIDs, List<int> FileIds, int fileID, ref int ppvID, ref string subCode,
-            ref string ppCode)
+            ref string ppCode, ref int nWaiver, ref DateTime dCreateDate)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
@@ -780,6 +780,9 @@ namespace DAL
                     ppvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
                     subCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["subscription_code"]);
                     ppCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["rel_pp"]);
+                    //cancellation window 
+                    nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "WAIVER");
+                    dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE");
                 }
             }
 

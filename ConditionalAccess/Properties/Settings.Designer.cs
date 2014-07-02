@@ -47,7 +47,6 @@ namespace ConditionalAccess.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
         [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_Pricing/module.asmx")]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Pricing/module.asmx")]
         public string ConditionalAccess_TvinciPricing_mdoule {
             get {
                 return ((string)(this["ConditionalAccess_TvinciPricing_mdoule"]));

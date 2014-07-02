@@ -5933,6 +5933,7 @@ namespace ConditionalAccess
             string sPricingPassword = string.Empty;
             string sAPIUsername = string.Empty;
             string sAPIPassword = string.Empty;
+            bool bCancellationWindow = false;
             try
             {
                 TvinciPricing.MediaFilePPVModule[] oModules = null;
@@ -5976,6 +5977,7 @@ namespace ConditionalAccess
                             TvinciPricing.Collection relevantLowestCol = null;
                             TvinciPricing.PrePaidModule relevantLowestPrePaid = null;
                             string sProductCode = string.Empty;
+                            bool tempCancellationWindow = false;
 
                             for (int j = 0; j < ppvModules.Length; j++)
                             {
@@ -5985,16 +5987,16 @@ namespace ConditionalAccess
                                 TvinciPricing.Collection relevantCol = null;
                                 TvinciPricing.PrePaidModule relevantPrePaid = null;
 
-                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID, 
-                                    ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, 
-                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping, 
-                                    allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword);
+                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j], sUserGUID, sCouponCode, m_nGroupID,
+                                    ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
+                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
+                                    allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow);
                                 sProductCode = oModules[i].m_sProductCode;
 
                                 if (!bOnlyLowest)
                                 {
                                     itemPriceCont[j] = new ItemPriceContainer();
-                                    itemPriceCont[j].Initialize(p, ppvModules[j].m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].m_sDescription, theReason, relevantSub, relevantCol, ppvModules[j].m_bSubscriptionOnly, relevantPrePaid, sFirstDeviceNameFound);
+                                    itemPriceCont[j].Initialize(p, ppvModules[j].m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].m_sDescription, theReason, relevantSub, relevantCol, ppvModules[j].m_bSubscriptionOnly, relevantPrePaid, sFirstDeviceNameFound, bCancellationWindow);
                                 }
                                 else
                                 {
@@ -6007,6 +6009,7 @@ namespace ConditionalAccess
                                         relevantLowestSub = relevantSub;
                                         relevantLowestCol = relevantCol;
                                         relevantLowestPrePaid = relevantPrePaid;
+                                        tempCancellationWindow = bCancellationWindow;
                                     }
                                 }
                             } // end for
@@ -6014,7 +6017,7 @@ namespace ConditionalAccess
                             if (bOnlyLowest)
                             {
                                 itemPriceCont[0] = new ItemPriceContainer();
-                                itemPriceCont[0].Initialize(pLowest, ppvModules[nLowestIndex].m_oPriceCode.m_oPrise, ppvModules[nLowestIndex].m_sObjectCode, ppvModules[nLowestIndex].m_sDescription, theLowestReason, relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].m_bSubscriptionOnly, relevantLowestPrePaid, sFirstDeviceNameFound);
+                                itemPriceCont[0].Initialize(pLowest, ppvModules[nLowestIndex].m_oPriceCode.m_oPrise, ppvModules[nLowestIndex].m_sObjectCode, ppvModules[nLowestIndex].m_sDescription, theLowestReason, relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].m_bSubscriptionOnly, relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow);
                             }
                             mf.Initialize(nMediaFileID, itemPriceCont, sProductCode);
                         }
@@ -8907,10 +8910,12 @@ namespace ConditionalAccess
                 }
                 if (bRes)
                 {
-                    //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway
-                    // call ? for REFUND?????
-
-
+                    try
+                    {
+                        WriteToUserLog(sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
+                    }
+                    catch { }
+                    //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
                 }
 
                 return bRes;
@@ -8926,21 +8931,30 @@ namespace ConditionalAccess
         public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID,  eTransactionType transactionType)
         {
             bool bRes = false;
+            
             try
             {
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                        bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);      
                         break;
                     case eTransactionType.Subscription:
-                        DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                        bRes = DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);                        
                         break;
                     case eTransactionType.Collection:
-                        DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                       bRes = DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);                       
                         break;
                     default:
                         return false;
+                }
+                if (bRes)
+                {
+                    try
+                    {
+                        WriteToUserLog(sSiteGuid, string.Format("user :{0} waiver cancellation for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
+                    }
+                    catch { }
                 }
                 return bRes;
             }
