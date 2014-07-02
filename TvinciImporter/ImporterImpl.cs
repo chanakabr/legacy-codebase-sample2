@@ -1022,6 +1022,7 @@ namespace TvinciImporter
             // move all the channels media status 4 (not active)
             ODBCWrapper.UpdateQuery updateClearQuery = new ODBCWrapper.UpdateQuery("channels_media");
             updateClearQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 4);
+            updateClearQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow); 
             updateClearQuery += " where ";
             updateClearQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
             updateClearQuery.Execute();
@@ -1056,7 +1057,8 @@ namespace TvinciImporter
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels_media");
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", int.Parse(dCoGuids_OrderNum[dMediaIDs[sMediaID]]));
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);                 
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);                  
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     updateQuery += " where ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", int.Parse(sID));
                     updateQuery.Execute();
