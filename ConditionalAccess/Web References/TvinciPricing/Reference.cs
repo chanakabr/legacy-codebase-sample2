@@ -114,6 +114,10 @@ namespace ConditionalAccess.TvinciPricing {
         private System.Threading.SendOrPostCallback GetPreviewModulesArrayByGroupIDForAdminOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetUsageModuleOperationCompleted;
+
+        private System.Threading.SendOrPostCallback GetSubscriptionsDataOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetCollectionsDataOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -281,6 +285,11 @@ namespace ConditionalAccess.TvinciPricing {
         
         /// <remarks/>
         public event GetUsageModuleCompletedEventHandler GetUsageModuleCompleted;
+        public event GetSubscriptionsDataCompletedEventHandler GetSubscriptionsDataCompleted;
+        
+        /// <remarks/>
+        public event GetCollectionsDataCompletedEventHandler GetCollectionsDataCompleted;
+
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetCurrencyValues", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1815,6 +1824,7 @@ namespace ConditionalAccess.TvinciPricing {
         }
         
         /// <remarks/>
+<<<<<<< HEAD
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetUsageModule", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public UsageModule GetUsageModule(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType) {
             object[] results = this.Invoke("GetUsageModule", new object[] {
@@ -1846,6 +1856,82 @@ namespace ConditionalAccess.TvinciPricing {
             if ((this.GetUsageModuleCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetUsageModuleCompleted(this, new GetUsageModuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetSubscriptionsData", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Subscription[] GetSubscriptionsData(string sWSUsername, string sWSPassword, string[] oSubCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
+            object[] results = this.Invoke("GetSubscriptionsData", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        oSubCodes,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName});
+            return ((Subscription[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetSubscriptionsDataAsync(string sWSUsername, string sWSPassword, string[] oSubCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
+            this.GetSubscriptionsDataAsync(sWSUsername, sWSPassword, oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, null);
+        }
+        
+        /// <remarks/>
+        public void GetSubscriptionsDataAsync(string sWSUsername, string sWSPassword, string[] oSubCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName, object userState) {
+            if ((this.GetSubscriptionsDataOperationCompleted == null)) {
+                this.GetSubscriptionsDataOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetSubscriptionsDataOperationCompleted);
+            }
+            this.InvokeAsync("GetSubscriptionsData", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        oSubCodes,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName}, this.GetSubscriptionsDataOperationCompleted, userState);
+        }
+        
+        private void OnGetSubscriptionsDataOperationCompleted(object arg) {
+            if ((this.GetSubscriptionsDataCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetSubscriptionsDataCompleted(this, new GetSubscriptionsDataCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetCollectionsData", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Collection[] GetCollectionsData(string sWSUserName, string sWSPassword, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
+            object[] results = this.Invoke("GetCollectionsData", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        oCollCodes,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName});
+            return ((Collection[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetCollectionsDataAsync(string sWSUserName, string sWSPassword, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
+            this.GetCollectionsDataAsync(sWSUserName, sWSPassword, oCollCodes, sCountryCd2, sLanguageCode3, sDeviceName, null);
+        }
+        
+        /// <remarks/>
+        public void GetCollectionsDataAsync(string sWSUserName, string sWSPassword, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName, object userState) {
+            if ((this.GetCollectionsDataOperationCompleted == null)) {
+                this.GetCollectionsDataOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetCollectionsDataOperationCompleted);
+            }
+            this.InvokeAsync("GetCollectionsData", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        oCollCodes,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName}, this.GetCollectionsDataOperationCompleted, userState);
+        }
+        
+        private void OnGetCollectionsDataOperationCompleted(object arg) {
+            if ((this.GetCollectionsDataCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetCollectionsDataCompleted(this, new GetCollectionsDataCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+>>>>>>> master
             }
         }
         
@@ -4819,26 +4905,70 @@ namespace ConditionalAccess.TvinciPricing {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+
     public delegate void GetUsageModuleCompletedEventHandler(object sender, GetUsageModuleCompletedEventArgs e);
+
+    public delegate void GetSubscriptionsDataCompletedEventHandler(object sender, GetSubscriptionsDataCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
+
     public partial class GetUsageModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
         internal GetUsageModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+
+    public partial class GetSubscriptionsDataCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetSubscriptionsDataCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+
                 base(exception, cancelled, userState) {
             this.results = results;
         }
         
         /// <remarks/>
+
         public UsageModule Result {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((UsageModule)(this.results[0]));
+
+        public Subscription[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Subscription[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void GetCollectionsDataCompletedEventHandler(object sender, GetCollectionsDataCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetCollectionsDataCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetCollectionsDataCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Collection[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Collection[])(this.results[0]));
+
             }
         }
     }

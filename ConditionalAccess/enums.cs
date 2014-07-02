@@ -147,8 +147,7 @@ namespace ConditionalAccess
         UserHadNewSub = 6,
         Error = 7
     }
-
-
+    
     [Serializable]
     public enum eTransactionType
     {
@@ -158,5 +157,11 @@ namespace ConditionalAccess
         Subscription,
         [EnumMember]
         Collection
+    }
+    internal enum BundleToUse : byte
+    {
+        All = 0,
+        Subscription = 1,
+        Collection = 2
     }
 }

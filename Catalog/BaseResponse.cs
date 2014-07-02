@@ -31,7 +31,7 @@ namespace Catalog
     [KnownType(typeof(EpgProgramsResponse))]
     [KnownType(typeof(ChannelViewsResponse))]
     [KnownType(typeof(BuzzMeterResponse))]
-    
+    [KnownType(typeof(BundlesContainingMediaResponse))]
     public class BaseResponse
     {  
         

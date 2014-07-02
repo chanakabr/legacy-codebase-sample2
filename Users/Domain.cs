@@ -1002,29 +1002,31 @@ namespace Users
         /// <param name="nGroupID"></param>
         public static List<string> GetFullUserList(int nDomainID, int nGroupID)
         {
-            List<string> retVal = new List<string>();
+            //List<string> retVal = new List<string>();
 
-            int status = 1;
-            int isActive = 1;
-            Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+            //int status = 1;
+            //int isActive = 1;
+            //Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
 
-            if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
-            {
-                retVal = dbTypedUserIDs.Select(ut => ut.Key.ToString()).ToList();
-            }
+            //if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
+            //{
+            //    retVal = dbTypedUserIDs.Select(ut => ut.Key.ToString()).ToList();
+            //}
 
-            // Add Pending Users (with minus)
-            status = 3;
-            isActive = 0;
-            Dictionary<int, int> dbPendingTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+            //// Add Pending Users (with minus)
+            //status = 3;
+            //isActive = 0;
+            //Dictionary<int, int> dbPendingTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
 
-            if (dbPendingTypedUserIDs != null && dbPendingTypedUserIDs.Count > 0)
-            {
-                List<string> pendingIDs = dbPendingTypedUserIDs.Select(ut => (ut.Key * (-1)).ToString()).ToList();
-                retVal.AddRange(pendingIDs);
-            }
+            //if (dbPendingTypedUserIDs != null && dbPendingTypedUserIDs.Count > 0)
+            //{
+            //    List<string> pendingIDs = dbPendingTypedUserIDs.Select(ut => (ut.Key * (-1)).ToString()).ToList();
+            //    retVal.AddRange(pendingIDs);
+            //}
 
-            return retVal;
+            //return retVal;
+
+            return DomainDal.Get_FullUserListOfDomain(nGroupID, nDomainID);
         }
 
         public Device RegisterDeviceToDomainWithPIN(int nGroupID, string sPIN, int nDomainID, string sDeviceName, ref DeviceResponseStatus eRetVal)

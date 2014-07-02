@@ -20,7 +20,7 @@ namespace Catalog
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         [DataMember]
-        public eBundleType m_eBundleType;
+        public CatalogBundleType m_eBundleType;
         [DataMember]
         public int m_nBundleID;
         [DataMember]
@@ -47,25 +47,22 @@ namespace Catalog
                 if (request == null || request.m_nBundleID == 0)
                     throw new Exception("request object is null or Required variables is null");
 
+                CheckSignature(request);
+
                 string dataTable = string.Empty;
                 switch (request.m_eBundleType)
                 {
-                    case eBundleType.SUBSCRIPTION:
+                    case CatalogBundleType.SUBSCRIPTION:
                     {
                         dataTable = SUB_DATA_TABLE;
                         break;
                     }
-                    case eBundleType.COLLECTION:
+                    case CatalogBundleType.COLLECTION:
                     {
                         dataTable = COL_DATA_TABLE;
                         break;
                     }
                 }
-
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
 
                 Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
                 if (groupInCache != null)
@@ -132,6 +129,13 @@ namespace Catalog
 
                             //Wait for all parallel tasks to end
                             Task.WaitAll(channelsSearchObjectTasks);
+                            for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
+                            {
+                                if (channelsSearchObjectTasks[i] != null)
+                                {
+                                    channelsSearchObjectTasks[i].Dispose();
+                                }
+                            }
 
                             if (channelsSearchObjects != null && channelsSearchObjects.Count > 0)
                             {
