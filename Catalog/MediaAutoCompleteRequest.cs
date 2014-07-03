@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -46,7 +47,9 @@ namespace Catalog
                     searchObj.m_nPageSize = request.m_nPageSize;
                     searchObj.m_nPageIndex = request.m_nPageIndex;
 
-                    Group oGroup = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+                    GroupManager groupManager = new GroupManager();
+                    Group oGroup = groupManager.GetGroup(request.m_nGroupID);
+
                     if (oGroup != null && request.m_oFilter != null)
                     {
                         searchObj.m_oLangauge = oGroup.GetLanguage(request.m_oFilter.m_nLanguage);

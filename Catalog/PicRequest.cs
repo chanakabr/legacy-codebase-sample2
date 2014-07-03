@@ -7,6 +7,7 @@ using Logger;
 using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -38,12 +39,7 @@ namespace Catalog
                 PicResponse response = new PicResponse();
                 PicObj oPicObj = new PicObj();
                 Picture oPicture = new Picture();
-
-                //string xmlresult = "";
-                //xmlresult = SerializeToXML<PicRequest>(request);
-                //_logger.Info(xmlresult);
-                //_logger.Info(string.Format("{0}: {1}", "PicRequest.GetResponse Start At", DateTime.Now));
-
+                              
                 if (request == null )
                     throw new Exception("request object is null or Required variables is null");
 
@@ -51,8 +47,10 @@ namespace Catalog
                 if (sCheckSignature != request.m_sSignature)
                     throw new Exception("Signatures dosen't match");
 
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroup = groupManager.GetSubGroup(request.m_nGroupID);
 
-                DataTable dt = CatalogDAL.Get_PicProtocol(request.m_nGroupID, request.m_nPicIds);
+                DataTable dt = CatalogDAL.Get_PicProtocol(request.m_nGroupID, request.m_nPicIds, lSubGroup);
 
                 if (dt != null)
                 {
@@ -85,12 +83,6 @@ namespace Catalog
                     }
                 }
 
-                //xmlresult = "no resultes";
-                //if (response != null)
-                //{
-                //    xmlresult = SerializeToXML<PicResponse>(response);
-                //}
-                //_logger.Info(xmlresult);
                 return (BaseResponse)response;
             }
             catch (Exception ex)

@@ -1,20 +1,22 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
+using System.Runtime.Serialization;
+using Logger;
+using System.Reflection;
+using System.Data;
+using TVinciShared;
+using Tvinci.Core.DAL;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
+using System.Collections.Concurrent;
 using Catalog.Cache;
-using Logger;
-using TVinciShared;
 
 namespace Catalog
 {
     [DataContract]
-    public class IsMediaExistsInSubscriptionRequest : BaseRequest, IRequestImp
+    public class SubscriptionContainingMediaRequest : BaseRequest, IRequestImp
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -22,8 +24,10 @@ namespace Catalog
         public int m_nSubscriptionID;
         [DataMember]
         public int m_nMediaID;
+        [DataMember]
+        public string m_sMediaType;
 
-        public IsMediaExistsInSubscriptionRequest()
+        public SubscriptionContainingMediaRequest()
             : base()
         {
         }
@@ -32,31 +36,39 @@ namespace Catalog
         {
             try
             {
-                IsMediaExistsInSubscriptionRequest request = (IsMediaExistsInSubscriptionRequest)oBaseRequest;
+                SubscriptionContainingMediaRequest request = (SubscriptionContainingMediaRequest)oBaseRequest;
                 List<SearchResult> lMedias = new List<SearchResult>();
 
-                IsMediaExistsInSubscriptionResponse response = new IsMediaExistsInSubscriptionResponse();
+                ContainingMediaResponse response = new ContainingMediaResponse();
 
                 if (request == null || request.m_nSubscriptionID == 0)
                     throw new Exception("request object is null or Required variables is null");
+
+                GroupManager groupManager = new GroupManager();
+                Group groupInCache = groupManager.GetGroup(request.m_nGroupID); 
+
+                if (groupInCache == null)
+                {
+                    _logger.Error("Could not load group cache");
+                    return response;
+                }
+
+                if (groupInCache.m_nParentGroupID != request.m_nGroupID)
+                    throw new Exception("SubscriptionID does not belong to group");
 
                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
 
                 if (sCheckSignature != request.m_sSignature)
                     throw new Exception("Signatures dosen't match");
 
-                response.m_bExists = false;
+                response.m_bContainsMedia = false;
                 response.m_nTotalItems = 0;
-                                
-                GroupManager groupManager = new GroupManager();
-                Group groupInCache = groupManager.GetGroup(request.m_nGroupID);   
 
-                List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nSubscriptionID, CatalogBundleType.SUBSCRIPTION);
+                List<int> channelIds = Catalog.GetSubscriptionChannelIds(request.m_nGroupID, request.m_nSubscriptionID);
+                List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
+
                 if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                 {
-                    // Buils search Object per channelId call Searcher to return true/false result
-                    List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
-
                     if (allChannels != null && allChannels.Count > 0)
                     {
                         ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
@@ -71,7 +83,6 @@ namespace Catalog
 
                             if (request.m_oFilter != null)
                                 nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
-
                             #region Building search object for each channel
                             for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
                             {
@@ -82,8 +93,8 @@ namespace Catalog
                                          {
                                              if (groupInCache != null)
                                              {
-                                                 Channel currentChannel = allChannels[(int)obj];
-                                                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
+                                                 Channel currentChannel = allChannels[(int)obj];                                                 
+                                                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId);
                                                  channelSearchObject.m_oOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
                                                  channelsSearchObjects.Add(channelSearchObject);
                                              }
@@ -108,7 +119,7 @@ namespace Catalog
                                     {
 
                                         // Getting all medias in subscription
-                                        SearchResultsObj oSearchResult = searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, string.Empty, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
+                                        SearchResultsObj oSearchResult = searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_sMediaType, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
 
                                         if (oSearchResult != null && oSearchResult.m_resultIDs != null && oSearchResult.m_resultIDs.Count > 0)
                                         {
@@ -117,7 +128,7 @@ namespace Catalog
                                             if (mediaIDsInList.Count > 0)
                                             {
                                                 response.m_nTotalItems = 1;
-                                                response.m_bExists = true;
+                                                response.m_bContainsMedia = true;
                                             }
                                         }
                                     }
@@ -133,12 +144,16 @@ namespace Catalog
                         else
                         {
                             List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
-                            int nOwnerGroup = groupInCache.m_nParentGroupID;
-                            bool bDoesMediaBelongToSubscription = searcher.DoesMediaBelongToChannels(nOwnerGroup, lChannelIDs, request.m_nMediaID);
+                            bool bDoesMediaBelongToSubscription = searcher.DoesMediaBelongToChannels(groupInCache.m_nParentGroupID, lChannelIDs, request.m_nMediaID);
                             if (bDoesMediaBelongToSubscription)
                             {
-                                response.m_bExists = true;
+                                response.m_bContainsMedia = true;
                                 response.m_nTotalItems = 1;
+                            }
+                            else
+                            {
+                                response.m_bContainsMedia = false;
+                                response.m_nTotalItems = 0;
                             }
                         }
                         #endregion
@@ -151,6 +166,6 @@ namespace Catalog
                 _logger.Error(ex.Message, ex);
                 throw ex;
             }
-        }       
+        }
     }
 }

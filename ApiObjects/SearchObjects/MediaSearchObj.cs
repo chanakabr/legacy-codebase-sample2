@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using Newtonsoft.Json;
 namespace ApiObjects.SearchObjects
 {
-
+    [Serializable]
+    [JsonObject(Id = "searchvalue")]
     public class SearchValue
     {
         public string m_sKey;

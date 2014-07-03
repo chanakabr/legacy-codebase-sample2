@@ -11,6 +11,7 @@ using Tvinci.Core.DAL;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
 using System.Collections.Concurrent;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -64,11 +65,14 @@ namespace Catalog
                     }
                 }
 
-                Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+                GroupManager groupManager = new GroupManager();
+                Group groupInCache = groupManager.GetGroup(request.m_nGroupID); 
+
                 if (groupInCache != null)
                 {
                     List<int> channelIds = Catalog.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, request.m_eBundleType);
-                    List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                    List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
+
 
                     if (channelIds != null && channelIds.Count > 0)
                     {
