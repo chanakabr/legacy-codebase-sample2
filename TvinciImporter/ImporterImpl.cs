@@ -838,103 +838,156 @@ namespace TvinciImporter
         // TODO: move public to protected AC
         static public bool ProcessChannelItems(XmlDocument theItem, ref string sCoGuid, ref Int32 nChannelID, ref string sErrorMessage, Int32 nGroupID)
         {
-            Dictionary<string, Int32> orderByTypeMap = GetOrderByTypeMap(nGroupID);
-            bool bOK = true;
-
-            StringReader sr = new StringReader(theItem.OuterXml);
-            XmlReader reader = XmlReader.Create(sr);
-
-            XmlSerializer serializer = new XmlSerializer(typeof(ChannelsSchema.feed));
-            ChannelsSchema.feed deserializedChannels;
             try
             {
-                deserializedChannels = serializer.Deserialize(reader) as ChannelsSchema.feed;
+                Dictionary<string, Int32> orderByTypeMap = GetOrderByTypeMap(nGroupID);
+                bool bOK = true;
+
+                StringReader sr = new StringReader(theItem.OuterXml);
+                XmlReader reader = XmlReader.Create(sr);
+
+                XmlSerializer serializer = new XmlSerializer(typeof(ChannelsSchema.feed));
+                ChannelsSchema.feed deserializedChannels;
+                try
+                {
+                    deserializedChannels = serializer.Deserialize(reader) as ChannelsSchema.feed;
+                }
+                catch
+                {
+                    Logger.Logger.Log("File ProcessChannelItems", "Error in desiralization of the xml", "ImporterImpl");
+                    return false;
+                }
+
+                int currentGroupID = nGroupID;
+
+                // loop all over the channels in deserializedCategories object
+                for (int i = 0; i < deserializedChannels.export.Length; ++i)
+                {
+                    // get parameters -> channel node
+                    if (deserializedChannels.export[i] != null)
+                    {
+                        string sType = string.Empty;
+                        string sAction = string.Empty;
+                        string sOrderDirection = "asc";
+                        ChannelsSchema.value[] theName = new ChannelsSchema.value[1];
+                        theName[0] = new ChannelsSchema.value();
+                        ChannelsSchema.value[] theUniqueName = new ChannelsSchema.value[1];
+                        theUniqueName[0] = new ChannelsSchema.value();
+                        ChannelsSchema.value[] theDescription = new ChannelsSchema.value[1];
+                        theDescription[0] = new ChannelsSchema.value();
+                        string sCutTagsType = string.Empty;
+                        string sMediaType = string.Empty;
+                        string sOrderBy = string.Empty;
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].co_guid))
+                            sCoGuid = deserializedChannels.export[i].co_guid;
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].type))
+                            sType = deserializedChannels.export[i].type;
+                        Int32 nType = (Int32)(sType == "auto" ? ChannelType.auto : ChannelType.manual);
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].action))
+                            sAction = deserializedChannels.export[i].action;
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].order_direction))
+                            sOrderDirection = deserializedChannels.export[i].order_direction;
+                        Int32 nOrderDirection = (Int32)(sOrderDirection == "asc" ? OrderDirection.asc : OrderDirection.desc);
+                        if (deserializedChannels.export[i].basic != null && deserializedChannels.export[i].basic.name != null)
+                            theName = deserializedChannels.export[i].basic.name;
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].order_by))
+                            sOrderBy = deserializedChannels.export[i].order_by;
+                        Int32 nOrderBy = 0;
+                        if (orderByTypeMap.ContainsKey(sOrderBy.ToLower()))
+                        {
+                            nOrderBy = orderByTypeMap[sOrderBy.ToLower()];
+                        }
+                        else
+                        {
+                            nOrderBy = -12; // use defualt value
+                        }
+
+                        // get parameters -> basic node(metas)
+                        bool sEnableFeed = false;
+                        int nEnableFeed = 0;
+                        string sPictureURL = string.Empty;
+                        if (deserializedChannels.export[i].basic != null)
+                        {
+                            sEnableFeed = deserializedChannels.export[i].basic.enable_feed;
+                            nEnableFeed = sEnableFeed == true ? 1 : 0;
+                            if (!string.IsNullOrEmpty(deserializedChannels.export[i].basic.is_virtual))
+                                nGroupID = deserializedChannels.export[i].basic.is_virtual != "" ? int.Parse(deserializedChannels.export[i].basic.is_virtual) : currentGroupID;
+                            if (!string.IsNullOrEmpty(deserializedChannels.export[i].basic.thumb))
+                                sPictureURL = deserializedChannels.export[i].basic.thumb;
+                            if (deserializedChannels.export[i].basic.name != null)
+                                theName = deserializedChannels.export[i].basic.name;
+                            if (deserializedChannels.export[i].basic.unique_name != null)
+                                theUniqueName = deserializedChannels.export[i].basic.unique_name;
+                            if (deserializedChannels.export[i].basic.description != null)
+                                theDescription = deserializedChannels.export[i].basic.description;
+                        }
+                        string sMainLang = "";
+                        Int32 nLangID = 0;
+                        GetLangData(nGroupID, ref sMainLang, ref nLangID);
+
+                        Int32 channelID = GetChannelIDByCoGuid(nGroupID, sCoGuid);
+
+                        Int32 nIsAnd = 0;
+                        if (sType == "auto")
+                        {
+                            if (deserializedChannels.export[i].structure != null)
+                            {
+                                if (!string.IsNullOrEmpty(deserializedChannels.export[i].structure.cut_tags_type))
+                                    sCutTagsType = deserializedChannels.export[i].structure.cut_tags_type;
+                                nIsAnd = sCutTagsType == "and" ? 1 : 0;
+
+                                if (!string.IsNullOrEmpty(deserializedChannels.export[i].structure.media_type))
+                                    sMediaType = deserializedChannels.export[i].structure.media_type;
+                            }
+                        }
+
+                        ChannelUpdateInsertBasicMainLangData(nGroupID, ref channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription, nType, sCoGuid, sPictureURL, nEnableFeed,
+                                                                    nOrderBy, nOrderDirection, nIsAnd);
+
+                        UpdateInsertChannelBasicSubLangData(nGroupID, channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription);
+
+                        // get parameters -> structure node -- if it's an automated channel, collect all the structure data, otherwise collect all the media's
+                        if (sType == "auto")
+                        {
+                            if (deserializedChannels.export[i].structure != null)
+                            {
+                                if (deserializedChannels.export[i].structure.strings != null)
+                                {
+                                    ChannelsSchema.meta[] sStringsMetas = deserializedChannels.export[i].structure.strings;
+                                    UpdateStringChannelMainLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
+                                    UpdateChannelStringSubLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
+                                }
+                                if (deserializedChannels.export[i].structure.doubles != null)
+                                {
+                                    ChannelsSchema.meta[] sDoublesMetas = deserializedChannels.export[i].structure.doubles;
+                                    UpdateChannelDoublesData(nGroupID, channelID, sMainLang, ref sDoublesMetas, ref sErrorMessage);
+                                }
+                                if (deserializedChannels.export[i].structure.booleans != null)
+                                {
+                                    ChannelsSchema.meta[] sBooleansMetas = deserializedChannels.export[i].structure.booleans;
+                                    UpdateChannelBoolsData(nGroupID, channelID, sMainLang, ref sBooleansMetas, ref sErrorMessage);
+                                }
+                                if (deserializedChannels.export[i].structure.tags_metas != null)
+                                {
+                                    ChannelsSchema.tags_meta[] sTagsMetas = deserializedChannels.export[i].structure.tags_metas;
+                                    UpdateChannelTags(nGroupID, channelID, sMainLang, ref sTagsMetas, ref sErrorMessage);
+                                }
+                            }
+                        }
+                        else if (sType == "manual")
+                        {
+                            UpdateMedias(nGroupID, channelID, deserializedChannels.export[i].medias);
+                        }
+                    }
+                }
+
+                return bOK;
             }
-            catch
+            catch (Exception exc)
             {
+                Logger.Logger.Log("File ProcessChannelItems", "Exception during parsing the xml:" +exc.Message, "ImporterImpl");
                 return false;
             }
-
-            int currentGroupID = nGroupID;
-
-            // loop all over the channels in deserializedCategories object
-            for (int i = 0; i < deserializedChannels.export.Length; ++i)
-            {
-
-                // get parameters -> channel node
-                sCoGuid = deserializedChannels.export[i].co_guid;
-                string sType = deserializedChannels.export[i].type;
-                Int32 nType = (Int32)(sType == "auto" ? ChannelType.auto : ChannelType.manual);
-                string sAction = deserializedChannels.export[i].action;
-
-                string sOrderBy = deserializedChannels.export[i].order_by;
-                Int32 nOrderBy = 0;
-                if (orderByTypeMap.ContainsKey(sOrderBy.ToLower()))
-                {
-                    nOrderBy = orderByTypeMap[sOrderBy.ToLower()];
-                }
-                else
-                {
-                    // use defualt value
-                    nOrderBy = -12;
-                }
-
-
-                string sOrderDirection = deserializedChannels.export[i].order_direction;
-                Int32 nOrderDirection = (Int32)(sOrderDirection == "asc" ? OrderDirection.asc : OrderDirection.desc);
-
-                // get parameters -> basic node(metas)
-                bool sEnableFeed = deserializedChannels.export[i].basic.enable_feed;
-                Int32 nEnableFeed = sEnableFeed == true ? 1 : 0;
-                //nGroupID            = deserializedChannels.export[i].basic.is_virtual != "" ? int.Parse(deserializedChannels.export[i].basic.is_virtual) : currentGroupID;
-                string sPictureURL = deserializedChannels.export[i].basic.thumb;
-
-                ChannelsSchema.value[] theName = deserializedChannels.export[i].basic.name;
-                ChannelsSchema.value[] theUniqueName = deserializedChannels.export[i].basic.unique_name;
-                ChannelsSchema.value[] theDescription = deserializedChannels.export[i].basic.description;
-
-                string sMainLang = "";
-                Int32 nLangID = 0;
-                GetLangData(nGroupID, ref sMainLang, ref nLangID);
-
-                Int32 channelID = GetChannelIDByCoGuid(nGroupID, sCoGuid);
-
-                Int32 nIsAnd = 0;
-                if (sType == "auto")
-                {
-                    string sCutTagsType = deserializedChannels.export[i].structure.cut_tags_type;
-                    nIsAnd = sCutTagsType == "and" ? 1 : 0;
-                    string sMediaType = deserializedChannels.export[i].structure.media_type;
-                }
-
-                ChannelUpdateInsertBasicMainLangData(nGroupID, ref channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription, nType, sCoGuid, sPictureURL, nEnableFeed,
-                                                         nOrderBy, nOrderDirection, nIsAnd);
-
-                UpdateInsertChannelBasicSubLangData(nGroupID, channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription);
-
-                // get parameters -> structure node -- if it's an automated channel, collect all the structure data, otherwise collect all the media's
-                if (sType == "auto")
-                {
-                    ChannelsSchema.meta[] sStringsMetas = deserializedChannels.export[i].structure.strings;
-                    ChannelsSchema.meta[] sDoublesMetas = deserializedChannels.export[i].structure.doubles;
-                    ChannelsSchema.meta[] sBooleansMetas = deserializedChannels.export[i].structure.booleans;
-                    ChannelsSchema.tags_meta[] sTagsMetas = deserializedChannels.export[i].structure.tags_metas;
-
-                    UpdateStringChannelMainLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
-                    UpdateChannelStringSubLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
-
-                    UpdateChannelDoublesData(nGroupID, channelID, sMainLang, ref sDoublesMetas, ref sErrorMessage);
-                    UpdateChannelBoolsData(nGroupID, channelID, sMainLang, ref sBooleansMetas, ref sErrorMessage);
-
-                    UpdateChannelTags(nGroupID, channelID, sMainLang, ref sTagsMetas, ref sErrorMessage);
-                }
-                else if (sType == "manual")
-                {
-                    UpdateMedias(nGroupID, channelID, deserializedChannels.export[i].medias);
-                }
-            }
-
-            return bOK;
         }
 
         static protected void UpdateMedias(Int32 nGroupID, Int32 channelID, ChannelsSchema.media[] theMedias)
@@ -1634,7 +1687,21 @@ namespace TvinciImporter
             return nRet;
         }
 
+
         static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
+        {
+            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+            if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+            {
+                return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID);
+            }
+            else
+            {
+                return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID);
+            }
+        }
+
+        static public Int32 DownloadEPGPicToUploader(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
         {
             if (sThumb.Trim() == "")
                 return 0;
@@ -1721,6 +1788,47 @@ namespace TvinciImporter
             return nPicID;
         }
 
+
+        static public Int32 DownloadEPGPicToQueue(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID)
+        {
+            if (sThumb.Trim() == "")
+                return 0;
+
+            //string sBasePath = GetBasePath(nGroupID);
+            string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);     
+            string sPicName = getPictureFileName(sThumb);   
+            Int32 nPicID = 0;
+            nPicID = DoesEPGPicExists(nChannelID.ToString() + "_" + sPicName, nGroupID);                        
+          
+            if (nPicID == 0)
+            {
+                string sUploadedFileExt = ImageUtils.GetFileExt(sThumb);
+                string sPicNewName = TVinciShared.ImageUtils.GetDateImageName();
+                string[] sPicSizes = getEPGPicSizes(nGroupID);  
+               
+                bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sThumb, sPicNewName, sBasePath, sPicSizes, nGroupID);
+
+                nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sThumb, sPicNewName + sUploadedFileExt, nGroupID);
+            }
+            #region old Code - changed to CB
+            // Liat comment this update 02.02.2014
+            //if (nPicID != 0)
+            //{
+            //    //IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sName, nGroupID, nPicID, false);
+            //    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PIC_ID", "=", nPicID);
+            //    updateQuery += " where ";
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nEPGSchedID);
+            //    updateQuery.Execute();
+            //    updateQuery.Finish();
+            //    updateQuery = null;
+            //} 
+            #endregion
+            return nPicID;
+        }
+
+
+        //this function is not used (old)
         static protected Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, string sMainLang)
         {
             if (sThumb.Trim() == "")
@@ -2040,7 +2148,21 @@ namespace TvinciImporter
             return nPicID;
         }
 
+
         static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        {           
+            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+            if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+            {
+                return DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+            }
+            else
+            {
+                return DownloadPicToUploader(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+            }
+        }
+
+        static public Int32 DownloadPicToUploader(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
             //return DownloadPic_old(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
 
@@ -2179,17 +2301,172 @@ namespace TvinciImporter
             }
             return nPicID;
         }
+		
+		
+
+
+        static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        {
+            int nPicID = 0;
+            Logger.Logger.Log("File downloaded", "Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString(), "DownloadFile");
+            if (sPic.Trim() == "")
+            {
+                Logger.Logger.Log("File download", "picture name is empty. mediaID: " + nMediaID.ToString(), "DownloadFile");
+                return 0;
+            }
+
+            //generate PictureData and send to Queue 
+            string sPicNewName = getNewUninqueName(ratioID, nMediaID); //the unique name            
+        
+            string[] sPicSizes = getMediaPicSizes(bSetMediaThumb, nGroupID, ratioID);
+
+            string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);              
+
+            // generate PictureData and send to Queue
+            bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sPic, sPicNewName, sBasePath, sPicSizes, nGroupID);            
+
+            //insert new Picture to DB 
+            string sUploadedFileExt = ImageUtils.GetFileExt(sPic);
+            nPicID = InsertNewPic(sMediaName, sPic, sPicNewName + sUploadedFileExt, nGroupID);          
+
+            if (nPicID != 0)          
+            {                
+                #region handle pic tags and update the media files
+                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, nPicID, false);
+                if (bSetMediaThumb == true)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+                //the media type id is invalid here
+                EnterPicMediaFile(sPicType, nMediaID, nPicID, nGroupID, "HIGH"); 
+                #endregion
+            }
+            return nPicID;
+        }
+
+
+        private static string getPictureFileName(string sThumb)
+        {
+            char[] delim = { '/' };
+            string[] splited = sThumb.Split(delim);
+            string sPicName = splited[splited.Length - 1];
+            if (sPicName.IndexOf("?") != -1 && sPicName.IndexOf("uuid") != -1)
+            {
+                Int32 nStart = sPicName.IndexOf("uuid=", 0) + 5;
+                Int32 nEnd = sPicName.IndexOf("&", nStart);
+                if (nEnd != 4)
+                    sPicName = sPicName.Substring(nStart, nEnd - nStart);
+                else
+                    sPicName = sPicName.Substring(nStart);
+                sPicName += ".jpg";
+            }
+            return sPicName;
+        }
+
+        
+        //Epg Pics will alsays have "full" and "tn". also, all sizes of the group in 'epg_pics_sizes' will be added  
+        private static string[] getEPGPicSizes(int nGroupID)
+        {
+            string[] str;
+            List<string> lString = new List<string>();
+
+            lString.Add("full");
+            lString.Add("tn");
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from epg_pics_sizes (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
+                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
+                    string sSize = nWidth + "X" + nHeight;
+                    lString.Add(sSize);
+                }
+            }
+
+            str = lString.ToArray();
+            return str;
+        }
+
+
+
+
+        //according to 'bSetMediaThumb' there is "full" and "tn"
+        //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
+        private static string[] getMediaPicSizes(bool bSetMediaThumb, int nGroupID, int ratioID)
+        {
+            string [] str;
+            List<string> lString = new List<string>();
+            if (bSetMediaThumb)
+            {
+                lString.Add("full");
+                lString.Add("tn");
+            }
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            if (ratioID > 0)
+            {
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
+            }
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
+                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
+
+                    string size = nWidth + "x" + nHeight;
+                    lString.Add(size);                   
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            str = lString.ToArray();
+            return str;
+        }        
+
+           //get new Unique name or existing one per media
+        private static string getNewUninqueName(int ratioID, int nMediaID)
+        {
+            string sPicBaseName = string.Empty;
+            if (ratioID > 0)
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName(nMediaID);
+            }
+            if (string.IsNullOrEmpty(sPicBaseName))
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+            }
+            return sPicBaseName;
+        }
 
         static private string GetBasePath(int nGroupID)
         {
             string key = string.Format("pics_base_path_{0}", nGroupID);
-            if (!string.IsNullOrEmpty(TVinciShared.WS_Utils.GetTcmConfigValue(key)))
+
+            if (!string.IsNullOrEmpty(GetConfigVal(key)))
             {
-                return TVinciShared.WS_Utils.GetTcmConfigValue(key);
+                return GetConfigVal(key);
             }
-            if (!string.IsNullOrEmpty(TVinciShared.WS_Utils.GetTcmConfigValue("pics_base_path")))
+            if (!string.IsNullOrEmpty(GetConfigVal("pics_base_path"))) 
             {
-                return TVinciShared.WS_Utils.GetTcmConfigValue("pics_base_path");
+                return GetConfigVal("pics_base_path");
             }
 
             string sBasePath = string.Empty;
@@ -2317,57 +2594,59 @@ namespace TvinciImporter
             return nRet;
         }
 
-        static protected int GetPPVModuleID(string moduleName, int groupID)
+        static protected int GetPPVModuleID(string moduleName, int groupID, ref int nCommerceGroupID)
         {
-            Int32 nRet = 0;
-            if (string.IsNullOrEmpty(moduleName))
-                return 0;
+            int nRet = 0;
+            nCommerceGroupID = 0;
 
-            string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(groupID);
+            if (string.IsNullOrEmpty(moduleName))
+            {
+                return 0;
+            }
+
             object commerceGroupIDObj = ODBCWrapper.Utils.GetTableSingleVal("groups", "commerce_group_id", groupID, 86400);
-            int commerceGroupID = 0;
             if (commerceGroupIDObj != null && !string.IsNullOrEmpty(commerceGroupIDObj.ToString()))
             {
-                commerceGroupID = int.Parse(commerceGroupIDObj.ToString());
+                nCommerceGroupID = int.Parse(commerceGroupIDObj.ToString());
             }
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("pricing_connection");
-            selectQuery += "select id from ppv_modules where ";
+            selectQuery += "select id from ppv_modules where IS_ACTIVE = 1 and STATUS = 1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", moduleName);
-            selectQuery += "and group_id =" + commerceGroupIDObj;
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nCommerceGroupID);
             if (selectQuery.Execute("query", true) != null)
             {
-                Int32 nCopunt = selectQuery.Table("query").DefaultView.Count;
+                int nCopunt = selectQuery.Table("query").DefaultView.Count;
                 if (nCopunt > 0)
-                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    nRet = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
             }
             selectQuery.Finish();
             selectQuery = null;
             return nRet;
         }
 
-        static protected void InsertFilePPVModule(int ppvModule, int fileID, int groupID, DateTime startDate, DateTime endDate)
+        static protected void InsertFilePPVModule(int ppvModule, int fileID, int ppvModuleGroupID, DateTime? startDate, DateTime? endDate, bool clear)
         {
-            // get parent group id
-            Int32 ppvModuleGroupID = 0;
-            DataTable dt = ApiDAL.Get_DataByTableID(groupID + "", "groups", "parent_group_id", "id");
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                ppvModuleGroupID = int.Parse(dt.Rows[0]["parent_group_id"].ToString());
-            //Int32 ppvModuleGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", ppvModule, "pricing_connection").ToString());
+            if (ppvModule == 0)
+            {
+                return;
+            }
 
             //First initialize all previous entries.
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
-            updateQuery.SetConnectionKey("pricing_connection");
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
-            updateQuery += "where";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
-            updateQuery.Execute();
-            updateQuery.Finish();
-            updateQuery = null;
-
-            if (ppvModule == 0)
-                return;
+            if (clear)
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
+                updateQuery.SetConnectionKey("pricing_connection");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
+                updateQuery += "where";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
 
             int ppvFileID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -2460,9 +2739,10 @@ namespace TvinciImporter
             string sPreRule, string sPostRule, string sBreakRule,
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime fileStartDate, DateTime fileEndDate)
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime? fileStartDate, DateTime? fileEndDate)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
+
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
 
             Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
@@ -2504,16 +2784,17 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_OVERLAY_ID", "=", nOverlayAdCompany);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_OVERLAY_POINTS", "=", sOverlayPoints);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE", "=", sLanguage);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Product_Code", "=", sProductCode);
 
-                if (fileStartDate != default(DateTime))
+                if (fileStartDate.HasValue)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", fileStartDate);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", fileStartDate.Value);
                 }
 
-                if (fileEndDate != default(DateTime))
+                if (fileEndDate.HasValue)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", fileEndDate);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", fileEndDate.Value);
                 }
 
                 if (bAdsEnabled == true)
@@ -2542,30 +2823,34 @@ namespace TvinciImporter
 
                 SetPolicyToFile(sOutputProtectionLevel, nGroupID, sCoGuid, ref sErrorMessage);
 
-                if (ppvModuleName.EndsWith(";"))
+                if (!string.IsNullOrEmpty(ppvModuleName))
                 {
-                    string ParsedPPVModuleName = string.Empty;
-                    DateTime ppvStartDate;
-                    DateTime ppvEndDate;
+                    int nCommerceGroupID = 0;
 
-                    ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
-                    string[] parameters = ppvModuleName.Split(';');
-
-                    for (int i = 0; i < parameters.Length; i += 3)
+                    if (ppvModuleName.EndsWith(";"))
                     {
-                        ParsedPPVModuleName = parameters[i];
-                        DateTime.TryParse(parameters[i + 1], out ppvStartDate);
-                        DateTime.TryParse(parameters[i + 2], out ppvEndDate);
+                        string ParsedPPVModuleName = string.Empty;
+                        DateTime? ppvStartDate = null;
+                        DateTime? ppvEndDate = null;
 
-                        int ppvID = GetPPVModuleID(ParsedPPVModuleName, nGroupID);
-                        InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, ppvStartDate, ppvEndDate);
+                        ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
+                        string[] parameters = ppvModuleName.Split(';');
+
+                        for (int i = 0; i < parameters.Length; i += 3)
+                        {
+                            int ppvID = GetPPVModuleID(parameters[i], nGroupID, ref nCommerceGroupID);
+
+                            ppvStartDate = ExtractDate(parameters[i + 1], "dd/MM/yyyy HH:mm:ss");
+                            ppvEndDate = ExtractDate(parameters[i + 2], "dd/MM/yyyy HH:mm:ss");
+
+                            InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, ppvStartDate, ppvEndDate, (i == 0));
+                        }
                     }
-                }
-                else
-                {
-                    int ppvID = GetPPVModuleID(ppvModuleName, nGroupID);
-
-                    InsertFilePPVModule(ppvID, nMediaFileID, nGroupID, default(DateTime), default(DateTime));
+                    else
+                    {
+                        int ppvID = GetPPVModuleID(ppvModuleName, nGroupID, ref nCommerceGroupID);
+                        InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, null, null, true);
+                    }
                 }
 
                 /*Insert Family Contract For File */
@@ -3195,22 +3480,13 @@ namespace TvinciImporter
                 int nIsDefaultLanguage = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
                 string sProductCode = GetItemParameterVal(ref theItem, "product_code");
 
-                // try to pare the files date correctly
-                DateTime dStartDate = new DateTime();
-                DateTime dEndDate   = new DateTime();
-                bool resVal = DateTime.TryParse(sFileStartDate, out dStartDate);
+                // try to parse the files date correctly
+                DateTime? dStartDate = null;
+                DateTime? dEndDate = null;
 
-                if (resVal == false)
-                {
-                    dStartDate = default(DateTime);
-                }
+                dStartDate = ExtractDate(sFileStartDate, "dd/MM/yyyy HH:mm:ss");
+                dEndDate = ExtractDate(sFileEndDate, "dd/MM/yyyy HH:mm:ss");
 
-                resVal = DateTime.TryParse(sFileEndDate, out dEndDate);
-
-                if (resVal == false)
-                {
-                    dEndDate = default(DateTime);
-                }
 
                 bool bAdsEnabled = true;
                 if (sAdsEnabled.Trim().ToLower() == "false")
@@ -3397,7 +3673,7 @@ namespace TvinciImporter
             }
             return true;
         }
-         //get tags by group and by non group 
+        //get tags by group and by non group 
         static protected Int32 GetTagTypeID(Int32 nGroupID, string sTagName)
         {
             if (sTagName.ToLower().Trim() == "free")
@@ -3751,6 +4027,7 @@ namespace TvinciImporter
 
         static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
         {
+
             XmlDocument theDoc = new XmlDocument();
 
             theDoc.LoadXml(sXML);
@@ -3766,13 +4043,6 @@ namespace TvinciImporter
                 Int32 nCount1 = theItems.Count;
                 for (int i = 0; i < nCount1; i++)
                 {
-                    Int32 nRepStatus = 0;
-                    while (DoesReplicationClean(250000, ref nRepStatus) == false)
-                    {
-                        System.Threading.Thread.Sleep(1000);
-                        Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
-                    }
-                    Logger.Logger.Log("Replication status", "replication status: " + nRepStatus.ToString(), "importer");
                     string sCoGuid = "";
                     string sErrorMessage = "";
                     Int32 nMediaID = 0;
@@ -3854,7 +4124,6 @@ namespace TvinciImporter
             {
                 sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
             }
-
 
             return true;
         }
@@ -4047,7 +4316,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = GetConfigVal("CATALOG_WCF");
+            string sCatalogURL = GetConfigVal("WS_Catalog");
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -4141,6 +4410,7 @@ namespace TvinciImporter
 
         }        
 
+
         internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
         {
             string siteUrl = GetConfigVal(sSiteUrl);
@@ -4183,6 +4453,7 @@ namespace TvinciImporter
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
                                         isUpdateIndexSucceeded = client.UpdateIndex(ids, nGroupId, eAction);
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        Logger.Logger.Log("UpdateIndex", string.Format("{0} res {1}", endPointAddress, sInfo), "UpdateIndex");
                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
                                     }
                                     catch (Exception ex)
@@ -4395,6 +4666,17 @@ namespace TvinciImporter
             }
 
             return isUpdateIndexSucceeded;
+        }
+
+        public static DateTime? ExtractDate(string sDate, string format)
+        {
+            DateTime? result = null;
+            DateTime tempDt;
+            if (DateTime.TryParseExact(sDate, format, null, System.Globalization.DateTimeStyles.None, out tempDt))
+            {
+                result = tempDt;
+            }
+            return result;
         }
     }
 }

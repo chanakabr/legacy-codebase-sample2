@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Users
 {
@@ -13,17 +14,34 @@ namespace Users
         public int m_deviceLimit;
         public int m_deviceConcurrentLimit;
 
+        [XmlIgnore]
+        public LimitationsManager m_oLimitationsManager;
+
         public DeviceContainer()
         {
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("DeviceContainer: ");
+            sb.Append(String.Concat(" Family Name: ", m_deviceFamilyName));
+            sb.Append(String.Concat(" Device Family ID: ", m_deviceFamilyID));
+            sb.Append(String.Concat(" Device Limit: ", m_deviceLimit));
+            sb.Append(String.Concat(" Device concurrent limit: ", m_deviceConcurrentLimit));
+            sb.Append(String.Concat(" num of devices: ", DeviceInstances.Count));
+            sb.Append(String.Concat(" Lmts Mngr: ", m_oLimitationsManager != null ? m_oLimitationsManager.ToString() : "null"));
+
+            return sb.ToString();
+        }
+
         public DeviceContainer(int id, string name, int limit, int nConcurrentLimit = 1)
         {
-            m_deviceFamilyID        = id;
-            m_deviceFamilyName      = name;
-            m_deviceLimit           = limit;
+            m_deviceFamilyID = id;
+            m_deviceFamilyName = name;
+            m_deviceLimit = limit;
             m_deviceConcurrentLimit = nConcurrentLimit;
-            m_DeviceInstances       = new List<Device>();
+            m_DeviceInstances = new List<Device>();
+            m_oLimitationsManager = new LimitationsManager(nConcurrentLimit, limit, 0);
         }
 
         public List<Device> DeviceInstances
@@ -101,13 +119,30 @@ namespace Users
             {
                 foreach (Device device in m_DeviceInstances)
                 {
-                    if (device.m_state == DeviceState.Activated)
+                    if (device.IsActivated())
                     {
                         retVal++;
                     }
                 }
             }
             return retVal;
+        }
+
+        public bool IsContainingDevice(Device device, ref bool bIsDeviceActivated)
+        {
+            if (m_DeviceInstances != null)
+            {
+                for (int i = 0; i < m_DeviceInstances.Count; i++)
+                {
+                    if (m_DeviceInstances[i].Equals(device))
+                    {
+                        bIsDeviceActivated = m_DeviceInstances[i].IsActivated();
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

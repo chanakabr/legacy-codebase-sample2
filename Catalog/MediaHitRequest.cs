@@ -12,6 +12,7 @@ using Logger;
 using TVinciShared;
 using DAL;
 using Tvinci.Core.DAL;
+using ApiObjects.Statistics;
 
 namespace Catalog
 {
@@ -20,6 +21,7 @@ namespace Catalog
     public class MediaHitRequest : BaseRequest, IRequestImp
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -43,6 +45,9 @@ namespace Catalog
             {
                 MediaHitResponse oMediaHitResponse = null;
                 MediaHitRequest oMediaHitRequest = null;
+
+                CheckSignature(oBaseRequest);
+
                 if (oBaseRequest != null)
                 {
                     oMediaHitRequest = (MediaHitRequest)oBaseRequest;
@@ -88,6 +93,7 @@ namespace Catalog
             int nOwnerGroupID = 0;
             int nQualityID = 0;
             int nFormatID = 0;
+            int nMediaTypeID = 0;
             int nBillingTypeID = 0;        
             int nBrowser = 0;           
             int nWatcherID = 0;           
@@ -108,21 +114,27 @@ namespace Catalog
                 int.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
             }
 
-            int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
-            Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
-                                     ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID);
+                        int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
+            
+            Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
 
-            string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform , nCountryID);                      
+            bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
+
+            string sPlayCycleKey = Catalog.GetLastPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, nPlatform, nCountryID);                      
 
             CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, this.m_nGroupID, nOwnerGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
                                           nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser,
                                           nPlatform, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, sPlayCycleKey, nSwhoosh);
 
-
-            bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
-
             if (!resultParse || (resultParse == true && action != MediaPlayActions.BITRATE_CHANGE))
             {
+                Group oGroup = GroupsCache.Instance.GetGroup(mediaHitRequest.m_nGroupID);
+                if (oGroup != null)
+                {
+                    MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };
+                    WriteLiveViewsToES(view);
+                }
+
                 Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, this.m_oMediaPlayRequestData.m_sUDID);
             }
 
@@ -139,6 +151,25 @@ namespace Catalog
             return oMediaHitResponse;         
         }
 
+        private bool WriteLiveViewsToES(MediaView oMediaView)
+        {
+            bool bRes = false;
+            ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
 
+            string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
+
+            if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
+            {
+                Guid guid = Guid.NewGuid();
+
+                bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
+
+                if (!bRes)
+                    _logger.Error(string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView));
+            }
+
+            return bRes;
+        }
     }
 }

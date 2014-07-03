@@ -49,6 +49,8 @@ namespace Catalog
         private Dictionary<int, List<long>> m_oOperatorChannelIDs; // channel ids for each operator. used for ipno filtering.
         [JsonProperty("m_oLockers")]
         private ConcurrentDictionary<int, ReaderWriterLockSlim> m_oLockers; // readers-writers lockers for operator channel ids.
+        protected Dictionary<int, LanguageObj> m_dLangauges;
+        protected LanguageObj m_oDefaultLanguage;
         #endregion
 
         #region CTOR
@@ -69,6 +71,8 @@ namespace Catalog
             this.m_sPermittedWatchRules = new List<string>();
             this.m_oOperatorChannelIDs = new Dictionary<int, List<long>>();
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
+            this.m_dLangauges = new Dictionary<int, LanguageObj>();
+            this.m_oDefaultLanguage = null;
         }
       
         public List<long> GetOperatorChannelIDs(int nOperatorID)
@@ -558,3 +562,56 @@ namespace Catalog
         }*/
 
         #endregion
+        }
+
+        public bool AddLanguage(LanguageObj language)
+        {
+            bool bRes = false;
+            if (language != null)
+            {
+                try
+                {
+                    m_dLangauges.Add(language.ID, language);
+
+                    if (language.IsDefault)
+                        m_oDefaultLanguage = language;
+
+                    bRes = true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(string.Format("Language with same ID already exist in group. groupID={0};language id={1}", this.m_nParentGroupID, language.ID));
+                }
+            }
+
+            return bRes;
+        }
+
+        public void AddLanguage(List<LanguageObj> languages)
+        {
+            foreach (LanguageObj langauge in languages)
+            {
+                AddLanguage(langauge);
+            }
+        }
+
+        public LanguageObj GetLanguage(int nLangID)
+        {
+            LanguageObj res;
+
+            m_dLangauges.TryGetValue(nLangID, out res);
+
+            return res;
+        }
+
+        public List<LanguageObj> GetLangauges()
+        {
+            return this.m_dLangauges.Select(kvp => kvp.Value).ToList();
+        }
+
+        public LanguageObj GetGroupDefaultLanguage()
+        {
+            return m_oDefaultLanguage;
+        }
+    }
+}

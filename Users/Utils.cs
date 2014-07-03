@@ -13,6 +13,7 @@ namespace Users
         public const int USER_COGUID_LENGTH = 15;
         internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the
         // default result of GetDateSafeVal in ODBCWrapper.Utils
+        internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000;
 
         static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers t)
         {
@@ -121,7 +122,6 @@ namespace Users
                     t = new Users.TvinciDomain(nGroupID);
                     break;
                 case 2:
-                    //t = new Users.TvinciDomain(nGroupID);
                     t = new Users.EutelsatDomain(nGroupID);
                     break;
                 default:
@@ -193,29 +193,6 @@ namespace Users
             }
 
             return ret;
-
-            #region Commented
-            //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            //selectQuery += " select * from states where ";
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("country_id", "=", nCountryID);
-            //selectQuery += " order by STATE_NAME";
-            //selectQuery.SetCachedSec(2678400);
-            //if (selectQuery.Execute("query", true) != null)
-            //{
-            //    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            //    if (nCount > 0)
-            //        ret = new State[nCount];
-            //    for (int i = 0; i < nCount; i++)
-            //    {
-            //        Int32 nID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
-            //        ret[i] = new State();
-            //        ret[i].Initialize(nID);
-            //    }
-            //}
-            //selectQuery.Finish();
-            //selectQuery = null;
-            //return ret;
-            #endregion
         }
 
         static public Country GetIPCountry2(string sIP)
@@ -290,18 +267,20 @@ namespace Users
 
         static public bool SendMail(int nGroupID, TvinciAPI.MailRequestObj request)
         {
-            TvinciAPI.API client = new TvinciAPI.API();
-         
-            string sWSURL = Utils.GetWSURL("api_ws");
-            if (sWSURL != "")
-                client.Url = sWSURL;
+            using (TvinciAPI.API client = new TvinciAPI.API())
+            {
 
-            string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "Mailer", "API", sIP, ref sWSUserName, ref sWSPass);
-            bool result = client.SendMailTemplate(sWSUserName, sWSPass, request);
-            return result;
+                string sWSURL = Utils.GetWSURL("api_ws");
+                if (sWSURL.Length > 0)
+                    client.Url = sWSURL;
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
+                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "Mailer", "API", sIP, ref sWSUserName, ref sWSPass);
+                bool result = client.SendMailTemplate(sWSUserName, sWSPass, request);
+                return result;
+            }
         }
 
         static public bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)
@@ -327,6 +306,14 @@ namespace Users
             }
             catch (Exception ex)
             {
+                StringBuilder sb = new StringBuilder("GetUserOperatorAndHouseholdIDs. Exception. ");
+                sb.Append(String.Concat("Group ID: ", nGroupID));
+                sb.Append(String.Concat(" CoGuid: ", sCoGuid));
+                sb.Append(String.Concat(" Msg: ", ex.Message));
+                sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
+
+                Logger.Logger.Log("GetUserOperatorAndHouseholdIDs", sb.ToString(), "Users.Utils");
+
                 return false;
             }
 
@@ -335,7 +322,7 @@ namespace Users
 
         static public bool SetPassword(string sPassword, ref UserBasicData oBasicData, int nGroupID)
         {
-            if (sPassword != "")
+            if (sPassword.Length > 0)
             {
                 // check if we need to encrypt the password
                 BaseEncrypter encrypter = null;
@@ -398,5 +385,6 @@ namespace Users
 
             return res;
         }
+
     }
 }

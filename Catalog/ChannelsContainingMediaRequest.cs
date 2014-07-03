@@ -39,10 +39,7 @@ namespace Catalog
                 if (request == null || request.m_lChannles == null || request.m_lChannles.Count == 0)
                     throw new Exception("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 //IF ElasticSearch 
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
@@ -108,7 +105,7 @@ namespace Catalog
                                                  if (groupInCache != null)
                                                  {
                                                      Channel currentChannel = allChannels[(int)obj];
-                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, oOrderObj, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId);
+                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, oOrderObj, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
                                                      if (channelSearchObject != null)
                                                      {
                                                          channelSearchObject.m_nMediaID = request.m_nMediaID;
@@ -129,6 +126,13 @@ namespace Catalog
 
                                 //Wait for all parallel tasks to end
                                 Task.WaitAll(channelsSearchObjectTasks);
+                                for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
+                                {
+                                    if (channelsSearchObjectTasks[i] != null)
+                                    {
+                                        channelsSearchObjectTasks[i].Dispose();
+                                    }
+                                }
                                 #endregion
 
                                 #region Search

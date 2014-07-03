@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
 using Catalog.Cache;
+using ApiObjects.MediaMarks;
 
 namespace Catalog
 {
@@ -43,7 +44,7 @@ namespace Catalog
                 PersonalLasDeviceRequest request = (PersonalLasDeviceRequest)oBaseRequest;
                 PersonalLastDeviceResponse response = new PersonalLastDeviceResponse();
                 PersonalLastDevice oPersonalLastWatched;
-                
+
                 string xmlresult = "";
                 xmlresult = SerializeToXML<PersonalLasDeviceRequest>(request);
 
@@ -60,27 +61,57 @@ namespace Catalog
                 GroupManager groupManager = new GroupManager();
                 List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
                 DataTable dt = CatalogDAL.Get_PersonalLasDevice(request.m_nMediaIDs, request.m_nGroupID, request.m_sSiteGuid, lSubGroupTree);
+                List<UserMediaMark> lastMediaMarksList = CatalogDAL.Get_PersonalLastDevice(request.m_nMediaIDs, request.m_sSiteGuid);
                 int startIndex = -1;
                 int count = -1;
 
-                if (dt != null)
+                if (lastMediaMarksList != null && lastMediaMarksList.Count > 0)
                 {
-                    if (dt.Columns != null)
+                    bool bContinue = Utils.GetPagingValues(lastMediaMarksList.Count, request.m_nPageIndex, request.m_nPageSize, ref startIndex, ref count);
+                    if (bContinue)
                     {
-                        bool bContinue = Utils.GetPagingValues(dt.Rows.Count, request.m_nPageIndex, request.m_nPageSize, ref startIndex, ref count);
-                        if (bContinue)
+                        int nSiteGuid = 0;
+                        int.TryParse(request.m_sSiteGuid, out nSiteGuid);
+                        DataTable dtDevices = DAL.DomainDal.GetDevicesToUser(nSiteGuid);
+                        if (dtDevices != null && dtDevices.Rows.Count > 0)
                         {
+                            Dictionary<string, string> dictDevices = new Dictionary<string, string>(); // key: udid, value: device_name
+                            foreach (DataRow rowDevice in dtDevices.Rows)
+                            {
+                                string sUDID = ODBCWrapper.Utils.GetSafeStr(rowDevice["device_id"]);
+                                string sDeviceName = ODBCWrapper.Utils.GetSafeStr(rowDevice["Name"]);
+                                if (!dictDevices.ContainsKey(sUDID))
+                                {
+                                    dictDevices.Add(sUDID, sDeviceName);
+                                }
+                            }
+
                             for (int i = startIndex; i < count; i++)
                             {
                                 oPersonalLastWatched = new PersonalLastDevice();
 
-                                oPersonalLastWatched.m_nID = Utils.GetIntSafeVal(dt.Rows[i],"media_id");
-                                if (!string.IsNullOrEmpty(dt.Rows[i]["LastWatchedDate"].ToString()))
+                                oPersonalLastWatched.m_nID = lastMediaMarksList[i].MediaID;
+
+                                oPersonalLastWatched.m_dLastWatchedDate = lastMediaMarksList[i].CreatedAt;
+
+
+                                string sLastDeviceName = string.Empty;
+                                if (dictDevices.ContainsKey(lastMediaMarksList[i].UDID))
                                 {
-                                    oPersonalLastWatched.m_dLastWatchedDate = System.Convert.ToDateTime(dt.Rows[i]["LastWatchedDate"].ToString());
+                                    sLastDeviceName = dictDevices[lastMediaMarksList[i].UDID];
+                                    if (string.IsNullOrEmpty(sLastDeviceName) || sLastDeviceName.Contains("PC||"))
+                                    {
+                                        sLastDeviceName = "PC";
+                                    }
                                 }
-                                oPersonalLastWatched.m_sLastWatchedDevice = Utils.GetStrSafeVal(dt.Rows[i],"LastDeviceName");
-                                oPersonalLastWatched.m_sSiteUserGuid = Utils.GetStrSafeVal(dt.Rows[i],"site_user_guid");
+                                else
+                                {
+                                    sLastDeviceName = "No Name";
+                                }
+
+                                oPersonalLastWatched.m_sLastWatchedDevice = sLastDeviceName;
+
+                                oPersonalLastWatched.m_sSiteUserGuid = lastMediaMarksList[i].UserID.ToString();
 
                                 response.m_lPersonalLastWatched.Add(oPersonalLastWatched);
                             }
@@ -88,8 +119,8 @@ namespace Catalog
                     }
                 }
 
-                response.m_nTotalItems = dt.Rows.Count;
-                
+                response.m_nTotalItems = lastMediaMarksList.Count;
+
 
                 xmlresult = "no resultes";
                 if (response != null)
@@ -105,6 +136,5 @@ namespace Catalog
                 throw ex;
             }
         }
-
     }
 }

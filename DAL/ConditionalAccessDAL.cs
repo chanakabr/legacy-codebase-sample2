@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using ODBCWrapper;
 
 namespace DAL
 {
@@ -619,8 +620,39 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
+        public static DataTable Get_UsersPermittedCollections(List<int> usersIds, bool isExpired)
         {
+            ODBCWrapper.StoredProcedure spGet_UsersPermittedCollections = new ODBCWrapper.StoredProcedure("Get_UsersPermittedCollections");
+            spGet_UsersPermittedCollections.SetConnectionKey("CONNECTION_STRING");
+            spGet_UsersPermittedCollections.AddIDListParameter<int>("@UserIDs", usersIds, "Id");
+            spGet_UsersPermittedCollections.AddParameter("@isExpired", isExpired);
+
+            DataSet ds = spGet_UsersPermittedCollections.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        //public static DataTable Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
+        //{
+        //    ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_MediaFileByID");
+        //    spGet_MediaFileByID.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //    spGet_MediaFileByID.AddParameter("@mediaFileID", nMediaFileID);
+        //    spGet_MediaFileByID.AddIDListParameter<int>("@fileTypes", relFileTypesStr, "Id");
+        //    spGet_MediaFileByID.AddParameter("@isThereFileTypes", isThereFileTypes);
+
+        //    DataSet ds = spGet_MediaFileByID.ExecuteDataSet();
+
+        //    if (ds != null)
+        //        return ds.Tables[0];
+        //    return null;
+        //}
+
+        public static List<int> Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
+        {
+            List<int> res = null;
+
             ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_MediaFileByID");
             spGet_MediaFileByID.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGet_MediaFileByID.AddParameter("@mediaFileID", nMediaFileID);
@@ -629,10 +661,30 @@ namespace DAL
 
             DataSet ds = spGet_MediaFileByID.ExecuteDataSet();
 
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = new List<int>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        res.Add(ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]));
+                    }
+                }
+                else
+                {
+                    res = new List<int>(0);
+                }
+            }
+            else
+            {
+                res = new List<int>(0);
+            }
+
+            return res;
         }
+
         public static DataTable Get_PreviewModuleIDsForEntitlementCalc(int nGroupID, string sSiteGUID, string sSubCode, DateTime dtStartLookFromThisDate)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PreviewModuleIDsForEntitlementCalc");
@@ -659,6 +711,22 @@ namespace DAL
             sp.AddParameter("@PurchaseType", nPurchaseType);
             return sp.ExecuteReturnValue<bool>();
 
+        }
+
+        public static DataTable Get_allDomainsPPVUsesUsingCollection(List<int> usersList, int groupID, int MediaFileID, int nBoxsetID)
+        {
+            ODBCWrapper.StoredProcedure spGet_allDomainsPPVUsesUsingCollection = new ODBCWrapper.StoredProcedure("Get_allDomainsPPVUsesUsingCollection");
+            spGet_allDomainsPPVUsesUsingCollection.SetConnectionKey("CONNECTION_STRING");
+            spGet_allDomainsPPVUsesUsingCollection.AddIDListParameter<int>("@usersList", usersList, "Id");
+            spGet_allDomainsPPVUsesUsingCollection.AddParameter("@groupID", groupID);
+            spGet_allDomainsPPVUsesUsingCollection.AddParameter("@MediaFileID", MediaFileID);
+            spGet_allDomainsPPVUsesUsingCollection.AddParameter("@relCollectionID", nBoxsetID);
+
+            DataSet ds = spGet_allDomainsPPVUsesUsingCollection.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
         }
 
         public static DataTable Get_allDomainsPPVUses(List<int> usersList, int groupID, int MediaFileID)
@@ -691,6 +759,33 @@ namespace DAL
             return null;
         }
 
+        public static bool Get_AllUsersPurchases(List<int> UserIDs, List<int> FileIds, int fileID, ref int ppvID, ref string subCode,
+            ref string ppCode)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
+            spGet_AllUsersPurchases.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllUsersPurchases.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
+            spGet_AllUsersPurchases.AddIDListParameter<int>("@FileIDs", FileIds, "Id");
+            spGet_AllUsersPurchases.AddParameter("@nMediaFileID", fileID);
+
+            DataSet ds = spGet_AllUsersPurchases.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    ppvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
+                    subCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["subscription_code"]);
+                    ppCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["rel_pp"]);
+                }
+            }
+
+            return res;
+        }
+
 
 
         public static DataTable Get_AllSubscriptionInfoByUsersIDs(List<int> UserIDs, List<int> nFileTypes)
@@ -702,6 +797,20 @@ namespace DAL
 
 
             DataSet ds = spGet_AllSubscriptionInfoByUsersIDs.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_AllCollectionInfoByUsersIDs(List<int> UserIDs)
+        {
+            ODBCWrapper.StoredProcedure spGet_AllCollectionInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllCollectionInfoByUsersIDs");
+            spGet_AllCollectionInfoByUsersIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllCollectionInfoByUsersIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
+
+
+            DataSet ds = spGet_AllCollectionInfoByUsersIDs.ExecuteDataSet();
 
             if (ds != null)
                 return ds.Tables[0];
@@ -729,6 +838,20 @@ namespace DAL
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.AddParameter("@subscriptionCode", subscriptionCode);
 
             DataSet ds = spGet_SubscriptionBySubscriptionCodeAndUserIDs.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_CollectionByCollectionCodeAndUserIDs(List<int> UserIDs, string collectionCode)
+        {
+            ODBCWrapper.StoredProcedure spGet_CollectionByCollectionCodeAndUserIDs = new ODBCWrapper.StoredProcedure("Get_CollectionByCollectionCodeAndUserIDs");
+            spGet_CollectionByCollectionCodeAndUserIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_CollectionByCollectionCodeAndUserIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
+            spGet_CollectionByCollectionCodeAndUserIDs.AddParameter("@collectionCode", collectionCode);
+
+            DataSet ds = spGet_CollectionByCollectionCodeAndUserIDs.ExecuteDataSet();
 
             if (ds != null)
                 return ds.Tables[0];
@@ -1085,8 +1208,309 @@ namespace DAL
             sp.AddParameter("@MPPPurchaseID", lPurchaseID);
 
             return sp.ExecuteReturnValue<bool>();
+        }             
+
+        public static bool Update_SubscriptionPurchaseEndDate(int? nID, string sSiteGuid, int? nBillingTransID, DateTime endDate)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseEndDate");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            if (nID.HasValue)
+                sp.AddParameter("@SubscriptionPurchaseID", nID);
+            if (nBillingTransID.HasValue)
+                sp.AddParameter("@BillingTransactionID", nBillingTransID);
+            sp.AddParameter("@SiteGUID", sSiteGuid);
+            sp.AddParameter("@EndDate", endDate);
+
+            return sp.ExecuteReturnValue<bool>();
         }
 
+        public static long Insert_NewMColPurchase(long lGroupID, string sCollectionCode, string sSiteGuid,
+            double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
+            string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs,
+            long lBillingTransactionID, DateTime dtCollectionStartDate, DateTime dtCollectionEndDate,
+            DateTime dtCreateAndUpdateDate, string sConnKey)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@GroupID", lGroupID);
+            sp.AddParameter("@CollectionCode", sCollectionCode);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@CustomData", sCustomData);
+            sp.AddParameter("@NumOfUses", 0);
+            sp.AddParameter("@MaxNumOfUses", lMaxNumOfUses);
+            sp.AddParameter("@ViewLifeCycleSecs", lViewLifeCycleSecs);
+            sp.AddParameter("@LastViewDate", DBNull.Value); // make sure it is correct
+            sp.AddParameter("@StartDate", dtCollectionStartDate);
+            sp.AddParameter("@IsActive", 1);
+            sp.AddParameter("@EndDate", dtCollectionEndDate);
+            sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
+            sp.AddParameter("@Status", 1);
+            sp.AddParameter("@Price", dPrice);
+            sp.AddParameter("@CurrencyCode", sCurrencyCode);
+            sp.AddParameter("@UpdaterID", 0);
+            sp.AddParameter("@UpdateDate", dtCreateAndUpdateDate);
+            sp.AddParameter("@CreateDate", dtCreateAndUpdateDate);
+            sp.AddParameter("@PublishDate", DBNull.Value);
+            sp.AddParameter("@CountryCode", sCountryCode);
+            sp.AddParameter("@LanguageCode", sLanguageCode);
+            sp.AddParameter("@DeviceName", sDeviceName);
+            sp.AddParameter("@FailCount", 0);
+
+            return sp.ExecuteReturnValue<long>();
+
+        }
+
+        public static bool Update_BillingMethodInBillingTransactions(int nID, int nBillingMethod)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_BillingMethodInBillingTransactions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BillingTransID", nID);
+            sp.AddParameter("@BillingMethod", nBillingMethod);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static Dictionary<int, int> Get_GroupMediaTypesIDs(int nGroupID, string sConnKey)
+        {
+            Dictionary<int, int> res = null;
+            StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupMediaTypesIDs");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = new Dictionary<int, int>(dt.Rows.Count);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        int id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]);
+                        int mediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["MEDIA_TYPE_ID"]);
+                        res.Add(id, mediaTypeID);
+                    }
+                }
+                else
+                {
+                    res = new Dictionary<int, int>(0);
+                }
+            }
+            else
+            {
+                res = new Dictionary<int, int>(0);
+            }
+
+            return res;
+        }
+
+        public static Dictionary<int, int> Get_GroupMediaTypesIDs(int nGroupID)
+        {
+            return Get_GroupMediaTypesIDs(nGroupID, string.Empty);
+        }
+
+        public static int Get_SubscriptionUseCount(string sSiteGuid, string sSubCode, int nGroupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_SubscriptionUseCount");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@SubCode", sSubCode);
+            sp.AddParameter("@GroupID", nGroupID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static int Get_PPVPurchaseCount(int nGroupID, string sSiteGuid, string sSubCode, long lMediaFileID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_PPVPurchaseCount");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            if (!string.IsNullOrEmpty(sSubCode))
+            {
+                sp.AddParameter("@SubCode", sSubCode);
+            }
+            else
+            {
+                sp.AddParameter("@SubCode", DBNull.Value);
+            }
+            sp.AddParameter("@MediaFileID", lMediaFileID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static bool Get_LatestCreateDateOfBundleUses(string sBundleCode, int nGroupID, string sSiteGuid, long lMediaFileID, 
+            bool bIsSub, ref DateTime dtCreateDateOfBundleUse, ref DateTime dtNow)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_LatestCreateDateOfBundleUses");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@BundleCode", sBundleCode);
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@MediaFileID", lMediaFileID);
+            sp.AddParameter("@IsSubscription", bIsSub);
+
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    dtCreateDateOfBundleUse = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
+                    dtNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["DATE_NOW"]);
+                    res = true;
+                }
+            }
+            return res;
+        }
+
+        public static DataSet Get_AllBundlesInfoByUserIDs(List<int> lstUsers, List<int> lstFileTypes)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AllBundlesInfoByUserIDs");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@Users", lstUsers, "ID");
+            sp.AddIDListParameter("@FileTypes", lstFileTypes, "ID");
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static bool Get_LatestCreateDateOfBundlesUses(List<string> subscriptionsIDs, List<string> collectionsIDs,
+            List<string> domainUserIDs, long mediaFileID, int nGroupID, ref Dictionary<string, DateTime> subsToCreateDateMapping,
+            ref Dictionary<string, DateTime> colsToCreateDateMapping, ref DateTime dateNowDBTime)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_LatestCreateDateOfBundlesUses");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@Subscriptions", subscriptionsIDs, "ID");
+            sp.AddIDListParameter("@Collections", collectionsIDs, "ID");
+            sp.AddIDListParameter("@DomainUserIDs", domainUserIDs, "ID");
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@GroupID", nGroupID);
+
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    subsToCreateDateMapping = new Dictionary<string, DateTime>();
+                    colsToCreateDateMapping = new Dictionary<string, DateTime>();
+
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        string bundleCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["BUNDLE_CODE"]);
+                        if (bundleCode.Length > 0)
+                        {
+                            DateTime latestCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["LATEST_CREATE_DATE"]);
+                            bool isSub = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["BUNDLE_TYPE"]) == 0;
+                            if (isSub)
+                            {
+                                subsToCreateDateMapping.Add(bundleCode, latestCreateDate);
+                            }
+                            else
+                            {
+                                colsToCreateDateMapping.Add(bundleCode, latestCreateDate);
+                            }
+                        }
+                        
+                    } // end for
+                }
+
+                DataTable dbTime = ds.Tables[1];
+                if (dbTime != null && dbTime.Rows != null && dbTime.Rows.Count > 0)
+                {
+                    dateNowDBTime = ODBCWrapper.Utils.GetDateSafeVal(dbTime.Rows[0]["DATE_NOW"]);
+                }
+                if (dateNowDBTime.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
+                    dateNowDBTime = DateTime.UtcNow;
+            }
+
+            return res;
+        }
+
+        public static bool Get_AllDomainsPPVUsesUsingCollections(List<int> lstDomainUsers,
+            int nGroupID, int nMediaFileID, List<int> lstCollections, ref DateTime dbTimeNow, ref Dictionary<int, DateTime> initializedDictCollectionUses)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_AllDomainsPPVUsesUsingCollections");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@Users", lstDomainUsers, "ID");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@MediaFileID", nMediaFileID);
+            sp.AddIDListParameter("@Collections", lstCollections, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            {
+                res = true;
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        int collectionID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["rel_box_set"]);
+                        DateTime latestCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["LATEST_CREATE_DATE"]);
+                        if (!initializedDictCollectionUses.ContainsKey(collectionID) && !latestCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
+                        {
+                            initializedDictCollectionUses.Add(collectionID, latestCreateDate);
+                        }
+                    }
+                }
+
+                DataTable dtTimeTable = ds.Tables[1];
+                if (dtTimeTable != null && dtTimeTable.Rows != null && dtTimeTable.Rows.Count > 0)
+                {
+                    dbTimeNow = ODBCWrapper.Utils.GetDateSafeVal(dtTimeTable.Rows[0]["DATE_NOW"]);
+                }
+                if (dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
+                {
+                    dbTimeNow = DateTime.UtcNow;
+                }
+            }
+
+            return res;
+
+        }
+
+        public static Dictionary<string, string[]> Get_MultipleWSCredentials(int groupID, List<string> services)
+        {
+            Dictionary<string, string[]> res = new Dictionary<string, string[]>();
+            for (int i = 0; i < services.Count; i++)
+            {
+                if (!res.ContainsKey(services[i]))
+                {
+                    res.Add(services[i], new string[2] { string.Empty, string.Empty });
+                }
+            }
+            StoredProcedure sp = new StoredProcedure("Get_MultipleWSCredentials");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@Services", services, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        string serviceName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ws_name"]);
+                        string serviceUser = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["username"]);
+                        string servicePass = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["password"]);
+                        res[serviceName][0] = serviceUser;
+                        res[serviceName][1] = servicePass;
+                    }
+                }
+            }
+
+
+            return res;
+        }
 
     }
 }

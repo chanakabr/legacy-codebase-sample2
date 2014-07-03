@@ -91,7 +91,7 @@ namespace Catalog
 
                 if (group != null && channel != null)
                 {
-                    channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID);
+                    channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID, group.GetGroupDefaultLanguage());
 
                     DateTime start = DateTime.Now;
                     List<int> medias = new List<int>();
@@ -133,7 +133,7 @@ namespace Catalog
                     }
                     else
                     {                       
-                        medias = OrderMediaBySlidingWindow(channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
+                        medias = OrderMediaBySlidingWindow(group.m_nParentGroupID, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
 
                         nTotalItems = 0;
 
@@ -223,34 +223,53 @@ namespace Catalog
 
         private bool IsSlidingWindow(Channel channel)
         {
-            bool hasSlidingAttr = typeof(OrderBy).GetMember(channel.m_OrderObject.m_eOrderBy.ToString())[0].GetCustomAttributes(typeof(SlidingWindowSupportedAttribute), false).Length > 0;
-            return hasSlidingAttr && channel.m_OrderObject.m_bIsSlidingWindowField;
+            bool bResult = false;
+
+            if (channel.m_OrderObject.m_bIsSlidingWindowField)
+            {
+                bResult = typeof(OrderBy).GetMember(channel.m_OrderObject.m_eOrderBy.ToString())[0].GetCustomAttributes(typeof(SlidingWindowSupportedAttribute), false).Length > 0;
+            }
+
+            return bResult;
         }
 
-        private List<int> OrderMediaBySlidingWindow(ApiObjects.SearchObjects.OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media, DateTime windowTime)
+        private List<int> OrderMediaBySlidingWindow(int nGroupId, ApiObjects.SearchObjects.OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media, DateTime windowTime)
         {
-            DataTable dt = null;
+            List<int> result;
+
             switch (orderBy)
             {
-                case ApiObjects.SearchObjects.OrderBy.VIEWS:
-                    dt = CatalogDAL.Get_Media_By_SlidingWindow("Get_SlidingWindowMediaIds_ByViews", media.ToList(), isDesc, pageSize, PageIndex, windowTime);
+                case OrderBy.VIEWS:
+                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "mediahit");
                     break;
-                case ApiObjects.SearchObjects.OrderBy.RATING:
-                    dt = CatalogDAL.Get_Media_By_SlidingWindow("Get_SlidingWindowMediaIds_ByRatings", media.ToList(), isDesc, pageSize, PageIndex, windowTime);
+                case OrderBy.RATING:
+                    result = Utils.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, "rates", "rate_value", ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
                     break;
-                case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
-                    dt = CatalogDAL.Get_Media_By_SlidingWindow("Get_SlidingWindowMediaIds_ByLikes", media.ToList(), isDesc, pageSize, PageIndex, windowTime);
+                case OrderBy.VOTES_COUNT:
+                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "rates");
+                    break;
+                case OrderBy.LIKE_COUNTER:
+                    result = Utils.SlidingWindowCountFacet(nGroupId, media, windowTime, "like");
                     break;
                 default:
-                    return media;
+                    result = media;
+                    break;
             }
 
-            if (dt != null)
+            if (result != null && result.Count > 0)
             {
-                return dt.AsEnumerable().Select(dr => ODBCWrapper.Utils.GetIntSafeVal(dr["MEDIA_ID"])).ToList();
+                if (isDesc)
+                {
+                    result.Reverse();
+                    result = Utils.ListPaging(result, pageSize, PageIndex);
+                }
+                else
+                {
+                    result = Utils.ListPaging(result, pageSize, PageIndex);
+                }
             }
-            else
-                return null;
+
+            return result;
         }
 
         protected void OrderMediasByOrderNum(ref List<int> medias, List<ManualMedia> lManualMedias, ApiObjects.SearchObjects.OrderObj oOrderObj)
@@ -280,12 +299,12 @@ namespace Catalog
             }
         }
 
-        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(Channel channel, ChannelRequest request, int nParentGroupID)
+        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage)
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)
                 nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
-            return Catalog.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, null, nDeviceRuleId);
+            return Catalog.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, null, nDeviceRuleId, oLanguage);
         }
     }
 }

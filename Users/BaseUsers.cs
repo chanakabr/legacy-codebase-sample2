@@ -6,6 +6,7 @@ using System.Data;
 using DAL;
 using Logger;
 using ApiObjects;
+using ApiObjects.Statistics;
 
 namespace Users
 {
@@ -57,10 +58,66 @@ namespace Users
         public virtual bool AddUserFavorit(string sUserGUID, int domainID, string sDeviceUDID,
             string sItemType, string sItemCode, string sExtraData, Int32 nGroupID)
         {
-            FavoritObject f = new FavoritObject();
-            f.Initialize(0, sUserGUID, domainID, sDeviceUDID, sItemType, sItemCode, sExtraData, DateTime.UtcNow, nGroupID);
-            return f.Save(nGroupID);
+            try
+            {
+                bool saveRes = false;
+                FavoritObject f = new FavoritObject();
+                f.Initialize(0, sUserGUID, domainID, sDeviceUDID, sItemType, sItemCode, sExtraData, DateTime.UtcNow, nGroupID);
+                saveRes = f.Save(nGroupID);
+
+                //insert favorites record to ES
+                //add channel favorites to ES
+                MediaView view = new MediaView()
+                {
+                    GroupID = nGroupID,
+                    MediaID = ODBCWrapper.Utils.GetIntSafeVal(sItemCode),
+                    Location = 0,
+                    MediaType = sItemType,
+                    Action = "favoraite",
+                    Date = DateTime.UtcNow
+                };
+
+                saveRes &= WriteFavoriteToES(view);
+
+                return saveRes;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
+
+
+        private bool WriteFavoriteToES(ApiObjects.Statistics.MediaView oMediaView)
+        {
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
+            try
+            {
+                bool bRes = false;
+               ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
+
+                  string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
+
+                  if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
+                  {
+                      Guid guid = Guid.NewGuid();
+
+                      bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
+
+                      if (!bRes)
+                          Logger.Logger.Log("WriteFavoriteToES", string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView), "Users");
+                  }
+
+                return bRes;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("WriteFavoriteToES", string.Format("Failed ex={0}, index={1};type={2}", ex.Message, index, ElasticSearch.Common.Utils.ES_STATS_TYPE), "Users");
+                return false;
+            }
+        }
+
+
 
         public virtual bool AddChannelMediaToFavorites(string sUserGUID, int domainID, string sDeviceUDID,
           string sItemType, string sChannelID, string sExtraData, Int32 nGroupID)
@@ -615,6 +672,27 @@ namespace Users
             User u = new User();
             ResponseStatus ret = u.SetUserTypeByUserID(m_nGroupID, sSiteGUID, nUserTypeID);
             return ret;
+        }
+
+        public virtual int GetUserType(string sSiteGUID)
+        {
+            long lSiteGuid = 0;
+            int nUserTypeID = 0;
+
+            if (long.TryParse(sSiteGUID, out lSiteGuid))
+            {
+                DataTable dtUserType = UsersDal.GetUserType(m_nGroupID, lSiteGuid);
+
+                if (dtUserType != null && dtUserType.Rows.Count > 0)
+                {
+                    foreach (DataRow drUserType in dtUserType.Rows)
+                    {
+                        nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserType["User_Type"]);
+                    }
+                }
+            }
+
+            return nUserTypeID;
         }
     }
 }

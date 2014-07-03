@@ -280,7 +280,7 @@ namespace TVinciShared
             {
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE", "=", sLanguage);
-            }
+            }           
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;

@@ -62,13 +62,20 @@ namespace QueueWrapper
                     try
                     {
                         string sFailCountLimit = Utils.GetTcmConfigValue("queue_fail_limit");
-                        if (string.IsNullOrEmpty(sFailCountLimit))
+                        bool isParseSucceeded = false;
+                        if (string.IsNullOrEmpty(sFailCountLimit)) // If reading from TCM failed, try to read from extra.config. Else, convert to int
                         {
-                            bool isParseSucceeded = int.TryParse(ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
-                            if (!isParseSucceeded)
-                            {
-                                failCounterLimit = Instance.FAIL_COUNT_LIMIT;
-                            }
+                            isParseSucceeded = int.TryParse(ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
+                        }
+                        else
+                        {
+                            isParseSucceeded = int.TryParse(sFailCountLimit, out failCounterLimit);
+                        }
+
+                        // If any reading failed, set the failCounterLimit as the constant
+                        if (!isParseSucceeded)
+                        {
+                            failCounterLimit = Instance.FAIL_COUNT_LIMIT;
                         }
                     }
                     catch (Exception ex)
@@ -142,6 +149,8 @@ namespace QueueWrapper
                         {
                             var body = Encoding.UTF8.GetBytes(sMessage.ToString());
                             IBasicProperties properties = m_Model.CreateBasicProperties();
+                            if (configuration.setContentType)
+                                properties.ContentType = "application/json";
                             m_Model.BasicPublish(configuration.Exchange, configuration.RoutingKey, properties, body);
                             isPublishSucceeded = true;
                             ResetFailCounter();
@@ -165,7 +174,7 @@ namespace QueueWrapper
                 m_lock.EnterWriteLock();
                 try
                 {
-                    if (m_FailCounter > 0)
+                    if (m_FailCounter > 0)                    
                     {
                         this.m_FailCounter = 0;
                     }
@@ -243,7 +252,7 @@ namespace QueueWrapper
                         mutex.WaitOne(-1);
                         if (this.m_Connection == null)
                         {
-                            var factory = new ConnectionFactory() { HostName = configuration.Host, Password = configuration.Password };
+                            var factory = new ConnectionFactory() { HostName = configuration.Host, Password = configuration.Password, UserName = configuration.Username };
 
                             this.m_Connection = factory.CreateConnection();
                             if (action.Equals(QueueAction.Subscribe) || action.Equals(QueueAction.Ack))

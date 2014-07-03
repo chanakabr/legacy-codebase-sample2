@@ -118,13 +118,25 @@ namespace Notifiers
     //    //public string TransactionId { get; set; }
     //}
 
-    public class EutelsatProductNotificationResponse
+    public class ProductNotificationResponse
     {
         [JsonProperty("success")]
         public bool success { get; set; }
 
         [JsonProperty("errors")]
         public EutelsatError[] errors { get; set; }
+    }
+
+    public class PackageNotificationResponse
+    {
+        [JsonProperty("success")]
+        public bool success { get; set; }
+
+        [JsonProperty("message")]
+        public string message { get; set; }
+
+        //[JsonProperty("errors")]
+        //public EutelsatError[] errors { get; set; }
     }
 
     public class EutelsatError

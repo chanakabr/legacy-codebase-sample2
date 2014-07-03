@@ -46,6 +46,9 @@ namespace Catalog
             {
                 MediaMarkResponse oMediaMarkResponse = null;
                 MediaMarkRequest oMediaMarkRequest = null;
+
+                CheckSignature(oBaseRequest);
+
                 if (oBaseRequest != null)
                 {
                     oMediaMarkRequest = (MediaMarkRequest)oBaseRequest;
@@ -55,14 +58,14 @@ namespace Catalog
                 {
                     oMediaMarkResponse = new MediaMarkResponse();
                     oMediaMarkResponse.m_sDescription = Catalog.GetMediaPlayResponse(MediaPlayResponse.OK);
-                    //throw new Exception("request object is null or Required variables is null");
+                    
                 }                
 
                 return (BaseResponse)oMediaMarkResponse;
             }
             catch (Exception ex)
             {
-                _logger.Error("MediaMarkRequest.GetResponse", ex);
+                _logger.Error(String.Concat("MediaMarkRequest.GetResponse. ", oBaseRequest.ToString()), ex);
                 throw ex;
             }
         }
@@ -82,7 +85,7 @@ namespace Catalog
             int nSendToFriend = 0;
             int nLoad = 0;
             int nFirstPlay = 0;
-            string sPlayCycleKey = "";
+            string sPlayCycleKey = string.Empty;
             int nMediaDuration = 0;     
             DateTime dNow = DateTime.UtcNow;
             int nPlayerID = 0; 
@@ -94,45 +97,45 @@ namespace Catalog
             int nOwnerGroupID = 0;
             int nQualityID = 0;
             int nFormatID = 0;
+            int nMediaTypeID = 0;
             int nBillingTypeID = 0;
             int nPlatform = 0;
             int nSwhoosh = 0;
 
             MediaPlayActions mediaMarkAction;
-            int.TryParse(this.m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
+
+            Int32.TryParse(this.m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
                                           
 
             oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.MEDIA_MARK);
 
             if (this.m_oFilter != null)
             {
-                int.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
+                Int32.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
             }
             int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
             Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID,
-                                     ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID);
-          
-            bool resultParse = Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction);
+                                     ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
 
-            if (resultParse == true)
+            if (Enum.TryParse(this.m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
             {
                 bool isError = false;
                 bool isConcurrent = false;
                 HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
                                       ref nFirstPlay, ref sPlayCycleKey, ref isConcurrent, ref isError, ref nSwhoosh);
 
-                if (isError == true)
+                if (isError)
                 {
                     return oMediaMarkResponse;
                 }
-                else if (isConcurrent == true)
+                else if (isConcurrent)
                 {
                     oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
                     return oMediaMarkResponse;
                 }                
             }
 
-            if (nActionID == 0 && this.m_oMediaPlayRequestData.m_sAction != "")
+            if (nActionID == 0 && this.m_oMediaPlayRequestData.m_sAction.Length > 0)
             {
                 nActionID = Catalog.GetMediaActionID(this.m_oMediaPlayRequestData.m_sAction);
             }                     
@@ -179,6 +182,8 @@ namespace Catalog
             {
                 nActionID = (int)mediaMarkAction; 
             }
+
+            int nDomainID = 0;
             
             switch (mediaMarkAction)
             {
@@ -198,14 +203,13 @@ namespace Catalog
                 case MediaPlayActions.PLAY:
                     {
                         nPlay = 1;
- 
-                        if (TVinciShared.ConcurrentUtils.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID))
+                        if (Catalog.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID))
                         {
                             isConcurrent = true;
                         }
                         else
                         {
-                            Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID);
+                            Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, nDomainID);
                         }
                         break;
                     }
@@ -253,8 +257,7 @@ namespace Catalog
                 case MediaPlayActions.FIRST_PLAY:
                     {
                         nFirstPlay = 1;
-
-                        if (TVinciShared.ConcurrentUtils.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID))
+                        if (Catalog.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID))
                         {
                             isConcurrent = true;
                         }
@@ -262,7 +265,7 @@ namespace Catalog
                         {
                             sPlayCycleKey = Guid.NewGuid().ToString();
                             CatalogDAL.Insert_NewPlayCycleKey(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlatform, this.m_oMediaPlayRequestData.m_sUDID, nCountryID, sPlayCycleKey);
-                            Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID);
+                            Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, nDomainID);
                         }
                         break;
                     }

@@ -51,7 +51,7 @@ namespace Catalog
                 GroupManager groupManager = new GroupManager();
                 Group groupInCache = groupManager.GetGroup(request.m_nGroupID);   
 
-                List<int> channelIds = Catalog.GetSubscriptionChannelIds(request.m_nGroupID, request.m_nSubscriptionID);
+                List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nSubscriptionID, CatalogBundleType.SUBSCRIPTION);
                 if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                 {
                     // Buils search Object per channelId call Searcher to return true/false result
@@ -83,7 +83,7 @@ namespace Catalog
                                              if (groupInCache != null)
                                              {
                                                  Channel currentChannel = allChannels[(int)obj];
-                                                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId);
+                                                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
                                                  channelSearchObject.m_oOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
                                                  channelsSearchObjects.Add(channelSearchObject);
                                              }

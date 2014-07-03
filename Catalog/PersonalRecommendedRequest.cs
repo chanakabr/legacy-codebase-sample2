@@ -82,6 +82,7 @@ namespace Catalog
             return lMedias;
         }
 
+
         protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, int nOperatorID, List<List<string>> jsonizedChannelsDefinitions, ref ISearcher initializedSearcher)
         {
             List<SearchResult> lMedias = null;
@@ -103,7 +104,7 @@ namespace Catalog
                     {
                         lMedias = HandleGetRelated(request, ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["media_id"]));
                     }
-                    else 
+                    else
                     {
                         //Return most viewed items and validate against ES they are still associated with the operator
                         lMedias = HandleMostViewed(dt);
@@ -146,7 +147,7 @@ namespace Catalog
                     {
                         lMedias = HandleGetRelated(request, ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["media_id"]));
                     }
-                    else 
+                    else
                     {
                         //Return most viewed items
                         lMedias = HandleMostViewed(dt);
@@ -165,6 +166,8 @@ namespace Catalog
 
             return lMedias;
         }
+
+  
 
         protected override int GetProtocolMaxResultsSize()
         {

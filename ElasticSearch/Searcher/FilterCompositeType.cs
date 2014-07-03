@@ -17,23 +17,7 @@ namespace ElasticSearch.Searcher
 
         }
 
-        //public void AddChild(FilterCompositeType child)
-        //{
-        //    if (child == null || child.IsEmpty())
-        //        return;
-
-        //    m_lComposite.Add(child);
-        //}
-
-        //public void AddChild(IESTerm child)
-        //{
-        //    if (child == null || child.IsEmpty())
-        //        return;
-
-        //    m_lTerms.Add(child);
-        //}
-
-        public bool IsEmpty()
+        public override bool IsEmpty()
         {
             return (m_lComposite.Count == 0 && m_lTerms.Count == 0) ? true : false;
         }

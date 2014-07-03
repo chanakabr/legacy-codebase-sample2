@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\ConfigType.cs" />
     <Compile Include="Enums\QueueType.cs" />
     <Compile Include="Queues\Enums.cs" />
     <Compile Include="Queues\QueueObjects\BaseQueue.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="Interfaces\IQueueable.cs" />
     <Compile Include="Interfaces\IQueueImpl.cs" />
     <Compile Include="QueueImplFactory.cs" />
+    <Compile Include="Queues\QueueObjects\PictureQueue.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitConfigurationData.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitConnection.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitQueue.cs" />

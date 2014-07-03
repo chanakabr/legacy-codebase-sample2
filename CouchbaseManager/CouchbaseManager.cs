@@ -7,12 +7,17 @@ using System.Configuration;
 using Couchbase;
 using Couchbase.Configuration;
 
+
 namespace CouchbaseManager
 {
-    public enum eCouchbaseBucket { UNKNOWN = 0, NOTIFICATION = 1, SOCIALHUB = 2, SOCIALFRIENDS = 3, EPG = 4, CACHE=5 }
+    
+    public enum eCouchbaseBucket { DEFAULT = 0, NOTIFICATION = 1, SOCIALHUB = 2, SOCIALFRIENDS = 3, EPG = 4, MEDIAMARK = 5, STATISTICS = 6, CACHE = 7 }
 
     public class CouchbaseManager
     {
+
+        
+
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
         private static object syncObj = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim();
@@ -76,6 +81,9 @@ namespace CouchbaseManager
                 case eCouchbaseBucket.SOCIALHUB:
                 case eCouchbaseBucket.SOCIALFRIENDS:
                 case eCouchbaseBucket.EPG:
+                case eCouchbaseBucket.STATISTICS:
+                case eCouchbaseBucket.DEFAULT:
+                case eCouchbaseBucket.MEDIAMARK:
                     var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
                     oRes = new CouchbaseClient(socialBucketSection);
                     break;

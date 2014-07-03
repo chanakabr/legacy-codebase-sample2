@@ -25,6 +25,7 @@ namespace Catalog
 
         [DataMember]
         public List<int> m_nAssetIDs;
+              
 
         public AssetStatsRequest()
             : base()

@@ -395,7 +395,7 @@ namespace DAL
                 }
 
                 int nCount = ds.Tables[0].DefaultView.Count;
-                //for (int i = 0; i < nCount; i++)
+                
                 if (nCount > 0)
                 {
                     nOperatorID = int.Parse(ds.Tables[0].DefaultView[0].Row["ID"].ToString());
@@ -431,5 +431,15 @@ namespace DAL
             int result = spParentGroupID.ExecuteReturnValue<int>();
             return result;
         }
+
+        public static string getUserMediaMarkDocKey(int nSiteUserGuid, int nMediaID)
+        {
+            return string.Format("u{0}_m{1}", nSiteUserGuid, nMediaID);
+        }
+
+        public static string getDomainMediaMarksDocKey(int nDomainID)
+        {
+            return string.Format("d{0}", nDomainID);
+        } 
     }
 }

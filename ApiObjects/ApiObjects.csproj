@@ -109,6 +109,9 @@
     <Compile Include="ImporterObject.cs" />
     <Compile Include="InfoStructObj.cs" />
     <Compile Include="InitializationObject.cs" />
+    <Compile Include="JsonSerializers\TimeConverters.cs" />
+    <Compile Include="Json\Converters\BaseTimeConverter.cs" />
+    <Compile Include="LanguageObj.cs" />
     <Compile Include="LanguageRequestObject.cs" />
     <Compile Include="MailRequestObj.cs" />
     <Compile Include="MCObjects.cs" />
@@ -122,6 +125,9 @@
     <Compile Include="MediaFileObject.cs" />
     <Compile Include="MediaInfoObject.cs" />
     <Compile Include="MediaInfoStructObject.cs" />
+    <Compile Include="MediaMarks\DomainMediaMark.cs" />
+    <Compile Include="MediaMarks\MediaMarkLog.cs" />
+    <Compile Include="MediaMarks\UserMediaMark.cs" />
     <Compile Include="MediaObject.cs" />
     <Compile Include="MediaPersonalStatistics.cs" />
     <Compile Include="MediaStatistics.cs" />
@@ -130,6 +136,7 @@
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
     <Compile Include="PicObject.cs" />
+    <Compile Include="MediaIndexingObjects\PictureData.cs" />
     <Compile Include="PlayerIMRequestObject.cs" />
     <Compile Include="PlayListSchema.cs" />
     <Compile Include="PreviewModuleCancelOrRefundRequest.cs" />
@@ -148,6 +155,7 @@
     <Compile Include="SearchObjects\EpgParams.cs" />
     <Compile Include="SearchObjects\EpgResultsObj.cs" />
     <Compile Include="SearchObjects\EpgSearchObj.cs" />
+    <Compile Include="SearchObjects\ESMediaFields.cs" />
     <Compile Include="SearchObjects\ESOrderObj.cs" />
     <Compile Include="SearchObjects\ISearcher.cs" />
     <Compile Include="SearchObjects\MediaObj.cs" />
@@ -160,6 +168,10 @@
     <Compile Include="SendPasswordMailRequest.cs" />
     <Compile Include="SendToFriendMailRequest.cs" />
     <Compile Include="SocialObjects.cs" />
+    <Compile Include="Statistics\BuzzWeightedAverScore.cs" />
+    <Compile Include="Statistics\ChannelBucket.cs" />
+    <Compile Include="Statistics\SocialActionStatistics.cs" />
+    <Compile Include="Statistics\ViewStatistics.cs" />
     <Compile Include="TagRequestObject.cs" />
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="UserComment.cs" />

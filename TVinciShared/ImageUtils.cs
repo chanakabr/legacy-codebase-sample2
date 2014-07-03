@@ -11,6 +11,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
+using System.Collections.Generic;
+using QueueWrapper;
 
 namespace TVinciShared
 {
@@ -93,26 +95,29 @@ namespace TVinciShared
         static public string GetDateImageName(int mediaID)
         {
             string retVal = string.Empty;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += " select p.base_url, m.id from pics p, media m where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.id", "=", mediaID);
-            selectQuery += " and p.id = m.media_pic_id and p.status = 1";
-            selectQuery.SetCachedSec(0);
-            if (selectQuery.Execute("query", true) != null)
+            if (mediaID > 0)
             {
-                int count = selectQuery.Table("query").DefaultView.Count;
-                if (count > 0)
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += " select p.base_url, m.id from pics p, media m where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.id", "=", mediaID);
+                selectQuery += " and p.id = m.media_pic_id and p.status = 1";
+                selectQuery.SetCachedSec(0);
+                if (selectQuery.Execute("query", true) != null)
                 {
-                    retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString();
-                    if (retVal.IndexOf('.') > 0)
+                    int count = selectQuery.Table("query").DefaultView.Count;
+                    if (count > 0)
                     {
-                        retVal = retVal.Substring(0, retVal.IndexOf('.'));
-                        Logger.Logger.Log("BaseURL", string.Format("media:{0}, base:{1}", mediaID, retVal), "GetDateImageName");
+                        retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString();
+                        if (retVal.IndexOf('.') > 0)
+                        {
+                            retVal = retVal.Substring(0, retVal.IndexOf('.'));
+                            Logger.Logger.Log("BaseURL", string.Format("media:{0}, base:{1}", mediaID, retVal), "GetDateImageName");
+                        }
                     }
                 }
+                selectQuery.Finish();
+                selectQuery = null;
             }
-            selectQuery.Finish();
-            selectQuery = null;
             
             if (string.IsNullOrEmpty(retVal))
             {
@@ -478,7 +483,8 @@ namespace TVinciShared
                         sPicBaseName = sPicBaseName.Substring(nStart);
                     sPicBaseName += ".jpg";
                 }
-                string sTmpImage = sBasePath + "\\pics\\" + sPicBaseName;
+                //   string sTmpImage = sBasePath + "\\pics\\" + sPicBaseName;
+                string sTmpImage = sBasePath + "/pics/" + sPicBaseName;
                 //Uri uri = new Uri("http://maps.google.com/staticmap?center=45.728220,4.830321&zoom=8&size=200x200&maptype=roadmap&key=ABQIAAAAaHAby4XeLCIadFkAUW4vmRSkJGe9mG57rOapogjk9M-sm4TzXxR2I7bi2Qkj-opZe16CdmDs7_dNrQ");
 
                 HttpWebRequest httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
@@ -531,6 +537,92 @@ namespace TVinciShared
                 return "";
             }
         }
+
+
+        public static string GetFileExt(string sFileName)
+        {
+            string sFileExt = string.Empty;
+            int nExtractPos = sFileName.LastIndexOf(".");
+            if (nExtractPos > 0)
+                sFileExt = sFileName.Substring(nExtractPos);
+            return sFileExt;
+        }
+
+
+        public static bool SendPictureDataToQueue(string sFullUrlDownload, string sNewName, string sBasePath, string [] sPicSizes, int nGroupID)
+        {
+            bool bIsUpdateSucceeded = false;
+            List<object> args = new List<object>();
+
+            int nParentGroupID = 0;
+
+            try
+            {
+                nParentGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", nGroupID, "MAIN_CONNECTION_STRING").ToString());
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", string.Format("group:{0}, msg:{1}", nGroupID, ex.Message), "SendPictureDataToQueue");
+                return false;
+            }
+
+      
+            args.Add(nParentGroupID.ToString());
+
+            //check for Http and if it is missing, insert the the remotePicsURL
+            if (sFullUrlDownload.ToLower().Trim().StartsWith("http://") == false &&
+                sFullUrlDownload.ToLower().Trim().StartsWith("https://") == false)
+            {
+                sFullUrlDownload = getRemotePicsURL(nGroupID) + sFullUrlDownload;
+            }
+
+            args.Add(sFullUrlDownload);//the full url from which the picture should be taken
+            args.Add(sNewName);
+            args.Add(sPicSizes);
+
+            UploadConfig upConfig = new UploadConfig();
+            upConfig.setUploadConfig(nGroupID);
+            args.Add(upConfig);
+
+            args.Add(sBasePath);
+
+            string id = Guid.NewGuid().ToString();
+            string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskPicture");  
+            ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, task, args);
+            Logger.Logger.Log("Queue", string.Format("{0}, {1}, {2}", nParentGroupID, id, task), "SendPictureDataToQueue");
+
+            //update the Queue with picture data
+            if (data != null)
+            {
+                BaseQueue queue = new PictureQueue();
+                string sRoutingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyPicture");
+                bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);                
+            }
+            Logger.Logger.Log("Res", bIsUpdateSucceeded.ToString(), "SendPictureDataToQueue");
+            return bIsUpdateSucceeded;
+        }
+
+        //get the url from which the pics are downloaded 
+        public static string getRemotePicsURL(int nGroupID)
+        {
+            string sRemotePicsURL = string.Empty;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select PICS_REMOTE_BASE_URL from groups (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    sRemotePicsURL = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "PICS_REMOTE_BASE_URL", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return sRemotePicsURL;
+        }
+
+
 
     }
 }

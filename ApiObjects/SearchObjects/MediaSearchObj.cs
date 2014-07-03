@@ -69,7 +69,7 @@ namespace ApiObjects.SearchObjects
         public int m_nPageIndex { get; set; }
         public int m_nPageSize { get; set; }
         public int m_nMediaID;
-        public int m_nLangID { get; set; }
+        public LanguageObj m_oLangauge { get; set; }
         public int m_nUserTypeID;
         
         public int[] m_nDeviceRuleId;

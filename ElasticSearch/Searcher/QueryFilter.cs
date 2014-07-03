@@ -51,6 +51,7 @@ namespace ElasticSearch.Searcher
         public string Key { get; set; }
         public eTermType eType { get; protected set; }
         public bool bNot { get; set; }
+        public float Boost { get; set; }
 
         bool m_bIsNumeric;
 
@@ -68,32 +69,73 @@ namespace ElasticSearch.Searcher
 
         public override string ToString()
         {
-            if(this.IsEmpty())
+
+            if (this.IsEmpty())
                 return string.Empty;
 
             StringBuilder sb = new StringBuilder();
 
-
             if (bNot)
-                sb.Append(" { \"not\": ");
+                sb.Append("{ \"not\": ");
 
-            sb.Append("{ \"term\": { \"");
-            sb.Append(Key);
-            sb.Append("\": ");
+            sb.Append("{ \"term\": {");
+            sb.AppendFormat("\"{0}\": ", Key);
+            sb.Append("{");
+
             if (m_bIsNumeric)
             {
-                sb.Append(Value);
+                sb.AppendFormat(" \"value\": {0}", Value);
             }
             else
             {
-                sb.AppendFormat("\"{0}\"", Value);
+                sb.AppendFormat(" \"value\": \"{0}\"", Value);
             }
-            sb.Append(" } }");
+
+            if (Boost > 0.0f)
+            {
+                sb.AppendFormat(", \"boost\": {0}", Boost);
+            }
+
+            sb.Append("}}}");
 
             if (bNot)
                 sb.Append("}");
 
-            return  sb.ToString();
+            return sb.ToString();
+
+
+            //if(this.IsEmpty())
+            //    return string.Empty;
+
+            //StringBuilder sb = new StringBuilder();
+
+
+            //if (bNot)
+            //    sb.Append(" { \"not\": ");
+
+            //sb.Append("{ \"term\": { \"");
+            //sb.Append(Key);
+            //sb.Append("\": ");
+            //if (m_bIsNumeric)
+            //{
+            //    sb.Append(Value);
+            //}
+            //else
+            //{
+            //    sb.AppendFormat("\"{0}\"", Value);
+            //}
+
+            //if (Boost > 0.0f)
+            //{
+            //    sb.AppendFormat(", \"boost\": {0}", Boost);
+            //}
+
+            //sb.Append(" } }");
+
+            //if (bNot)
+            //    sb.Append("}");
+
+            //return  sb.ToString();
 
         }
     }
@@ -221,8 +263,6 @@ namespace ElasticSearch.Searcher
 
     public class ESWildcard : ESTerm
     {
-        public float Boost { get; set; }
-
         public ESWildcard() : base(false)
         {
             this.eType = eTermType.WILDCARD;
@@ -257,6 +297,46 @@ namespace ElasticSearch.Searcher
         }
     }
 
+    public class ESExists : IESTerm
+    {
+        public ESExists()
+        {
+            this.eType = eTermType.EXISTS;
+        }
+
+        public eTermType eType { get; protected set; }
+
+        public bool bNot { get; set; }
+        public string Value { get; set; }
+
+        public bool IsEmpty()
+        {
+            return string.IsNullOrEmpty(Value);
+        }
+
+        public override string ToString()
+        {
+            if (this.IsEmpty())
+                return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            if (bNot)
+                sb.Append("{ \"not\": ");
+
+            sb.Append("{ \"exists\": {");
+             sb.AppendFormat(" \"field\": \"{0}\"", Value);
+
+            sb.Append("}}");
+
+            if (bNot)
+                sb.Append("}");
+
+            return sb.ToString();
+        }
+
+    }
+
     public enum eTermType
     {
         TERM,
@@ -264,7 +344,9 @@ namespace ElasticSearch.Searcher
         RANGE,
         WILDCARD,
         BOOL_QUERY,
-        MULTI_MATCH
+        MULTI_MATCH,
+        EXISTS,
+        MATCH
     }
 
     public enum eRangeComp

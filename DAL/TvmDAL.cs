@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using ODBCWrapper;
 
 namespace DAL
 {
@@ -22,7 +23,7 @@ namespace DAL
 
                 DataSet ds = sp.ExecuteDataSet();
 
-                if ((ds != null) && (ds.Tables[0] != null) && (ds.Tables[0].DefaultView.Count > 0))
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].DefaultView.Count > 0)
                 {
                     DataTable dt = ds.Tables[0];
 
@@ -34,32 +35,6 @@ namespace DAL
                     nImplID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IMPLEMENTATION_ID");
                 }
 
-                #region Old
-                //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-
-                //selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-
-                //selectQuery += "SELECT IMPLEMENTATION_ID FROM GROUPS_NOTIFIERS_IMPLEMENTATIONS GNI WITH (NOLOCK), GROUPS G WITH (NOLOCK) WHERE GNI.IS_ACTIVE=1 AND GNI.STATUS=1 AND GNI.GROUP_ID = G.PARENT_GROUP_ID AND ";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("G.ID", "=", nGroupID);
-                //selectQuery += "AND";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GNI.MODULE_ID", "=", nModuleID);
-
-                //selectQuery += "select * from groups_notifiers_implementations with (nolock) where is_active=1 and status=1 and ";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                //selectQuery += "and";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", nModuleID);
-                //if (selectQuery.Execute("query", true) != null)
-                //{
-                //    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                //    if (nCount > 0)
-                //    {
-                //        nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
-                //    }
-                //}
-
-                //selectQuery.Finish();
-                //selectQuery = null;
-                #endregion
             }
             catch (Exception ex)
             {
@@ -136,7 +111,6 @@ namespace DAL
 
         private static void HandleException(Exception ex)
         {
-            //throw new NotImplementedException();
         }
 
 
@@ -244,7 +218,7 @@ namespace DAL
 
                 DataSet ds = sp.ExecuteDataSet();
 
-                if ((ds != null) && (ds.Tables[0] != null) && (ds.Tables[0].DefaultView.Count > 0))
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].DefaultView.Count > 0)
                 {
                     DataTable dt = ds.Tables[0];
 
@@ -253,7 +227,7 @@ namespace DAL
                         return dPackage;
                     }
 
-                    dPackage["InternalProductID"] = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "ID");     //ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
+                    dPackage["InternalProductID"] = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "ID");
 
                     dPackage["ExternalProductID"] = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "COGUID");
 
@@ -314,6 +288,104 @@ namespace DAL
 
             return null;
         }
+
+        public static bool Insert_DeviceFamilyToGroup(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID, string sConnKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_DeviceFamilyToGroup");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DeviceFamilyID", nDeviceFamilyID);
+            sp.AddParameter("@LimitationModuleID", nLimitationModuleID);
+
+            return sp.ExecuteReturnValue<long>() > 0;
+        }
+
+        public static bool Insert_DeviceFamilyToGroup(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID)
+        {
+            return Insert_DeviceFamilyToGroup(nGroupID, nDeviceFamilyID, nLimitationModuleID, string.Empty);
+        }
+
+        public static bool Update_DeviceFamilyStatus(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID, bool bIsDelete,
+            string sConnKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_DeviceFamilyStatus");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DeviceFamilyID", nDeviceFamilyID);
+            sp.AddParameter("@LimitationModuleID", nLimitationModuleID);
+            sp.AddParameter("@NewStatus", bIsDelete ? 2 : 1);
+
+            return sp.ExecuteReturnValue<bool>();
+            
+        }
+
+        public static bool Update_DeviceFamilyStatus(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID, bool bIsDelete)
+        {
+            return Update_DeviceFamilyStatus(nGroupID, nDeviceFamilyID, nLimitationModuleID, bIsDelete, string.Empty);
+        }
+
+        public static bool Insert_DeviceFamilyToLimitationModule(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID, string sConnKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_DeviceFamilyToLimitationModule");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@DeviceFamilyID", nDeviceFamilyID);
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@LimitationModuleID", nLimitationModuleID);
+
+            return sp.ExecuteReturnValue<long>() > 0;
+        }
+
+        public static bool Insert_DeviceFamilyToLimitationModule(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID)
+        {
+            return Insert_DeviceFamilyToLimitationModule(nGroupID, nDeviceFamilyID, nLimitationModuleID, string.Empty);
+        }
+
+        public static bool Update_DeviceFamilyToLimitationID(int nGroupID, int nLimitationID, int nDeviceFamilyID, bool bIsDelete,
+            string sConnKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_DeviceFamilyToLimitationID");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@LimitationID", nLimitationID);
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@DeviceFamilyID", nDeviceFamilyID);
+            sp.AddParameter("@IsDelete", bIsDelete ? 2 : 1);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool Update_DeviceFamilyToLimitationID(int nGroupID, int nLimitationID, int nDeviceFamilyID, bool bIsDelete)
+        {
+            return Update_DeviceFamilyToLimitationID(nGroupID, nLimitationID, nDeviceFamilyID, bIsDelete, string.Empty);
+        }
+
+        public static DataSet Get_DeviceFamiliesLimitationsData(int nGroupID, int nLimitationID, string sConnKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_DeviceFamiliesLimitationsData");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@LimitationID", nLimitationID);
+
+            return sp.ExecuteDataSet();
+
+        }
+
+        public static DataSet Get_DeviceFamiliesLimitationsData(int nGroupID, int nLimitationID)
+        {
+            return Get_DeviceFamiliesLimitationsData(nGroupID, nLimitationID, string.Empty);
+        }
+
+        public static long GetPackageMediaID(int nGroupID, string sMediaID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PackageMediaID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@MediaID", sMediaID);
+
+            long mediaID = sp.ExecuteReturnValue<long>();
+
+            return mediaID;
+        }
+
     }
     
 }
