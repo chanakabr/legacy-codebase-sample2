@@ -1691,10 +1691,8 @@ namespace DAL
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         string sFamilyID = dt.Rows[i]["ID"].ToString();
-                        //string sFamilyLimit = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["MAX_LIMIT"]);
-                        //string sFamilyConcurrentLimit = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["MAX_CONCURRENT_LIMIT"]);
                         string sFamilyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NAME"]);
-                        string[] dbDeviceContainer = new string[2] { sFamilyID, /*sFamilyLimit, sFamilyConcurrentLimit,*/ sFamilyName };
+                        string[] dbDeviceContainer = new string[2] { sFamilyID, sFamilyName };
                         res.Add(dbDeviceContainer);
                     } // end for
 
@@ -1705,9 +1703,9 @@ namespace DAL
                         {
                             int nFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dtSpecificLimits.Rows[i]["device_family_id"]);
                             string sLimitationType = ODBCWrapper.Utils.GetSafeStr(dtSpecificLimits.Rows[i]["description"]);
-                            int nLimitationValue = ODBCWrapper.Utils.GetIntSafeVal(dtSpecificLimits.Rows[i]["value"]);
+                            int nLimitationValue = ODBCWrapper.Utils.GetIntSafeVal(dtSpecificLimits.Rows[i]["value"], -1);
 
-                            if (nFamilyID > 0 && nLimitationValue > 0 && sLimitationType.Length > 0)
+                            if (nFamilyID > 0 && nLimitationValue > -1 && sLimitationType.Length > 0)
                             {
                                 if (String.Compare(sLimitationType, "concurrency", true) == 0)
                                 {
@@ -1738,47 +1736,5 @@ namespace DAL
 
             return res;
         }
-
-        //public static bool Get_DeviceFamiliesLimits(int nGroupID, int nDomainLimitID, ref Dictionary<int, int> concurrenyOverride, ref Dictionary<int, int> quantityOverride)
-        //{
-        //    bool res = false;
-        //    StoredProcedure sp = new StoredProcedure("Get_DeviceFamiliesLimits");
-        //    sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-        //    sp.AddParameter("@GroupID", nGroupID);
-        //    sp.AddParameter("@DomainLimitID", nDomainLimitID);
-        //    DataSet ds = sp.ExecuteDataSet();
-        //    if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-        //    {
-        //        DataTable dt = ds.Tables[0];
-        //        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-        //        {
-        //            res = true;
-        //            for (int i = 0; i < dt.Rows.Count; i++)
-        //            {
-        //                int nFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_family_id"]);
-        //                string sLimitationType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["description"]);
-        //                int nLimitationValue = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["value"]);
-        //                if (nFamilyID > 0 && nLimitationValue > 0 && sLimitationType.Length > 0)
-        //                {
-        //                    if (String.Compare(sLimitationType, "concurrency", true) == 0)
-        //                    {
-        //                        concurrenyOverride.Add(nFamilyID, nLimitationValue);
-        //                    }
-        //                    else
-        //                    {
-        //                        if (String.Compare(sLimitationType, "quantity", true) == 0)
-        //                        {
-        //                            quantityOverride.Add(nFamilyID, nLimitationValue);
-        //                        }
-        //                    }
-        //                }
-        //            } // end for
-        //        }
-        //    }
-
-        //    return res;
-
-
-        //}
     }
 }
