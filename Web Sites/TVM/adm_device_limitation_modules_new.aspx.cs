@@ -312,14 +312,14 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                             break;
                         }
                     }
-                    for (int k = 0; k < complementLimitFamilies.Count && bIsOK; k++)
-                    {
-                        if (complementLimitFamilies[k].m_id.Equals(sID))
-                        {
-                            bIsOK = false;
-                            break;
-                        }
-                    }
+                    //for (int k = 0; k < complementLimitFamilies.Count && bIsOK; k++)
+                    //{
+                    //    if (complementLimitFamilies[k].m_id.Equals(sID))
+                    //    {
+                    //        bIsOK = false;
+                    //        break;
+                    //    }
+                    //}
 
                     if (bIsOK)
                     {

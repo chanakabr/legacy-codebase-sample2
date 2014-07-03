@@ -255,7 +255,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                     return dMediaTrans;
                 }
 
-                ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_test");
+                ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
                 GroupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
 
                 GroupMedias.AddParameter("@GroupID", nGroupID);
