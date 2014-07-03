@@ -1967,7 +1967,7 @@ namespace Catalog
                         Dictionary<string, string> dict = GetLinearMediaTypeIDsAndWatchRuleIDs(request.m_nGroupID);
                         MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(request.m_nGroupID,
                             dict, jsonizedChannelsDefinitions);
-                        SearchResultsObj searcherAnswer = searcher.SearchMedias(request.m_nGroupID, linearChannelMediaIDsRequest, 0, true);
+                        SearchResultsObj searcherAnswer = searcher.SearchMedias(request.m_nGroupID, linearChannelMediaIDsRequest, 0, true, request.m_nGroupID);
 
                         if (searcherAnswer.n_TotalItems > 0)
                         {

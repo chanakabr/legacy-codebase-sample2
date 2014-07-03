@@ -74,13 +74,13 @@ namespace Catalog
             this.m_dLangauges = new Dictionary<int, LanguageObj>();
             this.m_oDefaultLanguage = null;
         }
-      
+
         public List<long> GetOperatorChannelIDs(int nOperatorID)
         {
             return Read(nOperatorID);
         }
 
-     
+
         public List<int> GetAllOperators()
         {
             try
@@ -179,7 +179,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                return bRes;                   
+                return bRes;
             }
         }
 
@@ -234,7 +234,7 @@ namespace Catalog
                 Logger.Logger.Log("GetLocker", string.Format("Failed to read reader writer manager. operator id: {0} , group_id: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
             }
         }
-        
+
         private List<long> Read(int nOperatorID)
         {
             GroupManager groupManager = new GroupManager();
@@ -371,23 +371,23 @@ namespace Catalog
                 }
                 locker.EnterWriteLock();
                 if (m_oOperatorChannelIDs.ContainsKey(nOperatorID))
-                {                    
+                {
                     GroupManager groupManager = new GroupManager();
                     res = groupManager.DeleteOperator(m_nParentGroupID, nOperatorID);
                     if (!res)
                     {
                         // failed to remove from dictionary
                         Logger.Logger.Log("Delete", string.Format("Failed to remove channel ids from cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
-                    }                   
+                    }
                 }
                 locker.ExitWriteLock();
             }
 
             return res;
         }
-        
-        #endregion 
-       
+
+        #endregion
+
         #region Cache
         internal bool AddChannelsToOperatorCache(int nOperatorID, List<long> channelIDs, bool bAddNewOperator)
         {
@@ -484,7 +484,58 @@ namespace Catalog
 
         #endregion
 
-       
+        #region Language
+        public bool AddLanguage(LanguageObj language)
+        {
+            bool bRes = false;
+            if (language != null)
+            {
+                try
+                {
+                    m_dLangauges.Add(language.ID, language);
+
+                    if (language.IsDefault)
+                        m_oDefaultLanguage = language;
+
+                    bRes = true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(string.Format("Language with same ID already exist in group. groupID={0};language id={1}", this.m_nParentGroupID, language.ID));
+                }
+            }
+
+            return bRes;
+        }
+
+        public void AddLanguage(List<LanguageObj> languages)
+        {
+            foreach (LanguageObj langauge in languages)
+            {
+                AddLanguage(langauge);
+            }
+        }
+
+        public LanguageObj GetLanguage(int nLangID)
+        {
+            LanguageObj res;
+
+            m_dLangauges.TryGetValue(nLangID, out res);
+
+            return res;
+        }
+
+        public List<LanguageObj> GetLangauges()
+        {
+            return this.m_dLangauges.Select(kvp => kvp.Value).ToList();
+        }
+
+        public LanguageObj GetGroupDefaultLanguage()
+        {
+            return m_oDefaultLanguage;
+        }
+        #endregion
+
     }
 }
    #region OLD CODE
@@ -562,56 +613,7 @@ namespace Catalog
         }*/
 
         #endregion
-        }
+        
 
-        public bool AddLanguage(LanguageObj language)
-        {
-            bool bRes = false;
-            if (language != null)
-            {
-                try
-                {
-                    m_dLangauges.Add(language.ID, language);
 
-                    if (language.IsDefault)
-                        m_oDefaultLanguage = language;
-
-                    bRes = true;
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(string.Format("Language with same ID already exist in group. groupID={0};language id={1}", this.m_nParentGroupID, language.ID));
-                }
-            }
-
-            return bRes;
-        }
-
-        public void AddLanguage(List<LanguageObj> languages)
-        {
-            foreach (LanguageObj langauge in languages)
-            {
-                AddLanguage(langauge);
-            }
-        }
-
-        public LanguageObj GetLanguage(int nLangID)
-        {
-            LanguageObj res;
-
-            m_dLangauges.TryGetValue(nLangID, out res);
-
-            return res;
-        }
-
-        public List<LanguageObj> GetLangauges()
-        {
-            return this.m_dLangauges.Select(kvp => kvp.Value).ToList();
-        }
-
-        public LanguageObj GetGroupDefaultLanguage()
-        {
-            return m_oDefaultLanguage;
-        }
-    }
-}
+    

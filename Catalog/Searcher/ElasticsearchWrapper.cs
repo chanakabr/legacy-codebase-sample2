@@ -36,8 +36,7 @@ namespace Catalog
             SearchResultsObj oRes = new SearchResultsObj();
           
             ESMediaQueryBuilder queryParser = new ESMediaQueryBuilder(nGroupID, oSearch);
-
-
+            
             int nPageIndex = 0;
             int nPageSize = 0;
             if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
@@ -63,7 +62,7 @@ namespace Catalog
                 int nStatus = 0;
 
                 string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
-                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nParentGroupID, sType);
+                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nGroupID, sType);
 
                 string retObj = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
 
@@ -135,7 +134,7 @@ namespace Catalog
             if (!string.IsNullOrEmpty(sQuery))
             {
                 string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
-                string retObj = m_oESApi.Search(nParentGroupID.ToString(), sType, ref sQuery);
+                string retObj = m_oESApi.Search(nGroupID.ToString(), sType, ref sQuery);
 
                 List<ElasticSearchApi.ESAssetDocument> lMediaDocs = DecodeAssetSearchJsonObject(retObj, ref nTotalItems);
                 if (lMediaDocs != null && lMediaDocs.Count > 0)

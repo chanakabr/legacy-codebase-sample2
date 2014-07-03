@@ -57,10 +57,7 @@ namespace Catalog
                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
                 if (sCheckSignature != request.m_sSignature)
                     throw new Exception("Signatures dosen't match");
-
-                GroupManager groupManager = new GroupManager();
-                List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
-                DataTable dt = CatalogDAL.Get_PersonalLasDevice(request.m_nMediaIDs, request.m_nGroupID, request.m_sSiteGuid, lSubGroupTree);
+               
                 List<UserMediaMark> lastMediaMarksList = CatalogDAL.Get_PersonalLastDevice(request.m_nMediaIDs, request.m_sSiteGuid);
                 int startIndex = -1;
                 int count = -1;

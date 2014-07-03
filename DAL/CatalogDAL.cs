@@ -99,29 +99,54 @@ namespace Tvinci.Core.DAL
         {
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
-            spPersonalLastWatched.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
-
-
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<int> nMediaIDs = mediaMarksList.Where(x => x.CreatedAt >= DateTime.UtcNow.AddDays(-8)).Select(x => x.MediaID).ToList();
+
+            
             //Complete details from db
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaUpdateDate");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@MediaID", nMediaIDs, "Id");
-
+            sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null)
                 return ds.Tables[0];
             return null;
         }
 
-        public static DataTable Get_PersonalLasDevice(List<int> nMediaIDs, int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
+       /* public static DataTable Get_PersonalLasDevice(List<int> nMediaIDs, int nGroupID, string sSiteGuid, List<int> lSubGroupTree)
         {
             List<MediaMarkLog> mediaMarkLogList = new List<MediaMarkLog>();
             List<UserMediaMark> lRes = new List<UserMediaMark>();
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             List<string> docKeysList = new List<string>();
-            spPersonalLastDevice.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+            
+            int nUserID = 0;
+            int.TryParse(sSiteGuid, out nUserID);
+
+            foreach (int nMediaID in nMediaIDs)
+            {
+                docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
+            }
+
+            IDictionary<string, object> res = m_oClient.Get(docKeysList);
+
+            foreach (string sKey in res.Keys)
+            {
+                mediaMarkLogList.Add(JsonConvert.DeserializeObject<MediaMarkLog>(res[sKey].ToString()));
+            }
+
+            List<MediaMarkLog> sortedMediaMarksList = mediaMarkLogList.OrderByDescending(x => x.LastMark.CreatedAt).ToList();
+            lRes = sortedMediaMarksList.Select(x => x.LastMark).ToList();
+            return lRes;
+        }*/
+
+        public static List<UserMediaMark> Get_PersonalLastDevice(List<int> nMediaIDs, string sSiteGuid)
+        {
+            List<MediaMarkLog> mediaMarkLogList = new List<MediaMarkLog>();
+            List<UserMediaMark> lRes = new List<UserMediaMark>();
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            List<string> docKeysList = new List<string>();
 
             int nUserID = 0;
             int.TryParse(sSiteGuid, out nUserID);
@@ -177,9 +202,7 @@ namespace Tvinci.Core.DAL
 
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
             List<int> nMediaIDs = mediaMarksList.OrderByDescending(x => x.CreatedAt).Select(x => x.MediaID).ToList();
-            spPersonalRecommended.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
-
-
+            
             if (nMediaIDs != null && nMediaIDs.Count > 0)
             {
                 int nMediaID = 0;
@@ -191,7 +214,7 @@ namespace Tvinci.Core.DAL
                 spPersonalRecommended.AddParameter("@GroupID", nGroupID);
                 spPersonalRecommended.AddParameter("@MediaId", nMediaID);
                 spPersonalRecommended.AddParameter("@Top", Top);
-
+                spPersonalRecommended.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
                 DataSet ds = spPersonalRecommended.ExecuteDataSet();
                 if (ds != null)
@@ -1219,27 +1242,13 @@ namespace Tvinci.Core.DAL
 
             return new List<int>(0);
         }
- 
-		
+
+
         public static List<LanguageObj> GetGroupLanguages(int nGroupID)
         {
             List<LanguageObj> lLanguages = null;
-
-        public static DataTable Get_IPersonalRecommended(int nGroupID, string sSiteGuid, int nTop, int nOperatorID, List<int> lSubGroupTree)
-        {
-            StoredProcedure sp = new StoredProcedure("Get_IPersonalRecommended");
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupLanguages");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupID", nGroupID);
-            sp.AddParameter("@SiteGuid", sSiteGuid);
-            sp.AddParameter("@Top", nTop);
-            sp.AddParameter("@OperatorID", nOperatorID);
-            sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
-
-            sp.AddParameter("@groupID", nGroupID);
-			
             DataSet ds = sp.ExecuteDataSet();
-
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 lLanguages = new List<LanguageObj>();
@@ -1282,6 +1291,26 @@ namespace Tvinci.Core.DAL
             }
 
             return lLanguages;
+        }
+
+        public static DataTable Get_IPersonalRecommended(int nGroupID, string sSiteGuid, int nTop, int nOperatorID, List<int> lSubGroupTree)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_IPersonalRecommended");            
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@Top", nTop);
+            sp.AddParameter("@OperatorID", nOperatorID);
+            sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+
+            sp.AddParameter("@groupID", nGroupID);
+			
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null)
+                return ds.Tables[0];
+            return null;
+
+
         }
 
         private static LanguageObj getLanguageFromRow(DataRow row)
