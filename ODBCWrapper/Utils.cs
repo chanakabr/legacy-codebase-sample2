@@ -477,6 +477,22 @@ namespace ODBCWrapper
             }
             return result;
         }
+
+        public static int GetIntSafeVal(object o, int returnThisInCaseOfFail)
+        {
+            int temp = 0;
+            int res = returnThisInCaseOfFail;
+            if (o != null)
+            {
+                string s = o.ToString();
+                if (s.Length > 0 && Int32.TryParse(s, out temp))
+                {
+                    res = temp;
+                }
+            }
+
+            return res;
+        }
     }
 
     
