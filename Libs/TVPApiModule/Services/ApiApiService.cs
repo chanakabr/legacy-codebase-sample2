@@ -54,7 +54,7 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public GroupOperator[] GetOperators(string platform, int[] operatorIds)
+        public GroupOperator[] GetOperators(int[] operatorIds)
         {
             GroupOperator[] operators = null;
             try
