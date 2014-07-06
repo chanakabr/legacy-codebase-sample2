@@ -59,20 +59,7 @@ namespace TVPApiModule.Services
             GroupOperator[] operators = null;
             try
             {
-                operators = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
-
-                foreach (GroupOperator oper in operators)
-                {
-                    string platformName = platform == "ConnectedTV" ? "CTV" : platform;
-                    foreach (KeyValuePair menuPair in oper.Groups_operators_menus)
-                    {
-                        if (menuPair.key == SupportedPlatforms[platformName])
-                        {
-                            oper.Groups_operators_menus = new KeyValuePair[] { menuPair };
-                            break;
-                        }
-                    }
-                }
+                operators = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);                
 
             }
             catch (Exception ex)
