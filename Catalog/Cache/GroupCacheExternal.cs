@@ -242,6 +242,40 @@ namespace Catalog.Cache
             }
         }
 
+        public override bool RemoveGroup(int nGroupID)
+        {
+            bool isRemovingGroupSucceded = false;
+            try
+            {
+                Group group = null;                
+                ICache<Group> cache = Bootstrapper.GetInstance<ICache<Group>>();
+                cache.Init();
+
+                for (int i = 0; i < 3 && !isRemovingGroupSucceded; i++)
+                {
+                    group = cache.Get(nGroupID.ToString());
+                    if (group != null)
+                    {
+                        bool createdNew = false;
+                        var mutexSecurity = Utils.CreateMutex();
+
+                        using (Mutex mutex = new Mutex(false, string.Concat("Cache DeleteGroupID_", nGroupID), out createdNew, mutexSecurity))
+                        {
+                            mutex.WaitOne(-1);
+                            //try update to CB
+                            isRemovingGroupSucceded = cache.Delete(nGroupID.ToString());
+                            mutex.ReleaseMutex();
+                        }
+                    }
+                }
+                return isRemovingGroupSucceded;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public override bool AddOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator = false)
         {
             try

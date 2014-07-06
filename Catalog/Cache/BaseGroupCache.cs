@@ -12,6 +12,7 @@ namespace Catalog.Cache
 
         abstract public Group GetGroup(int nGroupID);
         abstract public bool RemoveChannel(int nGroupId, int nChannelId);
+        abstract public bool RemoveGroup(int nGroupID);
         abstract public Channel GetChannel(int nChannelId, ref Group group);
         abstract public bool UpdateoOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator);
         abstract public bool DeleteOperator(int nGroupID, int nOperatorID);
