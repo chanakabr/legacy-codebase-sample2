@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 namespace ApiObjects.SearchObjects
 {
-
+    [DataContract]
     public class SearchValue
     {
         public string m_sKey;

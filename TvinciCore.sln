@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticticsBL", "StaticticsB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceExtensions", "ServiceExtensions\ServiceExtensions.csproj", "{2E48DC40-A9AB-485D-A847-8E3662C69696}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseWrapper", "CouchbaseWrapper\CouchbaseWrapper.csproj", "{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -380,6 +382,15 @@ Global
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Release|x86.ActiveCfg = Release|Any CPU
+		{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}.Basic|x86.ActiveCfg = Release|Any CPU
+		{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93901DBD-6D95-4133-B8DC-B4E3A8B8AFB3}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
