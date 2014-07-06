@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Catalog.Cache;
 
 namespace ElasticSearchFeeder
 {
@@ -75,8 +76,8 @@ namespace ElasticSearchFeeder
         }
 
         public static string GetPermittedWatchRules(int nGroupId)
-        {
-            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId);
+        {   
+            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, null);
             List<string> lWatchRulesIds = null;
             if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
             {

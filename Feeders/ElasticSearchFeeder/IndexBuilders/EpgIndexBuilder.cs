@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EpgBL;
+using Catalog.Cache;
 
 namespace ElasticSearchFeeder.IndexBuilders
 {
@@ -27,8 +28,9 @@ namespace ElasticSearchFeeder.IndexBuilders
         public override async Task<bool> BuildIndex()
         {
             bool bRes = false;
-            GroupsCache.Instance.RemoveGroup(m_nGroupID);
-            Group oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
+            GroupManager groupManager = new GroupManager();
+            bool bres = groupManager.RemoveGroup(m_nGroupID);
+            Group oGroup = groupManager.GetGroup(m_nGroupID);
 
             if (oGroup == null)
                 return bRes;
