@@ -100,6 +100,8 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="BuzzMeterRequest.cs" />
     <Compile Include="BuzzMeterResponse.cs" />
+    <Compile Include="ChannelObjRequest.cs" />
+    <Compile Include="ChannelObjResponse.cs" />
     <Compile Include="ChannelsContainingMediaRequest.cs" />
     <Compile Include="ChannelsContainingMediaResponse.cs" />
     <Compile Include="BaseMediaSearchRequest.cs" />
@@ -119,6 +121,9 @@
     <Compile Include="ChannelViewsResult.cs" />
     <Compile Include="BundleMediaRequest.cs" />
     <Compile Include="ContainingMediaResponse.cs" />
+    <Compile Include="CrowdsourceRequest.cs" />
+    <Compile Include="CrowdsourceResponse.cs" />
+    <Compile Include="Crowdsourcing.cs" />
     <Compile Include="DoesMediaBelongToChannels.cs" />
     <Compile Include="EpgAutoCompleteRequest.cs" />
     <Compile Include="EpgAutoCompleteResponse.cs" />
