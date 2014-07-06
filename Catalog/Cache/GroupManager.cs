@@ -221,6 +221,25 @@ namespace Catalog.Cache
             }
         }
 
+        public bool RemoveGroup(int nGroupID)
+        {
+            bool bDelete = false;
+            try
+            {
+                BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
+                if (groupCache != null)
+                {
+                    bDelete = groupCache.RemoveGroup(nGroupID);
+                }
+                return bDelete;
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("RemoveGroup", string.Format("failed to delete Group with nGroupID={0}, ex={1}", nGroupID, ex.Message), "Catalog");
+                return false;
+            }
+        }
+
         public bool HandleOperatorEvent(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
         {
             bool res = false;

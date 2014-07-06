@@ -28,6 +28,11 @@ namespace Catalog.Cache
             return GroupsCache.Instance.RemoveChannel(nGroupID, nChannelId);
         }
 
+        public override bool RemoveGroup(int nGroupID)
+        {
+            return GroupsCache.Instance.RemoveGroup(nGroupID);
+        }
+
         public override Channel GetChannel(int nChannelId, ref Group group)
         {
             return GroupsCache.Instance.GetChannel(nChannelId, ref group);
