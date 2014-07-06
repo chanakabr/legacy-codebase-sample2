@@ -1065,7 +1065,7 @@ namespace TVPApiServices
             {
                 List<string> lstRet = new List<String>();
 
-                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
+                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
                     prefixText, initObj.Locale.LocaleLanguage, pageIdx, pageSize);
 
                 foreach (String sTitle in lstResponse)
@@ -1091,7 +1091,7 @@ namespace TVPApiServices
                 List<string> lstRet = new List<String>();
 
                 int maxItems = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems;
-                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
+                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
                     prefixText, initObj.Locale.LocaleLanguage, 0, maxItems);
 
                 foreach (String sTitle in lstResponse)

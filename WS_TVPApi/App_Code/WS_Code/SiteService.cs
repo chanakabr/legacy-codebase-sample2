@@ -514,7 +514,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetOperators(operators);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetOperators(initObj.Platform.ToString(),operators);
                 }
                 catch (Exception ex)
                 {
