@@ -450,11 +450,11 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_waiver);
 
         //cancellation regulation
-        DataRecordDropDownField dr_waiver_period = new DataRecordDropDownField("lu_min_periods", "DESCRIPTION", "id", "", null, 60, false);
-        dr_waiver_period.Initialize("Waiver Period", "adm_table_header_nbg", "FormInput", "waiver_period", true);
+        DataRecordDropDownField dr_waiver_period = new DataRecordDropDownField("lu_min_periods", "DESCRIPTION", "id", "", null, 60, true);
+        dr_waiver_period.Initialize("Waiver Period", "adm_table_header_nbg", "FormInput", "waiver_period", false);
         //dr_waiver_period.SetDefaultVal(nWaiverPeriod.ToString());// ("20160");
         theRecord.AddRecord(dr_waiver_period);
-            
+                    
 
         string sTable = theRecord.GetTableHTML("adm_discounts_new.aspx?submited=1");
 
