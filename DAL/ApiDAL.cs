@@ -532,14 +532,17 @@ namespace DAL
             int nUserID = 0;
             int.TryParse(sSiteGUID, out nUserID);
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);
+            string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);         
 
-            var data = m_oClient.Get<string>(docKey);
+            var data = m_oClient.Get<string>(docKey); 
             if (!string.IsNullOrEmpty(data))
             {
                 MediaMarkLog mediaMarkLogObject = JsonConvert.DeserializeObject<MediaMarkLog>(data);
                 ret.nLocationSec = mediaMarkLogObject.LastMark.Location;
                 ret.sDeviceID = mediaMarkLogObject.LastMark.UDID;
+                ret.nGroupID = nGroupID;
+                ret.nMediaID = nMediaID;
+                ret.sSiteGUID = sSiteGUID;
 
                 if (string.IsNullOrEmpty(mediaMarkLogObject.LastMark.UDID))
                 {
