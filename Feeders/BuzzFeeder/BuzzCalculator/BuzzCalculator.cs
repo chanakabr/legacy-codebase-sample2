@@ -56,7 +56,7 @@ namespace BuzzFeeder.BuzzCalculator
 
             m_nCurGroupSampleCount = nSum;
             m_nCurGroupSampleCumulativeCount = nCumulativeSum;
-            m_nCurSampleGroupAverage = m_nCurGroupSampleCount / m_dCurBuzzCount.Count;
+            m_nCurSampleGroupAverage = (m_dCurBuzzCount.Count != 0) ? m_nCurGroupSampleCount / m_dCurBuzzCount.Count : 1;
 
             nSum = 0.0;
             nCumulativeSum = 0.0;
@@ -69,14 +69,14 @@ namespace BuzzFeeder.BuzzCalculator
 
             m_nPrevGroupSampleCount = nSum;
             m_nPrevGroupSampleCumulativeCount = nCumulativeSum;
-            m_nPrevSampleGroupAverage = m_nPrevGroupSampleCount / m_dPrevBuzzCount.Count;
+            m_nPrevSampleGroupAverage = (m_dPrevBuzzCount.Count != 0) ? m_nPrevGroupSampleCount / m_dPrevBuzzCount.Count : 1;
         }
 
         protected void CalculateItemPeriodicalGrowth()
         {
             foreach (string itemID in m_dCurBuzzCount.Keys)
             {
-                if (m_dPrevBuzzCount.ContainsKey(itemID) && m_dPrevBuzzCount[itemID].nSampleCount> 0)
+                if (m_dPrevBuzzCount.ContainsKey(itemID) && m_dPrevBuzzCount[itemID].nSampleCount > 0)
                 {
                     m_dItemStats[itemID].nPeriodicalGrowth = (m_dCurBuzzCount[itemID].nSampleCount / m_dPrevBuzzCount[itemID].nSampleCount) - 1;
                 }
