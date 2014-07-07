@@ -1,8 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.CrowdsourceItems.Implementations;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Runtime.Serialization;
 
 namespace ApiObjects.CrowdsourceItems.Base
 {
+    [KnownType(typeof(OrcaItem))]
+    [KnownType(typeof(SlidingWindowItem))]
+    [KnownType(typeof(RealTimeViewsItem))]
     public abstract class BaseCrowdsourceItem
     {
         [JsonProperty("type"), JsonConverter(typeof(StringEnumConverter))]
