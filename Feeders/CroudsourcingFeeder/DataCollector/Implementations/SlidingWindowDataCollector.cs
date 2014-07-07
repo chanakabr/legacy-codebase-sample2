@@ -43,7 +43,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_sSignString = catalogSignString,
                         m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
                         m_nPageIndex = 0,
-                        m_nPageSize = 20
+                        m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE")
                     });
                     _channelData = resp.ChannelObj;
                     if (_channelData != null && _channelData.m_oMedias.Length > 0)
@@ -109,18 +109,18 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                         Order = item.Order,
 
                                     };
-                                    //switch (croudsourceItem.Action)
-                                    //{
-                                    //    case ApiObjects.SearchObjects.OrderBy.VIEWS:
-                                    //        croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nViews;
-                                    //        break;
-                                    //    case ApiObjects.SearchObjects.OrderBy.RATING:
-                                    //        croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nVotes;
-                                    //        break;
-                                    //    case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
-                                    //        croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nLikes;
-                                    //        break;
-                                    //}
+                                    switch (croudsourceItem.Action)
+                                    {
+                                        case ApiObjects.SearchObjects.OrderBy.VIEWS:
+                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nViews;
+                                            break;
+                                        case ApiObjects.SearchObjects.OrderBy.RATING:
+                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nVotes;
+                                            break;
+                                        case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
+                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nLikes;
+                                            break;
+                                    }
                                     normalizedDictionary.Add(mediaInfo.Key.ID, croudsourceItem);
                                 }
 

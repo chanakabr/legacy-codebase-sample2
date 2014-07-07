@@ -30,15 +30,16 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             try
             {
 
-                using (WS_Catalog.IserviceClient client = new IserviceClient())
+                using (WS_Catalog.IserviceClient client = GetCatalogClient())
                 {
+                    string catalogSignString = Guid.NewGuid().ToString();
                     ChannelViewsResponse response = (ChannelViewsResponse)client.GetResponse(new ChannelViewsRequest()
                     {
                         m_nGroupID = GroupId,
-                        m_nPageSize = 20,
+                        m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
                         m_nPageIndex = 0,
-                        m_sSignString = ",",
-                        m_sSignature = ",",
+                        m_sSignString = catalogSignString,
+                        m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
                         m_oFilter = new Filter()
                         {
 
