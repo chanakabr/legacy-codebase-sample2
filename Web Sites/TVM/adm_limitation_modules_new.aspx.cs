@@ -183,20 +183,18 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             sRet += "Available Device Families";
             sRet += "~~|~~";
             sRet += "<root>";
-            Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-            if (nCommerceGroupID == 0)
-                nCommerceGroupID = nLogedInGroupID;
+
             selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("CONNECTION_STRING");
             selectQuery += "select gdf.device_family_id, ldf.Name from groups_device_families gdf with (nolock) ";
             selectQuery += "inner join lu_DeviceFamily ldf with (nolock) on ldf.id=gdf.device_family_id ";
             selectQuery += "where is_active=1 and [status]=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.group_id", "=", nCommerceGroupID);
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.group_id", "=", nLogedInGroupID);
             List<int> limitModulesIDs = null;
             if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
             {
                 limitID = Int32.Parse(Session["limit_id"].ToString());
-                limitModulesIDs = BuildLimitationDeviceFamilies(limitID, nCommerceGroupID);
+                limitModulesIDs = BuildLimitationDeviceFamilies(limitID, nLogedInGroupID);
             }
 
             if (selectQuery.Execute("query", true) != null)
