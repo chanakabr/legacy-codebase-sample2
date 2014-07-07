@@ -289,13 +289,10 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
             sRet += "Available Device Families";
             sRet += "~~|~~";
             sRet += "<root>";
-            Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-            if (nCommerceGroupID == 0)
-                nCommerceGroupID = nLogedInGroupID;
             if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
             {
                 limitID = Int32.Parse(Session["limit_id"].ToString());
-                BuildLimitationDeviceFamilies(limitID, nCommerceGroupID, ref allFamilies, ref limitFamilies, ref complementLimitFamilies);
+                BuildLimitationDeviceFamilies(limitID, nLogedInGroupID, ref allFamilies, ref limitFamilies, ref complementLimitFamilies);
             }
 
             if (allFamilies != null && allFamilies.Count > 0)
@@ -312,14 +309,6 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                             break;
                         }
                     }
-                    //for (int k = 0; k < complementLimitFamilies.Count && bIsOK; k++)
-                    //{
-                    //    if (complementLimitFamilies[k].m_id.Equals(sID))
-                    //    {
-                    //        bIsOK = false;
-                    //        break;
-                    //    }
-                    //}
 
                     if (bIsOK)
                     {
