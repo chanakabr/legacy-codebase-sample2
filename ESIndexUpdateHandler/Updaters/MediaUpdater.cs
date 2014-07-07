@@ -1,6 +1,7 @@
 ﻿using ApiObjects.SearchObjects;
 using Catalog;
 using ElasticSearch.Common;
+using ElasticSearch.Common.DeleteResults;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -127,16 +128,17 @@ namespace ESIndexUpdateHandler.Updaters
 
             string sIndex = m_nGroupID.ToString();
             bool bTemp;
+            ESDeleteResult deleteResult;
             foreach (int id in lMediaIDs)
             {
-                bTemp = m_oESApi.DeleteDoc(sIndex, MEDIA, id.ToString());
+                deleteResult = m_oESApi.DeleteDoc(sIndex, MEDIA, id.ToString());
 
-                if (!bTemp)
+                if (!deleteResult.Ok)
                 {
                     Logger.Logger.Log("Error", String.Concat("Could not delete media from ES. Media id=",id), "ESUpdateHandler");
                 }
 
-                bRes&= bTemp;
+                bRes &= deleteResult.Ok;
             }
 
             return bRes;

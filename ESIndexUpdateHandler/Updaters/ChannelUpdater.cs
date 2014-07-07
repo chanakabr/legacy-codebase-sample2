@@ -1,5 +1,6 @@
 ﻿using ApiObjects.SearchObjects;
 using Catalog;
+using ElasticSearch.Common.DeleteResults;
 using ElasticSearch.Searcher;
 using System;
 using System.Collections.Generic;
@@ -72,15 +73,15 @@ namespace ESIndexUpdateHandler.Updaters
             {
                 bRes = true;
 
-                bool bTemp;
+                ESDeleteResult deleteResult;
                 foreach (int nChannelID in lIDs)
                 {
                     foreach (string index in aliases)
                     {
-                        bTemp = m_oESApi.DeleteDoc(PERCOLATOR, index, nChannelID.ToString());
-                        bRes &= bTemp;
+                        deleteResult = m_oESApi.DeleteDoc(PERCOLATOR, index, nChannelID.ToString());
+                        bRes &= deleteResult.Ok;
 
-                        if (!bTemp)
+                        if (!deleteResult.Ok)
                         {
                             Logger.Logger.Log("Error", string.Concat("Could not delete channel from elasticsearch. ID=", nChannelID), "ESUpdateHandler");
                         }
