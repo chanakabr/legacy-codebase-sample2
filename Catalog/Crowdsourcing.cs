@@ -12,7 +12,6 @@ namespace Catalog
     {
         public static List<BaseCrowdsourceItem> GetCroudsourceItems(int groupId, int languageId)
         {
-             CatalogDAL.GetGroupLanguages(groupId);
             return DAL.CrowdsourceDAL.GetCsList(groupId, languageId);
         }
     }
