@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DalCB</RootNamespace>
     <AssemblyName>DalCB</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="EpgDal_Couchbase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SocialDAL_Couchbase.cs" />
     <Compile Include="StatisicsDal_CouchBase.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

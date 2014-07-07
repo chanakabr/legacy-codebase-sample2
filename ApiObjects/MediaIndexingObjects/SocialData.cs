@@ -11,7 +11,7 @@ namespace ApiObjects.MediaIndexingObjects
         #region Members
 
         [DataMember]
-        public int ActorSiteGuid { get; set; }
+        public string ActorSiteGuid { get; set; }
         [DataMember]
         public string DbActionId { get; set; }
 
@@ -24,10 +24,10 @@ namespace ApiObjects.MediaIndexingObjects
  
         }
 
-        public SocialData(int nGroupId, int nSiteGuid, string sDbActionId)
+        public SocialData(int nGroupId, string sSiteGuid, string sDbActionId)
         {
             this.GroupId = nGroupId;
-            this.ActorSiteGuid = nSiteGuid;
+            this.ActorSiteGuid = sSiteGuid;
             this.DbActionId = sDbActionId;
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -23,6 +24,24 @@ namespace ApiObjects
                     yield return (T)item;
                 }
             }
+        }
+
+        public static readonly List<int> ActiveSocialActions = new List<int>() { (int)eUserAction.LIKE, (int)eUserAction.WATCHES, (int)eUserAction.FOLLOWS, (int)eUserAction.RATES, (int)eUserAction.SHARE };
+
+        public static List<int> GetSocialActionList(eUserAction eAction)
+        {
+            List<int> lActions = new List<int>();
+
+            if (eAction == eUserAction.UNKNOWN)
+            {
+                lActions = null;
+            }
+            else
+            {
+                lActions = new List<int>(){(int)eAction};
+            }
+
+            return lActions;
         }
     }
 
@@ -304,5 +323,102 @@ namespace ApiObjects
         public int SiteGuid { get; set; }
         public int MediaID { get; set; }
         public DateTime UpdateDate { get; set; }
+    }
+
+    [Serializable]
+    [JsonObject(Id = "social_activity_doc")]
+    public class SocialActivityDoc
+    {
+        public SocialActivityDoc()
+        {
+            DocType = "user_action";
+            ActivityObject = new SocialActivityObject();
+            ActivitySubject = new SocialActivitySubject();
+            ActivityVerb = new SocialActivityVerb();
+        }
+
+        [JsonProperty("id")]
+        public string id { get; set; }
+        [JsonProperty("owner_site_guid", NullValueHandling = NullValueHandling.Ignore)]
+        public string DocOwnerSiteGuid { get; set; }
+        [JsonProperty("social_platform", NullValueHandling = NullValueHandling.Ignore)]
+        public int SocialPlatform { get; set; }
+        [JsonProperty("doc_type", NullValueHandling = NullValueHandling.Ignore)]
+        public string DocType { get; set; }
+        [JsonProperty("create_date", NullValueHandling = NullValueHandling.Ignore)]
+        public long CreateDate { get; set; }
+        [JsonProperty("last_update", NullValueHandling = NullValueHandling.Ignore)]
+        public long LastUpdate { get; set; }
+        [JsonProperty("is_active")]
+        public bool IsActive { get; set; }
+        [JsonProperty("permit_sharing")]
+        public bool PermitSharing{ get; set; }
+
+        [JsonProperty("object", NullValueHandling = NullValueHandling.Ignore)]
+        public SocialActivityObject ActivityObject { get; set; }
+        [JsonProperty("subject", NullValueHandling = NullValueHandling.Ignore)]
+        public SocialActivitySubject ActivitySubject { get; set; }
+        [JsonProperty("verb", NullValueHandling = NullValueHandling.Ignore)]
+        public SocialActivityVerb ActivityVerb { get; set; }
+    }
+    [Serializable]
+    [JsonObject(Id = "social_activity_subject")]
+    public class SocialActivitySubject
+    {
+        [JsonProperty("actor_site_guid", NullValueHandling = NullValueHandling.Ignore)]
+        public string ActorSiteGuid { get; set; }
+        [JsonProperty("pic_url", NullValueHandling = NullValueHandling.Ignore)]
+        public string ActorPicUrl { get; set; }
+        [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
+        public string ActorTvinciUsername { get; set; }
+        [JsonProperty("group_id", NullValueHandling = NullValueHandling.Ignore)]
+        public int GroupID { get; set; }
+        [JsonProperty("device_udid", NullValueHandling = NullValueHandling.Ignore)]
+        public string DeviceUdid { get; set; }
+    }
+    [Serializable]
+    [JsonObject(Id = "social_activity_object")]
+    public class SocialActivityObject
+    {
+        [JsonProperty("asset_id", NullValueHandling = NullValueHandling.Ignore)]
+        public int AssetID { get; set; }
+        [JsonProperty("object_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string ObjectID { get; set; }
+        [JsonProperty("asset_type", NullValueHandling = NullValueHandling.Ignore)]
+        public eAssetType AssetType { get; set; }
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string AssetName { get; set; }
+        [JsonProperty("pic_url", NullValueHandling = NullValueHandling.Ignore)]
+        public string PicUrl { get; set; }
+    }
+    [Serializable]
+    [JsonObject(Id = "social_activity_verb")]
+    public class SocialActivityVerb
+    {
+        public SocialActivityVerb()
+        {
+            this.ActionProperties = new List<ActionProperties>();
+        }
+
+        [JsonProperty("social_action_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string SocialActionID { get; set; }
+        [JsonProperty("action_type", NullValueHandling = NullValueHandling.Ignore)]
+        public int ActionType { get; set; }
+        [JsonProperty("action_name", NullValueHandling = NullValueHandling.Ignore)]
+        public string ActionName { get; set; }
+        [JsonProperty("rate_value", NullValueHandling = NullValueHandling.Ignore)]
+        public int RateValue { get; set; }
+        [JsonProperty("action_props", NullValueHandling = NullValueHandling.Ignore)]
+        public List<ActionProperties> ActionProperties { get; set; }
+
+    }
+
+    [Serializable]
+    public class ActionProperties
+    {
+        [JsonProperty("prop_name", NullValueHandling = NullValueHandling.Ignore)]
+        public string PropertyName { get; set; }
+        [JsonProperty("prop_value", NullValueHandling = NullValueHandling.Ignore)]
+        public string PropertyValue { get; set; }
     }
 }
