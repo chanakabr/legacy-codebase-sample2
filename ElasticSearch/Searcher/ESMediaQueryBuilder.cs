@@ -559,7 +559,7 @@ namespace ElasticSearch.Searcher
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.ID)
             {
-                sSort.Append(" \"_id\": "); 
+                sSort.Append(" \"_uid\": "); 
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.RELATED)
             {
