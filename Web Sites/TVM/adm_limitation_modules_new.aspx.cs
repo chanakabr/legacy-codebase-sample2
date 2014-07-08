@@ -24,17 +24,19 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork();
+                int idOfOverridingRule = DBManipulator.DoTheWork();
                 if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 && Session["device_families"] != null &&
-                    Session["device_families"] is List<UMObj> && Session["parent_limit_id"] != null 
+                    Session["device_families"] is List<UMObj> && Session["parent_limit_id"] != null
                     && Session["parent_limit_id"].ToString().Length > 0)
                 {
                     List<UMObj> updatedDeviceFamilyObjs = Session["device_families"] as List<UMObj>;
                     List<int> updatedDeviceFamilyIDs = updatedDeviceFamilyObjs.Select(item => Int32.Parse(item.m_id)).ToList<int>();
                     int limitID = Int32.Parse(Session["limit_id"].ToString());
+                    if (limitID == 0)
+                        limitID = idOfOverridingRule;
                     int parentLimitID = Int32.Parse(Session["parent_limit_id"].ToString());
                     int groupID = LoginManager.GetLoginGroupID();
-                    if (/*limitID > 0 && */updatedDeviceFamilyIDs != null && groupID > 0)
+                    if (limitID > 0 && updatedDeviceFamilyIDs != null && groupID > 0)
                     {
                         ODBCWrapper.DataSetSelectQuery selectQuery = null;
                         try
@@ -46,6 +48,8 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
                             selectQuery += " and ";
                             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_limitation_module_id", "=", limitID);
+                            selectQuery += " and ";
+                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("limit_module", "=", parentLimitID);
                             if (selectQuery.Execute("query", true) != null)
                             {
                                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -70,14 +74,15 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                         }
                     }
                 }
-
+                Session["limit_id"] = null;
+                Session["parent_limit_id"] = null;
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
 
             if (Request.QueryString["limit_id"] != null &&
-            Request.QueryString["limit_id"].ToString().Length > 0)
+                    Request.QueryString["limit_id"].ToString().Length > 0 && Request.QueryString["limit_id"].ToString().Trim() != "0")
             {
                 Session["limit_id"] = int.Parse(Request.QueryString["limit_id"].ToString());
                 Int32 nOwnerGroupID = 0;
@@ -98,10 +103,8 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             }
             else
             {
-                if (Session["limit_id"] == null || Session["limit_id"].ToString().Length == 0)
-                {
-                    Session["limit_id"] = 0;
-                }
+
+                Session["limit_id"] = 0;
             }
 
             if (Request.QueryString["parent_limit_id"] != null && Request.QueryString["parent_limit_id"].ToString().Length > 0)
@@ -110,17 +113,14 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             }
             else
             {
-                if (Session["parent_limit_id"] == null || Session["parent_limit_id"].ToString().Length == 0)
-                {
-                    Session["parent_limit_id"] = 0;
-                }
+                Session["parent_limit_id"] = 0;
             }
 
 
         }
     }
 
-    private void UpdateDeviceFamilies(int groupID, int limitID, 
+    private void UpdateDeviceFamilies(int groupID, int limitID,
         List<int> updatedDeviceFamilyIDs, List<int> currentDeviceFamilyIDs)
     {
         bool temp = false;
@@ -234,6 +234,8 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             selectQuery += "inner join lu_DeviceFamily ldf with (nolock) on ldf.id=gdf.device_family_id ";
             selectQuery += "where is_active=1 and [status]=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.group_id", "=", nLogedInGroupID);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.limit_module_id", "=", Int32.Parse(Session["parent_limit_id"].ToString()));
             List<int> limitModulesIDs = null;
             if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
             {

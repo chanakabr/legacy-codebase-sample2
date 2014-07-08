@@ -75,10 +75,17 @@ public partial class adm_limitation_modules : System.Web.UI.Page
         //theTable += "or ";
         //theTable += ODBCWrapper.Parameter.NEW_PARAM("a.STATUS", "=", 4);
         //theTable += ")";
+        int parentLimitModuleID = 0;
+        if (Session["limit_module_id"] != null && Session["limit_module_id"].ToString().Length > 0)
+        {
+            parentLimitModuleID = Int32.Parse(Session["limit_module_id"].ToString());
+        }
         theTable += "select gdflm.is_active, gdflm.id, gdflm.status, gdflm.description as 'Name', gdflm.value as 'Value', ludlm.description as 'Type' from groups_device_families_limitation_modules gdflm with (nolock) ";
         theTable += "inner join lu_device_limitation_modules ludlm with (nolock) on ludlm.ID=gdflm.type where ";
         theTable += "gdflm.status=1 and gdflm.is_active=1 and ludlm.status=1 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("gdflm.group_id", "=", nGroupID);
+        theTable += " and ";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("gdflm.parent_limit_module_id", "=", parentLimitModuleID);
         if (sOrderBy.Length > 0)
         {
             theTable += " order by ";
@@ -93,11 +100,6 @@ public partial class adm_limitation_modules : System.Web.UI.Page
         //linkColumn1.AddQueryStringValue("limit_module_id", "field=id");
         //linkColumn1.AddQueryCounterValue("select count(*) as val from groups_device_families with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and device_family_id=", "field=id");
         //theTable.AddLinkColumn(linkColumn1);
-        int parentLimitModuleID = 0;
-        if (Session["parent_limit_module_id"] != null && Session["parent_limit_module_id"].ToString().Length > 0)
-        {
-            parentLimitModuleID = Int32.Parse(Session["parent_limit_module_id"].ToString());
-        }
         DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_limitation_modules_new.aspx", "Edit", "");
         linkColumn1.AddQueryStringValue("limit_id", "field=id");
         linkColumn1.AddQueryStringValue("parent_limit_id", parentLimitModuleID + "");
