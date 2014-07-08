@@ -11,7 +11,7 @@ using TVPPro.SiteManager.CatalogLoaders;
 
 namespace TVPApiModule.Services
 {
-    public class ApiApiService : ApiServiceBase
+    public class ApiApiService
     {
         #region Variables
         private static ILog logger = LogManager.GetLogger(typeof(ApiService));

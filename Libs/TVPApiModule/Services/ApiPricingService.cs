@@ -8,7 +8,7 @@ using TVPPro.SiteManager.TvinciPlatform.Pricing;
 
 namespace TVPApiModule.Services
 {
-    public class ApiPricingService : ApiServiceBase
+    public class ApiPricingService
     {
         #region Variables
         private static ILog logger = LogManager.GetLogger(typeof(ApiPricingService));

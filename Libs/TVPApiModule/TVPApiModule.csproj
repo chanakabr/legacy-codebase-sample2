@@ -203,7 +203,6 @@
     <Compile Include="Services\ApiNotificationService.cs" />
     <Compile Include="Services\ApiPricingService.cs" />
     <Compile Include="Services\ApiApiService.cs" />
-    <Compile Include="Services\ApiServiceBase.cs" />
     <Compile Include="Services\ApiSocialService.cs" />
     <Compile Include="Services\ApiUsersService.cs" />
     <Compile Include="Services\ApiBillingService.cs" />
