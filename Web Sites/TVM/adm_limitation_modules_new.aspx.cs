@@ -48,15 +48,15 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
                             selectQuery += " and ";
                             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_limitation_module_id", "=", limitID);
-                            selectQuery += " and ";
-                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("limit_module", "=", parentLimitID);
+                            //selectQuery += " and ";
+                            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("limit_module", "=", parentLimitID);
                             if (selectQuery.Execute("query", true) != null)
                             {
                                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                                 currentDeviceFamilyIDs = new List<int>(nCount);
                                 for (int i = 0; i < nCount; i++)
                                 {
-                                    currentDeviceFamilyIDs.Add(Int32.Parse(selectQuery.Table("query").DefaultView[0].Row["device_family_id"].ToString()));
+                                    currentDeviceFamilyIDs.Add(Int32.Parse(selectQuery.Table("query").DefaultView[i].Row["device_family_id"].ToString()));
 
                                 } // end for
 
@@ -74,15 +74,15 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                         }
                     }
                 }
-                Session["limit_id"] = null;
-                Session["parent_limit_id"] = null;
+                //Session["limit_id"] = null;
+                //Session["parent_limit_id"] = null;
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
 
             if (Request.QueryString["limit_id"] != null &&
-                    Request.QueryString["limit_id"].ToString().Length > 0 && Request.QueryString["limit_id"].ToString().Trim() != "0")
+                    Request.QueryString["limit_id"].ToString().Length > 0 /*&& Request.QueryString["limit_id"].ToString().Trim() != "0"*/)
             {
                 Session["limit_id"] = int.Parse(Request.QueryString["limit_id"].ToString());
                 Int32 nOwnerGroupID = 0;
@@ -103,8 +103,10 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             }
             else
             {
-
-                Session["limit_id"] = 0;
+                //if (Session["limit_id"] == null || Session["limit_id"].ToString().Length == 0)
+                //{
+                    Session["limit_id"] = 0;
+                //}
             }
 
             if (Request.QueryString["parent_limit_id"] != null && Request.QueryString["parent_limit_id"].ToString().Length > 0)
@@ -113,7 +115,10 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             }
             else
             {
-                Session["parent_limit_id"] = 0;
+                //if (Session["parent_limit_id"] == null || Session["parent_limit_id"].ToString().Length == 0)
+                //{
+                    Session["parent_limit_id"] = 0;
+                //}
             }
 
 
@@ -150,7 +155,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
     public void GetHeader()
     {
         string sRet = PageUtils.GetPreHeader() + ": Override Limitation";
-        if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 && Session["limit_id"].ToString().Trim() != "0"
+        if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 /* && Session["limit_id"].ToString().Trim() != "0" */
             && Session["parent_limit_id"] != null && Session["parent_limit_id"].ToString().Length > 0 &&
             Session["parent_limit_id"].ToString().Trim() != "0")
         {
