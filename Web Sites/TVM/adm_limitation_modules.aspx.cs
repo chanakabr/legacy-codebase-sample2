@@ -19,6 +19,10 @@ public partial class adm_limitation_modules : System.Web.UI.Page
             LoginManager.LogoutFromSite("login.html");
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
+        if (Request.QueryString["limit_module_id"] != null && Request.QueryString["limit_module_id"].ToString().Length > 0)
+        {
+            Session["limit_module_id"] = Int32.Parse(Request.QueryString["limit_module_id"].ToString());
+        }
         if (!IsPostBack)
         {
             Int32 nMenuID = 0;
@@ -30,6 +34,7 @@ public partial class adm_limitation_modules : System.Web.UI.Page
                 Session["search_save"] = null;
 
         }
+
     }
 
     protected void GetMainMenu()
@@ -88,9 +93,14 @@ public partial class adm_limitation_modules : System.Web.UI.Page
         //linkColumn1.AddQueryStringValue("limit_module_id", "field=id");
         //linkColumn1.AddQueryCounterValue("select count(*) as val from groups_device_families with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and device_family_id=", "field=id");
         //theTable.AddLinkColumn(linkColumn1);
-
+        int parentLimitModuleID = 0;
+        if (Session["parent_limit_module_id"] != null && Session["parent_limit_module_id"].ToString().Length > 0)
+        {
+            parentLimitModuleID = Int32.Parse(Session["parent_limit_module_id"].ToString());
+        }
         DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_limitation_modules_new.aspx", "Edit", "");
         linkColumn1.AddQueryStringValue("limit_id", "field=id");
+        linkColumn1.AddQueryStringValue("parent_limit_id", parentLimitModuleID + "");
         theTable.AddLinkColumn(linkColumn1);
 
         DataTableLinkColumn linkColumn2 = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
@@ -128,10 +138,10 @@ public partial class adm_limitation_modules : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
-        string sOldOrderBy = "";
+        string sOldOrderBy = string.Empty;
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "parent_limit_id=" + Session["limit_module_id"].ToString(), "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         FillTheTableEditor(ref theTable, sOrderBy);
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
