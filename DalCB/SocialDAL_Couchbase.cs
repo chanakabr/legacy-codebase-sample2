@@ -16,7 +16,6 @@ namespace DalCB
         private static readonly string sEndMaxValue = @"\uefff";
         private static readonly string LOGGER_FILENAME = "SocialDal";
         private static readonly string CB_FEED_DESGIN = Utils.GetValFromConfig("cb_feed_design");
-        private static readonly string CB_ACTION_DESGIN = Utils.GetValFromConfig("cb_action_design");
 
         CouchbaseClient m_oClient;
         private int m_nGroupID;
@@ -32,8 +31,13 @@ namespace DalCB
 
             try
             {
-                lRes = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).Key<string>(sSiteGuid).Skip(nSkip).Limit(nNumOfRecords).ToList()
-                                               : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).Key<string>(sSiteGuid).ToList();
+                long epochTime = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                object[] startKey = new object[] { sSiteGuid, epochTime };
+                object[] endKey = new object[] { sSiteGuid, 0 };
+
+
+                lRes = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true).Skip(nSkip).Limit(nNumOfRecords).ToList()
+                                               : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true).ToList();
             }
             catch (Couchbase.Exceptions.ViewException vEx) { }
 
