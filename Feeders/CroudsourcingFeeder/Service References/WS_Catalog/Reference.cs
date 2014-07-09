@@ -3153,10 +3153,10 @@ namespace CrowdsourcingFeeder.WS_Catalog {
     public partial class CrowdsourceResponse : CrowdsourcingFeeder.WS_Catalog.BaseResponse {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string[] CrowdsourceItemsField;
+        private ApiObjects.CrowdsourceItems.Base.BaseCrowdsourceItem[] CrowdsourceItemsField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string[] CrowdsourceItems {
+        public ApiObjects.CrowdsourceItems.Base.BaseCrowdsourceItem[] CrowdsourceItems {
             get {
                 return this.CrowdsourceItemsField;
             }
