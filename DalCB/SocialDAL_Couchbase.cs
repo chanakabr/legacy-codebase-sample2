@@ -97,9 +97,35 @@ namespace DalCB
 
         public bool DeleteUserSocialAction(string sDocID)
         {
-            bool bResult = m_oClient.Remove(sDocID);
+            bool bResult = false;
+                try
+                {
+                    bResult = m_oClient.Remove(sDocID);
+                }catch{}
 
             return bResult;
+        }
+
+        public bool GetFeedsByActorID(string sActorSiteGuid, int nNumOfDocs, out List<string> lDocIDs)
+        {
+            lDocIDs = new List<string>();
+            bool bResult = false;
+            try
+            {
+                var lFeeds = (nNumOfDocs > 0) ? m_oClient.GetView(CB_FEED_DESGIN, "FeedByActorId").Limit(nNumOfDocs) : m_oClient.GetView(CB_FEED_DESGIN, "FeedByActorId");
+                bResult = true;
+
+                if (lFeeds != null)
+                {
+                    foreach (var feed in lFeeds)
+                    {
+                        lDocIDs.Add(feed.ItemId);
+                    }
+                }
+            }catch{}
+
+            return bResult;
+
         }
 
         //public List<SocialActivityDoc> GetUserSocialAction(int nNumOfRecords, string sSiteGuid, int nSocialPlatform, List<int> socialActions)
