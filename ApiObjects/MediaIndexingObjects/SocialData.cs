@@ -6,6 +6,7 @@ using System.Text;
 
 namespace ApiObjects.MediaIndexingObjects
 {
+    [Serializable]
     public class SocialData : QueueObject
     {
         #region Members
@@ -29,6 +30,30 @@ namespace ApiObjects.MediaIndexingObjects
             this.GroupId = nGroupId;
             this.ActorSiteGuid = sSiteGuid;
             this.DbActionId = sDbActionId;
+        }
+
+        #endregion
+    }
+
+    [Serializable]
+    public class SocialUnmergeData : QueueObject
+    {
+        #region Members
+        [DataMember]
+        public string sSiteGuid { get; set; }
+        #endregion
+
+        #region CTOR
+
+        public SocialUnmergeData()
+        {           
+ 
+        }
+
+        public SocialUnmergeData(int nGroupId, string sSiteGuid)
+        {
+            this.GroupId = nGroupId;
+            this.sSiteGuid = sSiteGuid;
         }
 
         #endregion
