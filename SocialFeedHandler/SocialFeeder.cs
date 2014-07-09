@@ -11,22 +11,20 @@ namespace SocialFeedHandler
     {
         public int m_nGroupID { get; set; }
         public string m_sSiteGuid { get; set; }
-        public string m_sDbActionID { get; set; }
 
-        public SocialFeeder(int nGroupId, string sSiteGuid, string sDbActionID)
+        public SocialFeeder(int nGroupId, string sSiteGuid)
         {
             m_nGroupID = nGroupId;
             m_sSiteGuid = sSiteGuid;
-            m_sDbActionID = sDbActionID;
         }
 
-        public bool UpdateFriendsFeed()
+        public bool UpdateFriendsFeed(string sDbActionID)
         {
             bool bResult = false;
 
-            if (m_nGroupID == 0 || string.IsNullOrEmpty(m_sSiteGuid) || string.IsNullOrEmpty(m_sDbActionID))
+            if (m_nGroupID == 0 || string.IsNullOrEmpty(m_sSiteGuid) || string.IsNullOrEmpty(sDbActionID))
             {
-                throw new ArgumentNullException("Must provide a valud for group ID, site guid, and db action id");
+                throw new ArgumentNullException("UpdateFriendsFeed - Must provide a valud for group ID, site guid, and db action id");
             }
 
             FacebookWrapper oFBWrapper = new FacebookWrapper(m_nGroupID);
@@ -42,7 +40,7 @@ namespace SocialFeedHandler
 
                 if (nNumOfFriends > 0)
                 {
-                    bResult = oSocialBL.AddActivityToUserFeed(lFriendsGuid, m_sDbActionID);
+                    bResult = oSocialBL.UpdateUserActivityFeed(lFriendsGuid, sDbActionID);
                 }
                 else
                 {
@@ -50,6 +48,39 @@ namespace SocialFeedHandler
                 }
             }
             return bResult;
+        }
+
+        public void DeleteUserFeed()
+        {
+            if (m_nGroupID == 0 || string.IsNullOrEmpty(m_sSiteGuid))
+            {
+                throw new ArgumentNullException("DeleteUserFeed - Must provide a valud for group ID and site guid");
+            }
+
+            BaseSocialBL oSocialBL = BaseSocialBL.GetBaseSocialImpl(m_nGroupID);
+
+            List<string> lDocIDs;
+            bool bHasNoErrors = true;
+
+            int nNumOfDocs = 50;
+
+            do
+            {
+                bHasNoErrors = oSocialBL.GetFeedIDsByActorID(m_sSiteGuid, nNumOfDocs, out lDocIDs);
+                if (bHasNoErrors && lDocIDs != null && lDocIDs.Count > 0)
+                {
+                    foreach (string docID in lDocIDs)
+                    {
+                        bHasNoErrors &= oSocialBL.DeleteActivityFromUserFeed(docID);
+                    }
+                }
+
+            } while (bHasNoErrors == true && lDocIDs != null && lDocIDs.Count > 0);
+
+            if (!bHasNoErrors)
+            {
+                throw new Exception("Error occured during deletion of feed");
+            }
         }
     }
 }

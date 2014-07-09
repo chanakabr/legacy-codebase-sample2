@@ -59,6 +59,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uploader", "..\tvmcore\Uplo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialFeedHandler", "SocialFeedHandler\SocialFeedHandler.csproj", "{6A3171F6-BFC9-4407-97EE-8E20E36AD783}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialUnmergeHandler", "SocialUnmergeHandler\SocialUnmergeHandler.csproj", "{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -315,6 +317,15 @@ Global
 		{6A3171F6-BFC9-4407-97EE-8E20E36AD783}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A3171F6-BFC9-4407-97EE-8E20E36AD783}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6A3171F6-BFC9-4407-97EE-8E20E36AD783}.Release|x86.ActiveCfg = Release|Any CPU
+		{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}.Basic|x86.ActiveCfg = Release|Any CPU
+		{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CD02F4A-582F-4E14-ABCA-225E18E7AB81}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

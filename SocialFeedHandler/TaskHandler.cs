@@ -15,12 +15,12 @@ namespace SocialFeedHandler
 
             try
             {
-                Logger.Logger.Log("Info", string.Concat("starting social feeder request. data=", data), "ESUpdateHandler");
+                Logger.Logger.Log("Info", string.Concat("starting social feeder request. data=", data), "SocialFeedHandler");
 
                 SocialData request = Newtonsoft.Json.JsonConvert.DeserializeObject<SocialData>(data);
 
-                SocialFeeder feeder = new SocialFeeder(request.GroupId, request.ActorSiteGuid, request.DbActionId);
-                bool bResult = feeder.UpdateFriendsFeed();
+                SocialFeeder feeder = new SocialFeeder(request.GroupId, request.ActorSiteGuid);
+                bool bResult = feeder.UpdateFriendsFeed(request.DbActionId);
 
                 if (bResult)
                 {
