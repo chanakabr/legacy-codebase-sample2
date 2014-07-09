@@ -925,7 +925,7 @@ namespace DAL
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
 
             var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_medias", true).Key(nSiteGuid);
-            List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).Take(nNumOfItems).ToList();
+            List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).ToList();
 
             List<int> retList = new List<int>();
 
@@ -944,12 +944,19 @@ namespace DAL
                         dictMediasMaxDuration.Add(nMediaID, nMaxDuration);
                     }
 
+                    int i = 0;
                     foreach (MediaMarkLog mediaMarkLogObject in sortedMediaMarksList)
                     {
                         double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.MediaID]));
                         if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
-                        {
+                        { 
+                            if (i >= nNumOfItems || nNumOfItems == 0)
+                            {
+                                break;
+                            }
                             retList.Add(mediaMarkLogObject.LastMark.MediaID);
+                            i++;
+                           
                         }
                     }
 
