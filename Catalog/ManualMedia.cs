@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json;
 
 namespace Catalog
 {
+    [DataContract]
     [Serializable]
     [JsonObject(Id = "manualmedia")]
     public class ManualMedia
     {
         #region Members
-
+        [DataMember]
         public string m_sMediaId { get; set; }
+        [DataMember]        
         public int m_nOrderNum { get; set; }
 
         #endregion

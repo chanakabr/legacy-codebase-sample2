@@ -7,6 +7,7 @@ using System.ServiceModel;
 using Newtonsoft.Json;
 namespace ApiObjects.SearchObjects
 {
+    [DataContract]
     [Serializable]
     [JsonObject(Id = "searchvalue")]
     public class SearchValue

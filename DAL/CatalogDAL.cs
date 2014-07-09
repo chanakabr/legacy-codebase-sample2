@@ -1276,7 +1276,7 @@ namespace Tvinci.Core.DAL
                     {
                         foreach (DataRow row in dt.Rows)
                         {
-                            tempLang = getLanguageFromRow(dt.Rows[0]);
+                            tempLang = getLanguageFromRow(row);
 
                             if (tempLang != null)
                             {
