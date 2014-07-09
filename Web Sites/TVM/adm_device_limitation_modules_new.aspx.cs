@@ -24,13 +24,17 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork();
+                int newLimitID = DBManipulator.DoTheWork();
                 if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0 && Session["device_families"] != null &&
                     Session["device_families"] is List<UMObj>)
                 {
                     List<UMObj> updatedDeviceFamilyObjs = Session["device_families"] as List<UMObj>;
                     List<int> updatedDeviceFamilyIDs = updatedDeviceFamilyObjs.Select(item => Int32.Parse(item.m_id)).ToList<int>();
                     int limitID = Int32.Parse(Session["limit_id"].ToString());
+                    if (limitID == 0)
+                    {
+                        limitID = newLimitID;
+                    }
                     int groupID = LoginManager.GetLoginGroupID();
                     if (limitID > 0 && updatedDeviceFamilyIDs != null && groupID > 0)
                     {
@@ -68,6 +72,7 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                         }
                     }
                 }
+                Session["limit_id"] = null;
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
@@ -86,7 +91,9 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
                 }
             }
             else
+            {
                 Session["limit_id"] = 0;
+            }
 
 
 
@@ -389,7 +396,7 @@ public partial class adm_device_limitation_modules_new : System.Web.UI.Page
         return res;
     }
 
-    protected void BuildLimitationDeviceFamilies(int limitID, int groupID, ref List<UMObj> allFamiliesList, 
+    protected void BuildLimitationDeviceFamilies(int limitID, int groupID, ref List<UMObj> allFamiliesList,
         ref List<UMObj> limitFamiliesList, ref List<UMObj> complementLimitFamiliesList)
     {
         List<int> res = new List<int>();
