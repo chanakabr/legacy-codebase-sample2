@@ -119,12 +119,8 @@
     <Compile Include="BundlesContainingMediaResponse.cs" />
     <Compile Include="BuzzMeterRequest.cs" />
     <Compile Include="BuzzMeterResponse.cs" />
-<<<<<<< HEAD
     <Compile Include="ChannelObjRequest.cs" />
     <Compile Include="ChannelObjResponse.cs" />
-=======
-
->>>>>>> 477b7adc732e33d4efa56d2f82457d3a0da056fc
     <Compile Include="ChannelsContainingMediaRequest.cs" />
     <Compile Include="ChannelsContainingMediaResponse.cs" />
     <Compile Include="BaseMediaSearchRequest.cs" />

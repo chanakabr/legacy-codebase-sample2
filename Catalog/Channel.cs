@@ -7,12 +7,9 @@ using Newtonsoft.Json;
 
 namespace Catalog
 {
-<<<<<<< HEAD
     [DataContract]
-=======
     [Serializable]
     [JsonObject(Id = "channel")]
->>>>>>> 477b7adc732e33d4efa56d2f82457d3a0da056fc
     public class Channel
     {
         #region Members

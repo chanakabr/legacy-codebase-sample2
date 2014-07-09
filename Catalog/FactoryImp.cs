@@ -163,7 +163,6 @@ namespace Catalog
             if (m_oBaseRequest is MediaLastPositionRequest)
             {
                 return new MediaLastPositionRequest((MediaLastPositionRequest)this.m_oBaseRequest);
-<<<<<<< HEAD
             } 
             if (m_oBaseRequest is ChannelObjRequest)
             {
@@ -173,13 +172,11 @@ namespace Catalog
             {
                 return (CrowdsourceRequest)this.m_oBaseRequest;
             }
-=======
-            }
             if (m_oBaseRequest is BundlesContainingMediaRequest)
             {
                 return new BundlesContainingMediaRequest();
             }
->>>>>>> 477b7adc732e33d4efa56d2f82457d3a0da056fc
+
 
             return null;
         }
