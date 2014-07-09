@@ -102,6 +102,9 @@
 									    <!-- the actual content -->
 									</td>
 								</tr>
+                                <tr>
+								    <td onclick='window.document.location.href="adm_device_limitation_modules.aspx?search_save=1";'><a href="#" class="btn_back"></a></td>
+								</tr>
 							</table>
 						</td>
 					</tr>
