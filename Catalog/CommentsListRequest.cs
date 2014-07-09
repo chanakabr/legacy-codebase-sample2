@@ -43,12 +43,6 @@ namespace Catalog
                 CommentsListResponse response = new CommentsListResponse();
                 Comments comment;
 
-                //string xmlresult = "";
-                //xmlresult = SerializeToXML<CommentsListRequest>(request);
-
-                //_logger.Info(xmlresult);
-                //_logger.Info(string.Format("{0}: {1}", "CommentsListRequest Start At", DateTime.Now));
-
                 if (request == null)
                     throw new Exception("request object is null or Required variables is null");
 

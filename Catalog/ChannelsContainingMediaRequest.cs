@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
+using Catalog.Cache;
 using Logger;
 using TVinciShared;
 
@@ -38,10 +39,7 @@ namespace Catalog
                 if (request == null || request.m_lChannles == null || request.m_lChannles.Count == 0)
                     throw new Exception("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 //IF ElasticSearch 
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
@@ -66,14 +64,15 @@ namespace Catalog
                         }
                     }
                     else //LuceneWrapper
-                    {
-                        Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
+                    {   
+                        GroupManager groupManager = new GroupManager();
+                        Group groupInCache = groupManager.GetGroup(request.m_nGroupID); 
                         List<int> channelIds = request.m_lChannles;
 
                         if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                         {
                             // Buils search Object per channelId call Searcher to return true/false result
-                            List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                            List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                             //    Build search object per channel
                             if (allChannels != null && allChannels.Count > 0)
@@ -127,6 +126,13 @@ namespace Catalog
 
                                 //Wait for all parallel tasks to end
                                 Task.WaitAll(channelsSearchObjectTasks);
+                                for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
+                                {
+                                    if (channelsSearchObjectTasks[i] != null)
+                                    {
+                                        channelsSearchObjectTasks[i].Dispose();
+                                    }
+                                }
                                 #endregion
 
                                 #region Search

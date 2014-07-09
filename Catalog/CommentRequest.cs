@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using Catalog.Cache;
 using Logger;
 using Tvinci.Core.DAL;
 
@@ -66,7 +67,8 @@ namespace Catalog
         {
             bool bResult = false;
 
-            Group group = GroupsCache.Instance.GetGroup(oCommentReq.m_nGroupID);
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(oCommentReq.m_nGroupID);
 
             if (group != null)
             {

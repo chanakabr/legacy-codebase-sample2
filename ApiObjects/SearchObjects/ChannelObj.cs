@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 namespace ApiObjects.SearchObjects
 {
     [DataContract]
@@ -40,7 +41,8 @@ namespace ApiObjects.SearchObjects
             m_lTags = new List<SearchValue>();
         }
     }
-
+    [Serializable]
+    [JsonObject(Id = "orderobj")]
     [DataContract]
     public class OrderObj
     {

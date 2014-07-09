@@ -8,9 +8,9 @@ namespace ApiObjects.SearchObjects
 {
     [ServiceContract]
     public interface ISearcher
-    {
+    {    
         [OperationContract]
-        SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate);
+        SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate, int nIndex);
 
         [OperationContract]
         List<string> GetAutoCompleteList(int nGroupID, MediaSearchObj oSearch, int nLangID, ref int nTotalItems);

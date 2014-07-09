@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Data;
 using Tvinci.Core.DAL;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -63,7 +64,9 @@ namespace Catalog
                 if (request.m_oFilter != null)
                     nLanguage = request.m_oFilter.m_nLanguage;
 
-                DataSet ds = CatalogDAL.Get_ChannelsListByCategory(request.m_nCategoryID, request.m_nGroupID, nLanguage);
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
+                DataSet ds = CatalogDAL.Get_ChannelsListByCategory(request.m_nCategoryID, request.m_nGroupID, nLanguage, lSubGroupTree);
 
                 if (ds != null && ds.Tables.Count > 0)
                 {

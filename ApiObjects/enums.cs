@@ -142,6 +142,12 @@ namespace ApiObjects
         MUS
     }
 
+
+    public enum eCacheGroupType
+    {
+        GroupCacheExternal,
+        GroupCacheInternal
+    }
     public enum Btype
     {
         SUBSCRIPTION = 0,

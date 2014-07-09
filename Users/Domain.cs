@@ -1002,29 +1002,31 @@ namespace Users
         /// <param name="nGroupID"></param>
         public static List<string> GetFullUserList(int nDomainID, int nGroupID)
         {
-            List<string> retVal = new List<string>();
+            //List<string> retVal = new List<string>();
 
-            int status = 1;
-            int isActive = 1;
-            Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+            //int status = 1;
+            //int isActive = 1;
+            //Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
 
-            if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
-            {
-                retVal = dbTypedUserIDs.Select(ut => ut.Key.ToString()).ToList();
-            }
+            //if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
+            //{
+            //    retVal = dbTypedUserIDs.Select(ut => ut.Key.ToString()).ToList();
+            //}
 
-            // Add Pending Users (with minus)
-            status = 3;
-            isActive = 0;
-            Dictionary<int, int> dbPendingTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+            //// Add Pending Users (with minus)
+            //status = 3;
+            //isActive = 0;
+            //Dictionary<int, int> dbPendingTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
 
-            if (dbPendingTypedUserIDs != null && dbPendingTypedUserIDs.Count > 0)
-            {
-                List<string> pendingIDs = dbPendingTypedUserIDs.Select(ut => (ut.Key * (-1)).ToString()).ToList();
-                retVal.AddRange(pendingIDs);
-            }
+            //if (dbPendingTypedUserIDs != null && dbPendingTypedUserIDs.Count > 0)
+            //{
+            //    List<string> pendingIDs = dbPendingTypedUserIDs.Select(ut => (ut.Key * (-1)).ToString()).ToList();
+            //    retVal.AddRange(pendingIDs);
+            //}
 
-            return retVal;
+            //return retVal;
+
+            return DomainDal.Get_FullUserListOfDomain(nGroupID, nDomainID);
         }
 
         public Device RegisterDeviceToDomainWithPIN(int nGroupID, string sPIN, int nDomainID, string sDeviceName, ref DeviceResponseStatus eRetVal)
@@ -1268,8 +1270,8 @@ namespace Users
 
                 int nFamilyID = string.IsNullOrEmpty(currentDeviceFamily[0]) ? 0 : Int32.Parse(currentDeviceFamily[0]);
                 string sFamilyName = currentDeviceFamily[1];
-                int nOverrideQuantityLimit = 0;
-                int nOverrideConcurrencyLimit = 0;
+                int nOverrideQuantityLimit = -1;
+                int nOverrideConcurrencyLimit = -1;
                 if (concurrencyOverride != null && concurrencyOverride.Count > 0 && concurrencyOverride.ContainsKey(nFamilyID))
                 {
                     nOverrideConcurrencyLimit = concurrencyOverride[nFamilyID];
@@ -1278,7 +1280,7 @@ namespace Users
                 {
                     nOverrideQuantityLimit = quantityOverride[nFamilyID];
                 }
-                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > 0 ? nOverrideQuantityLimit : m_oLimitationsManager.Quantity, nOverrideConcurrencyLimit > 0 ? nOverrideConcurrencyLimit : m_oLimitationsManager.Concurrency);
+                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > -1 ? nOverrideQuantityLimit : m_oLimitationsManager.Quantity, nOverrideConcurrencyLimit > -1 ? nOverrideConcurrencyLimit : m_oLimitationsManager.Concurrency);
                 if (!m_oDeviceFamiliesMapping.ContainsKey(nFamilyID))
                 {
                     m_deviceFamilies.Add(dc);
@@ -1612,6 +1614,30 @@ namespace Users
             return retVal;
         }
 
+        private bool IsAgnosticToDeviceLimitation(ValidationType vt, int deviceFamilyID)
+        {
+            bool res = false;
+            switch (vt)
+            {
+                case ValidationType.Concurrency:
+                    {
+                        res = m_oDeviceFamiliesMapping != null && m_oDeviceFamiliesMapping.ContainsKey(deviceFamilyID)
+                            && m_oDeviceFamiliesMapping[deviceFamilyID].IsUnlimitedConcurrency();
+                        break;
+                    }
+                case ValidationType.Quantity:
+                    {
+                        res = m_oDeviceFamiliesMapping != null && m_oDeviceFamiliesMapping.ContainsKey(deviceFamilyID) 
+                            && m_oDeviceFamiliesMapping[deviceFamilyID].IsUnlimitedQuantity();
+                        break;
+                    }
+                default:
+                    break;
+            }
+
+            return res;
+        }
+
         public DomainResponseStatus ValidateConcurrency(string sUDID, int nDeviceBrandID, long lDomainID)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
@@ -1621,7 +1647,7 @@ namespace Users
                 DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
                 if (dc != null)
                 {
-                    if (m_oLimitationsManager.Concurrency <= 0)
+                    if (m_oLimitationsManager.Concurrency <= 0 || IsAgnosticToDeviceLimitation(ValidationType.Concurrency, device.m_deviceFamilyID))
                     {
                         // there are no concurrency limitations at all.
                         res = DomainResponseStatus.OK;
@@ -1698,19 +1724,29 @@ namespace Users
                             // the device family id does not exist in Domain cache. Grab it from DB.
                             int nDeviceBrandID = 0;
                             nDeviceFamilyID = DeviceDal.GetDeviceFamilyID(m_nGroupID, umm.UDID, ref nDeviceBrandID);
+                            if(nDeviceFamilyID > 0)
+                                m_oUDIDToDeviceFamilyMapping.Add(umm.UDID, nDeviceFamilyID);
                         }
                         if (nDeviceFamilyID > 0)
                         {
-                            // we have device family id, increment its value in the result dictionary.
-                            if (res.ContainsKey(nDeviceFamilyID))
+                            if (!IsAgnosticToDeviceLimitation(ValidationType.Concurrency, nDeviceFamilyID))
                             {
-                                // increment by one
-                                res[nDeviceFamilyID]++;
+                                // we have device family id and its not agnostic to limitation. increment its value in the result dictionary.
+                                if (res.ContainsKey(nDeviceFamilyID))
+                                {
+                                    // increment by one
+                                    res[nDeviceFamilyID]++;
+                                }
+                                else
+                                {
+                                    // add the device family id to dictionary
+                                    res.Add(nDeviceFamilyID, 1);
+                                }
                             }
                             else
                             {
-                                // add the device family id to dictionary
-                                res.Add(nDeviceFamilyID, 1);
+                                // agnostic to device limitation, decrement total streams count by one.
+                                nTotalConcurrentStreamsWithoutGivenDevice--;
                             }
                         }
                     } // end foreach

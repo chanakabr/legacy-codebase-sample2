@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -53,7 +54,9 @@ namespace Catalog
                 if (sCheckSignature != request.m_sSignature)
                     throw new Exception("Signatures dosen't match");
 
-                DataTable dt = CatalogDAL.Get_PersonalLastWatched(request.m_nGroupID, request.m_sSiteGuid);
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
+                DataTable dt = CatalogDAL.Get_PersonalLastWatched(request.m_nGroupID, request.m_sSiteGuid, lSubGroupTree);
                 if (dt != null)
                 {
                     if (dt.Columns != null)

@@ -8,6 +8,8 @@ namespace ODBCWrapper
     public class Utils
     {
 
+        public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
+
         static public string GetSafeStr(object o)
         {
             if (o == DBNull.Value)
@@ -474,6 +476,22 @@ namespace ODBCWrapper
                 Logger.Logger.Log("ODBCWRapper", "Key=" + sKey + "," + ex.Message, "Tcm");
             }
             return result;
+        }
+
+        public static int GetIntSafeVal(object o, int returnThisInCaseOfFail)
+        {
+            int temp = 0;
+            int res = returnThisInCaseOfFail;
+            if (o != null)
+            {
+                string s = o.ToString();
+                if (s.Length > 0 && Int32.TryParse(s, out temp))
+                {
+                    res = temp;
+                }
+            }
+
+            return res;
         }
     }
 

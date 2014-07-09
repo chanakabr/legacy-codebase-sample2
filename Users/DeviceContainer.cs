@@ -144,5 +144,15 @@ namespace Users
 
             return false;
         }
+
+        public bool IsUnlimitedConcurrency()
+        {
+            return m_oLimitationsManager != null && m_oLimitationsManager.Concurrency == 0;
+        }
+
+        public bool IsUnlimitedQuantity()
+        {
+            return m_oLimitationsManager != null && m_oLimitationsManager.Quantity == 0;
+        }
     }
 }
