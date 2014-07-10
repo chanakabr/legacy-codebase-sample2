@@ -63,10 +63,6 @@
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\tvmcore\CouchbaseWrapper\CouchbaseWrapper.csproj">
-      <Project>{77bcf2fc-c5e0-43b0-a7d6-4bae928035aa}</Project>
-      <Name>CouchbaseWrapper</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
