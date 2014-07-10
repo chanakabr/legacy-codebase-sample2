@@ -83,7 +83,7 @@
       <Name>CouchbaseManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\CouchbaseWrapper\CouchbaseWrapper.csproj">
-      <Project>{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}</Project>
+      <Project>{77bcf2fc-c5e0-43b0-a7d6-4bae928035aa}</Project>
       <Name>CouchbaseWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
