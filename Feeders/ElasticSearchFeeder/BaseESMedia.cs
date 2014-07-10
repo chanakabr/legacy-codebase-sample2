@@ -14,6 +14,7 @@ using ElasticSearch.Common;
 using ApiObjects;
 using ElasticSearchFeeder.IndexBuilders;
 using ElasticSearch.Common.DeleteResults;
+using Catalog.Cache;
 
 namespace ElasticSearchFeeder
 {
@@ -287,9 +288,12 @@ namespace ElasticSearchFeeder
         }
 
         private bool UpdateChannel(List<int> lChannelIds)
-        {
+        {           
             bool bRes = false;
-            Group oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
+            GroupManager groupManager = new GroupManager();
+            bool bres = groupManager.RemoveGroup(m_nGroupID);
+            Group oGroup = groupManager.GetGroup(m_nGroupID);
+
             if (oGroup == null || oGroup.m_oGroupChannels == null)
                 return bRes;
 

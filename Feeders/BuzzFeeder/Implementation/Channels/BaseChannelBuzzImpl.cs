@@ -20,6 +20,8 @@ namespace BuzzFeeder.Implementation.Channels
 
         protected override void PreProcess()
         {
+            m_dPreviousBuzzCount = GetPreviousSample(m_dCurrentBuzzCount.Keys.ToList());
+
             #region Get medias that were not watched in current sample, but are part of total count
             List<string> lMediaIDs = GetMediaIdsByMediaType();
 

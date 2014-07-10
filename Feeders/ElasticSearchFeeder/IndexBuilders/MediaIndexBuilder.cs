@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Catalog.Cache;
 
 namespace ElasticSearchFeeder.IndexBuilders
 {
@@ -40,9 +41,9 @@ namespace ElasticSearchFeeder.IndexBuilders
             int.TryParse(sNumOfReplicas, out nNumOfReplicas);
             int.TryParse(sNumOfShards, out nNumOfShards);
 
-
-            GroupsCache.Instance.RemoveGroup(m_nGroupID);
-            Group oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
+            GroupManager groupManager = new GroupManager();
+            bool bres = groupManager.RemoveGroup(m_nGroupID);
+            Group oGroup = groupManager.GetGroup(m_nGroupID);
 
             if (oGroup == null)
             {
@@ -588,7 +589,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
         private static string GetPermittedWatchRules(int nGroupId)
         {
-            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId);
+            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, null);
             List<string> lWatchRulesIds = null;
             if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
             {

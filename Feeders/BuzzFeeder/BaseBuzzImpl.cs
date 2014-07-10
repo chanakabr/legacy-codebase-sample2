@@ -45,7 +45,6 @@ namespace BuzzFeeder
         public virtual void CalcBuzz()
         {
             m_dCurrentBuzzCount = GetCurrentSample();
-            m_dPreviousBuzzCount = GetPreviousSample(m_dCurrentBuzzCount.Keys.ToList());
             
             PreProcess();
             
@@ -116,7 +115,7 @@ namespace BuzzFeeder
             return res;
         }
 
-        protected Dictionary<string, ItemsStats> GetCurrentSample()
+        protected virtual Dictionary<string, ItemsStats> GetCurrentSample()
         {
             Dictionary<string, ItemsStats> dCurSample = new Dictionary<string, ItemsStats>();
 
@@ -178,7 +177,7 @@ namespace BuzzFeeder
             return dCurSample;
         }
 
-        protected Dictionary<string, ItemsStats> GetPreviousSample(List<string> lMediaIDs)
+        protected virtual Dictionary<string, ItemsStats> GetPreviousSample(List<string> lMediaIDs)
         {
             Dictionary<string, ItemsStats> dRes = new Dictionary<string, ItemsStats>();
 
