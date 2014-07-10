@@ -9,7 +9,7 @@ namespace ApiObjects.CrowdsourceItems.Implementations
         [JsonProperty("action"), JsonConverter(typeof(StringEnumConverter))]
         public ApiObjects.SearchObjects.OrderBy Action { get; set; }
         [JsonProperty("actionVal")]
-        public int ActionVal { get; set; }
+        public double ActionVal { get; set; }
 
         public override eItemType Type
         {
