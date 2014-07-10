@@ -12,14 +12,6 @@ public partial class adm_ppv_modules_file_types : System.Web.UI.Page
     protected string m_sMenu;
     protected string m_sSubMenu;
 
-    static protected string GetWSURL()
-    {
-        if (ConfigurationManager.AppSettings["pricing_ws"] != null &&
-            ConfigurationManager.AppSettings["pricing_ws"].ToString() != "")
-            return ConfigurationManager.AppSettings["pricing_ws"].ToString();
-        return "";
-    }
-
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)
