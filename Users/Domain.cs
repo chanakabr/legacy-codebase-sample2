@@ -1270,8 +1270,8 @@ namespace Users
 
                 int nFamilyID = string.IsNullOrEmpty(currentDeviceFamily[0]) ? 0 : Int32.Parse(currentDeviceFamily[0]);
                 string sFamilyName = currentDeviceFamily[1];
-                int nOverrideQuantityLimit = 0;
-                int nOverrideConcurrencyLimit = 0;
+                int nOverrideQuantityLimit = -1;
+                int nOverrideConcurrencyLimit = -1;
                 if (concurrencyOverride != null && concurrencyOverride.Count > 0 && concurrencyOverride.ContainsKey(nFamilyID))
                 {
                     nOverrideConcurrencyLimit = concurrencyOverride[nFamilyID];
@@ -1280,7 +1280,7 @@ namespace Users
                 {
                     nOverrideQuantityLimit = quantityOverride[nFamilyID];
                 }
-                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > 0 ? nOverrideQuantityLimit : m_oLimitationsManager.Quantity, nOverrideConcurrencyLimit > 0 ? nOverrideConcurrencyLimit : m_oLimitationsManager.Concurrency);
+                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > -1 ? nOverrideQuantityLimit : m_oLimitationsManager.Quantity, nOverrideConcurrencyLimit > -1 ? nOverrideConcurrencyLimit : m_oLimitationsManager.Concurrency);
                 if (!m_oDeviceFamiliesMapping.ContainsKey(nFamilyID))
                 {
                     m_deviceFamilies.Add(dc);
@@ -1614,6 +1614,30 @@ namespace Users
             return retVal;
         }
 
+        private bool IsAgnosticToDeviceLimitation(ValidationType vt, int deviceFamilyID)
+        {
+            bool res = false;
+            switch (vt)
+            {
+                case ValidationType.Concurrency:
+                    {
+                        res = m_oDeviceFamiliesMapping != null && m_oDeviceFamiliesMapping.ContainsKey(deviceFamilyID)
+                            && m_oDeviceFamiliesMapping[deviceFamilyID].IsUnlimitedConcurrency();
+                        break;
+                    }
+                case ValidationType.Quantity:
+                    {
+                        res = m_oDeviceFamiliesMapping != null && m_oDeviceFamiliesMapping.ContainsKey(deviceFamilyID) 
+                            && m_oDeviceFamiliesMapping[deviceFamilyID].IsUnlimitedQuantity();
+                        break;
+                    }
+                default:
+                    break;
+            }
+
+            return res;
+        }
+
         public DomainResponseStatus ValidateConcurrency(string sUDID, int nDeviceBrandID, long lDomainID)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
@@ -1623,7 +1647,7 @@ namespace Users
                 DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
                 if (dc != null)
                 {
-                    if (m_oLimitationsManager.Concurrency <= 0)
+                    if (m_oLimitationsManager.Concurrency <= 0 || IsAgnosticToDeviceLimitation(ValidationType.Concurrency, device.m_deviceFamilyID))
                     {
                         // there are no concurrency limitations at all.
                         res = DomainResponseStatus.OK;
@@ -1700,19 +1724,29 @@ namespace Users
                             // the device family id does not exist in Domain cache. Grab it from DB.
                             int nDeviceBrandID = 0;
                             nDeviceFamilyID = DeviceDal.GetDeviceFamilyID(m_nGroupID, umm.UDID, ref nDeviceBrandID);
+                            if(nDeviceFamilyID > 0)
+                                m_oUDIDToDeviceFamilyMapping.Add(umm.UDID, nDeviceFamilyID);
                         }
                         if (nDeviceFamilyID > 0)
                         {
-                            // we have device family id, increment its value in the result dictionary.
-                            if (res.ContainsKey(nDeviceFamilyID))
+                            if (!IsAgnosticToDeviceLimitation(ValidationType.Concurrency, nDeviceFamilyID))
                             {
-                                // increment by one
-                                res[nDeviceFamilyID]++;
+                                // we have device family id and its not agnostic to limitation. increment its value in the result dictionary.
+                                if (res.ContainsKey(nDeviceFamilyID))
+                                {
+                                    // increment by one
+                                    res[nDeviceFamilyID]++;
+                                }
+                                else
+                                {
+                                    // add the device family id to dictionary
+                                    res.Add(nDeviceFamilyID, 1);
+                                }
                             }
                             else
                             {
-                                // add the device family id to dictionary
-                                res.Add(nDeviceFamilyID, 1);
+                                // agnostic to device limitation, decrement total streams count by one.
+                                nTotalConcurrentStreamsWithoutGivenDevice--;
                             }
                         }
                     } // end foreach

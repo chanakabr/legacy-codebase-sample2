@@ -11,6 +11,7 @@ using ApiObjects;
 using System.Collections;
 using System.Collections.Concurrent;
 using Logger;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -24,26 +25,18 @@ namespace Catalog
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
         protected ElasticSearchApi m_oESApi;
-
+        
         public ElasticsearchWrapper()
         {
             m_oESApi = new ElasticSearchApi();
         }
-
-        public SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate)
+       
+        public SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate, int nIndex)
         {
             SearchResultsObj oRes = new SearchResultsObj();
-
-            Group oGroup = GroupsCache.Instance.GetGroup(nGroupID);
-
-            if (oGroup == null)
-                return oRes;
-
-            int nParentGroupID = oGroup.m_nParentGroupID;
-
+          
             ESMediaQueryBuilder queryParser = new ESMediaQueryBuilder(nGroupID, oSearch);
-
-
+            
             int nPageIndex = 0;
             int nPageSize = 0;
             if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
@@ -69,7 +62,7 @@ namespace Catalog
                 int nStatus = 0;
 
                 string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
-                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nParentGroupID, sType);
+                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nGroupID, sType);
 
                 string retObj = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
 
@@ -128,13 +121,6 @@ namespace Catalog
         {
             List<string> lRes = new List<string>();
 
-            Group oGroup = GroupsCache.Instance.GetGroup(nGroupID);
-
-            if (oGroup == null || oSearch == null)
-                return lRes;
-
-            int nParentGroupID = oGroup.m_nParentGroupID;
-
             oSearch.m_dOr.Add(new SearchValue() { m_lValue = new List<string>() { "" }, m_sKey = "name^3" });
 
             ESMediaQueryBuilder queryParser = new ESMediaQueryBuilder(nGroupID, oSearch);
@@ -148,7 +134,7 @@ namespace Catalog
             if (!string.IsNullOrEmpty(sQuery))
             {
                 string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
-                string retObj = m_oESApi.Search(nParentGroupID.ToString(), sType, ref sQuery);
+                string retObj = m_oESApi.Search(nGroupID.ToString(), sType, ref sQuery);
 
                 List<ElasticSearchApi.ESAssetDocument> lMediaDocs = DecodeAssetSearchJsonObject(retObj, ref nTotalItems);
                 if (lMediaDocs != null && lMediaDocs.Count > 0)
@@ -195,7 +181,9 @@ namespace Catalog
             Logger.Logger.Log("Info", "Started SearchSubscriptionMedias", "Elasticsearch");
             DateTime dtStart = DateTime.Now;
             SearchResultsObj lSortedMedias = new SearchResultsObj();
-            Group oGroup = GroupsCache.Instance.GetGroup(nSubscriptionGroupId);
+            
+            GroupManager groupManager = new GroupManager();
+            Group oGroup = groupManager.GetGroup(nSubscriptionGroupId);       
 
             int nTotalItems = 0;
 
@@ -343,13 +331,7 @@ namespace Catalog
         public List<int> GetMediaChannels(int nGroupID, int nMediaID)
         {
             List<int> lResult = new List<int>();
-
-            Group oGroup = GroupsCache.Instance.GetGroup(nGroupID);
-
-            if (oGroup == null)
-                return lResult;
-
-            string sIndex = oGroup.m_nParentGroupID.ToString();
+            string sIndex = nGroupID.ToString();
 
             string sMediaDoc = m_oESApi.GetDoc(sIndex, ES_MEDIA_TYPE, nMediaID.ToString());
 
@@ -421,8 +403,9 @@ namespace Catalog
 
                 DateTime startDate = epgSearch.m_dStartDate;
                 DateTime endDate = epgSearch.m_dEndDate;
-
-                Group group = GroupsCache.Instance.GetGroup(epgSearch.m_nGroupID);
+                                
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(epgSearch.m_nGroupID); 
 
                 if (group != null)
                 {
@@ -509,14 +492,6 @@ namespace Catalog
 
             List<string> resultFinalList = null;
 
-            Group group = GroupsCache.Instance.GetGroup(oSearch.m_nGroupID);
-
-            if (group == null)
-            {
-                Logger.Logger.Log("Info", string.Format("Auto Complete :  Group is empty {0} , Between the dates{1}-{2}", oSearch.m_nGroupID, oSearch.m_dStartDate, oSearch.m_dEndDate), "ElasticSearch");
-                return null;
-            }
-
             List<string> lRouting = new List<string>();
 
             DateTime dTempDate = oSearch.m_dStartDate;
@@ -531,7 +506,7 @@ namespace Catalog
             string sQuery = queryBuilder.BuildEpgAutoCompleteQuery();
 
 
-            string sGroupAlias = string.Format("{0}_epg", group.m_nParentGroupID);
+            string sGroupAlias = string.Format("{0}_epg", oSearch.m_nGroupID);
             string searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
 
             int nTotalRecords = 0;

@@ -55,6 +55,7 @@
     <Compile Include="BaseDal.cs" />
     <Compile Include="BillingDAL.cs" />
     <Compile Include="ConditionalAccessDAL.cs" />
+    <Compile Include="CrowdsourceDAL.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="ProtocolsFuncsDAL.cs" />
     <Compile Include="TvmDAL.cs" />
@@ -80,6 +81,10 @@
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
       <Name>CouchbaseManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CouchbaseWrapper\CouchbaseWrapper.csproj">
+      <Project>{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}</Project>
+      <Name>CouchbaseWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>

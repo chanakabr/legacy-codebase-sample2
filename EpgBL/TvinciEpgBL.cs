@@ -259,7 +259,7 @@ namespace EpgBL
         //will need to return an object containing two dictionaries one for metas and the other for tags maybe we'll want to store it in cache and update when needed
         public EpgGroupSettings GetGroupEpgTagsAndMetas(bool bIsSearchable)
         {
-            DataSet ds = Tvinci.Core.DAL.EpgDal.Get_GroupsTagsAndMetas(m_nGroupID);
+            DataSet ds = Tvinci.Core.DAL.EpgDal.Get_GroupsTagsAndMetas(m_nGroupID, new List<int>());
             EpgGroupSettings egs = new EpgGroupSettings();
             try
             {

@@ -145,11 +145,12 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static DataSet Get_GroupsTagsAndMetas(int nGroupID)
+        public static DataSet Get_GroupsTagsAndMetas(int nGroupID, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupsTagsAndMetas");
             GroupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
             GroupMedias.AddParameter("@GroupID", nGroupID);
+            GroupMedias.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
 
             DataSet ds = GroupMedias.ExecuteDataSet();
             return ds;
