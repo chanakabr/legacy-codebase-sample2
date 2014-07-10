@@ -7,7 +7,7 @@ using System.Text;
 namespace ApiObjects.MediaIndexingObjects
 {
     [Serializable]
-    public class SocialData : QueueObject
+    public class SocialFeedRequest : QueueObject
     {
         #region Members
 
@@ -20,12 +20,12 @@ namespace ApiObjects.MediaIndexingObjects
 
         #region CTOR
 
-        public SocialData()
+        public SocialFeedRequest()
         {           
  
         }
 
-        public SocialData(int nGroupId, string sSiteGuid, string sDbActionId)
+        public SocialFeedRequest(int nGroupId, string sSiteGuid, string sDbActionId)
         {
             this.GroupId = nGroupId;
             this.ActorSiteGuid = sSiteGuid;
@@ -36,7 +36,7 @@ namespace ApiObjects.MediaIndexingObjects
     }
 
     [Serializable]
-    public class SocialUnmergeData : QueueObject
+    public class SocialUnmergeRequest : QueueObject
     {
         #region Members
         [DataMember]
@@ -45,12 +45,12 @@ namespace ApiObjects.MediaIndexingObjects
 
         #region CTOR
 
-        public SocialUnmergeData()
+        public SocialUnmergeRequest()
         {           
  
         }
 
-        public SocialUnmergeData(int nGroupId, string sSiteGuid)
+        public SocialUnmergeRequest(int nGroupId, string sSiteGuid)
         {
             this.GroupId = nGroupId;
             this.sSiteGuid = sSiteGuid;

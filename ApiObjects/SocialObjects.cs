@@ -34,7 +34,7 @@ namespace ApiObjects
 
             if (eAction == eUserAction.UNKNOWN)
             {
-                lActions = null;
+                lActions = ActiveSocialActions;
             }
             else
             {
