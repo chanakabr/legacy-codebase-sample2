@@ -437,6 +437,33 @@ public partial class adm_collections_new : System.Web.UI.Page
         dr_discExternal.SetDefault(0);
         theRecord.AddRecord(dr_discExternal);
 
+        DataRecordDropDownField dr_coupons_group = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
+        dr_coupons_group.SetFieldType("string");
+        dr_coupons_group.SetNoSelectStr("---");
+        System.Data.DataTable CouponsGroupDT = GetBaseDT();
+        sWSUserName = "";
+        sWSPass = "";
+
+        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetCouponGroupListForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
+        TvinciPricing.CouponsGroup[] oCouponsGroup = m.GetCouponGroupListForAdmin(sWSUserName, sWSPass);
+        if (oCouponsGroup != null)
+        {
+            for (int i = 0; i < oCouponsGroup.Length; i++)
+            {
+                System.Data.DataRow tmpRow = null;
+                tmpRow = CouponsGroupDT.NewRow();
+                tmpRow["ID"] = int.Parse(oCouponsGroup[i].m_sGroupCode);
+                tmpRow["txt"] = oCouponsGroup[i].m_sGroupName;              
+                CouponsGroupDT.Rows.InsertAt(tmpRow, 0);
+                CouponsGroupDT.AcceptChanges();
+            }
+        }
+        dr_coupons_group.SetSelectsDT(CouponsGroupDT);
+        dr_coupons_group.Initialize("Coupon Group", "adm_table_header_nbg", "FormInput", "COUPON_GROUP_CODE", false);
+        dr_coupons_group.SetDefault(0);
+        theRecord.AddRecord(dr_coupons_group);
+
+
         DataRecordLongTextField dr_Title = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_Title.Initialize("Title", "adm_table_header_nbg", "FormInput", "", false);
         if (Session["collection_id"] != null && Session["collection_id"].ToString() != "0")
