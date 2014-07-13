@@ -115,10 +115,13 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                             croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nViews;
                                             break;
                                         case ApiObjects.SearchObjects.OrderBy.RATING:
-                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nVotes;
+                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_dRate;
                                             break;
                                         case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
                                             croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nLikes;
+                                            break;
+                                        case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
+                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nVotes;
                                             break;
                                     }
                                     normalizedDictionary.Add(mediaInfo.Key.ID, croudsourceItem);

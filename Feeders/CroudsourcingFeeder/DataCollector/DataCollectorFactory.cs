@@ -15,7 +15,7 @@ namespace CrowdsourcingFeeder.DataCollector
             {
                 case eCrowdsourceType.LiveViews:
                     if (int.TryParse(assetId, out channelId))
-                        dataCollector = new SlidingWindowDataCollector(int.Parse(assetId), groupId);
+                        dataCollector = new RealTimeViewsDataCollector(int.Parse(assetId), groupId);
 
                     else
                         Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error parsing channelId", DateTime.UtcNow, collectorType), "Crowdsourcing");
