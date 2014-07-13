@@ -437,6 +437,10 @@ public partial class adm_collections_new : System.Web.UI.Page
         dr_discExternal.SetDefault(0);
         theRecord.AddRecord(dr_discExternal);
 
+
+
+
+
         DataRecordDropDownField dr_coupons_group = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
         dr_coupons_group.SetFieldType("string");
         dr_coupons_group.SetNoSelectStr("---");
