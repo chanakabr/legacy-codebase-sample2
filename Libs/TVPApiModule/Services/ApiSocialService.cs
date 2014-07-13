@@ -494,5 +494,21 @@ namespace TVPApiModule.Services
 
             return res;
         }
+
+        public FacebookResponseObject FBUserUnmerge(string token, string username, string password)
+        {
+            FacebookResponseObject response = null;
+
+            try
+            {
+                response = m_Module.FBUserUnmerge(m_wsUserName, m_wsPassword, token, username, password);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in FBUserUnmerge, Error : {0} Parameters: token: {1}, username: {2}, password: {3}", ex.Message, token, username, password);
+            }
+
+            return response;
+        }
     }
 }

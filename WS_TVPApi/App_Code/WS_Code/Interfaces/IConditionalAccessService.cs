@@ -90,5 +90,14 @@ namespace TVPApiServices
 
         [OperationContract]
         string DummyChargeUserForCollection(InitializationObject initObj, double price, string currency, string collectionCode, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3);
+
+        [OperationContract]
+        bool CancelTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType);
+
+        [OperationContract]
+        bool WaiverTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType);
+
+        [OperationContract]
+        PermittedCollectionContainer[] GetUserExpiredCollections(InitializationObject initObj, string siteGuid, int numOfItems);
     }
 }

@@ -542,5 +542,30 @@ namespace TVPApiServices
 
             return resSocialFeed;
         }
+
+        [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
+        public FacebookResponseObject FBUserUnmerge(InitializationObject initObj, string token, string username, string password)
+        {
+            FacebookResponseObject response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FacebookResponseObject", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiSocialService(groupId, initObj.Platform).FBUserUnmerge(token, username, password);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");                
+            }
+
+            return response;
+        }
     }
 }

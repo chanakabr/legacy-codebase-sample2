@@ -997,7 +997,55 @@ namespace TVPApiModule.Services
             }
 
             return retVal;
-        }       
+        }
+
+        public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType)
+        {
+            bool isTransactionCancelled = false;
+
+            try
+            {
+                isTransactionCancelled = m_Module.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : CancelTransaction, Error Message: {0}, Parameters :  siteGuid: {1}, assetId: {2}", ex.Message, siteGuid, assetId);
+            }
+
+            return isTransactionCancelled;
+        }
+
+        public bool WaiverTransaction(string siteGuid, int assetId, eTransactionType transactionType)
+        {
+            bool isWaiverTransactionSucceeded = false;
+
+            try
+            {
+                isWaiverTransactionSucceeded = m_Module.WaiverTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : WaiverTransaction, Error Message: {0}, Parameters :  siteGuid: {1}, assetId: {2}", ex.Message, siteGuid, assetId);
+            }
+
+            return isWaiverTransactionSucceeded;
+        }
+
+        public PermittedCollectionContainer[] GetUserExpiredCollections(string siteGuid, int numOfItems)
+        {
+            PermittedCollectionContainer[] collections = null;
+
+            try
+            {
+                collections = m_Module.GetUserExpiredCollections(m_wsUserName, m_wsPassword, siteGuid, numOfItems);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetUserExpiredCollections, Error Message: {0}, Parameters :  siteGuid: {1}, numOfItems: {2}", ex.Message, siteGuid, numOfItems);
+            }
+
+            return collections;
+        }
 
         #endregion
     }
