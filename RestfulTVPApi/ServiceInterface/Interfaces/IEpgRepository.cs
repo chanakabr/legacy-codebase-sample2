@@ -7,23 +7,24 @@ using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Context;
 using TVPPro.SiteManager.Objects;
+using RestfulTVPApi.ServiceModel;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public interface IEpgRepository
     {
-        List<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
+        List<string> GetEPGAutoComplete(GetEPGAutoCompleteRequest request);
 
-        List<EPGChannel> GetEPGChannels(InitializationObject initObj, string sPicSize, OrderBy orderBy);
+        List<EPGChannel> GetEPGChannels(GetEPGChannelsRequest request);
 
-        List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(InitializationObject initObj, int epgProgramID, int pageSize, int pageIndex);
+        List<TVPPro.SiteManager.Objects.EPGComment> GetEPGCommentsList(GetEPGCommentsListRequest request);
 
-        List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(InitializationObject initObj, string[] sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet);
+        List<TVPApiModule.Objects.Responses.EPGMultiChannelProgrammeObject> GetEPGMultiChannelProgram(GetEPGMultiChannelProgramRequest request);
 
-        List<EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
+        List<EPGChannelProgrammeObject> SearchEPGPrograms(SearchEPGProgramsRequest request);
 
-        List<GroupRule> GetEPGProgramRules(InitializationObject initObj, string sSiteGUID, int MediaId, int programId);
+        List<GroupRule> GetEPGProgramRules(GetEPGProgramRulesRequest request);
 
-        string GetEPGLicensedLink(InitializationObject initObj, string sSiteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType);
+        string GetEPGLicensedLink(GetEPGLicensedLinkRequest request);
     }
 }

@@ -27,7 +27,10 @@ namespace RestfulTVPApi
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
-
+            if (HttpContext.Current.Request.HttpMethod == "OPTIONS")
+            {
+                HttpContext.Current.Response.End();
+            }
         }
 
         protected void Application_AuthenticateRequest(object sender, EventArgs e)

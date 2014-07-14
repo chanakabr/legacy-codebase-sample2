@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using RestfulTVPApi.ServiceModel;
+using System.Collections.Generic;
 using System.Configuration;
 using TVPApiModule.Helper;
 using TVPApiModule.Objects;
@@ -10,264 +11,119 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class ApiRepository : IApiRepository
     {
-        public bool ActivateCampaign(InitializationObject initObj, string siteGuid, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
-                                                   TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionResult status, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.VoucherReceipentInfo[] voucherReceipents)
+        public bool ActivateCampaign(ActivateCampaignRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ActivateCampaign", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).ActivateCampaign(siteGuid, campaignID, hashCode, mediaID, mediaLink, senderEmail, senderName, status, voucherReceipents);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).ActivateCampaign(request.site_guid, request.campaign_id, request.hash_code, request.media_id, request.media_link, request.sender_email, request.sender_name, request.status, request.voucher_receipents);            
         }
 
-        public CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode)
+        public CouponData GetCouponStatus(GetCouponStatusRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCouponStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.PricingService(groupId, initObj.Platform).GetCouponStatus(sCouponCode);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.PricingService(request.GroupID, request.InitObj.Platform).GetCouponStatus(request.coupon_code);
         }
 
-        public PPVModule GetPPVModuleData(InitializationObject initObj, int ppvCode)
+        public PPVModule GetPPVModuleData(GetPPVModuleDataRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetPPVModuleData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.PricingService(groupId, initObj.Platform).GetPPVModuleData(ppvCode, string.Empty, string.Empty, initObj.UDID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.PricingService(request.GroupID, request.InitObj.Platform).GetPPVModuleData(request.ppv_code, string.Empty, string.Empty, request.InitObj.UDID);            
         }
 
-        public string GetIPToCountry(InitializationObject initObj, string IP)
+        public string GetIPToCountry(GetIPToCountryRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetIPToCountry", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.UsersService(groupId, initObj.Platform).IpToCountry(IP);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).IpToCountry(request.ip);            
         }
 
-        public string GetSiteGuidFromSecured(InitializationObject initObj, string encSiteGuid)
+        public string GetSiteGuidFromSecured(GetSiteGuidFromSecuredRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetSiteGuidFromSecured", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            // Shouldn't we wrap it here with try/catch in case TCMClient fails to get values?
 
-            if (groupID > 0)
-            {
-                string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
-                string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+            string privateKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "SiteGuidKv", "SecureSiteGuidKey"));
+            string IV = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "SiteGuidKv", "SecureSiteGuidIV"));
 
-                return SecurityHelper.DecryptSiteGuid(privateKey, IV, encSiteGuid);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return SecurityHelper.DecryptSiteGuid(privateKey, IV, request.encrypted_site_guid);
         }
 
-        public UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID)
+        public UserResponseObject GetUserDataByCoGuid(GetUserDataByCoGuidRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserDataByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.UsersService(groupId, initObj.Platform).GetUserDataByCoGuid(coGuid, operatorID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).GetUserDataByCoGuid(request.co_guid, request.operator_id);            
         }
 
-        public List<Country> GetCountriesList(InitializationObject initObj)
+        public List<Country> GetCountriesList(GetCountriesListRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetCountriesList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.UsersService(groupID, initObj.Platform).GetCountriesList();
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.UsersService(request.GroupID, request.InitObj.Platform).GetCountriesList();
         }
 
-        public string GetGoogleSignature(InitializationObject initObj, int customerId)
+        public string GetGoogleSignature(GetGoogleSignatureRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGoogleSignature", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupID, initObj.Platform).GetGoogleSignature(initObj.SiteGuid, customerId);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetGoogleSignature(request.InitObj.SiteGuid, request.customer_id);
         }
 
-        public FBConnectConfig FBConfig(InitializationObject initObj)
+        public FBConnectConfig FBConfig(FBConfigRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBConfig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-
-
-                FacebookConfig fbConfig = ServicesManager.SocialService(groupId, initObj.Platform).GetFBConfig("0");
+            FacebookConfig fbConfig = ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetFBConfig("0");
 
                 FBConnectConfig retVal = new FBConnectConfig
                 {
                     app_id = fbConfig.fb_key,
                     scope = fbConfig.fb_permissions,
-                    api_user = initObj.ApiUser,
-                    api_pass = initObj.ApiPass
+                    api_user = request.InitObj.ApiUser,
+                    api_pass = request.InitObj.ApiPass
                 };
 
-                return retVal;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+                return retVal;            
         }
 
-        public FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword)
+        public FacebookResponseObject FBUserMerge(FBUserMergeRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserMerge", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).FBUserMerge(sToken, sFBID, sUsername, sPassword);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserMerge(request.token, request.facebook_id, request.user_name, request.password);
         }
 
-        public FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter)
+        public FacebookResponseObject FBUserRegister(FBUserRegisterRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserRegister", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            var oExtra = new List<TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair>() { new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "news", value = request.get_newsletter ? "1" : "0" }, new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "domain", value = request.create_new_domain ? "1" : "0" } };
 
-            if (groupId > 0)
-            {
-                var oExtra = new List<TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair>() { new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "news", value = bGetNewsletter ? "1" : "0" }, new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "domain", value = bCreateNewDomain ? "1" : "0" } };
-                
-                //Ofir - why its was UserHostAddress in ip param?
-                return ServicesManager.SocialService(groupId, initObj.Platform).FBUserRegister(sToken, "0", oExtra, SiteHelper.GetClientIP());
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            //Ofir - why its was UserHostAddress in ip param?
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserRegister(request.token, "0", oExtra, SiteHelper.GetClientIP());
         }
 
-        public FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken)
+        public FacebookResponseObject GetFBUserData(GetFBUserDataRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFBUserData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetFBUserData(sToken, "0");
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetFBUserData(request.token, "0");            
         }
 
-        public DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid)
+        public DomainResponseObject GetDomainByCoGuid(GetDomainByCoGuidRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.DomainsService(groupID, initObj.Platform).GetDomainByCoGuid(coGuid);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDomainByCoGuid(request.co_guid);
         }
 
-        public List<int> GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid)
+        public List<int> GetDomainIDsByOperatorCoGuid(GetDomainIDsByOperatorCoGuidRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDsByOperatorCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.DomainsService(groupID, initObj.Platform).GetDomainIDsByOperatorCoGuid(operatorCoGuid);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDomainIDsByOperatorCoGuid(request.operator_co_guid);
         }
 
-        public int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid)
+        public int GetDomainIDByCoGuid(GetDomainIDByCoGuidRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDomainIDByCoGuid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.DomainsService(groupID, initObj.Platform).GetDomainIDByCoGuid(coGuid);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).GetDomainIDByCoGuid(request.co_guid);
         }
 
-        public DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin)
+        public DeviceRegistration RegisterDeviceByPIN(RegisterDeviceByPINRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RegisterDeviceByPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            DeviceRegistration deviceRegistration = null;
 
-            if (groupID > 0)
+            DeviceResponseObject device = ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).RegisterDeviceByPIN(request.InitObj.UDID, request.InitObj.DomainID, request.pin);
+
+            if (device != null)
             {
-                DeviceRegistration deviceRegistration = null;
-
-                DeviceResponseObject device = ServicesManager.DomainsService(groupID, initObj.Platform).RegisterDeviceByPIN(initObj.UDID, initObj.DomainID, pin);
-
-                if (device != null)
+                if (device.device_response_status == DeviceResponseStatus.Error)
+                    deviceRegistration.reg_status = eDeviceRegistrationStatus.Error;
+                else if (device.device_response_status == DeviceResponseStatus.DuplicatePin || device.device_response_status == DeviceResponseStatus.DeviceNotExists)
+                    deviceRegistration.reg_status = eDeviceRegistrationStatus.Invalid;
+                else
                 {
-                    if (device.device_response_status == DeviceResponseStatus.Error)
-                        deviceRegistration.reg_status = eDeviceRegistrationStatus.Error;
-                    else if (device.device_response_status == DeviceResponseStatus.DuplicatePin || device.device_response_status == DeviceResponseStatus.DeviceNotExists)
-                        deviceRegistration.reg_status = eDeviceRegistrationStatus.Invalid;
-                    else
-                    {
-                        deviceRegistration.reg_status = eDeviceRegistrationStatus.Success;
-                        deviceRegistration.udid = device.device.device_udid;
-                    }
+                    deviceRegistration.reg_status = eDeviceRegistrationStatus.Success;
+                    deviceRegistration.udid = device.device.device_udid;
                 }
-                
-                return deviceRegistration;
             }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+
+            return deviceRegistration;
         }
 
     }

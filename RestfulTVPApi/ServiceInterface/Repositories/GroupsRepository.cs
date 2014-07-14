@@ -9,37 +9,20 @@ using TVPApiModule.Objects;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Objects.Responses;
+using RestfulTVPApi.ServiceModel;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public class GroupsRepository : IGroupsRepository
     {
-        public List<GroupOperator> GetGroupOperators(InitializationObject initObj, string scope)
+        public List<GroupOperator> GetGroupOperators(GetGroupOperatorsRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupOperators", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetGroupOperators(scope);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).GetGroupOperators(request.scope);            
         }
 
-        public List<GroupRule> GetGroupRules(InitializationObject initObj)
+        public List<GroupRule> GetGroupRules(GetGroupRulesRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetGroupRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ServicesManager.ApiApiService(groupID, initObj.Platform).GetGroupRules();
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).GetGroupRules();
         }
     }
 }

@@ -54,7 +54,7 @@ namespace TVPApiModule.Objects.Responses
             get
             {
                 return DataOnPage;
-            }
+            }            
         }
 
         private PageContext pageContext
@@ -252,7 +252,8 @@ namespace TVPApiModule.Objects.Responses
         }
         #endregion
 
-        #region Private Methods
+        #region Private Methods        
+
         public void Init(int groupID, PlatformType platfrom)
         {
             logger.InfoFormat("Init-> [{0}, {1}] - Started intializing page information", groupID, platfrom.ToString());
@@ -262,7 +263,7 @@ namespace TVPApiModule.Objects.Responses
             {
                 //TODO: Logger.Logger.Log("Start load pages", groupID + "_" + platfrom.ToString(), "TVPApi");
                 APIPageDataLoader pd = new APIPageDataLoader() { GroupID = groupID, Platform = platfrom };
-                DataOnPage = pd.Execute();
+                DataOnPage = pd.Execute();                
 
                 if (DataOnPage == null)
                 {

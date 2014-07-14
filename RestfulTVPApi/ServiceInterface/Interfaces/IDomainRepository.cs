@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Objects;
+using RestfulTVPApi.ServiceModel;
 
 namespace RestfulTVPApi.ServiceInterface
 {
@@ -9,52 +10,52 @@ namespace RestfulTVPApi.ServiceInterface
     {
         // Gilad: sDomainId - shouldn't it be outside of the init obj? 
         // it's a main parameter in this function
-        TVPApiModule.Objects.Responses.DomainResponseObject AddDeviceToDomain(InitializationObject initObj, string sDeviceName, int iDeviceBrandID);
+        TVPApiModule.Objects.Responses.DomainResponseObject AddDeviceToDomain(AddDeviceToDomainRequest request);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject AddDomain(InitializationObject initObj, string domainName, string domainDesc, int masterGuid);
+        TVPApiModule.Objects.Responses.DomainResponseObject AddDomain(AddDomainRequest request);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject AddUserToDomain(InitializationObject initObj, string addedUserGuid, int domainId);
+        TVPApiModule.Objects.Responses.DomainResponseObject AddUserToDomain(AddUserToDomainRequest request);
 
-        List<DeviceDomain> GetDeviceDomains(InitializationObject initObj, string udId);
+        List<DeviceDomain> GetDeviceDomains(GetDeviceDomainsRequest request);
 
         //TVPApiModule.Objects.Responses.DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject RemoveDeviceFromDomain(InitializationObject initObj, int domainID, string udId, string sDeviceName, int iDeviceBrandID);
+        TVPApiModule.Objects.Responses.DomainResponseObject RemoveDeviceFromDomain(RemoveDeviceFromDomainRequest request);
 
-        TVPApiModule.Objects.Responses.Domain GetDomainInfo(InitializationObject initObj, int domainId);
+        TVPApiModule.Objects.Responses.Domain GetDomainInfo(GetDomainInfoRequest reuqest);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject ChangeDeviceDomainStatus(InitializationObject initObj, bool bActive);
+        TVPApiModule.Objects.Responses.DomainResponseObject ChangeDeviceDomainStatus(ChangeDeviceDomainStatusRequest request);
 
         //int[] GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid);
 
-        string GetPINForDevice(InitializationObject initObj, int devBrandID);
+        string GetPINForDevice(GetPINForDeviceRequest request);
 
         //TVPApiModule.Services.ApiDomainsService.DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin);
 
-        DomainResponseStatus RemoveDomain(InitializationObject initObj, int domainId);
+        DomainResponseStatus RemoveDomain(RemoveDomainRequest request);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject RemoveUserFromDomain(InitializationObject initObj, string userGuidToRemove, int domainId);
+        TVPApiModule.Objects.Responses.DomainResponseObject RemoveUserFromDomain(RemoveUserFromDomainRequest request);
 
-        bool SetDeviceInfo(InitializationObject initObj, string udid, string deviceName);
+        bool SetDeviceInfo(SetDeviceInfoRequest request);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject SetDomainInfo(InitializationObject initObj, int domainId, string sDomainName, string sDomainDescription);
+        TVPApiModule.Objects.Responses.DomainResponseObject SetDomainInfo(SetDomainInfoRequest request);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject SubmitAddUserToDomainRequest(InitializationObject initObj, string siteGuid, string masterUsername);
+        TVPApiModule.Objects.Responses.DomainResponseObject SubmitAddUserToDomainRequest(SubmitAddUserToDomainRequest request);
 
-        List<TVPApiModule.Objects.Responses.GroupRule> GetDomainGroupRules(InitializationObject initObj, int domainId);
+        List<TVPApiModule.Objects.Responses.GroupRule> GetDomainGroupRules(GetDomainGroupRulesRequest request);
 
-        bool SetDomainGroupRule(InitializationObject initObj, int domainId, int ruleID, string PIN, int isActive);
+        bool SetDomainGroupRule(SetDomainGroupRuleRequest request);
 
-        List<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate);
+        List<TVPApiModule.Objects.Responses.DomainBillingTransactionsResponse> GetDomainsBillingHistory(GetDomainsBillingHistoryRequest request);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject AddDomainWithCoGuid(InitializationObject initObj, string domainName, string domainDesc, int masterGuid, string coGuid);
+        TVPApiModule.Objects.Responses.DomainResponseObject AddDomainWithCoGuid(AddDomainWithCoGuidRequest request);
 
         //int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid);
 
-        List<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetDomainPermittedItems(InitializationObject initObj, int domainId);
+        List<TVPApiModule.Objects.Responses.PermittedMediaContainer> GetDomainPermittedItems(GetDomainPermittedItemsRequest request);
 
-        List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(InitializationObject initObj, int domainId);
+        List<TVPApiModule.Objects.Responses.PermittedSubscriptionContainer> GetDomainPermittedSubscriptions(GetDomainPermittedSubscriptionsRequest request);
 
-        bool SetRuleState(InitializationObject initObj, int ruleID, int isActive);        
+        bool SetRuleState(SetRuleStateRequest request);
     }
 }

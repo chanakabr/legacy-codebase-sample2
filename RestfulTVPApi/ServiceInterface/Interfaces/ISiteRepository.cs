@@ -6,22 +6,23 @@ using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Context;
+using RestfulTVPApi.ServiceModel;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public interface ISiteRepository
     {
-        Menu GetFooter(InitializationObject initObj, long ID);
+        Menu GetFooter(GetFooterRequest request);
 
-        PageGallery GetGallery(InitializationObject initObj, long galleryID, long PageID);
+        PageGallery GetGallery(GetGalleryRequest request);
 
-        List<GalleryItem> GetGalleryContent(InitializationObject initObj, long ID, long PageID, string picSize, int pageSize, int start_index);
+        List<GalleryItem> GetGalleryContent(GetGalleryContentRequest request);
 
-        List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, OrderBy orderBy);
+        List<Media> GetGalleryItemContent(GetGalleryItemContentRequest request);
 
-        Menu GetMenu(InitializationObject initObj, long ID);
+        Menu GetMenu(GetMenuRequest request);
 
-        PageContext GetPage(InitializationObject initObj, long ID, bool withMenu, bool withFooter);
+        PageContext GetPage(GetPageRequest request);
 
         
     }

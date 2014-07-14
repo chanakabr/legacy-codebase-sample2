@@ -23,27 +23,27 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetMediasInPackageRequest request)
         {
-            return _repository.GetMediasInPackage(request.InitObj, request.subscription_id, request.media_type, request.pic_size, request.page_size, request.page_number);
+            return _repository.GetMediasInPackage(request);
         }
 
         public object Get(GetSubscriptionDataPricesRequest request)
         {
-            return _repository.GetSubscriptionDataPrices(request.InitObj, request.subscription_ids);
+            return _repository.GetSubscriptionDataPrices(request);
         }
 
         public object Get(GetSubscriptionProductCodeRequest request)
         {
-            return _repository.GetSubscriptionProductCode(request.InitObj, request.subscription_id);
+            return _repository.GetSubscriptionProductCode(request);
         }
 
         public object Get(GetSubscriptionDataRequest request)
         {
-            return _repository.GetSubscriptionData(request.InitObj, request.subscription_ids);
+            return _repository.GetSubscriptionData(request);
         }
 
         public object Get(GetSubscriptionsPricesWithCouponRequest request)
         {
-            return _repository.GetSubscriptionsPricesWithCoupon(request.InitObj, request.site_guid, request.subscription_ids, request.coupon_code, request.country_code, request.language_code, request.device_name);
+            return _repository.GetSubscriptionsPricesWithCoupon(request);
         }
 
         #endregion

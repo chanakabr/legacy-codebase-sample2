@@ -24,17 +24,17 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetCouponStatusRequest request)
         {
-            return _repository.GetCouponStatus(request.InitObj, request.coupon_code);
+            return _repository.GetCouponStatus(request);
         }
 
         public object Get(GetPPVModuleDataRequest request)
         {
-            return _repository.GetPPVModuleData(request.InitObj, request.ppv_code);
+            return _repository.GetPPVModuleData(request);
         }
 
         public object Get(GetIPToCountryRequest request)
         {
-            return _repository.GetIPToCountry(request.InitObj, request.ip);
+            return _repository.GetIPToCountry(request);
         }
 
         public object Get(GetSecuredSiteGuidRequest request)
@@ -47,47 +47,47 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetSiteGuidFromSecuredRequest request)
         {
-            return _repository.GetSiteGuidFromSecured(request.InitObj, request.encrypted_site_guid);
+            return _repository.GetSiteGuidFromSecured(request);
         }
 
         public object Get(GetUserDataByCoGuidRequest request)
         {
-            return _repository.GetUserDataByCoGuid(request.InitObj, request.co_guid, request.operator_id);
+            return _repository.GetUserDataByCoGuid(request);
         }
 
         public object Get(GetCountriesListRequest request)
         {
-            return _repository.GetCountriesList(request.InitObj);
+            return _repository.GetCountriesList(request);
         }
 
         public object Get(GetGoogleSignatureRequest request)
         {
-            return _repository.GetGoogleSignature(request.InitObj, request.customer_id);
+            return _repository.GetGoogleSignature(request);
         }
 
         public object Get(FBConfigRequest request)
         {
-            return _repository.FBConfig(request.InitObj);
+            return _repository.FBConfig(request);
         }
 
         public object Get(GetFBUserDataRequest request)
         {
-            return _repository.GetFBUserData(request.InitObj, request.token);
+            return _repository.GetFBUserData(request);
         }
 
         public object Get(GetDomainByCoGuidRequest request)
         {
-            return _repository.GetDomainByCoGuid(request.InitObj, request.co_guid);
+            return _repository.GetDomainByCoGuid(request);
         }
 
         public object Get(GetDomainIDsByOperatorCoGuidRequest request)
         {
-            return _repository.GetDomainIDsByOperatorCoGuid(request.InitObj, request.operator_co_guid);
+            return _repository.GetDomainIDsByOperatorCoGuid(request);
         }
 
         public object Get(GetDomainIDByCoGuidRequest request)
         {
-            return _repository.GetDomainIDByCoGuid(request.InitObj, request.co_guid);
+            return _repository.GetDomainIDByCoGuid(request);
         }
 
         #endregion
@@ -96,13 +96,12 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Put(ActivateCampaignRequest request)
         {
-            return _repository.ActivateCampaign(request.InitObj, request.site_guid, request.campaign_id, request.hash_code, request.media_id, request.media_link, request.sender_email, request.sender_name,
-                                                        request.status, request.voucher_receipents);
+            return _repository.ActivateCampaign(request);
         }
 
         public object Put(FBUserMergeRequest request)
         {
-            return _repository.FBUserMerge(request.InitObj, request.token, request.facebook_id, request.user_name, request.password);
+            return _repository.FBUserMerge(request);
         }
 
         #endregion
@@ -111,12 +110,12 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Post(FBUserRegisterRequest request)
         {
-            return _repository.FBUserRegister(request.InitObj, request.token, request.create_new_domain, request.get_newsletter);
+            return _repository.FBUserRegister(request);
         }
 
         public object Post(RegisterDeviceByPINRequest request)
         {
-            return _repository.RegisterDeviceByPIN(request.InitObj, request.pin);
+            return _repository.RegisterDeviceByPIN(request);
         }
 
         #endregion

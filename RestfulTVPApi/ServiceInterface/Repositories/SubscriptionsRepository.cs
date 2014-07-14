@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using RestfulTVPApi.ServiceModel;
+using System.Collections.Generic;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Helper;
@@ -12,40 +13,28 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class SubscriptionsRepository : ISubscriptionsRepository
     {
-        public List<Media> GetMediasInPackage(InitializationObject initObj, int baseID, int mediaType, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetMediasInPackage(GetMediasInPackageRequest request)
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediasInPackage", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                lstMedia = new APISubscriptionMediaLoader(baseID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize)
+            lstMedia = new APISubscriptionMediaLoader(request.subscription_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size)
                 {
-                    MediaTypes = new List<int>() { mediaType },
-                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    MediaTypes = new List<int>() { request.media_type },
+                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
                 }.Execute() as List<Media>;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+
 
             return lstMedia;
         }
 
-        public List<SubscriptionPrice> GetSubscriptionDataPrices(InitializationObject initObj, int[] subIDs)
+        public List<SubscriptionPrice> GetSubscriptionDataPrices(GetSubscriptionDataPricesRequest request)
         {
             List<SubscriptionPrice> res = new List<SubscriptionPrice>();
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionDataPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                foreach (int subID in subIDs)
+            foreach (int subID in request.subscription_ids)
                 {
 
-                    var priceObj = ServicesManager.PricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false);
+                    var priceObj = ServicesManager.PricingService(request.GroupID, request.InitObj.Platform).GetSubscriptionData(subID.ToString(), false);
 
                     res.Add(new SubscriptionPrice
                     {
@@ -54,69 +43,36 @@ namespace RestfulTVPApi.ServiceInterface
                         currency = priceObj.subscription_price_code.prise.currency.currency_sign
                     });
                 }
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            
             return res;
         }
 
-        public string GetSubscriptionProductCode(InitializationObject initObj, int subID)
+        public string GetSubscriptionProductCode(GetSubscriptionProductCodeRequest request)
         {
             string res = string.Empty;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionProductCode", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                res = ServicesManager.PricingService(groupId, initObj.Platform).GetSubscriptionData(subID.ToString(), false).product_code;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            res = ServicesManager.PricingService(request.GroupID, request.InitObj.Platform).GetSubscriptionData(request.subscription_id.ToString(), false).product_code;
+            
             return res;
         }
 
-        public List<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs)
+        public List<Subscription> GetSubscriptionData(GetSubscriptionDataRequest request)
         {
             List<Subscription> res = new List<Subscription>();
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            ApiPricingService _service = ServicesManager.PricingService(request.GroupID, request.InitObj.Platform);
 
-            if (groupId > 0)
-            {
-                ApiPricingService _service = ServicesManager.PricingService(groupId, initObj.Platform);
-
-                foreach (int subID in subIDs)
+                foreach (int subID in request.subscription_ids)
                 {
                     res.Add(_service.GetSubscriptionData(subID.ToString(), false));
                 }
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            
             return res;
         }
 
-        public List<SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string sSiteGUID, string[] sSubscriptions, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public List<SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(GetSubscriptionsPricesWithCouponRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsPricesWithCoupon", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetSubscriptionsPricesWithCoupon(sSubscriptions, sSiteGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetSubscriptionsPricesWithCoupon(request.subscription_ids, request.site_guid, request.coupon_code, request.country_code, request.language_code, request.device_name);
         }
-
     }
 }

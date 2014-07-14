@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using RestfulTVPApi.ServiceModel;
+using System.Collections.Generic;
 using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Responses;
@@ -7,14 +8,14 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public interface ISubscriptionsRepository
     {
-        List<Media> GetMediasInPackage(InitializationObject initObj, int baseID, int mediaType, string picSize, int pageSize, int pageIndex);
+        List<Media> GetMediasInPackage(GetMediasInPackageRequest request);
 
-        List<SubscriptionPrice> GetSubscriptionDataPrices(InitializationObject initObj, int[] subIDs);
+        List<SubscriptionPrice> GetSubscriptionDataPrices(GetSubscriptionDataPricesRequest request);
 
-        string GetSubscriptionProductCode(InitializationObject initObj, int subID);
+        string GetSubscriptionProductCode(GetSubscriptionProductCodeRequest request);
 
-        List<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs);
+        List<Subscription> GetSubscriptionData(GetSubscriptionDataRequest request);
 
-        List<SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string sSiteGUID, string[] sSubscriptions, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+        List<SubscriptionsPricesContainer> GetSubscriptionsPricesWithCoupon(GetSubscriptionsPricesWithCouponRequest request);
     }
 }

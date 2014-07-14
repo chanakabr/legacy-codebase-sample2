@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestfulTVPApi.ServiceModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -13,42 +14,42 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public interface IMediasRepository
     {
-        List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaID, string picSize);
+        List<Media> GetMediasInfo(GetMediasInfoRequest request);
 
-        List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
+        List<Comment> GetMediaComments(GetMediaCommentsRequest request);
 
-        bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive);
+        bool AddComment(AddCommentRequest request);
 
-        MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID);
+        MediaMarkObject GetMediaMark(GetMediaMarkRequest request);
 
-        string MediaMark(InitializationObject initObj, action Action, int mediaType, int iMediaID, int iFileID, int iLocation);
+        string MediaMark(RestfulTVPApi.ServiceModel.MediaMarkRequest request);
 
-        string MediaHit(InitializationObject initObj, int mediaType, int iMediaID, int iFileID, int iLocation);
+        string MediaHit(RestfulTVPApi.ServiceModel.MediaHitRequest request);
 
-        List<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, List<int> reqMediaTypes);
+        List<Media> GetRelatedMediasByTypes(GetRelatedMediasByTypesRequest request);
 
-        List<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex);
+        List<Media> GetPeopleWhoWatched(GetPeopleWhoWatchedRequest request);
 
-        List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName);
+        List<Media> SearchMediaByAndOrList(SearchMediaByAndOrListRequest request);
 
-        bool SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail);
+        bool SendToFriend(SendToFriendRequest request);
 
-        List<string> GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes);
+        List<string> GetAutoCompleteSearchList(GetAutoCompleteSearchListRequest request);
 
-        List<int> GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
+        List<int> GetSubscriptionIDsContainingMediaFile(GetSubscriptionIDsContainingMediaFileRequest request);
 
-        List<MediaFileItemPricesContainer> GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+        List<MediaFileItemPricesContainer> GetItemsPricesWithCoupons(GetItemsPricesWithCouponsRequest request);
 
-        bool IsItemPurchased(InitializationObject initObj, string sSiteGUID, int iFileID);
+        bool IsItemPurchased(IsItemPurchasedRequest request);
 
-        bool IsUserSocialActionPerformed(InitializationObject initObj, string sSiteGUID, int nMediaID, int socialPlatform, int socialAction);
+        bool IsUserSocialActionPerformed(IsUserSocialActionPerformedRequest request);
 
-        string GetMediaLicenseLink(InitializationObject initObj, string sSiteGUID, int mediaFileID, string baseLink);
+        string GetMediaLicenseLink(GetMediaLicenseLinkRequest request);
 
-        PrePaidResponseStatus ChargeMediaWithPrepaid(InitializationObject initObj, string sSiteGUID, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode);
+        PrePaidResponseStatus ChargeMediaWithPrepaid(ChargeMediaWithPrepaidRequest request);
 
-        bool ActionDone(InitializationObject initObj, string sSiteGUID, ActionType action, int mediaID, int mediaType, int extraVal);
+        bool ActionDone(ActionDoneRequest request);
 
-        List<string> GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize);
+        List<string> GetUsersLikedMedia(GetUsersLikedMediaRequest request);
     }
 }

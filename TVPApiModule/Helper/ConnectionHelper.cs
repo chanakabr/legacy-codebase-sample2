@@ -21,6 +21,12 @@ namespace TVPApiModule.Helper
 {
     public class ConnectionHelper
     {
+        #region CONST
+
+        private const string TVINCI_DB_CONFIG = "TVinciDBConfig";
+
+        #endregion
+
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private static ReaderWriterLockSlim _locker = new ReaderWriterLockSlim();
         private static Dictionary<string, Dictionary<string, int>> _groupsModulesIPs = new Dictionary<string, Dictionary<string, int>>();
@@ -161,11 +167,27 @@ namespace TVPApiModule.Helper
         //Get the TVINCI DB connection string
         public static string GetTvinciConnectionString()
         {
-            return string.Concat("Driver={SQL Server};Server=", TVinciDBConfiguration.GetConfig().DBServer,
-                    ";Database=", TVinciDBConfiguration.GetConfig().DBInstance,
-                    ";Uid=", TVinciDBConfiguration.GetConfig().User,
-                    ";Pwd=", TVinciDBConfiguration.GetConfig().Pass,
-                    ";");
+            string sConnectionString = string.Empty;
+            try
+            {
+                string dbServer = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", TVINCI_DB_CONFIG, "DBServer"));
+                string dbInstance = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", TVINCI_DB_CONFIG, "DBInstance"));
+                string user = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", TVINCI_DB_CONFIG, "User"));
+                string pass = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", TVINCI_DB_CONFIG, "Pass"));
+
+                sConnectionString = string.Concat("Driver={SQL Server};Server=", dbServer, ";Database=", dbInstance, ";Uid=", user, ";Pwd=", pass, ";");
+            }
+            catch (Exception ex)
+            {
+                // Write log here
+            }
+
+            return sConnectionString;
+            //return string.Concat("Driver={SQL Server};Server=", TVinciDBConfiguration.GetConfig().DBServer,
+            //        ";Database=", TVinciDBConfiguration.GetConfig().DBInstance,
+            //        ";Uid=", TVinciDBConfiguration.GetConfig().User,
+            //        ";Pwd=", TVinciDBConfiguration.GetConfig().Pass,
+            //        ";");
         }
 
         //Get client specific connection string 

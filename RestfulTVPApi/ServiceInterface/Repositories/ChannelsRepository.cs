@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using RestfulTVPApi.ServiceModel;
+using System.Collections.Generic;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
@@ -13,63 +14,27 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class ChannelsRepository : IChannelsRepository
     {
-        public List<Media> GetChannelMultiFilter(InitializationObject initObj, int ChannelID, string picSize, int pageSize, int pageIndex, TVPApiModule.Context.OrderBy orderBy, eOrderDirection orderDir, List<KeyValue> tagsMetas, CutWith cutWith)
+        public List<Media> GetChannelMultiFilter(GetChannelMultiFilterRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetChannelMultiFilter", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return new APIChannelMediaLoader(ChannelID, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage,null, tagsMetas, cutWith)
+            return new APIChannelMediaLoader(request.channel_id, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage,null, request.tags_metas, request.cut_with)
                 {
-                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
                 }.Execute() as List<Media>;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
         }
 
-        public List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize)
+        public List<Channel> GetChannelsList(GetChannelsListRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetChannelsList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ChannelHelper.GetChannelsList(initObj, sPicSize, groupId);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ChannelHelper.GetChannelsList(request.InitObj, request.pic_size, request.GroupID);
         }
 
-        public Category GetCategory(InitializationObject initObj, int categoryID)
+        public Category GetCategory(GetCategoryRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetCategory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return CategoryTreeHelper.GetCategoryTree(categoryID, groupID, initObj.Platform);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return CategoryTreeHelper.GetCategoryTree(request.category_id, request.GroupID, request.InitObj.Platform);            
         }
 
-        public Category GetFullCategory(InitializationObject initObj, int categoryID, string picSize)
+        public Category GetFullCategory(GetFullCategoryRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetFullCategory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return CategoryTreeHelper.GetFullCategoryTree(categoryID, picSize, groupID, initObj.Platform);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return CategoryTreeHelper.GetFullCategoryTree(request.category_id, request.pic_size, request.GroupID, request.InitObj.Platform);
         }
     }
 }

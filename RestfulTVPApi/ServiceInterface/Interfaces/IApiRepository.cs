@@ -1,4 +1,5 @@
 ﻿
+using RestfulTVPApi.ServiceModel;
 using System.Collections.Generic;
 using TVPApi;
 using TVPApiModule.Objects;
@@ -7,38 +8,37 @@ using TVPApiModule.Objects.Responses;
 namespace RestfulTVPApi.ServiceInterface
 {
     public interface IApiRepository
-    {
-        bool ActivateCampaign(InitializationObject initObj, string siteGuid, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
-                                                   TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionResult status, TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.VoucherReceipentInfo[] voucherReceipents);
+    {        
+        bool ActivateCampaign(ActivateCampaignRequest request);
 
-        CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode);
+        CouponData GetCouponStatus(GetCouponStatusRequest request);
 
-        PPVModule GetPPVModuleData(InitializationObject initObj, int ppvCode);
+        PPVModule GetPPVModuleData(GetPPVModuleDataRequest request);
 
-        string GetIPToCountry(InitializationObject initObj, string IP);
+        string GetIPToCountry(GetIPToCountryRequest request);
 
-        string GetSiteGuidFromSecured(InitializationObject initObj, string encSiteGuid);
+        string GetSiteGuidFromSecured(GetSiteGuidFromSecuredRequest request);
 
-        UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
+        UserResponseObject GetUserDataByCoGuid(GetUserDataByCoGuidRequest request);
 
-        List<Country> GetCountriesList(InitializationObject initObj);
+        List<Country> GetCountriesList(GetCountriesListRequest request);
 
-        string GetGoogleSignature(InitializationObject initObj, int customerId);
+        string GetGoogleSignature(GetGoogleSignatureRequest request);
 
-        FBConnectConfig FBConfig(InitializationObject initObj);
+        FBConnectConfig FBConfig(FBConfigRequest request);
 
-        FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword);
+        FacebookResponseObject FBUserMerge(FBUserMergeRequest request);
 
-        FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter);
+        FacebookResponseObject FBUserRegister(FBUserRegisterRequest request);
 
-        FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken);
+        FacebookResponseObject GetFBUserData(GetFBUserDataRequest request);
 
-        TVPApiModule.Objects.Responses.DomainResponseObject GetDomainByCoGuid(InitializationObject initObj, string coGuid);
+        TVPApiModule.Objects.Responses.DomainResponseObject GetDomainByCoGuid(GetDomainByCoGuidRequest requst);
 
-        List<int> GetDomainIDsByOperatorCoGuid(InitializationObject initObj, string operatorCoGuid);
+        List<int> GetDomainIDsByOperatorCoGuid(GetDomainIDsByOperatorCoGuidRequest request);
 
-        int GetDomainIDByCoGuid(InitializationObject initObj, string coGuid);
+        int GetDomainIDByCoGuid(GetDomainIDByCoGuidRequest request);
 
-        DeviceRegistration RegisterDeviceByPIN(InitializationObject initObj, string pin);
+        DeviceRegistration RegisterDeviceByPIN(RegisterDeviceByPINRequest request);
     }
 }

@@ -6,128 +6,129 @@ using TVPApiModule.Objects;
 using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Helper;
 using TVPApiModule.Context;
+using RestfulTVPApi.ServiceModel;
 
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public interface IUsersRepository
     {
-        List<UserResponseObject> GetUsersData(InitializationObject initObj, string siteGuids);
+        List<UserResponseObject> GetUsersData(GetUsersDataRequest request);
 
-        UserResponseObject SetUserData(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData);
+        UserResponseObject SetUserData(SetUserDataRequest request);
 
-        List<PermittedSubscriptionContainer> GetUserPermitedSubscriptions(InitializationObject initObj, string siteGuid);
+        List<PermittedSubscriptionContainer> GetUserPermitedSubscriptions(GetUserPermitedSubscriptionsRequest request);
 
-        List<PermittedSubscriptionContainer> GetUserExpiredSubscriptions(InitializationObject initObj, string siteGuid, int iTotalItems);
+        List<PermittedSubscriptionContainer> GetUserExpiredSubscriptions(GetUserExpiredSubscriptionsRequest request);
 
-        List<PermittedMediaContainer> GetUserPermittedItems(InitializationObject initObj, string siteGuid);
+        List<PermittedMediaContainer> GetUserPermittedItems(GetUserPermittedItemsRequest request);
 
-        List<PermittedMediaContainer> GetUserExpiredItems(InitializationObject initObj, string siteGuid, int iTotalItems);
+        List<PermittedMediaContainer> GetUserExpiredItems(GetUserExpiredItemsRequest request);
 
-        UserResponseObject SignUp(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData, TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData userDynamicData, string sPassword, string sAffiliateCode);
+        UserResponseObject SignUp(SignUpRequest request);
 
-        List<FavoriteObject> GetUserFavorites(InitializationObject initObj, string siteGuid);
+        List<FavoriteObject> GetUserFavorites(GetUserFavoritesRequest request);
 
-        List<GroupRule> GetUserGroupRules(InitializationObject initObj, string siteGuid);
+        List<GroupRule> GetUserGroupRules(GetUserGroupRulesRequest request);
 
-        bool SetUserGroupRule(InitializationObject initObj, string siteGuid, int ruleID, string PIN, int isActive);
+        bool SetUserGroupRule(SetUserGroupRuleRequest request);
 
-        bool CheckGroupRule(InitializationObject initObj, string siteGuid, int ruleID, string PIN);
+        bool CheckGroupRule(CheckGroupRuleRequest request);
 
-        UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass);
+        UserResponseObject ChangeUserPassword(ChangeUserPasswordRequest request);
 
-        UserResponseObject RenewUserPassword(InitializationObject initObj, string sUN, string sPass);
+        UserResponseObject RenewUserPassword(RenewUserPasswordRequest request);
 
-        UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken);
+        UserResponseObject ActivateAccount(ActivateAccountRequest request);
 
-        bool ResendActivationMail(InitializationObject initObj, string sUserName, string sNewPassword);
+        bool ResendActivationMail(ResendActivationMailRequest request);
 
-        eResponseStatus RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID);
+        eResponseStatus RenewUserPIN(RenewUserPINRequest request);
 
-        eResponseStatus SetUserTypeByUserID(InitializationObject initObj, string sSiteGUID, int nUserTypeID);
+        //eResponseStatus SetUserTypeByUserID(InitializationObject initObj, string sSiteGUID, int nUserTypeID);
 
-        UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token);
+        UserResponseObject ActivateAccountByDomainMaster(ActivateAccountByDomainMasterRequest request);
 
-        bool AddItemToList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
+        bool AddItemToList(AddItemToListRequest request);
 
-        List<UserItemList> GetItemFromList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
+        List<UserItemList> GetItemFromList(GetItemFromListRequest request);
 
-        List<KeyValuePair> IsItemExistsInList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
+        List<KeyValuePair> IsItemExistsInList(IsItemExistsInListRequest request);
 
-        bool RemoveItemFromList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
+        bool RemoveItemFromList(RemoveItemFromListRequest request);
 
-        bool UpdateItemInList(InitializationObject initObj, string sSiteGUID, TVPPro.SiteManager.TvinciPlatform.Users.ItemObj[] itemObjects, TVPPro.SiteManager.TvinciPlatform.Users.ItemType itemType, TVPPro.SiteManager.TvinciPlatform.Users.ListType listType);
+        bool UpdateItemInList(UpdateItemInListRequest request);
 
-        List<string> GetPrepaidBalance(InitializationObject initObj, string sSiteGUID, string currencyCode);
+        List<string> GetPrepaidBalance(GetPrepaidBalanceRequest request);
 
-        List<Media> GetLastWatchedMediasByPeriod(InitializationObject initObj, string sSiteGUID, string picSize, int periodBefore, MediaHelper.ePeriod byPeriod);
+        List<Media> GetLastWatchedMediasByPeriod(GetLastWatchedMediasByPeriodRequest request);
 
-        List<Media> GetUserSocialMedias(InitializationObject initObj, string sSiteGUID, int socialPlatform, int socialAction, string picSize, int pageSize, int pageIndex);
+        List<Media> GetUserSocialMedias(GetUserSocialMediasRequest request);
 
-        BillingTransactionsResponse GetUserTransactionHistory(InitializationObject initObj, string sSiteGUID, int start_index, int pageSize);
+        BillingTransactionsResponse GetUserTransactionHistory(GetUserTransactionHistoryRequest request);
 
-        BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode);
+        BillingResponse CC_ChargeUserForPrePaid(CC_ChargeUserForPrePaidRequest request);
 
-        List<UserBillingTransactionsResponse> GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate);
+        List<UserBillingTransactionsResponse> GetUsersBillingHistory(GetUsersBillingHistoryRequest request);
 
-        List<Media> GetUserItems(InitializationObject initObj, string sSiteGUID, UserItemType itemType, string picSize, int pageSize, int start_index);
+        List<Media> GetUserItems(GetUserItemsRequest request);
 
-        AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, string siteGuid, int billingMethod);
+        AdyenBillingDetail GetLastBillingUserInfo(GetLastBillingUserInfoRequest request);
 
-        string GetClientMerchantSig(InitializationObject initObj, string sParamaters);
+        string GetClientMerchantSig(GetClientMerchantSigRequest request);
 
-        List<KeyValuePair<int, bool>> AreMediasFavorite(InitializationObject initObj, string sSiteGUID, List<int> mediaIds);
+        List<KeyValuePair<int, bool>> AreMediasFavorite(AreMediasFavoriteRequest request);
 
-        List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string sSiteGUID, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes);
+        List<Media> GetRecommendedMediasByTypes(GetRecommendedMediasByTypesRequest request);
 
-        bool CancelSubscription(InitializationObject initObj, string sSiteGUID, string sSubscriptionID, int sSubscriptionPurchaseID);
+        bool CancelSubscription(CancelSubscriptionRequest request);
 
-        List<Notification> GetDeviceNotifications(InitializationObject initObj, string sSiteGUID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, Nullable<int> messageCount);
+        List<Notification> GetDeviceNotifications(GetDeviceNotificationsRequest request);
 
-        bool SetNotificationMessageViewStatus(InitializationObject initObj, string sSiteGUID, Nullable<long> notificationRequestID, Nullable<long> notificationMessageID, NotificationMessageViewStatus viewStatus);
+        bool SetNotificationMessageViewStatus(SetNotificationMessageViewStatusRequest request);
 
-        List<TagMetaPairArray> GetUserStatusSubscriptions(InitializationObject initObj, string sSiteGUID);
+        List<TagMetaPairArray> GetUserStatusSubscriptions(GetUserStatusSubscriptionsRequest request);
 
-        bool CleanUserHistory(InitializationObject initObj, string siteGuid, int[] mediaIDs);
+        bool CleanUserHistory(ClearUserHistoryRequest request);
 
-        List<string> GetUserStartedWatchingMedias(InitializationObject initObj, string siteGuid, int numOfItems);
+        List<string> GetUserStartedWatchingMedias(GetUserStartedWatchingMediasRequest request);
 
-        bool SendNewPassword(InitializationObject initObj, string sUserName);
+        bool SendNewPassword(SendNewPasswordRequest request);
 
-        bool IsUserSignedIn(InitializationObject initObj, string siteGuid);
+        bool IsUserSignedIn(IsUserSignedInRequest request);
 
-        bool SetUserDynamicData(InitializationObject initObj, string siteGuid, string sKey, string sValue);
+        bool SetUserDynamicData(SetUserDynamicDataRequest request);
 
-        TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(InitializationObject initObj, string userName, string password);
+        TVPApiModule.Services.ApiUsersService.LogInResponseData SignIn(SignInRequest request);
 
-        void SignOut(InitializationObject initObj, string siteGuid);
+        void SignOut(SignOutRequest request);
 
-        List<FriendWatchedObject> GetAllFriendsWatched(InitializationObject initObj, string siteGuid, int maxResult);
+        List<FriendWatchedObject> GetAllFriendsWatched(GetAllFriendsWatchedRequest request);
 
-        SocialActionResponseStatus DoUserAction(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID);
+        SocialActionResponseStatus DoUserAction(DoUserActionRequest request);
 
-        List<UserSocialActionObject> GetFriendsActions(InitializationObject initObj, string siteGuid, string[] userActions, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform);
+        List<UserSocialActionObject> GetFriendsActions(GetFriendsActionsRequest request);
 
-        List<UserSocialActionObject> GetUserActions(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.eAssetType assetType, int assetID, int startIndex, int numOfRecords, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform);
+        List<UserSocialActionObject> GetUserActions(GetUserActionsRequest request);
 
-        List<eSocialPrivacy> GetUserAllowedSocialPrivacyList(InitializationObject initObj, string siteGuid);
+        List<eSocialPrivacy> GetUserAllowedSocialPrivacyList(GetUserAllowedSocialPrivacyListRequest request);
 
-        eSocialActionPrivacy GetUserExternalActionShare(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform);
+        eSocialActionPrivacy GetUserExternalActionShare(GetUserExternalActionShareRequest request);
 
-        eSocialActionPrivacy GetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform);
+        eSocialActionPrivacy GetUserInternalActionPrivacy(GetUserInternalActionPrivacyRequest request);
 
-        List<string> GetUserFriends(InitializationObject initObj, string siteGuid);
+        List<string> GetUserFriends(GetUserFriendsRequest request);
 
-        eSocialPrivacy GetUserSocialPrivacy(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction);
+        eSocialPrivacy GetUserSocialPrivacy(GetUserSocialPrivacyRequest request);
 
-        bool SetUserExternalActionShare(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eSocialActionPrivacy actionPrivacy);
+        bool SetUserExternalActionShare(SetUserExternalActionShareRequest request);
 
-        bool SetUserInternalActionPrivacy(InitializationObject initObj, string siteGuid, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eSocialActionPrivacy actionPrivacy);
+        bool SetUserInternalActionPrivacy(SetUserInternalActionPrivacyRequest request);
 
-        int AD_GetCustomDataID(InitializationObject initObj, string siteGuid, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string countryCd2, string languageCode3, string deviceName, int assetType);
+        int AD_GetCustomDataID(AD_GetCustomDataIDRequest request);
 
-        int GetCustomDataID(InitializationObject initObj, string siteGuid, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string countryCd2, string languageCode3, string deviceName, int assetType, string overrideEndDate);
+        int GetCustomDataID(GetCustomDataIDRequest request);
 
-        BillingResponse InApp_ChargeUserForMediaFile(InitializationObject initObj, string sSiteGUID, double price, string currency, string productCode, string ppvModuleCode, string receipt);
+        BillingResponse InApp_ChargeUserForMediaFile(InApp_ChargeUserForMediaFileRequest request);
     }
 }

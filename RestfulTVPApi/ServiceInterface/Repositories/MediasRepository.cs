@@ -14,345 +14,174 @@ using TVPApiModule.Objects;
 using TVPApiModule.Manager;
 using TVPApiModule.Helper;
 using TVPApiModule.Context;
+using RestfulTVPApi.ServiceModel;
 
 namespace RestfulTVPApi.ServiceInterface
 {
     public class MediasRepository : IMediasRepository
     {
-        public List<Media> GetMediasInfo(InitializationObject initObj, List<int> MediaIDs, string picSize)
+        public List<Media> GetMediasInfo(GetMediasInfoRequest request)
         {
             List<Media> retMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediasInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                retMedia = new TVPApiModule.CatalogLoaders.APIMediaLoader(MediaIDs, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), picSize, initObj.Locale.LocaleLanguage)
+            retMedia = new TVPApiModule.CatalogLoaders.APIMediaLoader(request.media_ids, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.pic_size, request.InitObj.Locale.LocaleLanguage)
                 {
-                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
                 }.Execute() as List<Media>;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            
             return retMedia;
         }
 
-        public List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex)
+        public List<Comment> GetMediaComments(GetMediaCommentsRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaComments", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return CommentHelper.GetMediaComments(mediaID, groupID, pageSize, pageIndex);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return CommentHelper.GetMediaComments(request.media_id, request.GroupID, request.page_size, request.page_number);            
         }
 
-        public bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive)
+        public bool AddComment(AddCommentRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "AddComment", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return CommentHelper.SaveMediaComments(groupID, initObj.Platform, initObj.SiteGuid, initObj.UDID, initObj.Locale.LocaleLanguage, initObj.Locale.LocaleCountry, mediaID, writer, header, subheader, content, autoActive);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return CommentHelper.SaveMediaComments(request.GroupID, request.InitObj.Platform, request.InitObj.SiteGuid, request.InitObj.UDID, request.InitObj.Locale.LocaleLanguage, request.InitObj.Locale.LocaleCountry, request.media_id, request.writer, request.header, request.sub_header, request.content, request.auto_active);            
         }
 
-        public MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID)
+        public MediaMarkObject GetMediaMark(GetMediaMarkRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                ApiApiService _service = new ApiApiService(groupID, initObj.Platform);
-
-                return _service.GetMediaMark(initObj.SiteGuid, iMediaID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).GetMediaMark(request.InitObj.SiteGuid, request.media_id);
         }
 
-        public string MediaMark(InitializationObject initObj, action Action, int mediaType, int iMediaID, int iFileID, int iLocation)
+        public string MediaMark(RestfulTVPApi.ServiceModel.MediaMarkRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, mediaType, iMediaID, iFileID, iLocation);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ActionHelper.MediaMark(request.InitObj, request.GroupID, request.InitObj.Platform, request.action, request.media_type, request.media_id, request.media_file_id, request.location);            
         }
 
-        public string MediaHit(InitializationObject initObj, int mediaType, int iMediaID, int iFileID, int iLocation)
+        public string MediaHit(RestfulTVPApi.ServiceModel.MediaHitRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ActionHelper.MediaHit(initObj, groupID, initObj.Platform, mediaType, iMediaID, iFileID, iLocation);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ActionHelper.MediaHit(request.InitObj, request.GroupID, request.InitObj.Platform, request.media_type, request.media_id, request.media_file_id, request.location);            
         }
 
-        public List<Media> GetRelatedMediasByTypes(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, List<int> reqMediaTypes)
+        public List<Media> GetRelatedMediasByTypes(GetRelatedMediasByTypesRequest request)
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetRelatedMediasByTypes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                lstMedia = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(mediaID, reqMediaTypes, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage)
+            lstMedia = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(request.media_id, request.media_types, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage)
                 {
-                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
-                }.Execute() as List<Media>;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+                }.Execute() as List<Media>;            
 
             return lstMedia;
         }
 
-        public List<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex)
+        public List<Media> GetPeopleWhoWatched(GetPeopleWhoWatchedRequest request)
         {
             List<Media> lstMedia = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPeopleWhoWatched", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                lstMedia = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader(mediaID, 0, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, initObj.Locale.LocaleLanguage)
+            lstMedia = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader(request.media_id, 0, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.page_size, request.page_number, request.pic_size, request.InitObj.Locale.LocaleLanguage)
                 {
-                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
                 }.Execute() as List<Media>;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            
+            return lstMedia;
+        }
+
+        public List<Media> SearchMediaByAndOrList(SearchMediaByAndOrListRequest request)
+        {
+            List<Media> lstMedia = null;
+
+            lstMedia = new APISearchMediaLoader(request.GroupID, request.InitObj.Platform, request.InitObj.UDID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, request.page_size, request.page_number, request.pic_size, request.exact, request.or_list, request.and_list, new List<int>() { request.media_type })
+                {
+                    OrderBy = request.order_by,
+                    OrderDir = request.order_dir,
+                    OrderMetaMame = request.order_meta_name,
+                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
+                }.Execute() as List<Media>;            
 
             return lstMedia;
         }
 
-        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, string picSize, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMetaName)
+        public bool SendToFriend(SendToFriendRequest request)
         {
-            List<Media> lstMedia = null;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchMediaByAndOrList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                lstMedia = new APISearchMediaLoader(groupID, initObj.Platform, initObj.UDID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, pageSize, pageIndex, picSize, exact, orList, andList, new List<int>() { mediaType })
-                {
-                    OrderBy = orderBy,
-                    OrderDir = orderDir,
-                    OrderMetaMame = orderMetaName,
-                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
-                }.Execute() as List<Media>;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
-            return lstMedia;
+            return ActionHelper.SendToFriend(request.InitObj, request.GroupID, request.media_id, request.sender_name, request.sender_email, request.to_email);            
         }
 
-        public bool SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail)
+        public List<string> GetAutoCompleteSearchList(GetAutoCompleteSearchListRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SendToFriend", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            List<string> lstRet = null;
 
-            if (groupID > 0)
+            int maxItems = ConfigManager.GetInstance().GetConfig(request.GroupID, request.InitObj.Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems;
+            string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(request.GroupID, request.InitObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
+            string[] arrTagNames = ConfigManager.GetInstance().GetConfig(request.GroupID, request.InitObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
+
+            List<string> lstResponse = ServicesManager.ApiApiService(request.GroupID, request.InitObj.Platform).GetAutoCompleteList(request.media_types != null ? request.media_types : new int[0], arrMetaNames, arrTagNames, request.prefix_text, request.InitObj.Locale.LocaleLanguage, 0, maxItems).ToList();
+
+            if (lstResponse != null)
             {
-                return ActionHelper.SendToFriend(initObj, groupID, mediaID, senderName, senderEmail, toEmail);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-        }
+                lstRet = new List<String>();
 
-        public List<string> GetAutoCompleteSearchList(InitializationObject initObj, string prefixText, int[] iMediaTypes)
-        {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetAutoCompleteSearchList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                List<string> lstRet = null;
-
-                int maxItems = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems;
-                string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
-                string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
-
-                List<string> lstResponse = ServicesManager.ApiApiService(groupID, initObj.Platform).GetAutoCompleteList(iMediaTypes != null ? iMediaTypes : new int[0], arrMetaNames, arrTagNames, prefixText, initObj.Locale.LocaleLanguage, 0, maxItems).ToList();
-
-                if (lstResponse != null)
+                foreach (String sTitle in lstResponse)
                 {
-                    lstRet = new List<String>();
-
-                    foreach (String sTitle in lstResponse)
-                    {
-                        if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
-                    }
+                    if (sTitle.ToLower().StartsWith(request.prefix_text.ToLower()))
+                        lstRet.Add(sTitle);
                 }
+            }
 
-                return lstRet;
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return lstRet;
         }
 
-        public List<int> GetSubscriptionIDsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
+        public List<int> GetSubscriptionIDsContainingMediaFile(GetSubscriptionIDsContainingMediaFileRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionIDsContainingMediaFile", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.PricingService(groupId, initObj.Platform).GetSubscriptionIDsContainingMediaFile(iMediaID, iFileID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.PricingService(request.GroupID, request.InitObj.Platform).GetSubscriptionIDsContainingMediaFile(request.media_id, request.media_file_id);            
         }
 
-        public List<MediaFileItemPricesContainer> GetItemsPricesWithCoupons(InitializationObject initObj, string sSiteGUID, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public List<MediaFileItemPricesContainer> GetItemsPricesWithCoupons(GetItemsPricesWithCouponsRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemsPricesWithCoupons", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetItemsPricesWithCoupons(sSiteGUID, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetItemsPricesWithCoupons(request.site_guid, request.media_file_ids, request.site_guid, request.coupon_code, request.only_lowest, request.country_code, request.language_code, request.device_name);
         }
 
-        public bool IsItemPurchased(InitializationObject initObj, string sSiteGUID, int iFileID)
+        public bool IsItemPurchased(IsItemPurchasedRequest request)
         {
             bool bRet = false;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "IsItemPurchased", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            IImplementation impl = WSUtils.GetImplementation(request.GroupID, request.InitObj);
 
-            if (groupId > 0)
-            {
-                IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
-
-                bRet = impl.IsItemPurchased(iFileID, sSiteGUID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            bRet = impl.IsItemPurchased(request.media_file_id, request.site_guid);
+            
             return bRet;
         }
 
-        public bool IsUserSocialActionPerformed(InitializationObject initObj, string sSiteGUID, int nMediaID, int socialPlatform, int socialAction)
+        public bool IsUserSocialActionPerformed(IsUserSocialActionPerformedRequest request)
         {
             bool bRet = false;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "IsUserSocialActionPerformed", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                List<Media> lstMedia = new APIUserSocialMediaLoader(sSiteGUID, socialAction, socialPlatform, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 20, 0, "full")
+            List<Media> lstMedia = new APIUserSocialMediaLoader(request.site_guid, request.social_action, request.social_platform, request.GroupID, request.InitObj.Platform, request.InitObj.UDID, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, 20, 0, "full")
                 {
-                    UseStartDate = bool.Parse(ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate)
+                    UseStartDate = Utils.GetUseStartDateValue(request.GroupID, request.InitObj.Platform)
                 }.Execute() as List<Media>;
 
 
-                string sMediaID = nMediaID.ToString();
+                string sMediaID = request.media_id.ToString();
 
                 bRet = (from r in lstMedia where r.media_id.Equals(sMediaID) select true).FirstOrDefault();
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            
             return bRet;
         }
 
-        public string GetMediaLicenseLink(InitializationObject initObj, string sSiteGUID, int mediaFileID, string baseLink)
+        public string GetMediaLicenseLink(GetMediaLicenseLinkRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLink", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(sSiteGUID, mediaFileID, baseLink, initObj.UDID);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetMediaLicenseLink(request.site_guid, request.media_file_id, request.base_link, request.InitObj.UDID);            
         }
 
-        public PrePaidResponseStatus ChargeMediaWithPrepaid(InitializationObject initObj, string sSiteGUID, double price, string currency, int mediaFileID, string ppvModuleCode, string couponCode)
+        public PrePaidResponseStatus ChargeMediaWithPrepaid(ChargeMediaWithPrepaidRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeMediaWithPrepaid", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                return ServicesManager.ConditionalAccessService(groupId, initObj.Platform).PP_ChargeUserForMediaFile(sSiteGUID, price, currency, mediaFileID, ppvModuleCode, couponCode, initObj.UDID);                
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).PP_ChargeUserForMediaFile(request.InitObj.SiteGuid, request.price, request.currency, request.media_file_id, request.ppv_module_code, request.coupon_code, request.InitObj.UDID);                            
         }
 
         //Ofir - Should DomainID be a param?
-        public bool ActionDone(InitializationObject initObj, string sSiteGUID, ActionType action, int mediaID, int mediaType, int extraVal)
+        public bool ActionDone(ActionDoneRequest request)
         {
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ActionDone", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                return ActionHelper.PerformAction(action, mediaID, mediaType, groupID, initObj.Platform, sSiteGUID, initObj.DomainID, initObj.UDID, extraVal);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ActionHelper.PerformAction(request.action_type, request.media_id, request.media_type, request.GroupID, request.InitObj.Platform, request.InitObj.SiteGuid, request.InitObj.DomainID, request.InitObj.UDID, request.extra_val);            
         }
 
-        public List<string> GetUsersLikedMedia(InitializationObject initObj, string siteGuid, int mediaID, bool onlyFriends, int startIndex, int pageSize)
+        public List<string> GetUsersLikedMedia(GetUsersLikedMediaRequest request)
         {
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUsersLikedMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-            
-            if (groupId > 0)
-            {
-                return ServicesManager.SocialService(groupId, initObj.Platform).GetUsersLikedMedia(siteGuid, mediaID, (int)TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK, onlyFriends, startIndex, pageSize);                
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).GetUsersLikedMedia(request.site_guid, request.media_id, (int)TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK, request.only_friends, request.page_number, request.page_size);                            
         }
     }
 }

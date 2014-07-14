@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestfulTVPApi.ServiceModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -13,39 +14,21 @@ namespace RestfulTVPApi.ServiceInterface
 {
     public class NotificationsRepository : INotificationsRepository
     {
-        public bool SubscribeByTag(InitializationObject initObj, string sSiteGUID, List<TagMetaPairArray> tags)
+        public bool SubscribeByTag(SubscribeByTagRequest request)
         {
             bool bRes = false;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "SubscribeByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                bRes = ServicesManager.NotificationService(groupId, initObj.Platform).SubscribeByTag(initObj.SiteGuid, tags);              
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
+            bRes = ServicesManager.NotificationService(request.GroupID, request.InitObj.Platform).SubscribeByTag(request.site_guid, request.tags);                          
 
             return bRes;
         }
 
-        public bool UnsubscribeFollowUpByTag(InitializationObject initObj, string sSiteGUID, List<TagMetaPairArray> tags)
+        public bool UnsubscribeFollowUpByTag(UnSubscribeByTagRequest request)
         {
             bool bRes = false;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnsubscribeFollowUpByTag", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupId > 0)
-            {
-                bRes = ServicesManager.NotificationService(groupId, initObj.Platform).UnsubscribeFollowUpByTag(sSiteGUID, tags);
-            }
-            else
-            {
-                throw new UnknownGroupException();
-            }
-
+            bRes = ServicesManager.NotificationService(request.GroupID, request.InitObj.Platform).UnsubscribeFollowUpByTag(request.site_guid, request.tags);
+            
             return bRes;
         }
 
