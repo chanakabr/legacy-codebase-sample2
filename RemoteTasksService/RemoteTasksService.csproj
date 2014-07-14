@@ -121,6 +121,14 @@
       <Project>{680b9d3b-e9de-4d05-9280-f8e8b3128c48}</Project>
       <Name>RemoteTasksCommon</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SocialFeedHandler\SocialFeedHandler.csproj">
+      <Project>{6a3171f6-bfc9-4407-97ee-8e20e36ad783}</Project>
+      <Name>SocialFeedHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SocialUnmergeHandler\SocialUnmergeHandler.csproj">
+      <Project>{8cd02f4a-582f-4e14-abca-225e18e7ab81}</Project>
+      <Name>SocialUnmergeHandler</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

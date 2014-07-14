@@ -36,15 +36,14 @@ namespace SocialFeedHandler
             int nSiteGuid;
             if (int.TryParse(m_sSiteGuid, out nSiteGuid))
             {
-                int nNumOfFriends = oFBWrapper.GetUserFriendsGuid(nSiteGuid, out lFriendsGuid);
-
-                if (nNumOfFriends > 0)
+                if (oFBWrapper.GetUserFriendsGuid(nSiteGuid, out lFriendsGuid))
                 {
-                    bResult = oSocialBL.UpdateUserActivityFeed(lFriendsGuid, sDbActionID);
+                    if(lFriendsGuid != null && lFriendsGuid.Count > 0)
+                        bResult = oSocialBL.UpdateUserActivityFeed(lFriendsGuid, sDbActionID);
                 }
                 else
                 {
-                    Logger.Logger.Log("Info", "user with site guid {0} has no friends. action with id {1} not published to feed", "SocialFeedHandler");
+                    Logger.Logger.Log("Info", "caught error when getting user friends guid. site guid={0}", "SocialFeedHandler");
                 }
             }
             return bResult;

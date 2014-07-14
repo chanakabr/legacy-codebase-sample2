@@ -17,7 +17,7 @@ namespace SocialFeedHandler
             {
                 Logger.Logger.Log("Info", string.Concat("starting social feeder request. data=", data), "SocialFeedHandler");
 
-                SocialData request = Newtonsoft.Json.JsonConvert.DeserializeObject<SocialData>(data);
+                SocialFeedRequest request = Newtonsoft.Json.JsonConvert.DeserializeObject<SocialFeedRequest>(data);
 
                 SocialFeeder feeder = new SocialFeeder(request.GroupId, request.ActorSiteGuid);
                 bool bResult = feeder.UpdateFriendsFeed(request.DbActionId);

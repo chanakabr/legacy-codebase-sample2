@@ -17,7 +17,7 @@ namespace SocialUnmergeHandler
             try
             {
                 Logger.Logger.Log("Info", string.Concat("starting social feeder request. data=", data), "SocialUnmergeHandler");
-                ApiObjects.MediaIndexingObjects.SocialUnmergeData request = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiObjects.MediaIndexingObjects.SocialUnmergeData>(data);
+                ApiObjects.MediaIndexingObjects.SocialUnmergeRequest request = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiObjects.MediaIndexingObjects.SocialUnmergeRequest>(data);
                 DoUnmerge(request);
             }
             catch (Exception ex)
@@ -28,7 +28,7 @@ namespace SocialUnmergeHandler
             return res;
         }
 
-        private void DoUnmerge(ApiObjects.MediaIndexingObjects.SocialUnmergeData request)
+        private void DoUnmerge(ApiObjects.MediaIndexingObjects.SocialUnmergeRequest request)
         {
             if (request == null || request.GroupId == 0 || string.IsNullOrEmpty(request.sSiteGuid))
             {
