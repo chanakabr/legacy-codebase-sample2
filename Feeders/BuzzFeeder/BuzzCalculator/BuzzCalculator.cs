@@ -89,6 +89,12 @@ namespace BuzzFeeder.BuzzCalculator
 
         protected void CalculateDeltaFromAverage(double nGroupAvg)
         {
+            //if nGroupAvg == 0, this means that no actions were made and thus all sample counts are 0.
+            if (nGroupAvg == 0)
+            {
+                return;
+            }
+
             foreach (string sItemID in m_dCurBuzzCount.Keys)
             {
                 m_dItemStats[sItemID].nDeltaFromGroupAverage = (m_dCurBuzzCount[sItemID].nSampleCount / nGroupAvg) - 1;
