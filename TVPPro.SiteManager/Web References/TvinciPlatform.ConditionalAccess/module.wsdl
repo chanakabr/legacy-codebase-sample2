@@ -36,6 +36,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_purchaseMethod" type="tns:PaymentMethod" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceUDID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="PaymentMethod">
@@ -292,6 +293,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_paymentMethod" type="tns:PaymentMethod" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceUDID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserPermittedSubscriptions">
@@ -342,6 +344,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_paymentMethod" type="tns:PaymentMethod" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceUDID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserPermittedCollections">
@@ -374,6 +377,23 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetUserExpiredSubscriptionsResult" type="tns:ArrayOfPermittedSubscriptionContainer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserExpiredCollections">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="numOfItems" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserExpiredCollectionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserExpiredCollectionsResult" type="tns:ArrayOfPermittedCollectionContainer" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -665,6 +685,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_oPPVDescription" type="tns:ArrayOfLanguageContainer" />
           <s:element minOccurs="1" maxOccurs="1" name="m_couponStatus" type="s1:CouponsStatus" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sFirstDeviceNameFound" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="PriceReason">
@@ -1930,6 +1951,49 @@
           <s:enumeration value="Error" />
         </s:restriction>
       </s:simpleType>
+      <s:element name="CancelTransaction">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nAssetID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="transactionType" type="tns:eTransactionType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eTransactionType">
+        <s:restriction base="s:string">
+          <s:enumeration value="PPV" />
+          <s:enumeration value="Subscription" />
+          <s:enumeration value="Collection" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="CancelTransactionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CancelTransactionResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="WaiverTransaction">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nAssetID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="transactionType" type="tns:eTransactionType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="WaiverTransactionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="WaiverTransactionResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
       <s:element name="string" nillable="true" type="s:string" />
@@ -2073,6 +2137,8 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_is_renew" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_num_of_rec_periods" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_device_limit_id" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bWaiver" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nWaiverPeriod" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="CouponsGroup">
@@ -2269,6 +2335,12 @@
   </wsdl:message>
   <wsdl:message name="GetUserExpiredSubscriptionsSoapOut">
     <wsdl:part name="parameters" element="tns:GetUserExpiredSubscriptionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredCollectionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserExpiredCollections" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredCollectionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserExpiredCollectionsResponse" />
   </wsdl:message>
   <wsdl:message name="IsPermittedItemSoapIn">
     <wsdl:part name="parameters" element="tns:IsPermittedItem" />
@@ -2612,6 +2684,18 @@
   <wsdl:message name="ChangeSubscriptionSoapOut">
     <wsdl:part name="parameters" element="tns:ChangeSubscriptionResponse" />
   </wsdl:message>
+  <wsdl:message name="CancelTransactionSoapIn">
+    <wsdl:part name="parameters" element="tns:CancelTransaction" />
+  </wsdl:message>
+  <wsdl:message name="CancelTransactionSoapOut">
+    <wsdl:part name="parameters" element="tns:CancelTransactionResponse" />
+  </wsdl:message>
+  <wsdl:message name="WaiverTransactionSoapIn">
+    <wsdl:part name="parameters" element="tns:WaiverTransaction" />
+  </wsdl:message>
+  <wsdl:message name="WaiverTransactionSoapOut">
+    <wsdl:part name="parameters" element="tns:WaiverTransactionResponse" />
+  </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2734,6 +2818,15 @@
   </wsdl:message>
   <wsdl:message name="GetUserExpiredSubscriptionsHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfPermittedSubscriptionContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredCollectionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="numOfItems" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredCollectionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedCollectionContainer" />
   </wsdl:message>
   <wsdl:message name="IsPermittedItemHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3516,6 +3609,26 @@
   <wsdl:message name="ChangeSubscriptionHttpPostOut">
     <wsdl:part name="Body" element="tns:ChangeSubscriptionStatus" />
   </wsdl:message>
+  <wsdl:message name="CancelTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="nAssetID" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CancelTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="WaiverTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="nAssetID" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="WaiverTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
@@ -3572,6 +3685,10 @@
     <wsdl:operation name="GetUserExpiredSubscriptions">
       <wsdl:input message="tns:GetUserExpiredSubscriptionsSoapIn" />
       <wsdl:output message="tns:GetUserExpiredSubscriptionsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredCollections">
+      <wsdl:input message="tns:GetUserExpiredCollectionsSoapIn" />
+      <wsdl:output message="tns:GetUserExpiredCollectionsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="IsPermittedItem">
       <wsdl:input message="tns:IsPermittedItemSoapIn" />
@@ -3801,6 +3918,14 @@
       <wsdl:input message="tns:ChangeSubscriptionSoapIn" />
       <wsdl:output message="tns:ChangeSubscriptionSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="CancelTransaction">
+      <wsdl:input message="tns:CancelTransactionSoapIn" />
+      <wsdl:output message="tns:CancelTransactionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="WaiverTransaction">
+      <wsdl:input message="tns:WaiverTransactionSoapIn" />
+      <wsdl:output message="tns:WaiverTransactionSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
     <wsdl:operation name="GetUserPermittedItems">
@@ -3850,6 +3975,10 @@
     <wsdl:operation name="GetUserExpiredSubscriptions">
       <wsdl:input message="tns:GetUserExpiredSubscriptionsHttpPostIn" />
       <wsdl:output message="tns:GetUserExpiredSubscriptionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredCollections">
+      <wsdl:input message="tns:GetUserExpiredCollectionsHttpPostIn" />
+      <wsdl:output message="tns:GetUserExpiredCollectionsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="IsPermittedItem">
       <wsdl:input message="tns:IsPermittedItemHttpPostIn" />
@@ -4067,6 +4196,14 @@
       <wsdl:input message="tns:ChangeSubscriptionHttpPostIn" />
       <wsdl:output message="tns:ChangeSubscriptionHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="CancelTransaction">
+      <wsdl:input message="tns:CancelTransactionHttpPostIn" />
+      <wsdl:output message="tns:CancelTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="WaiverTransaction">
+      <wsdl:input message="tns:WaiverTransactionHttpPostIn" />
+      <wsdl:output message="tns:WaiverTransactionHttpPostOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -4189,6 +4326,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserExpiredSubscriptions">
       <soap:operation soapAction="http://ca.tvinci.com/GetUserExpiredSubscriptions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredCollections">
+      <soap:operation soapAction="http://ca.tvinci.com/GetUserExpiredCollections" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4709,6 +4855,24 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CancelTransaction">
+      <soap:operation soapAction="http://ca.tvinci.com/CancelTransaction" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WaiverTransaction">
+      <soap:operation soapAction="http://ca.tvinci.com/WaiverTransaction" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleSoap12" type="tns:moduleSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -4831,6 +4995,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserExpiredSubscriptions">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserExpiredSubscriptions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredCollections">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetUserExpiredCollections" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -5351,6 +5524,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CancelTransaction">
+      <soap12:operation soapAction="http://ca.tvinci.com/CancelTransaction" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WaiverTransaction">
+      <soap12:operation soapAction="http://ca.tvinci.com/WaiverTransaction" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -5455,6 +5646,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserExpiredSubscriptions">
       <http:operation location="/GetUserExpiredSubscriptions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredCollections">
+      <http:operation location="/GetUserExpiredCollections" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -5941,6 +6141,24 @@
     </wsdl:operation>
     <wsdl:operation name="ChangeSubscription">
       <http:operation location="/ChangeSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelTransaction">
+      <http:operation location="/CancelTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WaiverTransaction">
+      <http:operation location="/WaiverTransaction" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

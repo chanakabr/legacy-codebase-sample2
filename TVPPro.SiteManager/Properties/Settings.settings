@@ -12,7 +12,7 @@
       <Value Profile="(Default)">http://webservices-us.tvinci.com/billing_v1_3/module.asmx</Value>
     </Setting>
     <Setting Name="TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://192.168.16.176/webservices/pricing/module.asmx</Value>
+      <Value Profile="(Default)">http://192.168.192.146/webservices/pricing/module.asmx</Value>
     </Setting>
     <Setting Name="TVPPro_SiteManager_TvinciPlatform_Users_UsersService" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://192.168.16.176/webservices/users/module.asmx</Value>
@@ -21,13 +21,13 @@
       <Value Profile="(Default)">http://192.168.16.176/webservices/domains/module.asmx</Value>
     </Setting>
     <Setting Name="TVPPro_SiteManager_TvinciPlatform_Social_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://webservices.dev/Social/module.asmx</Value>
+      <Value Profile="(Default)">http://192.168.192.146/webservices/social/module.asmx</Value>
     </Setting>
     <Setting Name="TVPPro_SiteManager_TvinciPlatform_api_API" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://192.168.162.58/WS_API/api.asmx</Value>
     </Setting>
     <Setting Name="TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://192.168.16.176/webservices/cas/module.asmx</Value>
+      <Value Profile="(Default)">http://192.168.192.146/webservices/cas/module.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>

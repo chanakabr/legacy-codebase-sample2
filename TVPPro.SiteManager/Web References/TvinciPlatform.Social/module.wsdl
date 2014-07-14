@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://social.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://social.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://social.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://social.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://social.tvinci.com/">
       <s:element name="GetUsersLikedMedia">
@@ -641,6 +641,33 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="FBUserUnmerge">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUsername" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserUnmergeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserUnmergeResult" type="tns:FacebookResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
+      <s:element name="ArrayOfFriendWatchedObject" nillable="true" type="tns:ArrayOfFriendWatchedObject" />
+      <s:element name="eSocialPrivacy" type="tns:eSocialPrivacy" />
+      <s:element name="ArrayOfESocialPrivacy" nillable="true" type="tns:ArrayOfESocialPrivacy" />
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="FacebookConfig" nillable="true" type="tns:FacebookConfig" />
+      <s:element name="FacebookResponseObject" nillable="true" type="tns:FacebookResponseObject" />
+      <s:element name="eSocialActionPrivacy" type="tns:eSocialActionPrivacy" />
+      <s:element name="int" type="s:int" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="GetUsersLikedMediaSoapIn">
@@ -769,6 +796,182 @@
   <wsdl:message name="ShareSoapOut">
     <wsdl:part name="parameters" element="tns:ShareResponse" />
   </wsdl:message>
+  <wsdl:message name="FBUserUnmergeSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserUnmerge" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserUnmergeResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersLikedMediaHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
+    <wsdl:part name="nPlatform" type="s:string" />
+    <wsdl:part name="bOnlyFriends" type="s:string" />
+    <wsdl:part name="nStartIndex" type="s:string" />
+    <wsdl:part name="nNumberOfItems" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersLikedMediaHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfString" />
+  </wsdl:message>
+  <wsdl:message name="GetAllFriendsWatchedHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="nMaxResults" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllFriendsWatchedHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfFriendWatchedObject" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendsWatchedByMediaHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendsWatchedByMediaHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfFriendWatchedObject" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacyHttpPostOut">
+    <wsdl:part name="Body" element="tns:eSocialPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="GetUserAllowedSocialPrivacyListHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserAllowedSocialPrivacyListHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfESocialPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSocialPrivacyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+    <wsdl:part name="ePrivacy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSocialPrivacyHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetUserFriendsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserFriendsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfString" />
+  </wsdl:message>
+  <wsdl:message name="FBConfigHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="stg" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBConfigHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookConfig" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="token" type="s:string" />
+    <wsdl:part name="stg" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMerageHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="token" type="s:string" />
+    <wsdl:part name="fbid" type="s:string" />
+    <wsdl:part name="sUserName" type="s:string" />
+    <wsdl:part name="sPass" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMerageHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="SetUserExternalActionShareHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+    <wsdl:part name="eActionPrivacy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetUserExternalActionShareHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="SetUserInternalActionPrivacyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+    <wsdl:part name="eActionPrivacy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetUserInternalActionPrivacyHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExternalActionShareHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExternalActionShareHttpPostOut">
+    <wsdl:part name="Body" element="tns:eSocialActionPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="GetUserInternalActionPrivacyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserInternalActionPrivacyHttpPostOut">
+    <wsdl:part name="Body" element="tns:eSocialActionPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="GetAssetLikeCounterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nAssetID" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAssetLikeCounterHttpPostOut">
+    <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
+  <wsdl:message name="ShareHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="sDeviceUdid" type="s:string" />
+    <wsdl:part name="sFBActionID" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
+    <wsdl:part name="nAssetID" type="s:string" />
+    <wsdl:part name="eAssetType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ShareHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sToken" type="s:string" />
+    <wsdl:part name="sUsername" type="s:string" />
+    <wsdl:part name="sPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponseObject" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetUsersLikedMedia">
       <wsdl:input message="tns:GetUsersLikedMediaSoapIn" />
@@ -853,6 +1056,80 @@
     <wsdl:operation name="Share">
       <wsdl:input message="tns:ShareSoapIn" />
       <wsdl:output message="tns:ShareSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <wsdl:input message="tns:FBUserUnmergeSoapIn" />
+      <wsdl:output message="tns:FBUserUnmergeSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="moduleHttpPost">
+    <wsdl:operation name="GetUsersLikedMedia">
+      <wsdl:input message="tns:GetUsersLikedMediaHttpPostIn" />
+      <wsdl:output message="tns:GetUsersLikedMediaHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllFriendsWatched">
+      <wsdl:input message="tns:GetAllFriendsWatchedHttpPostIn" />
+      <wsdl:output message="tns:GetAllFriendsWatchedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsWatchedByMedia">
+      <wsdl:input message="tns:GetFriendsWatchedByMediaHttpPostIn" />
+      <wsdl:output message="tns:GetFriendsWatchedByMediaHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacy">
+      <wsdl:input message="tns:GetUserSocialPrivacyHttpPostIn" />
+      <wsdl:output message="tns:GetUserSocialPrivacyHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAllowedSocialPrivacyList">
+      <wsdl:input message="tns:GetUserAllowedSocialPrivacyListHttpPostIn" />
+      <wsdl:output message="tns:GetUserAllowedSocialPrivacyListHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacy">
+      <wsdl:input message="tns:SetUserSocialPrivacyHttpPostIn" />
+      <wsdl:output message="tns:SetUserSocialPrivacyHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFriends">
+      <wsdl:input message="tns:GetUserFriendsHttpPostIn" />
+      <wsdl:output message="tns:GetUserFriendsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBConfig">
+      <wsdl:input message="tns:FBConfigHttpPostIn" />
+      <wsdl:output message="tns:FBConfigHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserData">
+      <wsdl:input message="tns:FBUserDataHttpPostIn" />
+      <wsdl:output message="tns:FBUserDataHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMerage">
+      <wsdl:input message="tns:FBUserMerageHttpPostIn" />
+      <wsdl:output message="tns:FBUserMerageHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserExternalActionShare">
+      <wsdl:input message="tns:SetUserExternalActionShareHttpPostIn" />
+      <wsdl:output message="tns:SetUserExternalActionShareHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserInternalActionPrivacy">
+      <wsdl:input message="tns:SetUserInternalActionPrivacyHttpPostIn" />
+      <wsdl:output message="tns:SetUserInternalActionPrivacyHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExternalActionShare">
+      <wsdl:input message="tns:GetUserExternalActionShareHttpPostIn" />
+      <wsdl:output message="tns:GetUserExternalActionShareHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserInternalActionPrivacy">
+      <wsdl:input message="tns:GetUserInternalActionPrivacyHttpPostIn" />
+      <wsdl:output message="tns:GetUserInternalActionPrivacyHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetLikeCounter">
+      <wsdl:input message="tns:GetAssetLikeCounterHttpPostIn" />
+      <wsdl:output message="tns:GetAssetLikeCounterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Share">
+      <wsdl:input message="tns:ShareHttpPostIn" />
+      <wsdl:output message="tns:ShareHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <wsdl:input message="tns:FBUserUnmergeHttpPostIn" />
+      <wsdl:output message="tns:FBUserUnmergeHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -1039,6 +1316,15 @@
     </wsdl:operation>
     <wsdl:operation name="Share">
       <soap:operation soapAction="http://social.tvinci.com/Share" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserUnmerge" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -1238,13 +1524,181 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserUnmerge" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="GetUsersLikedMedia">
+      <http:operation location="/GetUsersLikedMedia" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllFriendsWatched">
+      <http:operation location="/GetAllFriendsWatched" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsWatchedByMedia">
+      <http:operation location="/GetFriendsWatchedByMedia" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacy">
+      <http:operation location="/GetUserSocialPrivacy" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAllowedSocialPrivacyList">
+      <http:operation location="/GetUserAllowedSocialPrivacyList" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacy">
+      <http:operation location="/SetUserSocialPrivacy" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFriends">
+      <http:operation location="/GetUserFriends" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBConfig">
+      <http:operation location="/FBConfig" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserData">
+      <http:operation location="/FBUserData" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMerage">
+      <http:operation location="/FBUserMerage" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserExternalActionShare">
+      <http:operation location="/SetUserExternalActionShare" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserInternalActionPrivacy">
+      <http:operation location="/SetUserInternalActionPrivacy" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExternalActionShare">
+      <http:operation location="/GetUserExternalActionShare" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserInternalActionPrivacy">
+      <http:operation location="/GetUserInternalActionPrivacy" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetLikeCounter">
+      <http:operation location="/GetAssetLikeCounter" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Share">
+      <http:operation location="/Share" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <http:operation location="/FBUserUnmerge" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://webservices.dev/Social/module.asmx" />
+      <soap:address location="http://192.168.192.146/webservices/social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://webservices.dev/Social/module.asmx" />
+      <soap12:address location="http://192.168.192.146/webservices/social/module.asmx" />
+    </wsdl:port>
+    <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
+      <http:address location="http://192.168.192.146/webservices/social/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
