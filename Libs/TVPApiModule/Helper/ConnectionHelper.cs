@@ -197,6 +197,34 @@ namespace TVPApi
             }
         }
 
+        public static Dictionary<string, string> GetSupportedPlatforms()
+        {
+            Dictionary<string, string> retval = null;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+
+            selectQuery += "select * from lu_platform";
+
+            DataTable dt = selectQuery.Execute("query", true);
+            if (dt != null)
+            {
+                Int32 nCount = dt.DefaultView.Count;
+                if (nCount > 0)
+                {
+                    retval = new Dictionary<string, string>();
+                    foreach (DataRow item in dt.Rows)
+                    {
+                        retval.Add(item["Name"].ToString(), item["ID"].ToString());
+                    }
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+            return retval;
+
+        }
+
         public static bool GetApiCredentials(string sCRMUser, string sCRMPass, out string sApiUser, out string sApiPass)
         {
             bool isAuth = false;

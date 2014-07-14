@@ -518,14 +518,25 @@ namespace TVPApi
             return retVal;
         }
 
-        public static List<string> GetAutoCompleteList(int groupID, PlatformType platform, int[] iMediaTypes, string prefix, string lang, int pageIdx, int pageSize)
+        public static List<string> GetAutoCompleteList(int groupID, InitializationObject initObj, int[] iMediaTypes, string prefix, string lang, int pageIdx, int pageSize)
         {
-            TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByGroupID(groupID);
-            string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
-            string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
-            List<String> lstResponse = new List<String>();
+            //TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByGroupID(groupID);
+            //string[] arrMetaNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Metadata.ToString().Split(new Char[] { ';' });
+            //string[] arrTagNames = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AutoCompleteValues.Tags.ToString().Split(new Char[] { ';' });
+            //List<String> lstResponse = new List<String>();
+            List<int> _mediaTypes = new List<int>();
 
-            return new ApiApiService(groupID, platform).GetAutoCompleteList(iMediaTypes, arrMetaNames, arrTagNames, prefix, lang, pageIdx, pageSize).ToList();
+            foreach (int __mediaType in iMediaTypes)
+            {
+                _mediaTypes.Add(__mediaType);
+            }
+
+            return new APIMediaAutoCompleteLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIdx, prefix, _mediaTypes, initObj.Locale.LocaleLanguage)
+            {                              
+            }.Execute() as List<string>;
+            
+
+            //return new ApiApiService(groupID, platform).GetAutoCompleteList(iMediaTypes, arrMetaNames, arrTagNames, prefix, lang, pageIdx, pageSize).ToList();
         }
 
         //Call search protocol

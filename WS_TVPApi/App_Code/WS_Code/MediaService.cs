@@ -1063,20 +1063,16 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-                List<string> lstRet = new APIMediaAutoCompleteLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIdx, initObj.Locale.LocaleLanguage, prefixText, iMediaTypes.ToList())
-                    .Execute() as List<string>;
+                List<string> lstRet = new List<String>();
 
-                if (lstRet != null)
-                    retVal = lstRet.ToArray();
+                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
+                    prefixText, initObj.Locale.LocaleLanguage, pageIdx, pageSize);
 
-                //List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
-                //    prefixText, initObj.Locale.LocaleLanguage, pageIdx, pageSize);
-
-                //foreach (String sTitle in lstResponse)
-                //{
-                //    if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
-                //}
-                //retVal = lstRet.ToArray();
+                foreach (String sTitle in lstResponse)
+                {
+                    if (sTitle.ToLower().StartsWith(prefixText.ToLower())) lstRet.Add(sTitle);
+                }
+                retVal = lstRet.ToArray();
             }
 
             return retVal;
@@ -1095,7 +1091,7 @@ namespace TVPApiServices
                 List<string> lstRet = new List<String>();
 
                 int maxItems = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.MovieFinder.MaxItems;
-                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj.Platform, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
+                List<string> lstResponse = MediaHelper.GetAutoCompleteList(groupID, initObj, iMediaTypes != null ? iMediaTypes.Cast<int>().ToArray() : new int[0],
                     prefixText, initObj.Locale.LocaleLanguage, 0, maxItems);
 
                 foreach (String sTitle in lstResponse)

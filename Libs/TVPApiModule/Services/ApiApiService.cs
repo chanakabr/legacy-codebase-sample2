@@ -59,7 +59,8 @@ namespace TVPApiModule.Services
             GroupOperator[] operators = null;
             try
             {
-                operators = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);
+                operators = m_Module.GetOperator(m_wsUserName, m_wsPassword, operatorIds);                
+
             }
             catch (Exception ex)
             {
@@ -246,7 +247,7 @@ namespace TVPApiModule.Services
         {
             bool res = false;
             try
-            {
+            {                
                 res = m_Module.CheckParentalPIN(m_wsUserName, m_wsPassword, siteGuid, ruleID, PIN);
             }
             catch (Exception ex)

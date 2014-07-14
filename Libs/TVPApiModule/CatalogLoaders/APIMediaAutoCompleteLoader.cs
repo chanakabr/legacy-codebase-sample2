@@ -10,8 +10,7 @@ namespace TVPApiModule.CatalogLoaders
 {
     public class APIMediaAutoCompleteLoader : MediaAutoCompleteLoader
     {
-
-        private string m_sCulture;
+         private string m_sCulture;
 
         public string Culture
         {
@@ -25,7 +24,7 @@ namespace TVPApiModule.CatalogLoaders
 
         #region Constructors
 
-        public APIMediaAutoCompleteLoader(int groupID, string platform, string userIP, int pageSize, int pageIndex, string language, string searchText, List<int> mediaTypes)
+        public APIMediaAutoCompleteLoader(int groupID, string platform, string userIP, int pageSize, int pageIndex, string searchText, List<int> mediaTypes, string language)
             : base(groupID, userIP, pageSize, pageIndex, searchText, mediaTypes)
         {
             Platform = platform;
@@ -33,5 +32,6 @@ namespace TVPApiModule.CatalogLoaders
         }
 
         #endregion
+    
     }
 }
