@@ -69,5 +69,8 @@ namespace TVPApiServices
 
         [OperationContract]
         SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, eSocialPlatform socialPlatform, int numOfItems, long epochStartTime);
+
+        [OperationContract]
+        FacebookResponseObject FBUserUnmerge(InitializationObject initObj, string token, string username, string password);
     }
 }

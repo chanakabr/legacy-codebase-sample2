@@ -542,5 +542,30 @@ namespace TVPApiServices
 
             return resSocialFeed;
         }
+
+        [WebMethod(EnableSession = true, Description = "Removes data stored in Kaltura's DB which makes Facebook actions (login, share, like, etc) on the customer site feasible. The user will still be able to see the actions he performed as these are logged as 'Tvinci actions'. However, all his friends won't be able to view his actions as they'll be deleted from social feed")]
+        public FacebookResponseObject FBUserUnmerge(InitializationObject initObj, string token, string username, string password)
+        {
+            FacebookResponseObject response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserUnmerge", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                try
+                {
+                    response = new ApiSocialService(groupId, initObj.Platform).FBUserUnmerge(token, username, password);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");                
+            }
+
+            return response;
+        }
     }
 }

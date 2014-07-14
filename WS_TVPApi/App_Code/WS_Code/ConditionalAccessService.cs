@@ -756,7 +756,7 @@ namespace TVPApiServices
 
             string clientIp = SiteHelper.GetClientIP();
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "ChargeUserForCollection", initObj.ApiUser, initObj.ApiPass, clientIp);
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "DummyChargeUserForCollection", initObj.ApiUser, initObj.ApiPass, clientIp);
 
             if (groupId > 0)
             {
@@ -775,6 +775,90 @@ namespace TVPApiServices
             }
 
             return response;
-        }        
+        }
+
+        [WebMethod(EnableSession = true, Description = "Cancel Transaction")]
+        public bool CancelTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType)
+        {
+            bool isTransactionCancelled = false;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CancelTransaction", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    isTransactionCancelled = new ApiConditionalAccessService(groupId, initObj.Platform).CancelTransaction(siteGuid, assetId, transactionType);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return isTransactionCancelled;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Waiver Transaction")]
+        public bool WaiverTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType)
+        {
+            bool isWaiverTransactionSucceeded = false;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "WaiverTransaction", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    isWaiverTransactionSucceeded = new ApiConditionalAccessService(groupId, initObj.Platform).WaiverTransaction(siteGuid, assetId, transactionType);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return isWaiverTransactionSucceeded;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get User Expired Collection")]
+        public PermittedCollectionContainer[] GetUserExpiredCollections(InitializationObject initObj, string siteGuid, int numOfItems)
+        {
+            PermittedCollectionContainer[] collections = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredCollection", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    collections = new ApiConditionalAccessService(groupId, initObj.Platform).GetUserExpiredCollections(siteGuid, numOfItems);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return collections;
+        }
     }
 }
