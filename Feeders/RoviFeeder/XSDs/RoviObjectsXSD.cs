@@ -258,7 +258,7 @@ namespace RoviFeeder.ObjectList
 
         private string hrefField;
 
-        private uint valueField;
+        private string valueField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -304,7 +304,7 @@ namespace RoviFeeder.ObjectList
 
         /// <remarks/>
         [System.Xml.Serialization.XmlTextAttribute()]
-        public uint Value
+        public string Value
         {
             get
             {
