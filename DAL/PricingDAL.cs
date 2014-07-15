@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using ODBCWrapper;
 
 namespace DAL
 {
@@ -325,6 +326,244 @@ namespace DAL
 
             DataSet ds = spCollectionData.ExecuteDataSet();
             return ds;
+        }
+
+        public static DataTable GetUsageModulePPV(string sAssetCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUsageModulePPV");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@PPVCode", sAssetCode);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null )
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable GetUsageModuleSubscription(string sAssetCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUsageModuleSubscription");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@SubscriptiomCode", sAssetCode);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable GetUsageModuleCollection(string sAssetCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUsageModuleCollection");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@CollectionCode", sAssetCode);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        //public static Dictionary<long, List<long>> Get_SubscriptionsFileTypes(int nGroupID, List<long> lstSubscriptionIDs)
+        //{
+        //    Dictionary<long, List<long>> res = null;
+        //    StoredProcedure sp = new StoredProcedure("Get_SubscriptionsFileTypes");
+        //    sp.SetConnectionKey("PRICING_CONNECTION");
+        //    sp.AddParameter("@GroupID", nGroupID);
+        //    sp.AddIDListParameter("@Subscriptions", lstSubscriptionIDs, "ID");
+
+        //    DataSet ds = sp.ExecuteDataSet();
+        //    if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+        //    {
+        //        DataTable dt = ds.Tables[0];
+        //        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+        //        {
+        //            res = new Dictionary<long, List<long>>(dt.Rows.Count);
+        //            for (int i = 0; i < dt.Rows.Count; i++)
+        //            {
+        //                long lSubCode = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["subscription_id"]);
+        //                long lFileTypeID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["file_type_id"]);
+        //                if (res.ContainsKey(lSubCode))
+        //                {
+        //                    res[lSubCode].Add(lFileTypeID);
+        //                }
+        //                else
+        //                {
+        //                    res.Add(lSubCode, new List<long>() { lFileTypeID });
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            res = new Dictionary<long, List<long>>(0);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        res = new Dictionary<long, List<long>>(0);
+        //    }
+
+        //    return res;
+
+        //}
+
+        public static DataSet Get_SubscriptionsData(int nGroupID, List<long> lstSubscriptions)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_SubscriptionsData");
+            sp.SetConnectionKey("PRICING_CONNECTION");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddIDListParameter("@Subscriptions", lstSubscriptions, "ID");
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static Dictionary<long, List<int>> Get_SubscriptionsFileTypes(int nGroupID, List<long> lstSubsIDs)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_SubscriptionsFileTypes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddIDListParameter("@Subscriptions", lstSubsIDs, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            Dictionary<long, List<int>> res = new Dictionary<long, List<int>>();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        long lSubCode = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["subscription_id"]);
+                        int nFileType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["file_type_id"]);
+                        if (res.ContainsKey(lSubCode))
+                        {
+                            res[lSubCode].Add(nFileType);
+                        }
+                        else
+                        {
+                            res.Add(lSubCode, new List<int>() { nFileType });
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static Dictionary<long, List<long>> Get_SubscriptionsChannels(int nGroupID, List<long> lstSubsIDs)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_SubscriptionsChannels");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddIDListParameter("@Subscriptions", lstSubsIDs, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            Dictionary<long, List<long>> res = new Dictionary<long, List<long>>();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        long lSubCode = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["subscription_id"]);
+                        long lChannelID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["channel_id"]);
+                        if (res.ContainsKey(lSubCode))
+                        {
+                            res[lSubCode].Add(lChannelID);
+                        }
+                        else
+                        {
+                            res.Add(lSubCode, new List<long>() { lChannelID });
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static Dictionary<long, List<string[]>> Get_SubscriptionsDescription(int nGroupID, List<long> lstSubCodes)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_SubscriptionsDescription");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddIDListParameter("@Subscriptions", lstSubCodes, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            Dictionary<long, List<string[]>> res = new Dictionary<long,List<string[]>>();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        long lSubCode = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["subscription_id"]);
+                        string[] arr = new string[2];
+                        arr[0] = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["language_code3"]);
+                        arr[1] = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["description"]);
+                        if (res.ContainsKey(lSubCode))
+                        {
+                            res[lSubCode].Add(arr);
+                        }
+                        else
+                        {
+                            res.Add(lSubCode, new List<string[]>() { arr });
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static Dictionary<long, List<string[]>> Get_SubscriptionsNames(int nGroupID, List<long> lstSubCodes)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_SubscriptionsNames");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddIDListParameter("@Subscriptions", lstSubCodes, "ID");
+
+            DataSet ds = sp.ExecuteDataSet();
+            Dictionary<long, List<string[]>> res = new Dictionary<long, List<string[]>>();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        long lSubCode = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["subscription_id"]);
+                        string[] arr = new string[2];
+                        arr[0] = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["language_code3"]);
+                        arr[1] = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["description"]);
+                        if (res.ContainsKey(lSubCode))
+                        {
+                            res[lSubCode].Add(arr);
+                        }
+                        else
+                        {
+                            res.Add(lSubCode, new List<string[]>() { arr });
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static DataSet Get_CollectionsData(int nGroupID, List<long> lstCollCodes)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_CollectionsData");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddIDListParameter("@Collections", lstCollCodes, "ID");
+
+            return sp.ExecuteDataSet();
         }
 
     }

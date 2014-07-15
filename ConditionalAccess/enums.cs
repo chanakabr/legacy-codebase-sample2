@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace ConditionalAccess
@@ -145,5 +146,22 @@ namespace ConditionalAccess
         NewSubNotRenewable = 5,
         UserHadNewSub = 6,
         Error = 7
+    }
+    
+    [Serializable]
+    public enum eTransactionType
+    {
+        [EnumMember]
+        PPV,
+        [EnumMember]
+        Subscription,
+        [EnumMember]
+        Collection
+    }
+    internal enum BundleToUse : byte
+    {
+        All = 0,
+        Subscription = 1,
+        Collection = 2
     }
 }

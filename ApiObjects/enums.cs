@@ -142,9 +142,28 @@ namespace ApiObjects
         MUS
     }
 
+
+    public enum eCacheGroupType
+    {
+        GroupCacheExternal,
+        GroupCacheInternal
+    }
     public enum Btype
     {
         SUBSCRIPTION = 0,
         COLLECTION = 1
     }
+
+
+    [Serializable]
+    public enum eTransactionType
+    {
+        [EnumMember]
+        PPV,
+        [EnumMember]
+        Subscription,
+        [EnumMember]
+        Collection
+    }
+
 }

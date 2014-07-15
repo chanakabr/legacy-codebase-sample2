@@ -16,6 +16,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DAL;
 using ElasticSearch.Searcher;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -777,9 +778,10 @@ namespace Catalog
         public static bool KeyInGroupTags(int nGroupID, string sTagType)
         {
             bool bRes = false;
-
-            Group group = GroupsCache.Instance.GetGroup(nGroupID);
-
+                       
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(nGroupID);
+            
             if (group != null)
             {
                 if (group.m_oGroupTags.ContainsValue(sTagType))
@@ -831,6 +833,16 @@ namespace Catalog
             {
                 return null;
             }
+        }
+
+        public static double GetDoubleValFromConfig(string sKey)
+        {
+            double nRes = 0;
+            if (TVinciShared.WS_Utils.GetTcmConfigValue(sKey) != string.Empty)
+            {
+                double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(sKey), out nRes);
+            }
+            return nRes;
         }
 
         public static List<T> ListPaging<T>(List<T> list, int nPageSize, int nPageIndex)

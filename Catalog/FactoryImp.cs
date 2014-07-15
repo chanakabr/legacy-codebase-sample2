@@ -163,7 +163,20 @@ namespace Catalog
             if (m_oBaseRequest is MediaLastPositionRequest)
             {
                 return new MediaLastPositionRequest((MediaLastPositionRequest)this.m_oBaseRequest);
+            } 
+            if (m_oBaseRequest is ChannelObjRequest)
+            {
+                return new ChannelObjRequest((ChannelObjRequest)this.m_oBaseRequest);
+            } 
+            if (m_oBaseRequest is CrowdsourceRequest)
+            {
+                return (CrowdsourceRequest)this.m_oBaseRequest;
             }
+            if (m_oBaseRequest is BundlesContainingMediaRequest)
+            {
+                return new BundlesContainingMediaRequest();
+            }
+
 
             return null;
         }

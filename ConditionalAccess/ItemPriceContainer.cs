@@ -100,6 +100,7 @@ namespace ConditionalAccess
         public TvinciPricing.LanguageContainer[] m_oPPVDescription;
         public TvinciPricing.CouponsStatus m_couponStatus;
         public string m_sFirstDeviceNameFound;
+        public bool m_bCancelWindow;
 
         public ItemPriceContainer()
         {
@@ -113,9 +114,10 @@ namespace ConditionalAccess
             m_bSubscriptionOnly = false;
             m_sFirstDeviceNameFound = string.Empty;
             m_relevantPP = null;
+            m_bCancelWindow = false;
         }
 
-        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, TvinciPricing.Collection relevantCol, bool bSubscriptionOnly)
+        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, TvinciPricing.Collection relevantCol, bool bSubscriptionOnly, bool bCancelWindow = false)
         {
             m_oPPVDescription = oPPVDescription;
             m_oPrice = oPrice;
@@ -125,9 +127,10 @@ namespace ConditionalAccess
             m_relevantCol = relevantCol;
             m_relevantSub = relevantSub;
             m_bSubscriptionOnly = bSubscriptionOnly;
+            m_bCancelWindow = bCancelWindow;
         }
 
-        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, TvinciPricing.Collection relevantCol, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound)
+        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, TvinciPricing.Collection relevantCol, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound, bool bCancelWindow = false)
         {
             m_oPPVDescription = oPPVDescription;
             m_oPrice = oPrice;
@@ -139,6 +142,7 @@ namespace ConditionalAccess
             m_bSubscriptionOnly = bSubscriptionOnly;            
             m_relevantPP = relevantPP;
             m_sFirstDeviceNameFound = sFirstDeviceFound;
+            m_bCancelWindow = bCancelWindow;
         }
     }
 }

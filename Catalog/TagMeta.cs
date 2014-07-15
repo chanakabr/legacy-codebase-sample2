@@ -64,4 +64,42 @@ namespace Catalog
             m_sValue = sValue;
         }
     }
+
+    [DataContract]
+    public class BundleKeyValue
+    {
+        [DataMember]
+        public int m_nBundleCode;
+        [DataMember]
+        public CatalogBundleType m_eBundleType;
+
+        public BundleKeyValue()
+        {
+
+        }
+
+        public BundleKeyValue(int nBundleCode, CatalogBundleType eBundleType)
+        {
+            this.m_nBundleCode = nBundleCode;
+            this.m_eBundleType = eBundleType;
+        }
+    }
+
+    [DataContract]
+    public class BundleTriple
+    {
+        [DataMember]
+        public int m_nBundleCode;
+        [DataMember]
+        public CatalogBundleType m_eBundleType;
+        [DataMember]
+        public bool m_bIsContained;
+
+        public BundleTriple(int nBundleCode, CatalogBundleType eBundleType, bool bIsContained)
+        {
+            this.m_nBundleCode = nBundleCode;
+            this.m_eBundleType = eBundleType;
+            this.m_bIsContained = bIsContained;
+        }
+    }
 }

@@ -9,6 +9,7 @@ using TVinciShared;
 using ApiObjects.SearchObjects;
 using ApiObjects;
 using System.Threading.Tasks;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -30,7 +31,11 @@ namespace Catalog
 
         public static Group BuildGroup(int nGroupID)
         {
-            Group newGroup = new Group(nGroupID);
+            //Group newGroup = new Group(nGroupID);
+            Group newGroup = new Group();
+            newGroup.Init(nGroupID);
+            newGroup.m_nSubGroup = Get_SubGroupsTree(nGroupID);
+            
             GetGroupEpgTagsAndMetas(ref newGroup);
             SetGroupMetas(ref newGroup);
             if (newGroup != null)
@@ -39,10 +44,30 @@ namespace Catalog
                 GetAllGroupChannels(newGroup);
                 GetGroupLanguages(ref newGroup);
             }
-            
+
             //get all PermittedWatchRules by groupID
             SetPermittedWatchRules(ref newGroup);
             return newGroup;
+        }
+        private static List<int> Get_SubGroupsTree(int nGroupID)
+        {
+            List<int> lGroups = new List<int>();
+
+            DataTable dt = DAL.UtilsDal.GetGroupsTree(nGroupID);
+            if (dt != null && dt.DefaultView.Count > 0)
+            {
+                int groupId;
+                for (int i = 0; i < dt.DefaultView.Count; i++)
+                {
+                    groupId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "id");
+                    if (groupId != 0)
+                    {
+                        lGroups.Add(groupId);
+                    }
+                }
+            }
+           
+            return lGroups;
         }
 
         private static void GetGroupLanguages(ref Group group)
@@ -54,12 +79,13 @@ namespace Catalog
             }
         }
 
+
         private static void GetGroupEpgTagsAndMetas(ref Group newGroup)
         {
             try
             {
                 EpgGroupSettings egs = new EpgGroupSettings();
-                DataSet ds = Tvinci.Core.DAL.EpgDal.Get_GroupsTagsAndMetas(newGroup.m_nParentGroupID);
+                DataSet ds = Tvinci.Core.DAL.EpgDal.Get_GroupsTagsAndMetas(newGroup.m_nParentGroupID, newGroup.m_nSubGroup);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
                 {
@@ -103,7 +129,7 @@ namespace Catalog
         {
             oGroup.m_oGroupChannels = new System.Collections.Concurrent.ConcurrentDictionary<int, Channel>();
 
-            DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_GroupChannels(oGroup.m_nParentGroupID);
+            DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_GroupChannels(oGroup.m_nParentGroupID, oGroup.m_nSubGroup);
             List<int> channelIDList = new List<int>();
             if (dt != null && dt.DefaultView.Count > 0)
             {
@@ -147,8 +173,8 @@ namespace Catalog
         }        
 
         private static void SetPermittedWatchRules(ref Group newGroup)
-        {
-            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(newGroup.m_nParentGroupID);
+        {   
+            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(newGroup.m_nParentGroupID, newGroup.m_nSubGroup);
             List<string> lWatchRulesIds = null;
             if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
             {
@@ -576,7 +602,7 @@ namespace Catalog
 
         private static void SetGroupMetas(ref Group group)
         {
-            DataTable dtMappedMetaValues = Tvinci.Core.DAL.CatalogDAL.GetMappedMetasByGroupId(group.m_nParentGroupID);
+            DataTable dtMappedMetaValues = Tvinci.Core.DAL.CatalogDAL.GetMappedMetasByGroupId(group.m_nParentGroupID, group.m_nSubGroup);
             if (dtMappedMetaValues != null && dtMappedMetaValues.Rows.Count > 0)
             {
                 foreach (DataRow metaDataRow in dtMappedMetaValues.Rows)
@@ -610,9 +636,8 @@ namespace Catalog
         private static void GetGroupsTagsTypes(ref Group group)
         {
             group.m_oGroupTags.Add(0, DEFAULT_GROUP_TAG_FREE);
-
-            string sAllGroups = GetSubTreeGroupIds(group.m_nParentGroupID);
-
+            string sAllGroups = group.GetSubTreeGroupIds();
+            
             if (!string.IsNullOrEmpty(sAllGroups))
             {
                 DataTable mediaTagsType = Tvinci.Core.DAL.CatalogDAL.GetMediaTagsTypesByGroupIds(sAllGroups);

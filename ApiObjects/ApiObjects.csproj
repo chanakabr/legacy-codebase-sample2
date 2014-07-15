@@ -85,6 +85,14 @@
     <Compile Include="CinepolisPurchaseMailRequest.cs" />
     <Compile Include="CinepolisRenewalFailMailRequest.cs" />
     <Compile Include="AddDeviceMailRequest.cs" />
+    <Compile Include="CouchbaseWrapperObjects\CbDocumentBase.cs" />
+    <Compile Include="CrowdsourceItems\Base\BaseCrowdsourceItem.cs" />
+    <Compile Include="CrowdsourceItems\CbDocs\CrowdsourceFeedDoc.cs" />
+    <Compile Include="CrowdsourceItems\CbDocs\CrowdsourceJobDoc.cs" />
+    <Compile Include="CrowdsourceItems\eNums.cs" />
+    <Compile Include="CrowdsourceItems\Implementations\OrcaItem.cs" />
+    <Compile Include="CrowdsourceItems\Implementations\RealTimeViewsItem.cs" />
+    <Compile Include="CrowdsourceItems\Implementations\SlidingWindowItem.cs" />
     <Compile Include="DeviceAvailabiltyRule.cs" />
     <Compile Include="BaseCacheObject.cs" />
     <Compile Include="CategoryObject.cs" />
@@ -102,6 +110,7 @@
     <Compile Include="FileTypeContainer.cs" />
     <Compile Include="ForgotPasswordMailRequest.cs" />
     <Compile Include="GenericWriteResponse.cs" />
+    <Compile Include="Cache\ICache.cs" />
     <Compile Include="GroupInfo.cs" />
     <Compile Include="GroupOperator.cs" />
     <Compile Include="GroupRule.cs" />

@@ -278,7 +278,7 @@
           <xsl:text>Parent allowed</xsl:text>
         </xsl:element>
       </xsl:element>
-      </xsl:element>
+      
       <xsl:if test="../*[local-name() = 'LocalizedInfo']/*[local-name() = 'ArtReference']">
         <xsl:variable name="urlPostfix" select="../*[local-name() = 'LocalizedInfo']/*[local-name() = 'ArtReference']"/>
         <xsl:element name="thumb">
@@ -294,6 +294,7 @@
           </xsl:for-each>
         </xsl:element>
       </xsl:if>
+    </xsl:element>
   </xsl:template>
 
   <xsl:template name="build_movie_structure_data">

@@ -16,18 +16,14 @@ namespace Catalog
 
         [DataMember]
         public List<Int32> m_lMediasIds;
-        [DataMember]
-        public string m_sSiteGuid;
-
-
+      
         public MediasProtocolRequest(Int32 nPageSize, Int32 nPageIndex,string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
             : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString)
         {
         }
         public MediasProtocolRequest() 
             : base()
-        {
-            m_sSiteGuid = string.Empty;
+        {          
         }
 
         /*Get Media Details By MediasIds*/

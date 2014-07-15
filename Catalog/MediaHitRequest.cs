@@ -13,6 +13,7 @@ using TVinciShared;
 using DAL;
 using Tvinci.Core.DAL;
 using ApiObjects.Statistics;
+using Catalog.Cache;
 
 namespace Catalog
 {
@@ -128,7 +129,9 @@ namespace Catalog
 
             if (!resultParse || (resultParse == true && action != MediaPlayActions.BITRATE_CHANGE))
             {
-                Group oGroup = GroupsCache.Instance.GetGroup(mediaHitRequest.m_nGroupID);
+                GroupManager groupManager = new GroupManager();
+                Group oGroup = groupManager.GetGroup(mediaHitRequest.m_nGroupID); 
+
                 if (oGroup != null)
                 {
                     MediaView view = new MediaView() { GroupID = oGroup.m_nParentGroupID, MediaID = mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, Location = nPlayTime, MediaType = nMediaTypeID.ToString(), Action = "mediahit", Date = DateTime.UtcNow };

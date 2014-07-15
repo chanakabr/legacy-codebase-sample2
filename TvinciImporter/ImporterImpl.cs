@@ -172,6 +172,36 @@ namespace TvinciImporter
             return nChannelID;
         }
 
+
+        protected static Dictionary<string, string> getMediaIDsbyCoGuids(int nGroupID, string[] sCoGuids)
+        {
+            Dictionary<string, string> dMediaIDs = new Dictionary<string, string>();
+            if (sCoGuids.Length > 0)
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetCachedSec(0);
+                selectQuery += "select id, CO_GUID from media (nolock) where status=1 and CO_GUID in ( '" + string.Join("','", sCoGuids) + "' ) and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    int nCount = selectQuery.Table("query").DefaultView.Count;
+                    //  nMediaIDs = new int[nCount];
+                    for (int i = 0; i < nCount; i++)
+                    {
+                        string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
+                        string sSingleCoGuid = selectQuery.Table("query").DefaultView[i].Row["CO_GUID"].ToString();
+                        if (!dMediaIDs.Keys.Contains(sID))
+                            dMediaIDs.Add(sID, sSingleCoGuid);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            return dMediaIDs;
+        }
+
+
+
         static protected Int32 GetMediaIDByCoGuid(Int32 nGroupID, string sCoGuid)
         {
             Int32 nMediaID = 0;
@@ -838,103 +868,159 @@ namespace TvinciImporter
         // TODO: move public to protected AC
         static public bool ProcessChannelItems(XmlDocument theItem, ref string sCoGuid, ref Int32 nChannelID, ref string sErrorMessage, Int32 nGroupID)
         {
-            Dictionary<string, Int32> orderByTypeMap = GetOrderByTypeMap(nGroupID);
-            bool bOK = true;
-
-            StringReader sr = new StringReader(theItem.OuterXml);
-            XmlReader reader = XmlReader.Create(sr);
-
-            XmlSerializer serializer = new XmlSerializer(typeof(ChannelsSchema.feed));
-            ChannelsSchema.feed deserializedChannels;
             try
             {
-                deserializedChannels = serializer.Deserialize(reader) as ChannelsSchema.feed;
+                Dictionary<string, Int32> orderByTypeMap = GetOrderByTypeMap(nGroupID);
+                bool bOK = true;
+
+                StringReader sr = new StringReader(theItem.OuterXml);
+                XmlReader reader = XmlReader.Create(sr);
+
+                XmlSerializer serializer = new XmlSerializer(typeof(ChannelsSchema.feed));
+                ChannelsSchema.feed deserializedChannels;
+                try
+                {
+                    deserializedChannels = serializer.Deserialize(reader) as ChannelsSchema.feed;
+                }
+                catch
+                {
+                    Logger.Logger.Log("File ProcessChannelItems", "Error in desiralization of the xml", "ImporterImpl");
+                    return false;
+                }
+
+                int currentGroupID = nGroupID;
+
+                // loop all over the channels in deserializedCategories object
+                for (int i = 0; i < deserializedChannels.export.Length; ++i)
+                {
+                    // get parameters -> channel node
+                    if (deserializedChannels.export[i] != null)
+                    {
+                        string sType = string.Empty;
+                        string sAction = string.Empty;
+                        string sOrderDirection = "asc";
+                        ChannelsSchema.value[] theName = new ChannelsSchema.value[1];
+                        theName[0] = new ChannelsSchema.value();
+                        ChannelsSchema.value[] theUniqueName = new ChannelsSchema.value[1];
+                        theUniqueName[0] = new ChannelsSchema.value();
+                        ChannelsSchema.value[] theDescription = new ChannelsSchema.value[1];
+                        theDescription[0] = new ChannelsSchema.value();
+                        string sCutTagsType = string.Empty;
+                        string sMediaType = string.Empty;
+                        string sOrderBy = string.Empty;
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].co_guid))
+                            sCoGuid = deserializedChannels.export[i].co_guid;
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].type))
+                            sType = deserializedChannels.export[i].type;
+                        Int32 nType = (Int32)(sType == "auto" ? ChannelType.auto : ChannelType.manual);
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].action))
+                            sAction = deserializedChannels.export[i].action;
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].order_direction))
+                            sOrderDirection = deserializedChannels.export[i].order_direction;
+                        Int32 nOrderDirection = (Int32)(sOrderDirection == "asc" ? OrderDirection.asc : OrderDirection.desc);
+                        if (deserializedChannels.export[i].basic != null && deserializedChannels.export[i].basic.name != null)
+                            theName = deserializedChannels.export[i].basic.name;
+                        if (!string.IsNullOrEmpty(deserializedChannels.export[i].order_by))
+                            sOrderBy = deserializedChannels.export[i].order_by;
+                        Int32 nOrderBy = 0;
+                        if (orderByTypeMap.ContainsKey(sOrderBy.ToLower()))
+                        {
+                            nOrderBy = orderByTypeMap[sOrderBy.ToLower()];
+                        }
+                        else
+                        {
+                            nOrderBy = -12; // use defualt value
+                        }
+
+                        // get parameters -> basic node(metas)
+                        bool sEnableFeed = false;
+                        int nEnableFeed = 0;
+                        string sPictureURL = string.Empty;
+                        if (deserializedChannels.export[i].basic != null)
+                        {
+                            sEnableFeed = deserializedChannels.export[i].basic.enable_feed;
+                            nEnableFeed = sEnableFeed == true ? 1 : 0;
+                            if (!string.IsNullOrEmpty(deserializedChannels.export[i].basic.is_virtual))
+                                nGroupID = deserializedChannels.export[i].basic.is_virtual != "" ? int.Parse(deserializedChannels.export[i].basic.is_virtual) : currentGroupID;
+                            if (!string.IsNullOrEmpty(deserializedChannels.export[i].basic.thumb))
+                                sPictureURL = deserializedChannels.export[i].basic.thumb;
+                            if (deserializedChannels.export[i].basic.name != null)
+                                theName = deserializedChannels.export[i].basic.name;
+                            if (deserializedChannels.export[i].basic.unique_name != null)
+                                theUniqueName = deserializedChannels.export[i].basic.unique_name;
+                            if (deserializedChannels.export[i].basic.description != null)
+                                theDescription = deserializedChannels.export[i].basic.description;
+                        }
+                        string sMainLang = "";
+                        Int32 nLangID = 0;
+                        GetLangData(nGroupID, ref sMainLang, ref nLangID);
+
+                        Int32 channelID = GetChannelIDByCoGuid(nGroupID, sCoGuid);
+
+                        Int32 nIsAnd = 0;
+                        if (sType == "auto")
+                        {
+                            if (deserializedChannels.export[i].structure != null)
+                            {
+                                if (!string.IsNullOrEmpty(deserializedChannels.export[i].structure.cut_tags_type))
+                                    sCutTagsType = deserializedChannels.export[i].structure.cut_tags_type;
+                                nIsAnd = sCutTagsType == "and" ? 1 : 0;
+
+                                if (!string.IsNullOrEmpty(deserializedChannels.export[i].structure.media_type))
+                                    sMediaType = deserializedChannels.export[i].structure.media_type;
+                            }
+                        }
+
+                        ChannelUpdateInsertBasicMainLangData(nGroupID, ref channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription, nType, sCoGuid, sPictureURL, nEnableFeed,
+                                                                    nOrderBy, nOrderDirection, nIsAnd);
+
+                        UpdateInsertChannelBasicSubLangData(nGroupID, channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription);
+
+                        // get parameters -> structure node -- if it's an automated channel, collect all the structure data, otherwise collect all the media's
+                        if (sType == "auto")
+                        {
+                            if (deserializedChannels.export[i].structure != null)
+                            {
+                                if (deserializedChannels.export[i].structure.strings != null)
+                                {
+                                    ChannelsSchema.meta[] sStringsMetas = deserializedChannels.export[i].structure.strings;
+                                    UpdateStringChannelMainLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
+                                    UpdateChannelStringSubLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
+                                }
+                                if (deserializedChannels.export[i].structure.doubles != null)
+                                {
+                                    ChannelsSchema.meta[] sDoublesMetas = deserializedChannels.export[i].structure.doubles;
+                                    UpdateChannelDoublesData(nGroupID, channelID, sMainLang, ref sDoublesMetas, ref sErrorMessage);
+                                }
+                                if (deserializedChannels.export[i].structure.booleans != null)
+                                {
+                                    ChannelsSchema.meta[] sBooleansMetas = deserializedChannels.export[i].structure.booleans;
+                                    UpdateChannelBoolsData(nGroupID, channelID, sMainLang, ref sBooleansMetas, ref sErrorMessage);
+                                }
+                                if (deserializedChannels.export[i].structure.tags_metas != null)
+                                {
+                                    ChannelsSchema.tags_meta[] sTagsMetas = deserializedChannels.export[i].structure.tags_metas;
+                                    UpdateChannelTags(nGroupID, channelID, sMainLang, ref sTagsMetas, ref sErrorMessage);
+                                }
+                            }
+                        }
+                        else if (sType == "manual")
+                        {
+                            UpdateMedias(nGroupID, channelID, deserializedChannels.export[i].medias);
+                        }
+
+                        UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { channelID }, ApiObjects.eAction.Update);
+                    }                
+
+                }
+
+                return bOK;
             }
-            catch
+            catch (Exception exc)
             {
+                Logger.Logger.Log("File ProcessChannelItems", "Exception during parsing the xml:" +exc.Message, "ImporterImpl");
                 return false;
             }
-
-            int currentGroupID = nGroupID;
-
-            // loop all over the channels in deserializedCategories object
-            for (int i = 0; i < deserializedChannels.export.Length; ++i)
-            {
-
-                // get parameters -> channel node
-                sCoGuid = deserializedChannels.export[i].co_guid;
-                string sType = deserializedChannels.export[i].type;
-                Int32 nType = (Int32)(sType == "auto" ? ChannelType.auto : ChannelType.manual);
-                string sAction = deserializedChannels.export[i].action;
-
-                string sOrderBy = deserializedChannels.export[i].order_by;
-                Int32 nOrderBy = 0;
-                if (orderByTypeMap.ContainsKey(sOrderBy.ToLower()))
-                {
-                    nOrderBy = orderByTypeMap[sOrderBy.ToLower()];
-                }
-                else
-                {
-                    // use defualt value
-                    nOrderBy = -12;
-                }
-
-
-                string sOrderDirection = deserializedChannels.export[i].order_direction;
-                Int32 nOrderDirection = (Int32)(sOrderDirection == "asc" ? OrderDirection.asc : OrderDirection.desc);
-
-                // get parameters -> basic node(metas)
-                bool sEnableFeed = deserializedChannels.export[i].basic.enable_feed;
-                Int32 nEnableFeed = sEnableFeed == true ? 1 : 0;
-                //nGroupID            = deserializedChannels.export[i].basic.is_virtual != "" ? int.Parse(deserializedChannels.export[i].basic.is_virtual) : currentGroupID;
-                string sPictureURL = deserializedChannels.export[i].basic.thumb;
-
-                ChannelsSchema.value[] theName = deserializedChannels.export[i].basic.name;
-                ChannelsSchema.value[] theUniqueName = deserializedChannels.export[i].basic.unique_name;
-                ChannelsSchema.value[] theDescription = deserializedChannels.export[i].basic.description;
-
-                string sMainLang = "";
-                Int32 nLangID = 0;
-                GetLangData(nGroupID, ref sMainLang, ref nLangID);
-
-                Int32 channelID = GetChannelIDByCoGuid(nGroupID, sCoGuid);
-
-                Int32 nIsAnd = 0;
-                if (sType == "auto")
-                {
-                    string sCutTagsType = deserializedChannels.export[i].structure.cut_tags_type;
-                    nIsAnd = sCutTagsType == "and" ? 1 : 0;
-                    string sMediaType = deserializedChannels.export[i].structure.media_type;
-                }
-
-                ChannelUpdateInsertBasicMainLangData(nGroupID, ref channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription, nType, sCoGuid, sPictureURL, nEnableFeed,
-                                                         nOrderBy, nOrderDirection, nIsAnd);
-
-                UpdateInsertChannelBasicSubLangData(nGroupID, channelID, sMainLang, ref theName, ref theUniqueName, ref theDescription);
-
-                // get parameters -> structure node -- if it's an automated channel, collect all the structure data, otherwise collect all the media's
-                if (sType == "auto")
-                {
-                    ChannelsSchema.meta[] sStringsMetas = deserializedChannels.export[i].structure.strings;
-                    ChannelsSchema.meta[] sDoublesMetas = deserializedChannels.export[i].structure.doubles;
-                    ChannelsSchema.meta[] sBooleansMetas = deserializedChannels.export[i].structure.booleans;
-                    ChannelsSchema.tags_meta[] sTagsMetas = deserializedChannels.export[i].structure.tags_metas;
-
-                    UpdateStringChannelMainLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
-                    UpdateChannelStringSubLangData(nGroupID, channelID, sMainLang, ref sStringsMetas);
-
-                    UpdateChannelDoublesData(nGroupID, channelID, sMainLang, ref sDoublesMetas, ref sErrorMessage);
-                    UpdateChannelBoolsData(nGroupID, channelID, sMainLang, ref sBooleansMetas, ref sErrorMessage);
-
-                    UpdateChannelTags(nGroupID, channelID, sMainLang, ref sTagsMetas, ref sErrorMessage);
-                }
-                else if (sType == "manual")
-                {
-                    UpdateMedias(nGroupID, channelID, deserializedChannels.export[i].medias);
-                }
-            }
-
-            return bOK;
         }
 
         static protected void UpdateMedias(Int32 nGroupID, Int32 channelID, ChannelsSchema.media[] theMedias)
@@ -942,60 +1028,84 @@ namespace TvinciImporter
             // move all the channels media status 4 (not active)
             ODBCWrapper.UpdateQuery updateClearQuery = new ODBCWrapper.UpdateQuery("channels_media");
             updateClearQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 4);
+            updateClearQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow); 
             updateClearQuery += " where ";
             updateClearQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
             updateClearQuery.Execute();
             updateClearQuery.Finish();
             updateClearQuery = null;
 
-            for (int i = 0; i < theMedias.Length; ++i)
+            //generate Dictionary with the CO_GUID and the order_number
+            Dictionary<string,string> dCoGuids_OrderNum = new Dictionary<string,string>();
+            foreach (ChannelsSchema.media media in theMedias)
             {
-                // Convert co_guid to media ID
-                int mediaID = GetMediaIDByCoGuid(nGroupID, theMedias[i].ID);
+                if (!dCoGuids_OrderNum.Keys.Contains(media.ID))
+                    dCoGuids_OrderNum.Add(media.ID, media.order_number);
+            }
+            //get the media IDs according to the co_guids. Key = the media ID, Value = the CO_GUID
+            Dictionary<string, string> dMediaIDs = getMediaIDsbyCoGuids(nGroupID, dCoGuids_OrderNum.Keys.ToArray());
 
+            if (dMediaIDs.Count > 0)
+            {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select ID from channels_media where ";
+                selectQuery += "select ID, MEDIA_ID from channels_media where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
                 selectQuery += " and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
-
-                // check if media exist in channel, if so update the data, otherwise insert the new media
+                selectQuery += " and MEDIA_ID in (" + string.Join(",", (dMediaIDs.Keys.ToList()).ToArray()) + " ) ";
+                selectQuery.SetCachedSec(0);
+                List<string> lUpdatedMediaIDs = new List<string>();
                 if (selectQuery.Execute("query", true) != null)
                 {
-                    if (selectQuery.Table("query").DefaultView.Count != 0)
+                    // update all the relevant medias 
+                    for (int j = 0; j < selectQuery.Table("query").DefaultView.Count; j++)
                     {
-                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels_media");
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", int.Parse(theMedias[i].order_number));
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
-                        updateQuery += " where ";
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
-                        updateQuery.Execute();
-                        updateQuery.Finish();
-                        updateQuery = null;
+                        string sID = selectQuery.Table("query").DefaultView[j].Row["ID"].ToString();
+                        string sMediaID = selectQuery.Table("query").DefaultView[j].Row["MEDIA_ID"].ToString();
+                        if (!lUpdatedMediaIDs.Contains(sMediaID))//update the row only if there is no other row with this channel+media_ID combination
+                        {
+                            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("channels_media");
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", int.Parse(dCoGuids_OrderNum[dMediaIDs[sMediaID]]));
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                            updateQuery += " where ";
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", int.Parse(sID));
+                            updateQuery.Execute();
+                            updateQuery.Finish();
+                            updateQuery = null;
+                        }
+                        //generate a list with all medias that were updated 
+                        if (!lUpdatedMediaIDs.Contains(sMediaID))
+                            lUpdatedMediaIDs.Add(sMediaID);
                     }
-                    else
-                    {
-                        ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("channels_media");
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", mediaID);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", Int32.Parse(theMedias[i].order_number));
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
-                        insertQuery.Execute();
-                        insertQuery.Finish();
-                        insertQuery = null;
-                    }
+                }
+           
+                //remove from ditionary every media that was updated
+                foreach (string sMediaIDInList in lUpdatedMediaIDs)
+                {
+                    if (dMediaIDs.Keys.Contains(sMediaIDInList))
+                        dMediaIDs.Remove(sMediaIDInList); 
                 }
 
                 // clear and null
                 selectQuery.Finish();
                 selectQuery = null;
+            
+                //insert all the medias that are left into channels_media
+                foreach (string sMediaID in dMediaIDs.Keys.ToList())
+                {
+                    ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("channels_media");
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", int.Parse(sMediaID) );
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", int.Parse(dCoGuids_OrderNum[dMediaIDs[sMediaID]]));
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+                    insertQuery.Execute();
+                    insertQuery.Finish();
+                    insertQuery = null;
+                }
             }
         }
 

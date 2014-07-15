@@ -186,7 +186,7 @@ namespace Logger
                               "\"" + "Timespan" + "\"" + ":" + "{7}",
                               "\"" + "HostName" + "\"" + ":" + "\"" + "{8}" + "\"" };
 
-            string log = string.Format(string.Join(",", lines), DateTime.UtcNow.ToString(datePattern), this.Id, this.Service, this.Method, this.Severity, this.Message.Replace("\"", "''"), this.Type.ToString(), this.TimeSpan, this.HostName);
+            string log = string.Format(string.Join(",", lines), Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), this.Id, this.Service, this.Method, this.Severity, this.Message.Replace("\"", "''"), this.Type.ToString(), this.TimeSpan, this.HostName);
 
             log = log.PadLeft(log.Length + 1, '{');
             log = log.PadRight(log.Length + 1, '}');

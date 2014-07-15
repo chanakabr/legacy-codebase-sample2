@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
+using Catalog.Cache;
 using Logger;
 using TVinciShared;
 
@@ -46,13 +47,15 @@ namespace Catalog
 
                 response.m_bExists = false;
                 response.m_nTotalItems = 0;
+                                
+                GroupManager groupManager = new GroupManager();
+                Group groupInCache = groupManager.GetGroup(request.m_nGroupID);   
 
-                Group groupInCache = GroupsCache.Instance.GetGroup(request.m_nGroupID);
-                List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nSubscriptionID, eBundleType.SUBSCRIPTION);
+                List<int> channelIds = Catalog.GetBundleChannelIds(request.m_nGroupID, request.m_nSubscriptionID, CatalogBundleType.SUBSCRIPTION);
                 if (groupInCache != null && channelIds != null && channelIds.Count > 0)
                 {
                     // Buils search Object per channelId call Searcher to return true/false result
-                    List<Channel> allChannels = GroupsCache.Instance.GetChannelsFromCache(channelIds, request.m_nGroupID);
+                    List<Channel> allChannels = groupInCache.GetChannelsFromCache(channelIds, request.m_nGroupID);
 
                     if (allChannels != null && allChannels.Count > 0)
                     {

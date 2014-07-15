@@ -7,6 +7,7 @@ using Logger;
 using System.Reflection;
 using System.Data;
 using Tvinci.Core.DAL;
+using Catalog.Cache;
 using ApiObjects.MediaMarks;
 
 namespace Catalog
@@ -56,7 +57,7 @@ namespace Catalog
                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
                 if (sCheckSignature != request.m_sSignature)
                     throw new Exception("Signatures dosen't match");
-
+               
                 List<UserMediaMark> lastMediaMarksList = CatalogDAL.Get_PersonalLastDevice(request.m_nMediaIDs, request.m_sSiteGuid);
                 int startIndex = -1;
                 int count = -1;
