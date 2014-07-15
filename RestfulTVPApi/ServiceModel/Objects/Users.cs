@@ -35,6 +35,15 @@ namespace RestfulTVPApi.ServiceModel
         public string site_guid { get; set; }
     }
 
+    [Route("/users/{site_guid}/collections/expired", "GET", Notes = "This method returns an array of collections that the user has purchased and which are now expired. Example: Can display the expired collections items in the user’s personal zone.")]
+    public class GetUserExpiredCollectionsRequest : RequestBase, IReturn<List<PermittedCollectionContainer>>
+    {
+        [ApiMember(Name = "site_guid", Description = "User Identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "num_of_items", Description = "", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public int num_of_items { get; set; }
+    }
+
     [Route("/users/{site_guid}/items", "GET", Notes = "This method returns an array of user items (favorites, rentals etc.,). The media type returns within the media object. Use this method to obtain all personal information for user‟s personal zone")]
     public class GetUserItemsRequest : PagingRequest, IReturn<List<PermittedMediaContainer>>
     {
@@ -45,7 +54,7 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "item_type", Description = "Item type", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         [ApiAllowableValues("item_type", typeof(UserItemType))]
         public UserItemType item_type { get; set; }
-    }
+    }    
 
     [Route("/users/{site_guid}/medias/permitted", "GET", Notes = "This method returns an array of media file items that were purchased by the user including time, date, viewing and purchase details. ")]
     public class GetUserPermittedItemsRequest : RequestBase, IReturn<List<PermittedMediaContainer>>
@@ -553,6 +562,28 @@ namespace RestfulTVPApi.ServiceModel
         public int old_subscription { get; set; }
         [ApiMember(Name = "new_subscription", Description = "New subscription Id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
         public int new_subscription { get; set; }
+    }
+
+    [Route("/users/{site_guid}/transaction_cancel/{asset_id}", "PUT", Summary = "", Notes = "")]
+    public class CancelTransactionRequest : RequestBase, IReturn<bool>
+    {
+        [ApiMember(Name = "site_guid", Description = "User identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "asset_id", Description = "Asset id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int asset_id { get; set; }
+        [ApiMember(Name = "transaction_type", Description = "Transaction type", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eTransactionType transaction_type { get; set; }
+    }
+
+    [Route("/users/{site_guid}/transaction_waiver/{asset_id}", "PUT", Summary = "", Notes = "")]
+    public class WaiverTransactionRequest : RequestBase, IReturn<bool>
+    {
+        [ApiMember(Name = "site_guid", Description = "User identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
+        [ApiMember(Name = "asset_id", Description = "Asset id", ParameterType = "path", DataType = SwaggerType.Int, IsRequired = true)]
+        public int asset_id { get; set; }
+        [ApiMember(Name = "transaction_type", Description = "Transaction type", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
+        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eTransactionType transaction_type { get; set; }
     }
 
     #endregion

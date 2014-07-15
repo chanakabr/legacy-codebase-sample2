@@ -50,7 +50,7 @@ namespace RestfulTVPApi.ServiceModel
         public string language_code { get; set; }
         [ApiMember(Name = "device_name", Description = "Device Name", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string device_name { get; set; }
-    }    
+    }        
 
     #endregion
 }

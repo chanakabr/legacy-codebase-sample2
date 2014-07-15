@@ -24,11 +24,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public DomainResponseObject AddDomain(AddDomainRequest request)
         {
-            DomainResponseObject domainRes = null;
-
-            domainRes = ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).AddDomain(request.device_name, request.domain_desc, request.master_guid_id);
-
-            return domainRes;
+            return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).AddDomain(request.device_name, request.domain_desc, request.master_guid_id);
         }
 
         public List<DeviceDomain> GetDeviceDomains(GetDeviceDomainsRequest request)
@@ -220,7 +216,6 @@ namespace RestfulTVPApi.ServiceInterface
         {
             return ServicesManager.DomainsService(request.GroupID, request.InitObj.Platform).UpdateDomainHomeNetwork(request.domain_id, request.network_id, request.network_name, request.network_description, request.is_active);         
         }
-
 
         public NetworkResponseObject RemoveDomainHomeNetwork(RemoveDomainHomeNetworkRequest request)
         {

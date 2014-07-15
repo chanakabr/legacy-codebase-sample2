@@ -14,7 +14,8 @@ namespace TVPApiModule.Objects
         NotificationService,
         PricingService,
         SocialService,
-        UsersService
+        UsersService,
+        CatalogService
     }
 }
 //{

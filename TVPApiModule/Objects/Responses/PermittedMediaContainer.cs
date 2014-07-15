@@ -26,5 +26,7 @@ namespace TVPApiModule.Objects.Responses
         public string device_udid { get; set; }
 
         public string device_name { get; set; }
+
+        public bool is_cancel_window { get; set; }
     }
 }

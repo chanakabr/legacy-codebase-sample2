@@ -191,69 +191,69 @@ namespace TVPApiModule.Helper
         }
 
         //Get client specific connection string 
-        public static string GetClientConnectionString()
-        {
-            //try to get groupID of specific request.
-            object groupObj = HttpContext.Current.Items["GroupID"];
-            PlatformType platform = (PlatformType)Enum.Parse(typeof(PlatformType), HttpContext.Current.Items["Platform"].ToString());
-            //Patchy - currently take favorites from Web DB (need service from Guy)
-            bool isShared = (bool)HttpContext.Current.Items["IsShared"];
-            if (groupObj != null)
-            {
-                //Get the techinchal manager associated with the current request
-                int groupID = (int)groupObj;
-                string dbInstance = ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
-                //Patchy - for now take all shared items (like favorites) from Web DB! (Waiting for service from Guy)
-                if (isShared)
-                {
-                    int index = dbInstance.IndexOf(platform.ToString());
-                    dbInstance = dbInstance.Substring(0, index - 1);
-                }
-                //return ConfigManager.GetInstance(groupID).TechnichalConfiguration.GenerateConnectionString();
-                return string.Concat("Driver={SQL Server};Server=", ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.IP,
-                ";Database=", dbInstance,
-                ";Uid=", ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.User,
-                ";Pwd=", ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.Pass,
-                ";");
-            }
-            else
-            {
-                return string.Empty;
-            }
-        }
+        //public static string GetClientConnectionString()
+        //{
+        //    //try to get groupID of specific request.
+        //    object groupObj = HttpContext.Current.Items["GroupID"];
+        //    PlatformType platform = (PlatformType)Enum.Parse(typeof(PlatformType), HttpContext.Current.Items["Platform"].ToString());
+        //    //Patchy - currently take favorites from Web DB (need service from Guy)
+        //    bool isShared = (bool)HttpContext.Current.Items["IsShared"];
+        //    if (groupObj != null)
+        //    {
+        //        //Get the techinchal manager associated with the current request
+        //        int groupID = (int)groupObj;
+        //        string dbInstance = ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
+        //        //Patchy - for now take all shared items (like favorites) from Web DB! (Waiting for service from Guy)
+        //        if (isShared)
+        //        {
+        //            int index = dbInstance.IndexOf(platform.ToString());
+        //            dbInstance = dbInstance.Substring(0, index - 1);
+        //        }
+        //        //return ConfigManager.GetInstance(groupID).TechnichalConfiguration.GenerateConnectionString();
+        //        return string.Concat("Driver={SQL Server};Server=", ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.IP,
+        //        ";Database=", dbInstance,
+        //        ";Uid=", ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.User,
+        //        ";Pwd=", ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.Pass,
+        //        ";");
+        //    }
+        //    else
+        //    {
+        //        return string.Empty;
+        //    }
+        //}
 
-        public static bool GetApiCredentials(string sCRMUser, string sCRMPass, out string sApiUser, out string sApiPass)
-        {
-            bool isAuth = false;
+        //public static bool GetApiCredentials(string sCRMUser, string sCRMPass, out string sApiUser, out string sApiPass)
+        //{
+        //    bool isAuth = false;
 
-            sApiUser = string.Empty;
-            sApiPass = string.Empty;
+        //    sApiUser = string.Empty;
+        //    sApiPass = string.Empty;
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+        //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
 
-            selectQuery += "select API_USERNAME, API_PASSWORD from crm_users where is_active=1 and status=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_USERNAME", "=", sCRMUser);
-            selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_PASSWORD", "=", sCRMPass);
+        //    selectQuery += "select API_USERNAME, API_PASSWORD from crm_users where is_active=1 and status=1 and ";
+        //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_USERNAME", "=", sCRMUser);
+        //    selectQuery += "and";
+        //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_PASSWORD", "=", sCRMPass);
 
-            System.Data.DataTable dt = selectQuery.Execute("query", true);
-            if (dt != null)
-            {
-                Int32 nCount = dt.DefaultView.Count;
+        //    System.Data.DataTable dt = selectQuery.Execute("query", true);
+        //    if (dt != null)
+        //    {
+        //        Int32 nCount = dt.DefaultView.Count;
 
-                if (nCount > 0)
-                {
-                    isAuth = true;
+        //        if (nCount > 0)
+        //        {
+        //            isAuth = true;
 
-                    sApiUser = dt.Rows[0]["API_USERNAME"].ToString();
-                    sApiPass = dt.Rows[0]["API_PASSWORD"].ToString();
-                }
-            }
+        //            sApiUser = dt.Rows[0]["API_USERNAME"].ToString();
+        //            sApiPass = dt.Rows[0]["API_PASSWORD"].ToString();
+        //        }
+        //    }
 
-            selectQuery.Finish();
-            selectQuery = null;
+        //    selectQuery.Finish();
+        //    selectQuery = null;
 
-            return isAuth;
-        }
+        //    return isAuth;
+        //}
     }
 }

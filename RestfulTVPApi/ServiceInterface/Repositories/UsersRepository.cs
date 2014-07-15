@@ -429,5 +429,20 @@ namespace RestfulTVPApi.ServiceInterface
         {
             throw new NotImplementedException();
         }
+        
+        public List<PermittedCollectionContainer> GetUserExpiredCollections(GetUserExpiredCollectionsRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).GetUserExpiredCollections(request.site_guid, request.num_of_items);
+        }
+
+        public bool CancelTransaction(CancelTransactionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).CancelTransaction(request.site_guid, request.asset_id, request.transaction_type);
+        }
+
+        public bool WaiverTransaction(WaiverTransactionRequest request)
+        {
+            return ServicesManager.ConditionalAccessService(request.GroupID, request.InitObj.Platform).WaiverTransaction(request.site_guid, request.asset_id, request.transaction_type);
+        }
     }
 }

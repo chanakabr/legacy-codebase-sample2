@@ -39,8 +39,8 @@ namespace RestfulTVPApi.ServiceInterface
 
         public object Get(GetSecuredSiteGuidRequest request)
         {
-            string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
-            string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+            string privateKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "SiteGuidKv", "SecureSiteGuidKey"));
+            string IV = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", "SiteGuidKv", "SecureSiteGuidIV"));            
 
             return SecurityHelper.EncryptSiteGuid(privateKey, IV, request.site_guid);
         }
@@ -102,6 +102,11 @@ namespace RestfulTVPApi.ServiceInterface
         public object Put(FBUserMergeRequest request)
         {
             return _repository.FBUserMerge(request);
+        }
+
+        public object Put(FBUserUnMergeRequest request)
+        {
+            return _repository.FBUserUnMerge(request);
         }
 
         #endregion

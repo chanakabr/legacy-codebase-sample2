@@ -37,5 +37,8 @@ namespace TVPApiModule.Objects.Responses
 
         /// <remarks/>
         DomainNotExists,
+
+        /// <remarks/>
+        HouseholdUserFailed,
     }
 }

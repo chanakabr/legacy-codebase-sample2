@@ -13,9 +13,9 @@ namespace TVPApiModule.Helper
 {
     public class ChannelHelper
     {
-        public static List<Channel> GetChannelsList(InitializationObject initObj, string picSize, int groupID)
+        public static List<Channel> GetChannelsList(InitializationObject initObj, string picSize, int groupID, string siteGuid)
         {
-            return new APIChannelsListsLoader(0, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 0, 0, picSize).Execute() as List<Channel>;
+            return new APIChannelsListsLoader(0, groupID, initObj.Platform, initObj.UDID, SiteHelper.GetClientIP(), initObj.Locale.LocaleLanguage, 0, 0, picSize) { SiteGuid = siteGuid }.Execute() as List<Channel>;
         }
 
 

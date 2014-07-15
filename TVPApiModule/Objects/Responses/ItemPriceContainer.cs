@@ -28,5 +28,7 @@ namespace TVPApiModule.Objects.Responses
         public CouponsStatus coupon_status { get; set; }
 
         public string first_device_name_found { get; set; }
+
+        public bool is_cancel_window { get; set; }
     }
 }

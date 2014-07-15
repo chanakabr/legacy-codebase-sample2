@@ -29,6 +29,8 @@ namespace RestfulTVPApi.ServiceInterface
 
         FacebookResponseObject FBUserMerge(FBUserMergeRequest request);
 
+        FacebookResponseObject FBUserUnMerge(FBUserUnMergeRequest request);
+
         FacebookResponseObject FBUserRegister(FBUserRegisterRequest request);
 
         FacebookResponseObject GetFBUserData(GetFBUserDataRequest request);

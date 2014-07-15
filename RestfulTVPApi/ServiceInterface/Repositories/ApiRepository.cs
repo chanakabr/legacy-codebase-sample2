@@ -76,6 +76,11 @@ namespace RestfulTVPApi.ServiceInterface
             return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserMerge(request.token, request.facebook_id, request.user_name, request.password);
         }
 
+        public FacebookResponseObject FBUserUnMerge(FBUserUnMergeRequest request)
+        {
+            return ServicesManager.SocialService(request.GroupID, request.InitObj.Platform).FBUserUnMerge(request.token, request.user_name, request.password);
+        }
+
         public FacebookResponseObject FBUserRegister(FBUserRegisterRequest request)
         {
             var oExtra = new List<TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair>() { new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "news", value = request.get_newsletter ? "1" : "0" }, new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "domain", value = request.create_new_domain ? "1" : "0" } };

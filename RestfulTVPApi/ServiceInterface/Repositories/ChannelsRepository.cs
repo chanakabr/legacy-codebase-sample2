@@ -24,7 +24,7 @@ namespace RestfulTVPApi.ServiceInterface
 
         public List<Channel> GetChannelsList(GetChannelsListRequest request)
         {
-            return ChannelHelper.GetChannelsList(request.InitObj, request.pic_size, request.GroupID);
+            return ChannelHelper.GetChannelsList(request.InitObj, request.pic_size, request.GroupID, request.site_guid);
         }
 
         public Category GetCategory(GetCategoryRequest request)

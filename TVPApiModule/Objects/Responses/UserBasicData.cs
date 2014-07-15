@@ -41,6 +41,8 @@ namespace TVPApiModule.Objects.Responses
 
         public string facebook_token { get; set; }
 
+        public string twitter_token { get; set; }
+
         public UserType user_type { get; set; }
     }
 }

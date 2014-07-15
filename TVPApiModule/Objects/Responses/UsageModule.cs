@@ -34,5 +34,9 @@ namespace TVPApiModule.Objects.Responses
         public int num_of_rec_periods { get; set; }
 
         public int device_limit_id { get; set; }
+
+        public bool is_waiver { get; set; }
+
+        public int waived_period { get; set; }
     }
 }

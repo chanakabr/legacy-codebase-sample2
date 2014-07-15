@@ -205,6 +205,11 @@ namespace RestfulTVPApi.ServiceInterface
             return _repository.GetUserPermittedCollections(request);
         }
 
+        public object Get(GetUserExpiredCollectionsRequest request)
+        {
+            return _repository.GetUserExpiredCollections(request);
+        }
+
         #endregion
 
         #region PUT
@@ -272,6 +277,16 @@ namespace RestfulTVPApi.ServiceInterface
         public object Put(ChangeSubscriptionRequest request)
         {
             return _repository.ChangeSubscription(request);
+        }
+
+        public object Put(CancelTransactionRequest request)
+        {
+            return _repository.CancelTransaction(request);
+        }
+
+        public object Put(WaiverTransactionRequest request)
+        {
+            return _repository.WaiverTransaction(request);
         }
         
         #endregion

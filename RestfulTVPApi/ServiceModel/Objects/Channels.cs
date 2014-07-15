@@ -52,9 +52,11 @@ namespace RestfulTVPApi.ServiceModel
         public string order_value { get; set; }
     }
 
-    [Route("/channels/{ChannelID}", "GET", Notes = "This method returns an array of all channels that exist for this customer site")]
+    [Route("/channels/{site_guid}", "GET", Notes = "This method returns an array of all channels that exist for this customer site")]
     public class GetChannelsListRequest : RequestBase, IReturn<List<Channel>>
     {
+        [ApiMember(Name = "site_guid", Description = "User identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
+        public string site_guid { get; set; }
         [ApiMember(Name = "pic_size", Description = "Pic Size", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string pic_size { get; set; }
     }

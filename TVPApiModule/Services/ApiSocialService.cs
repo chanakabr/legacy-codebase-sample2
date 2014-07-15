@@ -328,6 +328,22 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public TVPApiModule.Objects.Responses.FacebookResponseObject FBUserUnMerge(string stoken, string sUsername, string sPassword)
+        {
+            TVPApiModule.Objects.Responses.FacebookResponseObject res = null;
+
+            res = Execute(() =>
+            {
+                var response = Social.FBUserUnmerge(m_wsUserName, m_wsPassword, stoken, sUsername, sPassword);
+                if (response != null)
+                    res = response.ToApiObject();
+
+                return res;
+            }) as TVPApiModule.Objects.Responses.FacebookResponseObject;
+
+            return res;
+        }
+
         public TVPApiModule.Objects.Responses.eSocialPrivacy GetUserSocialPrivacy(string sGuid, TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction)
         {
             TVPApiModule.Objects.Responses.eSocialPrivacy res = TVPApiModule.Objects.Responses.eSocialPrivacy.UNKNOWN;

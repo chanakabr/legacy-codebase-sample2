@@ -138,6 +138,17 @@ namespace RestfulTVPApi.ServiceModel
         public string password { get; set; }
     }
 
+    [Route("/social_platforms/facebook/unmerge", "PUT", Notes = "")]
+    public class FBUserUnMergeRequest : RequestBase, IReturn<FacebookResponseObject>
+    {
+        [ApiMember(Name = "token", Description = "Token", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string token { get; set; }        
+        [ApiMember(Name = "user_name", Description = "Username", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string user_name { get; set; }
+        [ApiMember(Name = "password", Description = "Password", ParameterType = "body", DataType = SwaggerType.String, IsRequired = true)]
+        public string password { get; set; }
+    }
+
     #endregion
 
     #region POST

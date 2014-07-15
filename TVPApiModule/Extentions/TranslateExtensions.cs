@@ -21,9 +21,9 @@ namespace TVPApiModule.Extentions
             {
                 retVal.user = new TVPApiModule.Objects.Responses.User();
 
-                retVal.user.domian_id = response.m_user.m_domianID;
+                retVal.user.domain_id = response.m_user.m_domianID;
                 retVal.user.user_state = (TVPApiModule.Objects.Responses.UserState)response.m_user.m_eUserState;
-                retVal.user.domain_master = response.m_user.m_isDomainMaster;
+                retVal.user.is_domain_master = response.m_user.m_isDomainMaster;
                 retVal.user.sso_operator_id = response.m_user.m_nSSOOperatorID;
 
                 if (response.m_user.m_oBasicData != null)
@@ -96,6 +96,7 @@ namespace TVPApiModule.Extentions
             retVal.device_name = response.m_sDeviceName;
             retVal.device_udid = response.m_sDeviceUDID;
             retVal.subscription_code = response.m_sSubscriptionCode;
+            retVal.is_cancel_window = response.m_bCancelWindow;
 
             return retVal;
         }
@@ -114,6 +115,7 @@ namespace TVPApiModule.Extentions
             retVal.purchase_method = (TVPApiModule.Objects.Responses.PaymentMethod)response.m_purchaseMethod;
             retVal.device_name = response.m_sDeviceName;
             retVal.device_udid = response.m_sDeviceUDID;
+            retVal.is_cancel_window = response.m_bCancelWindow;
 
             return retVal;
         }
@@ -740,6 +742,7 @@ namespace TVPApiModule.Extentions
             retVal.coupon_status = (TVPApiModule.Objects.Responses.CouponsStatus)response.m_couponStatus;
 
             retVal.first_device_name_found = response.m_sFirstDeviceNameFound;
+            retVal.is_cancel_window = response.m_bCancelWindow;
 
             return retVal;
         }
@@ -887,7 +890,7 @@ namespace TVPApiModule.Extentions
             TVPApiModule.Objects.Responses.DiscountModule retVal = new TVPApiModule.Objects.Responses.DiscountModule();
 
             retVal.percent = response.m_dPercent;
-            retVal.the_relation_type = (TVPApiModule.Objects.Responses.RelationTypes)response.m_eTheRelationType;
+            retVal.relation_type = (TVPApiModule.Objects.Responses.RelationTypes)response.m_eTheRelationType;
             retVal.start_date = response.m_dStartDate;
             retVal.end_date = response.m_dEndDate;
 
@@ -915,6 +918,8 @@ namespace TVPApiModule.Extentions
             retVal.num_of_rec_periods = response.m_num_of_rec_periods;
             retVal.device_limit_id = response.m_device_limit_id;
             retVal.type = response.m_type;
+            retVal.is_waiver = response.m_bWaiver;
+            retVal.waived_period = response.m_nWaiverPeriod;
 
             return retVal;
         }
@@ -1185,7 +1190,7 @@ namespace TVPApiModule.Extentions
             TVPApiModule.Objects.Responses.DiscountModule retVal = new TVPApiModule.Objects.Responses.DiscountModule();
 
             retVal.percent = response.m_dPercent;
-            retVal.the_relation_type = (TVPApiModule.Objects.Responses.RelationTypes)response.m_eTheRelationType;
+            retVal.relation_type = (TVPApiModule.Objects.Responses.RelationTypes)response.m_eTheRelationType;
             retVal.start_date = response.m_dStartDate;
             retVal.end_date = response.m_dEndDate;
 
@@ -1710,6 +1715,7 @@ namespace TVPApiModule.Extentions
             retVal.device_name = response.m_sDeviceName;
             retVal.device_udid = response.m_sDeviceUDID;
             retVal.collection_code = response.m_sCollectionCode;
+            retVal.is_cancel_window = response.m_bCancelWindow;
 
             return retVal;
         }

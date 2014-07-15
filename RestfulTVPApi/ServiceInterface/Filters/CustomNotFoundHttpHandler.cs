@@ -17,8 +17,9 @@ namespace RestfulTVPApi.ServiceInterface
         public void ProcessRequest(IHttpRequest request, IHttpResponse response, string operationName)
         {
             HttpError dto = new HttpError(new ResponseStatus("NotFoundException", "Please check your url."), HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString(), string.Empty);
-
-            ServiceStack.WebHost.Endpoints.Extensions.HttpResponseExtensions.WriteToResponse‌(response, request, dto);
+            response.StatusCode = 404;
+            response.End();
+                //ServiceStack.WebHost.Endpoints.Extensions.HttpResponseExtensions.WriteToResponse‌(response, request, dto);
         }
 
         public void ProcessRequest(HttpContext context)

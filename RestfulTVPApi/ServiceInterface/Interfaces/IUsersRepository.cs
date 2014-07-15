@@ -21,6 +21,8 @@ namespace RestfulTVPApi.ServiceInterface
 
         List<PermittedSubscriptionContainer> GetUserExpiredSubscriptions(GetUserExpiredSubscriptionsRequest request);
 
+        List<PermittedCollectionContainer> GetUserExpiredCollections(GetUserExpiredCollectionsRequest request);
+
         List<PermittedMediaContainer> GetUserPermittedItems(GetUserPermittedItemsRequest request);
 
         List<PermittedMediaContainer> GetUserExpiredItems(GetUserExpiredItemsRequest request);
@@ -156,5 +158,9 @@ namespace RestfulTVPApi.ServiceInterface
         string ChargeUserForMediaSubscriptionUsingCC(ChargeUserForMediaSubscriptionUsingCCRequest request);
 
         TVPApiModule.Services.ApiUsersService.LogInResponseData SignInWithToken(SignInWithTokenRequest request);
+
+        bool CancelTransaction(CancelTransactionRequest request);
+
+        bool WaiverTransaction(WaiverTransactionRequest request);
     }
 }

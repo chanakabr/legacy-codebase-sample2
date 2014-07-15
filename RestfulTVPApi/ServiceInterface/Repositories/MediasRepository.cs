@@ -277,8 +277,7 @@ namespace RestfulTVPApi.ServiceInterface
                 Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj() { m_eOrderDir = request.order_dir, m_eOrderBy = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy)request.order_by };
                 APIBundleMediaLoader loader = new APIBundleMediaLoader(request.bundle_id, request.media_type, orderObj, request.GroupID, request.GroupID, request.InitObj.Platform, SiteHelper.GetClientIP(), request.InitObj.Locale.LocaleLanguage, string.Empty, request.page_number, request.page_size, request.bundle_type);
                 
-                lstMedia = loader.Execute() as List<Media>;
-                
+                lstMedia = loader.Execute() as List<Media>;                
             }
             catch (Exception ex)
             {

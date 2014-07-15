@@ -95,7 +95,7 @@ namespace TVPApiModule.Services
                     if (response != null && response.user != null)
                     {
                         loginData.SiteGuid = response.user.site_guid;
-                        loginData.DomainID = response.user.domian_id;
+                        loginData.DomainID = response.user.domain_id;
                         loginData.LoginStatus = response.resp_status;
                         loginData.UserData = response.user;
                     }
@@ -126,7 +126,7 @@ namespace TVPApiModule.Services
                     if (userResponse != null && response.m_user != null)
                     {
                         loginData.SiteGuid = userResponse.user.site_guid;
-                        loginData.DomainID = userResponse.user.domian_id;
+                        loginData.DomainID = userResponse.user.domain_id;
                         loginData.LoginStatus = userResponse.resp_status;
                         loginData.UserData = userResponse.user;
                     }

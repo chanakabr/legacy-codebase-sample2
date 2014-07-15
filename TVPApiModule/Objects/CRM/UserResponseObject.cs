@@ -25,7 +25,7 @@ namespace TVPApiModule.Objects.CRM
                     this.user.basic_data = new TVPApiModule.Objects.CRM.UserBasicData(userResponseObject.user.basic_data);
                 }
 
-                this.user.domain_id = userResponseObject.user.domian_id;
+                this.user.domain_id = userResponseObject.user.domain_id;
 
                 if (userResponseObject.user.dynamic_data != null)
                 {
@@ -49,7 +49,7 @@ namespace TVPApiModule.Objects.CRM
                     }
                 }
 
-                this.user.is_domain_master = userResponseObject.user.domain_master;
+                this.user.is_domain_master = userResponseObject.user.is_domain_master;
                 this.user.sso_opertaor_id = userResponseObject.user.sso_operator_id;
                 this.user.user_State = (TVPApiModule.Objects.CRM.UserState)userResponseObject.user.user_state;
                 this.user.site_guid = userResponseObject.user.site_guid;

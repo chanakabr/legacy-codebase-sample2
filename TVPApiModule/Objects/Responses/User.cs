@@ -13,9 +13,9 @@ namespace TVPApiModule.Objects.Responses
 
         public string site_guid { get; set; }
 
-        public int domian_id { get; set; }
+        public int domain_id { get; set; }
 
-        public bool domain_master { get; set; }
+        public bool is_domain_master { get; set; }
 
         public UserState user_state { get; set; }
 

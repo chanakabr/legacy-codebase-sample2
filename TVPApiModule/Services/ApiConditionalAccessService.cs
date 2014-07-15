@@ -1004,6 +1004,58 @@ namespace TVPApiModule.Services
             }) as string;
 
             return response;
-        }        
+        }
+
+        public List<TVPApiModule.Objects.Responses.PermittedCollectionContainer> GetUserExpiredCollections(string siteGuid, int numOfItems)
+        {
+            List<TVPApiModule.Objects.Responses.PermittedCollectionContainer> permittedCollections = null;
+
+            permittedCollections = Execute(() =>
+            {
+                var response = ConditionalAccess.GetUserExpiredCollections(m_wsUserName, m_wsPassword, siteGuid, numOfItems);
+                if (response != null)
+                {
+                    permittedCollections = response.Where(pc => pc != null).Select(pc => pc.ToApiObject()).ToList();
+                }
+
+                return permittedCollections;
+            }) as List<TVPApiModule.Objects.Responses.PermittedCollectionContainer>;
+
+            return permittedCollections;
+        }
+
+        public bool CancelTransaction(string siteGuid, int assetId, eTransactionType transactionType)
+        {
+            bool isCancelationSucceeded = false;
+
+            isCancelationSucceeded = Convert.ToBoolean(Execute(() =>
+            {
+                if (!string.IsNullOrEmpty(siteGuid))
+                {
+                    isCancelationSucceeded = ConditionalAccess.CancelTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
+                }
+
+                return isCancelationSucceeded;
+            }));
+
+            return isCancelationSucceeded;
+        }
+
+        public bool WaiverTransaction(string siteGuid, int assetId, eTransactionType transactionType)
+        {
+            bool isWaiverTransactionSucceeded = false;
+
+            isWaiverTransactionSucceeded = Convert.ToBoolean(Execute(() =>
+            {
+                if (!string.IsNullOrEmpty(siteGuid))
+                {
+                    isWaiverTransactionSucceeded = ConditionalAccess.WaiverTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
+                }
+
+                return isWaiverTransactionSucceeded;
+            }));
+
+            return isWaiverTransactionSucceeded;
+        }
     }
 }
