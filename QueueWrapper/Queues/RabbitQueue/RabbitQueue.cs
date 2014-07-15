@@ -141,6 +141,15 @@ namespace QueueWrapper
                         m_sExchangeType = Utils.GetConfigValue("exchangeTypePicture");
                         break;
                     }
+                case ConfigType.SocialFeedConfig:
+                    {
+                        m_sRoutingKey = Utils.GetConfigValue("routingKeySocialFeed");
+                        m_sExchange = Utils.GetConfigValue("exchangeSocialFeed");
+                        m_sQueue = Utils.GetConfigValue("queueSocialFeed");
+                        m_sVirtualHost = Utils.GetConfigValue("virtualHostSocialFeed");
+                        m_sExchangeType = Utils.GetConfigValue("exchangeTypeSocialFeed");
+                    }
+                    break;
                 default:
                     break;
             }

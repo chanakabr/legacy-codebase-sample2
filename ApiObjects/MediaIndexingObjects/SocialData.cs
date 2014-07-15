@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace ApiObjects.MediaIndexingObjects
 {
@@ -10,10 +11,15 @@ namespace ApiObjects.MediaIndexingObjects
     public class SocialFeedRequest : QueueObject
     {
         #region Members
+        public string id;
+        public string task;
+        public List<object> args;
 
         [DataMember]
+        [JsonProperty("actor_site_guid")]
         public string ActorSiteGuid { get; set; }
         [DataMember]
+        [JsonProperty("db_action_id")]
         public string DbActionId { get; set; }
 
         #endregion
@@ -40,6 +46,7 @@ namespace ApiObjects.MediaIndexingObjects
     {
         #region Members
         [DataMember]
+        [JsonProperty("site_guid")]
         public string sSiteGuid { get; set; }
         #endregion
 

@@ -117,6 +117,7 @@
     <Compile Include="MCResponseObject.cs" />
     <Compile Include="MediaAdObject.cs" />
     <Compile Include="MediaAdSchema.cs" />
+    <Compile Include="MediaIndexingObjects\BaseCeleryData.cs" />
     <Compile Include="MediaIndexingObjects\IndexingData.cs" />
     <Compile Include="MediaIndexingObjects\QueueObject.cs" />
     <Compile Include="MediaIndexingObjects\SocialData.cs" />

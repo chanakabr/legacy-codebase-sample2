@@ -9,7 +9,7 @@ namespace QueueWrapper.Queues.QueueObjects
     {
         public SocialQueue()
         {
-            this.Implementation = new RabbitQueue();
+            this.Implementation = new RabbitQueue(Enums.ConfigType.SocialFeedConfig, true);
         }
 
         public override bool Enqueue(ApiObjects.MediaIndexingObjects.QueueObject record, string sRouteKey)
