@@ -2473,9 +2473,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get All Channels")]
-        public List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize)
+        public List<TVPApi.Channel> GetChannelsList(InitializationObject initObj, string sPicSize)
         {
-            List<Channel> sRet = null;
+            List<TVPApi.Channel> sRet = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetChannelsList", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2844,6 +2844,36 @@ namespace TVPApiServices
                         else
                             retVal.Add(null);
                     }
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return retVal;
+        }
+
+        [WebMethod(EnableSession = true, Description = "GetCrowdsourceFeed")]
+        public List<BaseCrowdsourceItem> GetCrowdsourceFeed(InitializationObject initObj, int pageSize, long epochLastTime)
+        {
+            List<BaseCrowdsourceItem> retVal = null;
+            string ip =SiteHelper.GetClientIP();
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCrowdsourceFeed", initObj.ApiUser, initObj.ApiPass, ip);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    retVal = new APICrowdsourceLoader(groupId, initObj.Locale.LocaleLanguage, pageSize, epochLastTime, ip, initObj.Platform)
+                    {
+                        DeviceId = initObj.UDID,
+                        SiteGuid = initObj.SiteGuid
+                    }.Execute() as List<BaseCrowdsourceItem>;
                 }
                 catch (Exception ex)
                 {
