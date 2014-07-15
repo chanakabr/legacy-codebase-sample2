@@ -12,7 +12,7 @@ namespace SocialUnmergeHandler
     {
         public string HandleTask(string data)
         {
-            string res = "fail";
+            string res = "failure";
 
             try
             {
@@ -44,13 +44,20 @@ namespace SocialUnmergeHandler
 
             do
             {
-                bHasNoErrors = oSocialBL.GetFeedIDsByActorID(request.sSiteGuid, nNumOfDocs, out lDocIDs);
-                if (bHasNoErrors && lDocIDs != null && lDocIDs.Count > 0)
+                try
                 {
-                    foreach (string docID in lDocIDs)
+                    bHasNoErrors = oSocialBL.GetFeedIDsByActorID(request.sSiteGuid, nNumOfDocs, out lDocIDs);
+                    if (bHasNoErrors && lDocIDs != null && lDocIDs.Count > 0)
                     {
-                        bHasNoErrors &= oSocialBL.DeleteActivityFromUserFeed(docID);
+                        foreach (string docID in lDocIDs)
+                        {
+                            oSocialBL.DeleteActivityFromUserFeed(docID);
+                        }
                     }
+                }
+                catch(Exception ex)
+                {
+                    throw ex;
                 }
 
             } while (bHasNoErrors == true && lDocIDs != null && lDocIDs.Count > 0);

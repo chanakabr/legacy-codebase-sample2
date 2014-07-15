@@ -11,7 +11,7 @@ namespace ESIndexUpdateHandler
     {
         public string HandleTask(string data)
         {
-            string res = "fail";
+            string res = "failure";
 
             try
             {

@@ -11,7 +11,7 @@ namespace ESIndexRebuildHandler
     {
         public string HandleTask(string data)
         {
-            string res = "fail";
+            string res = "failure";
 
             Logger.Logger.Log("Info", string.Concat("starting index rebuild request. data=", data), "ESBuildHandler");
 
