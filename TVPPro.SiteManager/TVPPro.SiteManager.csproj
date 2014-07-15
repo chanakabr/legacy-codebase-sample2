@@ -116,6 +116,7 @@
     <Compile Include="CatalogLoaders\BuzzMeterLoader.cs" />
     <Compile Include="CatalogLoaders\ChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\ChannelsListsLoader.cs" />
+    <Compile Include="CatalogLoaders\CrowdsourceFeedLoader.cs" />
     <Compile Include="CatalogLoaders\EPGAutoCompleteLoader.cs" />
     <Compile Include="CatalogLoaders\EPGCache.cs" />
     <Compile Include="CatalogLoaders\EPGLoader.cs" />
@@ -762,10 +763,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.162.58/WS_API/api.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/api_v2_5/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.api\</RelPath>
-      <UpdateFromURL>http://192.168.162.58/WS_API/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/api_v2_5/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -773,10 +774,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/social/module.asmx">
+    <WebReferenceUrl Include="http://webservices.dev/Social/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Social\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/social/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://webservices.dev/Social/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -806,10 +807,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Domains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/pricing/module.asmx">
+    <WebReferenceUrl Include="http://192.168.16.176/webservices/pricing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Pricing\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.16.176/webservices/pricing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

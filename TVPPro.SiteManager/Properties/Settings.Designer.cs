@@ -56,7 +56,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/pricing/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.16.176/webservices/pricing/module.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule"]));
@@ -86,7 +86,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/social/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices.dev/Social/module.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_Social_module {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Social_module"]));
@@ -96,7 +96,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.162.58/WS_API/api.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://54.72.1.39:8030/api_v2_5/api.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_api_API {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_api_API"]));
@@ -106,7 +106,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/cas/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.16.176/webservices/cas/module.asmx")]
         public string TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module"]));
