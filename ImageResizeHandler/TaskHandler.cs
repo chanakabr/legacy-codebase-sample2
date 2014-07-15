@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using ImageResizer;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
@@ -31,22 +32,33 @@ namespace ImageResizeHandler
 
                 if (_useFileSystem)
                 {
+                    bool isMutexAlreadyReleased = false;
+
+                    Mutex mutex = new Mutex(false, "ImageResizeHandlerMutex_" + System.IO.Path.GetFileName(uri.LocalPath));
+
                     try
                     {
+                        mutex.WaitOne();
+
                         string imagesBasePath = TCMClient.Settings.Instance.GetValue<string>("TASK_HANDLERS.IMAGE_RESIZER.IMAGES_BASE_PATH");
 
-                        if (!string.IsNullOrEmpty(imagesBasePath))
+                        if (string.IsNullOrEmpty(imagesBasePath))
                         {
-                            if (!Directory.Exists(imagesBasePath))
-                            {
-                                Directory.CreateDirectory(imagesBasePath);
-                            }
+                            imagesBasePath = System.Web.Hosting.HostingEnvironment.ApplicationPhysicalPath;
+                        }
+                        else if (!Directory.Exists(imagesBasePath))
+                        {
+                            Directory.CreateDirectory(imagesBasePath);
                         }
 
                         FileInfo fileInf = new FileInfo(imagesBasePath + System.IO.Path.GetFileName(uri.LocalPath));
 
                         if (fileInf.Exists)
                         {
+                            isMutexAlreadyReleased = true;
+
+                            mutex.ReleaseMutex();
+
                             using (FileStream fs = fileInf.OpenRead())
                             {
                                 source = fs.ToByteArray();
@@ -62,9 +74,16 @@ namespace ImageResizeHandler
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         source = uri.ToByteArray();
+                    }
+                    finally
+                    {
+                        if (mutex != null && !isMutexAlreadyReleased)
+                        {
+                            mutex.ReleaseMutex();
+                        }
                     }
                 }
                 else
