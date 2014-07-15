@@ -7,6 +7,7 @@ using ElasticsearchTasksCommon;
 using Catalog;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
+using Catalog.Cache;
 
 namespace ESIndexRebuildHandler.IndexBuilders
 {
@@ -42,9 +43,8 @@ namespace ESIndexRebuildHandler.IndexBuilders
                 return bSuccess;
             }
 
-
-            GroupsCache.Instance.RemoveGroup(m_nGroupID);
-            m_oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
+            GroupManager groupManager = new GroupManager();
+            m_oGroup = groupManager.GetGroup(m_nGroupID);
 
             if (m_oGroup == null)
             {
@@ -192,7 +192,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
                         continue;
 
                     oQueryParser.m_nGroupID = oChannel.m_nGroupID;
-                    oSearchObj = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(oChannel);
+                    oSearchObj = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(oChannel, m_oGroup.m_nSubGroup);
                     oQueryParser.oSearchObject = oSearchObj;
                     sQueryStr = oQueryParser.BuildSearchQueryString(false);
 

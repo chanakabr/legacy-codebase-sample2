@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Catalog.Cache;
 
 namespace ElasticsearchTasksCommon
 {
@@ -63,7 +64,9 @@ namespace ElasticsearchTasksCommon
 
             try
             {
-                Group oGroup = GroupsCache.Instance.GetGroup(nGroupID);
+                GroupManager groupManager = new GroupManager();
+
+                Group oGroup = groupManager.GetGroup(nGroupID);
 
                 if (oGroup == null)
                 {
@@ -345,14 +348,14 @@ namespace ElasticsearchTasksCommon
             return dMediaTrans;
         }
 
-        public static MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
+        public static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, List<int> lSubGroups)
         {
             MediaSearchObj searchObject = new MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
             searchObject.m_sMediaTypes = channel.m_nMediaType.ToString();
-            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
+            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID, lSubGroups);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
             searchObject.m_bUseStartDate = false;
@@ -410,9 +413,9 @@ namespace ElasticsearchTasksCommon
             }
         }
 
-        public static string GetPermittedWatchRules(int nGroupId)
+        public static string GetPermittedWatchRules(int nGroupId, List<int> lSubGroup)
         {
-            System.Data.DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId);
+            System.Data.DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, lSubGroup);
             List<string> lWatchRulesIds = null;
             if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
             {

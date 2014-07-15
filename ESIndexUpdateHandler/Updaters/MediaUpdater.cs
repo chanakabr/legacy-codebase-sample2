@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Catalog.Cache;
 
 namespace ESIndexUpdateHandler.Updaters
 {
@@ -68,7 +69,8 @@ namespace ESIndexUpdateHandler.Updaters
         private bool UpdateMedias(List<int> lMediaIDs)
         {
             bool bRes = true;
-            Group oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
+            GroupManager groupManager = new GroupManager();
+            Group oGroup = groupManager.GetGroup(m_nGroupID);
 
             if (oGroup == null)
                 return false;

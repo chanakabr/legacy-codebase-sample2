@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Catalog.Cache;
 
 namespace ESIndexRebuildHandler.IndexBuilders
 {
@@ -41,8 +42,9 @@ namespace ESIndexRebuildHandler.IndexBuilders
                 return bSuccess;
             }
 
-            GroupsCache.Instance.RemoveGroup(m_nGroupID);
-            m_oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
+            GroupManager groupManager = new GroupManager();
+            m_oGroup = groupManager.GetGroup(m_nGroupID);
+
 
             if (m_oGroup == null)
             {

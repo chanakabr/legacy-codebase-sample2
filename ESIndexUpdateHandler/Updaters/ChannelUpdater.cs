@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Catalog.Cache;
 
 namespace ESIndexUpdateHandler.Updaters
 {
@@ -99,7 +100,9 @@ namespace ESIndexUpdateHandler.Updaters
         private bool UpdateChannel(List<int> lChannelIds)
         {
             bool bRes = false;
-            Group oGroup = GroupsCache.Instance.GetGroup(m_nGroupID);
+            GroupManager groupManager = new GroupManager();
+            Group oGroup = groupManager.GetGroup(m_nGroupID);
+
             if (oGroup == null || oGroup.m_oGroupChannels == null)
                 return bRes;
 
@@ -118,7 +121,7 @@ namespace ESIndexUpdateHandler.Updaters
                     if (oChannel != null && oChannel.m_nIsActive == 1)
                     {
                         oQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT, m_nGroupID = oChannel.m_nGroupID };
-                        oSearchObj = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(oChannel);
+                        oSearchObj = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(oChannel, oGroup.m_nSubGroup);
                         oQueryParser.oSearchObject = oSearchObj;
                         sQueryStr = oQueryParser.BuildSearchQueryString(false);
 
