@@ -531,7 +531,7 @@ namespace TVPApi
                 _mediaTypes.Add(__mediaType);
             }
 
-            return new TVPPro.SiteManager.CatalogLoaders.MediaAutoCompleteLoader(groupID, SiteHelper.GetClientIP(), pageSize, pageIdx, prefix, _mediaTypes)
+            return new APIMediaAutoCompleteLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIdx, prefix, _mediaTypes, initObj.Locale.LocaleLanguage)
             {                              
             }.Execute() as List<string>;
             

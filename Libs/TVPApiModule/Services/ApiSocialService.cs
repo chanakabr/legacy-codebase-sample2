@@ -9,7 +9,7 @@ using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiModule.Services
 {
-    public class ApiSocialService : ApiServiceBase
+    public class ApiSocialService
     {
         #region Fields
 

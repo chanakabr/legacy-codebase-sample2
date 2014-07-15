@@ -79,10 +79,12 @@
     <Compile Include="CatalogLoaders\APIBundleMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelsListsLoader.cs" />
+    <Compile Include="CatalogLoaders\APICrowdsourceLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGAutoCompleteLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGSearchContentLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGSearchLoader.cs" />
+    <Compile Include="CatalogLoaders\APIMediaAutoCompleteLoader.cs" />
     <Compile Include="CatalogLoaders\APIMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIPeopleWhoLikedLoader.cs" />
     <Compile Include="CatalogLoaders\APIPeopleWhoWatchedLoader.cs" />
@@ -203,7 +205,6 @@
     <Compile Include="Services\ApiNotificationService.cs" />
     <Compile Include="Services\ApiPricingService.cs" />
     <Compile Include="Services\ApiApiService.cs" />
-    <Compile Include="Services\ApiServiceBase.cs" />
     <Compile Include="Services\ApiSocialService.cs" />
     <Compile Include="Services\ApiUsersService.cs" />
     <Compile Include="Services\ApiBillingService.cs" />

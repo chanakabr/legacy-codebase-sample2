@@ -218,7 +218,7 @@ namespace TVPApiServices
         string DummyChargeUserForMediaFile(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon);
 
         [OperationContract]
-        List<Channel> GetChannelsList(InitializationObject initObj, string sPicSize);
+        List<TVPApi.Channel> GetChannelsList(InitializationObject initObj, string sPicSize);
 
         [OperationContract]
         string GetMediaLicenseData(InitializationObject initObj, int iMediaFileID, int iMediaID);
@@ -261,5 +261,8 @@ namespace TVPApiServices
 
         [OperationContract]
         BuzzWeightedAverScore GetBuzzMeterData(InitializationObject initObj, string sKey);
+
+        [OperationContract]
+        List<BaseCrowdsourceItem> GetCrowdsourceFeed(InitializationObject initObj, int pageSize, long epochLastTime);
     }
 }
