@@ -15,7 +15,6 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
 {
     public class SlidingWindowDataCollector : BaseDataCollector
     {
-        private Channel _channelData;
 
         public SlidingWindowDataCollector(int assetId, int groupId)
             : base(assetId, groupId, eCrowdsourceType.SlidingWindow)
@@ -30,9 +29,9 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                 using (IserviceClient catalogClient = GetCatalogClient())
                 {
                     string catalogSignString = Guid.NewGuid().ToString();
-                    ChannelObjResponse resp = (ChannelObjResponse)catalogClient.GetResponse(new ChannelObjRequest()
+                    ChannelResponse slidingWindowResponse = (ChannelResponse)catalogClient.GetResponse(new ChannelRequest()
                     {
-                        ChannelId = this.AssetId,
+                        m_nChannelID = this.AssetId,
                         m_nGroupID = this.GroupId,
                         m_oFilter = new Filter()
                         {
@@ -43,12 +42,11 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_sSignString = catalogSignString,
                         m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
                         m_nPageIndex = 0,
-                        m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE")
+                        m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
                     });
-                    _channelData = resp.ChannelObj;
-                    if (_channelData != null && _channelData.m_oMedias.Length > 0)
+                    if (slidingWindowResponse != null && slidingWindowResponse.m_nMedias != null)
                     {
-                        return resp.ChannelObj.m_oMedias;
+                        return slidingWindowResponse.m_nMedias.Select(x => x.assetID).ToArray();
                     }
                     else return null;
                 }
@@ -68,15 +66,31 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                 using (WS_Catalog.IserviceClient client = GetCatalogClient())
                 {
                     string catalogSignString = Guid.NewGuid().ToString();
-                    if (_channelData != null && _channelData.m_OrderObject.m_bIsSlidingWindowField)
-                    {
 
+                    ChannelObjResponse channelObjResponse = (ChannelObjResponse)client.GetResponse(new ChannelObjRequest()
+                    {
+                        ChannelId = this.AssetId,
+                        m_nGroupID = this.GroupId,
+                        m_oFilter = new Filter()
+                        {
+                            m_bOnlyActiveMedia = true,
+                            m_bUseStartDate = true,
+                            m_bUseFinalDate = true,
+                        },
+                        m_sSignString = catalogSignString,
+                        m_sSignature =
+                            TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString,
+                                TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                    });
+
+                    if (channelObjResponse != null && channelObjResponse.ChannelObj.m_OrderObject.m_bIsSlidingWindowField)
+                    {
                         AssetStatsResponse assetStats = (AssetStatsResponse)client.GetResponse(new AssetStatsRequest()
                             {
                                 m_nGroupID = GroupId,
                                 m_type = StatsType.MEDIA,
                                 m_nAssetIDs = new[] { item.Id },
-                                m_dStartDate = _channelData.m_OrderObject.m_dSlidingWindowStartTimeField,
+                                m_dStartDate = channelObjResponse.ChannelObj.m_OrderObject.m_dSlidingWindowStartTimeField,
                                 m_dEndDate = DateTime.UtcNow,
                                 m_sSignString = catalogSignString,
                                 m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
@@ -95,7 +109,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
 
                                     SlidingWindowItem croudsourceItem = new SlidingWindowItem
                                     {
-                                        Action = _channelData.m_OrderObject.m_eOrderBy,
+                                        Action = channelObjResponse.ChannelObj.m_OrderObject.m_eOrderBy,
                                         MediaId = item.Id,
                                         MediaName = ((MediaObj)mediaInfo.Value.m_lObj[0]).m_sName,
                                         MediaImage =

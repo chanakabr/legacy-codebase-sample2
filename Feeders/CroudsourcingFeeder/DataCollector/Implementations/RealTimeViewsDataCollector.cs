@@ -19,8 +19,8 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
     {
         private ChannelViewsResult[] _viewsResult;
 
-        public RealTimeViewsDataCollector(int assetId, int groupId)
-            : base(assetId, groupId, eCrowdsourceType.LiveViews)
+        public RealTimeViewsDataCollector(int groupId)
+            : base(0, groupId, eCrowdsourceType.LiveViews)
         {
 
         }
