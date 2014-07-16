@@ -62,7 +62,7 @@ namespace Catalog
                 int nStatus = 0;
 
                 string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
-                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nGroupID, sType);
+                string sUrl = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, nIndex, sType);
 
                 string retObj = m_oESApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery);
 

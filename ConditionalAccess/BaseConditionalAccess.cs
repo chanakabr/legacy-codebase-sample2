@@ -4006,6 +4006,11 @@ namespace ConditionalAccess
                 TvinciPricing.UsageModule oUsageModule = null;
                 foreach (DataRow dataRow in allCollectionsPurchases.Rows)
                 {
+                    //take care of numOfItem< nCount 
+                    if (numOfItems <= i)
+                    {
+                        break;
+                    }
                     string sCollectionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["COLLECTION_CODE"]);
                     Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
                     Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
@@ -4102,6 +4107,11 @@ namespace ConditionalAccess
 
                 foreach (DataRow dataRow in allSubscriptionsPurchases.Rows)
                 {
+                    //take care of numOfItem< nCount 
+                    if (numOfItems <= i)
+                    {
+                        break;
+                    }
                     DateTime dNextRenewalDate = DateTime.MaxValue;
                     bool bRecurringStatus = false;
                     bool bIsSubRenewable = false;

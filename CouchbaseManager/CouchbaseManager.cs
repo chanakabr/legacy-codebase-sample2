@@ -10,8 +10,7 @@ using Couchbase.Configuration;
 
 namespace CouchbaseManager
 {
-    
-    public enum eCouchbaseBucket { DEFAULT = 0, NOTIFICATION = 1, SOCIALHUB = 2, SOCIALFRIENDS = 3, EPG = 4, MEDIAMARK = 5, STATISTICS = 6, CACHE = 7 }
+    public enum eCouchbaseBucket { DEFAULT = 0, NOTIFICATION = 1, SOCIAL = 2, SOCIALFRIENDS = 3, EPG = 4, MEDIAMARK = 5, STATISTICS = 6, CACHE = 7 }
 
     public class CouchbaseManager
     {
@@ -26,31 +25,30 @@ namespace CouchbaseManager
         {
             CouchbaseClient tempClient = null;
 
-            if (m_CouchbaseInstances == null)
-            {
-                m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
-            }
 
-            if (m_oSyncLock.TryEnterWriteLock(1000))
+            if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
             {
-                try
+                if (m_oSyncLock.TryEnterWriteLock(1000))
                 {
-                    if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
+                    try
                     {
-                        CouchbaseClient client = createNewInstance(eBucket);
-
-                        if (client != null)
+                        if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
                         {
-                            m_CouchbaseInstances.Add(eBucket.ToString(), client);
+                            CouchbaseClient client = createNewInstance(eBucket);
+
+                            if (client != null)
+                            {
+                                m_CouchbaseInstances.Add(eBucket.ToString(), client);
+                            }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                }
-                finally
-                {
-                    m_oSyncLock.ExitWriteLock();
+                    catch (Exception ex)
+                    {
+                    }
+                    finally
+                    {
+                        m_oSyncLock.ExitWriteLock();
+                    }
                 }
             }
 
@@ -78,7 +76,7 @@ namespace CouchbaseManager
             CouchbaseClient oRes = null;
             switch (eBucket)
             {
-                case eCouchbaseBucket.SOCIALHUB:
+                case eCouchbaseBucket.SOCIAL:
                 case eCouchbaseBucket.SOCIALFRIENDS:
                 case eCouchbaseBucket.EPG:
                 case eCouchbaseBucket.STATISTICS:

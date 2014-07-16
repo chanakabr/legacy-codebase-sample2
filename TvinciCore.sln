@@ -69,6 +69,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceExtensions", "Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseWrapper", "CouchbaseWrapper\CouchbaseWrapper.csproj", "{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingProvider", "CachingProvider\CachingProvider.csproj", "{4191D9E7-8502-4B00-A488-771240E2CF40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -391,6 +393,15 @@ Global
 		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|x86.ActiveCfg = Release|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|x86.ActiveCfg = Release|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

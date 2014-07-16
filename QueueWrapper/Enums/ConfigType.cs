@@ -9,5 +9,6 @@ namespace QueueWrapper.Enums
     {
         DefaultConfig,
         PictureConfig,
+        SocialFeedConfig
     }
 }

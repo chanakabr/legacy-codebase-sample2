@@ -49,7 +49,9 @@ namespace Catalog
         private Dictionary<int, List<long>> m_oOperatorChannelIDs; // channel ids for each operator. used for ipno filtering.
         [JsonProperty("m_oLockers")]
         private ConcurrentDictionary<int, ReaderWriterLockSlim> m_oLockers; // readers-writers lockers for operator channel ids.
+        [JsonProperty("m_dLanguages")]
         protected Dictionary<int, LanguageObj> m_dLangauges;
+        [JsonProperty("m_oDefaultLanguage")]
         protected LanguageObj m_oDefaultLanguage;
         #endregion
 
