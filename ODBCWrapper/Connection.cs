@@ -70,7 +70,7 @@ namespace ODBCWrapper
 
         static public string GetConnectionString(string sKey, bool bIsWritable)
         {
-            if (sKey == "")
+            if (string.IsNullOrEmpty(sKey))
                 sKey = "CONNECTION_STRING";
             return GetConnectionStringByKey(sKey, bIsWritable);
         }
