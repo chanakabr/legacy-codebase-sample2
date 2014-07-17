@@ -16,7 +16,6 @@ namespace CouchbaseWrapper
 
         public static GenericCouchbaseClient GetInstance(string bucketName)
         {
-            GenericCouchbaseClient tempClient = null;
             string loweredBucketName = bucketName.ToLower();
             if (!m_CouchbaseInstances.ContainsKey(loweredBucketName))
             {
@@ -31,7 +30,6 @@ namespace CouchbaseWrapper
                             if (client != null)
                             {
                                 m_CouchbaseInstances.Add(loweredBucketName, client);
-                                tempClient = client;
                             }
                         }
                         catch (Exception ex)
