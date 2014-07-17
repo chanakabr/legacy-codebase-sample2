@@ -77,15 +77,14 @@ namespace CouchbaseWrapper
         public CasGetResult<T> GetWithCas<T>(string id) where T : CbDocumentBase
         {
             CasResult<string> casResult = _client.GetWithCas<string>(id);
-            JsonSerializer serializer = new JsonSerializer();
             CasGetResult<T> retVal = new CasGetResult<T>()
             {
                 DocVersion = casResult.Cas,
                 OperationResult = (eOperationResult)casResult.StatusCode,
             };
-            if (retVal.OperationResult == eOperationResult.NoError)
+            if ((eOperationResult)casResult.StatusCode == eOperationResult.NoError && !string.IsNullOrEmpty(casResult.Result))
             {
-                retVal.Value = serializer.Deserialize<T>(new JsonTextReader(new StringReader(casResult.Result)));
+                retVal.Value = JsonConvert.DeserializeObject<T>(casResult.Result);
             }
 
             return retVal;
