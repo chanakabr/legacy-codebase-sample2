@@ -2348,7 +2348,7 @@ namespace Catalog
                                     mediaStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
 
                                     //BuzzMeter 
-                                    if (lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
+                                    if (lBM!=null && lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
                                     {
                                         mediaStat.m_buzzAverScore = lBM[mediaStat.m_nAssetID.ToString()];
                                     }
@@ -2422,7 +2422,7 @@ namespace Catalog
                         //BuzzMeter 
                         foreach (KeyValuePair<int, AssetStatsResult> asset in resultDic)
                         {
-                            if (lBM.ContainsKey(asset.Key.ToString()))
+                            if (lBM!= null && lBM.ContainsKey(asset.Key.ToString()))
                             {
                                 resultDic[asset.Key].m_buzzAverScore = lBM[asset.Key.ToString()];
                             }
