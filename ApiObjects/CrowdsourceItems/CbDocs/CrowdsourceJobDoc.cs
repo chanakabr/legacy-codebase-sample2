@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.CouchbaseWrapperObjects;
+using Newtonsoft.Json;
 
 namespace ApiObjects.CrowdsourceItems.CbDocs
 {
@@ -24,6 +25,7 @@ namespace ApiObjects.CrowdsourceItems.CbDocs
             get { return string.Format("job::{0}:{1}:{2}", _groupId, _type, _assetId); }
         }
 
+        [JsonProperty("lastItemId")]
         public int LastItemId { get; set; }
     }
 }
