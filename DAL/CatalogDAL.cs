@@ -1248,6 +1248,7 @@ namespace Tvinci.Core.DAL
         {
             List<LanguageObj> lLanguages = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupLanguages");
+            sp.AddParameter("@GroupID", nGroupID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
