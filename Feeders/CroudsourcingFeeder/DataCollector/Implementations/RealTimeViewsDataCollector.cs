@@ -29,29 +29,25 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
         {
             try
             {
-
-                using (WS_Catalog.IserviceClient client = GetCatalogClient())
+                string catalogSignString = Guid.NewGuid().ToString();
+                ChannelViewsResponse response = (ChannelViewsResponse)CatalogClient.GetResponse(new ChannelViewsRequest()
                 {
-                    string catalogSignString = Guid.NewGuid().ToString();
-                    ChannelViewsResponse response = (ChannelViewsResponse)client.GetResponse(new ChannelViewsRequest()
+                    m_nGroupID = GroupId,
+                    m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
+                    m_nPageIndex = 0,
+                    m_sSignString = catalogSignString,
+                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                    m_oFilter = new Filter()
                     {
-                        m_nGroupID = GroupId,
-                        m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
-                        m_nPageIndex = 0,
-                        m_sSignString = catalogSignString,
-                        m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
-                        m_oFilter = new Filter()
-                        {
 
-                        }
-                    });
-                    if (response != null)
-                    {
-                        _viewsResult = response.ChannelViews;
-                        return response.ChannelViews.Select(v => v.ChannelId).ToArray();
                     }
-                    return null;
+                });
+                if (response != null)
+                {
+                    _viewsResult = response.ChannelViews;
+                    return response.ChannelViews.Select(v => v.ChannelId).ToArray();
                 }
+                return null;
 
             }
             catch (Exception ex)
@@ -67,60 +63,62 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             {
 
                 Dictionary<int, BaseCrowdsourceItem> retDictionary = null;
-                using (IserviceClient client = GetCatalogClient())
+                if (item != null)
                 {
-                    if (item != null)
+                    ChannelViewsResult channelViewsResult = _viewsResult.SingleOrDefault(x => x.ChannelId == item.Id);
+                    retDictionary = new Dictionary<int, BaseCrowdsourceItem>();
+
+                    Dictionary<LanguageObj, MediaResponse> mediaInfoDict = GetLangAndInfo(GroupId, item.Id);
+                    
+                    string catalogSignString = Guid.NewGuid().ToString();
+                    foreach (KeyValuePair<LanguageObj, MediaResponse> mediaInfo in mediaInfoDict)
                     {
-                        ChannelViewsResult channelViewsResult = _viewsResult.SingleOrDefault(x => x.ChannelId == item.Id);
-                        retDictionary = new Dictionary<int, BaseCrowdsourceItem>();
-
-                        Dictionary<LanguageObj, MediaResponse> mediaInfoDict = GetLangAndInfo(GroupId, item.Id);
-                        string catalogSignString = Guid.NewGuid().ToString();
-                        foreach (KeyValuePair<LanguageObj, MediaResponse> mediaInfo in mediaInfoDict)
+                        RealTimeViewsItem crowdsourceItem = new RealTimeViewsItem()
                         {
-
-                            EpgResponse programInfoForLanguage = (EpgResponse)client.GetResponse(new EpgRequest()
+                            MediaId = item.Id,
+                            Order = item.Order
+                        };
+                        
+                        if (mediaInfo.Value != null && mediaInfo.Value.m_lObj[0] != null)
+                        {
+ 
+                            crowdsourceItem.Views = channelViewsResult.NumOfViews;
+                            crowdsourceItem.MediaName = ((MediaObj) mediaInfo.Value.m_lObj[0]).m_sName;
+                            crowdsourceItem.MediaImage = ((MediaObj) mediaInfo.Value.m_lObj[0]).m_lPicture.Select(pic => new BaseCrowdsourceItem.Pic()
                             {
-                                m_nGroupID = GroupId,
-                                m_eSearchType = EpgSearchType.Current,
-                                m_nNextTop = 1,
-                                m_nPrevTop = 0,
-                                m_nChannelIDs = new[] { item.Id },
-                                m_oFilter = new Filter()
-                                {
-                                    m_nLanguage = mediaInfo.Key.ID,
-                                    m_bOnlyActiveMedia = true
-                                },
-                                m_sSignString = "",
-                                m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
-                            });
-
-
-
-                            if (programInfoForLanguage != null && mediaInfo.Value.m_lObj[0] != null)
+                                Size = pic.m_sSize,
+                                URL = pic.m_sURL
+                            }).ToArray();
+                        };
+                        
+                        //Get EPG item language specific info 
+                        EpgResponse programInfoForLanguage = (EpgResponse)CatalogClient.GetResponse(new EpgRequest()
+                        {
+                            m_nGroupID = GroupId,
+                            m_eSearchType = EpgSearchType.Current,
+                            m_nNextTop = 1,
+                            m_nPrevTop = 0,
+                            m_nChannelIDs = new[] { item.Id },
+                            m_oFilter = new Filter()
                             {
-                                RealTimeViewsItem croudsourceItem = new RealTimeViewsItem()
-                                {
-                                    MediaId = item.Id,
-                                    MediaName = ((MediaObj)mediaInfo.Value.m_lObj[0]).m_sName,
-                                    MediaImage = ((MediaObj)mediaInfo.Value.m_lObj[0]).m_lPicture.Select(pic => new BaseCrowdsourceItem.Pic()
-                                    {
-                                        Size = pic.m_sSize,
-                                        URL = pic.m_sURL
-                                    }).ToArray(),
-                                    TimeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
-                                    Order = item.Order,
-                                    Views = channelViewsResult.NumOfViews,
-                                    ProgramId = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].EPG_ID,
-                                    ProgramImage = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].PIC_URL,
-                                    ProgramName = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].NAME
-                                };
-                                retDictionary.Add(mediaInfo.Key.ID, croudsourceItem);
-                            }
+                                m_nLanguage = mediaInfo.Key.ID,
+                                m_bOnlyActiveMedia = true
+                            },
+                            m_sSignString = "",
+                            m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                        });
+
+                        if (programInfoForLanguage != null && mediaInfo.Value.m_lObj[0] != null)
+                        {
+                            crowdsourceItem.TimeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                            crowdsourceItem.ProgramId = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].EPG_ID;
+                            crowdsourceItem.ProgramImage = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].PIC_URL;
+                            crowdsourceItem.ProgramName = programInfoForLanguage.programsPerChannel[0].m_lEpgProgram[0].NAME;
                         }
+                        retDictionary.Add(mediaInfo.Key.ID, crowdsourceItem);
                     }
-
                 }
+
                 return retDictionary;
             }
             catch (Exception ex)

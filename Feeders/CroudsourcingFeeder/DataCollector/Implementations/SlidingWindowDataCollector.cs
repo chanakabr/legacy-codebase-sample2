@@ -26,34 +26,35 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
         {
             try
             {
-                using (IserviceClient catalogClient = GetCatalogClient())
+                string catalogSignString = Guid.NewGuid().ToString();
+                ChannelResponse slidingWindowResponse = (ChannelResponse)CatalogClient.GetResponse(new ChannelRequest()
                 {
-                    string catalogSignString = Guid.NewGuid().ToString();
-                    ChannelResponse slidingWindowResponse = (ChannelResponse)catalogClient.GetResponse(new ChannelRequest()
+                    m_nChannelID = this.AssetId,
+                    m_nGroupID = this.GroupId,
+                    m_oFilter = new Filter()
                     {
-                        m_nChannelID = this.AssetId,
-                        m_nGroupID = this.GroupId,
-                        m_oFilter = new Filter()
-                        {
-                            m_bOnlyActiveMedia = true,
-                            m_bUseStartDate = true,
-                            m_bUseFinalDate = true,
-                        },
-                        m_sSignString = catalogSignString,
-                        m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
-                        m_nPageIndex = 0,
-                        m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
-                    });
-                    if (slidingWindowResponse != null && slidingWindowResponse.m_nMedias != null)
-                    {
-                        return slidingWindowResponse.m_nMedias.Select(x => x.assetID).ToArray();
-                    }
-                    else return null;
+                        m_bOnlyActiveMedia = true,
+                        m_bUseStartDate = true,
+                        m_bUseFinalDate = true,
+                    },
+                    m_sSignString = catalogSignString,
+                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                    m_nPageIndex = 0,
+                    m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("CATALOG_PAGE_SIZE"),
+                });
+
+                if (slidingWindowResponse != null && slidingWindowResponse.m_nMedias != null)
+                {
+                    return slidingWindowResponse.m_nMedias.Select(x => x.assetID).ToArray();
                 }
+                else return null;
+
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error collecting items - Exception: \n {2}", DateTime.UtcNow, CollectorType, ex.Message), "Crowdsourcing.log");
+                Logger.Logger.Log("Crowdsource",
+                    string.Format("{0}: {1} - Error collecting items - Exception: \n {2}", DateTime.UtcNow,
+                        CollectorType, ex.Message), "Crowdsourcing.log");
                 return null;
             }
         }
@@ -63,11 +64,11 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             try
             {
                 Dictionary<int, BaseCrowdsourceItem> normalizedDictionary = null;
-                using (WS_Catalog.IserviceClient client = GetCatalogClient())
-                {
-                    string catalogSignString = Guid.NewGuid().ToString();
 
-                    ChannelObjResponse channelObjResponse = (ChannelObjResponse)client.GetResponse(new ChannelObjRequest()
+                string catalogSignString = Guid.NewGuid().ToString();
+
+                // Get channel info
+                ChannelObjResponse channelObjResponse = (ChannelObjResponse)CatalogClient.GetResponse(new ChannelObjRequest()
                     {
                         ChannelId = this.AssetId,
                         m_nGroupID = this.GroupId,
@@ -83,168 +84,78 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                 TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
                     });
 
-                    if (channelObjResponse != null && channelObjResponse.ChannelObj.m_OrderObject.m_bIsSlidingWindowField)
+                if (channelObjResponse != null && channelObjResponse.ChannelObj.m_OrderObject.m_bIsSlidingWindowField)
+                {
+                    //Get asset-stats
+                    AssetStatsResponse assetStats = (AssetStatsResponse)CatalogClient.GetResponse(new AssetStatsRequest()
                     {
-                        AssetStatsResponse assetStats = (AssetStatsResponse)client.GetResponse(new AssetStatsRequest()
-                            {
-                                m_nGroupID = GroupId,
-                                m_type = StatsType.MEDIA,
-                                m_nAssetIDs = new[] { item.Id },
-                                m_dStartDate = channelObjResponse.ChannelObj.m_OrderObject.m_dSlidingWindowStartTimeField,
-                                m_dEndDate = DateTime.UtcNow,
-                                m_sSignString = catalogSignString,
-                                m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                        m_nGroupID = GroupId,
+                        m_type = StatsType.MEDIA,
+                        m_nAssetIDs = new[] { item.Id },
+                        m_dStartDate = channelObjResponse.ChannelObj.m_OrderObject.m_dSlidingWindowStartTimeField,
+                        m_dEndDate = DateTime.UtcNow,
+                        m_sSignString = catalogSignString,
+                        m_sSignature =
+                            TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString,
+                                TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
 
-                            });
+                    });
 
-                        Dictionary<LanguageObj, MediaResponse> mediaInfoDict = GetLangAndInfo(GroupId, item.Id);
-                        if (mediaInfoDict != null)
+                    // get language specific info
+                    Dictionary<LanguageObj, MediaResponse> mediaInfoDict = GetLangAndInfo(GroupId, item.Id);
+                    if (mediaInfoDict != null)
+                    {
+                        normalizedDictionary = new Dictionary<int, BaseCrowdsourceItem>();
+                        foreach (KeyValuePair<LanguageObj, MediaResponse> mediaInfo in mediaInfoDict)
                         {
-                            normalizedDictionary = new Dictionary<int, BaseCrowdsourceItem>();
-                            foreach (KeyValuePair<LanguageObj, MediaResponse> mediaInfo in mediaInfoDict)
+
+                            if (mediaInfo.Value.m_lObj[0] != null)
                             {
-
-                                if (mediaInfo.Value.m_lObj[0] != null)
+                                SlidingWindowItem croudsourceItem = new SlidingWindowItem
                                 {
+                                    Action = channelObjResponse.ChannelObj.m_OrderObject.m_eOrderBy,
+                                    MediaId = item.Id,
+                                    MediaName = ((MediaObj)mediaInfo.Value.m_lObj[0]).m_sName,
+                                    MediaImage =
+                                        ((MediaObj)mediaInfo.Value.m_lObj[0]).m_lPicture.Select(
+                                            pic => new BaseCrowdsourceItem.Pic()
+                                            {
+                                                Size = pic.m_sSize,
+                                                URL = pic.m_sURL
+                                            }).ToArray(),
+                                    TimeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                    Order = item.Order,
 
-                                    SlidingWindowItem croudsourceItem = new SlidingWindowItem
-                                    {
-                                        Action = channelObjResponse.ChannelObj.m_OrderObject.m_eOrderBy,
-                                        MediaId = item.Id,
-                                        MediaName = ((MediaObj)mediaInfo.Value.m_lObj[0]).m_sName,
-                                        MediaImage =
-                                            ((MediaObj)mediaInfo.Value.m_lObj[0]).m_lPicture.Select(
-                                                pic => new BaseCrowdsourceItem.Pic()
-                                                {
-                                                    Size = pic.m_sSize,
-                                                    URL = pic.m_sURL
-                                                }).ToArray(),
-                                        TimeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
-                                        Order = item.Order,
-
-                                    };
-                                    switch (croudsourceItem.Action)
-                                    {
-                                        case ApiObjects.SearchObjects.OrderBy.VIEWS:
-                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nViews;
-                                            break;
-                                        case ApiObjects.SearchObjects.OrderBy.RATING:
-                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_dRate;
-                                            break;
-                                        case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
-                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nLikes;
-                                            break;
-                                        case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
-                                            croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nVotes;
-                                            break;
-                                    }
-                                    normalizedDictionary.Add(mediaInfo.Key.ID, croudsourceItem);
+                                };
+                                switch (croudsourceItem.Action)
+                                {
+                                    case OrderBy.VIEWS:
+                                        croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nViews;
+                                        break;
+                                    case OrderBy.RATING:
+                                        croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_dRate;
+                                        break;
+                                    case OrderBy.LIKE_COUNTER:
+                                        croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nLikes;
+                                        break;
+                                    case OrderBy.VOTES_COUNT:
+                                        croudsourceItem.ActionVal = assetStats.m_lAssetStat[0].m_nVotes;
+                                        break;
                                 }
-
+                                normalizedDictionary.Add(mediaInfo.Key.ID, croudsourceItem);
                             }
                         }
-
                     }
-
-                    return normalizedDictionary;
                 }
+                return normalizedDictionary;
             }
             catch (Exception ex)
             {
 
-                Logger.Logger.Log("Crowdsource", string.Format("{0}:{1} - Error normalizing singular item. mediaId {2} - Exception: \n {3}", DateTime.UtcNow, CollectorType, item.Id, ex.Message), "Crowdsourcing.log");
+                Logger.Logger.Log("Crowdsource",
+                    string.Format("{0}:{1} - Error normalizing singular item. mediaId {2} - Exception: \n {3}",
+                        DateTime.UtcNow, CollectorType, item.Id, ex.Message), "Crowdsourcing.log");
                 return null;
-            }
-
-
-
-        }
-
-        private static DateTime GetSlidingWindowStart(int minPeriodId)
-        {
-            switch (minPeriodId)
-            {
-                case 1:
-                    return DateTime.UtcNow.AddMinutes(-1);
-                case 5:
-                    return DateTime.UtcNow.AddMinutes(-5);
-                case 10:
-                    return DateTime.UtcNow.AddMinutes(-10);
-                case 30:
-                    return DateTime.UtcNow.AddMinutes(-30);
-                case 60:
-                    return DateTime.UtcNow.AddHours(-1);
-                case 120:
-                    return DateTime.UtcNow.AddHours(-2);
-                case 180:
-                    return DateTime.UtcNow.AddHours(-3);
-                case 360:
-                    return DateTime.UtcNow.AddHours(-6);
-                case 540:
-                    return DateTime.UtcNow.AddHours(-9);
-                case 720:
-                    return DateTime.UtcNow.AddHours(-12);
-                case 1080:
-                    return DateTime.UtcNow.AddHours(-18);
-                case 1440:
-                    return DateTime.UtcNow.AddDays(-1);
-                case 2880:
-                    return DateTime.UtcNow.AddDays(-2);
-                case 4320:
-                    return DateTime.UtcNow.AddDays(-3);
-                case 7200:
-                    return DateTime.UtcNow.AddDays(-5);
-                case 10080:
-                    return DateTime.UtcNow.AddDays(-7);
-                case 20160:
-                    return DateTime.UtcNow.AddDays(-14);
-                case 30240:
-                    return DateTime.UtcNow.AddDays(-21);
-                case 40320:
-                    return DateTime.UtcNow.AddDays(-28);
-                case 40321:
-                    return DateTime.UtcNow.AddDays(-28);
-                case 43200:
-                    return DateTime.UtcNow.AddDays(-30);
-                case 44600:
-                    return DateTime.UtcNow.AddDays(-31);
-                case 1111111:
-                    return DateTime.UtcNow.AddMonths(-1);
-                case 2222222:
-                    return DateTime.UtcNow.AddMonths(-2);
-                case 3333333:
-                    return DateTime.UtcNow.AddMonths(-3);
-                case 4444444:
-                    return DateTime.UtcNow.AddMonths(-4);
-                case 5555555:
-                    return DateTime.UtcNow.AddMonths(-5);
-                case 6666666:
-                    return DateTime.UtcNow.AddMonths(-6);
-                case 9999999:
-                    return DateTime.UtcNow.AddMonths(-7);
-                case 11111111:
-                    return DateTime.UtcNow.AddYears(-1);
-                case 22222222:
-                    return DateTime.UtcNow.AddYears(-2);
-                case 33333333:
-                    return DateTime.UtcNow.AddYears(-3);
-                case 44444444:
-                    return DateTime.UtcNow.AddYears(-4);
-                case 55555555:
-                    return DateTime.UtcNow.AddYears(-5);
-                case 66666666:
-                    return DateTime.UtcNow.AddYears(-6);
-                case 77777777:
-                    return DateTime.UtcNow.AddYears(-7);
-                case 88888888:
-                    return DateTime.UtcNow.AddYears(-8);
-                case 99999999:
-                    return DateTime.UtcNow.AddYears(-9);
-                case 100000000:
-                    return DateTime.UtcNow.AddYears(-10);
-
-                default:
-                    return DateTime.MinValue;
             }
         }
     }
