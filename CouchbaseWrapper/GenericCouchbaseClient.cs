@@ -41,7 +41,38 @@ namespace CouchbaseWrapper
         {
             IDictionary<string, object> dict = _client.Get(idList);
             JsonSerializer serializer = new JsonSerializer();
-            return dict.Values.Select(item => serializer.Deserialize<T>(new JsonTextReader(new StringReader(item.ToString())))).ToList();
+            List<T> res = new List<T>();
+            ICollection<object> coll = dict.Values;
+            if (coll != null && coll.Count > 0)
+            {
+                foreach (object obj in coll)
+                {
+                    if (obj != null)
+                    {
+                        JsonTextReader jtr = null;
+                        StringReader sr = null;
+                        try
+                        {
+                            sr = new StringReader(obj.ToString());
+                            jtr = new JsonTextReader(sr);
+                            res.Add(serializer.Deserialize<T>(jtr));
+                        }
+                        finally
+                        {
+                            if (sr != null)
+                            {
+                                sr.Close();
+                            }
+                            if (jtr != null)
+                            {
+                                jtr.Close();
+                            }
+                        }
+                    }
+                } // foreach
+            }
+
+            return res;
         }
 
         public bool Store<T>(T document) where T : CbDocumentBase
@@ -85,7 +116,25 @@ namespace CouchbaseWrapper
             };
             if (retVal.OperationResult == eOperationResult.NoError)
             {
-                retVal.Value = serializer.Deserialize<T>(new JsonTextReader(new StringReader(casResult.Result)));
+                JsonTextReader jtr = null;
+                StringReader sr = null;
+                try
+                {
+                    sr = new StringReader(casResult.Result);
+                    jtr = new JsonTextReader(sr);
+                    retVal.Value = serializer.Deserialize<T>(jtr);
+                }
+                finally
+                {
+                    if (sr != null)
+                    {
+                        sr.Close();
+                    }
+                    if (jtr != null)
+                    {
+                        jtr.Close();
+                    }
+                }
             }
 
             return retVal;
@@ -93,19 +142,28 @@ namespace CouchbaseWrapper
 
         public bool CasWithRetry<T>(T document, ulong docVersion, int numOfRetries, int retryInterval) where T : CbDocumentBase
         {
-            if (numOfRetries >= 0)
+            bool res = false;
+            for (int i = 0; i < numOfRetries; i++)
             {
-                bool bCasOpearationRes = Cas<T>(document, docVersion);
-                if (!bCasOpearationRes)
+                if (!Cas<T>(document, docVersion))
                 {
-                    numOfRetries--;
-                    Thread.Sleep(retryInterval);
-                    CasGetResult<T> casGetResult = GetWithCas<T>(document.Id);
-                    return CasWithRetry<T>(document, casGetResult.DocVersion, numOfRetries, retryInterval);
+                    if (retryInterval > 0)
+                    {
+                        Thread.Sleep(retryInterval);
+                        CasGetResult<T> casGetResult = GetWithCas<T>(document.Id);
+                    }
+                    else
+                    {
+                        res = false;
+                    }
                 }
-                else return true;
-            }
-            else return false;
+                else
+                {
+                    res = true;
+                }
+            } // for
+
+            return res;
         }
     }
 }

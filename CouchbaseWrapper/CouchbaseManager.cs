@@ -4,59 +4,61 @@ using System.Configuration;
 using System.Threading;
 using Couchbase.Configuration;
 using System.Linq;
+using System.Text;
 
 namespace CouchbaseWrapper
 {
 
     public class CouchbaseManager
     {
-        private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim();
         private static volatile Dictionary<string, GenericCouchbaseClient> m_CouchbaseInstances = new Dictionary<string, GenericCouchbaseClient>();
+        private static object locker = new object();
 
         public static GenericCouchbaseClient GetInstance(string bucketName)
         {
             GenericCouchbaseClient tempClient = null;
-            if (!m_CouchbaseInstances.ContainsKey(bucketName.ToLower()))
+            string loweredBucketName = bucketName.ToLower();
+            if (!m_CouchbaseInstances.ContainsKey(loweredBucketName))
             {
-                try
+                lock (locker)
                 {
-                    if (m_oSyncLock.TryEnterWriteLock(1000))
+                    if (!m_CouchbaseInstances.ContainsKey(loweredBucketName))
                     {
-                        GenericCouchbaseClient client = createNewInstance(bucketName.ToLower());
-
-                        if (client != null)
+                        try
                         {
-                            m_CouchbaseInstances.Add(bucketName.ToLower(), client);
-                            tempClient = client;
+                            GenericCouchbaseClient client = createNewInstance(loweredBucketName);
+
+                            if (client != null)
+                            {
+                                m_CouchbaseInstances.Add(loweredBucketName, client);
+                                tempClient = client;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            #region Logging
+                            StringBuilder sb = new StringBuilder("Exception at CouchbaseWrapper.CouchbaseManager.GetInstance. ");
+                            sb.Append(String.Concat("Ex msg: ", ex.Message));
+                            sb.Append(String.Concat(" Bucket name: ", bucketName));
+                            sb.Append(String.Concat(" Ex type: ", ex.GetType().Name));
+                            sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
+
+                            Logger.Logger.Log("Exception", sb.ToString(), "CBWrapper");
+                            #endregion
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    Logger.Logger.Log("Error creating client", ex.Message, "CbWrapper: " + DateTime.UtcNow);
-                }
-                finally
-                {
-                    m_oSyncLock.ExitWriteLock();
-                }
             }
-            else
-            {
-                try
-                {
-                    m_CouchbaseInstances.TryGetValue(bucketName.ToLower(), out tempClient);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Logger.Log("Error getting client", ex.Message, "CbWrapper: " + DateTime.UtcNow);
-                }
-            }
-            return tempClient;
+
+            if (m_CouchbaseInstances.ContainsKey(loweredBucketName))
+                return m_CouchbaseInstances[loweredBucketName];
+            return null;
+
         }
 
         private static GenericCouchbaseClient createNewInstance(string bucketName)
         {
-            ClientConfig tcmConfig = TCMClient.Settings.Instance.GetValue<ClientConfig>("cb_"+bucketName);
+            ClientConfig tcmConfig = TCMClient.Settings.Instance.GetValue<ClientConfig>(String.Concat("cb_", bucketName));
             if (tcmConfig != null)
             {
                 CouchbaseClientConfiguration clientConfig = new CouchbaseClientConfiguration()
