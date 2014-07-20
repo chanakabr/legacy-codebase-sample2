@@ -42,22 +42,24 @@ namespace ApiObjects.MediaIndexingObjects
     }
 
     [Serializable]
-    public class SocialUnmergeRequest : QueueObject
+    public class SocialMergeRequest : QueueObject
     {
         #region Members
         [DataMember]
         [JsonProperty("site_guid")]
         public string sSiteGuid { get; set; }
+        [JsonProperty("action")]
+        public string Action { get; set; }
         #endregion
 
         #region CTOR
 
-        public SocialUnmergeRequest()
-        {           
+        public SocialMergeRequest()
+        {
  
         }
 
-        public SocialUnmergeRequest(int nGroupId, string sSiteGuid)
+        public SocialMergeRequest(int nGroupId, string sSiteGuid, string action)
         {
             this.GroupId = nGroupId;
             this.sSiteGuid = sSiteGuid;

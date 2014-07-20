@@ -25,10 +25,10 @@ namespace DalCB
             m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SOCIAL);
         }
 
-        public List<SocialActivityDoc> GetUserSocialFeed(string sSiteGuid, int nSkip, int nNumOfRecords)
+        public bool GetUserSocialFeed(string sSiteGuid, int nSkip, int nNumOfRecords, out List<SocialActivityDoc> lResult)
         {
-            List<SocialActivityDoc> lRes = null;
-
+            lResult = new List<SocialActivityDoc>();
+            bool bResult = false;
             try
             {
                 long epochTime = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -36,12 +36,18 @@ namespace DalCB
                 object[] endKey = new object[] { sSiteGuid, 0 };
 
 
-                lRes = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true).Skip(nSkip).Limit(nNumOfRecords).ToList()
-                                               : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true).ToList();
+                var retval = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true).Skip(nSkip).Limit(nNumOfRecords)
+                                               : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true);
+                if (retval != null)
+                {
+                    lResult = retval.ToList();
+                }
+                bResult = true;
             }
-            catch (Couchbase.Exceptions.ViewException vEx) { }
+            catch (Couchbase.Exceptions.ViewException vEx) { 
+            }
 
-            return lRes;
+            return bResult;
         }
 
         public bool GetUserSocialAction(string sSocialActionID, out SocialActivityDoc oRetval)
@@ -95,6 +101,34 @@ namespace DalCB
             return lRes;
         }
 
+        //returns user social actions by descending date
+        public bool GetUserSocialAction(string sSiteGuid, int nNumOfRecords, int nSkip, out List<SocialActivityDoc> lUserActivities)
+        {
+            bool bResult = false;
+            lUserActivities = new List<SocialActivityDoc>();
+            try
+            {
+                long epochTime = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                object[] startKey = new object[] { sSiteGuid, epochTime };
+                object[] endKey = new object[] { sSiteGuid, 0 };
+
+
+                var retval = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActions", true).StartKey(startKey).EndKey(endKey).Descending(true).Skip(nSkip).Limit(nNumOfRecords)
+                                               : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActions", true).StartKey(startKey).EndKey(endKey).Descending(true);
+                if (retval != null)
+                {
+                    lUserActivities = retval.ToList();
+                }
+
+                bResult = true;
+            }
+            catch (Couchbase.Exceptions.ViewException vEx)
+            {
+            }
+
+            return bResult;
+        }
+
         public bool DeleteUserSocialAction(string sDocID)
         {
             bool bResult = false;
@@ -128,112 +162,6 @@ namespace DalCB
 
         }
 
-        //public List<SocialActivityDoc> GetUserSocialAction(int nNumOfRecords, string sSiteGuid, int nSocialPlatform, List<int> socialActions)
-        //{
-        //    List<SocialActivityDoc> lRes = new List<SocialActivityDoc>();
-
-        //    if (socialActions == null || socialActions.Count <= 0 || string.IsNullOrEmpty(sSiteGuid))
-        //    {
-        //        return lRes;
-        //    }
-
-        //    List<List<object>> lKeys = new List<List<object>>();
-
-        //    foreach (int nAction in socialActions)
-        //    {
-        //        lKeys.Add(new List<object>() { nSocialPlatform, nAction, sSiteGuid });
-        //    }
-
-        //    try
-        //    {
-        //        lRes = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserAction", true).Keys(lKeys).Limit(nNumOfRecords).ToList()
-        //                                           : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserAction", true).Keys(lKeys).ToList();
-        //    }
-        //    catch (Couchbase.Exceptions.ViewException vEx) { }
-
-        //    return (lRes.Count <= nNumOfRecords || nNumOfRecords == 0) ? lRes : lRes.GetRange(0, nNumOfRecords);
-        //}
-
-        //public List<SocialActivityDoc> GetUserSocialActionOnAsset(int nNumOfRecords, string sSiteGuid, int nSocialPlatform, List<int> socialActions, int nAssetID)
-        //{
-        //    List<SocialActivityDoc> lRes = new List<SocialActivityDoc>();
-
-        //    if (socialActions == null || socialActions.Count <= 0 || string.IsNullOrEmpty(sSiteGuid))
-        //    {
-        //        return lRes;
-        //    }
-
-        //    List<List<object>> lKeys = new List<List<object>>();
-
-        //    foreach (int nAction in socialActions)
-        //    {
-        //        lKeys.Add(new List<object>() { nAssetID, sSiteGuid, nSocialPlatform, nAction });
-        //    }
-
-        //    try
-        //    {
-        //        lRes = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActionOnMedia", true).Keys(lKeys).Limit(nNumOfRecords).ToList()
-        //                                           : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActionOnMedia", true).Keys(lKeys).ToList();
-        //    }
-        //    catch (Couchbase.Exceptions.ViewException vEx) { }
-
-        //    return (lRes.Count <= nNumOfRecords || nNumOfRecords == 0) ? lRes : lRes.GetRange(0, nNumOfRecords);
-        //}
-
-        //public List<SocialActivityDoc> GetUsersSocialActions(int nNumOfRecords, List<string> lSiteGuids, int nSocialPlatform, List<int> lSocialAction)
-        //{
-        //    List<SocialActivityDoc> lRes = new List<SocialActivityDoc>();
-
-        //    List<List<object>> lKeys = new List<List<object>>();
-
-        //    foreach (string siteGuid in lSiteGuids)
-        //    {
-        //        foreach (int socialAction in lSocialAction)
-        //        {
-        //            lKeys.Add(new List<object>() { nSocialPlatform, socialAction, siteGuid });
-        //        }
-        //    }
-
-        //    if (lKeys.Count > 0)
-        //    {
-        //        try
-        //        {
-        //            lRes = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserAction", true).Keys(lKeys).Limit(nNumOfRecords).ToList()
-        //                                               : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserAction", true).Keys(lKeys).ToList();
-        //        }
-        //        catch (Couchbase.Exceptions.ViewException vEx) { }
-        //    }
-
-        //    return (lRes.Count <= nNumOfRecords || nNumOfRecords == 0) ? lRes : lRes.GetRange(0, nNumOfRecords);
-        //}
-
-        //public List<SocialActivityDoc> GetUsersSocialActionsOnAsset(int nNumOfRecords, List<string> lSiteGuids, int nSocialPlatform, List<int> lSocialAction, int nAssetID)
-        //{
-        //    List<SocialActivityDoc> lRes = new List<SocialActivityDoc>();
-
-        //    List<List<object>> lKeys = new List<List<object>>();
-        //    foreach (string siteGuid in lSiteGuids)
-        //    {
-        //        foreach (int socialAction in lSocialAction)
-        //        {
-        //            lKeys.Add(new List<object>() { nAssetID, socialAction, siteGuid });
-        //        }
-        //    }
-
-        //    if (lKeys.Count > 0)
-        //    {
-        //        try
-        //        {
-        //            lRes = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActionOnMedia", true).Keys(lKeys).Limit(nNumOfRecords).ToList()
-        //                                               : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActionOnMedia", true).Keys(lKeys).ToList();
-        //        }
-        //        catch (Couchbase.Exceptions.ViewException vEx) { }
-        //    }
-
-        //    return (lRes.Count <= nNumOfRecords || nNumOfRecords == 0) ? lRes : lRes.GetRange(0, nNumOfRecords);
-
-        //}
-
         public bool InsertUserSocialAction(string sDocID, object oDoc)
         {
             bool bRes = false;
@@ -246,37 +174,6 @@ namespace DalCB
 
             return bRes;
         }
-
-        //public bool UpdateUserSocialAction(string sDocID, string sJsonDoc)
-        //{
-        //    bool bRes = false;
-
-        //    try
-        //    {
-        //        bRes = m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Replace, sDocID, sJsonDoc);
-        //    }
-        //    catch (Exception ex) { }
-
-        //    return bRes;
-        //}
-
-        //public List<SocialActivityDoc> GetGroupDailyFeed(int nLimit)
-        //{
-        //    List<SocialActivityDoc> lResult = new List<SocialActivityDoc>();
-        //    try
-        //    {
-        //        var rows = (nLimit > 0) ? m_oClient.GetView<SocialActivityDoc>("dev_Action", "24HourFeed", true).StartKey(m_nGroupID).Limit(nLimit).ToArray()
-        //                                : m_oClient.GetView<SocialActivityDoc>("dev_Action", "24HourFeed", true).StartKey(m_nGroupID).ToArray();
-
-        //        foreach (SocialActivityDoc doc in rows)
-        //        {
-        //            lResult.Add(doc);
-        //        }
-        //    }
-        //    catch (Exception ex) { }
-
-        //    return lResult;
-        //}
 
         private static T Deserialize<T>(string sJson) where T : class
         {

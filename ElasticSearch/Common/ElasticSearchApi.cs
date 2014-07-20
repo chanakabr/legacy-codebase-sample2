@@ -751,7 +751,7 @@ namespace ElasticSearch.Common
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Notifier", "SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, "Social");
+                Logger.Logger.Log("Notifier", "SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, ES_LOG_FILENAME);
                 if (oWebResponse != null)
                     oWebResponse.Close();
                 if (receiveStream != null)
