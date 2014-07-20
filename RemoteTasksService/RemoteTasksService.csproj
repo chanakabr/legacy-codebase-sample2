@@ -125,9 +125,9 @@
       <Project>{6a3171f6-bfc9-4407-97ee-8e20e36ad783}</Project>
       <Name>SocialFeedHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SocialUnmergeHandler\SocialUnmergeHandler.csproj">
-      <Project>{8cd02f4a-582f-4e14-abca-225e18e7ab81}</Project>
-      <Name>SocialUnmergeHandler</Name>
+    <ProjectReference Include="..\SocialMergeHandler\SocialMergeHandler.csproj">
+      <Project>{fb37385f-06ea-4f98-a7e2-e45bfab900d4}</Project>
+      <Name>SocialMergeHandler</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
