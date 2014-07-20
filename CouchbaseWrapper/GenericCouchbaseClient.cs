@@ -1,12 +1,11 @@
 ﻿﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 ﻿using System.Threading;
 ﻿using Couchbase;
 using Couchbase.Configuration;
 using Couchbase.Extensions;
-using CouchbaseWrapper.DalEntities;
+﻿using CouchbaseWrapper.DalEntities;
 using Enyim.Caching.Memcached;
 using Newtonsoft.Json;
 using ApiObjects.CouchbaseWrapperObjects;
@@ -24,24 +23,28 @@ namespace CouchbaseWrapper
 
         public GenericCouchbaseClient(CouchbaseClientConfiguration clientConfig)
         {
-           _client = new CouchbaseClient(clientConfig);
+            _client = new CouchbaseClient(clientConfig);
         }
 
-        public bool Exists(string Id)
+        public bool Exists(string id)
         {
-            return _client.KeyExists(Id);
+            return _client.KeyExists(id);
         }
 
-        public T Get<T>(string Id) where T : CbDocumentBase
+        public T Get<T>(string id) where T : CbDocumentBase
         {
-            return _client.GetJson<T>(Id);
+            return _client.GetJson<T>(id);
         }
 
-        public IEnumerable<T> Get<T>(List<string> idList) where T : CbDocumentBase
+        public IDictionary<string, T> Get<T>(List<string> idList) where T : CbDocumentBase
         {
+            IDictionary<string, T> retVal = null;
             IDictionary<string, object> dict = _client.Get(idList);
-            JsonSerializer serializer = new JsonSerializer();
-            return dict.Values.Select(item => serializer.Deserialize<T>(new JsonTextReader(new StringReader(item.ToString())))).ToList();
+            if (dict!= null && dict.Count > 0)
+            {
+                retVal = dict.ToDictionary(item => item.Key, item => JsonConvert.DeserializeObject<T>(item.Value.ToString()));
+            }
+            return retVal;
         }
 
         public bool Store<T>(T document) where T : CbDocumentBase
@@ -77,15 +80,14 @@ namespace CouchbaseWrapper
         public CasGetResult<T> GetWithCas<T>(string id) where T : CbDocumentBase
         {
             CasResult<string> casResult = _client.GetWithCas<string>(id);
-            JsonSerializer serializer = new JsonSerializer();
             CasGetResult<T> retVal = new CasGetResult<T>()
             {
                 DocVersion = casResult.Cas,
-                OperationResult = (eOperationResult)casResult.StatusCode,
+                OperationResult = (eOperationResult) casResult.StatusCode,
             };
-            if (retVal.OperationResult == eOperationResult.NoError)
+            if ((eOperationResult) casResult.StatusCode == eOperationResult.NoError && !string.IsNullOrEmpty(casResult.Result))
             {
-                retVal.Value = serializer.Deserialize<T>(new JsonTextReader(new StringReader(casResult.Result)));
+                retVal.Value = JsonConvert.DeserializeObject<T>(casResult.Result);
             }
 
             return retVal;
