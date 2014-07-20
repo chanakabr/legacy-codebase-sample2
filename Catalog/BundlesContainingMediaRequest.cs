@@ -38,7 +38,7 @@ namespace Catalog
             cols = new List<int>();
             for (int i = 0; i < request.m_oBundles.Length; i++)
             {
-                if (request.m_oBundles[i].m_eBundleType == CatalogBundleType.SUBSCRIPTION)
+                if (request.m_oBundles[i].m_eBundleType == eBundleType.SUBSCRIPTION)
                 {
                     subs.Add(request.m_oBundles[i].m_nBundleCode);
                 }

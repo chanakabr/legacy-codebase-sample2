@@ -21,7 +21,7 @@ namespace Catalog
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         [DataMember]
-        public CatalogBundleType m_eBundleType;
+        public eBundleType m_eBundleType;
         [DataMember]
         public int m_nBundleID;
         [DataMember]
