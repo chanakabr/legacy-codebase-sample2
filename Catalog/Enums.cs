@@ -89,7 +89,7 @@ namespace Catalog
         Adi = 1
     }
 
-    public enum CatalogBundleType
+    public enum eBundleType
     {
         SUBSCRIPTION = 0,
         COLLECTION = 1

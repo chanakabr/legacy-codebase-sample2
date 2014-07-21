@@ -71,14 +71,14 @@ namespace Catalog
         [DataMember]
         public int m_nBundleCode;
         [DataMember]
-        public CatalogBundleType m_eBundleType;
+        public eBundleType m_eBundleType;
 
         public BundleKeyValue()
         {
 
         }
 
-        public BundleKeyValue(int nBundleCode, CatalogBundleType eBundleType)
+        public BundleKeyValue(int nBundleCode, eBundleType eBundleType)
         {
             this.m_nBundleCode = nBundleCode;
             this.m_eBundleType = eBundleType;
@@ -91,11 +91,11 @@ namespace Catalog
         [DataMember]
         public int m_nBundleCode;
         [DataMember]
-        public CatalogBundleType m_eBundleType;
+        public eBundleType m_eBundleType;
         [DataMember]
         public bool m_bIsContained;
 
-        public BundleTriple(int nBundleCode, CatalogBundleType eBundleType, bool bIsContained)
+        public BundleTriple(int nBundleCode, eBundleType eBundleType, bool bIsContained)
         {
             this.m_nBundleCode = nBundleCode;
             this.m_eBundleType = eBundleType;
