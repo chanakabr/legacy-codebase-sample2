@@ -209,7 +209,7 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "media_type", Description = "Media Type", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string media_type { get; set; }
         [ApiMember(Name = "bundle_type", Description = "Bundle type (Collection || Subscription)", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
-        public eBundleType bundle_type { get; set; }
+        public CatalogBundleType bundle_type { get; set; }
     }
 
     [Route("/bundle/{bundle_id}/bundle_medias", "GET", Notes = "Gets all medias in bundle")]
@@ -220,7 +220,7 @@ namespace RestfulTVPApi.ServiceModel
         [ApiMember(Name = "media_type", Description = "Media Type", ParameterType = "query", DataType = SwaggerType.String, IsRequired = true)]
         public string media_type { get; set; }
         [ApiMember(Name = "bundle_type", Description = "Bundle type (Collection || Subscription)", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
-        public eBundleType bundle_type { get; set; }
+        public CatalogBundleType bundle_type { get; set; }
         [ApiMember(Name = "order_by", Description = "Order by", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]
         public TVPApiModule.Context.OrderBy order_by { get; set; }
         [ApiMember(Name = "order_dir", Description = "Order direction (asc/desc)", ParameterType = "query", DataType = SwaggerType.Int, IsRequired = true)]

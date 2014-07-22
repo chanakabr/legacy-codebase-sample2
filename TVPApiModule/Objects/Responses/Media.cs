@@ -374,6 +374,8 @@ namespace TVPApiModule.Objects.Responses
 
             if (mediaTags != null)
             {
+                string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
+
                 foreach (Tags tag in mediaTags)
                 {
                     if (tag.m_oTagMeta.m_sName != "ID")
@@ -383,25 +385,34 @@ namespace TVPApiModule.Objects.Responses
                             TagMetaPair mediaTag = tags.Where(t => t.key == tag.m_oTagMeta.m_sName).FirstOrDefault();
                             if (mediaTag != null)
                             {
-                                if (mediaTag.key == null && mediaTag.value == null) // Change this!!!
-                                {
-                                    pair = new TagMetaPair(tag.m_oTagMeta.m_sName, tagValue);
-                                    tags.Add(pair);
-                                }
-                                else
+                                if (!string.IsNullOrEmpty(mediaTag.key) && !string.IsNullOrEmpty(mediaTag.value))
                                 {
                                     mediaTag.value = (!String.IsNullOrEmpty(mediaTag.value.ToString())) ? string.Concat(mediaTag.value.ToString(), "|", tagValue) : tagValue;
                                 }
                             }
+                            else
+                            {
+                                pair = new TagMetaPair(tag.m_oTagMeta.m_sName, tagValue);
+                                tags.Add(pair);
+
+                                if (adTags.Contains(pair.key))
+                                    advertising_parameters.Add(pair);
+                            }
+                                //}
+                                //else
+                                //{
+                                //    mediaTag.value = (!String.IsNullOrEmpty(mediaTag.value.ToString())) ? string.Concat(mediaTag.value.ToString(), "|", tagValue) : tagValue;
+                                //}
+                            
                         }
                     }
-                    string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
+                    //string[] adTags = ConfigManager.GetInstance().GetConfig(groupID, platform).MediaConfiguration.Data.TVM.AdvertisingValues.Tags.Split(';');
 
-                    foreach (TagMetaPair mediaTag in tags)
-                    {
-                        if (adTags.Contains(mediaTag.key))
-                            advertising_parameters.Add(mediaTag);
-                    }
+                    //foreach (TagMetaPair mediaTag in tags)
+                    //{
+                    //    if (adTags.Contains(mediaTag.key))
+                    //        advertising_parameters.Add(mediaTag);
+                    //}
                 }
             }
         }

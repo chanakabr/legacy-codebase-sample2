@@ -22,7 +22,7 @@ namespace RestfulTVPApi.ServiceInterface
                 }.Execute() as List<Media>;
         }
 
-        public List<Channel> GetChannelsList(GetChannelsListRequest request)
+        public List<TVPApiModule.Objects.Responses.Channel> GetChannelsList(GetChannelsListRequest request)
         {
             return ChannelHelper.GetChannelsList(request.InitObj, request.pic_size, request.GroupID, request.site_guid);
         }

@@ -1299,7 +1299,7 @@ namespace TVPApiModule.Extentions
             TVPApiModule.Objects.Responses.Subscription retVal = new TVPApiModule.Objects.Responses.Subscription();
 
             if (response.m_sCodes != null)
-                retVal.codes = response.m_sCodes.Where(x => x != null).Select(x => x.ToApiObject(eBundleType.SUBSCRIPTION) as TVPApiModule.Objects.Responses.SubscriptionCodeContainer).ToArray();
+                retVal.codes = response.m_sCodes.Where(x => x != null).Select(x => x.ToApiObject(CatalogBundleType.SUBSCRIPTION) as TVPApiModule.Objects.Responses.SubscriptionCodeContainer).ToArray();
 
             retVal.start_date = response.m_dStartDate;
             retVal.end_date = response.m_dEndDate;
@@ -1360,16 +1360,16 @@ namespace TVPApiModule.Extentions
         //    return retVal;
         //}
 
-        public static object ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.BundleCodeContainer response, eBundleType type)
+        public static object ToApiObject(this TVPPro.SiteManager.TvinciPlatform.Pricing.BundleCodeContainer response, CatalogBundleType type)
         {
             object container = null;
 
             switch (type)
             {
-                case eBundleType.SUBSCRIPTION:
+                case CatalogBundleType.SUBSCRIPTION:
                     container = new TVPApiModule.Objects.Responses.SubscriptionCodeContainer() { code = response.m_sCode, name = response.m_sName };
                     break;
-                case eBundleType.COLLECTION:
+                case CatalogBundleType.COLLECTION:
                     container = new TVPApiModule.Objects.Responses.BundleCodeContainer() { code = response.m_sCode, name = response.m_sName };
                     break;
                 default:
@@ -1642,7 +1642,7 @@ namespace TVPApiModule.Extentions
             TVPApiModule.Objects.Responses.Collection retVal = new TVPApiModule.Objects.Responses.Collection();
 
             if (response.m_sCodes != null)
-                retVal.codes = response.m_sCodes.Where(x => x != null).Select(x => x.ToApiObject(eBundleType.COLLECTION) as TVPApiModule.Objects.Responses.BundleCodeContainer).ToArray();
+                retVal.codes = response.m_sCodes.Where(x => x != null).Select(x => x.ToApiObject(CatalogBundleType.COLLECTION) as TVPApiModule.Objects.Responses.BundleCodeContainer).ToArray();
 
             retVal.start_date = response.m_dStartDate;
             retVal.end_date = response.m_dEndDate;

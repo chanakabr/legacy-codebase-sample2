@@ -15,7 +15,7 @@ namespace RestfulTVPApi.ServiceInterface
     {
         List<Media> GetChannelMultiFilter(GetChannelMultiFilterRequest request);
 
-        List<Channel> GetChannelsList(GetChannelsListRequest request);
+        List<TVPApiModule.Objects.Responses.Channel> GetChannelsList(GetChannelsListRequest request);
 
         Category GetCategory(GetCategoryRequest request);
 

@@ -53,7 +53,7 @@ namespace RestfulTVPApi.ServiceModel
     }
 
     [Route("/channels/{site_guid}", "GET", Notes = "This method returns an array of all channels that exist for this customer site")]
-    public class GetChannelsListRequest : RequestBase, IReturn<List<Channel>>
+    public class GetChannelsListRequest : RequestBase, IReturn<List<TVPApiModule.Objects.Responses.Channel>>
     {
         [ApiMember(Name = "site_guid", Description = "User identifier", ParameterType = "path", DataType = SwaggerType.String, IsRequired = true)]
         public string site_guid { get; set; }

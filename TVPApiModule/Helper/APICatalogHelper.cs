@@ -26,13 +26,13 @@ namespace TVPApiModule.Helper
             return retVal;
         }
 
-        public static List<Channel> ChannelObjToChannel(List<channelObj> channels, string picSize)
+        public static List<TVPApiModule.Objects.Responses.Channel> ChannelObjToChannel(List<channelObj> channels, string picSize)
         {
-            List<Channel> retVal = new List<Channel>();
-            Channel channel;
+            List<TVPApiModule.Objects.Responses.Channel> retVal = new List<TVPApiModule.Objects.Responses.Channel>();
+            TVPApiModule.Objects.Responses.Channel channel;
             foreach (channelObj channelObj in channels)
             {
-                channel = new Channel(channelObj, picSize);
+                channel = new TVPApiModule.Objects.Responses.Channel(channelObj, picSize);
                 retVal.Add(channel);
             }
             return retVal;
