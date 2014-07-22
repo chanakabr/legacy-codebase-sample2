@@ -19,6 +19,7 @@ namespace ApiObjects
         public bool IsActive { get; set; }
         public eBlockType BlockType { get; set; }
         public eGroupRuleType GroupRuleType { get; set; }
+        public bool IsAnonymous { get; set; }
 
         [XmlIgnore] [ScriptIgnore]
         public int OrderNum { get; set; }
@@ -39,9 +40,29 @@ namespace ApiObjects
             DynamicDataKey = string.Empty;
             Name = string.Empty;
             AllTagValues = new List<string>();
+            IsAnonymous = false;
         }
 
-        public GroupRule(int ruleID, int tagTypeID, string tagVal, string dynamicKey, string name, object ageRestriction, int isActive,eGroupRuleType groupRuleType)
+        public GroupRule(int ruleID, int tagTypeID, string tagVal, string dynamicKey, string name, object ageRestriction, int isActive, eGroupRuleType groupRuleType)
+        {
+            RuleID = ruleID;
+            TagTypeID = tagTypeID;
+            TagValue = tagVal;
+            DynamicDataKey = dynamicKey;
+            Name = name;
+            if (ageRestriction != null && ageRestriction != System.DBNull.Value)
+            {
+                AgeRestriction = (int)ageRestriction;
+            }
+            AllTagValues = new List<string>();
+            if (isActive == 1)
+            {
+                IsActive = true;
+            }
+            GroupRuleType = groupRuleType;          
+        }
+
+        public GroupRule(int ruleID, int tagTypeID, string tagVal, string dynamicKey, string name, object ageRestriction, int isActive, eGroupRuleType groupRuleType, bool isAnonymous)
         {
             RuleID = ruleID;
             TagTypeID = tagTypeID;
@@ -58,6 +79,7 @@ namespace ApiObjects
                 IsActive = true;
             }
             GroupRuleType = groupRuleType;
+            IsAnonymous = isAnonymous;
         }
     }
 }

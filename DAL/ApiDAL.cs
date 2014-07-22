@@ -861,7 +861,7 @@ namespace DAL
         }
 
 
-        public static DataTable Get_EPGRules(string sSiteGuid)
+        public static DataTable Get_EPGRules(string sSiteGuid, int nGroupID)
         {
             DataTable returnedDataTable = null;
             try
@@ -869,6 +869,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure spEpgProgramRules = new ODBCWrapper.StoredProcedure("Get_EPGRules");
                 spEpgProgramRules.SetConnectionKey("MAIN_CONNECTION_STRING");
                 spEpgProgramRules.AddParameter("@SiteGuid", sSiteGuid);
+                spEpgProgramRules.AddParameter("@GroupID", nGroupID);
 
                 DataSet returnedRulesSet = spEpgProgramRules.ExecuteDataSet();
 
