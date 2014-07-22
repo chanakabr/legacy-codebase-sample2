@@ -388,15 +388,7 @@ namespace Catalog
                             else
                             {
                                 fileMedia.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
-                                string altUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_FILE_URL");
-                                if (altUrl.Length > 0)
-                                {
-                                    fileMedia.m_sAltUrl = altUrl;
-                                }
-                                else
-                                {
-                                    fileMedia.m_sAltUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
-                                }
+                                fileMedia.m_sAltUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_FILE_URL");
                             }
 
                             fileMedia.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
