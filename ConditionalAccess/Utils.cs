@@ -825,11 +825,11 @@ namespace ConditionalAccess
             request.m_oBundles = new WS_Catalog.BundleKeyValue[sizeOfArr];
             for (i = 0; i < lstDistinctSubs.Count; i++)
             {
-                request.m_oBundles[i] = new WS_Catalog.BundleKeyValue() { m_nBundleCode = lstDistinctSubs[i], m_eBundleType = WS_Catalog.CatalogBundleType.SUBSCRIPTION };
+                request.m_oBundles[i] = new WS_Catalog.BundleKeyValue() { m_nBundleCode = lstDistinctSubs[i], m_eBundleType = WS_Catalog.eBundleType.SUBSCRIPTION };
             }
             for (int j = 0; j < lstDistinctColls.Count; j++)
             {
-                request.m_oBundles[j + i] = new WS_Catalog.BundleKeyValue() { m_nBundleCode = lstDistinctColls[j], m_eBundleType = WS_Catalog.CatalogBundleType.COLLECTION };
+                request.m_oBundles[j + i] = new WS_Catalog.BundleKeyValue() { m_nBundleCode = lstDistinctColls[j], m_eBundleType = WS_Catalog.eBundleType.COLLECTION };
             }
 
             return request;
@@ -1094,10 +1094,10 @@ namespace ConditionalAccess
                         {
                             switch (bt.m_eBundleType)
                             {
-                                case WS_Catalog.CatalogBundleType.SUBSCRIPTION:
+                                case WS_Catalog.eBundleType.SUBSCRIPTION:
                                     subsRes.Add(bt.m_nBundleCode);
                                     break;
-                                case WS_Catalog.CatalogBundleType.COLLECTION:
+                                case WS_Catalog.eBundleType.COLLECTION:
                                     collsRes.Add(bt.m_nBundleCode);
                                     break;
                                 default:

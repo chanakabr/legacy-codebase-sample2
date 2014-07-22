@@ -75,6 +75,7 @@ namespace ODBCWrapper
             return GetConnectionStringByKey(sKey, bIsWritable);
         }
 
+
         static private bool StartConnectionStr()
         {
             string s = GetConnectionString("", false);

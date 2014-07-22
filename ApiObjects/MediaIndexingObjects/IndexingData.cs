@@ -34,7 +34,6 @@ namespace ApiObjects.MediaIndexingObjects
             this.Ids = lIds;
             this.ObjectType = eUpdateObj;
             this.Action = eAction;
-            this.serializer = new JavaScriptSerializer();
         }
 
         #endregion

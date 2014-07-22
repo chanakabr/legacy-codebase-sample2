@@ -5,6 +5,8 @@ using System.Text;
 
 namespace ApiObjects
 {
+
+    [Serializable]
     public class LanguageObj
     {
         public int ID { get; set; }

@@ -1433,17 +1433,17 @@ namespace Catalog
             }
         }
 
-        internal static List<int> GetBundleChannelIds(int nGroupId, int nBundleId, CatalogBundleType bundleType)
+        internal static List<int> GetBundleChannelIds(int nGroupId, int nBundleId, eBundleType bundleType)
         {
             DataTable channelIdsDt;
             switch (bundleType)
             {
-                case CatalogBundleType.SUBSCRIPTION:
+                case eBundleType.SUBSCRIPTION:
                     {
                         channelIdsDt = CatalogDAL.Get_ChannelsBySubscription(nGroupId, nBundleId);
                         break;
                     }
-                case CatalogBundleType.COLLECTION:
+                case eBundleType.COLLECTION:
                     {
                         channelIdsDt = CatalogDAL.Get_ChannelsByCollection(nGroupId, nBundleId);
                         break;
@@ -2348,7 +2348,7 @@ namespace Catalog
                                     mediaStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
 
                                     //BuzzMeter 
-                                    if (lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
+                                    if (lBM!=null && lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
                                     {
                                         mediaStat.m_buzzAverScore = lBM[mediaStat.m_nAssetID.ToString()];
                                     }
@@ -2422,7 +2422,7 @@ namespace Catalog
                         //BuzzMeter 
                         foreach (KeyValuePair<int, AssetStatsResult> asset in resultDic)
                         {
-                            if (lBM.ContainsKey(asset.Key.ToString()))
+                            if (lBM!= null && lBM.ContainsKey(asset.Key.ToString()))
                             {
                                 resultDic[asset.Key].m_buzzAverScore = lBM[asset.Key.ToString()];
                             }

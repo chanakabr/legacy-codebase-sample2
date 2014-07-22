@@ -35,7 +35,7 @@ namespace Catalog
             for (int i = 0; i < oIncomingBundles.Length; i++)
             {
                 m_oBundles.Add(new BundleTriple(oIncomingBundles[i].m_nBundleCode, oIncomingBundles[i].m_eBundleType, false));
-                if (oIncomingBundles[i].m_eBundleType == CatalogBundleType.SUBSCRIPTION)
+                if (oIncomingBundles[i].m_eBundleType == eBundleType.SUBSCRIPTION)
                 {
                     if (!m_oSubsToIndexMapping.ContainsKey(oIncomingBundles[i].m_nBundleCode))
                     {

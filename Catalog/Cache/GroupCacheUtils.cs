@@ -14,7 +14,7 @@ namespace Catalog.Cache
             {
                 case "GroupCacheExternal":
                     {
-                        return new GroupCacheExternal();
+                        return GroupCacheExternal.Instance;
                     }
                 case "GroupCacheInternal":
                     {
@@ -22,7 +22,7 @@ namespace Catalog.Cache
                     }
                 default:
                     {
-                        return new GroupCacheExternal();
+                        return GroupCacheExternal.Instance;
                     }
             }
         }

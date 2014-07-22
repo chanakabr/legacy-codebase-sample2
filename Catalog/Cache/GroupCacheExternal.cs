@@ -13,10 +13,30 @@ namespace Catalog.Cache
     {
         private int GROUP_CACHE_EXPIRY = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("cache_doc_expiry"));        
         private ConcurrentDictionary<int, ReaderWriterLockSlim> m_oLockers; // readers-writers lockers for operator channel ids.
-
+        private static volatile GroupCacheExternal instance = null;
+        private static object syncRoot = new Object(); // lock for create the instance
          #region CTOR
 
-        public GroupCacheExternal()
+
+        public static GroupCacheExternal Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (syncRoot)
+                    {
+                        if (instance == null)
+                            instance = new GroupCacheExternal();
+                    }
+                }
+
+                return instance;
+            }
+        }
+
+
+        private GroupCacheExternal()
         { 
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
         }

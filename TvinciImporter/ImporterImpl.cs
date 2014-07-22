@@ -1865,7 +1865,7 @@ namespace TvinciImporter
                
                 bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sThumb, sPicNewName, sBasePath, sPicSizes, nGroupID);
 
-                nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sThumb, sPicNewName + sUploadedFileExt, nGroupID);
+                nPicID = InsertNewEPGPic(sName, nChannelID.ToString() + "_" + sPicName, sPicNewName + sUploadedFileExt, nGroupID);  //insert with sPicName instead of full path
             }
             #region old Code - changed to CB
             // Liat comment this update 02.02.2014
