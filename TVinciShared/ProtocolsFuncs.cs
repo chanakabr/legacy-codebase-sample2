@@ -988,7 +988,7 @@ namespace TVinciShared
 
         static public string GetFinalEndDateField(bool bUseFinalEndDate)
         {
-            if (bUseFinalEndDate == true)
+            if (bUseFinalEndDate)
                 return "FINAL_END_DATE";
             return "END_DATE";
 

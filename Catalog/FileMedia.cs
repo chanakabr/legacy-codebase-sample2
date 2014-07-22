@@ -43,6 +43,12 @@ namespace Catalog
         public string m_sLanguage;
         [DataMember]
         public int m_nIsDefaultLanguage;
+        [DataMember]
+        public string m_sAltUrl;
+        [DataMember]
+        public int m_nAltCdnID;
+        [DataMember]
+        public string m_sAltCoGUID;
         
 
         public FileMedia()
@@ -54,6 +60,9 @@ namespace Catalog
             m_sBillingType = string.Empty;
             m_nCdnID = 0;
             m_sCoGUID = string.Empty;
+            m_sAltCoGUID = string.Empty;
+            m_sAltUrl = string.Empty;
+            m_nAltCdnID = 0;
             initializeAdvertisingMembers();
            
         }
@@ -71,7 +80,9 @@ namespace Catalog
            
         }
 
-        public FileMedia(Int32 nFileId, double nDuration, string sFormatFile, string sUrl, string sBillingType, int nCdnID, AdProvider preProv, AdProvider breakProv, AdProvider overlayProv, AdProvider postProv, string breakpoints, string overlaypoints, bool isPreSkipEnabled, bool isPostSkipEnabled)
+        public FileMedia(Int32 nFileId, double nDuration, string sFormatFile, string sUrl, string sBillingType, int nCdnID, 
+            AdProvider preProv, AdProvider breakProv, AdProvider overlayProv, AdProvider postProv, string breakpoints, string overlaypoints, 
+            bool isPreSkipEnabled, bool isPostSkipEnabled)
         {
             m_nFileId = nFileId;
             m_nDuration = nDuration;

@@ -2796,7 +2796,8 @@ namespace TvinciImporter
             string sPreRule, string sPostRule, string sBreakRule,
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime? fileStartDate, DateTime? fileEndDate)
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, 
+            DateTime? fileStartDate, DateTime? fileEndDate, string sAltCoGuid, string sAltCDN, string sAltCDNID, string sAltCDNCode)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
 
@@ -2804,12 +2805,17 @@ namespace TvinciImporter
 
             Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
 
-            Int32 nCDNId;
+            Int32 nCDNId = 0, nAltCDNId = 0;
 
             if (String.IsNullOrEmpty(sCDNId))
                 nCDNId = GetCDNIdByName(sCDN, nGroupID);
             else
-                nCDNId = int.Parse(sCDNId);
+                Int32.TryParse(sCDNId, out nCDNId);
+
+            if (string.IsNullOrEmpty(sAltCDNID))
+                nAltCDNId = GetCDNIdByName(sAltCDN, nGroupID);
+            else
+                Int32.TryParse(sAltCDNID, out nAltCDNId);
 
 
             Int32 nBillingCodeID = GetBillingCodeIDByName(sBillingType);
@@ -2871,6 +2877,10 @@ namespace TvinciImporter
 
                 if (nOverridePlayerTypeID != 0)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OVERRIDE_PLAYER_TYPE_ID", "=", nOverridePlayerTypeID);
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_CODE", sAltCDNCode);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_SUPLIER_ID", nAltCDNId);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_CO_GUID", sAltCoGuid);
 
                 updateQuery += "where";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaFileID);
@@ -3537,6 +3547,12 @@ namespace TvinciImporter
                 int nIsDefaultLanguage = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
                 string sProductCode = GetItemParameterVal(ref theItem, "product_code");
 
+                // adding support for alternative cdn
+                string sAltCDNCode = GetItemParameterVal(ref theItem, "alt_cdn_code");
+                string sAltCoGuid = GetItemParameterVal(ref theItem, "alt_co_guid");
+                string sAltCDNID = GetItemParameterVal(ref theItem, "alt_cdn_id");
+                string sAltCDN = GetItemParameterVal(ref theItem, "alt_cdn_name");
+
                 // try to parse the files date correctly
                 DateTime? dStartDate = null;
                 DateTime? dEndDate = null;
@@ -3574,7 +3590,8 @@ namespace TvinciImporter
                     EnterClipMediaFile(sFormat, nMediaID, 0, nGroupID, sQuality, sCDN, sCDNId, sCDNCode, sBillingType,
                         sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
                         bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
-                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode, dStartDate, dEndDate);
+                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode, dStartDate, dEndDate,
+                        sAltCoGuid, sAltCDN, sAltCDNID, sCDNCode);
                 }
 
 

@@ -71,8 +71,23 @@ namespace Catalog
                 {
                     int nMedia = mediaRequest.m_lMediasIds[i];
 
-                    tasks[i - nStartIndex] = new Task(
-                         (obj) =>
+                    //tasks[i - nStartIndex] = new Task(
+                    //     (obj) =>
+                    //     {
+                    //         try
+                    //         {
+                    //             int taskMediaID = (int)obj;
+
+                    //             dMediaObj[taskMediaID] = GetMediaDetails(taskMediaID, mediaRequest, bIsMainLang, lSubGroup);
+                    //         }
+                    //         catch (Exception ex)
+                    //         {
+                    //             _logger.Error(ex.Message, ex);
+                    //         }
+                    //     }, nMedia);
+                    //tasks[i - nStartIndex].Start();
+
+                    tasks[i - nStartIndex] = Task.Factory.StartNew((obj) =>
                          {
                              try
                              {
@@ -85,10 +100,18 @@ namespace Catalog
                                  _logger.Error(ex.Message, ex);
                              }
                          }, nMedia);
-                    tasks[i - nStartIndex].Start();
                 }
-                //Wait to all parallels tasks to finished:
+
                 Task.WaitAll(tasks);
+                if (tasks != null && tasks.Length > 0)
+                {
+                    for (int i = 0; i < tasks.Length; i++)
+                    {
+                        if(tasks[i] != null)
+                            tasks[i].Dispose();
+                    }
+                }
+
 
                 if (mediaRequest.m_lMediasIds != null)
                 {
@@ -355,18 +378,30 @@ namespace Catalog
                             fileMedia.m_sCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "co_guid");
                             fileMedia.m_sLanguage = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "LANGUAGE");
                             fileMedia.m_nIsDefaultLanguage = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "IS_DEFAULT_LANGUAGE");
+                            fileMedia.m_sAltCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_CO_GUID");
 
                             if (noFileUrl)
                             {
-                                fileMedia.m_sUrl = string.Format("{0}||{1}", nMedia, fileMedia.m_nFileId);
+                                fileMedia.m_sUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
+                                fileMedia.m_sAltUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
                             }
                             else
                             {
                                 fileMedia.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
+                                string altUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_FILE_URL");
+                                if (altUrl.Length > 0)
+                                {
+                                    fileMedia.m_sAltUrl = altUrl;
+                                }
+                                else
+                                {
+                                    fileMedia.m_sAltUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
+                                }
                             }
 
                             fileMedia.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
                             fileMedia.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
+                            fileMedia.m_nAltCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "ALT_CDN_ID");
                             tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_ID");
                             if (tempAdProvID != 0)
                             {
@@ -414,6 +449,11 @@ namespace Catalog
                 result = false;
                 return null;
             }
+        }
+
+        private static string GetFictiveFileMediaUrl(int nMediaID, int nMediaFileID)
+        {
+            return string.Format("{0}||{1}", nMediaID, nMediaFileID);
         }
 
         /*Insert all Pictures that return from the "CompleteDetailsForMediaResponse" into List<Picture>*/
