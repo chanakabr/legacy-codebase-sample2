@@ -2878,9 +2878,20 @@ namespace TvinciImporter
                 if (nOverridePlayerTypeID != 0)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OVERRIDE_PLAYER_TYPE_ID", "=", nOverridePlayerTypeID);
 
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_CODE", sAltCDNCode);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_SUPLIER_ID", nAltCDNId);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_CO_GUID", sAltCoGuid);
+                if(!string.IsNullOrEmpty(sAltCDNCode))
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_CODE", sAltCDNCode);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_CODE", DBNull.Value);
+
+                if(nAltCDNId > 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_SUPLIER_ID", nAltCDNId);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_SUPLIER_ID", DBNull.Value);
+
+                if (!string.IsNullOrEmpty(sAltCoGuid))
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_CO_GUID", sAltCoGuid);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_CO_GUID", DBNull.Value);
 
                 updateQuery += "where";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaFileID);
