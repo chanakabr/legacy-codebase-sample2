@@ -109,21 +109,21 @@ public partial class adm_epg_rules_new : System.Web.UI.Page
         dr_defaultEnabled.Initialize("Default Enabled", "adm_table_header_nbg", "FormInput", "default_enabled", false);
         theRecord.AddRecord(dr_defaultEnabled);
 
+        DataRecordBoolField dr_is_anonymous = new DataRecordBoolField(true);
+        dr_is_anonymous.Initialize("Is Anonymous Rule", "adm_table_header_nbg", "FormInput", "is_anonymous", false);      
+        theRecord.AddRecord(dr_is_anonymous);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
-
-
-
 
         DataRecordShortIntField dr_groupRuleTypeId = new DataRecordShortIntField(false, 0, 0);
         //dr_groupRuleTypeId.
         dr_groupRuleTypeId.Initialize("Group Rule Type Id", "adm_table_header_nbg", "FormInput", "group_rule_type_id", false);
         dr_groupRuleTypeId.SetValue("4");
         
-        theRecord.AddRecord(dr_groupRuleTypeId);
-        
+        theRecord.AddRecord(dr_groupRuleTypeId);        
 
         string sTable = theRecord.GetTableHTML("adm_epg_rules_new.aspx?submited=1");
 

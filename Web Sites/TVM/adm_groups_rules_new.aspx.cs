@@ -103,6 +103,10 @@ public partial class adm_groups_rules_new : System.Web.UI.Page
         dr_defaultEnabled.Initialize("Default Enabled", "adm_table_header_nbg", "FormInput", "default_enabled", false);
         theRecord.AddRecord(dr_defaultEnabled);
 
+        DataRecordBoolField dr_is_anonymous = new DataRecordBoolField(true);
+        dr_is_anonymous.Initialize("Is Anonymous Rule", "adm_table_header_nbg", "FormInput", "is_anonymous", false);
+        theRecord.AddRecord(dr_is_anonymous);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
