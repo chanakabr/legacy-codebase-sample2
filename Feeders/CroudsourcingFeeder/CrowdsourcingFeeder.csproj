@@ -42,6 +42,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TCMClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\tvmcore\External\TCMClient.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataCollector\Base\SingularItem.cs" />
@@ -100,38 +104,38 @@
     <None Include="Service References\WS_Catalog\CrowdsourcingFeeder.WS_Catalog.Response.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\WS_Catalog\Service.wsdl" />
-    <None Include="Service References\WS_Catalog\Service.xsd">
+    <None Include="Service References\WS_Catalog\Service2.wsdl" />
+    <None Include="Service References\WS_Catalog\Service21.wsdl" />
+    <None Include="Service References\WS_Catalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1.wsdl" />
-    <None Include="Service References\WS_Catalog\Service1.xsd">
+    <None Include="Service References\WS_Catalog\Service91.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service2.xsd">
+    <None Include="Service References\WS_Catalog\Service92.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service3.xsd">
+    <None Include="Service References\WS_Catalog\Service93.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service4.xsd">
+    <None Include="Service References\WS_Catalog\Service94.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service5.xsd">
+    <None Include="Service References\WS_Catalog\Service95.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service6.xsd">
+    <None Include="Service References\WS_Catalog\Service96.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service7.xsd">
+    <None Include="Service References\WS_Catalog\Service97.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service98.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\Service.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
@@ -144,6 +148,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
