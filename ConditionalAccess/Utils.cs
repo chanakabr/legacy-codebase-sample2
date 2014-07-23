@@ -2604,11 +2604,11 @@ namespace ConditionalAccess
             }
         }
 
-        static public string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink)
+        internal static string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink)
         {
 
             TvinciAPI.MeidaMaper[] mapper = null;
-            mapper = Utils.GetMediaMapper(nGroupID, nMediaFileIDs);
+            mapper = GetMediaMapper(nGroupID, nMediaFileIDs);
             int mediaID = 0;
 
             foreach (TvinciAPI.MeidaMaper mediaMap in mapper)
@@ -2643,7 +2643,7 @@ namespace ConditionalAccess
                 selectQuery = null;
 
                 sBasicLink = string.Format("{0}{1}", sBaseURL, sStreamID);
-                if (sStreamID != "")
+                if (sStreamID.Length > 0)
                 {
                     if (sBasicLink.IndexOf("!--COUNTRY_CD--") != -1)
                     {
@@ -2657,8 +2657,8 @@ namespace ConditionalAccess
                         long lT = DateTime.UtcNow.Ticks;
                         object oGroupSecret = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_SECRET_CODE", nGroupID, 86400, "MAIN_CONNECTION_STRING");
                         sBasicLink = sBasicLink.Replace("!--tick_time--", "tick=" + lT.ToString());
-                        string sToHash = "";
-                        string sHashed = "";
+                        string sToHash = string.Empty;
+                        string sHashed = string.Empty;
                         if (oGroupSecret != null && oGroupSecret != DBNull.Value)
                         {
                             sToHash = oGroupSecret.ToString() + lT.ToString();

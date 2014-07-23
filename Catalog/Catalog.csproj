@@ -107,14 +107,12 @@
     <Compile Include="BaseEpg.cs" />
     <Compile Include="BaseProtocolRequest.cs" />
     <Compile Include="Bootstrapper.cs" />
-
     <Compile Include="Cache\BaseGroupCache.cs" />
     <Compile Include="Cache\CouchBaseCacheWrapper.cs" />
     <Compile Include="Cache\GroupCacheExternal.cs" />
     <Compile Include="Cache\GroupCacheInternal.cs" />
     <Compile Include="Cache\GroupCacheUtils.cs" />
     <Compile Include="Cache\GroupManager.cs" />
-
     <Compile Include="BundlesContainingMediaRequest.cs" />
     <Compile Include="BundlesContainingMediaResponse.cs" />
     <Compile Include="BuzzMeterRequest.cs" />
@@ -177,6 +175,8 @@
     <Compile Include="MediaChannelsRequest.cs" />
     <Compile Include="MediaChannelsResponse.cs" />
     <Compile Include="MediaCommentRequest.cs" />
+    <Compile Include="MediaFilesRequest.cs" />
+    <Compile Include="MediaFilesResponse.cs" />
     <Compile Include="MediaHitRequest.cs" />
     <Compile Include="MediaHitResponse.cs" />
     <Compile Include="MediaLastPositionRequest.cs" />
@@ -266,8 +266,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\Lucene_WCF\Service0.wsdl" />
-
-
     <None Include="Web References\Lucene_WCF\Service0.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -350,7 +348,6 @@
     <None Include="Web References\ws_users\UserType.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -359,7 +356,6 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-
     <WebReferenceUrl Include="http://192.168.16.40/WS_Domains/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\WS_Domains\</RelPath>

@@ -2806,7 +2806,7 @@ namespace ConditionalAccess
             MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sUserIP);
             if (prices.Length == 0)
             {
-                return "";
+                return string.Empty;
             }
             if (prices[0].m_oItemPrices == null || prices[0].m_oItemPrices.Length == 0 || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.Free)
             {
@@ -3887,7 +3887,7 @@ namespace ConditionalAccess
 
                     nMediaFilesIDs = new int[nCount];
                     int i = 0;
-                    
+
                     TvinciPricing.UsageModule oUsageModule = null;
                     foreach (DataRow dataRow in allPPVModules.Rows)
                     {
@@ -3916,8 +3916,8 @@ namespace ConditionalAccess
                         #region Cancellation Window
 
                         string sPPVCode = ODBCWrapper.Utils.GetSafeStr(dataRow, "ppv");
-                        
-                        bool bCancellationWindow = false;                        
+
+                        bool bCancellationWindow = false;
                         int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
 
                         if (nWaiver == 0) // user didn't waiver yet
@@ -3925,7 +3925,7 @@ namespace ConditionalAccess
                             IsCancellationWindow(ref oUsageModule, sPPVCode, dCreateDate, ref bCancellationWindow, eTransactionType.PPV);
                         }
 
-                        #endregion 
+                        #endregion
 
                         PermittedMediaContainer p = new PermittedMediaContainer();
                         p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dCreateDate, payMet, sDeviceUDID, bCancellationWindow);
@@ -4153,7 +4153,7 @@ namespace ConditionalAccess
                     int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
                     if (nWaiver == 0) // user didn't waiver yet
                     {
-                        IsCancellationWindow(ref oUsageModule, sSubscriptionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Subscription);                       
+                        IsCancellationWindow(ref oUsageModule, sSubscriptionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Subscription);
                     }
                     #endregion
 
@@ -6081,7 +6081,7 @@ namespace ConditionalAccess
                         sb.Append(String.Concat(nMediaFiles[i], " "));
                     }
                 }
-                else 
+                else
                 {
                     sb.Append(" No Media Files ");
                 }
@@ -6109,7 +6109,7 @@ namespace ConditionalAccess
          * 1. This method is a helper function for GetItemsPrices.
          * 2. It is used to optimize DB access. In case the data is not needed in the function Utils.GetMediaFileFinalPrice it will not attempt
          * 3. to access the DB.
-         */ 
+         */
         private void GetAllUsersInDomainAndMediaFileTypes(TvinciPricing.MediaFilePPVModule[] oModules, string sSiteGuid,
             out Dictionary<int, int> mediaFileTypesMapping, out List<int> allUsersInDomain)
         {
@@ -8774,7 +8774,7 @@ namespace ConditionalAccess
                     }
 
                     userSubNew = Utils.GetSubscriptionData(nNewSub.ToString(), m_nGroupID);
-                                        
+
                     //set new subscprion
                     if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
                     {
@@ -8783,7 +8783,7 @@ namespace ConditionalAccess
                             Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
                             return ChangeSubscriptionStatus.NewSubNotRenewable;
                         }
-                        
+
                         return setSubscriptionChange(sSiteGuid, userSubNew, userSubOld);
                     }
                     else
@@ -8903,7 +8903,7 @@ namespace ConditionalAccess
         {
             bool bRes = false;
             try
-            {                
+            {
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
@@ -8916,15 +8916,11 @@ namespace ConditionalAccess
                         bRes = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sSiteGuid, nAssetID);
                         break;
                     default:
-                        return false;                       
+                        return false;
                 }
                 if (bRes)
                 {
-                    try
-                    {
-                        WriteToUserLog(sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
-                    }
-                    catch { }
+                    WriteToUserLog(sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
                     //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
                 }
 
@@ -8938,33 +8934,29 @@ namespace ConditionalAccess
 
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
          * and the waiver_date field to the current date.*/
-        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID,  eTransactionType transactionType)
+        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
         {
             bool bRes = false;
-            
+
             try
             {
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);      
+                        bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);
                         break;
                     case eTransactionType.Subscription:
-                        bRes = DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);                        
+                        bRes = DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
                         break;
                     case eTransactionType.Collection:
-                       bRes = DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);                       
+                        bRes = DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
                         break;
                     default:
                         return false;
                 }
                 if (bRes)
                 {
-                    try
-                    {
-                        WriteToUserLog(sSiteGuid, string.Format("user :{0} waiver cancellation for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
-                    }
-                    catch { }
+                    WriteToUserLog(sSiteGuid, string.Format("user :{0} waiver cancellation for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
                 }
                 return bRes;
             }
@@ -8973,6 +8965,119 @@ namespace ConditionalAccess
                 return false;
             }
         }
+
+        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode)
+        {
+            LicensedLinkResponse res = new LicensedLinkResponse();
+            try
+            {
+                int[] mediaFiles = new int[1] { nMediaFileID };
+                if (IsGetLicensedLinksInputValid(sSiteGuid, nMediaFileID, sBasicLink) && isDevicePlayValid(sSiteGuid, sDeviceName))
+                {
+                    if (IsAlterBasicLink(sBasicLink, nMediaFileID))
+                    {
+                        sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink);
+                    }
+
+                    MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sCountryCode,
+                        sLanguageCode, sDeviceName, sUserIP);
+
+                    if (prices != null && prices.Length > 0)
+                    {
+                        if (IsFreeItem(prices[0]))
+                        {
+                            res.mainUrl = GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+                            res.altUrl = GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+                else
+                {
+                    // log here that input is incorrect
+                }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at GetLicensedLinks. ");
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" SiteGuid: ", sSiteGuid));
+                sb.Append(String.Concat(" MF ID: ", nMediaFileID));
+                sb.Append(String.Concat(" Basic Link: ", sBasicLink));
+                sb.Append(String.Concat(" User IP: ", sUserIP));
+                sb.Append(String.Concat(" Referrer: ", sRefferer));
+                sb.Append(String.Concat(" Country Cd: ", sCountryCode));
+                sb.Append(String.Concat(" Lng Cd: ", sLanguageCode));
+                sb.Append(String.Concat(" Device Name: ", sDeviceName));
+                sb.Append(String.Concat(" Coupon Cd: ", sCouponCode));
+                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+
+                #endregion
+            }
+
+            return res;
+        }
+
+        private bool IsAlterBasicLink(string sBasicLink, int nMediaFileID)
+        {
+            return sBasicLink.Contains(string.Format("||{0}", nMediaFileID));
+        }
+
+        private bool IsGetLicensedLinksInputValid(string siteGuid, int mediaFileID, string basicLink)
+        {
+            int temp = 0;
+            return basicLink != null && mediaFileID > 0 && !string.IsNullOrEmpty(siteGuid) && Int32.TryParse(siteGuid, out temp) && temp > 0;
+        }
+
+        private bool IsFreeItem(MediaFileItemPricesContainer container)
+        {
+            return container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free;
+        }
+
+        //public virtual string GetLicensedLink(string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
+        //{
+        //    Int32[] nMediaFileIDs = { nMediaFileID };
+
+        //    if (sBasicLink.Contains(string.Format("||{0}", nMediaFileID)))
+        //    {
+        //        sBasicLink = Utils.GetBasicLink(m_nGroupID, nMediaFileIDs, nMediaFileID, sBasicLink);
+        //    }
+        //    bool isDeviceRecognized = isDevicePlayValid(sSiteGUID, sDEVICE_NAME);
+
+        //    if (!isDeviceRecognized)
+        //    {
+        //        Logger.Logger.Log("Device Not Recognized", string.Format("User:{0}, MediaFile:{1}, Device:{2}", sSiteGUID, nMediaFileID.ToString(), sDEVICE_NAME), "LicensedLink");
+        //        return string.Empty;
+        //    }
+
+        //    MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sUserIP);
+        //    if (prices.Length == 0)
+        //    {
+        //        return string.Empty;
+        //    }
+        //    if (prices[0].m_oItemPrices == null || prices[0].m_oItemPrices.Length == 0 || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.Free)
+        //    {
+        //        return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+        //    }
+
+        //    if (prices[0].m_oItemPrices[0].m_oPrice.m_dPrice == 0 && (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PrePaidPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.CollectionPurchased))
+        //    {
+        //        if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink) == true)
+        //        {
+        //            HandlePlayUses(prices[0], sSiteGUID, nMediaFileID, sUserIP, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
+        //            return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+        //        }
+        //    }
+
+        //    return GetErrorLicensedLink(sBasicLink);
+        //}
     }
 
 }

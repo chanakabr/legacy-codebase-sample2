@@ -38,10 +38,6 @@ namespace Catalog
 
                 CheckRequestValidness(mediaRequest);
 
-                //string sCheckSignature = Utils.GetSignature(mediaRequest.m_sSignString, mediaRequest.m_nGroupID);
-                //if (sCheckSignature != mediaRequest.m_sSignature)             
-                //    throw new Exception("Signatures dosen't match");
-
                 CheckSignature(mediaRequest);
 
                 Catalog.CompleteDetailsForMediaResponse(mediaRequest, ref mediaResponse, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex + mediaRequest.m_nPageSize);
