@@ -51,9 +51,7 @@ namespace Catalog
                 if (request == null)
                     throw new Exception("request object is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures do not match");
+                CheckSignature(request);
 
                 //get the results
                 response.m_lAssetStat = Catalog.GetAssetStatsResults(request.m_nGroupID, request.m_nAssetIDs, request.m_dStartDate, request.m_dEndDate, request.m_type);                    

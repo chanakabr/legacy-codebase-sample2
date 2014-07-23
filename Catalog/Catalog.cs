@@ -71,22 +71,6 @@ namespace Catalog
                 {
                     int nMedia = mediaRequest.m_lMediasIds[i];
 
-                    //tasks[i - nStartIndex] = new Task(
-                    //     (obj) =>
-                    //     {
-                    //         try
-                    //         {
-                    //             int taskMediaID = (int)obj;
-
-                    //             dMediaObj[taskMediaID] = GetMediaDetails(taskMediaID, mediaRequest, bIsMainLang, lSubGroup);
-                    //         }
-                    //         catch (Exception ex)
-                    //         {
-                    //             _logger.Error(ex.Message, ex);
-                    //         }
-                    //     }, nMedia);
-                    //tasks[i - nStartIndex].Start();
-
                     tasks[i - nStartIndex] = Task.Factory.StartNew((obj) =>
                          {
                              try
@@ -2678,23 +2662,6 @@ namespace Catalog
                     }
                 }
 
-                
-
-                /*
-                if (oGroup.m_oMetasValuesByGroupId.ContainsKey(oGroup.m_nParentGroupID))
-                {
-                    Dictionary<string, string> dMetas = oGroup.m_oMetasValuesByGroupId[oGroup.m_nParentGroupID];
-                    foreach (string key in dMetas.Keys)
-                    {
-                        if (dMetas[key].Equals(sKey, StringComparison.OrdinalIgnoreCase))
-                        {
-                            searchKey = string.Concat(METAS, ".", dMetas[key].ToLower());
-                            bHasTagPrefix = true;
-                            break;
-                        }
-                    }
-                }
-                */ 
             }
 
             return searchKey;
