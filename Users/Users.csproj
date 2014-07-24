@@ -128,6 +128,11 @@
     <Compile Include="Saml\SamlUtils.cs" />
     <Compile Include="Encrypters\SHA256Encrypter.cs" />
     <Compile Include="Encrypters\SHA384Encrypter.cs" />
+    <Compile Include="Service References\KDGApi\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="SSOKdgImplementation.cs" />
     <Compile Include="SSOOAuthImplementation.cs" />
     <Compile Include="ISSOProviderImplementation.cs" />
@@ -238,6 +243,10 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Service References\KDGApi\KDGSubscriberAuth.wsdl" />
+    <None Include="Service References\KDGApi\KDGSubscriberAuth_model.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Web References\TvinciAPI\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -325,6 +334,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\TvinciAPI\api.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\KDGApi\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\KDGApi\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\KDGApi\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\KDGApi\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
