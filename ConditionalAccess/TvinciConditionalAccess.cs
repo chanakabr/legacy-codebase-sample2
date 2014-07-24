@@ -20,15 +20,12 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(string sBasicLink, string sUserIP, string sRefferer)
+        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string,string> dParams)
         {
-            object oSecretCode = ODBCWrapper.Utils.GetTableSingleVal("groups_ll_parameters", "SECRET_CODE", "group_id", "=", m_nGroupID);
-            string sSecretCode = "";
-            if (oSecretCode != null && oSecretCode != DBNull.Value)
-                sSecretCode = oSecretCode.ToString();
-            if (sSecretCode != "")
-                return MediaVault.GetHashedURL(sSecretCode, sBasicLink, sUserIP, sRefferer);
-            return sBasicLink;
+            CDNTokenizers.Tokenizers.ICDNTokenizer tokenizer = CDNTokenizers.CDNTokenizerFactory.GetTokenizerInstance(m_nGroupID, nStreamingCompany);
+            string sLicenseLink = (tokenizer == null) ? string.Empty : tokenizer.GenerateToken(dParams);
+
+            return sLicenseLink;
         }
 
         protected override bool GetUserCASubStatus(string sSiteGUID, ref UserCAStatus oUserCAStatus)

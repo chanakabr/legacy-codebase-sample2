@@ -525,6 +525,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\CDNTokenizers\CDNTokenizers\CDNTokenizers.csproj">
+      <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
+      <Name>CDNTokenizers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
       <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
       <Name>AkamaiTokenGenerator</Name>

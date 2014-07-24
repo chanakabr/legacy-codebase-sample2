@@ -20,10 +20,15 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(string sBasicLink, string sUserIP, string sRefferer)
+        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string, string> dParams)
         {
+            string sBasicLink;
+
+            dParams.TryGetValue("url", out sBasicLink);
+
             string retVal = string.Empty;
-            if (sBasicLink.EndsWith("m3u8"))
+
+            if (!string.IsNullOrEmpty(sBasicLink) && sBasicLink.EndsWith("m3u8"))
             {
                 retVal = sBasicLink;
             }
