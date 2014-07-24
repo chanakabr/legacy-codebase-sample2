@@ -8916,7 +8916,7 @@ namespace ConditionalAccess
                         bRes = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sSiteGuid, nAssetID);
                         break;
                     default:
-                        return false;
+                        break;
                 }
                 if (bRes)
                 {
@@ -8924,12 +8924,24 @@ namespace ConditionalAccess
                     //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
                 }
 
-                return bRes;
+                
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at CancelTransaction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+                sb.Append(String.Concat(" Asset ID: ", nAssetID));
+                sb.Append(String.Concat(" Trans Type: ", transactionType.ToString()));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
             }
+
+            return bRes;
         }
 
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
@@ -8952,18 +8964,29 @@ namespace ConditionalAccess
                         bRes = DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
                         break;
                     default:
-                        return false;
+                        break;
                 }
                 if (bRes)
                 {
                     WriteToUserLog(sSiteGuid, string.Format("user :{0} waiver cancellation for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
                 }
-                return bRes;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at WaiverTransaction. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+                sb.Append(String.Concat(" Asset ID: ", nAssetID));
+                sb.Append(String.Concat(" Trans Type: ", transactionType.ToString()));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
             }
+
+            return bRes;
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
@@ -8992,7 +9015,14 @@ namespace ConditionalAccess
                         }
                         else
                         {
+                            if (IsItemPurchased(prices[0]))
+                            {
 
+                            }
+                            else
+                            {
+
+                            }
                         }
                     }
                 }
@@ -9020,6 +9050,29 @@ namespace ConditionalAccess
                 Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
 
                 #endregion
+            }
+
+            return res;
+        }
+
+        private bool IsItemPurchased(MediaFileItemPricesContainer price)
+        {
+            bool res = false;
+            PriceReason reason = price.m_oItemPrices[0].m_PriceReason;
+            switch (reason)
+            {
+                case PriceReason.SubscriptionPurchased:
+                    goto case PriceReason.PPVPurchased;
+                case PriceReason.PrePaidPurchased:
+                    goto case PriceReason.PPVPurchased;
+                case PriceReason.CollectionPurchased:
+                    goto case PriceReason.PPVPurchased;
+                case PriceReason.PPVPurchased:
+                    res = price.m_oItemPrices[0].m_oPrice.m_dPrice == 0d;
+                    break;
+                default:
+                    break;
+
             }
 
             return res;
