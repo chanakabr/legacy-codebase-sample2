@@ -40,6 +40,8 @@ namespace Users
                             return new SSOOSamlImplementation(m_nGroupID);
                         case 3:
                             return new SSOTvinciImplementation(m_nGroupID);
+                        case 4:
+                            return new SSOKdgImplementation(m_nGroupID);
                         default:
                             break;
                     }

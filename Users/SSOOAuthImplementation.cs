@@ -25,9 +25,7 @@ namespace Users
 
 
 
-
-
-        public override UserResponseObject SignIn(string sCoGuid, string sPass, int nOperatorID, int nMaxFailCount, int nLockMinutes, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins)
+        public UserResponseObject SignIn(string wsUN, string wsPass, string sCoGuid, string sPass, int nOperatorID, int nMaxFailCount, int nLockMinutes, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins)
         {
             prov = OAuthUtil.GetProviderDetails(nOperatorID);
             if (prov != null)
@@ -99,10 +97,9 @@ namespace Users
                 }
             }
             else return new UserResponseObject() { m_RespStatus = ResponseStatus.UserDoesNotExist };
-
         }
 
-
+    
         public UserResponseObject CheckLogin(string sUserName, int nOperatorID)
         {
             return this.SignIn(sUserName, string.Empty, nOperatorID, 0, 0, string.Empty, string.Empty, string.Empty, false);
@@ -132,6 +129,8 @@ namespace Users
             public string RefreshToken { get; set; }
             public DateTime ExpiresIn { get; set; }
         }
+
+      
     }
 
 

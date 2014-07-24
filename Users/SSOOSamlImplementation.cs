@@ -19,7 +19,7 @@ namespace Users
         {
         }
 
-        public override UserResponseObject SignIn(string sCoGuid, string sPass, int nOperatorID, int nMaxFailCount, int nLockMinutes, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins)
+        public UserResponseObject SignIn(string wsUN, string wsPass, string sCoGuid, string sPass, int nOperatorID, int nMaxFailCount, int nLockMinutes, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins)
         {
             prov = OSamlUtils.Get_ProviderDetails(nOperatorID);
             if (prov != null)
@@ -29,18 +29,18 @@ namespace Users
                 if (dt != null && dt.DefaultView.Count > 0)
                 {
                     userDetails = new OSamlUserDetails()
-                        {
-                            SiteGuid = dt.Rows[0]["user_site_guid"].ToString(),
-                            CoGuid = dt.Rows[0]["CO_GUID"].ToString(),
-                        };
-                    return User.SignIn(int.Parse(userDetails.SiteGuid), nMaxFailCount, nLockMinutes, m_nGroupID, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);                                
+                    {
+                        SiteGuid = dt.Rows[0]["user_site_guid"].ToString(),
+                        CoGuid = dt.Rows[0]["CO_GUID"].ToString(),
+                    };
+                    return User.SignIn(int.Parse(userDetails.SiteGuid), nMaxFailCount, nLockMinutes, m_nGroupID, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);
                 }
                 else
                 {
                     return new UserResponseObject() { m_RespStatus = ResponseStatus.UserDoesNotExist };
-                }                
+                }
             }
-            else 
+            else
                 return new UserResponseObject() { m_RespStatus = ResponseStatus.UserDoesNotExist };
         }
 

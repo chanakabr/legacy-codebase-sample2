@@ -12,23 +12,21 @@ namespace Users
         {
         }
 
-
-
-        public override UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        public UserResponseObject SignIn(string wsUN, string wsPass, string sCoGuid, string sPass, int nOperatorID, int nMaxFailCount, int nLockMinutes, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins)
         {
             UserResponseObject resObj = new UserResponseObject();
             User u = new User();
-            int nSiteGuid = u.InitializeByUsername(sUN, m_nGroupID);
+            int nSiteGuid = u.InitializeByUsername(sCoGuid, m_nGroupID);
             if (nSiteGuid > 0)
             {
-                resObj = User.CheckUserPassword(sUN, sPass, 0, 0, m_nGroupID, false, false);
+                resObj = User.CheckUserPassword(sCoGuid, sPass, 0, 0, m_nGroupID, false, false);
                 if (resObj.m_RespStatus == ResponseStatus.OK)
                 {
-                    resObj = User.CheckUserPassword(sUN, sPass, 0, 0, m_nGroupID, false, false);
+                    resObj = User.CheckUserPassword(sCoGuid, sPass, 0, 0, m_nGroupID, false, false);
                     if (resObj.m_RespStatus == ResponseStatus.OK)
                     {
                         resObj.Initialize(ResponseStatus.OK, u);
-                        return User.InnerSignIn(ref resObj, 0, 0, m_nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, m_nGroupID);
+                        return User.InnerSignIn(ref resObj, 0, 0, m_nGroupID, sSessionID, sIP, sDeviceID, bPreventDoubleLogins, m_nGroupID);
                     }
                     else return resObj;
                 }
@@ -56,5 +54,7 @@ namespace Users
 
             return uRepsObj;
         }
+
+
     }
 }
