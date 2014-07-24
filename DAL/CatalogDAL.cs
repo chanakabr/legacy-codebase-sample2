@@ -1621,5 +1621,19 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
+
+        public static DataTable GetAllEpgChannelsList(int groupID) //, List<int> lSubGroupTree)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AllEpgChannelsList");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            //sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
     }
 }
