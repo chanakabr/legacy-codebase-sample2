@@ -1581,5 +1581,43 @@ namespace DAL
 
             return res;
         }
+
+        public static string Get_LicensedLinkSecretCode(long groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_LicensedLinkSecretCode");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null &&
+                ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                return ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0]["SECRET_CODE"]);
+            }
+
+            return string.Empty;
+        }
+
+        public static bool Get_GroupSecretAndCountryCode(long groupID, ref string secretCode, ref string countryCode)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_GroupSecretAndCountryCode");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                res = true;
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    secretCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["GROUP_SECRET_CODE"]);
+                    countryCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["GROUP_COUNTRY_CODE"]);
+                }
+            }
+
+            return res;
+        }
     }
 }

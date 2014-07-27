@@ -22,6 +22,11 @@ namespace ConditionalAccess
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
         // table groups_parameters, column FAIL_COUNT under ConditionalAccess DB.
 
+        private static readonly string BASIC_LINK_TICK_TIME = "!--tick_time--";
+        private static readonly string BASIC_LINK_COUNTRY_CODE = "!--COUNTRY_CD--";
+        private static readonly string BASIC_LINK_HASH = "!--hash--";
+        private static readonly string BASIC_LINK_GROUP = "!--group--";
+        private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";
 
 
         static public void GetBaseConditionalAccessImpl(ref ConditionalAccess.BaseConditionalAccess t, Int32 nGroupID)
@@ -349,7 +354,7 @@ namespace ConditionalAccess
             string sPricingPassword)
         {
             Dictionary<int, bool> res = new Dictionary<int, bool>();
-            Dictionary<int, DateTime> collToCreateDateMapping = new Dictionary<int,DateTime>();
+            Dictionary<int, DateTime> collToCreateDateMapping = new Dictionary<int, DateTime>();
             DateTime dbTimeNow = ODBCWrapper.Utils.FICTIVE_DATE;
             if (lstCollectionCodes != null && lstCollectionCodes.Count > 0)
             {
@@ -858,14 +863,14 @@ namespace ConditionalAccess
                 // the subscriptions and collections we add to those list will be sent to the Catalog in order to determine whether the media
                 // given as input belongs to it.
                 List<int> subsToSendToCatalog = new List<int>();
-                List<int> collsToSendToCatalog = new List<int>();              
+                List<int> collsToSendToCatalog = new List<int>();
 
                 List<string> subsToBundleCreditDownloadedQuery = new List<string>();
                 List<string> colsToBundleCreditDownloadedQuery = new List<string>();
 
                 // iterate over subscriptions
                 DataTable subs = ds.Tables[0];
-                 int nWaiver = 0;
+                int nWaiver = 0;
                 DateTime dPurchaseDate = DateTime.MinValue;
 
                 if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
@@ -995,7 +1000,7 @@ namespace ConditionalAccess
                         sb.Append(String.Concat(lstUserIDs[i], ", "));
                     }
                 }
-                else 
+                else
                 {
                     sb.Append(" User IDs is null or empty. ");
                 }
@@ -1123,7 +1128,7 @@ namespace ConditionalAccess
             maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["MAX_NUM_OF_USES"]);
             bundleCode = ODBCWrapper.Utils.GetSafeStr(dr[codeColumnName]);
 
-            nWaiver= ODBCWrapper.Utils.GetIntSafeVal(dr, "WAIVER");
+            nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dr, "WAIVER");
             dPurchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
         }
 
@@ -1352,8 +1357,8 @@ namespace ConditionalAccess
         }
 
 
-        internal static TvinciPricing.Price CalculateMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, TvinciPricing.Price pModule, 
-            TvinciPricing.DiscountModule discModule, TvinciPricing.CouponsGroup oCouponsGroup, string sSiteGUID, 
+        internal static TvinciPricing.Price CalculateMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, TvinciPricing.Price pModule,
+            TvinciPricing.DiscountModule discModule, TvinciPricing.CouponsGroup oCouponsGroup, string sSiteGUID,
             string sCouponCode, Int32 nGroupID, string subCode, string sPricingUsername, string sPricingPassword)
         {
 
@@ -1427,14 +1432,14 @@ namespace ConditionalAccess
             return p;
         }
 
-        private static TvinciPricing.Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, TvinciPricing.PPVModule ppvModule, 
+        private static TvinciPricing.Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, TvinciPricing.PPVModule ppvModule,
             string sSiteGUID, string sCouponCode, Int32 nGroupID, string subCode, string sPricingUsername, string sPricingPassword)
         {
             TvinciPricing.Price pModule = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
             TvinciPricing.DiscountModule discModule = TVinciShared.ObjectCopier.Clone<TvinciPricing.DiscountModule>((TvinciPricing.DiscountModule)(ppvModule.m_oDiscountModule));
             TvinciPricing.CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<TvinciPricing.CouponsGroup>((TvinciPricing.CouponsGroup)(ppvModule.m_oCouponsGroup));
 
-            return CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID, 
+            return CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID,
                 sCouponCode, nGroupID, subCode, sPricingUsername, sPricingPassword);
         }
 
@@ -2017,7 +2022,7 @@ namespace ConditionalAccess
                 mediaFileTypesMapping = new Dictionary<int, int>(0);
             }
             bool bCancellationWindow = false;
-            return GetMediaFileFinalPrice(nMediaFileID, ppvModule, sSiteGUID, sCouponCode, nGroupID, ref theReason, ref relevantSub, 
+            return GetMediaFileFinalPrice(nMediaFileID, ppvModule, sSiteGUID, sCouponCode, nGroupID, ref theReason, ref relevantSub,
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
                 mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow);
         }
@@ -2155,7 +2160,7 @@ namespace ConditionalAccess
                         if (IsPurchasedAsPurePPV(sSubCode, sPPCode))
                         {
                             theReason = PriceReason.PPVPurchased;
-                            
+
                             if (ppvModule.m_bFirstDeviceLimitation && !IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, allUserIDsInDomain, sDEVICE_NAME, ref sFirstDeviceNameFound))
                             {
                                 theReason = PriceReason.FirstDeviceLimitation;
@@ -2221,7 +2226,7 @@ namespace ConditionalAccess
                     Dictionary<string, KeyValuePair<int, DateTime>> subsPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();/*dictionary(subscriptionCode, KeyValuePair<nWaiver, dPurchaseDate>)*/
                     Dictionary<string, KeyValuePair<int, DateTime>> collPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();
 
-                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, 
+                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword,
                         ref relevantValidSubscriptions, ref relevantValidCollections, ref subsPurchase, ref collPurchase);
 
                     if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
@@ -2236,7 +2241,7 @@ namespace ConditionalAccess
                             {
                                 TvinciPricing.Subscription s = prioritySubs[i];
                                 TvinciPricing.DiscountModule d = (TvinciPricing.DiscountModule)(s.m_oDiscountModule);
-                                TvinciPricing.Price subp = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, 
+                                TvinciPricing.Price subp = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise,
                                     s.m_oDiscountModule, s.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, s.m_sObjectCode, sPricingUsername, sPricingPassword)));
                                 if (subp != null)
                                 {
@@ -2257,7 +2262,7 @@ namespace ConditionalAccess
 
                                         bEnd = true;
                                         break;
-                                    }                                    
+                                    }
                                 }
                             }
 
@@ -2314,7 +2319,7 @@ namespace ConditionalAccess
                     else
                     {
                         // the media file was not purchased in any way. calculate its price as a single media file and its price reason
-                        p = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty, 
+                        p = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
                             sPricingUsername, sPricingPassword);
                         if (IsFreeMediaFile(theReason, p))
                         {
@@ -2366,7 +2371,7 @@ namespace ConditionalAccess
                         if (DateTime.UtcNow <= waiverDate)
                         {
                             bCancellationWindow = true;
-                        }                        
+                        }
                     }
                 }
                 return bCancellationWindow;
@@ -2476,7 +2481,7 @@ namespace ConditionalAccess
             return GetDomainsUsers(nDomainID, nGroupID, string.Empty, string.Empty, true);
         }
 
-        private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID, string sDomainsUsername, string sDomainsPassword, 
+        private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID, string sDomainsUsername, string sDomainsPassword,
             bool bGetAlsoPendingUsers)
         {
             string sIP = "1.1.1.1";
@@ -2592,8 +2597,8 @@ namespace ConditionalAccess
             using (TvinciPricing.mdoule p = new TvinciPricing.mdoule())
             {
                 string sIP = "1.1.1.1";
-                string sWSUserName = "";
-                string sWSPass = "";
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
                 TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetSubscriptionByProductCode", "pricing", sIP, ref sWSUserName, ref sWSPass);
 
                 string sWSURL = Utils.GetWSURL("pricing_ws");
@@ -2607,19 +2612,14 @@ namespace ConditionalAccess
         internal static string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink)
         {
 
-            TvinciAPI.MeidaMaper[] mapper = null;
-            mapper = GetMediaMapper(nGroupID, nMediaFileIDs);
+            TvinciAPI.MeidaMaper[] mapper = GetMediaMapper(nGroupID, nMediaFileIDs);
             int mediaID = 0;
-
-            foreach (TvinciAPI.MeidaMaper mediaMap in mapper)
+            if (mapper != null && mapper.Length > 0)
             {
-                if (mediaMap != null && mediaMap.m_nMediaFileID == nMediaFileID)
-                {
-                    mediaID = mediaMap.m_nMediaID;
-                }
+                mediaID = ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID);
             }
 
-            if (sBasicLink == string.Format("{0}||{1}", mediaID, nMediaFileID))
+            if (sBasicLink.Equals(string.Format("{0}||{1}", mediaID, nMediaFileID)))
             {
                 string sBaseURL = string.Empty;
                 string sStreamID = string.Empty;
@@ -2645,34 +2645,38 @@ namespace ConditionalAccess
                 sBasicLink = string.Format("{0}{1}", sBaseURL, sStreamID);
                 if (sStreamID.Length > 0)
                 {
-                    if (sBasicLink.IndexOf("!--COUNTRY_CD--") != -1)
+                    string groupCountryCode = string.Empty;
+                    string groupSecretCode = string.Empty;
+                    ConditionalAccessDAL.Get_GroupSecretAndCountryCode(nGroupID, ref groupSecretCode, ref groupCountryCode);
+                    if (sBasicLink.Contains(BASIC_LINK_COUNTRY_CODE))
                     {
-                        object oGroupCD = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_COUNTRY_CODE", nGroupID, 86400, "MAIN_CONNECTION_STRING");
-                        if (oGroupCD != null && oGroupCD != DBNull.Value)
-                            sBasicLink = sBasicLink.Replace("!--COUNTRY_CD--", oGroupCD.ToString().Trim().ToLower());
+                        //object oGroupCD = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_COUNTRY_CODE", nGroupID, 86400, "MAIN_CONNECTION_STRING");
+                        //if (oGroupCD != null && oGroupCD != DBNull.Value)
+                        sBasicLink = sBasicLink.Replace(BASIC_LINK_COUNTRY_CODE, groupCountryCode.Trim().ToLower());
                     }
 
-                    if (sBasicLink.IndexOf("!--tick_time--") != -1)
+                    if (sBasicLink.Contains(BASIC_LINK_TICK_TIME))
                     {
                         long lT = DateTime.UtcNow.Ticks;
-                        object oGroupSecret = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_SECRET_CODE", nGroupID, 86400, "MAIN_CONNECTION_STRING");
-                        sBasicLink = sBasicLink.Replace("!--tick_time--", "tick=" + lT.ToString());
+                        //object oGroupSecret = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_SECRET_CODE", nGroupID, 86400, "MAIN_CONNECTION_STRING");
+                        sBasicLink = sBasicLink.Replace(BASIC_LINK_TICK_TIME, String.Concat("tick=", lT.ToString()));
                         string sToHash = string.Empty;
                         string sHashed = string.Empty;
-                        if (oGroupSecret != null && oGroupSecret != DBNull.Value)
-                        {
-                            sToHash = oGroupSecret.ToString() + lT.ToString();
-                            sHashed = TVinciShared.ProtocolsFuncs.CalculateMD5Hash(sToHash);
-                        }
-                        sBasicLink = sBasicLink.Replace("!--hash--", "hash=" + sHashed);
+                        //if (oGroupSecret != null && oGroupSecret != DBNull.Value)
+                        //{
+                        //sToHash = oGroupSecret.ToString() + lT.ToString();
+                        sToHash = String.Concat(groupSecretCode, lT);
+                        sHashed = TVinciShared.ProtocolsFuncs.CalculateMD5Hash(sToHash);
+                        //}
+                        sBasicLink = sBasicLink.Replace(BASIC_LINK_HASH, String.Concat("hash=", sHashed));
                     }
-                    if (sBasicLink.IndexOf("!--group--") != -1)
+                    if (sBasicLink.Contains(BASIC_LINK_GROUP))
                     {
-                        sBasicLink = sBasicLink.Replace("!--group--", "group=" + nGroupID.ToString());
+                        sBasicLink = sBasicLink.Replace(BASIC_LINK_GROUP, String.Concat("group=", nGroupID.ToString()));
                     }
-                    if (sBasicLink.IndexOf("!--config_data--") != -1)
+                    if (sBasicLink.Contains(BASIC_LINK_CONFIG_DATA))
                     {
-                        sBasicLink = sBasicLink.Replace("!--config_data--", "brt=" + "");
+                        sBasicLink = sBasicLink.Replace(BASIC_LINK_CONFIG_DATA, "brt=");
                     }
                 }
                 sBasicLink = HttpContext.Current.Server.HtmlDecode(sBasicLink).Replace("''", "\"");
@@ -2925,7 +2929,7 @@ namespace ConditionalAccess
                     TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetGoogleSignature", "pricing", sIP, ref sWSUserName, ref sWSPass);
 
                     string sWSURL = Utils.GetWSURL("pricing_ws");
-                    if (sWSURL != "")
+                    if (sWSURL.Length > 0)
                         p.Url = sWSURL;
 
 
