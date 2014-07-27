@@ -34,7 +34,7 @@ namespace CDNTokenizers.Tokenizers
                 #region get query params
                 string url = GetUrl(dParams);
                 string assetname = GetAssetName(url);
-                string ip = dParams["ip"];
+                string ip = dParams[Constants.IP];
                 DateTime expiration = GetExpirationTime();
                 string sessionID = GenerateSessionID();
 
@@ -82,7 +82,7 @@ namespace CDNTokenizers.Tokenizers
 
         protected string GetIP(Dictionary<string, string> dParams)
         {
-            return dParams.ContainsKey("ip") ? dParams["ip"] : string.Empty;
+            return dParams.ContainsKey(Constants.IP) ? dParams[Constants.IP] : string.Empty;
         }
 
         protected DateTime GetExpirationTime()

@@ -43,7 +43,7 @@ namespace CDNTokenizers.Tokenizers
 
         protected string GetUrl(Dictionary<string, string> dParams)
         {
-            return dParams.ContainsKey("url") ? dParams["url"] : string.Empty;
+            return dParams.ContainsKey(Constants.URL) ? dParams[Constants.URL] : string.Empty;
         }
 
 

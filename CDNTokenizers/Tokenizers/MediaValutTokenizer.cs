@@ -85,12 +85,12 @@ namespace CDNTokenizers.Tokenizers
             options.EndTime = Utils.GetEpochUTCTimeNow() + m_nTTL;
 
             string ip;
-            if (dParams.TryGetValue("ip", out ip))
+            if (dParams.TryGetValue(Constants.IP, out ip))
             {
                 options.IPAddress = ip;
             }
 
-            options.VideoUri = new Uri(dParams["url"]);
+            options.VideoUri = new Uri(dParams[Constants.URL]);
 
             return options;
 

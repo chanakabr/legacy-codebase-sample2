@@ -67,7 +67,7 @@ namespace CDNTokenizers.Tokenizers
 
         protected string GetIP(Dictionary<string, string> dParams)
         {
-            return dParams.ContainsKey("ip") ? dParams["ip"] : string.Empty;
+            return dParams.ContainsKey(Constants.IP) ? dParams[Constants.IP] : string.Empty;
         }
 
         protected string SignString(string message)

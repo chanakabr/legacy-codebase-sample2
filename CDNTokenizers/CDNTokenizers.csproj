@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CDNTokenizerFactory.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Tokenizers\AkamaiTokenizers\AkamaiBase64.cs" />
     <Compile Include="Tokenizers\AkamaiTokenizers\AbstractAkamaiTokenizer.cs" />
     <Compile Include="Tokenizers\AkamaiTokenizers\AkamaiTokenizerTypeD.cs" />
