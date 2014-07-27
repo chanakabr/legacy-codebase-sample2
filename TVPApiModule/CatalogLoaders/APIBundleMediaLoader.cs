@@ -31,7 +31,7 @@ namespace TVPApiModule.CatalogLoaders
 
         #region Constructors
 
-        public APIBundleMediaLoader(int bundleId, string mediaType, OrderObj order, int groupID, int groupIDParent, PlatformType platform, string userIP, string language, string picSize, int pageIndex, int pageSize, CatalogBundleType bundleType) :
+        public APIBundleMediaLoader(int bundleId, string mediaType, OrderObj order, int groupID, int groupIDParent, PlatformType platform, string userIP, string language, string picSize, int pageIndex, int pageSize, eBundleType bundleType) :
             base(bundleId, mediaType, order, groupID, userIP, pageSize, pageIndex, picSize, bundleType)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
