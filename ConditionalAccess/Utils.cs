@@ -2609,10 +2609,11 @@ namespace ConditionalAccess
             }
         }
 
-        internal static string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink)
+        internal static string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink, out int nStreamingCompanyID)
         {
 
             TvinciAPI.MeidaMaper[] mapper = GetMediaMapper(nGroupID, nMediaFileIDs);
+            nStreamingCompanyID = 0;
             int mediaID = 0;
             if (mapper != null && mapper.Length > 0)
             {
@@ -2623,7 +2624,6 @@ namespace ConditionalAccess
             {
                 string sBaseURL = string.Empty;
                 string sStreamID = string.Empty;
-                int nStreamingCompanyID = 0;
 
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += " select sc.VIDEO_BASE_URL, mf.STREAMING_CODE, mf.STREAMING_SUPLIER_ID from streaming_companies sc , media_files mf where ";

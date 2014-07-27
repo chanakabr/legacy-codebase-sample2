@@ -9163,11 +9163,12 @@ namespace ConditionalAccess
             try
             {
                 int[] mediaFiles = new int[1] { nMediaFileID };
+                int streamingCoID = 0;
                 if (IsGetLicensedLinksInputValid(sSiteGuid, nMediaFileID, sBasicLink) && isDevicePlayValid(sSiteGuid, sDeviceName))
                 {
                     if (IsAlterBasicLink(sBasicLink, nMediaFileID))
                     {
-                        sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink);
+                        sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink, out streamingCoID);
                     }
 
                     MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sCountryCode,
@@ -9178,7 +9179,7 @@ namespace ConditionalAccess
                         if (IsFreeItem(prices[0]))
                         {
                             res.mainUrl = string.Empty; //GetLicensedLink(sBasicLink, sUserIP, sRefferer);
-                            res.altUrl = string.Empty //GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+                            res.altUrl = string.Empty; //GetLicensedLink(sBasicLink, sUserIP, sRefferer);
                         }
                         else
                         {
