@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\tvmcore\External\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -46,15 +50,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseEpgDetails.cs" />
     <Compile Include="DateComparer.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="EPGAbstract.cs" />
     <Compile Include="EPGEutelsat.cs" />
     <Compile Include="EPGGeneral.cs" />
     <Compile Include="EpgFeeder.cs" />
+    <Compile Include="EpgGenerator.cs" />
     <Compile Include="EPGImplementor.cs" />
     <Compile Include="EPGLogic.cs" />
     <Compile Include="EPGMediaCorp.cs" />
+    <Compile Include="EpgObject.cs" />
     <Compile Include="EPGObject\EPGxmlObjet.cs" />
     <Compile Include="EPGObject\MediaCorp.cs" />
     <Compile Include="EPGObject\tv-k.cs" />
@@ -63,6 +70,8 @@
     <Compile Include="EPGYes.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FieldTypeEntity.cs" />
+    <Compile Include="Mate.cs" />
+    <Compile Include="ProgramObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -74,6 +83,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Tag.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +162,10 @@
     <ProjectReference Include="..\..\..\TvmCore\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\Catalog\Catalog.csproj">
+      <Project>{1c524197-e2b6-437e-80de-7f307a9b36f1}</Project>
+      <Name>Catalog</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
