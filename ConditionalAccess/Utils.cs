@@ -2623,9 +2623,10 @@ namespace ConditionalAccess
             {
                 string sBaseURL = string.Empty;
                 string sStreamID = string.Empty;
+                int nStreamingCompanyID = 0;
 
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += " select sc.VIDEO_BASE_URL, mf.STREAMING_CODE from streaming_companies sc , media_files mf where ";
+                selectQuery += " select sc.VIDEO_BASE_URL, mf.STREAMING_CODE, mf.STREAMING_SUPLIER_ID from streaming_companies sc , media_files mf where ";
                 selectQuery += "mf.STREAMING_SUPLIER_ID = sc.ID";
                 selectQuery += " and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mf.ID", "=", nMediaFileID);
@@ -2637,6 +2638,7 @@ namespace ConditionalAccess
                     {
                         sBaseURL = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "VIDEO_BASE_URL", 0);
                         sStreamID = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "STREAMING_CODE", 0);
+                        nStreamingCompanyID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "STREAMING_SUPLIER_ID", 0);
                     }
                 }
                 selectQuery.Finish();
@@ -3342,6 +3344,25 @@ namespace ConditionalAccess
 
                 return p.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
             }
+        }
+
+        internal static int GetStreamingCoIDByMediaFileID(string sMediaFileID, bool bIsCoGuid)
+        {
+            int nStreamingCoID = 0;
+
+            ODBCWrapper.StoredProcedure Get_MediaFileStreamingCoID = new ODBCWrapper.StoredProcedure("Get_MediaFileStreamingCoID");
+            Get_MediaFileStreamingCoID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            Get_MediaFileStreamingCoID.AddParameter("@MediaFileID", sMediaFileID);
+            Get_MediaFileStreamingCoID.AddParameter("@IsCoGuid", bIsCoGuid);
+
+            System.Data.DataSet ds = Get_MediaFileStreamingCoID.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                nStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+            }
+
+            return nStreamingCoID;
         }
     }
 }

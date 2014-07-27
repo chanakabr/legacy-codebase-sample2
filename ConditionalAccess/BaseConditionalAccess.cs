@@ -70,10 +70,10 @@ namespace ConditionalAccess
          */
         protected abstract bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid);
 
-        /// <summary>
-        /// Get Licensed Link
-        /// </summary>
-        protected abstract string GetLicensedLink(string sBasicLink, string sUserIP, string sRefferer);
+        ///// <summary>
+        ///// Get Licensed Link
+        ///// </summary>
+        //protected abstract string GetLicensedLink(string sBasicLink, string sUserIP, string sRefferer);
         /// <summary>
         /// Get Error Licensed Link
         /// </summary>
@@ -84,6 +84,11 @@ namespace ConditionalAccess
         public abstract bool ActivateCampaign(int campaignID, CampaignActionInfo cai);
 
         public abstract CampaignActionInfo ActivateCampaignWithInfo(int campaignID, CampaignActionInfo cai);
+
+        /// <summary>
+        /// Get Licensed Link
+        /// </summary>
+        protected abstract string GetLicensedLink(int nStreamingCompany, Dictionary<string, string> dParams);
         #endregion
 
         protected virtual string GetPPVCodeForGetItemsPrices(string ppvObjectCode, string ppvObjectVirtualName)
@@ -2752,6 +2757,8 @@ namespace ConditionalAccess
             }
         }
 
+
+
         protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME)
         {
             TvinciUsers.UsersService u = null;
@@ -2879,14 +2886,20 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Licensed Link
         /// </summary>
-        public virtual string GetLicensedLink(string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
+        public virtual string   GetLicensedLink(string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
         {
             Int32[] nMediaFileIDs = { nMediaFileID };
+            int nStreamingCoID = 0;
 
             if (sBasicLink.Contains(string.Format("||{0}", nMediaFileID)))
             {
-                sBasicLink = Utils.GetBasicLink(m_nGroupID, nMediaFileIDs, nMediaFileID, sBasicLink);
+                sBasicLink = Utils.GetBasicLink(m_nGroupID, nMediaFileIDs, nMediaFileID, sBasicLink, out nStreamingCoID);
             }
+            else
+            {
+                nStreamingCoID = Utils.GetStreamingCoIDByMediaFileID(nMediaFileID.ToString(), false);
+            }
+
             bool isDeviceRecognized = isDevicePlayValid(sSiteGUID, sDEVICE_NAME);
 
             if (!isDeviceRecognized)
@@ -2895,14 +2908,26 @@ namespace ConditionalAccess
                 return string.Empty;
             }
 
+            Dictionary<string, string> dLicensedLinkParams = new Dictionary<string, string>();
+            #region add license link params to dictionary
+            dLicensedLinkParams.Add("site_guid", sSiteGUID);
+            dLicensedLinkParams.Add("media_file_id", nMediaFileID.ToString());
+            dLicensedLinkParams.Add("url", sBasicLink);
+            dLicensedLinkParams.Add("ip", sUserIP);
+            dLicensedLinkParams.Add("country_code", sCOUNTRY_CODE);
+            dLicensedLinkParams.Add("lang_code", sLANGUAGE_CODE);
+            dLicensedLinkParams.Add("device_name", sDEVICE_NAME);
+            dLicensedLinkParams.Add("cupon_code", couponCode);
+            #endregion
+
             MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sUserIP);
-            if (prices.Length == 0)
+            if (prices == null || prices.Length == 0)
             {
                 return string.Empty;
             }
             if (prices[0].m_oItemPrices == null || prices[0].m_oItemPrices.Length == 0 || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.Free)
             {
-                return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+                return GetLicensedLink(nStreamingCoID, dLicensedLinkParams);
             }
 
             if (prices[0].m_oItemPrices[0].m_oPrice.m_dPrice == 0 && (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PrePaidPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.CollectionPurchased))
@@ -2910,7 +2935,7 @@ namespace ConditionalAccess
                 if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink) == true)
                 {
                     HandlePlayUses(prices[0], sSiteGUID, nMediaFileID, sUserIP, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
-                    return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+                    return GetLicensedLink(nStreamingCoID, dLicensedLinkParams);
                 }
             }
 
@@ -2929,6 +2954,7 @@ namespace ConditionalAccess
             {
                 return string.Empty;
             }
+
             MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
             if (prices.Length == 0)
                 return "";
@@ -2936,8 +2962,22 @@ namespace ConditionalAccess
             {
                 if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink) == true)
                 {
+                    Dictionary<string, string> dLicensedLinkParams = new Dictionary<string, string>();
+                    #region add license link params to dictionary
+                    dLicensedLinkParams.Add("site_guid", sSiteGUID);
+                    dLicensedLinkParams.Add("media_file_id", nMediaFileID.ToString());
+                    dLicensedLinkParams.Add("url", sBasicLink);
+                    dLicensedLinkParams.Add("ip", sUserIP);
+                    dLicensedLinkParams.Add("country_code", sCOUNTRY_CODE);
+                    dLicensedLinkParams.Add("lang_code", sLANGUAGE_CODE);
+                    dLicensedLinkParams.Add("device_name", sDEVICE_NAME);
+                    dLicensedLinkParams.Add("cupon_code", couponCode);
+                    #endregion
+
+                    int nStreamingCoID = Utils.GetStreamingCoIDByMediaFileID(sMediaFileCoGuid, true);
+
                     HandlePlayUses(prices[0], sSiteGUID, nMediaFileID, sUserIP, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
-                    return GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+                    return GetLicensedLink(nStreamingCoID, dLicensedLinkParams);
                 }
             }
             return GetErrorLicensedLink(sBasicLink);
@@ -9137,8 +9177,8 @@ namespace ConditionalAccess
                     {
                         if (IsFreeItem(prices[0]))
                         {
-                            res.mainUrl = GetLicensedLink(sBasicLink, sUserIP, sRefferer);
-                            res.altUrl = GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+                            res.mainUrl = string.Empty; //GetLicensedLink(sBasicLink, sUserIP, sRefferer);
+                            res.altUrl = string.Empty //GetLicensedLink(sBasicLink, sUserIP, sRefferer);
                         }
                         else
                         {
