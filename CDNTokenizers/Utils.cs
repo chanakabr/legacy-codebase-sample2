@@ -15,10 +15,12 @@ namespace CDNTokenizers
 
         public static string GetMD5Hash(string hash)
         {
-            MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
-            byte[] originalBytes = ASCIIEncoding.Default.GetBytes(hash);
-            byte[] encodedBytes = md5Provider.ComputeHash(originalBytes);
-            return BitConverter.ToString(encodedBytes).Replace("-", "").ToLower();
+            using (MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider())
+            {
+                byte[] originalBytes = ASCIIEncoding.Default.GetBytes(hash);
+                byte[] encodedBytes = md5Provider.ComputeHash(originalBytes);
+                return BitConverter.ToString(encodedBytes).Replace("-", "").ToLower();
+            }
         }
 
         public static byte[] SignHmacSha1(byte[] key, byte[] message)
