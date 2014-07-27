@@ -1619,5 +1619,24 @@ namespace DAL
 
             return res;
         }
+
+        public static int Get_MediaFileStreamingCoID(string mediaFileIDStr, bool isCoGuid)
+        {
+            int nStreamingCoID = 0;
+
+            ODBCWrapper.StoredProcedure Get_MediaFileStreamingCoID = new ODBCWrapper.StoredProcedure("Get_MediaFileStreamingCoID");
+            Get_MediaFileStreamingCoID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            Get_MediaFileStreamingCoID.AddParameter("@MediaFileID", mediaFileIDStr);
+            Get_MediaFileStreamingCoID.AddParameter("@IsCoGuid", isCoGuid);
+
+            System.Data.DataSet ds = Get_MediaFileStreamingCoID.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                nStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+            }
+
+            return nStreamingCoID;
+        }
     }
 }

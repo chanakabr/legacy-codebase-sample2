@@ -3345,24 +3345,5 @@ namespace ConditionalAccess
                 return p.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
             }
         }
-
-        internal static int GetStreamingCoIDByMediaFileID(string sMediaFileID, bool bIsCoGuid)
-        {
-            int nStreamingCoID = 0;
-
-            ODBCWrapper.StoredProcedure Get_MediaFileStreamingCoID = new ODBCWrapper.StoredProcedure("Get_MediaFileStreamingCoID");
-            Get_MediaFileStreamingCoID.SetConnectionKey("MAIN_CONNECTION_STRING");
-            Get_MediaFileStreamingCoID.AddParameter("@MediaFileID", sMediaFileID);
-            Get_MediaFileStreamingCoID.AddParameter("@IsCoGuid", bIsCoGuid);
-
-            System.Data.DataSet ds = Get_MediaFileStreamingCoID.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
-            {
-                nStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-            }
-
-            return nStreamingCoID;
-        }
     }
 }
