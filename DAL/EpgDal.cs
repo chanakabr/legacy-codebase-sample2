@@ -222,7 +222,16 @@ namespace Tvinci.Core.DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
-        }  
+        }
 
+
+        public static DataSet GetEpgMappingFields(List<int> lSubGroupTree)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetEpgMappingFields");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
+        }
     }
 }

@@ -1242,13 +1242,13 @@ namespace Tvinci.Core.DAL
 
             return new List<int>(0);
         }
-
+        
 
         public static List<LanguageObj> GetGroupLanguages(int nGroupID)
         {
             List<LanguageObj> lLanguages = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupLanguages");
-            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@groupID", nGroupID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
