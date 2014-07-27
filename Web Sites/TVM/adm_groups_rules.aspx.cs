@@ -64,7 +64,7 @@ public partial class adm_groups_rules : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable += "select gr.id as 'ID', gr.name as 'Name', mtt.name as 'Tag Type', gr.default_enabled as 'Default Enabled', gr.default_val as 'Default Code',";
-        theTable += "lgrt.[DESCRIPTION] as 'Group Rule Type', gr.dynamic_data_key as 'Dynamic Data Key', gr.status, gr.is_anonymous as 'is anonymous' from"; 
+        theTable += "lgrt.[DESCRIPTION] as 'Group Rule Type', gr.dynamic_data_key as 'Dynamic Data Key', gr.status, gr.is_anonymous as 'Anonymous Access' from"; 
         theTable += "groups_rules gr inner join lu_group_rule_types lgrt on gr.group_rule_type_id = lgrt.id left join  media_tags_types mtt on gr.tag_type_id=mtt.id";
         theTable += "where gr.status=1 and gr.group_rule_type_id=1 and";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("gr.group_id", "=", nGroupID);

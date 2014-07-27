@@ -110,7 +110,7 @@ public partial class adm_epg_rules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_defaultEnabled);
 
         DataRecordBoolField dr_is_anonymous = new DataRecordBoolField(true);
-        dr_is_anonymous.Initialize("Is Anonymous Rule", "adm_table_header_nbg", "FormInput", "is_anonymous", false);      
+        dr_is_anonymous.Initialize("Anonymous Access", "adm_table_header_nbg", "FormInput", "is_anonymous", false);      
         theRecord.AddRecord(dr_is_anonymous);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
