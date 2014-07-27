@@ -135,7 +135,7 @@
     </Compile>
     <Compile Include="SSOKdgImplementation.cs" />
     <Compile Include="SSOOAuthImplementation.cs" />
-    <Compile Include="ISSOProviderImplementation.cs" />
+    <Compile Include="ISSOProvider.cs" />
     <Compile Include="SSOOSamlImplementation.cs" />
     <Compile Include="SSOTvinciImplementation.cs" />
     <Compile Include="SSOUsers.cs" />

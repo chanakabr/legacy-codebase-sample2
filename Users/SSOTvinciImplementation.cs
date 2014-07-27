@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Users
 {
-    public class SSOTvinciImplementation : SSOUsers, ISSOProviderImplementation
+    public class SSOTvinciImplementation : SSOUsers, ISSOProvider
     {
         public SSOTvinciImplementation(int nGroupID)
             : base(nGroupID)

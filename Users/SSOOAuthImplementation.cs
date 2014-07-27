@@ -10,7 +10,7 @@ using TVinciShared;
 
 namespace Users
 {
-    public class SSOOAuthImplementation : SSOUsers, ISSOProviderImplementation
+    public class SSOOAuthImplementation : SSOUsers, ISSOProvider
     {
         ProviderObject prov = null;
         CredentialObject creds = null;

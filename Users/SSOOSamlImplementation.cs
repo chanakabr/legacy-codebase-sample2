@@ -8,7 +8,7 @@ using Users.Saml;
 
 namespace Users
 {
-    public class SSOOSamlImplementation : SSOUsers, ISSOProviderImplementation
+    public class SSOOSamlImplementation : SSOUsers, ISSOProvider
     {
         OSamlUserDetails userDetails = null;
         SamlProviderObject prov = null;

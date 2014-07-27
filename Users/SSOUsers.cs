@@ -17,7 +17,7 @@ namespace Users
         {
         }
 
-        public ISSOProviderImplementation GetSSOImplementation(int nSSOProvID)
+        public ISSOProvider GetSSOImplementation(int nSSOProvID)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "SELECT * FROM groups_operators WHERE STATUS=1 AND IS_ACTIVE=1 AND";
@@ -26,7 +26,7 @@ namespace Users
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
             selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-            ISSOProviderImplementation impl = null;
+            ISSOProvider impl = null;
             if (selectQuery.Execute("query", true) != null)
             {
                 DataTable dt = selectQuery.Table("query");
