@@ -75,10 +75,12 @@
       <HintPath>..\..\..\TVPLibs\External\Enyim.Caching.dll</HintPath>
     </Reference>
     <Reference Include="Facebook, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\TVPLibs\Facebook.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\TVPLibs\Facebook.dll</HintPath>
     </Reference>
     <Reference Include="Facebook.Web, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\TVPLibs\Facebook.Web.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\TVPLibs\Facebook.Web.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
