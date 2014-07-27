@@ -244,13 +244,14 @@ namespace ConditionalAccess
                 if (apiUrl.Length > 0)
                     m.Url = apiUrl;
                 bool bRet = false;
-                if (CachingManager.CachingManager.Exist("ValidateBaseLink" + nMediaFileID.ToString() + "_" + sBaseLink + "_" + nGroupID.ToString()) == true)
-                    bRet = (bool)(CachingManager.CachingManager.GetCachedData("ValidateBaseLink" + nMediaFileID.ToString() + "_" + sBaseLink + "_" + nGroupID.ToString()));
+                string sCacheKey = GetCachingManagerKey("ValidateBaseLink", String.Concat(nMediaFileID.ToString(), "_", sBaseLink), nGroupID);
+                if (CachingManager.CachingManager.Exist(sCacheKey))
+                    bRet = (bool)(CachingManager.CachingManager.GetCachedData(sCacheKey));
                 else
                 {
                     TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "ValidateBaseLink", "api", sIP, ref sWSUserName, ref sWSPass);
                     bRet = m.ValidateBaseLink(sWSUserName, sWSPass, nMediaFileID, sBaseLink);
-                    CachingManager.CachingManager.SetCachedData("ValidateBaseLink" + nMediaFileID.ToString() + "_" + sBaseLink + "_" + nGroupID.ToString(), bRet, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    CachingManager.CachingManager.SetCachedData(sCacheKey, bRet, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
                 }
                 return bRet;
             }
@@ -2625,24 +2626,7 @@ namespace ConditionalAccess
                 string sBaseURL = string.Empty;
                 string sStreamID = string.Empty;
 
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += " select sc.VIDEO_BASE_URL, mf.STREAMING_CODE, mf.STREAMING_SUPLIER_ID from streaming_companies sc , media_files mf where ";
-                selectQuery += "mf.STREAMING_SUPLIER_ID = sc.ID";
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mf.ID", "=", nMediaFileID);
-                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        sBaseURL = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "VIDEO_BASE_URL", 0);
-                        sStreamID = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "STREAMING_CODE", 0);
-                        nStreamingCompanyID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "STREAMING_SUPLIER_ID", 0);
-                    }
-                }
-                selectQuery.Finish();
-                selectQuery = null;
+                ConditionalAccessDAL.Get_BasicLinkData(nMediaFileID, ref sBaseURL, ref sStreamID, ref nStreamingCompanyID);
 
                 sBasicLink = string.Format("{0}{1}", sBaseURL, sStreamID);
                 if (sStreamID.Length > 0)
@@ -2652,24 +2636,17 @@ namespace ConditionalAccess
                     ConditionalAccessDAL.Get_GroupSecretAndCountryCode(nGroupID, ref groupSecretCode, ref groupCountryCode);
                     if (sBasicLink.Contains(BASIC_LINK_COUNTRY_CODE))
                     {
-                        //object oGroupCD = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_COUNTRY_CODE", nGroupID, 86400, "MAIN_CONNECTION_STRING");
-                        //if (oGroupCD != null && oGroupCD != DBNull.Value)
                         sBasicLink = sBasicLink.Replace(BASIC_LINK_COUNTRY_CODE, groupCountryCode.Trim().ToLower());
                     }
 
                     if (sBasicLink.Contains(BASIC_LINK_TICK_TIME))
                     {
                         long lT = DateTime.UtcNow.Ticks;
-                        //object oGroupSecret = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_SECRET_CODE", nGroupID, 86400, "MAIN_CONNECTION_STRING");
                         sBasicLink = sBasicLink.Replace(BASIC_LINK_TICK_TIME, String.Concat("tick=", lT.ToString()));
                         string sToHash = string.Empty;
                         string sHashed = string.Empty;
-                        //if (oGroupSecret != null && oGroupSecret != DBNull.Value)
-                        //{
-                        //sToHash = oGroupSecret.ToString() + lT.ToString();
                         sToHash = String.Concat(groupSecretCode, lT);
                         sHashed = TVinciShared.ProtocolsFuncs.CalculateMD5Hash(sToHash);
-                        //}
                         sBasicLink = sBasicLink.Replace(BASIC_LINK_HASH, String.Concat("hash=", sHashed));
                     }
                     if (sBasicLink.Contains(BASIC_LINK_GROUP))
