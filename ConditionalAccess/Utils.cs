@@ -687,16 +687,6 @@ namespace ConditionalAccess
 
         private static bool CalcIsCreditNeedToBeDownloadedForSub(DateTime dbTimeNow, DateTime lastCreateDate, Subscription s)
         {
-            //bool res = true;
-            //if (s.m_oSubscriptionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-            //    && !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-            //    && (dbTimeNow - lastCreateDate).TotalMinutes < s.m_oSubscriptionUsageModule.m_tsViewLifeCycle)
-            //{
-            //    res = false;
-            //}
-
-            //return res;
-
             bool res = true;
             if (s.m_oSubscriptionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
                 && !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
@@ -712,16 +702,6 @@ namespace ConditionalAccess
 
         private static bool CalcIsCreditNeedToBeDownloadedForCol(DateTime dbTimeNow, DateTime lastCreateDate, Collection c)
         {
-            //bool res = true;
-            //if (c.m_oCollectionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE) &&
-            //    !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-            //    && (dbTimeNow - lastCreateDate).TotalMinutes < c.m_oCollectionUsageModule.m_tsViewLifeCycle)
-            //{
-            //    res = false;
-            //}
-
-            //return res;
-
             bool res = true;
             if (c.m_oCollectionUsageModule != null && !lastCreateDate.Equals(ODBCWrapper.Utils.FICTIVE_DATE) &&
                 !dbTimeNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
@@ -3322,5 +3302,32 @@ namespace ConditionalAccess
                 return p.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
             }
         }
+
+        internal static TvinciPricing.PPVModule GetPPVModuleDataWithCaching<T>(T ppvCode, string wsUsername, string wsPassword,
+            int groupID, string countryCd, string langCode, string deviceName) where T: IEquatable<T>
+        {
+            PPVModule res = null;
+            string ppvCodeStr = ppvCode.ToString();
+            string cacheKey = GetCachingManagerKey("GetPPVModuleData", ppvCodeStr, groupID);
+            if (CachingManager.CachingManager.Exist(cacheKey))
+                res = (TvinciPricing.PPVModule)(CachingManager.CachingManager.GetCachedData(cacheKey));
+            else
+            {
+                using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
+                {
+                    string pricingUrl = GetWSURL("pricing_ws");
+                    if (pricingUrl.Length > 0)
+                        m.Url = pricingUrl;
+                    res = m.GetPPVModuleData(wsUsername, wsPassword, ppvCodeStr, countryCd, langCode, deviceName);
+                    if (res != null)
+                    {
+                        CachingManager.CachingManager.SetCachedData(cacheKey, res, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    }
+                }
+            }
+
+            return res;
+        }
+
     }
 }
