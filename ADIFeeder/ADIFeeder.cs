@@ -808,6 +808,11 @@ namespace ADIFeeder
                             retVal = "Download High";
                             break;
                         }
+                    case ("6"):
+                        {
+                            retVal = "Android";
+                            break;
+                        }
                     default:
                         break;
 
@@ -929,6 +934,11 @@ namespace ADIFeeder
                     {
                         groupID = 148;
                         return "Education";
+                    }
+                case "clip":
+                    {
+                        groupID = 148;
+                        return "Clip";
                     }
                 default:
                     {
