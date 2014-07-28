@@ -8192,13 +8192,16 @@ namespace ConditionalAccess
                         if (ConditionalAccessDAL.Get_LatestFileUse(lUsersIds, nMediaFileID, ref sPPVMCode, ref isOfflineStatus, ref dNow,
                             ref dPurchaseDate))
                         {
+                            string pricingUsername = string.Empty, pricingPassword = string.Empty;
+                            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", "1.1.1.1", ref pricingUsername, ref pricingPassword);
+
                             if (isOfflineStatus)
                             {
 
                                 string groupUsageModuleCode = string.Empty;
                                 if (PricingDAL.Get_GroupUsageModuleCode(m_nGroupID, "PRICING_CONNECTION", ref groupUsageModuleCode))
                                 {
-                                    UsageModule um = Utils.GetUsageModuleDataWithCaching(groupUsageModuleCode, string.Empty, string.Empty,
+                                    UsageModule um = Utils.GetUsageModuleDataWithCaching(groupUsageModuleCode, pricingUsername, pricingPassword,
                                         sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, m_nGroupID, "GetOfflineUsageModuleData");
                                     if (um != null)
                                     {
@@ -8214,7 +8217,7 @@ namespace ConditionalAccess
                                     case eTransactionType.Subscription:
                                         {
                                             string subCode = sPPVMCode.Split(' ')[1];
-                                            Subscription[] subscriptions = Utils.GetSubscriptionsDataWithCaching(new List<string>(1) { subCode }, string.Empty, string.Empty, m_nGroupID);
+                                            Subscription[] subscriptions = Utils.GetSubscriptionsDataWithCaching(new List<string>(1) { subCode }, pricingUsername, pricingPassword, m_nGroupID);
                                             if (subscriptions != null && subscriptions.Length > 0 && subscriptions[0] != null
                                                 && subscriptions[0].m_oSubscriptionUsageModule != null)
                                             {
@@ -8233,7 +8236,7 @@ namespace ConditionalAccess
                                     case eTransactionType.Collection:
                                         {
                                             string collCode = sPPVMCode.Split(' ')[1];
-                                            Collection[] collections = Utils.GetCollectionsDataWithCaching(new List<string>(1) { collCode }, string.Empty, string.Empty, m_nGroupID);
+                                            Collection[] collections = Utils.GetCollectionsDataWithCaching(new List<string>(1) { collCode }, pricingUsername, pricingPassword, m_nGroupID);
                                             if (collections != null && collections.Length > 0 && collections[0] != null
                                                 && collections[0].m_oCollectionUsageModule != null)
                                             {
@@ -8252,7 +8255,7 @@ namespace ConditionalAccess
                                     default:
                                         {
                                             // ppv module
-                                            PPVModule ppv = Utils.GetPPVModuleDataWithCaching(sPPVMCode, string.Empty, string.Empty, m_nGroupID,
+                                            PPVModule ppv = Utils.GetPPVModuleDataWithCaching(sPPVMCode, pricingUsername, pricingPassword, m_nGroupID,
                                                 sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
                                             if (ppv != null && ppv.m_oUsageModule != null)
                                             {
