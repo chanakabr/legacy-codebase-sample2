@@ -2946,40 +2946,14 @@ namespace ConditionalAccess
         public virtual string GetLicensedLinkWithMediaFileCoGuid(string sSiteGUID, string sMediaFileCoGuid, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
         {
 
-            Int32 nMediaFileID = int.Parse(sMediaFileCoGuid);
-            Int32[] nMediaFileIDs = { nMediaFileID };
-            bool isDeviceValid = isDevicePlayValid(sSiteGUID, sDEVICE_NAME);
-            if (!isDeviceValid)
+            int mediaFileID = 0;
+            if (Int32.TryParse(sMediaFileCoGuid, out mediaFileID) && mediaFileID > 0)
             {
-                return string.Empty;
+                LicensedLinkResponse llr = GetLicensedLinks(sSiteGUID, mediaFileID, sBasicLink, sUserIP, sRefferer,
+                    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
+                return llr.mainUrl;
             }
 
-            MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
-            if (prices.Length == 0)
-                return "";
-            if (prices[0].m_oItemPrices[0].m_oPrice.m_dPrice == 0)
-            {
-                if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink) == true)
-                {
-                    Dictionary<string, string> dLicensedLinkParams = new Dictionary<string, string>();
-                    #region add license link params to dictionary
-                    dLicensedLinkParams.Add("site_guid", sSiteGUID);
-                    dLicensedLinkParams.Add("media_file_id", nMediaFileID.ToString());
-                    dLicensedLinkParams.Add("url", sBasicLink);
-                    dLicensedLinkParams.Add("ip", sUserIP);
-                    dLicensedLinkParams.Add("country_code", sCOUNTRY_CODE);
-                    dLicensedLinkParams.Add("lang_code", sLANGUAGE_CODE);
-                    dLicensedLinkParams.Add("device_name", sDEVICE_NAME);
-                    dLicensedLinkParams.Add("cupon_code", couponCode);
-                    #endregion
-
-                    //int nStreamingCoID = Utils.GetStreamingCoIDByMediaFileID(sMediaFileCoGuid, true);
-                    int nStreamingCoID = ConditionalAccessDAL.Get_MediaFileStreamingCoID(sMediaFileCoGuid, true);
-
-                    HandlePlayUses(prices[0], sSiteGUID, nMediaFileID, sUserIP, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
-                    return GetLicensedLink(nStreamingCoID, dLicensedLinkParams);
-                }
-            }
             return GetErrorLicensedLink(sBasicLink);
         }
         /// <summary>
@@ -3021,7 +2995,7 @@ namespace ConditionalAccess
                 UpdatePPVUses(nMediaFileID, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID, nIsCreditDownloaded, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID);
                 //ppv_purchases
                 Int32 nPPVID = 0;
-                string sRelSub = "";
+                string sRelSub = string.Empty;
                 if (nIsCreditDownloaded == 1)
                 {
                     //sRelSub - the subscription that caused the price to be lower
@@ -3112,21 +3086,30 @@ namespace ConditionalAccess
         {
             int nMaxNumOfUses = 0;
             int nNumOfUses = 0;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select NUM_OF_USES, MAX_NUM_OF_USES, END_DATE from ppv_purchases with (nolock) where is_active=1 and status=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPPVPurchaseID);
-            if (selectQuery.Execute("query", true) != null)
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            try
             {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select NUM_OF_USES, MAX_NUM_OF_USES, END_DATE from ppv_purchases with (nolock) where is_active=1 and status=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPPVPurchaseID);
+                if (selectQuery.Execute("query", true) != null)
                 {
-                    nMaxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "MAX_NUM_OF_USES", 0);
-                    nNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "NUM_OF_USES", 0);
-                    endDateTime = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "END_DATE", 0);
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nMaxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "MAX_NUM_OF_USES", 0);
+                        nNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "NUM_OF_USES", 0);
+                        endDateTime = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "END_DATE", 0);
+                    }
                 }
             }
-            selectQuery.Finish();
-            selectQuery = null;
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
+            }
             return (nNumOfUses + 1 >= nMaxNumOfUses ? true : false);
         }
 
@@ -3173,17 +3156,27 @@ namespace ConditionalAccess
                 }
             }
 
-            ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
-            directQuery += "update ppv_purchases set NUM_OF_USES=NUM_OF_USES+1,LAST_VIEW_DATE=getdate() ";
-            if (bIsLastView == true)
+            ODBCWrapper.DirectQuery directQuery = null;
+            try
             {
-                directQuery += ODBCWrapper.Parameter.NEW_PARAM(",end_date", "=", d);
+                directQuery = new ODBCWrapper.DirectQuery();
+                directQuery += "update ppv_purchases set NUM_OF_USES=NUM_OF_USES+1,LAST_VIEW_DATE=getdate() ";
+                if (bIsLastView == true)
+                {
+                    directQuery += ODBCWrapper.Parameter.NEW_PARAM(",end_date", "=", d);
+                }
+                directQuery += " where ";
+                directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPPVPurchaseID);
+                directQuery.Execute();
+
             }
-            directQuery += " where ";
-            directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPPVPurchaseID);
-            directQuery.Execute();
-            directQuery.Finish();
-            directQuery = null;
+            finally
+            {
+                if (directQuery != null)
+                {
+                    directQuery.Finish();
+                }
+            }
         }
         /// <summary>
         /// Insert PPV Purchases
