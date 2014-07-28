@@ -2740,13 +2740,13 @@ namespace Catalog
             return sb.ToString();
         }
 
-        internal static List<FileMedia> GetMediaFilesDetails(int groupID, List<int> mediaFileIDs)
+        internal static List<FileMedia> GetMediaFilesDetails(int groupID, List<int> mediaFileIDs, string mediaFileCoGuid)
         {
             List<FileMedia> res = null;
             GroupManager groupManager = new GroupManager();
             List<int> groupTreeVals = groupManager.GetSubGroup(groupID);
 
-            DataTable dt = CatalogDAL.Get_MediaFilesDetails(groupTreeVals, mediaFileIDs);
+            DataTable dt = CatalogDAL.Get_MediaFilesDetails(groupTreeVals, mediaFileIDs, mediaFileCoGuid);
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 res = new List<FileMedia>(dt.Rows.Count);

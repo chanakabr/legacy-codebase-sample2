@@ -2550,7 +2550,7 @@ namespace ConditionalAccess
             return dCouponDiscountPercent;
         }
 
-        static public Int32 GetMediaFileIDWithCoGuid(Int32 nGroupID, string sMediaFileCoGuid)
+        internal static Int32 GetMediaFileIDWithCoGuid(Int32 nGroupID, string sMediaFileCoGuid)
         {
             int nMediaFileID = 0;
 
@@ -3304,7 +3304,7 @@ namespace ConditionalAccess
         }
 
         internal static TvinciPricing.PPVModule GetPPVModuleDataWithCaching<T>(T ppvCode, string wsUsername, string wsPassword,
-            int groupID, string countryCd, string langCode, string deviceName) where T: IEquatable<T>
+            int groupID, string countryCd, string langCode, string deviceName)
         {
             PPVModule res = null;
             string ppvCodeStr = ppvCode.ToString();
@@ -3329,5 +3329,43 @@ namespace ConditionalAccess
             return res;
         }
 
+        internal static TvinciPricing.UsageModule GetUsageModuleDataWithCaching<T>(T usageModuleCode, string wsUsername, string wsPassword,
+            string countryCode, string langCode, string deviceName, int groupID, string methodName)
+        {
+            UsageModule res = null;
+            string usageModuleCodeStr = usageModuleCode.ToString();
+            string cacheKey = GetCachingManagerKey(string.IsNullOrEmpty(methodName) ? "GetUsageModuleData" : methodName, usageModuleCodeStr, groupID);
+
+            if (CachingManager.CachingManager.Exist(cacheKey))
+                res = (TvinciPricing.UsageModule)(CachingManager.CachingManager.GetCachedData(cacheKey));
+            else
+            {
+                using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
+                {
+                    res = m.GetUsageModuleData(wsUsername, wsPassword, usageModuleCodeStr,countryCode, langCode, deviceName);
+                    if (res != null)
+                    {
+                        CachingManager.CachingManager.SetCachedData(cacheKey, res, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        internal static int GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid) 
+        {
+            bool res = false;
+            WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();
+            request.m_lMediaFileIDs = new int[0];
+            request.m_nGroupID = groupID;
+            request.m_oFilter = new WS_Catalog.Filter();
+            request.m_sSiteGuid = siteGuid;
+            request.m_sUserIP = string.Empty;
+            request.m_sSignString = Guid.NewGuid().ToString();
+            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
+
+            return 0;
+        }
     }
 }

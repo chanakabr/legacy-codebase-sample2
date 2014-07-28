@@ -15,6 +15,8 @@ namespace Catalog
 
         [DataMember]
         public List<int> m_lMediaFileIDs;
+        [DataMember]
+        public string m_sCoGuid;
 
         public MediaFilesRequest()
             : base()
@@ -30,7 +32,7 @@ namespace Catalog
                 CheckRequestValidness();
                 CheckSignature(this);
 
-                List<FileMedia> files = Catalog.GetMediaFilesDetails(m_nGroupID, m_lMediaFileIDs);
+                List<FileMedia> files = Catalog.GetMediaFilesDetails(m_nGroupID, m_lMediaFileIDs, m_sCoGuid);
 
                 for (int i = 0; i < files.Count; i++)
                 {
@@ -53,7 +55,7 @@ namespace Catalog
 
         private void CheckRequestValidness()
         {
-            if (m_lMediaFileIDs == null || m_lMediaFileIDs.Count == 0 || m_nGroupID < 1)
+            if (m_lMediaFileIDs == null || (m_lMediaFileIDs.Count == 0 && string.IsNullOrEmpty(m_sCoGuid)) || m_nGroupID < 1)
             {
                 throw new ArgumentException("Request is invalid");
             }

@@ -8140,6 +8140,8 @@ namespace ConditionalAccess
         {
             Int32 nMediaFileID = 0;
             TvinciPricing.mdoule m = null;
+            string res = TimeSpan.Zero.ToString();
+
             try
             {
                 if (bIsCoGuid)
@@ -8148,16 +8150,22 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    nMediaFileID = int.Parse(sMediaFileID);
+                    //nMediaFileID = int.Parse(sMediaFileID);
+                    if (string.IsNullOrEmpty(sMediaFileID) || Int32.TryParse(sMediaFileID, out nMediaFileID))
+                    {
+                        throw new ArgumentException(String.Concat("MediaFileID is in incorrect format: ", sMediaFileID));
+                    }
                 }
 
                 if (nMediaFileID == 0)
+                {
                     return TimeSpan.Zero.ToString();
+                }
 
                 Int32[] nMediaFileIDs = { nMediaFileID };
                 MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, string.Empty, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                if (prices != null && prices.Length > 0 && (prices[0].m_oItemPrices == null || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.Free))
+                if (prices != null && prices.Length > 0 && IsFreeItem(prices[0]))
                 {
                     TimeSpan ts = new TimeSpan(2, 0, 0, 0);
 
@@ -8192,48 +8200,58 @@ namespace ConditionalAccess
                     dNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
                     if (nOffline_status == 1)
                     {
-                        #region Get Offline view life cycle
-                        //get the last file uses
 
-
-                        ODBCWrapper.DataSetSelectQuery selectgrouppramater = new ODBCWrapper.DataSetSelectQuery();
-                        selectgrouppramater += "select usage_module_code from Pricing.dbo.groups_parameters(nolock)";
-                        selectgrouppramater += "where ";
-                        selectgrouppramater += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                        if (selectgrouppramater.Execute("query", true) != null)
+                        string groupUsageModuleCode = string.Empty;
+                        if (PricingDAL.Get_GroupUsageModuleCode(m_nGroupID, "PRICING_CONNECTION", ref groupUsageModuleCode))
                         {
-                            Int32 nCountparam = selectgrouppramater.Table("query").DefaultView.Count;
-                            if (nCount > 0)
+                            UsageModule um = Utils.GetUsageModuleDataWithCaching(groupUsageModuleCode, string.Empty, string.Empty,
+                                sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, m_nGroupID, "GetOfflineUsageModuleData");
+                            if (um != null)
                             {
-                                string nUsageModelCode = Utils.GetStrSafeVal(ref selectgrouppramater, "USAGE_MODULE_CODE", 0);
-
-                                TvinciPricing.UsageModule tpmdoule = new TvinciPricing.UsageModule();
-
-                                string sWSUserName = string.Empty;
-                                string sWSPass = string.Empty;
-                                m = new TvinciPricing.mdoule();
-                                if (Utils.GetWSURL("pricing_ws") != "")
-                                    m.Url = Utils.GetWSURL("pricing_ws");
-
-                                if (CachingManager.CachingManager.Exist("GetOfflineUsageModuleData" + nUsageModelCode + "_" + m_nGroupID.ToString()) == true)
-                                    tpmdoule = (TvinciPricing.UsageModule)(CachingManager.CachingManager.GetCachedData("GetOfflineUsageModuleData" + nUsageModelCode + "_" + m_nGroupID.ToString()));
-                                else
-                                {
-
-                                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetOfflineData", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
-                                    tpmdoule = m.GetUsageModuleData(sWSUserName, sWSPass, nUsageModelCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
-                                    CachingManager.CachingManager.SetCachedData("GetOffLineUsageModuleData" + nUsageModelCode + "_" + m_nGroupID.ToString(), nUsageModelCode, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-                                }
-
-                                if (tpmdoule != null)
-                                {
-                                    nViewLifeCycle = tpmdoule.m_tsMaxUsageModuleLifeCycle;
-                                }
+                                nViewLifeCycle = um.m_tsViewLifeCycle;
                             }
                         }
-                        selectgrouppramater.Finish();
-                        selectgrouppramater = null;
-                        #endregion
+
+                        //#region Get Offline view life cycle
+                        ////get the last file uses
+                        //ODBCWrapper.DataSetSelectQuery selectgrouppramater = new ODBCWrapper.DataSetSelectQuery();
+                        //selectgrouppramater += "select usage_module_code from Pricing.dbo.groups_parameters(nolock)";
+                        //selectgrouppramater += "where ";
+                        //selectgrouppramater += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                        //if (selectgrouppramater.Execute("query", true) != null)
+                        //{
+                        //    Int32 nCountparam = selectgrouppramater.Table("query").DefaultView.Count;
+                        //    if (nCount > 0)
+                        //    {
+                        //        string nUsageModelCode = Utils.GetStrSafeVal(ref selectgrouppramater, "USAGE_MODULE_CODE", 0);
+
+                        //        TvinciPricing.UsageModule tpmdoule = new TvinciPricing.UsageModule();
+
+                        //        string sWSUserName = string.Empty;
+                        //        string sWSPass = string.Empty;
+                        //        m = new TvinciPricing.mdoule();
+                        //        if (Utils.GetWSURL("pricing_ws") != "")
+                        //            m.Url = Utils.GetWSURL("pricing_ws");
+
+                        //        if (CachingManager.CachingManager.Exist("GetOfflineUsageModuleData" + nUsageModelCode + "_" + m_nGroupID.ToString()) == true)
+                        //            tpmdoule = (TvinciPricing.UsageModule)(CachingManager.CachingManager.GetCachedData("GetOfflineUsageModuleData" + nUsageModelCode + "_" + m_nGroupID.ToString()));
+                        //        else
+                        //        {
+
+                        //            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetOfflineData", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
+                        //            tpmdoule = m.GetUsageModuleData(sWSUserName, sWSPass, nUsageModelCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
+                        //            CachingManager.CachingManager.SetCachedData("GetOffLineUsageModuleData" + nUsageModelCode + "_" + m_nGroupID.ToString(), nUsageModelCode, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                        //        }
+
+                        //        if (tpmdoule != null)
+                        //        {
+                        //            nViewLifeCycle = tpmdoule.m_tsMaxUsageModuleLifeCycle;
+                        //        }
+                        //    }
+                        //}
+                        //selectgrouppramater.Finish();
+                        //selectgrouppramater = null;
+                        //#endregion
                     }
                     else
                     {
@@ -9518,6 +9536,7 @@ namespace ConditionalAccess
         {
             return container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free;
         }
+
     }
 
 }
