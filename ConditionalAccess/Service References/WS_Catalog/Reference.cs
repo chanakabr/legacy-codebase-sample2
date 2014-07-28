@@ -2438,6 +2438,9 @@ namespace ConditionalAccess.WS_Catalog {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int[] m_lMediaFileIDsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sCoGuidField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int[] m_lMediaFileIDs {
             get {
@@ -2447,6 +2450,19 @@ namespace ConditionalAccess.WS_Catalog {
                 if ((object.ReferenceEquals(this.m_lMediaFileIDsField, value) != true)) {
                     this.m_lMediaFileIDsField = value;
                     this.RaisePropertyChanged("m_lMediaFileIDs");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sCoGuid {
+            get {
+                return this.m_sCoGuidField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sCoGuidField, value) != true)) {
+                    this.m_sCoGuidField = value;
+                    this.RaisePropertyChanged("m_sCoGuid");
                 }
             }
         }

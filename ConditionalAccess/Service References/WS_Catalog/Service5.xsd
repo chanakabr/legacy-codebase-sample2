@@ -1192,6 +1192,7 @@
       <xs:extension base="tns:BaseRequest">
         <xs:sequence>
           <xs:element xmlns:q46="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lMediaFileIDs" nillable="true" type="q46:ArrayOfint" />
+          <xs:element minOccurs="0" name="m_sCoGuid" nillable="true" type="xs:string" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

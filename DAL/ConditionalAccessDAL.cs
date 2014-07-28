@@ -972,18 +972,32 @@ namespace DAL
             return res;
         }
 
-        public static DataTable Get_LatestFileUse(List<int> UserIDs, int nMediaFileID)
+        public static bool Get_LatestFileUse(List<int> userIDs, int mediaFileID, ref string ppvModuleCode,
+            ref bool isOfflineStatus, ref DateTime dateNow, ref DateTime purchaseDate)
         {
+            bool res = false;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestFileUse");
             sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddIDListParameter<int>("@usersList", UserIDs, "Id");
-            sp.AddParameter("@MediaFileID", nMediaFileID);
+            sp.AddIDListParameter<int>("@usersList", userIDs, "Id");
+            sp.AddParameter("@MediaFileID", mediaFileID);
 
             DataSet ds = sp.ExecuteDataSet();
 
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    ppvModuleCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ppvmodule_code"]);
+                    isOfflineStatus = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["offline_status"]) == 1;
+                    dateNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
+                    purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
+
+                }
+            }
+            return res;
         }
 
         public static DataTable Get_PreviewModuleDataForEntitlementCalc(int nGroupID, string sSiteGuid, string sSubCode)
