@@ -25,7 +25,7 @@ namespace Users
 
 
 
-        public UserResponseObject SignIn(string wsUN, string wsPass, string sCoGuid, string sPass, int nOperatorID, int nMaxFailCount, int nLockMinutes, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins)
+        public override UserResponseObject SignIn(string sCoGuid, string sPass, int nOperatorID, int nMaxFailCount, int nLockMinutes, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins)
         {
             prov = OAuthUtil.GetProviderDetails(nOperatorID);
             if (prov != null)

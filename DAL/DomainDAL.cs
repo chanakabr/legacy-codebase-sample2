@@ -35,7 +35,7 @@ namespace DAL
 
         private const string SP_REMOVE_DOMAIN = "sp_RemoveDomain";
         private const string SP_RESET_DOMAIN_FREQUENCY = "sp_ResetDomainFrequency";
-        private const string SP_UPDATE_DOMAIN_CoGuid = "Update_DomainData";
+        private const string SP_UPDATE_DOMAIN_CoGuid = "Update_DomainCoGuid";
         #endregion
 
 
