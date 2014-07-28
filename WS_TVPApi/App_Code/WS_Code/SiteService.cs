@@ -1035,9 +1035,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user social actions")]
-        public UserSocialActionObject[] GetUserSocialActions(InitializationObject initObj, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
+        public SocialActivityDoc[] GetUserSocialActions(InitializationObject initObj, eUserAction socialAction, SocialPlatform socialPlatform, bool isOnlyFriends, int startIndex, int numOfItems)
         {
-            UserSocialActionObject[] res = null;
+            SocialActivityDoc[] res = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetUserSocialActions", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

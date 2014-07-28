@@ -96,14 +96,14 @@ namespace TVPApiModule.Services
             return eRes;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] GetUserSocialActions(string siteGuid,
+        public TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] GetUserSocialActions(string siteGuid,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                       bool onlyFriends,
                                                                                                       int startIndex,
                                                                                                       int numOfItems)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] res = null;
+            TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] res = null;
 
             try
             {
@@ -325,9 +325,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserSocialActionObject[] GetUserActions(string siteGuid, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public SocialActivityDoc[] GetUserActions(string siteGuid, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
-            UserSocialActionObject[] res = null;
+            SocialActivityDoc[] res = null;
 
             try
             {
@@ -336,7 +336,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_nAssetID = assetID,
+                    m_lAssetIDs = new int[]{ assetID },
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
@@ -353,9 +353,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserSocialActionObject[] GetFriendsActions(string siteGuid, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public SocialActivityDoc[] GetFriendsActions(string siteGuid, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
-            UserSocialActionObject[] res = null;
+            SocialActivityDoc[] res = null;
 
             try
             {
@@ -369,7 +369,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_nAssetID = assetID,
+                    m_lAssetIDs = new int[]{ assetID },
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
@@ -506,6 +506,21 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error occurred in FBUserUnmerge, Error : {0} Parameters: token: {1}, username: {2}, password: {3}", ex.Message, token, username, password);
+            }
+
+            return response;
+        }
+
+        public SocialActivityDoc[] GetUserActivityFeed(string siteGuid, int nPageSize, int nPageIndex, string sPicDimension)
+        {
+            SocialActivityDoc[] response = null;
+            try
+            {
+                response = m_Module.GetUserActivityFeed(m_wsUserName, m_wsPassword, siteGuid, nPageSize, nPageIndex, sPicDimension);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetUserActivityFeed, Error : {0} Parameters: siteGuid: {1}, nPageSize: {2}, nPageIndex: {3}, sPicDimension: {4}", ex.Message, siteGuid, nPageSize, nPageIndex, sPicDimension);
             }
 
             return response;
