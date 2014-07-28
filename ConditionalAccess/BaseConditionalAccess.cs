@@ -9284,6 +9284,8 @@ namespace ConditionalAccess
                             {
                                 if (IsItemPurchased(prices[0]) && Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink))
                                 {
+                                    HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode,
+                                        sDeviceName, sCouponCode);
                                     res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
                                     licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
                                     res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
@@ -9351,6 +9353,63 @@ namespace ConditionalAccess
 
             return res;
         }
+
+        //public virtual string GetLicensedLink(string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
+        //{
+        //    Int32[] nMediaFileIDs = { nMediaFileID };
+        //    int nStreamingCoID = 0;
+
+        //    if (sBasicLink.Contains(string.Format("||{0}", nMediaFileID)))
+        //    {
+        //        sBasicLink = Utils.GetBasicLink(m_nGroupID, nMediaFileIDs, nMediaFileID, sBasicLink, out nStreamingCoID);
+        //    }
+        //    else
+        //    {
+        //        //nStreamingCoID = Utils.GetStreamingCoIDByMediaFileID(nMediaFileID.ToString(), false);
+        //        nStreamingCoID = ConditionalAccessDAL.Get_MediaFileStreamingCoID(nMediaFileID.ToString(), false);
+        //    }
+
+        //    bool isDeviceRecognized = isDevicePlayValid(sSiteGUID, sDEVICE_NAME);
+
+        //    if (!isDeviceRecognized)
+        //    {
+        //        Logger.Logger.Log("Device Not Recognized", string.Format("User:{0}, MediaFile:{1}, Device:{2}", sSiteGUID, nMediaFileID.ToString(), sDEVICE_NAME), "LicensedLink");
+        //        return string.Empty;
+        //    }
+
+        //    Dictionary<string, string> dLicensedLinkParams = new Dictionary<string, string>();
+        //    #region add license link params to dictionary
+        //    dLicensedLinkParams.Add("site_guid", sSiteGUID);
+        //    dLicensedLinkParams.Add("media_file_id", nMediaFileID.ToString());
+        //    dLicensedLinkParams.Add("url", sBasicLink);
+        //    dLicensedLinkParams.Add("ip", sUserIP);
+        //    dLicensedLinkParams.Add("country_code", sCOUNTRY_CODE);
+        //    dLicensedLinkParams.Add("lang_code", sLANGUAGE_CODE);
+        //    dLicensedLinkParams.Add("device_name", sDEVICE_NAME);
+        //    dLicensedLinkParams.Add("cupon_code", couponCode);
+        //    #endregion
+
+        //    MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sUserIP);
+        //    if (prices == null || prices.Length == 0)
+        //    {
+        //        return string.Empty;
+        //    }
+        //    if (prices[0].m_oItemPrices == null || prices[0].m_oItemPrices.Length == 0 || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.Free)
+        //    {
+        //        return GetLicensedLink(nStreamingCoID, dLicensedLinkParams);
+        //    }
+
+        //    if (prices[0].m_oItemPrices[0].m_oPrice.m_dPrice == 0 && (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PrePaidPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.CollectionPurchased))
+        //    {
+        //        if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink) == true)
+        //        {
+        //            HandlePlayUses(prices[0], sSiteGUID, nMediaFileID, sUserIP, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
+        //            return GetLicensedLink(nStreamingCoID, dLicensedLinkParams);
+        //        }
+        //    }
+
+        //    return GetErrorLicensedLink(sBasicLink);
+        //}
 
         private Dictionary<string, string> GetLicensedLinkParamsDict(string sSiteGuid, string mediaFileIDStr, string basicLink,
             string userIP, string countryCode, string langCode,
