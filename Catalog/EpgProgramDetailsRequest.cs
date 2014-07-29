@@ -39,9 +39,7 @@ namespace Catalog
 
                 _logger.Info(string.Format("{0}: {1}", "count of MediasIDs", programRequest.m_lProgramsIds.Count));
 
-                string sCheckSignature = Utils.GetSignature(programRequest.m_sSignString, programRequest.m_nGroupID);
-                if (sCheckSignature != programRequest.m_sSignature)             
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(programRequest);
 
                 _logger.InfoFormat("Start Complete Details for {0} MediaIds", programRequest.m_lProgramsIds.Count);
 

@@ -25,7 +25,7 @@ namespace Catalog
         {
             try
             {
-                MediaChannelsRequest request = (MediaChannelsRequest)oBaseRequest;
+                MediaChannelsRequest request = oBaseRequest as MediaChannelsRequest;
                 List<SearchResult> lMedias = new List<SearchResult>();
 
                 MediaChannelsResponse response = new MediaChannelsResponse();
@@ -34,12 +34,9 @@ namespace Catalog
 
 
                 if (request == null)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentNullException("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 

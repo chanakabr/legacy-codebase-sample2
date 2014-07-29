@@ -57,7 +57,7 @@ namespace Catalog
                 MediaIdsResponse oMediaResponse = new MediaIdsResponse();
 
                 if (request == null)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentNullException("request object is null or Required variables is null");
 
                 CheckSignature(oBaseRequest);
 

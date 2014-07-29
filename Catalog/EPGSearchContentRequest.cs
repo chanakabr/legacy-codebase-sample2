@@ -43,12 +43,12 @@ namespace Catalog
         {
             try
             {
-                EPGSearchContentRequest request = (EPGSearchContentRequest)oBaseRequest;
+                EPGSearchContentRequest request = oBaseRequest as EPGSearchContentRequest;
                 EpgProgramsResponse oResponse = new EpgProgramsResponse();
 
-                CheckSignature(oBaseRequest);
                 if (request == null)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentException("request object is null or Required variables is null");
+                CheckSignature(oBaseRequest);
 
                 //GetEpgPrograms for YES
                 EpgProgramsResponse epgSearchResponse = new EpgProgramsResponse();
@@ -61,7 +61,7 @@ namespace Catalog
                     oResponse.m_nTotalItems = retList.Count;
                 }
 
-                return (BaseResponse)oResponse;
+                return oResponse;
             }
             catch (Exception ex)
             {

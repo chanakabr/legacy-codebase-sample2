@@ -59,7 +59,7 @@ namespace Catalog
             {
                 //Build  MediaSearchRequest object
                 if (request == null || request.m_nMediaID == 0 || request.m_oFilter == null)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentException("request object is null or Required variables is null");
 
                 CheckSignature(request);
 

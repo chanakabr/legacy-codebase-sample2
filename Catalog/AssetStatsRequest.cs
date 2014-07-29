@@ -49,7 +49,7 @@ namespace Catalog
             try
             {
                 if (request == null)
-                    throw new Exception("request object is null");
+                    throw new ArgumentNullException("request object is null");
 
                 CheckSignature(request);
 
