@@ -16,7 +16,7 @@ namespace Catalog
         [DataMember]
         public List<int> m_lMediaFileIDs;
         [DataMember]
-        public string m_sCoGuid;
+        public List<string> m_lCoGuids;
 
         public MediaFilesRequest()
             : base()
@@ -32,7 +32,7 @@ namespace Catalog
                 CheckRequestValidness();
                 CheckSignature(this);
 
-                List<FileMedia> files = Catalog.GetMediaFilesDetails(m_nGroupID, m_lMediaFileIDs, m_sCoGuid);
+                List<FileMedia> files = Catalog.GetMediaFilesDetails(m_nGroupID, m_lMediaFileIDs, m_lCoGuids != null && m_lCoGuids.Count > 0 ? m_lCoGuids[0] : string.Empty);
 
                 for (int i = 0; i < files.Count; i++)
                 {
@@ -55,36 +55,10 @@ namespace Catalog
 
         private void CheckRequestValidness()
         {
-            if (m_lMediaFileIDs == null || (m_lMediaFileIDs.Count == 0 && string.IsNullOrEmpty(m_sCoGuid)) || m_nGroupID < 1)
-            {
-                throw new ArgumentException("Request is invalid");
-            }
+            if ((m_lMediaFileIDs == null || m_lMediaFileIDs.Count == 0) && (m_lCoGuids == null || m_lCoGuids.Count == 0))
+                throw new ArgumentException("No Media File IDs or Media Co Guids were provided.");
               
         }
-        /*Get Media Details By MediasIds*/
-        //public MediaResponse GetMediasByIDs(MediasProtocolRequest mediaRequest)
-        //{
-        //    MediaResponse mediaResponse = new MediaResponse();
-        //    List<MediaObj> lMediaObj = new List<MediaObj>();
-        //    MediaObj oMediaObj = new MediaObj();
-
-        //    try
-        //    {
-
-        //        CheckRequestValidness(mediaRequest);
-
-        //        CheckSignature(mediaRequest);
-
-        //        Catalog.CompleteDetailsForMediaResponse(mediaRequest, ref mediaResponse, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex + mediaRequest.m_nPageSize);
-
-        //        return mediaResponse;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error(ex.Message, ex);
-        //        throw ex;
-        //    }
-        //}
     }
 
 

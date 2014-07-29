@@ -9284,7 +9284,7 @@ namespace ConditionalAccess
             request.m_sUserIP = userIP;
             request.m_sSignString = Guid.NewGuid().ToString();
             request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
-            request.m_sCoGuid = string.Empty;
+            request.m_lCoGuids = new string[0];
             using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
             {
                 catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(Utils.GetWSURL("WS_Catalog"));
