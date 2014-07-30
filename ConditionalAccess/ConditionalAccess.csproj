@@ -177,9 +177,6 @@
     <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.EpgProgramResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.MediaFilesResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
     <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.MediaResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>

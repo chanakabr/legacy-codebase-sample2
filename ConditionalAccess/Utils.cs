@@ -3368,7 +3368,7 @@ namespace ConditionalAccess
             using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
             {
                 catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(GetWSURL("WS_Catalog"));
-                WS_Catalog.MediaFilesResponse response = catalog.GetMediaFilesByIDs(request) as WS_Catalog.MediaFilesResponse;
+                WS_Catalog.MediaFilesResponse response = catalog.GetResponse(request) as WS_Catalog.MediaFilesResponse;
                 if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
                 {
                     WS_Catalog.MediaFileObj mf = response.m_lObj[0] as WS_Catalog.MediaFileObj;

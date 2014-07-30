@@ -9,8 +9,8 @@ namespace Catalog
     [DataContract]
     public class MediaFilesResponse : BaseResponse
     {
+
         public MediaFilesResponse()
-            : base()
         {
 
         }
