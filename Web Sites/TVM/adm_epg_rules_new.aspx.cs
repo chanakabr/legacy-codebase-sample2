@@ -109,9 +109,9 @@ public partial class adm_epg_rules_new : System.Web.UI.Page
         dr_defaultEnabled.Initialize("Default Enabled", "adm_table_header_nbg", "FormInput", "default_enabled", false);
         theRecord.AddRecord(dr_defaultEnabled);
 
-        DataRecordBoolField dr_is_anonymous = new DataRecordBoolField(true);
-        dr_is_anonymous.Initialize("Anonymous Access", "adm_table_header_nbg", "FormInput", "is_anonymous", false);      
-        theRecord.AddRecord(dr_is_anonymous);
+        DataRecordBoolField dr_block_anonymous = new DataRecordBoolField(true);
+        dr_block_anonymous.Initialize("Block Anonymous Access", "adm_table_header_nbg", "FormInput", "block_anonymous", false);      
+        theRecord.AddRecord(dr_block_anonymous);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
