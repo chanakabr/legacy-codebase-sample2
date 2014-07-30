@@ -40,7 +40,8 @@ namespace ApiObjects
         AgeBlock = 2,
         Geo = 3,
         Device = 4,
-        UserType = 5
+        UserType = 5,
+        AnonymousAccessBlock = 6
     }
 
     public enum eMailTemplateType
