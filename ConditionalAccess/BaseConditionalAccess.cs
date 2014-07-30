@@ -7989,7 +7989,7 @@ namespace ConditionalAccess
 
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select top " + nNumberOfItems + " item_id, item_type, currency_cd, SUM(price) as price, min(remains_credit) as remains_credit, MIN(create_date) as date, purchase_id from pre_paid_uses";
+            selectQuery += "select top " + nNumberOfItems + " item_id, item_type, currency_cd, SUM(price) as price, min(remains_credit) as remains_credit, MIN(create_date) as date, purchase_id from pre_paid_uses with (nolock) ";
             selectQuery += "where is_active=1 and status=1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
             selectQuery += " and ";
@@ -8011,7 +8011,7 @@ namespace ConditionalAccess
                     if (dLastCredit != dCredit)
                     {
                         ODBCWrapper.DataSetSelectQuery selectQueryE = new ODBCWrapper.DataSetSelectQuery();
-                        selectQueryE += "select * from pre_paid_purchases where is_active=1 and status=1 and";
+                        selectQueryE += "select * from pre_paid_purchases with (nolock) where is_active=1 and status=1 and";
                         selectQueryE += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                         selectQueryE += " and ";
                         selectQueryE += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);

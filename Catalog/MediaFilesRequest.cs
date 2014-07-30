@@ -9,12 +9,29 @@ using System.Text;
 namespace Catalog
 {
     [DataContract]
-    public class MediaFilesRequest : BaseRequest
+    public class MediaFilesRequest : BaseRequest, IRequestImp
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         [DataMember]
         public List<int> m_lMediaFileIDs;
+
+        /*
+         * ************************* IMPORTANT **************************************
+         * 1. Currently if the list of co guids is not null or empty, the catalog will pass to the DB just the first co guid.
+         * 2. Co Guids are strings, and it is very expensive to search if the input list of co guids appears in either co_guid column or
+         * 3. alt_co_guid column.
+         * 4. Due to collation problems in the local DB, I chose to pass just the first co guid to the select query.
+         * 5. In order to solve this problem we should either:
+         *      a. Index media files on ElasticSearch OR
+         *      b. Index the alt_co_guid column in the SQL Server and use a Caching mechanism, since the Get_MediaFilesDetails SP is pretty
+         *          heavy.
+         * 6. This request was created due to the alternative url task (July 2014) and currently it serves just the ConditionalAccess module
+         * 7. If you wish to expose this call through the TVPAPI you must first solve the indexing problem.
+         * 8. The idea behind the decision of exposing list of co guids and not just one, is to extend the funcationality later just on
+         * 9. the Catalog side and not on any other modules.
+         * 
+         */ 
         [DataMember]
         public List<string> m_lCoGuids;
 
@@ -24,7 +41,15 @@ namespace Catalog
 
         }
 
-        public MediaFilesResponse GetMediaFilesByIDs()
+
+        private void CheckRequestValidness()
+        {
+            if ((m_lMediaFileIDs == null || m_lMediaFileIDs.Count == 0) && (m_lCoGuids == null || m_lCoGuids.Count == 0))
+                throw new ArgumentException("No Media File IDs or Media Co Guids were provided.");
+              
+        }
+
+        public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             MediaFilesResponse res = new MediaFilesResponse();
             try
@@ -51,13 +76,6 @@ namespace Catalog
             }
 
             return res;
-        }
-
-        private void CheckRequestValidness()
-        {
-            if ((m_lMediaFileIDs == null || m_lMediaFileIDs.Count == 0) && (m_lCoGuids == null || m_lCoGuids.Count == 0))
-                throw new ArgumentException("No Media File IDs or Media Co Guids were provided.");
-              
         }
     }
 

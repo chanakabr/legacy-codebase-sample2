@@ -175,6 +175,7 @@
     <Compile Include="MediaChannelsRequest.cs" />
     <Compile Include="MediaChannelsResponse.cs" />
     <Compile Include="MediaCommentRequest.cs" />
+    <Compile Include="MediaFilesProducer.cs" />
     <Compile Include="MediaFilesRequest.cs" />
     <Compile Include="MediaFilesResponse.cs" />
     <Compile Include="MediaHitRequest.cs" />

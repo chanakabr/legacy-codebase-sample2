@@ -324,105 +324,105 @@ namespace Catalog
         }
 
         /*Insert all files that return from the "CompleteDetailsForMediaResponse" into List<FileMedia>*/
-        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, int nMedia, ref bool result)
-        {
-            try
-            {
-                List<FileMedia> lFileMedia = new List<FileMedia>();
-                FileMedia fileMedia = new FileMedia();
-                Branding brand = new Branding();
-                result = true;
-                if (dtFileMedia != null)
-                {
-                    for (int i = 0; i < dtFileMedia.Rows.Count; i++)
-                    {
-                        if ((!string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT")) && dtFileMedia.Rows[i]["BRAND_HEIGHT"].ToString() != "0") ||
-                             !string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID")) && dtFileMedia.Rows[i]["RECURRING_TYPE_ID"].ToString() != "0")
-                        {
-                            brand.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
-                            brand.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
-                            brand.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
-                            brand.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
-                            brand.m_nBrandHeight = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT");
-                            brand.m_nRecurringTypeId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID");
-                            brand.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
-                            brand.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
-                            lBranding.Add(brand);
-                            brand = new Branding();
-                        }
-                        else
-                        {
-                            int tempAdProvID = 0;
-                            fileMedia.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
-                            fileMedia.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
-                            fileMedia.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
-                            fileMedia.m_sCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "co_guid");
-                            fileMedia.m_sLanguage = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "LANGUAGE");
-                            fileMedia.m_nIsDefaultLanguage = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "IS_DEFAULT_LANGUAGE");
-                            fileMedia.m_sAltCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_CO_GUID");
+        //private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, int nMedia, ref bool result)
+        //{
+        //    try
+        //    {
+        //        List<FileMedia> lFileMedia = new List<FileMedia>();
+        //        FileMedia fileMedia = new FileMedia();
+        //        Branding brand = new Branding();
+        //        result = true;
+        //        if (dtFileMedia != null)
+        //        {
+        //            for (int i = 0; i < dtFileMedia.Rows.Count; i++)
+        //            {
+        //                if ((!string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT")) && dtFileMedia.Rows[i]["BRAND_HEIGHT"].ToString() != "0") ||
+        //                     !string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID")) && dtFileMedia.Rows[i]["RECURRING_TYPE_ID"].ToString() != "0")
+        //                {
+        //                    brand.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
+        //                    brand.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
+        //                    brand.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
+        //                    brand.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
+        //                    brand.m_nBrandHeight = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT");
+        //                    brand.m_nRecurringTypeId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID");
+        //                    brand.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
+        //                    brand.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
+        //                    lBranding.Add(brand);
+        //                    brand = new Branding();
+        //                }
+        //                else
+        //                {
+        //                    int tempAdProvID = 0;
+        //                    fileMedia.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
+        //                    fileMedia.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
+        //                    fileMedia.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
+        //                    fileMedia.m_sCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "co_guid");
+        //                    fileMedia.m_sLanguage = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "LANGUAGE");
+        //                    fileMedia.m_nIsDefaultLanguage = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "IS_DEFAULT_LANGUAGE");
+        //                    fileMedia.m_sAltCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_CO_GUID");
 
-                            if (noFileUrl)
-                            {
-                                fileMedia.m_sUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
-                                fileMedia.m_sAltUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
-                            }
-                            else
-                            {
-                                fileMedia.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
-                                fileMedia.m_sAltUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_FILE_URL");
-                            }
+        //                    if (noFileUrl)
+        //                    {
+        //                        fileMedia.m_sUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
+        //                        fileMedia.m_sAltUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
+        //                    }
+        //                    else
+        //                    {
+        //                        fileMedia.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
+        //                        fileMedia.m_sAltUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_FILE_URL");
+        //                    }
 
-                            fileMedia.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
-                            fileMedia.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
-                            fileMedia.m_nAltCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "ALT_CDN_ID");
-                            tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_ID");
-                            if (tempAdProvID != 0)
-                            {
-                                fileMedia.m_oPreProvider = new AdProvider();
-                                fileMedia.m_oPreProvider.ProviderID = tempAdProvID;
-                                fileMedia.m_oPreProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_NAME");
-                                fileMedia.m_bIsPreSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_PRE") == 1;
+        //                    fileMedia.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
+        //                    fileMedia.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
+        //                    fileMedia.m_nAltCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "ALT_CDN_ID");
+        //                    tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_ID");
+        //                    if (tempAdProvID != 0)
+        //                    {
+        //                        fileMedia.m_oPreProvider = new AdProvider();
+        //                        fileMedia.m_oPreProvider.ProviderID = tempAdProvID;
+        //                        fileMedia.m_oPreProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_NAME");
+        //                        fileMedia.m_bIsPreSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_PRE") == 1;
 
-                            }
-                            tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_ID");
-                            if (tempAdProvID != 0)
-                            {
-                                fileMedia.m_oPostProvider = new AdProvider();
-                                fileMedia.m_oPostProvider.ProviderID = tempAdProvID;
-                                fileMedia.m_oPostProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_NAME");
-                                fileMedia.m_bIsPostSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_POST") == 1;
-                            }
-                            tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_ID");
-                            if (tempAdProvID != 0)
-                            {
-                                fileMedia.m_oBreakProvider = new AdProvider();
-                                fileMedia.m_oBreakProvider.ProviderID = tempAdProvID;
-                                fileMedia.m_oBreakProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_NAME");
-                                fileMedia.m_sBreakpoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_BREAK_POINTS");
+        //                    }
+        //                    tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_ID");
+        //                    if (tempAdProvID != 0)
+        //                    {
+        //                        fileMedia.m_oPostProvider = new AdProvider();
+        //                        fileMedia.m_oPostProvider.ProviderID = tempAdProvID;
+        //                        fileMedia.m_oPostProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_NAME");
+        //                        fileMedia.m_bIsPostSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_POST") == 1;
+        //                    }
+        //                    tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_ID");
+        //                    if (tempAdProvID != 0)
+        //                    {
+        //                        fileMedia.m_oBreakProvider = new AdProvider();
+        //                        fileMedia.m_oBreakProvider.ProviderID = tempAdProvID;
+        //                        fileMedia.m_oBreakProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_NAME");
+        //                        fileMedia.m_sBreakpoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_BREAK_POINTS");
 
-                            }
-                            tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_ID");
-                            if (tempAdProvID != 0)
-                            {
-                                fileMedia.m_oOverlayProvider = new AdProvider();
-                                fileMedia.m_oOverlayProvider.ProviderID = tempAdProvID;
-                                fileMedia.m_oOverlayProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_NAME");
-                                fileMedia.m_sOverlaypoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_OVERLAY_POINTS");
-                            }
-                            lFileMedia.Add(fileMedia);
-                            fileMedia = new FileMedia();
-                        }
-                    }
-                }
-                return lFileMedia;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex.Message, ex);
-                result = false;
-                return null;
-            }
-        }
+        //                    }
+        //                    tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_ID");
+        //                    if (tempAdProvID != 0)
+        //                    {
+        //                        fileMedia.m_oOverlayProvider = new AdProvider();
+        //                        fileMedia.m_oOverlayProvider.ProviderID = tempAdProvID;
+        //                        fileMedia.m_oOverlayProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_NAME");
+        //                        fileMedia.m_sOverlaypoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_OVERLAY_POINTS");
+        //                    }
+        //                    lFileMedia.Add(fileMedia);
+        //                    fileMedia = new FileMedia();
+        //                }
+        //            }
+        //        }
+        //        return lFileMedia;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.Error(ex.Message, ex);
+        //        result = false;
+        //        return null;
+        //    }
+        //}
 
         private static string GetFictiveFileMediaUrl(int nMediaID, int nMediaFileID)
         {
@@ -2812,6 +2812,109 @@ namespace Catalog
             }
 
             return res;
+        }
+
+        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, int nMedia, ref bool result)
+        {
+            try
+            {
+                List<FileMedia> lFileMedia = null;
+                result = true;
+                if (dtFileMedia != null && dtFileMedia.Rows != null && dtFileMedia.Rows.Count > 0)
+                {
+                    lFileMedia = new List<FileMedia>(dtFileMedia.Rows.Count);
+                    for (int i = 0; i < dtFileMedia.Rows.Count; i++)
+                    {
+                        if ((!string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT")) && dtFileMedia.Rows[i]["BRAND_HEIGHT"].ToString() != "0") ||
+                             !string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID")) && dtFileMedia.Rows[i]["RECURRING_TYPE_ID"].ToString() != "0")
+                        {
+                            Branding brand = new Branding();
+                            brand.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
+                            brand.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
+                            brand.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
+                            brand.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
+                            brand.m_nBrandHeight = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT");
+                            brand.m_nRecurringTypeId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID");
+                            brand.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
+                            brand.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
+                            lBranding.Add(brand);
+                        }
+                        else
+                        {
+                            FileMedia fileMedia = new FileMedia();
+                            int tempAdProvID = 0;
+                            fileMedia.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
+                            fileMedia.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
+                            fileMedia.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
+                            fileMedia.m_sCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "co_guid");
+                            fileMedia.m_sLanguage = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "LANGUAGE");
+                            fileMedia.m_nIsDefaultLanguage = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "IS_DEFAULT_LANGUAGE");
+                            fileMedia.m_sAltCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_CO_GUID");
+
+                            if (noFileUrl)
+                            {
+                                fileMedia.m_sUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
+                                fileMedia.m_sAltUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
+                            }
+                            else
+                            {
+                                fileMedia.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
+                                fileMedia.m_sAltUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_FILE_URL");
+                            }
+
+                            fileMedia.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
+                            fileMedia.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
+                            fileMedia.m_nAltCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "ALT_CDN_ID");
+                            tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_ID");
+                            if (tempAdProvID != 0)
+                            {
+                                fileMedia.m_oPreProvider = new AdProvider();
+                                fileMedia.m_oPreProvider.ProviderID = tempAdProvID;
+                                fileMedia.m_oPreProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_NAME");
+                                fileMedia.m_bIsPreSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_PRE") == 1;
+
+                            }
+                            tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_ID");
+                            if (tempAdProvID != 0)
+                            {
+                                fileMedia.m_oPostProvider = new AdProvider();
+                                fileMedia.m_oPostProvider.ProviderID = tempAdProvID;
+                                fileMedia.m_oPostProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_NAME");
+                                fileMedia.m_bIsPostSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_POST") == 1;
+                            }
+                            tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_ID");
+                            if (tempAdProvID != 0)
+                            {
+                                fileMedia.m_oBreakProvider = new AdProvider();
+                                fileMedia.m_oBreakProvider.ProviderID = tempAdProvID;
+                                fileMedia.m_oBreakProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_NAME");
+                                fileMedia.m_sBreakpoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_BREAK_POINTS");
+
+                            }
+                            tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_ID");
+                            if (tempAdProvID != 0)
+                            {
+                                fileMedia.m_oOverlayProvider = new AdProvider();
+                                fileMedia.m_oOverlayProvider.ProviderID = tempAdProvID;
+                                fileMedia.m_oOverlayProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_NAME");
+                                fileMedia.m_sOverlaypoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_OVERLAY_POINTS");
+                            }
+                            lFileMedia.Add(fileMedia);
+                        }
+                    }
+                }
+                else
+                {
+                    lFileMedia = new List<FileMedia>(0);
+                }
+                return lFileMedia;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message, ex);
+                result = false;
+                return null;
+            }
         }
 
 
