@@ -323,7 +323,7 @@ namespace Catalog
             }
         }
 
-        /*Insert all files that return from the "CompleteDetailsForMediaResponse" into List<FileMedia>*/
+        
         //private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, int nMedia, ref bool result)
         //{
         //    try
@@ -2814,6 +2814,7 @@ namespace Catalog
             return res;
         }
 
+        /*Insert all files that return from the "CompleteDetailsForMediaResponse" into List<FileMedia>*/
         private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, int nMedia, ref bool result)
         {
             try
