@@ -41,7 +41,7 @@ namespace ADIFeeder
                                                         {"seasonnumber",            new KeyAndMethod("",                          ADIMethods.HSeasonNumber) } ,
                                                         {"season_premiere",         new KeyAndMethod("Season premiere",           ADIMethods.HInsertBool) } ,
                                                         {"season_finale",           new KeyAndMethod("Season finale",             ADIMethods.HInsertBool) } ,
-                                                        {"closed_captioning",       new KeyAndMethod("Closed captions available", ADIMethods.HInsertBool) } ,
+                                                        {"closed_captions_available", new KeyAndMethod("Closed captions available", ADIMethods.HInsertBool) } ,
                                                         {"interactive",             new KeyAndMethod("interactive",               ADIMethods.HInsertBool) } ,
                                                         {"seasonpackageassetid",    new KeyAndMethod("SeasonPackageAssetID",      ADIMethods.HInsertString) } ,
                                                         {"ios_product",             new KeyAndMethod("Product Code",               ADIMethods.HInsertString) } ,
@@ -76,6 +76,8 @@ namespace ADIFeeder
                                                         {"geo_block_rule",          new KeyAndMethod("",                          ADIMethods.HGeoBlockRule) } ,
                                                         {"device_rule",             new KeyAndMethod("",                          ADIMethods.HDeviceRule)   } ,
                                                         {"asset_is_active",         new KeyAndMethod("Active",                    ADIMethods.HInsertBasic)   } ,
-                                                        {"free",                    new KeyAndMethod("Free",                      ADIMethods.HInsertTags) } };
+                                                        {"free",                    new KeyAndMethod("Free",                      ADIMethods.HInsertTags) } ,
+                                                        {"eshop_url",               new KeyAndMethod("Eshop URL",                 ADIMethods.HInsertString) } ,
+                                                        {"total_number_eps",        new KeyAndMethod("Total Number of Episodes",  ADIMethods.HInsertNum) } };
     }
 }
