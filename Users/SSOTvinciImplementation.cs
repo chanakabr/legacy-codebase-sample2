@@ -7,8 +7,8 @@ namespace Users
 {
     public class SSOTvinciImplementation : SSOUsers, ISSOProvider
     {
-        public SSOTvinciImplementation(int nGroupID)
-            : base(nGroupID)
+        public SSOTvinciImplementation(int nGroupID, int operatorId)
+            : base(nGroupID, operatorId)
         {
         }
 

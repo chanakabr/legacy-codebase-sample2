@@ -13,9 +13,9 @@ namespace Users
         OSamlUserDetails userDetails = null;
         SamlProviderObject prov = null;
         SamlCredentialObject creds = null;
-      
-        public SSOOSamlImplementation(int nGroupID)
-            : base(nGroupID)
+
+        public SSOOSamlImplementation(int nGroupID, int operatorId)
+            : base(nGroupID, operatorId)
         {
         }
 

@@ -57,7 +57,7 @@ namespace Users
                     t = new Users.TvinciUsers(nGroupID);
                     break;
                 case 3:
-                    t = new Users.SSOUsers(nGroupID);
+                    t = new Users.SSOUsers(nGroupID, 0);
                     break;
                 case 4:
                     t = new Users.MediaCorpUsers(nGroupID);

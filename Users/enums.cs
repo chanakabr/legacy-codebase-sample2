@@ -28,9 +28,7 @@ namespace Users
         UserNotIndDomain = 18,
         TokenNotFound = 19,
         UserAlreadyMasterApproved = 20,
-        UserWithNoDomain = 21,
-        ErrorCreatingDomain = 22,
-        ErrorOnSaveDomain = 23
+        UserWithNoDomain = 21
     }
 
     public enum UserAction

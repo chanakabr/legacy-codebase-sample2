@@ -243,8 +243,11 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Service References\KDGApi\KDGSubscriberAuth.wsdl" />
-    <None Include="Service References\KDGApi\KDGSubscriberAuth_model.xsd">
+    <None Include="Service References\KDGApi\MockKdgService.wsdl" />
+    <None Include="Service References\KDGApi\MockKdgService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\KDGApi\MockKdgService1.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\TvinciAPI\AdminAccountUserResponse.datasource">
@@ -337,6 +340,9 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\KDGApi\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\KDGApi\MockKdgService.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\KDGApi\configuration91.svcinfo" />

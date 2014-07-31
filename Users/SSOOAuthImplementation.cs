@@ -17,10 +17,10 @@ namespace Users
         AuthenticationObject authObj = null;
         OAuthUserDetails userDetails = null;
 
-        public SSOOAuthImplementation(int nGroupID)
-            : base(nGroupID)
+        public SSOOAuthImplementation(int nGroupID, int operatorId)
+            : base(nGroupID, operatorId)
         {
-
+            
         }
 
 
@@ -129,8 +129,6 @@ namespace Users
             public string RefreshToken { get; set; }
             public DateTime ExpiresIn { get; set; }
         }
-
-      
     }
 
 

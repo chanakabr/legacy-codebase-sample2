@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using ODBCWrapper;
 using Tvinci.Core.DAL;
 
 
@@ -26,7 +27,7 @@ namespace DAL
         private const string SP_GET_DEVICES_TO_USERS_PUSH = "Get_DevicesToUsersPushAction";
         private const string SP_GENERATE_TOKEN = "GenerateToken";
         private const string SP_GET_USER_TYPE = "Get_UserType";
-
+        private const string SP_GET_DEFUALT_GROUP_OPERATOR = "Get_DefaultGroupOperator";
         #endregion
 
 
@@ -1630,6 +1631,31 @@ namespace DAL
             }
 
             return null;
+        }
+
+        public static int GetDefaultGroupOperator(int groupId)
+        {
+            int retOperatorId = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetDefaultGroupOperator = new ODBCWrapper.StoredProcedure(SP_GET_DEFUALT_GROUP_OPERATOR);
+                spGetDefaultGroupOperator.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spGetDefaultGroupOperator.AddParameter("@GroupID", groupId);
+                DataTable dt = spGetDefaultGroupOperator.Execute();
+                if (dt != null)
+                {
+                    if (dt.DefaultView[0].Row != null)
+                    {
+                        retOperatorId = Utils.GetIntSafeVal(dt.DefaultView[0].Row, "operatorId");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                
+            }
+
+            return retOperatorId;
         }
     } 
 }

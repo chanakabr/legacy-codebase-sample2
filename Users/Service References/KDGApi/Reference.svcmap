@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="ca685e16-5aec-46d6-9dd1-a03922a20325" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="58e4f49f-86bd-4700-b617-e687c95e6c2c" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
   <ClientOptions>
     <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
     <EnableDataBinding>true</EnableDataBinding>
@@ -18,11 +18,13 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="C:\Users\idan\Documents\KDG\SSO\SSO_API\KDGSubscriberAuth.wsdl" Protocol="file" SourceId="1" />
+    <MetadataSource Address="http://localhost/KDGSSO/MockKdgService.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="KDGSubscriberAuth_model.xsd" MetadataType="Schema" ID="c0b94785-4f8e-4496-825d-247c144e88e7" SourceId="1" SourceUrl="file:///C:/Users/idan/Documents/KDG/SSO/SSO_API/KDGSubscriberAuth_model.xsd" />
-    <MetadataFile FileName="KDGSubscriberAuth.wsdl" MetadataType="Wsdl" ID="f03564dd-0349-458c-960b-1150035bfc49" SourceId="1" SourceUrl="file:///C:/Users/idan/Documents/KDG/SSO/SSO_API/KDGSubscriberAuth.wsdl" />
+    <MetadataFile FileName="MockKdgService.xsd" MetadataType="Schema" ID="fe2a29d4-92ac-4b43-9ac5-2c5a803611ff" SourceId="1" SourceUrl="http://localhost/KDGSSO/MockKdgService.svc?xsd=xsd0" />
+    <MetadataFile FileName="MockKdgService.disco" MetadataType="Disco" ID="0fd8b467-1469-41b2-9831-26f472cc6cdd" SourceId="1" SourceUrl="http://localhost/KDGSSO/MockKdgService.svc?disco" />
+    <MetadataFile FileName="MockKdgService.wsdl" MetadataType="Wsdl" ID="d5b3fe92-7bb7-40d9-8121-d3577b515209" SourceId="1" SourceUrl="http://localhost/KDGSSO/MockKdgService.svc?wsdl" />
+    <MetadataFile FileName="MockKdgService1.xsd" MetadataType="Schema" ID="60543cbc-60f9-4b57-88f7-2116b10523a0" SourceId="1" SourceUrl="http://localhost/KDGSSO/MockKdgService.svc?xsd=xsd1" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

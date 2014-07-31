@@ -6,8 +6,8 @@ namespace Users
 {
     public class SSOKdgImplementation : SSOUsers, ISSOProvider
     {
-        public SSOKdgImplementation(int groupId)
-            : base(groupId)
+        public SSOKdgImplementation(int groupId, int operatorId)
+            : base(groupId, operatorId)
         {
 
         }
@@ -22,15 +22,16 @@ namespace Users
                 KdgLoginResp kdgLoginResp = ValidateCredentials(username, pass, sIP);
                 if (kdgLoginResp != null)
                 {
-                    if (kdgLoginResp.Status == eKdgStatus.CredsOkInNetwork || kdgLoginResp.Status == eKdgStatus.CredsOkOutOfNetwork)
+                    if (kdgLoginResp.Status != eKdgStatus.BadCredsOutOfNetwork && kdgLoginResp.Status != eKdgStatus.BadCredsInNetwork && kdgLoginResp.Status != eKdgStatus.Unknown)
                     {
                         retResponseObject = HandleLoginRequest(username, pass, kdgLoginResp);
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 retResponseObject.m_RespStatus = ResponseStatus.ErrorOnSaveUser;
+                Logger.Logger.Log("KDG-SSO", string.Format("Error Signing in. ex:{0} UN|PASS={1}|{2}", ex.Message, username, pass), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
             }
             return retResponseObject;
         }
@@ -48,98 +49,129 @@ namespace Users
         private UserResponseObject HandleLoginRequest(string username, string pass, KdgLoginResp kdgLoginResp)
         {
             UserResponseObject retResponse = new UserResponseObject();
-
-            BaseDomain domainImplementation = null;
-            Utils.GetBaseDomainsImpl(ref domainImplementation, m_nGroupID);
-
-            BaseUsers usersImplementation = null;
-            Utils.GetBaseUsersImpl(ref usersImplementation, m_nGroupID);
-            if (domainImplementation != null && usersImplementation != null)
+            try
             {
+                BaseDomain domainImplementation = null;
+                Utils.GetBaseDomainsImpl(ref domainImplementation, m_nGroupID);
 
-                UserResponseObject user = usersImplementation.GetUserByUsername(username, m_nGroupID);
-                DomainResponseObject domain = domainImplementation.GetDomainByCoGuid(kdgLoginResp.CustomerAccountNumber, m_nGroupID);
-
-                //Domain co_guid exists
-                if (domain.m_oDomainResponseStatus == DomainResponseStatus.OK)
+                BaseUsers usersImplementation = null;
+                Utils.GetBaseUsersImpl(ref usersImplementation, m_nGroupID);
+                if (domainImplementation != null && usersImplementation != null)
                 {
-                    //User doesn't exist
-                    if (user.m_RespStatus != ResponseStatus.OK)
+
+                    UserResponseObject user = usersImplementation.GetUserByUsername(username, m_nGroupID);
+                    DomainResponseObject domain = domainImplementation.GetDomainByCoGuid(kdgLoginResp.CustomerAccountNumber, m_nGroupID);
+
+                    //Domain co_guid exists
+                    if (domain.m_oDomainResponseStatus == DomainResponseStatus.OK)
                     {
-                        //Add new user
-                        user = AddNewKdgUser(username, pass, kdgLoginResp.Status, usersImplementation);
-                        if (user.m_RespStatus == ResponseStatus.UserWithNoDomain)
+                        //User doesn't exist
+                        if (user.m_RespStatus != ResponseStatus.OK)
                         {
-                            //Add user to domain
-                            DomainResponseObject domainResponse = domainImplementation.AddUserToDomain(m_nGroupID, domain.m_oDomain.m_nDomainID, int.Parse(user.m_user.m_sSiteGUID), domain.m_oDomain.m_masterGUIDs[0]);
-                            retResponse = usersImplementation.GetUserByUsername(username, m_nGroupID);
-                            retResponse.m_RespStatus = domainResponse.m_oDomainResponseStatus == DomainResponseStatus.OK ? user.m_RespStatus : ResponseStatus.ErrorOnSaveDomain;
+                            //Add new user
+                            user = AddNewKdgUser(username, pass, kdgLoginResp.Status, usersImplementation);
+                            if (user.m_RespStatus == ResponseStatus.UserWithNoDomain)
+                            {
+                                //Add user to domain
+                                DomainResponseObject domainResponse = domainImplementation.AddUserToDomain(m_nGroupID, domain.m_oDomain.m_nDomainID, int.Parse(user.m_user.m_sSiteGUID), domain.m_oDomain.m_masterGUIDs[0]);
+                                if (domainResponse.m_oDomainResponseStatus == DomainResponseStatus.OK)
+                                {
+                                    user.m_user.m_domianID = domainResponse.m_oDomain.m_nDomainID;
+                                    user.m_RespStatus = ResponseStatus.OK;
+                                }
+                                else
+                                    Logger.Logger.Log("Error adding user to domain", string.Format("username:{0} domainCoGuid:{1}", username, kdgLoginResp.CustomerAccountNumber), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
+                            }
                         }
-                        else retResponse = user;
-                    }
                         //User and domain already exist: return OK
-                    else
-                    {
-                        bool updateUserSuccess = usersImplementation.SetUserDynamicData(user.m_user.m_sSiteGUID, new List<KeyValuePair>() {new KeyValuePair("IPType", kdgLoginResp.Status.ToString())}, user);
-                        retResponse = usersImplementation.GetUserByUsername(username, m_nGroupID);
-                        retResponse.m_RespStatus = updateUserSuccess ? ResponseStatus.OK : ResponseStatus.ErrorOnSaveUser;
-                    }
-                }
-                //Domain co_guid doesn't exists
-                else
-                {
-                    //User exists: change domain co_guid
-                    if (user.m_RespStatus == ResponseStatus.OK)
-                    {
-                        bool isChangeCoGuidSuccess = DAL.DomainDal.UpdateDomainCoGuid(user.m_user.m_domianID, m_nGroupID, kdgLoginResp.CustomerAccountNumber);
-                        retResponse = usersImplementation.GetUserByUsername(username, m_nGroupID);
-                        retResponse.m_RespStatus = isChangeCoGuidSuccess ? ResponseStatus.OK : ResponseStatus.ErrorOnSaveUser;
-                    }
-                    //User doesn't exist: Add new user and domain
-                    else
-                    {
-                        user = AddNewKdgUser(username, pass, kdgLoginResp.Status, usersImplementation);
-                        if (user.m_RespStatus == ResponseStatus.UserWithNoDomain)
+                        else
                         {
-                            DomainResponseObject domainResponseObject = domainImplementation.AddDomain(kdgLoginResp.CustomerAccountNumber, "", int.Parse(user.m_user.m_sSiteGUID), m_nGroupID, kdgLoginResp.CustomerAccountNumber);
-                            retResponse = usersImplementation.GetUserByUsername(username, m_nGroupID);
-                            retResponse.m_RespStatus = domainResponseObject.m_oDomainResponseStatus == DomainResponseStatus.OK ? ResponseStatus.OK : ResponseStatus.ErrorCreatingDomain;
+                            if (user.m_user.m_oDynamicData.GetValByKey("ext_status") != ((int)kdgLoginResp.Status).ToString())
+                            {
+                                bool updateUserSuccess = usersImplementation.SetUserDynamicData(user.m_user.m_sSiteGUID, new List<KeyValuePair>() { new KeyValuePair("ext_status", ((int)kdgLoginResp.Status).ToString()) }, user);
+                                if (!updateUserSuccess)
+                                    Logger.Logger.Log("Error updating user dynamic data", string.Format("UN:{0} Pass:{1}", username, pass), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
+                            }
                         }
-                        else retResponse = user;
                     }
+                    //Domain co_guid doesn't exists
+                    else
+                    {
+                        //User exists: change domain co_guid
+                        if (user.m_RespStatus == ResponseStatus.OK)
+                        {
+                            bool isChangeCoGuidSuccess = DAL.DomainDal.UpdateDomainCoGuid(user.m_user.m_domianID, m_nGroupID, kdgLoginResp.CustomerAccountNumber);
+                            if (!isChangeCoGuidSuccess)
+                                Logger.Logger.Log("Error updating domainCoGuid", string.Format("username:{0} newDomainCoGuid:{1} domainID:{2}", username, kdgLoginResp.CustomerAccountNumber, user.m_user.m_domianID), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));                                
+                        }
+                        //User doesn't exist: Add new user and domain
+                        else
+                        {
+                            user = AddNewKdgUser(username, pass, kdgLoginResp.Status, usersImplementation);
+                            if (user.m_RespStatus == ResponseStatus.UserWithNoDomain)
+                            {
+                                DomainResponseObject domainResponseObject = domainImplementation.AddDomain(kdgLoginResp.CustomerAccountNumber, "", int.Parse(user.m_user.m_sSiteGUID), m_nGroupID, kdgLoginResp.CustomerAccountNumber);
+                                if (domainResponseObject.m_oDomainResponseStatus == DomainResponseStatus.OK)
+                                {
+                                    user.m_user.m_domianID = domainResponseObject.m_oDomain.m_nDomainID;
+                                    user.m_user.m_isDomainMaster = true;
+                                    user.m_RespStatus = ResponseStatus.OK;
+                                }
+                                else
+                                    Logger.Logger.Log("Error creating domain", string.Format("username:{0} domainCoGuid:{1}", username, kdgLoginResp.CustomerAccountNumber), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
+                            }
+                        }
+                    }
+                    retResponse = user;
                 }
             }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("KDG-SSO", string.Format("Error Handing SignIn: ex:{0} UN|PASS={1}|{2}", ex.Message, username, pass), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
+            }
+            
             return retResponse;
         }
 
-        private UserResponseObject AddNewKdgUser(string username, string password, eKdgStatus ipType, BaseUsers usersImplementation)
+        private UserResponseObject AddNewKdgUser(string username, string password, eKdgStatus ext_status, BaseUsers usersImplementation)
         {
-            UserBasicData userBasicData = new UserBasicData()
+            try
             {
-                m_sUserName = username,
-            };
-            UserDynamicData userDynamicData = new UserDynamicData()
-            {
-                m_sUserData = new[]
+
+                UserBasicData userBasicData = new UserBasicData()
                 {
-                    new UserDynamicDataContainer()
+                    m_sUserName = username,
+                };
+                UserDynamicData userDynamicData = new UserDynamicData()
+                {
+                    m_sUserData = new[]
                     {
-                        m_sDataType = "IPType",
-                        m_sValue = ipType.ToString()
+                        new UserDynamicDataContainer()
+                        {
+                            m_sDataType = "ext_status",
+                            m_sValue = ((int) ext_status).ToString()
+                        }
                     }
-                }
-            };
-            return usersImplementation.AddNewUser(userBasicData, userDynamicData, password);
+                };
+                return usersImplementation.AddNewUser(userBasicData, userDynamicData, password);
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("KDG-SSO", string.Format("Error adding new user - ex:{0} UN|PASS={1}|{2}", ex.Message, username, password), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
+                return new UserResponseObject() {m_RespStatus = ResponseStatus.ErrorOnSaveUser};
+            }
+
         }
 
         private KdgLoginResp ValidateCredentials(string username, string password, string clientIp)
         {
             try
             {
-                using (KDGApi.KDGSubscriberAuthPortTypeClient client = new KDGApi.KDGSubscriberAuthPortTypeClient())
+                using (KDGApi.MockKdgServiceClient client = new KDGApi.MockKdgServiceClient())
                 {
                     string accountIdentifier;
                     eKdgStatus status = (eKdgStatus)client.authenticate(username, password, clientIp, out accountIdentifier);
+                    Logger.Logger.Log("KDG ValidateCredentials response", string.Format("{0} UN:{1} Pass:{2} | RespStatus:{3} RespDomainCoGuid:{4}", DateTime.UtcNow, username, password, ((int)status), accountIdentifier), "KDG-SSO credentials response");
                     return new KdgLoginResp()
                     {
                         CustomerAccountNumber = accountIdentifier,
@@ -147,13 +179,14 @@ namespace Users
                     };
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new KdgLoginResp(){ Status = eKdgStatus.Unknown };
+                Logger.Logger.Log("KDG-SSO", string.Format("Error validating credentials with KDG: ex:{0} UN:{1} Pass:{2}", ex.Message, username, password), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
+                return new KdgLoginResp() { Status = eKdgStatus.Unknown };
             }
         }
 
-        
+
 
         #endregion
 
@@ -167,7 +200,7 @@ namespace Users
 
         public enum eKdgStatus
         {
-            Unknown = -1,
+            Unknown = 99,
             CredsOkInNetwork = 0,
             BadCredsOutOfNetwork = 1,
             BadCredsInNetwork = 2,

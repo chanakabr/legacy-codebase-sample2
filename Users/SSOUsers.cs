@@ -12,16 +12,31 @@ namespace Users
 {
     public class SSOUsers : TvinciUsers
     {
-        public SSOUsers(Int32 nGroupID)
+        public int OperatorId { get; set; }
+
+        public SSOUsers(Int32 nGroupID, int operatorId)
             : base(nGroupID)
         {
+            OperatorId = operatorId;
         }
 
         public ISSOProvider GetSSOImplementation(int nSSOProvID)
         {
+            if (nSSOProvID == 0)
+            {
+                int defaultOperatorId = DAL.UsersDal.GetDefaultGroupOperator(m_nGroupID);
+                if (defaultOperatorId == 0)
+                {
+                    Logger.Logger.Log("Default operatorId is 0","", "GetSSOImplementation error");
+                }
+                nSSOProvID = defaultOperatorId;
+            }
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "SELECT * FROM groups_operators WHERE STATUS=1 AND IS_ACTIVE=1 AND";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nSSOProvID);
+            if (nSSOProvID != 0)
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nSSOProvID);
+            else
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("is_default", "=", 1);
             selectQuery += " AND ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
             selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -35,13 +50,13 @@ namespace Users
                     switch (int.Parse(dt.Rows[0]["Type"].ToString()))
                     {
                         case 1: //Canal
-                            return new SSOOAuthImplementation(m_nGroupID);
+                            return new SSOOAuthImplementation(m_nGroupID, nSSOProvID);
                         case 2: //Ziggo
-                            return new SSOOSamlImplementation(m_nGroupID);
+                            return new SSOOSamlImplementation(m_nGroupID, nSSOProvID);
                         case 3:
-                            return new SSOTvinciImplementation(m_nGroupID);
+                            return new SSOTvinciImplementation(m_nGroupID, nSSOProvID);
                         case 4:
-                            return new SSOKdgImplementation(m_nGroupID);
+                            return new SSOKdgImplementation(m_nGroupID, nSSOProvID);
                         default:
                             break;
                     }
