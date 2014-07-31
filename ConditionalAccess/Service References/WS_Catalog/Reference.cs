@@ -3940,8 +3940,8 @@ namespace ConditionalAccess.WS_Catalog {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="BaseObject", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ConditionalAccess.WS_Catalog.MediaFileObj))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ConditionalAccess.WS_Catalog.ProgramObj))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ConditionalAccess.WS_Catalog.MediaFileObj))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ConditionalAccess.WS_Catalog.PicObj))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ConditionalAccess.WS_Catalog.MediaObj))]
     public partial class BaseObject : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -4003,29 +4003,6 @@ namespace ConditionalAccess.WS_Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaFileObj", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    [System.SerializableAttribute()]
-    public partial class MediaFileObj : ConditionalAccess.WS_Catalog.BaseObject {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private ConditionalAccess.WS_Catalog.FileMedia m_oFileField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public ConditionalAccess.WS_Catalog.FileMedia m_oFile {
-            get {
-                return this.m_oFileField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oFileField, value) != true)) {
-                    this.m_oFileField = value;
-                    this.RaisePropertyChanged("m_oFile");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="ProgramObj", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
     [System.SerializableAttribute()]
     public partial class ProgramObj : ConditionalAccess.WS_Catalog.BaseObject {
@@ -4042,6 +4019,29 @@ namespace ConditionalAccess.WS_Catalog {
                 if ((object.ReferenceEquals(this.m_oProgramField, value) != true)) {
                     this.m_oProgramField = value;
                     this.RaisePropertyChanged("m_oProgram");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaFileObj", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    public partial class MediaFileObj : ConditionalAccess.WS_Catalog.BaseObject {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ConditionalAccess.WS_Catalog.FileMedia m_oFileField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ConditionalAccess.WS_Catalog.FileMedia m_oFile {
+            get {
+                return this.m_oFileField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_oFileField, value) != true)) {
+                    this.m_oFileField = value;
+                    this.RaisePropertyChanged("m_oFile");
                 }
             }
         }
@@ -4392,456 +4392,6 @@ namespace ConditionalAccess.WS_Catalog {
                 if ((object.ReferenceEquals(this.m_sSiteUserGuidField, value) != true)) {
                     this.m_sSiteUserGuidField = value;
                     this.RaisePropertyChanged("m_sSiteUserGuid");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="FileMedia", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ConditionalAccess.WS_Catalog.Branding))]
-    public partial class FileMedia : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool m_bIsPostSkipEnabledField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool m_bIsPreSkipEnabledField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nAltCdnIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nCdnIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private double m_nDurationField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nFileIdField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nIsDefaultLanguageField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private ConditionalAccess.WS_Catalog.AdProvider m_oBreakProviderField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private ConditionalAccess.WS_Catalog.AdProvider m_oOverlayProviderField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private ConditionalAccess.WS_Catalog.AdProvider m_oPostProviderField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private ConditionalAccess.WS_Catalog.AdProvider m_oPreProviderField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sAltCoGUIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sAltUrlField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sBillingTypeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sBreakpointsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sCoGUIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sFileFormatField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sLanguageField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sOverlaypointsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sUrlField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool m_bIsPostSkipEnabled {
-            get {
-                return this.m_bIsPostSkipEnabledField;
-            }
-            set {
-                if ((this.m_bIsPostSkipEnabledField.Equals(value) != true)) {
-                    this.m_bIsPostSkipEnabledField = value;
-                    this.RaisePropertyChanged("m_bIsPostSkipEnabled");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool m_bIsPreSkipEnabled {
-            get {
-                return this.m_bIsPreSkipEnabledField;
-            }
-            set {
-                if ((this.m_bIsPreSkipEnabledField.Equals(value) != true)) {
-                    this.m_bIsPreSkipEnabledField = value;
-                    this.RaisePropertyChanged("m_bIsPreSkipEnabled");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nAltCdnID {
-            get {
-                return this.m_nAltCdnIDField;
-            }
-            set {
-                if ((this.m_nAltCdnIDField.Equals(value) != true)) {
-                    this.m_nAltCdnIDField = value;
-                    this.RaisePropertyChanged("m_nAltCdnID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nCdnID {
-            get {
-                return this.m_nCdnIDField;
-            }
-            set {
-                if ((this.m_nCdnIDField.Equals(value) != true)) {
-                    this.m_nCdnIDField = value;
-                    this.RaisePropertyChanged("m_nCdnID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public double m_nDuration {
-            get {
-                return this.m_nDurationField;
-            }
-            set {
-                if ((this.m_nDurationField.Equals(value) != true)) {
-                    this.m_nDurationField = value;
-                    this.RaisePropertyChanged("m_nDuration");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nFileId {
-            get {
-                return this.m_nFileIdField;
-            }
-            set {
-                if ((this.m_nFileIdField.Equals(value) != true)) {
-                    this.m_nFileIdField = value;
-                    this.RaisePropertyChanged("m_nFileId");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nIsDefaultLanguage {
-            get {
-                return this.m_nIsDefaultLanguageField;
-            }
-            set {
-                if ((this.m_nIsDefaultLanguageField.Equals(value) != true)) {
-                    this.m_nIsDefaultLanguageField = value;
-                    this.RaisePropertyChanged("m_nIsDefaultLanguage");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public ConditionalAccess.WS_Catalog.AdProvider m_oBreakProvider {
-            get {
-                return this.m_oBreakProviderField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oBreakProviderField, value) != true)) {
-                    this.m_oBreakProviderField = value;
-                    this.RaisePropertyChanged("m_oBreakProvider");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public ConditionalAccess.WS_Catalog.AdProvider m_oOverlayProvider {
-            get {
-                return this.m_oOverlayProviderField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oOverlayProviderField, value) != true)) {
-                    this.m_oOverlayProviderField = value;
-                    this.RaisePropertyChanged("m_oOverlayProvider");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public ConditionalAccess.WS_Catalog.AdProvider m_oPostProvider {
-            get {
-                return this.m_oPostProviderField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oPostProviderField, value) != true)) {
-                    this.m_oPostProviderField = value;
-                    this.RaisePropertyChanged("m_oPostProvider");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public ConditionalAccess.WS_Catalog.AdProvider m_oPreProvider {
-            get {
-                return this.m_oPreProviderField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oPreProviderField, value) != true)) {
-                    this.m_oPreProviderField = value;
-                    this.RaisePropertyChanged("m_oPreProvider");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sAltCoGUID {
-            get {
-                return this.m_sAltCoGUIDField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sAltCoGUIDField, value) != true)) {
-                    this.m_sAltCoGUIDField = value;
-                    this.RaisePropertyChanged("m_sAltCoGUID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sAltUrl {
-            get {
-                return this.m_sAltUrlField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sAltUrlField, value) != true)) {
-                    this.m_sAltUrlField = value;
-                    this.RaisePropertyChanged("m_sAltUrl");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sBillingType {
-            get {
-                return this.m_sBillingTypeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sBillingTypeField, value) != true)) {
-                    this.m_sBillingTypeField = value;
-                    this.RaisePropertyChanged("m_sBillingType");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sBreakpoints {
-            get {
-                return this.m_sBreakpointsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sBreakpointsField, value) != true)) {
-                    this.m_sBreakpointsField = value;
-                    this.RaisePropertyChanged("m_sBreakpoints");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sCoGUID {
-            get {
-                return this.m_sCoGUIDField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sCoGUIDField, value) != true)) {
-                    this.m_sCoGUIDField = value;
-                    this.RaisePropertyChanged("m_sCoGUID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sFileFormat {
-            get {
-                return this.m_sFileFormatField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sFileFormatField, value) != true)) {
-                    this.m_sFileFormatField = value;
-                    this.RaisePropertyChanged("m_sFileFormat");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sLanguage {
-            get {
-                return this.m_sLanguageField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sLanguageField, value) != true)) {
-                    this.m_sLanguageField = value;
-                    this.RaisePropertyChanged("m_sLanguage");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sOverlaypoints {
-            get {
-                return this.m_sOverlaypointsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sOverlaypointsField, value) != true)) {
-                    this.m_sOverlaypointsField = value;
-                    this.RaisePropertyChanged("m_sOverlaypoints");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sUrl {
-            get {
-                return this.m_sUrlField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sUrlField, value) != true)) {
-                    this.m_sUrlField = value;
-                    this.RaisePropertyChanged("m_sUrl");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="AdProvider", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    [System.SerializableAttribute()]
-    public partial class AdProvider : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int ProviderIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string ProviderNameField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int ProviderID {
-            get {
-                return this.ProviderIDField;
-            }
-            set {
-                if ((this.ProviderIDField.Equals(value) != true)) {
-                    this.ProviderIDField = value;
-                    this.RaisePropertyChanged("ProviderID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ProviderName {
-            get {
-                return this.ProviderNameField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.ProviderNameField, value) != true)) {
-                    this.ProviderNameField = value;
-                    this.RaisePropertyChanged("ProviderName");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Branding", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    [System.SerializableAttribute()]
-    public partial class Branding : ConditionalAccess.WS_Catalog.FileMedia {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nBrandHeightField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nRecurringTypeIdField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nBrandHeight {
-            get {
-                return this.m_nBrandHeightField;
-            }
-            set {
-                if ((this.m_nBrandHeightField.Equals(value) != true)) {
-                    this.m_nBrandHeightField = value;
-                    this.RaisePropertyChanged("m_nBrandHeight");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nRecurringTypeId {
-            get {
-                return this.m_nRecurringTypeIdField;
-            }
-            set {
-                if ((this.m_nRecurringTypeIdField.Equals(value) != true)) {
-                    this.m_nRecurringTypeIdField = value;
-                    this.RaisePropertyChanged("m_nRecurringTypeId");
                 }
             }
         }
@@ -5236,6 +4786,472 @@ namespace ConditionalAccess.WS_Catalog {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
             if ((propertyChanged != null)) {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FileMedia", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ConditionalAccess.WS_Catalog.Branding))]
+    public partial class FileMedia : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool m_bIsPostSkipEnabledField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool m_bIsPreSkipEnabledField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nAltCdnIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nCdnIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private double m_nDurationField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nFileIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nIsDefaultLanguageField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nMediaIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ConditionalAccess.WS_Catalog.AdProvider m_oBreakProviderField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ConditionalAccess.WS_Catalog.AdProvider m_oOverlayProviderField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ConditionalAccess.WS_Catalog.AdProvider m_oPostProviderField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ConditionalAccess.WS_Catalog.AdProvider m_oPreProviderField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sAltCoGUIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sAltUrlField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sBillingTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sBreakpointsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sCoGUIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sFileFormatField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sLanguageField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sOverlaypointsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sUrlField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool m_bIsPostSkipEnabled {
+            get {
+                return this.m_bIsPostSkipEnabledField;
+            }
+            set {
+                if ((this.m_bIsPostSkipEnabledField.Equals(value) != true)) {
+                    this.m_bIsPostSkipEnabledField = value;
+                    this.RaisePropertyChanged("m_bIsPostSkipEnabled");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool m_bIsPreSkipEnabled {
+            get {
+                return this.m_bIsPreSkipEnabledField;
+            }
+            set {
+                if ((this.m_bIsPreSkipEnabledField.Equals(value) != true)) {
+                    this.m_bIsPreSkipEnabledField = value;
+                    this.RaisePropertyChanged("m_bIsPreSkipEnabled");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nAltCdnID {
+            get {
+                return this.m_nAltCdnIDField;
+            }
+            set {
+                if ((this.m_nAltCdnIDField.Equals(value) != true)) {
+                    this.m_nAltCdnIDField = value;
+                    this.RaisePropertyChanged("m_nAltCdnID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nCdnID {
+            get {
+                return this.m_nCdnIDField;
+            }
+            set {
+                if ((this.m_nCdnIDField.Equals(value) != true)) {
+                    this.m_nCdnIDField = value;
+                    this.RaisePropertyChanged("m_nCdnID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public double m_nDuration {
+            get {
+                return this.m_nDurationField;
+            }
+            set {
+                if ((this.m_nDurationField.Equals(value) != true)) {
+                    this.m_nDurationField = value;
+                    this.RaisePropertyChanged("m_nDuration");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nFileId {
+            get {
+                return this.m_nFileIdField;
+            }
+            set {
+                if ((this.m_nFileIdField.Equals(value) != true)) {
+                    this.m_nFileIdField = value;
+                    this.RaisePropertyChanged("m_nFileId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nIsDefaultLanguage {
+            get {
+                return this.m_nIsDefaultLanguageField;
+            }
+            set {
+                if ((this.m_nIsDefaultLanguageField.Equals(value) != true)) {
+                    this.m_nIsDefaultLanguageField = value;
+                    this.RaisePropertyChanged("m_nIsDefaultLanguage");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nMediaID {
+            get {
+                return this.m_nMediaIDField;
+            }
+            set {
+                if ((this.m_nMediaIDField.Equals(value) != true)) {
+                    this.m_nMediaIDField = value;
+                    this.RaisePropertyChanged("m_nMediaID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ConditionalAccess.WS_Catalog.AdProvider m_oBreakProvider {
+            get {
+                return this.m_oBreakProviderField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_oBreakProviderField, value) != true)) {
+                    this.m_oBreakProviderField = value;
+                    this.RaisePropertyChanged("m_oBreakProvider");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ConditionalAccess.WS_Catalog.AdProvider m_oOverlayProvider {
+            get {
+                return this.m_oOverlayProviderField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_oOverlayProviderField, value) != true)) {
+                    this.m_oOverlayProviderField = value;
+                    this.RaisePropertyChanged("m_oOverlayProvider");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ConditionalAccess.WS_Catalog.AdProvider m_oPostProvider {
+            get {
+                return this.m_oPostProviderField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_oPostProviderField, value) != true)) {
+                    this.m_oPostProviderField = value;
+                    this.RaisePropertyChanged("m_oPostProvider");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ConditionalAccess.WS_Catalog.AdProvider m_oPreProvider {
+            get {
+                return this.m_oPreProviderField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_oPreProviderField, value) != true)) {
+                    this.m_oPreProviderField = value;
+                    this.RaisePropertyChanged("m_oPreProvider");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sAltCoGUID {
+            get {
+                return this.m_sAltCoGUIDField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sAltCoGUIDField, value) != true)) {
+                    this.m_sAltCoGUIDField = value;
+                    this.RaisePropertyChanged("m_sAltCoGUID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sAltUrl {
+            get {
+                return this.m_sAltUrlField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sAltUrlField, value) != true)) {
+                    this.m_sAltUrlField = value;
+                    this.RaisePropertyChanged("m_sAltUrl");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sBillingType {
+            get {
+                return this.m_sBillingTypeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sBillingTypeField, value) != true)) {
+                    this.m_sBillingTypeField = value;
+                    this.RaisePropertyChanged("m_sBillingType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sBreakpoints {
+            get {
+                return this.m_sBreakpointsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sBreakpointsField, value) != true)) {
+                    this.m_sBreakpointsField = value;
+                    this.RaisePropertyChanged("m_sBreakpoints");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sCoGUID {
+            get {
+                return this.m_sCoGUIDField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sCoGUIDField, value) != true)) {
+                    this.m_sCoGUIDField = value;
+                    this.RaisePropertyChanged("m_sCoGUID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sFileFormat {
+            get {
+                return this.m_sFileFormatField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sFileFormatField, value) != true)) {
+                    this.m_sFileFormatField = value;
+                    this.RaisePropertyChanged("m_sFileFormat");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sLanguage {
+            get {
+                return this.m_sLanguageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sLanguageField, value) != true)) {
+                    this.m_sLanguageField = value;
+                    this.RaisePropertyChanged("m_sLanguage");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sOverlaypoints {
+            get {
+                return this.m_sOverlaypointsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sOverlaypointsField, value) != true)) {
+                    this.m_sOverlaypointsField = value;
+                    this.RaisePropertyChanged("m_sOverlaypoints");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sUrl {
+            get {
+                return this.m_sUrlField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sUrlField, value) != true)) {
+                    this.m_sUrlField = value;
+                    this.RaisePropertyChanged("m_sUrl");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AdProvider", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    public partial class AdProvider : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int ProviderIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ProviderNameField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int ProviderID {
+            get {
+                return this.ProviderIDField;
+            }
+            set {
+                if ((this.ProviderIDField.Equals(value) != true)) {
+                    this.ProviderIDField = value;
+                    this.RaisePropertyChanged("ProviderID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ProviderName {
+            get {
+                return this.ProviderNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ProviderNameField, value) != true)) {
+                    this.ProviderNameField = value;
+                    this.RaisePropertyChanged("ProviderName");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Branding", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    public partial class Branding : ConditionalAccess.WS_Catalog.FileMedia {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nBrandHeightField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nRecurringTypeIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nBrandHeight {
+            get {
+                return this.m_nBrandHeightField;
+            }
+            set {
+                if ((this.m_nBrandHeightField.Equals(value) != true)) {
+                    this.m_nBrandHeightField = value;
+                    this.RaisePropertyChanged("m_nBrandHeight");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nRecurringTypeId {
+            get {
+                return this.m_nRecurringTypeIdField;
+            }
+            set {
+                if ((this.m_nRecurringTypeIdField.Equals(value) != true)) {
+                    this.m_nRecurringTypeIdField = value;
+                    this.RaisePropertyChanged("m_nRecurringTypeId");
+                }
             }
         }
     }

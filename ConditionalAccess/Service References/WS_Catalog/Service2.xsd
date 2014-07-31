@@ -316,6 +316,16 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="BaseObject" nillable="true" type="tns:BaseObject" />
+  <xs:complexType name="ProgramObj">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseObject">
+        <xs:sequence>
+          <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oProgram" nillable="true" type="q16:EPGChannelProgrammeObject" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ProgramObj" nillable="true" type="tns:ProgramObj" />
   <xs:complexType name="MediaFileObj">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseObject">
@@ -335,6 +345,7 @@
       <xs:element minOccurs="0" name="m_nDuration" type="xs:double" />
       <xs:element minOccurs="0" name="m_nFileId" type="xs:int" />
       <xs:element minOccurs="0" name="m_nIsDefaultLanguage" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
       <xs:element minOccurs="0" name="m_oBreakProvider" nillable="true" type="tns:AdProvider" />
       <xs:element minOccurs="0" name="m_oOverlayProvider" nillable="true" type="tns:AdProvider" />
       <xs:element minOccurs="0" name="m_oPostProvider" nillable="true" type="tns:AdProvider" />
@@ -358,16 +369,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="AdProvider" nillable="true" type="tns:AdProvider" />
-  <xs:complexType name="ProgramObj">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseObject">
-        <xs:sequence>
-          <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oProgram" nillable="true" type="q16:EPGChannelProgrammeObject" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="ProgramObj" nillable="true" type="tns:ProgramObj" />
   <xs:complexType name="PicObj">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseObject">

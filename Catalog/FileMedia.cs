@@ -49,7 +49,8 @@ namespace Catalog
         public int m_nAltCdnID;
         [DataMember]
         public string m_sAltCoGUID;
-        
+        [DataMember]
+        public int m_nMediaID;
 
         public FileMedia()
         {

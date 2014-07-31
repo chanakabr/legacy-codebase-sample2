@@ -91,7 +91,7 @@ namespace Catalog
                 {
                     for (int i = 0; i < tasks.Length; i++)
                     {
-                        if(tasks[i] != null)
+                        if (tasks[i] != null)
                             tasks[i].Dispose();
                     }
                 }
@@ -152,7 +152,7 @@ namespace Catalog
                             return null;
                         }
                         oMediaObj.m_lBranding = new List<Branding>();
-                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, mediaRequest.m_oFilter.m_noFileUrl, nMedia, ref result);
+                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, mediaRequest.m_oFilter.m_noFileUrl, ref result);
                         if (!result)
                         {
                             return null;
@@ -323,107 +323,6 @@ namespace Catalog
             }
         }
 
-        
-        //private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, int nMedia, ref bool result)
-        //{
-        //    try
-        //    {
-        //        List<FileMedia> lFileMedia = new List<FileMedia>();
-        //        FileMedia fileMedia = new FileMedia();
-        //        Branding brand = new Branding();
-        //        result = true;
-        //        if (dtFileMedia != null)
-        //        {
-        //            for (int i = 0; i < dtFileMedia.Rows.Count; i++)
-        //            {
-        //                if ((!string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT")) && dtFileMedia.Rows[i]["BRAND_HEIGHT"].ToString() != "0") ||
-        //                     !string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID")) && dtFileMedia.Rows[i]["RECURRING_TYPE_ID"].ToString() != "0")
-        //                {
-        //                    brand.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
-        //                    brand.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
-        //                    brand.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
-        //                    brand.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
-        //                    brand.m_nBrandHeight = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT");
-        //                    brand.m_nRecurringTypeId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID");
-        //                    brand.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
-        //                    brand.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
-        //                    lBranding.Add(brand);
-        //                    brand = new Branding();
-        //                }
-        //                else
-        //                {
-        //                    int tempAdProvID = 0;
-        //                    fileMedia.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
-        //                    fileMedia.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
-        //                    fileMedia.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
-        //                    fileMedia.m_sCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "co_guid");
-        //                    fileMedia.m_sLanguage = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "LANGUAGE");
-        //                    fileMedia.m_nIsDefaultLanguage = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "IS_DEFAULT_LANGUAGE");
-        //                    fileMedia.m_sAltCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_CO_GUID");
-
-        //                    if (noFileUrl)
-        //                    {
-        //                        fileMedia.m_sUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
-        //                        fileMedia.m_sAltUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
-        //                    }
-        //                    else
-        //                    {
-        //                        fileMedia.m_sUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "FileURL");
-        //                        fileMedia.m_sAltUrl = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_FILE_URL");
-        //                    }
-
-        //                    fileMedia.m_sBillingType = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "bill_type");
-        //                    fileMedia.m_nCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "CdnID");
-        //                    fileMedia.m_nAltCdnID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "ALT_CDN_ID");
-        //                    tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_ID");
-        //                    if (tempAdProvID != 0)
-        //                    {
-        //                        fileMedia.m_oPreProvider = new AdProvider();
-        //                        fileMedia.m_oPreProvider.ProviderID = tempAdProvID;
-        //                        fileMedia.m_oPreProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_PRE_NAME");
-        //                        fileMedia.m_bIsPreSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_PRE") == 1;
-
-        //                    }
-        //                    tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_ID");
-        //                    if (tempAdProvID != 0)
-        //                    {
-        //                        fileMedia.m_oPostProvider = new AdProvider();
-        //                        fileMedia.m_oPostProvider.ProviderID = tempAdProvID;
-        //                        fileMedia.m_oPostProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_POST_NAME");
-        //                        fileMedia.m_bIsPostSkipEnabled = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "OUTER_COMMERCIAL_SKIP_POST") == 1;
-        //                    }
-        //                    tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_ID");
-        //                    if (tempAdProvID != 0)
-        //                    {
-        //                        fileMedia.m_oBreakProvider = new AdProvider();
-        //                        fileMedia.m_oBreakProvider.ProviderID = tempAdProvID;
-        //                        fileMedia.m_oBreakProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_BREAK_NAME");
-        //                        fileMedia.m_sBreakpoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_BREAK_POINTS");
-
-        //                    }
-        //                    tempAdProvID = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_ID");
-        //                    if (tempAdProvID != 0)
-        //                    {
-        //                        fileMedia.m_oOverlayProvider = new AdProvider();
-        //                        fileMedia.m_oOverlayProvider.ProviderID = tempAdProvID;
-        //                        fileMedia.m_oOverlayProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_NAME");
-        //                        fileMedia.m_sOverlaypoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_OVERLAY_POINTS");
-        //                    }
-        //                    lFileMedia.Add(fileMedia);
-        //                    fileMedia = new FileMedia();
-        //                }
-        //            }
-        //        }
-        //        return lFileMedia;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error(ex.Message, ex);
-        //        result = false;
-        //        return null;
-        //    }
-        //}
-
         private static string GetFictiveFileMediaUrl(int nMediaID, int nMediaFileID)
         {
             return string.Format("{0}||{1}", nMediaID, nMediaFileID);
@@ -579,10 +478,10 @@ namespace Catalog
                 List<List<string>> jsonizedChannelsDefinitions = null;
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
                 ApiObjects.SearchObjects.MediaSearchObj search = null;
-                
+
                 // Group have user types per media  +  siteGuid != empty
                 if (!string.IsNullOrEmpty(oMediaRequest.m_sSiteGuid) && IsGroupHaveUserType(oMediaRequest))
-                {                    
+                {
                     if (oMediaRequest.m_oFilter == null)
                     {
                         oMediaRequest.m_oFilter = new Filter();
@@ -773,36 +672,36 @@ namespace Catalog
         {
             Group group = GroupsCache.Instance.GetGroup(request.m_nGroupID);
 
-            if(group != null)
+            if (group != null)
             {
                 string searchKey;
-            if (request.m_AndList != null)
-            {
-                foreach (KeyValue andKeyValue in request.m_AndList)
+                if (request.m_AndList != null)
                 {
-                    searchKey = GetFullSearchKey(andKeyValue.m_sKey, ref group); // returns search key with prefix e.g. metas.{key}
-                    
-                    SearchValue search = new SearchValue();
-                    search.m_sKey = searchKey;
-                    search.m_lValue = new List<string> { andKeyValue.m_sValue };
-                    search.m_sValue = andKeyValue.m_sValue;
-                    m_dAnd.Add(search);
-                }
-            }
+                    foreach (KeyValue andKeyValue in request.m_AndList)
+                    {
+                        searchKey = GetFullSearchKey(andKeyValue.m_sKey, ref group); // returns search key with prefix e.g. metas.{key}
 
-            if (request.m_OrList != null)
-            {
-                foreach (KeyValue orKeyValue in request.m_OrList)
+                        SearchValue search = new SearchValue();
+                        search.m_sKey = searchKey;
+                        search.m_lValue = new List<string> { andKeyValue.m_sValue };
+                        search.m_sValue = andKeyValue.m_sValue;
+                        m_dAnd.Add(search);
+                    }
+                }
+
+                if (request.m_OrList != null)
                 {
-                    SearchValue search = new SearchValue();
+                    foreach (KeyValue orKeyValue in request.m_OrList)
+                    {
+                        SearchValue search = new SearchValue();
 
-                    searchKey = GetFullSearchKey(orKeyValue.m_sKey, ref group);// returns search key with prefix e.g. metas.{key}
-                    search.m_sKey = searchKey;
-                    search.m_lValue = new List<string> { orKeyValue.m_sValue };
-                    search.m_sValue = orKeyValue.m_sValue;
-                    m_dOr.Add(search);
+                        searchKey = GetFullSearchKey(orKeyValue.m_sKey, ref group);// returns search key with prefix e.g. metas.{key}
+                        search.m_sKey = searchKey;
+                        search.m_lValue = new List<string> { orKeyValue.m_sValue };
+                        search.m_sValue = orKeyValue.m_sValue;
+                        m_dOr.Add(search);
+                    }
                 }
-            }
             }
         }
 
@@ -1503,9 +1402,9 @@ namespace Catalog
 
             if (lIds != null && lIds.Count > 0)
             {
-                
+
                 GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(nGroupId); 
+                Group group = groupManager.GetGroup(nGroupId);
 
                 if (group != null)
                 {
@@ -1528,9 +1427,9 @@ namespace Catalog
             bool bIsUpdateIndexSucceeded = false;
 
             if (lIds != null && lIds.Count > 0)
-            {   
+            {
                 GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(nGroupId); 
+                Group group = groupManager.GetGroup(nGroupId);
 
                 if (group != null)
                 {
@@ -1667,7 +1566,7 @@ namespace Catalog
                 //initialize the search list with And / Or values
                 searcherEpgSearch.m_lSearchOr = dOr;
                 searcherEpgSearch.m_lSearchAnd = dAnd;
-                
+
                 searcherEpgSearch.m_nPageIndex = request.m_nPageIndex;
                 searcherEpgSearch.m_nPageSize = request.m_nPageSize;
 
@@ -1767,7 +1666,7 @@ namespace Catalog
             {
                 int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
                 int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
-                
+
                 if (nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0)
                     nEndIndex = pRequest.m_lProgramsIds.Count();
 
@@ -1971,7 +1870,7 @@ namespace Catalog
                 try
                 {
                     bool bWhiteSpace = searcher is LuceneWrapper;
-                    
+
                     //EpgSearchObj epgSearch = BuildEpgSearchObject(request, bWhiteSpace);
                     EpgSearchObj epgSearch = null;
                     List<List<string>> jsonizedChannelsDefinitions = null;
@@ -2091,9 +1990,9 @@ namespace Catalog
 
                     List<EpgResultsObj> epgResponse = new List<EpgResultsObj>();
                     EpgResultsObj resultPerChannel;
-                    BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);                    
+                    BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
                     GroupManager groupManager = new GroupManager();
-                    Group group = groupManager.GetGroup(request.m_nGroupID); 
+                    Group group = groupManager.GetGroup(request.m_nGroupID);
 
                     if (group != null)
                     {
@@ -2154,11 +2053,11 @@ namespace Catalog
             EpgResultsObj resultPerChannel = new EpgResultsObj();
             resultPerChannel.m_nChannelID = nChannelID;
             resultPerChannel.m_nTotalItems = epgList.Count();
-            
+
             //complete the full url for picURL 
             resultPerChannel.m_lEpgProgram = epgList;
             List<ApiObjects.EPGChannelProgrammeObject> tempEpgList = Utils.CompleteFullEpgPicURL(epgList);
-            if (tempEpgList!= null)
+            if (tempEpgList != null)
             {
                 resultPerChannel.m_lEpgProgram = tempEpgList;
             }
@@ -2361,7 +2260,7 @@ namespace Catalog
                                     mediaStat.m_nLikes = Utils.GetIntSafeVal(row, "like_counter");
 
                                     //BuzzMeter 
-                                    if (lBM!=null && lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
+                                    if (lBM != null && lBM.ContainsKey(mediaStat.m_nAssetID.ToString()))
                                     {
                                         mediaStat.m_buzzAverScore = lBM[mediaStat.m_nAssetID.ToString()];
                                     }
@@ -2435,7 +2334,7 @@ namespace Catalog
                         //BuzzMeter 
                         foreach (KeyValuePair<int, AssetStatsResult> asset in resultDic)
                         {
-                            if (lBM!= null && lBM.ContainsKey(asset.Key.ToString()))
+                            if (lBM != null && lBM.ContainsKey(asset.Key.ToString()))
                             {
                                 resultDic[asset.Key].m_buzzAverScore = lBM[asset.Key.ToString()];
                             }
@@ -2451,7 +2350,7 @@ namespace Catalog
                     }
 
 
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -2514,10 +2413,10 @@ namespace Catalog
                     {
                         // we have operator id
                         res = true;
-                        GroupManager groupManager = new GroupManager();                        
+                        GroupManager groupManager = new GroupManager();
                         List<long> channelsOfIPNO = groupManager.GetOperatorChannelIDs(oMediaRequest.m_nGroupID, operatorID);//group.GetOperatorChannelIDs(operatorID);
                         List<long> allChannelsOfAllIPNOs = groupManager.GetDistinctAllOperatorsChannels(oMediaRequest.m_nGroupID);// group.GetDistinctAllOperatorsChannels();
-                        
+
                         if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
                         {
                             // get channels definitions from ES Percolator
@@ -2647,8 +2546,8 @@ namespace Catalog
             if (!bHasTagPrefix)
             {
                 var metas = oGroup.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
-                               
-               
+
+
                 foreach (var val in metas)
                 {
                     if (val.Equals(sKey, StringComparison.OrdinalIgnoreCase))
@@ -2662,8 +2561,8 @@ namespace Catalog
             }
 
             return searchKey;
-		}
-		
+        }
+
         public static int GetLastPosition(int mediaID, int userID)
         {
 
@@ -2747,75 +2646,87 @@ namespace Catalog
             List<int> groupTreeVals = groupManager.GetSubGroup(groupID);
 
             DataTable dt = CatalogDAL.Get_MediaFilesDetails(groupTreeVals, mediaFileIDs, mediaFileCoGuid);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                res = new List<FileMedia>(dt.Rows.Count);
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    FileMedia fm = new FileMedia();
-                    fm.m_nFileId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]);
-                    fm.m_nDuration = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["DURATION"]);
-                    fm.m_sCoGUID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["CO_GUID"]);
-                    fm.m_sFileFormat = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["foramtDescription"]);
-                    fm.m_sLanguage = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["LANGUAGE"]);
-                    fm.m_nIsDefaultLanguage = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["IS_DEFAULT_LANGUAGE"]);
-                    fm.m_sAltCoGUID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ALT_CO_GUID"]);
-                    fm.m_sBillingType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["bill_type"]);
-                    fm.m_nCdnID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["CdnId"]);
-                    fm.m_nAltCdnID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ALT_CDN_ID"]);
-                    fm.m_sUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["FileURL"]);
-                    fm.m_sAltUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ALT_FILE_URL"]);
+            List<Branding> brands = new List<Branding>();
+            bool isSuccess = true;
+            res = FilesValues(dt, ref brands, false, ref isSuccess);
+            if (isSuccess && res != null)
+                return res;
+            return new List<FileMedia>(0);
+            //if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            //{
+            //    res = new List<FileMedia>(dt.Rows.Count);
+            //    for (int i = 0; i < dt.Rows.Count; i++)
+            //    {
+            //        FileMedia fm = new FileMedia();
+            //        fm.m_nFileId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]);
+            //        fm.m_nDuration = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["DURATION"]);
+            //        fm.m_sCoGUID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["CO_GUID"]);
+            //        fm.m_sFileFormat = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["foramtDescription"]);
+            //        fm.m_sLanguage = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["LANGUAGE"]);
+            //        fm.m_nIsDefaultLanguage = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["IS_DEFAULT_LANGUAGE"]);
+            //        fm.m_sAltCoGUID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ALT_CO_GUID"]);
+            //        fm.m_sBillingType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["bill_type"]);
+            //        fm.m_nCdnID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["CdnId"]);
+            //        fm.m_nAltCdnID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ALT_CDN_ID"]);
+            //        fm.m_sUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["FileURL"]);
+            //        fm.m_sAltUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ALT_FILE_URL"]);
 
-                    int tempAdProvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["COMMERCIAL_TYPE_PRE_ID"]);
-                    if (tempAdProvID > 0)
-                    {
-                        fm.m_oPreProvider = new AdProvider();
-                        fm.m_oPreProvider.ProviderID = tempAdProvID;
-                        fm.m_oPreProvider.ProviderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_TYPE_PRE_NAME"]);
-                        fm.m_bIsPreSkipEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["OUTER_COMMERCIAL_SKIP_PRE"]) == 1;
-                    }
+            //        int tempAdProvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["COMMERCIAL_TYPE_PRE_ID"]);
+            //        if (tempAdProvID > 0)
+            //        {
+            //            fm.m_oPreProvider = new AdProvider();
+            //            fm.m_oPreProvider.ProviderID = tempAdProvID;
+            //            fm.m_oPreProvider.ProviderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_TYPE_PRE_NAME"]);
+            //            fm.m_bIsPreSkipEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["OUTER_COMMERCIAL_SKIP_PRE"]) == 1;
+            //        }
 
-                    tempAdProvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["COMMERCIAL_TYPE_POST_ID"]);
-                    if (tempAdProvID > 0)
-                    {
-                        fm.m_oPostProvider = new AdProvider();
-                        fm.m_oPostProvider.ProviderID = tempAdProvID;
-                        fm.m_oPostProvider.ProviderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_TYPE_POST_NAME"]);
-                        fm.m_bIsPostSkipEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["OUTER_COMMERCIAL_SKIP_POST"]) == 1;
-                    }
+            //        tempAdProvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["COMMERCIAL_TYPE_POST_ID"]);
+            //        if (tempAdProvID > 0)
+            //        {
+            //            fm.m_oPostProvider = new AdProvider();
+            //            fm.m_oPostProvider.ProviderID = tempAdProvID;
+            //            fm.m_oPostProvider.ProviderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_TYPE_POST_NAME"]);
+            //            fm.m_bIsPostSkipEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["OUTER_COMMERCIAL_SKIP_POST"]) == 1;
+            //        }
 
-                    tempAdProvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["COMMERCIAL_TYPE_BREAK_ID"]);
+            //        tempAdProvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["COMMERCIAL_TYPE_BREAK_ID"]);
 
-                    if (tempAdProvID > 0)
-                    {
-                        fm.m_oBreakProvider = new AdProvider();
-                        fm.m_oBreakProvider.ProviderID = tempAdProvID;
-                        fm.m_oBreakProvider.ProviderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_TYPE_BREAK_NAME"]);
-                        fm.m_sBreakpoints = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_BREAK_POINTS"]);
-                    }
+            //        if (tempAdProvID > 0)
+            //        {
+            //            fm.m_oBreakProvider = new AdProvider();
+            //            fm.m_oBreakProvider.ProviderID = tempAdProvID;
+            //            fm.m_oBreakProvider.ProviderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_TYPE_BREAK_NAME"]);
+            //            fm.m_sBreakpoints = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_BREAK_POINTS"]);
+            //        }
 
-                    tempAdProvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["COMMERCIAL_TYPE_OVERLAY_ID"]);
-                    if (tempAdProvID > 0)
-                    {
-                        fm.m_oOverlayProvider = new AdProvider();
-                        fm.m_oOverlayProvider.ProviderID = tempAdProvID;
-                        fm.m_oOverlayProvider.ProviderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_TYPE_OVERLAY_NAME"]);
-                        fm.m_sOverlaypoints = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_OVERLAY_POINTS"]);
-                    }
+            //        tempAdProvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["COMMERCIAL_TYPE_OVERLAY_ID"]);
+            //        if (tempAdProvID > 0)
+            //        {
+            //            fm.m_oOverlayProvider = new AdProvider();
+            //            fm.m_oOverlayProvider.ProviderID = tempAdProvID;
+            //            fm.m_oOverlayProvider.ProviderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_TYPE_OVERLAY_NAME"]);
+            //            fm.m_sOverlaypoints = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COMMERCIAL_OVERLAY_POINTS"]);
+            //        }
 
-                    res.Add(fm);
-                }
-            }
-            else
-            {
-                res = new List<FileMedia>(0);
-            }
+            //        res.Add(fm);
+            //    }
+            //}
+            //else
+            //{
+            //    res = new List<FileMedia>(0);
+            //}
 
-            return res;
+            //return res;
+        }
+
+        private static bool IsBrand(DataRow dr)
+        {
+            return (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "BRAND_HEIGHT")) && !dr["BRAND_HEIGHT"].ToString().Equals("0")) 
+                || (!string.IsNullOrEmpty(Utils.GetStrSafeVal(dr, "RECURRING_TYPE_ID")) && !dr["RECURRING_TYPE_ID"].ToString().Equals("0"));
         }
 
         /*Insert all files that return from the "CompleteDetailsForMediaResponse" into List<FileMedia>*/
-        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, int nMedia, ref bool result)
+        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, ref bool result)
         {
             try
             {
@@ -2826,8 +2737,7 @@ namespace Catalog
                     lFileMedia = new List<FileMedia>(dtFileMedia.Rows.Count);
                     for (int i = 0; i < dtFileMedia.Rows.Count; i++)
                     {
-                        if ((!string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "BRAND_HEIGHT")) && dtFileMedia.Rows[i]["BRAND_HEIGHT"].ToString() != "0") ||
-                             !string.IsNullOrEmpty(Utils.GetStrSafeVal(dtFileMedia.Rows[i], "RECURRING_TYPE_ID")) && dtFileMedia.Rows[i]["RECURRING_TYPE_ID"].ToString() != "0")
+                        if (IsBrand(dtFileMedia.Rows[i]))
                         {
                             Branding brand = new Branding();
                             brand.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
@@ -2845,6 +2755,7 @@ namespace Catalog
                             FileMedia fileMedia = new FileMedia();
                             int tempAdProvID = 0;
                             fileMedia.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
+                            fileMedia.m_nMediaID = ODBCWrapper.Utils.GetIntSafeVal(dtFileMedia.Rows[i]["MEDIA_ID"]);
                             fileMedia.m_nDuration = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "duration");
                             fileMedia.m_sFileFormat = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "foramtDescription");
                             fileMedia.m_sCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "co_guid");
@@ -2854,8 +2765,8 @@ namespace Catalog
 
                             if (noFileUrl)
                             {
-                                fileMedia.m_sUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
-                                fileMedia.m_sAltUrl = GetFictiveFileMediaUrl(nMedia, fileMedia.m_nFileId);
+                                fileMedia.m_sUrl = GetFictiveFileMediaUrl(fileMedia.m_nMediaID, fileMedia.m_nFileId);
+                                fileMedia.m_sAltUrl = GetFictiveFileMediaUrl(fileMedia.m_nMediaID, fileMedia.m_nFileId);
                             }
                             else
                             {
