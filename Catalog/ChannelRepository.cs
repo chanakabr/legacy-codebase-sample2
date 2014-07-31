@@ -85,7 +85,7 @@ namespace Catalog
             try
             {
                 EpgGroupSettings egs = new EpgGroupSettings();
-                DataSet ds = Tvinci.Core.DAL.EpgDal.Get_GroupsTagsAndMetas(newGroup.m_nParentGroupID, newGroup.m_nSubGroup);
+                DataSet ds = Tvinci.Core.DAL.EpgDal.Get_GroupsTagsAndMetas(newGroup.m_nParentGroupID, newGroup.m_nSubGroup, 0/*return not only searchable*/);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
                 {

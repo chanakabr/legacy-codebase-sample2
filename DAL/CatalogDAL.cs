@@ -650,7 +650,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure spMetas= new ODBCWrapper.StoredProcedure("Get_MetasByGroup");
             spMetas.SetConnectionKey("MAIN_CONNECTION_STRING");
             spMetas.AddParameter("@GroupId", groupID);
-            spMetas.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+            spMetas.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id"); 
 
             DataSet ds = spMetas.ExecuteDataSet();
 

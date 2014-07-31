@@ -35,6 +35,7 @@ namespace Catalog.Cache
                 DateTime dNow = DateTime.Now;
 
                 group = ChannelRepository.BuildGroup(nGroupID);
+            
             }
             catch (Exception ex)
             {
