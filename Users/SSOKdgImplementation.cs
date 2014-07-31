@@ -102,9 +102,12 @@ namespace Users
                         {
                             bool isChangeCoGuidSuccess = DAL.DomainDal.UpdateDomainCoGuid(user.m_user.m_domianID, m_nGroupID, kdgLoginResp.CustomerAccountNumber);
                             if (!isChangeCoGuidSuccess)
-                                Logger.Logger.Log("Error updating domainCoGuid", string.Format("username:{0} newDomainCoGuid:{1} domainID:{2}", username, kdgLoginResp.CustomerAccountNumber, user.m_user.m_domianID), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));                                
+                            {
+                                user.m_RespStatus = ResponseStatus.InternalError;
+                                Logger.Logger.Log("Error updating domainCoGuid", string.Format("username:{0} newDomainCoGuid:{1} domainID:{2}", username, kdgLoginResp.CustomerAccountNumber, user.m_user.m_domianID), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
+                            }
                         }
-                        //User doesn't exist: Add new user and domain
+                            //User doesn't exist: Add new user and domain
                         else
                         {
                             user = AddNewKdgUser(username, pass, kdgLoginResp.Status, usersImplementation);
