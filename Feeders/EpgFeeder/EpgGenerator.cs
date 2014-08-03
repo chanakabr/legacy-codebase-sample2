@@ -28,7 +28,7 @@ namespace EpgFeeder
         public EpgGenerator()
         {
         }
-
+           
 
         public string ser(EpgObject oEpg)
         {
@@ -255,7 +255,7 @@ namespace EpgFeeder
                 GroupManager groupManager = new GroupManager();
                 List<int> lSubTree = groupManager.GetSubGroup(nGroupID);
 
-                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree);
+                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID);   
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 4)
                 {
