@@ -22,6 +22,6 @@ namespace EnumProject
             Meta,
             Tag
 
-        }
-    }
+        }     
+    }     
 }

@@ -92,10 +92,6 @@
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EnumProject\EnumProject.csproj">
-      <Project>{6ae84572-33d5-445f-aedf-c76eb887acbd}</Project>
-      <Name>EnumProject</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
