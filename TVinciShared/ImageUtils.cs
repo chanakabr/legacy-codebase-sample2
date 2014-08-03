@@ -467,8 +467,7 @@ namespace TVinciShared
                 else
                 {
                     sBasePath = sDirectory;
-                }
-                //string sBasePath = HttpContext.Current.Server.MapPath("");
+                }               
                 char[] delim = { '/' };
                 Uri uri = new Uri(sURL);
                 string[] splited = sURL.Split(delim);
@@ -482,32 +481,11 @@ namespace TVinciShared
                     else
                         sPicBaseName = sPicBaseName.Substring(nStart);
                     sPicBaseName += ".jpg";
-                }
-                //   string sTmpImage = sBasePath + "\\pics\\" + sPicBaseName;
-                string sTmpImage = sBasePath + "/pics/" + sPicBaseName;
-                //Uri uri = new Uri("http://maps.google.com/staticmap?center=45.728220,4.830321&zoom=8&size=200x200&maptype=roadmap&key=ABQIAAAAaHAby4XeLCIadFkAUW4vmRSkJGe9mG57rOapogjk9M-sm4TzXxR2I7bi2Qkj-opZe16CdmDs7_dNrQ");
+                }                
+                string sTmpImage = sBasePath + "/pics/" + sPicBaseName;                
 
                 HttpWebRequest httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
                 HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                
-
-                /*
-                Stream imageStream = httpResponse.GetResponseStream();
-                Bitmap theImage = new Bitmap(imageStream);
-                httpResponse.Close();
-                Logger.Logger.Log("Try to save file ", sTmpImage, "DownloadFile");
-                Bitmap temp = (Bitmap)(theImage.Clone());
-                
-                imageStream.Close();
-                theImage.Dispose();
-                if (File.Exists(sTmpImage) == false)
-                {
-                 //   theImage.Save(sTmpImage);
-                    temp.Save(sTmpImage);
-                }
-                temp.Dispose();
-                */
-
                 
                 using (Stream inputStream = httpResponse.GetResponseStream())
                 using (Stream outputStream = File.OpenWrite(sTmpImage))
@@ -521,8 +499,6 @@ namespace TVinciShared
                     } while (bytesRead != 0);
                 }
                 httpResponse.Close();
-                
-
 
                 Logger.Logger.Log("File downloaded", "Url:" + " " + sURL + " " + "File:" + " " + sPicBaseName, "DownloadFile");
                 return sPicBaseName;

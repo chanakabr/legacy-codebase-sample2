@@ -229,16 +229,19 @@ namespace Tvinci.Core.DAL
         }
 
 
-        public static DataSet GetEpgMappingFields(List<int> lSubTree)
+        /*Get all metas and tags for EPGs by groupID And it's mapping in the xml file*/
+        public static DataSet GetEpgMappingFields(List<int> lSubTree, int groupID)
         {
             StoredProcedure sp = new StoredProcedure("GetEpgMappingFields");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@SubGroupTree", lSubTree, "Id");
+            sp.AddParameter("@GroupID", groupID);
 
             DataSet ds = sp.ExecuteDataSet();
             return ds;
         }
 
+        /*return channel id by CHANNEL_ID (external gracenote channel id)*/
         public static int GetChannelByChannelID(int groupID, string sChannelID)
         {
             StoredProcedure sp = new StoredProcedure("Get_ChannelByChannelID");
@@ -250,7 +253,7 @@ namespace Tvinci.Core.DAL
 
             return retVal;
         }
-
+        /*Return all channel list by group_id*/
         public static DataTable GetAllEpgChannelsList(int GroupID)
         {
             StoredProcedure sp = new StoredProcedure("Get_AllEpgChannelsList");
