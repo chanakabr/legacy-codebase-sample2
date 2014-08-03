@@ -23,6 +23,6 @@ namespace EnumProject
             Tag
 
         }
-    }
+    }    
 }
     
