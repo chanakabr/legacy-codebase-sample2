@@ -64,6 +64,10 @@
       <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
       <Name>ElasticSearch</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\EnumProject\EnumProject.csproj">
+      <Project>{b085a841-f0f0-4ea7-8af3-b8c5440836db}</Project>
+      <Name>EnumProject</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\EpgBL\EpgBL.csproj">
       <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
       <Name>EpgBL</Name>
