@@ -71,6 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseWrapper", "Couchba
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingProvider", "CachingProvider\CachingProvider.csproj", "{4191D9E7-8502-4B00-A488-771240E2CF40}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnumProject", "EnumProject\EnumProject.csproj", "{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -402,6 +404,15 @@ Global
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|x86.ActiveCfg = Release|Any CPU
+		{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}.Basic|x86.ActiveCfg = Release|Any CPU
+		{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
