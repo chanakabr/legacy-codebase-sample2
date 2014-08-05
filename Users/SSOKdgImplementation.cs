@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using ApiObjects;
+using Newtonsoft.Json;
 
 namespace Users
 {
@@ -107,7 +109,7 @@ namespace Users
                                 Logger.Logger.Log("Error updating domainCoGuid", string.Format("username:{0} newDomainCoGuid:{1} domainID:{2}", username, kdgLoginResp.CustomerAccountNumber, user.m_user.m_domianID), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
                             }
                         }
-                            //User doesn't exist: Add new user and domain
+                        //User doesn't exist: Add new user and domain
                         else
                         {
                             user = AddNewKdgUser(username, pass, kdgLoginResp.Status, usersImplementation);
@@ -132,7 +134,7 @@ namespace Users
             {
                 Logger.Logger.Log("KDG-SSO", string.Format("Error Handing SignIn: ex:{0} UN|PASS={1}|{2}", ex.Message, username, pass), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
             }
-            
+
             return retResponse;
         }
 
@@ -161,7 +163,7 @@ namespace Users
             catch (Exception ex)
             {
                 Logger.Logger.Log("KDG-SSO", string.Format("Error adding new user - ex:{0} UN|PASS={1}|{2}", ex.Message, username, password), string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
-                return new UserResponseObject() {m_RespStatus = ResponseStatus.ErrorOnSaveUser};
+                return new UserResponseObject() { m_RespStatus = ResponseStatus.ErrorOnSaveUser };
             }
 
         }
@@ -170,17 +172,21 @@ namespace Users
         {
             try
             {
-                using (KDGApi.MockKdgServiceClient client = new KDGApi.MockKdgServiceClient())
+                KdgLoginResp kdgLoginRespObj = new KdgLoginResp() {Status = eKdgStatus.Unknown};
+                string kdgUrl = TCMClient.Settings.Instance.GetValue<string>("KDG-AuthURL");
+                if (!string.IsNullOrEmpty(kdgUrl))
                 {
-                    string accountIdentifier;
-                    eKdgStatus status = (eKdgStatus)client.authenticate(username, password, clientIp, out accountIdentifier);
-                    Logger.Logger.Log("KDG ValidateCredentials response", string.Format("{0} UN:{1} Pass:{2} | RespStatus:{3} RespDomainCoGuid:{4}", DateTime.UtcNow, username, password, ((int)status), accountIdentifier), "KDG-SSO credentials response");
-                    return new KdgLoginResp()
+                    KdgLoginReq loginReq = new KdgLoginReq(username, password, clientIp);
+                    using (WebClient client = new WebClient())
                     {
-                        CustomerAccountNumber = accountIdentifier,
-                        Status = status
-                    };
+                        string reqStr = JsonConvert.SerializeObject(loginReq);
+                        string kdgRespStr = client.UploadString(kdgUrl, reqStr);
+                        kdgLoginRespObj = JsonConvert.DeserializeObject<KdgLoginResp>(kdgRespStr);
+                    }
                 }
+                else
+                    Logger.Logger.Log("KDG-SSO", "Error getting KDG URL From TCM", string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));                
+                return kdgLoginRespObj;
             }
             catch (Exception ex)
             {
@@ -195,9 +201,28 @@ namespace Users
 
         #region KDG objects
 
+        private class KdgLoginReq
+        {
+            public KdgLoginReq(string username, string password, string ip)
+            {
+                this.Username = username;
+                this.Password = password;
+                this.IP = ip;
+            }
+
+            [JsonProperty("username")]
+            public string Username { get; set; }
+            [JsonProperty("password")]
+            public string Password { get; set; }
+            [JsonProperty("clientIp")]
+            public string IP { get; set; }
+        }
+
         private class KdgLoginResp
         {
+            [JsonProperty("accountnr")]
             public string CustomerAccountNumber { get; set; }
+            [JsonProperty("result")]
             public eKdgStatus Status { get; set; }
         }
 
@@ -213,6 +238,5 @@ namespace Users
         }
 
         #endregion
-
     }
 }
