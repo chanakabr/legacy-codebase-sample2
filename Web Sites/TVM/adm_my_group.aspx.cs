@@ -272,6 +272,14 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_default_info_struct.Initialize("Default info struct XML", "adm_table_header_nbg", "FormInput", "DEFAULT_INFO_STRUCT", false);
         theRecord.AddRecord(dr_default_info_struct);
 
+
+        //cancellation regulation
+        DataRecordDropDownField dr_view_lc = new DataRecordDropDownField("lu_min_periods", "DESCRIPTION", "id", "", null, 60, true);
+        dr_view_lc.Initialize("Default Waiver Period", "adm_table_header_nbg", "FormInput", "WAIVER_PERIOD", false);
+        //dr_view_lc.SetDefaultVal("20160");
+        theRecord.AddRecord(dr_view_lc);
+
+
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
