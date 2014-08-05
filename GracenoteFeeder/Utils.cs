@@ -21,27 +21,7 @@ namespace GracenoteFeeder
     {     
         public static readonly int MaxDescriptionSize = 1024;
         public static readonly int MaxNameSize =255;
-
-           
-        public static BaseGracenoteFeeder GetInstance(string sClient, string sUser, int nGroupID, int nUpdaterID = 0 )
-        {
-            //gracenote_feeder_type
-            int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
-            Type greceNoteFeederType = Type.GetType(TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("gracenote_feeder_type_{0}", nParentGroupID)));
-
-            switch (greceNoteFeederType.Name)
-            {
-                case "KDG":
-                    {
-                        return new KDG(sClient, sUser, nGroupID,nParentGroupID,nUpdaterID);
-                    }
-                default:
-                    {
-                        return null;
-                    }
-            }   
-        }
-
+        
 
         /*Build the FieldTypeEntity Mapping for each Tag / Meta with it's xml mapping */
         public static List<FieldTypeEntity> GetMappingFields(int nGroupID)

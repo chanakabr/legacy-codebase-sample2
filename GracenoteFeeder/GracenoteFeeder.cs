@@ -14,8 +14,7 @@ namespace GracenoteFeeder
 {
     public class GracenoteFeederObj : ScheduledTasks.BaseTask
     {
-        #region CONST
-        private const string TVGRIDBATCH_UPDATE = "TVGRIDBATCH_UPDATE";
+        #region CONST      
         private const char spliter = '|';
         #endregion
 
@@ -24,10 +23,11 @@ namespace GracenoteFeeder
         public string Client { get; set; }
         public string User { get; set; }
         public string Language { get; set; }
-
-
-
+        public string URL { get; set; }
+        public string ChannelXml { get; set; }
+        public string CategoryXml { get; set; }
         #endregion
+
         public GracenoteFeederObj(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
         {
@@ -62,7 +62,7 @@ namespace GracenoteFeeder
                 List<RESPONSES> lResponse = getXmlTVChannel(channels);
 
                 // run over and insert the programs
-                bool res = DoEpgFeeder(lResponse);
+                bool res = InsertProgramsPerChannel(lResponse);
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ namespace GracenoteFeeder
             return true;
         }
 
-        private bool DoEpgFeeder(List<RESPONSES> lResponse)
+        private bool InsertProgramsPerChannel(List<RESPONSES> lResponse)
         {
             try
             {
@@ -140,8 +140,18 @@ namespace GracenoteFeeder
         {   
             try
             {
+                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(GroupID);
+                 BaseGracenoteFeeder gnf = new BaseGracenoteFeeder(Client, User, GroupID, URL, ChannelXml, CategoryXml,nParentGroupID, 700);
+                 if (gnf != null)
+                 {
+                     gnf.SaveChannel(xmlDoc);
+                 }
+                 else
+                 {
+                     Logger.Logger.Log("SaveChannels", string.Format("no implementation for groupid={0} can't save this channel", GroupID), "GracenoteFeeder");
+                 }
                 //create the right implementation per group_id 
-                BaseGracenoteFeeder gnf = Utils.GetInstance(Client, User, GroupID);
+                /*BaseGracenoteFeeder gnf = Utils.GetInstance(Client, User, GroupID);
                 if (gnf != null)
                 {
                     gnf.SaveChannel(xmlDoc);
@@ -149,13 +159,12 @@ namespace GracenoteFeeder
                 else
                 {
                     Logger.Logger.Log("SaveChannels", string.Format("no implementation for groupid={0} can't save this channel",GroupID), "GracenoteFeeder");
-                }
+                }*/
             }
 
             catch (Exception ex)
             {
                 Logger.Logger.Log("SaveChannels", string.Format("fail to create programObject by xml ex={0}", ex.Message), "GracenoteFeeder");
-
             }
         }
 
@@ -217,13 +226,17 @@ namespace GracenoteFeeder
             {
                 string[] item = m_sParameters.Split(spliter);
                 GroupID = ODBCWrapper.Utils.GetIntSafeVal(item[0]);
-                Client = item[1];//"11031808-0670AB37EBAF7858AABB6817516F992E";
-                User = item[2];// "262426818535595867-54FB85D9940A7501818E38904ECE5A55
-                Language = item[3];// DE
+                Client = item[1];   //"11031808-0670AB37EBAF7858AABB6817516F992E";
+                User = item[2];     // "262426818535595867-54FB85D9940A7501818E38904ECE5A55
+                Language = item[3]; // DE
+                URL = item[4];      // "https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update";
+                ChannelXml = item[5];
+                CategoryXml = item[6];
             }
             catch (Exception ex)
             {
-                //TODO
+                Logger.Logger.Log("InitParamter", string.Format("fail to split the parameters ex={0}", ex.Message), "GracenoteFeeder");
+                throw ex;
             }
         }
 
@@ -235,13 +248,9 @@ namespace GracenoteFeeder
             {
                 foreach (string sChannelID in ChannelsID)
                 {
-                    string uri = "https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update";
+                    string uri = URL; 
                     string method = "POST";
-                    string postData = "<QUERIES> <AUTH> <CLIENT>" + Client + "</CLIENT>  <USER>" + User + "</USER>" +
-                    " </AUTH>  <QUERY CMD=\"" + TVGRIDBATCH_UPDATE + "\">    <STATE_INFO> <GN_ID>" + sChannelID + "</GN_ID>" +
-                    " <STATE_TYPE>TVCHANNEL</STATE_TYPE>      <LANG>" + Language + "</LANG>  <STAMP></STAMP> </STATE_INFO> <OPTION> <PARAMETER>EXTENDED_TVPROGRAM</PARAMETER>" +
-                    " <VALUE>YES</VALUE> </OPTION> </QUERY></QUERIES> ";
-
+                    string postData = string.Format(ChannelXml, Client, User, sChannelID, Language);
                     string sXml = Utils.getXmlFromGracenote(postData, method, uri);
                     lResponse.Add(ConvertXmlToResponseObj(sXml));
                 }
