@@ -227,15 +227,9 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         System.Data.DataTable CouponsGroupDT = GetCouponsDT();
         
         dr_coupons_group.SetSelectsDT(CouponsGroupDT);
-        dr_coupons_group.Initialize("Coupon Group ", "adm_table_header_nbg", "FormInput", "coupon_id", false);
-        //dr_coupons_group.SetDefault(0);
+        dr_coupons_group.Initialize("Coupon Group ", "adm_table_header_nbg", "FormInput", "coupon_id", false);       
         theRecord.AddRecord(dr_coupons_group);
-        /*
-        DataRecordShortDoubleField dr_view_lc = new DataRecordShortDoubleField(true, 12, 12);
-        dr_view_lc.Initialize("View Life Cycle (Min)", "adm_table_header_nbg", "FormInput", "VIEW_LIFE_CYCLE_MIN", true);
-        dr_view_lc.SetDefault(1440);
-        theRecord.AddRecord(dr_view_lc);
-        */
+       
         DataRecordShortDoubleField dr_max_views = new DataRecordShortDoubleField(true, 12, 12);
         dr_max_views.Initialize("Maximum Views", "adm_table_header_nbg", "FormInput", "MAX_VIEWS_NUMBER", true);
         dr_max_views.SetDefault(0);
@@ -254,6 +248,8 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_type.Initialize("Type", "adm_table_header_nbg", "FormInput", "type", false);
         dr_type.SetValue("1");
         theRecord.AddRecord(dr_type);
+                
+      
 
 
         string sTable = theRecord.GetTableHTML("adm_usage_modules_new.aspx?submited=1");
@@ -434,6 +430,31 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
+
+
+        // get default value from configuration for waiver_period by group id
+        
+        object oWaiverPeriod =  ODBCWrapper.Utils.GetTableSingleVal("groups", "WAIVER_PERIOD", LoginManager.GetLoginGroupID());
+        int nWaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(oWaiverPeriod);
+             
+        DataRecordCheckBoxField dr_waiver = new DataRecordCheckBoxField(true);
+        dr_waiver.Initialize("Waiver", "adm_table_header_nbg", "FormInput", "waiver", false);
+      if (nWaiverPeriod == 0)
+        {
+            dr_waiver.SetDefault(0);
+        }
+        else
+        {
+            dr_waiver.SetDefault(1);
+        }
+        theRecord.AddRecord(dr_waiver);
+
+        //cancellation regulation
+        DataRecordDropDownField dr_waiver_period = new DataRecordDropDownField("lu_min_periods", "DESCRIPTION", "id", "", null, 60, true);
+        dr_waiver_period.Initialize("Waiver Period", "adm_table_header_nbg", "FormInput", "waiver_period", false);
+        //dr_waiver_period.SetDefaultVal(nWaiverPeriod.ToString());// ("20160");
+        theRecord.AddRecord(dr_waiver_period);
+                    
 
         string sTable = theRecord.GetTableHTML("adm_discounts_new.aspx?submited=1");
 
