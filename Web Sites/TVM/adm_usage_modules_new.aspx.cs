@@ -436,7 +436,8 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         
         object oWaiverPeriod =  ODBCWrapper.Utils.GetTableSingleVal("groups", "WAIVER_PERIOD", LoginManager.GetLoginGroupID());
         int nWaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(oWaiverPeriod);
-             
+          
+   
         DataRecordCheckBoxField dr_waiver = new DataRecordCheckBoxField(true);
         dr_waiver.Initialize("Waiver", "adm_table_header_nbg", "FormInput", "waiver", false);
       if (nWaiverPeriod == 0)
