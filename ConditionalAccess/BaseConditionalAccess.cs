@@ -4061,7 +4061,8 @@ namespace ConditionalAccess
             else
             {
                 TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUsageModule", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                oUsageModule = m.GetUsageModule(sWSUserName, sWSPass, sAssetCode, TvinciPricing.eTransactionType.Collection);
+                TvinciPricing.eTransactionType enumPricing = (TvinciPricing.eTransactionType)Enum.Parse(typeof(TvinciPricing.eTransactionType), transactionName);
+                oUsageModule = m.GetUsageModule(sWSUserName, sWSPass, sAssetCode, enumPricing);
                 CachingManager.CachingManager.SetCachedData("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString(), oUsageModule, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
             }
 
