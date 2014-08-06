@@ -433,19 +433,35 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
 
 
         // get default value from configuration for waiver_period by group id
-        
-        object oWaiverPeriod =  ODBCWrapper.Utils.GetTableSingleVal("groups", "WAIVER_PERIOD", LoginManager.GetLoginGroupID());
+
+        object oWaiverPeriod = ODBCWrapper.Utils.GetTableSingleVal("groups", "WAIVER_PERIOD", LoginManager.GetLoginGroupID());
+        object oWaiver = 0;
+        if (t != null)
+        {
+            try
+            {
+                int usageModuleID = int.Parse(t.ToString());
+                oWaiver = ODBCWrapper.Utils.GetTableSingleVal("usage_modules", "waiver", usageModuleID, 0, "pricing_connection");
+            }
+            catch
+            {
+            }
+        }
+
         int nWaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(oWaiverPeriod);
-             
+        int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(oWaiver);
+        // get the value for  WAIVE from usage_module table - if it's an edit item
+
         DataRecordCheckBoxField dr_waiver = new DataRecordCheckBoxField(true);
         dr_waiver.Initialize("Waiver", "adm_table_header_nbg", "FormInput", "waiver", false);
-      if (nWaiverPeriod == 0)
+
+        if (nWaiverPeriod > 0 || nWaiver > 0)
         {
-            dr_waiver.SetDefault(0);
+            dr_waiver.SetDefault(1);
         }
         else
         {
-            dr_waiver.SetDefault(1);
+            dr_waiver.SetDefault(0);
         }
         theRecord.AddRecord(dr_waiver);
 
