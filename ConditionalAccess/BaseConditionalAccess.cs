@@ -8898,8 +8898,8 @@ namespace ConditionalAccess
 
 
         /* This method shall set the cancellation Date column in the user entitlement table (subscriptions/ppv/collection_purchases) to the current date 
-         * and set the is_active state to 0. 
-         * The method shall perform a call to the client specific billing gateway to perform a cancellation action on the external billing gateway*/
+       * and set the is_active state to 0. 
+       * The method shall perform a call to the client specific billing gateway to perform a cancellation action on the external billing gateway*/
         public virtual bool CancelTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID)
         {
             bool bRes = false;
@@ -8908,6 +8908,50 @@ namespace ConditionalAccess
             try
             {
                 // get the usage module for the asset id 
+                bool bCancellationWindow = GetCancellationWindow(sSiteGuid, nAssetID, transactionType, nGroupID, ref dt);
+                if (bCancellationWindow)
+
+                {
+
+                    switch (transactionType)
+                    {
+                        case eTransactionType.PPV:
+                            bRes = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                            break;
+                        case eTransactionType.Subscription:
+                            bRes = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                            break;
+                        case eTransactionType.Collection:
+                            bRes = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                            break;
+                        default:
+                            return false;
+                    }
+                }
+
+                if (bRes)
+                {
+                    try
+                    {
+                        WriteToUserLog(sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
+                    }
+                    catch { }
+                    //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
+                }
+
+                return bRes;
+            }
+            catch (Exception exp)
+            {
+                return false;
+            }
+        }
+
+        private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref System.Data.DataTable dt)
+        {
+
+            try
+            {
                 TvinciPricing.UsageModule oUsageModule = null;
                 bool bCancellationWindow = false;
                 DateTime dCreateDate = DateTime.MinValue;
@@ -8917,7 +8961,7 @@ namespace ConditionalAccess
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndPPVCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);   
+                        dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndPPVCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
                         break;
                     case eTransactionType.Subscription:
                         dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
@@ -8934,98 +8978,45 @@ namespace ConditionalAccess
                     dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
                     assetCode = nAssetID.ToString();
                     IsCancellationWindow(ref oUsageModule, assetCode, dCreateDate, ref bCancellationWindow, transactionType);
-                    if (bCancellationWindow)
-                    {
-
-                        switch (transactionType)
-                        {
-                            case eTransactionType.PPV:
-                                bRes = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sSiteGuid, nAssetID);
-                                break;
-                            case eTransactionType.Subscription:
-                                bRes = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
-                                break;
-                            case eTransactionType.Collection:
-                                bRes = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sSiteGuid, nAssetID);
-                                break;
-                            default:
-                                return false;
-                        }
-                    }
                 }
-                if (bRes)
-                {
-                    try
-                    {
-                        WriteToUserLog(sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
-                    }
-                    catch { }
-                    //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
-                }
-
-                return bRes;
+                return bCancellationWindow;
             }
             catch (Exception)
             {
                 return false;
             }
         }
-    
+
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
          * and the waiver_date field to the current date.*/
-        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID,  eTransactionType transactionType, int nGroupID)
+        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID)
         {
             bool bRes = false;
             System.Data.DataTable dt = null;
-            
+
             try
             {
-                // get the usage module for the asset id 
-                TvinciPricing.UsageModule oUsageModule = null;
-                bool bCancellationWindow = false;
-                DateTime dCreateDate = DateTime.MinValue;
-                int nSiteGuid = 0;
-                string assetCode = string.Empty;
-                bool bParse = int.TryParse(sSiteGuid,out  nSiteGuid);
-                switch (transactionType)
+                bool bCancellationWindow = GetCancellationWindow(sSiteGuid, nAssetID, transactionType, nGroupID, ref dt);
+                if (bCancellationWindow)
                 {
-                     case eTransactionType.PPV:
-                        dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndPPVCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);                        
-                        break;
-                    case eTransactionType.Subscription:
-                        dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);                   
-                        break;
-                    case eTransactionType.Collection:
-                        dt = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);                
-                        break;
-                    default:
-                       bCancellationWindow = false;
-                       break;
-                }
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
-                    assetCode = nAssetID.ToString();
-                    IsCancellationWindow(ref oUsageModule, assetCode, dCreateDate, ref bCancellationWindow, transactionType);
-                    if (bCancellationWindow)
+                    // if it's relevant by dates cancel it
+                    switch (transactionType)
                     {
-                        // if it's relevant by dates cancel it
-                        switch (transactionType)
-                        {
-                            case eTransactionType.PPV:
-                                bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);
-                                break;
-                            case eTransactionType.Subscription:
-                                bRes = DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
-                                break;
-                            case eTransactionType.Collection:
-                                bRes = DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
-                                break;
-                            default:
-                                return false;
-                        }
+                        case eTransactionType.PPV:
+                            bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                            break;
+                        case eTransactionType.Subscription:
+                            bRes = DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                            break;
+                        case eTransactionType.Collection:
+                            bRes = DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                            break;
+                        default:
+                            return false;
                     }
                 }
+
+
                 if (bRes)
                 {
                     try
@@ -9036,6 +9027,7 @@ namespace ConditionalAccess
                 }
                 return bRes;
             }
+
             catch (Exception)
             {
                 return false;
