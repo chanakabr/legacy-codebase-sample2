@@ -15,11 +15,41 @@ namespace CrowdsourcingFeeder.DataCollector.Base
 {
     public abstract class BaseDataCollector
     {
+
+        public bool ProccessCroudsourceTask()
+        {
+            using (CatalogClient = GetCatalogClient())
+            {
+                int[] collectedItems = Collect();
+                if (collectedItems != null && collectedItems.Length > 0)
+                {
+                    SelectedItem = SelectSingularItem(collectedItems);
+                    if (SelectedItem != null)
+                    {
+                        Dictionary<int, BaseCrowdsourceItem> itemsByLangDict = Normalize(SelectedItem);
+                        if (UpdateDataStore(itemsByLangDict))
+                        {
+                            DAL.CrowdsourceDAL.SetLastItemId(GroupId, CollectorType, AssetId, SelectedItem.Id);
+                        }
+                        return true;
+                    }
+                    Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error selecting singular item", DateTime.UtcNow, CollectorType), "Crowdsourcing.log");
+                    return false;
+                }
+                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - 0 ItemsCollected", DateTime.UtcNow, CollectorType), "Crowdsourcing.log");
+                return false;
+            }
+        }
+
+        #region Members
+        internal IserviceClient CatalogClient;
         internal int AssetId;
         internal int GroupId;
         internal eCrowdsourceType CollectorType;
+        internal SingularItem SelectedItem;  
+        #endregion
 
-        internal SingularItem SelectedItem;
+        #region Ctor
 
         protected BaseDataCollector(int assetId, int groupId, eCrowdsourceType collectorType)
         {
@@ -28,13 +58,16 @@ namespace CrowdsourcingFeeder.DataCollector.Base
             this.CollectorType = collectorType;
         }
 
+        #endregion
+
+        #region abstract methods
+
         protected abstract int[] Collect();
         protected abstract Dictionary<int, BaseCrowdsourceItem> Normalize(SingularItem item);
 
-        public BaseDataCollector()
-        {
-            
-        }
+        #endregion
+
+        #region common methods
 
         protected SingularItem SelectSingularItem(int[] collectedItems)
         {
@@ -67,7 +100,7 @@ namespace CrowdsourcingFeeder.DataCollector.Base
             catch (Exception ex)
             {
                 Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error selecting singular item. groupId:{2} ex: \n {3}",
-                                    DateTime.UtcNow, CollectorType, GroupId, ex.Message), "Crowdsourcing.log");
+                    DateTime.UtcNow, CollectorType, GroupId, ex.Message), "Crowdsourcing.log");
                 return null;
             }
         }
@@ -79,37 +112,13 @@ namespace CrowdsourcingFeeder.DataCollector.Base
                 foreach (KeyValuePair<int, BaseCrowdsourceItem> croudsourceItem in itemsByLangDict)
                 {
                     if (croudsourceItem.Value != null)
-                        DAL.CrowdsourceDAL.UpdateCsList(GroupId, croudsourceItem);
+                        CrowdsourceDAL.UpdateCsList(GroupId, croudsourceItem);
                     else
                         Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Media info missing:{2} MediaId={3} Language={4}",
-                                  DateTime.UtcNow, CollectorType, GroupId, SelectedItem.Id, croudsourceItem.Key), "Crowdsourcing.log");
+                            DateTime.UtcNow, CollectorType, GroupId, SelectedItem.Id, croudsourceItem.Key), "Crowdsourcing.log");
                 }
                 return true;
             }
-            return false;
-        }
-
-        public bool ProccessCroudsourceTask()
-        {
-            int[] collectedItems = Collect();
-            if (collectedItems != null && collectedItems.Length > 0)
-            {
-                SelectedItem = SelectSingularItem(collectedItems);
-                if (SelectedItem != null)
-                {
-                    Dictionary<int, BaseCrowdsourceItem> itemsByLangDict = Normalize(SelectedItem);
-                    if (UpdateDataStore(itemsByLangDict))
-                    {
-                        DAL.CrowdsourceDAL.SetLastItemId(GroupId, CollectorType, AssetId, SelectedItem.Id);
-                    }
-                    return true;
-                }
-                Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error selecting singular item",
-                                    DateTime.UtcNow, CollectorType), "Crowdsourcing.log");
-                return false;
-            }
-            Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - 0 ItemsCollected",
-                                    DateTime.UtcNow, CollectorType), "Crowdsourcing.log");
             return false;
         }
 
@@ -122,21 +131,21 @@ namespace CrowdsourcingFeeder.DataCollector.Base
                 if (languageList != null)
                 {
                     retDict = new Dictionary<LanguageObj, MediaResponse>();
-                    using (WS_Catalog.IserviceClient client = GetCatalogClient())
+                    using (IserviceClient client = GetCatalogClient())
                     {
                         foreach (LanguageObj languageObj in languageList)
                         {
                             string catalogSignString = Guid.NewGuid().ToString();
                             MediaResponse mediaInfoForLanguage = client.GetMediasByIDs(new MediasProtocolRequest()
                             {
-                                m_lMediasIds = new[] { mediaId },
+                                m_lMediasIds = new[] {mediaId},
                                 m_nGroupID = GroupId,
                                 m_oFilter = new Filter()
                                 {
                                     m_nLanguage = languageObj.ID,
                                 },
                                 m_sSignString = catalogSignString,
-                                m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, WS_Utils.GetTcmConfigValue("signKey")),
+                                m_sSignature = WS_Utils.GetCatalogSignature(catalogSignString, WS_Utils.GetTcmConfigValue("signKey")),
                             });
                             retDict.Add(languageObj, mediaInfoForLanguage);
                         }
@@ -148,14 +157,14 @@ namespace CrowdsourcingFeeder.DataCollector.Base
             catch (Exception ex)
             {
                 Logger.Logger.Log("Crowdsource", string.Format("{0}: {1} - Error getting item info. groupId:{2}, mediaId:{3} ex: \n {4}",
-                                        DateTime.UtcNow, CollectorType, GroupId, mediaId, ex.Message), "Crowdsourcing.log");
+                    DateTime.UtcNow, CollectorType, GroupId, mediaId, ex.Message), "Crowdsourcing.log");
                 return null;
             }
         }
 
-        internal IserviceClient GetCatalogClient()
+        private IserviceClient GetCatalogClient()
         {
-            string catalogUrl = TVinciShared.WS_Utils.GetTcmConfigValue("WS_Catalog");
+            string catalogUrl = WS_Utils.GetTcmConfigValue("WS_Catalog");
             Uri serviceUri = new Uri(catalogUrl);
             EndpointAddress endpointAddress = new EndpointAddress(serviceUri);
             WSHttpBinding binding = new WSHttpBinding
@@ -173,6 +182,9 @@ namespace CrowdsourcingFeeder.DataCollector.Base
             IserviceClient client = new IserviceClient(binding, endpointAddress);
             return client;
         }
+
+        #endregion
+
     }
 }
 
