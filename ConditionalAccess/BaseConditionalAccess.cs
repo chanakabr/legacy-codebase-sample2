@@ -8912,6 +8912,7 @@ namespace ConditionalAccess
                 bool bCancellationWindow = false;
                 DateTime dCreateDate = DateTime.MinValue;
                 int nSiteGuid = 0;
+                string assetCode = string.Empty;
                 bool bParse = int.TryParse(sSiteGuid, out  nSiteGuid);
                 switch (transactionType)
                 {
@@ -8931,8 +8932,8 @@ namespace ConditionalAccess
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
-
-                    IsCancellationWindow(ref oUsageModule, nAssetID.ToString(), dCreateDate, ref bCancellationWindow, transactionType);
+                    assetCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "assetCode");
+                    IsCancellationWindow(ref oUsageModule, assetCode, dCreateDate, ref bCancellationWindow, transactionType);
                     if (bCancellationWindow)
                     {
 
@@ -8984,6 +8985,7 @@ namespace ConditionalAccess
                 bool bCancellationWindow = false;
                 DateTime dCreateDate = DateTime.MinValue;
                 int nSiteGuid = 0;
+                string assetCode = string.Empty;
                 bool bParse = int.TryParse(sSiteGuid,out  nSiteGuid);
                 switch (transactionType)
                 {
@@ -9003,8 +9005,8 @@ namespace ConditionalAccess
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
-
-                    IsCancellationWindow(ref oUsageModule, nAssetID.ToString(), dCreateDate, ref bCancellationWindow, transactionType);
+                    assetCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "assetCode");
+                    IsCancellationWindow(ref oUsageModule, assetCode, dCreateDate, ref bCancellationWindow, transactionType);
                     if (bCancellationWindow)
                     {
                         // if it's relevant by dates cancel it
