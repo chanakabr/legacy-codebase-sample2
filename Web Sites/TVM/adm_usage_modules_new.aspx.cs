@@ -446,11 +446,11 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
 
         if (nWaiverPeriod > 0 || nWaiver > 0)
         {
-            dr_waiver.SetDefault(1);
+            dr_waiver.SetValue("1");
         }
         else
         {
-            dr_waiver.SetDefault(0);
+            dr_waiver.SetValue("0");
         }
 
         theRecord.AddRecord(dr_waiver);
