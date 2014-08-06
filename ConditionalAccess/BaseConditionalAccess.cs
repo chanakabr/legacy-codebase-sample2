@@ -8907,7 +8907,7 @@ namespace ConditionalAccess
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
+                        ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndPPVCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);   
                         break;
                     case eTransactionType.Subscription:
                         dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
@@ -8922,7 +8922,7 @@ namespace ConditionalAccess
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
-                    assetCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "assetCode");
+                    assetCode = nAssetID.ToString();
                     IsCancellationWindow(ref oUsageModule, assetCode, dCreateDate, ref bCancellationWindow, transactionType);
                     if (bCancellationWindow)
                     {
@@ -8980,7 +8980,7 @@ namespace ConditionalAccess
                 switch (transactionType)
                 {
                      case eTransactionType.PPV:
-                        dt =  ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(nAssetID, new List<int>() { nSiteGuid }, nGroupID);                        
+                        dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndPPVCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);                        
                         break;
                     case eTransactionType.Subscription:
                         dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);                   
@@ -8995,7 +8995,7 @@ namespace ConditionalAccess
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
-                    assetCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "assetCode");
+                    assetCode = nAssetID.ToString();
                     IsCancellationWindow(ref oUsageModule, assetCode, dCreateDate, ref bCancellationWindow, transactionType);
                     if (bCancellationWindow)
                     {
