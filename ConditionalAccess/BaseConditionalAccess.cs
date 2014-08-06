@@ -8917,7 +8917,7 @@ namespace ConditionalAccess
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndPPVCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);   
+                        dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndPPVCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);   
                         break;
                     case eTransactionType.Subscription:
                         dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
