@@ -8890,24 +8890,57 @@ namespace ConditionalAccess
         /* This method shall set the cancellation Date column in the user entitlement table (subscriptions/ppv/collection_purchases) to the current date 
          * and set the is_active state to 0. 
          * The method shall perform a call to the client specific billing gateway to perform a cancellation action on the external billing gateway*/
-        public virtual bool CancelTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
+        public virtual bool CancelTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID)
         {
             bool bRes = false;
+            System.Data.DataTable dt = null;
+
             try
-            {                
+            {
+                // get the usage module for the asset id 
+                TvinciPricing.UsageModule oUsageModule = null;
+                bool bCancellationWindow = false;
+                DateTime dCreateDate = DateTime.MinValue;
+                int nSiteGuid = 0;
+                bool bParse = int.TryParse(sSiteGuid, out  nSiteGuid);
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        bRes = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                        dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
                         break;
                     case eTransactionType.Subscription:
-                        bRes = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                        dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
                         break;
                     case eTransactionType.Collection:
-                        bRes = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                        dt = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
                         break;
                     default:
-                        return false;                       
+                        bCancellationWindow = false;
+                        break;
+                }
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
+
+                    IsCancellationWindow(ref oUsageModule, nAssetID.ToString(), dCreateDate, ref bCancellationWindow, transactionType);
+                    if (bCancellationWindow)
+                    {
+
+                        switch (transactionType)
+                        {
+                            case eTransactionType.PPV:
+                                bRes = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                                break;
+                            case eTransactionType.Subscription:
+                                bRes = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                                break;
+                            case eTransactionType.Collection:
+                                bRes = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                                break;
+                            default:
+                                return false;
+                        }
+                    }
                 }
                 if (bRes)
                 {
@@ -8926,28 +8959,60 @@ namespace ConditionalAccess
                 return false;
             }
         }
-
+    
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
          * and the waiver_date field to the current date.*/
-        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID,  eTransactionType transactionType)
+        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID,  eTransactionType transactionType, int nGroupID)
         {
             bool bRes = false;
+            System.Data.DataTable dt = null;
             
             try
             {
+                // get the usage module for the asset id 
+                TvinciPricing.UsageModule oUsageModule = null;
+                bool bCancellationWindow = false;
+                DateTime dCreateDate = DateTime.MinValue;
+                int nSiteGuid = 0;
+                bool bParse = int.TryParse(sSiteGuid,out  nSiteGuid);
                 switch (transactionType)
                 {
-                    case eTransactionType.PPV:
-                        bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);      
+                     case eTransactionType.PPV:
+                        dt =  ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(nAssetID, new List<int>() { nSiteGuid }, nGroupID);                        
                         break;
                     case eTransactionType.Subscription:
-                        bRes = DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);                        
+                        dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);                   
                         break;
                     case eTransactionType.Collection:
-                       bRes = DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);                       
+                        dt = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);                
                         break;
                     default:
-                        return false;
+                       bCancellationWindow = false;
+                       break;
+                }
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
+
+                    IsCancellationWindow(ref oUsageModule, nAssetID.ToString(), dCreateDate, ref bCancellationWindow, transactionType);
+                    if (bCancellationWindow)
+                    {
+                        // if it's relevant by dates cancel it
+                        switch (transactionType)
+                        {
+                            case eTransactionType.PPV:
+                                bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                                break;
+                            case eTransactionType.Subscription:
+                                bRes = DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                                break;
+                            case eTransactionType.Collection:
+                                bRes = DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                                break;
+                            default:
+                                return false;
+                        }
+                    }
                 }
                 if (bRes)
                 {
