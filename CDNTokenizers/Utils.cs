@@ -47,5 +47,13 @@ namespace CDNTokenizers
             }
             return sb.ToString();
         }
+
+        public static void AddQueryStringParams(ref UriBuilder uriBuilder, string queryStr)
+        {
+            if (uriBuilder.Query != null && uriBuilder.Query.Length > 1)
+                uriBuilder.Query = string.Concat(uriBuilder.Query.Substring(1), "&", queryStr);
+            else
+                uriBuilder.Query = queryStr;
+        }
     }
 }

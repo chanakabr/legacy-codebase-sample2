@@ -15,7 +15,7 @@ namespace CDNTokenizers.Tokenizers.AkamaiTokenizers
         {
         }
 
-        public override void Init()
+        internal override void Init()
         {
             base.Init();
             

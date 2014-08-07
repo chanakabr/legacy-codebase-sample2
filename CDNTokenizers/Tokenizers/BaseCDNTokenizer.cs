@@ -20,7 +20,7 @@ namespace CDNTokenizers.Tokenizers
             m_sSalt = string.Empty;
         }
 
-        public virtual void Init()
+        internal virtual void Init()
         {
             //Get streaming co TTL + SALT
             ODBCWrapper.StoredProcedure Get_StreamingCoBasicParams = new ODBCWrapper.StoredProcedure("Get_StreamingCoBasicParams");

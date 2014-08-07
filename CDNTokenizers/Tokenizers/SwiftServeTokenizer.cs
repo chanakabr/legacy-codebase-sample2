@@ -15,7 +15,7 @@ namespace CDNTokenizers.Tokenizers
 
         }
 
-        public override void Init()
+        internal override void Init()
         {
             base.Init();
             m_sSaltBytes = System.Text.Encoding.UTF8.GetBytes(m_sSalt);
@@ -35,15 +35,10 @@ namespace CDNTokenizers.Tokenizers
                 string endTime = GetEndTime();
 
                 string queryParams = string.Format("stime={0}&etime={1}&ip={2}", startTime, endTime,ip);
-
-                if (uriBuilder.Query != null && uriBuilder.Query.Length > 1)
-                    uriBuilder.Query = string.Concat(uriBuilder.Query.Substring(1), "&", queryParams);
-                else
-                    uriBuilder.Query = queryParams;
+                Utils.AddQueryStringParams(ref uriBuilder, queryParams);
 
                 string hashStr = SignString(uriBuilder.Uri.PathAndQuery);
-
-                uriBuilder.Query = string.Concat(uriBuilder.Query.Substring(1), "&encoded=", hashStr);
+                Utils.AddQueryStringParams(ref uriBuilder, string.Concat("encoded=", hashStr));
 
                 resultURL = uriBuilder.Uri.ToString();
             }

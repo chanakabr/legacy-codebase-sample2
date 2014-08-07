@@ -20,7 +20,7 @@ namespace CDNTokenizers.Tokenizers
 
         }
 
-        public override void Init()
+        internal override void Init()
         {
             base.Init();
             m_sSaltBytes = System.Text.Encoding.ASCII.GetBytes(m_sSalt);
@@ -34,7 +34,7 @@ namespace CDNTokenizers.Tokenizers
                 #region get query params
                 string url = GetUrl(dParams);
                 string assetname = GetAssetName(url);
-                string ip = dParams[Constants.IP];
+                string ip = GetIP(dParams);
                 DateTime expiration = GetExpirationTime();
                 string sessionID = GenerateSessionID();
 
@@ -49,18 +49,14 @@ namespace CDNTokenizers.Tokenizers
 
                 #region build uri with query
                 UriBuilder baseUri = new UriBuilder(url);
-
-                if (baseUri.Query != null && baseUri.Query.Length > 1)
-                    baseUri.Query = string.Concat(baseUri.Query.Substring(1), "&", queryStr);
-                else
-                    baseUri.Query = queryStr;
-
+                Utils.AddQueryStringParams(ref baseUri, queryStr);
                 resultURL = baseUri.Uri.ToString();
                 #endregion
 
             }
             catch (Exception ex)
             {
+                Logger.Logger.Log("Error", string.Format("Concurrent CDN - caught exception when generating token. ex={0}; stack={1}", ex.Message, ex.StackTrace), CDN_TOKENIZER_LOG);
             }
 
 
