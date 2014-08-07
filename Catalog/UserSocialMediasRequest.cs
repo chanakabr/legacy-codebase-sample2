@@ -34,7 +34,7 @@ namespace Catalog
         {
             try
             {
-                UserSocialMediasRequest request = (UserSocialMediasRequest)oBaseRequest;
+                UserSocialMediasRequest request = oBaseRequest as UserSocialMediasRequest;
                 MediaIdsResponse response = new MediaIdsResponse();
                 SearchResult oMediaRes;
                 List<SearchResult> lMedias = new List<SearchResult>();
@@ -48,9 +48,7 @@ namespace Catalog
                 if (request == null)
                     throw new Exception("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 DataTable dt = CatalogDAL.Get_UserSocialMedias(request.m_sSiteGuid, request.m_nSocialPlatform, request.m_nSocialAction);
                 if (dt != null)
@@ -76,7 +74,7 @@ namespace Catalog
                             xmlresult = SerializeToXML<MediaIdsResponse>(response);
                         }
                         _logger.Info(xmlresult);
-                        return (BaseResponse)response;
+                        return response;
                     }
                 }
                 return response;

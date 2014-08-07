@@ -23,6 +23,7 @@ namespace Catalog
     public class Utils
     {
         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        public const int DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC = 500; // half a second
 
         /*Build some of the "where" query part : the range date by the params*/
         static public string GetDateRangeQuery(string sEndDateField, bool bUseStartDate)
@@ -892,5 +893,15 @@ namespace Catalog
                 }
             }
         }
+
+        public static int GetCatalogLogThreshold()
+        {
+            int res = 0;
+            string configOverride = GetWSURL("LOG_THRESHOLD");
+            if (!string.IsNullOrEmpty(configOverride) && Int32.TryParse(configOverride, out res) && res > 0)
+                return res;
+            return DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC;
+        }	
+
     }
 }

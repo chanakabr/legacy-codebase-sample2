@@ -176,6 +176,8 @@ namespace Catalog
             {
                 return new BundlesContainingMediaRequest();
             }
+            if (m_oBaseRequest is MediaFilesRequest)
+                return (MediaFilesRequest)m_oBaseRequest;
 
 
             return null;

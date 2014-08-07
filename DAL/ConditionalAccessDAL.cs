@@ -877,6 +877,9 @@ namespace DAL
             return null;
         }
 
+       
+
+
         public static DataTable Get_SubUsesByUserListFileIDAndSubCode(List<int> UserIDs, string subCode, int nMediaFileID, int nGroupID)
         {
             ODBCWrapper.StoredProcedure spGet_PPVUsesByUserListFileIDAndSubCode = new ODBCWrapper.StoredProcedure("Get_SubUsesByUserListFileIDAndSubCode");
@@ -972,18 +975,32 @@ namespace DAL
             return res;
         }
 
-        public static DataTable Get_LatestFileUse(List<int> UserIDs, int nMediaFileID)
+        public static bool Get_LatestFileUse(List<int> userIDs, int mediaFileID, ref string ppvModuleCode,
+            ref bool isOfflineStatus, ref DateTime dateNow, ref DateTime purchaseDate)
         {
+            bool res = false;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestFileUse");
             sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddIDListParameter<int>("@usersList", UserIDs, "Id");
-            sp.AddParameter("@MediaFileID", nMediaFileID);
+            sp.AddIDListParameter<int>("@usersList", userIDs, "Id");
+            sp.AddParameter("@MediaFileID", mediaFileID);
 
             DataSet ds = sp.ExecuteDataSet();
 
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    ppvModuleCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ppvmodule_code"]);
+                    isOfflineStatus = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["offline_status"]) == 1;
+                    dateNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
+                    purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
+
+                }
+            }
+            return res;
         }
 
         public static DataTable Get_PreviewModuleDataForEntitlementCalc(int nGroupID, string sSiteGuid, string sSubCode)
@@ -1578,6 +1595,122 @@ namespace DAL
                 }
             }
 
+
+            return res;
+        }
+     
+
+
+        public static DataTable Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(int nSubscriptionCode, List<int> UserIDs, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spGet_AllPPVPurchasesByUserIDsAndMediaFileID = new ODBCWrapper.StoredProcedure("Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode");
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@SubscriptionCode", nSubscriptionCode);
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@groupID", nGroupID);
+
+
+            DataSet ds = spGet_AllPPVPurchasesByUserIDsAndMediaFileID.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable Get_AllCollectionPurchasesByUserIDsAndCollectionCode(int nCollectionCode, List<int> UserIDs, int nGroupID)
+        {
+            ODBCWrapper.StoredProcedure spGet_AllPPVPurchasesByUserIDsAndMediaFileID = new ODBCWrapper.StoredProcedure("Get_AllCollectionPurchasesByUserIDsAndCollectionCode");
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@CollectionCode", nCollectionCode);
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@groupID", nGroupID);
+
+
+            DataSet ds = spGet_AllPPVPurchasesByUserIDsAndMediaFileID.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+        
+
+        public static string Get_LicensedLinkSecretCode(long groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_LicensedLinkSecretCode");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null &&
+                ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                return ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0]["SECRET_CODE"]);
+            }
+
+            return string.Empty;
+        }
+
+        public static bool Get_GroupSecretAndCountryCode(long groupID, ref string secretCode, ref string countryCode)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_GroupSecretAndCountryCode");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                res = true;
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    secretCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["GROUP_SECRET_CODE"]);
+                    countryCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["GROUP_COUNTRY_CODE"]);
+                }
+            }
+
+            return res;
+        }
+
+        public static int Get_MediaFileStreamingCoID(string mediaFileIDStr, bool isCoGuid)
+        {
+            int nStreamingCoID = 0;
+
+            ODBCWrapper.StoredProcedure Get_MediaFileStreamingCoID = new ODBCWrapper.StoredProcedure("Get_MediaFileStreamingCoID");
+            Get_MediaFileStreamingCoID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            Get_MediaFileStreamingCoID.AddParameter("@MediaFileID", mediaFileIDStr);
+            Get_MediaFileStreamingCoID.AddParameter("@IsCoGuid", isCoGuid);
+
+            System.Data.DataSet ds = Get_MediaFileStreamingCoID.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                nStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+            }
+
+            return nStreamingCoID;
+        }
+
+        public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID) 
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_BasicLinkData");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", mediaFileID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                res = true;
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    baseUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["VIDEO_BASE_URL"]);
+                    streamingCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["STREAMING_CODE"]);
+                    streamingCompanyID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["STREAMING_SUPLIER_ID"]);
+                }
+            }
 
             return res;
         }

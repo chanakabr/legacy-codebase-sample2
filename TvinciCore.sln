@@ -71,6 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseWrapper", "Couchba
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingProvider", "CachingProvider\CachingProvider.csproj", "{4191D9E7-8502-4B00-A488-771240E2CF40}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDNTokenizers", "..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj", "{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -402,6 +404,15 @@ Global
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|x86.ActiveCfg = Release|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Basic|x86.ActiveCfg = Release|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

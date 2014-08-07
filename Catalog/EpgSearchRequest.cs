@@ -90,11 +90,12 @@ namespace Catalog
         {
             try
             {
-                EpgSearchRequest request = (EpgSearchRequest)oBaseRequest;
+                EpgSearchRequest request = oBaseRequest as EpgSearchRequest;
                 EpgSearchResponse oResponse = new EpgSearchResponse();
 
-                CheckSignature(oBaseRequest);
                 CheckEPGRequestIsValid(request);
+                CheckSignature(request);
+                
 
                 //GetMediaIds With Searcher service
                 bool isLucene = false;
@@ -123,7 +124,7 @@ namespace Catalog
                     }
                 }
 
-                return (BaseResponse)oResponse;
+                return oResponse;
             }
             catch (Exception ex)
             {
