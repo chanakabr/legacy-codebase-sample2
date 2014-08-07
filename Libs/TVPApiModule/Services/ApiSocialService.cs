@@ -96,14 +96,14 @@ namespace TVPApiModule.Services
             return eRes;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] GetUserSocialActions(string siteGuid,
+        public TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] GetUserSocialActions(string siteGuid,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
                                                                                                       TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
                                                                                                       bool onlyFriends,
                                                                                                       int startIndex,
                                                                                                       int numOfItems)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.UserSocialActionObject[] res = null;
+            TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] res = null;
 
             try
             {
@@ -325,9 +325,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserSocialActionObject[] GetUserActions(string siteGuid, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public SocialActivityDoc[] GetUserActions(string siteGuid, eUserAction userAction, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
-            UserSocialActionObject[] res = null;
+            SocialActivityDoc[] res = null;
 
             try
             {
@@ -336,7 +336,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_nAssetID = assetID,
+                    m_lAssetIDs = new int[]{ assetID },
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
@@ -353,9 +353,9 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserSocialActionObject[] GetFriendsActions(string siteGuid, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
+        public SocialActivityDoc[] GetFriendsActions(string siteGuid, string[] userActions, eAssetType assetType, int assetID, int startIndex, int numOfRecords, SocialPlatform socialPlatform)
         {
-            UserSocialActionObject[] res = null;
+            SocialActivityDoc[] res = null;
 
             try
             {
@@ -369,7 +369,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_nAssetID = assetID,
+                    m_lAssetIDs = new int[]{ assetID },
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,

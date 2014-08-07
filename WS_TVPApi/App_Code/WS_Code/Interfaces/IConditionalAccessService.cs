@@ -99,5 +99,8 @@ namespace TVPApiServices
 
         [OperationContract]
         PermittedCollectionContainer[] GetUserExpiredCollections(InitializationObject initObj, string siteGuid, int numOfItems);
+
+        [OperationContract]
+        LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink);
     }
 }

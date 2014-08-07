@@ -860,5 +860,34 @@ namespace TVPApiServices
 
             return collections;
         }
+
+        [WebMethod(EnableSession = true, Description = "Get User Expired Collection")]
+        public LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink)
+        {
+            LicensedLinkResponse links = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetUserExpiredCollection", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    links = new ApiConditionalAccessService(groupId, initObj.Platform).GetLicensedLinks(initObj.SiteGuid, mediaFileID,baseLink,initObj.UDID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return links;
+        }
+
     }
 }
