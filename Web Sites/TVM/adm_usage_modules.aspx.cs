@@ -97,7 +97,8 @@ public partial class adm_usage_modules : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("pricing_connection");
-        theTable += "select um.is_active,um.id as id,um.NAME as 'Code',lmp1.description as 'View Life Cycle',lmp2.description as 'Full Life Cycle',um.MAX_VIEWS_NUMBER as 'Maximium Views',um.status,lcs.description as 'State' from usage_modules um,lu_content_status lcs,lu_min_periods lmp1, lu_min_periods lmp2 where lmp1.id=um.VIEW_LIFE_CYCLE_MIN and lmp2.id=um.FULL_LIFE_CYCLE_MIN and lcs.id=um.status and um.status<>2 and ";
+        theTable += "select um.is_active,um.id as id,um.NAME as 'Code',lmp1.description as 'View Life Cycle',lmp2.description as 'Full Life Cycle',um.MAX_VIEWS_NUMBER as 'Maximium Views',um.status,lcs.description as 'State',  um.WAIVER, um.WAIVER_PERIOD "+
+            "from usage_modules um,lu_content_status lcs,lu_min_periods lmp1, lu_min_periods lmp2 where lmp1.id=um.VIEW_LIFE_CYCLE_MIN and lmp2.id=um.FULL_LIFE_CYCLE_MIN and lcs.id=um.status and um.status<>2 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("um.group_id", "=", nGroupID);
         if (Session["usage_module_type"] != null && !string.IsNullOrEmpty(Session["usage_module_type"].ToString()))
         {
