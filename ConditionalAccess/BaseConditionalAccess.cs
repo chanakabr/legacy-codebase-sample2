@@ -9219,7 +9219,7 @@ namespace ConditionalAccess
 
 
             }
-            catch (Exception exp)
+            catch (Exception ex)
             {
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at CancelTransaction. ");
@@ -9239,9 +9239,7 @@ namespace ConditionalAccess
 
         private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref System.Data.DataTable dt)
         {
-
-<<<<<<< .mine
-=======>>>>>>> .theirs            try
+            try
             {
                 TvinciPricing.UsageModule oUsageModule = null;
                 bool bCancellationWindow = false;
