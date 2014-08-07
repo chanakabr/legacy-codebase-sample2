@@ -650,7 +650,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure spMetas= new ODBCWrapper.StoredProcedure("Get_MetasByGroup");
             spMetas.SetConnectionKey("MAIN_CONNECTION_STRING");
             spMetas.AddParameter("@GroupId", groupID);
-            spMetas.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+            spMetas.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id"); 
 
             DataSet ds = spMetas.ExecuteDataSet();
 
@@ -1242,13 +1242,13 @@ namespace Tvinci.Core.DAL
 
             return new List<int>(0);
         }
-
+        
 
         public static List<LanguageObj> GetGroupLanguages(int nGroupID)
         {
             List<LanguageObj> lLanguages = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupLanguages");
-            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@groupID", nGroupID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {

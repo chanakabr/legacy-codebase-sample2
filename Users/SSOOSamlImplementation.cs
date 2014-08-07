@@ -8,14 +8,14 @@ using Users.Saml;
 
 namespace Users
 {
-    public class SSOOSamlImplementation : SSOUsers, ISSOProviderImplementation
+    public class SSOOSamlImplementation : SSOUsers, ISSOProvider
     {
         OSamlUserDetails userDetails = null;
         SamlProviderObject prov = null;
         SamlCredentialObject creds = null;
-      
-        public SSOOSamlImplementation(int nGroupID)
-            : base(nGroupID)
+
+        public SSOOSamlImplementation(int nGroupID, int operatorId)
+            : base(nGroupID, operatorId)
         {
         }
 
@@ -29,18 +29,18 @@ namespace Users
                 if (dt != null && dt.DefaultView.Count > 0)
                 {
                     userDetails = new OSamlUserDetails()
-                        {
-                            SiteGuid = dt.Rows[0]["user_site_guid"].ToString(),
-                            CoGuid = dt.Rows[0]["CO_GUID"].ToString(),
-                        };
-                    return User.SignIn(int.Parse(userDetails.SiteGuid), nMaxFailCount, nLockMinutes, m_nGroupID, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);                                
+                    {
+                        SiteGuid = dt.Rows[0]["user_site_guid"].ToString(),
+                        CoGuid = dt.Rows[0]["CO_GUID"].ToString(),
+                    };
+                    return User.SignIn(int.Parse(userDetails.SiteGuid), nMaxFailCount, nLockMinutes, m_nGroupID, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);
                 }
                 else
                 {
                     return new UserResponseObject() { m_RespStatus = ResponseStatus.UserDoesNotExist };
-                }                
+                }
             }
-            else 
+            else
                 return new UserResponseObject() { m_RespStatus = ResponseStatus.UserDoesNotExist };
         }
 
