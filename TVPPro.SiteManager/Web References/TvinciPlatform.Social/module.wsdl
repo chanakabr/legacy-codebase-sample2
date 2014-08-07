@@ -198,7 +198,7 @@
             <s:sequence>
               <s:element minOccurs="1" maxOccurs="1" name="m_eUserActions" type="tns:eUserAction" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_nAssetID" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_lAssetIDs" type="tns:ArrayOfInt" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nStartIndex" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nNumOfRecords" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_eAssetType" type="tns:eAssetType" />
@@ -266,6 +266,11 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="GetFriendsActionsRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:UserSocialActionQueryRequest" />
@@ -274,25 +279,66 @@
       <s:element name="GetUserActionsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetUserActionsResult" type="tns:ArrayOfUserSocialActionObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserActionsResult" type="tns:ArrayOfSocialActivityDoc" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ArrayOfUserSocialActionObject">
+      <s:complexType name="ArrayOfSocialActivityDoc">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="UserSocialActionObject" nillable="true" type="tns:UserSocialActionObject" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SocialActivityDoc" nillable="true" type="tns:SocialActivityDoc" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="UserSocialActionObject">
+      <s:complexType name="SocialActivityDoc">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_eSocialAction" type="tns:eUserAction" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_eSocialPlatform" type="tns:SocialPlatform" />
-          <s:element minOccurs="1" maxOccurs="1" name="nMediaID" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="nProgramID" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="assetType" type="tns:eAssetType" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_dActionDate" type="s:dateTime" />
-          <s:element minOccurs="1" maxOccurs="1" name="nRateValue" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DocOwnerSiteGuid" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="SocialPlatform" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="DocType" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="CreateDate" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastUpdate" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="PermitSharing" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActivityObject" type="tns:SocialActivityObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActivitySubject" type="tns:SocialActivitySubject" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActivityVerb" type="tns:SocialActivityVerb" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialActivityObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="AssetID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="ObjectID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="tns:eAssetType" />
+          <s:element minOccurs="0" maxOccurs="1" name="AssetName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PicUrl" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialActivitySubject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ActorSiteGuid" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActorPicUrl" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActorTvinciUsername" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="GroupID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="DeviceUdid" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialActivityVerb">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SocialActionID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ActionType" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActionName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="RateValue" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActionProperties" type="tns:ArrayOfActionProperties" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfActionProperties">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ActionProperties" nillable="true" type="tns:ActionProperties" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ActionProperties">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PropertyName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PropertyValue" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetFriendsActions">
@@ -307,7 +353,7 @@
       <s:element name="GetFriendsActionsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetFriendsActionsResult" type="tns:ArrayOfUserSocialActionObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetFriendsActionsResult" type="tns:ArrayOfSocialActivityDoc" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -641,6 +687,25 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetUserActivityFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nPageSize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nPageIndex" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPicDimension" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserActivityFeedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserActivityFeedResult" type="tns:ArrayOfSocialActivityDoc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="FBUserUnmerge">
         <s:complexType>
           <s:sequence>
@@ -668,6 +733,7 @@
       <s:element name="FacebookResponseObject" nillable="true" type="tns:FacebookResponseObject" />
       <s:element name="eSocialActionPrivacy" type="tns:eSocialActionPrivacy" />
       <s:element name="int" type="s:int" />
+      <s:element name="ArrayOfSocialActivityDoc" nillable="true" type="tns:ArrayOfSocialActivityDoc" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="GetUsersLikedMediaSoapIn">
@@ -795,6 +861,12 @@
   </wsdl:message>
   <wsdl:message name="ShareSoapOut">
     <wsdl:part name="parameters" element="tns:ShareResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserActivityFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserActivityFeed" />
+  </wsdl:message>
+  <wsdl:message name="GetUserActivityFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserActivityFeedResponse" />
   </wsdl:message>
   <wsdl:message name="FBUserUnmergeSoapIn">
     <wsdl:part name="parameters" element="tns:FBUserUnmerge" />
@@ -962,6 +1034,17 @@
   <wsdl:message name="ShareHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
+  <wsdl:message name="GetUserActivityFeedHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="nPageSize" type="s:string" />
+    <wsdl:part name="nPageIndex" type="s:string" />
+    <wsdl:part name="sPicDimension" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserActivityFeedHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSocialActivityDoc" />
+  </wsdl:message>
   <wsdl:message name="FBUserUnmergeHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1057,6 +1140,10 @@
       <wsdl:input message="tns:ShareSoapIn" />
       <wsdl:output message="tns:ShareSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <wsdl:input message="tns:GetUserActivityFeedSoapIn" />
+      <wsdl:output message="tns:GetUserActivityFeedSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="FBUserUnmerge">
       <wsdl:input message="tns:FBUserUnmergeSoapIn" />
       <wsdl:output message="tns:FBUserUnmergeSoapOut" />
@@ -1126,6 +1213,10 @@
     <wsdl:operation name="Share">
       <wsdl:input message="tns:ShareHttpPostIn" />
       <wsdl:output message="tns:ShareHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <wsdl:input message="tns:GetUserActivityFeedHttpPostIn" />
+      <wsdl:output message="tns:GetUserActivityFeedHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="FBUserUnmerge">
       <wsdl:input message="tns:FBUserUnmergeHttpPostIn" />
@@ -1316,6 +1407,15 @@
     </wsdl:operation>
     <wsdl:operation name="Share">
       <soap:operation soapAction="http://social.tvinci.com/Share" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserActivityFeed" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -1524,6 +1624,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserActivityFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="FBUserUnmerge">
       <soap12:operation soapAction="http://social.tvinci.com/FBUserUnmerge" style="document" />
       <wsdl:input>
@@ -1673,6 +1782,15 @@
     </wsdl:operation>
     <wsdl:operation name="Share">
       <http:operation location="/Share" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <http:operation location="/GetUserActivityFeed" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
