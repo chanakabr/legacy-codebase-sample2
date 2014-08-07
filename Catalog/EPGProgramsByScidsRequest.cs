@@ -34,14 +34,12 @@ namespace Catalog
         {
             try
             {
-                EPGProgramsByScidsRequest request = (EPGProgramsByScidsRequest)oBaseRequest;
+                EPGProgramsByScidsRequest request = oBaseRequest as EPGProgramsByScidsRequest;
 
                 if (request == null)
                     throw new Exception("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 EpgProgramsResponse response = new EpgProgramsResponse();
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);              
@@ -52,7 +50,7 @@ namespace Catalog
                     response.lEpgList = retList;
                     response.m_nTotalItems = retList.Count;
                 }
-                return (BaseResponse)response;
+                return response;
             }
             catch (Exception ex)
             {

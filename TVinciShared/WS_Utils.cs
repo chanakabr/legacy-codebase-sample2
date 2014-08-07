@@ -362,9 +362,10 @@ namespace TVinciShared
 
             // Calculate the HMAC
             // signingString is the SignString from the request
-            HMACSHA1 myhmacsha1 = new HMACSHA1(encoding.GetBytes(hmacSecret));
-            retVal = System.Convert.ToBase64String(myhmacsha1.ComputeHash(encoding.GetBytes(signString)));
-            myhmacsha1.Clear();
+            using (HMACSHA1 myhmacsha1 = new HMACSHA1(encoding.GetBytes(hmacSecret)))
+            {
+                retVal = System.Convert.ToBase64String(myhmacsha1.ComputeHash(encoding.GetBytes(signString)));
+            }
             return retVal;
         }
 

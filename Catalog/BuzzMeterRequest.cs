@@ -28,20 +28,18 @@ namespace Catalog
         {
             try
             {
-                BuzzMeterRequest request = (BuzzMeterRequest)oBaseRequest;
+                BuzzMeterRequest request = oBaseRequest as BuzzMeterRequest;
                 BuzzMeterResponse response = new BuzzMeterResponse();
 
                 if (request == null || string.IsNullOrEmpty(request.m_sKey))
                     throw new Exception("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(request.m_nGroupID);
                 response.m_buzzAverScore = staticticsBL.GetBuzzAverScore(request.m_sKey);
     
-                return (BaseResponse)response;
+                return response;
             }
             catch (Exception ex)
             {

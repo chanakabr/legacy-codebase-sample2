@@ -61,6 +61,9 @@ namespace ApiObjects
        
         [JsonProperty("tags")]
         public Dictionary<string, List<string>> Tags { get; set; }
+
+        [JsonProperty("language")]
+        public string Language { get; set; }
         
         public EpgCB()
         {
@@ -87,6 +90,8 @@ namespace ApiObjects
             ExtraData = new EpgExtraData();
             Metas = new Dictionary<string, List<string>>();
             Tags = new Dictionary<string, List<string>>();
+
+            Language = string.Empty;
         }
 
        

@@ -33,21 +33,14 @@ namespace Catalog
             List<MediaObj> lMediaObj = new List<MediaObj>();
             MediaObj oMediaObj = new MediaObj();
 
-            _logger.Info(string.Format("{0}: {1}", "Catalog.GetMediasByIDs Start At", DateTime.Now));
             try
             {
-                if (mediaRequest == null || mediaRequest.m_lMediasIds == null || mediaRequest.m_lMediasIds.Count == 0 || mediaRequest.m_oFilter == null)
-                    throw new Exception("request object is null or Required variables is null");
 
-                _logger.Info(string.Format("{0}: {1}", "count of MediasIDs", mediaRequest.m_lMediasIds.Count));
+                CheckRequestValidness(mediaRequest);
 
-                string sCheckSignature = Utils.GetSignature(mediaRequest.m_sSignString, mediaRequest.m_nGroupID);
-                if (sCheckSignature != mediaRequest.m_sSignature)             
-                    throw new Exception("Signatures dosen't match");
-                
-                _logger.Info(string.Format("Start Complete Details for {0} MediaIds", mediaRequest.m_lMediasIds.Count));
+                CheckSignature(mediaRequest);
 
-                bool completeDetails = Catalog.CompleteDetailsForMediaResponse(mediaRequest, ref mediaResponse, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex + mediaRequest.m_nPageSize);
+                Catalog.CompleteDetailsForMediaResponse(mediaRequest, ref mediaResponse, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex, mediaRequest.m_nPageSize * mediaRequest.m_nPageIndex + mediaRequest.m_nPageSize);
 
                 return mediaResponse;
             }
@@ -55,6 +48,15 @@ namespace Catalog
             {
                 _logger.Error(ex.Message, ex);
                 throw ex;
+            }
+        }
+
+        private void CheckRequestValidness(MediasProtocolRequest request)
+        {
+            if (request == null || request.m_lMediasIds == null || request.m_lMediasIds.Count == 0
+                || request.m_oFilter == null)
+            {
+                throw new ArgumentException("At least one of the arguments is not valid");
             }
         }
     }

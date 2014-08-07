@@ -9,6 +9,7 @@ namespace Catalog
     [KnownType(typeof(MediaObj))]
     [KnownType(typeof(PicObj))]
     [KnownType(typeof(ProgramObj))]
+    [KnownType(typeof(MediaFileObj))]
 
     [DataContract]
     [Serializable]

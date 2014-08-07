@@ -37,7 +37,7 @@ namespace Catalog
         {
             CommentResponse response = new CommentResponse();
 
-            CommentRequest cr = (CommentRequest)oBaseRequest;
+            CommentRequest cr = oBaseRequest as CommentRequest;
 
             if (cr == null)
                 throw new Exception("request object is null or Required variables is null");

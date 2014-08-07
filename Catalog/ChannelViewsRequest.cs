@@ -19,14 +19,12 @@ namespace Catalog
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            ChannelViewsRequest request = (ChannelViewsRequest)oBaseRequest;
+            ChannelViewsRequest request = oBaseRequest as ChannelViewsRequest;
 
             if (request == null || request.m_nGroupID == 0)
-                throw new Exception("request object is null or Required variables is null");
+                throw new ArgumentException("request object is null or Required variables is null");
 
-            string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-            if (sCheckSignature != request.m_sSignature)
-                throw new Exception("Signatures dosen't match");
+            CheckSignature(request);
 
             ChannelViewsResponse response = new ChannelViewsResponse();
 
