@@ -364,49 +364,6 @@ namespace DAL
             return null;
         }
 
-        //public static Dictionary<long, List<long>> Get_SubscriptionsFileTypes(int nGroupID, List<long> lstSubscriptionIDs)
-        //{
-        //    Dictionary<long, List<long>> res = null;
-        //    StoredProcedure sp = new StoredProcedure("Get_SubscriptionsFileTypes");
-        //    sp.SetConnectionKey("PRICING_CONNECTION");
-        //    sp.AddParameter("@GroupID", nGroupID);
-        //    sp.AddIDListParameter("@Subscriptions", lstSubscriptionIDs, "ID");
-
-        //    DataSet ds = sp.ExecuteDataSet();
-        //    if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-        //    {
-        //        DataTable dt = ds.Tables[0];
-        //        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-        //        {
-        //            res = new Dictionary<long, List<long>>(dt.Rows.Count);
-        //            for (int i = 0; i < dt.Rows.Count; i++)
-        //            {
-        //                long lSubCode = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["subscription_id"]);
-        //                long lFileTypeID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["file_type_id"]);
-        //                if (res.ContainsKey(lSubCode))
-        //                {
-        //                    res[lSubCode].Add(lFileTypeID);
-        //                }
-        //                else
-        //                {
-        //                    res.Add(lSubCode, new List<long>() { lFileTypeID });
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            res = new Dictionary<long, List<long>>(0);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        res = new Dictionary<long, List<long>>(0);
-        //    }
-
-        //    return res;
-
-        //}
-
         public static DataSet Get_SubscriptionsData(int nGroupID, List<long> lstSubscriptions)
         {
             StoredProcedure sp = new StoredProcedure("Get_SubscriptionsData");
@@ -564,6 +521,27 @@ namespace DAL
             sp.AddIDListParameter("@Collections", lstCollCodes, "ID");
 
             return sp.ExecuteDataSet();
+        }
+
+        public static bool Get_GroupUsageModuleCode(int groupID, string connKey, ref string groupUsageModuleCode)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_GroupUsageModuleCode");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(connKey) ? connKey : "CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                res = true;
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    groupUsageModuleCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["USAGE_MODULE_CODE"]);
+                }
+            }
+
+            return res;
         }
 
     }

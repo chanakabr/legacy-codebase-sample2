@@ -32,18 +32,15 @@ namespace Catalog
         {
             try
             {
-                IsMediaExistsInSubscriptionRequest request = (IsMediaExistsInSubscriptionRequest)oBaseRequest;
+                IsMediaExistsInSubscriptionRequest request = oBaseRequest as IsMediaExistsInSubscriptionRequest;
                 List<SearchResult> lMedias = new List<SearchResult>();
 
                 IsMediaExistsInSubscriptionResponse response = new IsMediaExistsInSubscriptionResponse();
 
                 if (request == null || request.m_nSubscriptionID == 0)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentException("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 response.m_bExists = false;
                 response.m_nTotalItems = 0;
@@ -144,7 +141,7 @@ namespace Catalog
                         #endregion
                     }
                 }
-                return (BaseResponse)response;
+                return response;
             }
             catch (Exception ex)
             {

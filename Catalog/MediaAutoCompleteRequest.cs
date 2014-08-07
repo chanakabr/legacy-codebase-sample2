@@ -30,7 +30,7 @@ namespace Catalog
             {
                 MediaAutoCompleteRequest request = oBaseRequest as MediaAutoCompleteRequest;
                 if (request == null || string.IsNullOrEmpty(request.m_sPrefix))
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentException("request object is null or Required variables is null");
                 CheckSignature(request);
 
                 response = new MediaAutoCompleteResponse();

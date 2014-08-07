@@ -1621,5 +1621,20 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
+        public static DataTable Get_MediaFilesDetails(List<int> groupTree, List<int> mediaFileIDs, string mediaFileCoGuid)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_MediaFilesDetails");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter("@GroupTree", groupTree, "ID");
+            sp.AddIDListParameter("@MediaFileIDs", mediaFileIDs, "ID");
+            sp.AddParameter("@CoGuid", mediaFileCoGuid);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
     }
 }

@@ -54,7 +54,7 @@ namespace Catalog
         
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            EpgRequest request = (EpgRequest)oBaseRequest;
+            EpgRequest request = oBaseRequest as EpgRequest;
             EpgResponse response = new EpgResponse();           
             List<EpgResultsObj> result;
             using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
@@ -63,14 +63,12 @@ namespace Catalog
                 try
                 {
                     if (request == null)
-                        throw new Exception("request object is null");
+                        throw new ArgumentException("request object is null");
 
                     if (request.m_nChannelIDs == null || request.m_nChannelIDs.Count == 0)
-                        throw new Exception("Request does not contain any channels");
+                        throw new ArgumentException("Request does not contain any channels");
 
-                    string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                    if (sCheckSignature != request.m_sSignature)
-                        throw new Exception("Signatures do not match");                    
+                    CheckSignature(request);
 
                     result = Catalog.GetEPGPrograms(request);
                     if (result != null)
@@ -94,7 +92,7 @@ namespace Catalog
                 }
             }
 
-            return (BaseResponse)response;
+            return response;
         }
        
     }

@@ -68,7 +68,7 @@ namespace Catalog
             response.m_nMediaIds = res;
             response.m_nTotalItems = res.Count;
 
-            return (BaseResponse)response;
+            return response;
         }
 
         protected List<SearchResult> GetProtocolFinalResultsUsingSearcher(List<SearchResult> initialResults, ref ISearcher initializedSearcher, List<List<string>> jsonizedChannelsDefinitions, int nGroupID)

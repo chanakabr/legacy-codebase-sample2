@@ -39,16 +39,14 @@ namespace Catalog
         {
             try
             {
-                CommentsListRequest request = (CommentsListRequest)oBaseRequest;
+                CommentsListRequest request = oBaseRequest as CommentsListRequest;
                 CommentsListResponse response = new CommentsListResponse();
                 Comments comment;
 
                 if (request == null)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentException("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 int nLanguage = 0;
                 if (request.m_oFilter != null)
@@ -96,7 +94,7 @@ namespace Catalog
                         response.m_nTotalItems = response.m_lComments.Count;
                     }
                 }
-                return (BaseResponse)response;
+                return response;
 
             }
             catch (Exception ex)

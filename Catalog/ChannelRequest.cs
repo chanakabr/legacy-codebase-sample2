@@ -65,9 +65,7 @@ namespace Catalog
                 if (request == null || request.m_nChannelID == 0)
                     throw new Exception("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 ChannelResponse response = new ChannelResponse();
                 Group group = null;
@@ -211,7 +209,7 @@ namespace Catalog
                     }
                 }
 
-                return (BaseResponse)response;
+                return response;
             }
             catch (Exception ex)
             {

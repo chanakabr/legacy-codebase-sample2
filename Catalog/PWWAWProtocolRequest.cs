@@ -79,9 +79,9 @@ namespace Catalog
 
         private void GetProtocolData(BaseRequest oRequest, ref int nGroupID, ref int nMediaID, ref string sSiteGuid, ref int nCountryID)
         {
-            PWWAWProtocolRequest request = (PWWAWProtocolRequest)oRequest;
+            PWWAWProtocolRequest request = oRequest as PWWAWProtocolRequest;
             if (request == null)
-                throw new Exception("Request object is null");
+                throw new ArgumentNullException("Request object is null");
             nGroupID = request.m_nGroupID;
             nMediaID = request.m_nMediaID;
             sSiteGuid = request.m_sSiteGuid;
