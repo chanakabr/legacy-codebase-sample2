@@ -1047,6 +1047,21 @@ namespace TVPApiModule.Services
             return collections;
         }
 
+        public LicensedLinkResponse GetLicensedLinks(string siteGuid, int mediaFileID, string baseLink, string udid)
+        {
+            LicensedLinkResponse res = null;
+
+            try
+            {
+                res = m_Module.GetLicensedLinks(m_wsUserName, m_wsPassword, siteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetLicensedLinks, Error Message: {0}, Parameters : User: {1}", ex.Message, siteGuid);
+            }
+            return res;
+        }
+
         #endregion
     }
 }
