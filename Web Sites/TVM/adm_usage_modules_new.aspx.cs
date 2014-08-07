@@ -404,23 +404,12 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_full_lc.Initialize("Full Life Cycle (Subscription - Period length, PPV - not relevant)", "adm_table_header_nbg", "FormInput", "FULL_LIFE_CYCLE_MIN", true);
         dr_full_lc.SetDefaultVal("1440");
         theRecord.AddRecord(dr_full_lc);
-        /*
-        DataRecordShortDoubleField dr_full_lc = new DataRecordShortDoubleField(true, 12, 12);
-        dr_full_lc.Initialize("Full Life Cycle (Min)", "adm_table_header_nbg", "FormInput", "FULL_LIFE_CYCLE_MIN", true);
-        dr_full_lc.SetDefault(44640);
-        theRecord.AddRecord(dr_full_lc);
-        */
 
         DataRecordDropDownField dr_view_lc = new DataRecordDropDownField("lu_min_periods", "DESCRIPTION", "id", "", null, 60, false);
         dr_view_lc.Initialize("View Life Cycle (Period of single watch - Subscription or PPV count)", "adm_table_header_nbg", "FormInput", "VIEW_LIFE_CYCLE_MIN", true);
         dr_view_lc.SetDefaultVal("1440");
         theRecord.AddRecord(dr_view_lc);
-        /*
-        DataRecordShortDoubleField dr_view_lc = new DataRecordShortDoubleField(true, 12, 12);
-        dr_view_lc.Initialize("View Life Cycle (Min)", "adm_table_header_nbg", "FormInput", "VIEW_LIFE_CYCLE_MIN", true);
-        dr_view_lc.SetDefault(1440);
-        theRecord.AddRecord(dr_view_lc);
-        */
+
         DataRecordShortDoubleField dr_max_views = new DataRecordShortDoubleField(true, 12, 12);
         dr_max_views.Initialize("Maximum Views", "adm_table_header_nbg", "FormInput", "MAX_VIEWS_NUMBER", true);
         dr_max_views.SetDefault(0);
@@ -433,21 +422,37 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
 
 
         // get default value from configuration for waiver_period by group id
-        
-        object oWaiverPeriod =  ODBCWrapper.Utils.GetTableSingleVal("groups", "WAIVER_PERIOD", LoginManager.GetLoginGroupID());
+
+        object oWaiverPeriod = ODBCWrapper.Utils.GetTableSingleVal("groups", "WAIVER_PERIOD", LoginManager.GetLoginGroupID());
+        object oWaiver = 0;
+        if (t != null)
+        {
+            try
+            {
+                int usageModuleID = int.Parse(t.ToString());
+                oWaiver = ODBCWrapper.Utils.GetTableSingleVal("usage_modules", "waiver", usageModuleID, 0, "pricing_connection");
+            }
+            catch
+            {
+            }
+        }
+
         int nWaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(oWaiverPeriod);
-          
-   
+        int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(oWaiver);
+        // get the value for  WAIVE from usage_module table - if it's an edit item
+
         DataRecordCheckBoxField dr_waiver = new DataRecordCheckBoxField(true);
         dr_waiver.Initialize("Waiver", "adm_table_header_nbg", "FormInput", "waiver", false);
-      if (nWaiverPeriod == 0)
+
+        if (nWaiverPeriod > 0 || nWaiver > 0)
         {
-            dr_waiver.SetDefault(0);
+            dr_waiver.SetValue("1");
         }
         else
         {
-            dr_waiver.SetDefault(1);
+            dr_waiver.SetValue("0");
         }
+
         theRecord.AddRecord(dr_waiver);
 
         //cancellation regulation
