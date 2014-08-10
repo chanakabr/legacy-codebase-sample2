@@ -230,8 +230,8 @@ namespace GracenoteFeeder
                 User = item[2];     // "262426818535595867-54FB85D9940A7501818E38904ECE5A55
                 Language = item[3]; // DE
                 URL = item[4];      // "https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update";
-                ChannelXml = item[5];
-                CategoryXml = item[6];
+                ChannelXml = TVinciShared.WS_Utils.GetTcmConfigValue("ChannelXmlGN");
+                CategoryXml = TVinciShared.WS_Utils.GetTcmConfigValue("CategoryXmlGN");
             }
             catch (Exception ex)
             {
