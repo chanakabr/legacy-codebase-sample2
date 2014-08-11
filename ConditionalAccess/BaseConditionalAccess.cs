@@ -4102,7 +4102,11 @@ namespace ConditionalAccess
                 if (allPPVModules != null)
                 {
                     Int32 nCount = allPPVModules.Rows.Count;
-                    if (numOfItems != 0 && numOfItems < nCount)
+                    if (numOfItems == 0)
+                    {
+                        numOfItems = nCount;
+                    }
+                    else if (numOfItems != 0 && numOfItems < nCount)
                     {
                         nCount = numOfItems;
                     }
@@ -4218,7 +4222,11 @@ namespace ConditionalAccess
             if (allCollectionsPurchases != null)
             {
                 Int32 nCount = allCollectionsPurchases.Rows.Count;
-                if (numOfItems != 0 && numOfItems < nCount)
+                if (numOfItems == 0)
+                {
+                    numOfItems = nCount;
+                }
+                else if (numOfItems != 0 && numOfItems < nCount)
                 {
                     nCount = numOfItems;
                 }
@@ -4320,7 +4328,11 @@ namespace ConditionalAccess
             if (allSubscriptionsPurchases != null)
             {
                 Int32 nCount = allSubscriptionsPurchases.Rows.Count;
-                if (numOfItems != 0 && numOfItems < nCount)
+                if (numOfItems == 0)
+                {
+                    numOfItems = nCount;
+                }
+                else if (numOfItems != 0 && numOfItems < nCount)
                 {
                     nCount = numOfItems;
                 }
