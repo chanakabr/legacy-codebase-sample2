@@ -242,7 +242,7 @@ namespace GracenoteFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("KDG", string.Format("ChannelID = {0} , do nothing", channelID), "GraceNoteFeeder");
+                    Logger.Logger.Log("KDG", string.Format("ChannelID = {0} , do nothing", channelID), "GraceNoteFeederChannelNotExist");
                 }
             }
             catch (Exception exp)

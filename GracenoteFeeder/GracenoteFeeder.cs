@@ -149,17 +149,7 @@ namespace GracenoteFeeder
                  else
                  {
                      Logger.Logger.Log("SaveChannels", string.Format("no implementation for groupid={0} can't save this channel", GroupID), "GracenoteFeeder");
-                 }
-                //create the right implementation per group_id 
-                /*BaseGracenoteFeeder gnf = Utils.GetInstance(Client, User, GroupID);
-                if (gnf != null)
-                {
-                    gnf.SaveChannel(xmlDoc);
-                }
-                else
-                {
-                    Logger.Logger.Log("SaveChannels", string.Format("no implementation for groupid={0} can't save this channel",GroupID), "GracenoteFeeder");
-                }*/
+                 }               
             }
 
             catch (Exception ex)
