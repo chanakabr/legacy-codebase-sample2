@@ -229,7 +229,7 @@ namespace GracenoteFeeder
                 Client = item[1];   //"11031808-0670AB37EBAF7858AABB6817516F992E";
                 User = item[2];     // "262426818535595867-54FB85D9940A7501818E38904ECE5A55
                 Language = item[3]; // DE
-                URL = item[4];      // "https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update";
+                URL = TVinciShared.WS_Utils.GetTcmConfigValue("UrlGN");  //"https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update";
                 ChannelXml = TVinciShared.WS_Utils.GetTcmConfigValue("ChannelXmlGN");
                 CategoryXml = TVinciShared.WS_Utils.GetTcmConfigValue("CategoryXmlGN");
             }
