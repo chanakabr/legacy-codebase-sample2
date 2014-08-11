@@ -183,6 +183,13 @@ namespace GracenoteFeeder
                         res = true;
                     }
                 }
+                else
+                {
+                    Logger.Logger.Log("IsStatusOK", string.Format("Response is not OK  , responseStatus = {0},  responseURL = {1}", 
+                                       (response != null && response.RESPONSE != null) ? response.RESPONSE.STATUS : "response is null",
+                                       (response != null && response.RESPONSE != null && response.RESPONSE.UPDATE_INFO != null && response.RESPONSE.UPDATE_INFO.URL != null) ?
+                                       response.RESPONSE.UPDATE_INFO.URL.Value : "response url is null/empty"), "GracenoteFeeder");
+                }
                 return res;
             }
             catch (Exception ex)
@@ -252,6 +259,10 @@ namespace GracenoteFeeder
                     string method = "POST";
                     string postData = string.Format(ChannelXml, Client, User, sChannelID, Language);
                     string sXml = Utils.getXmlFromGracenote(postData, method, uri);
+                    if (string.IsNullOrEmpty(sXml))
+                    {
+                        Logger.Logger.Log("getXmlTVChannel", string.Format("sXml is empty sChannelID = {0}, uri= {1}", sChannelID, uri), "GracenoteFeeder");
+                    }
                     lResponse.Add(ConvertXmlToResponseObj(sXml));
                 }
 
@@ -284,7 +295,8 @@ namespace GracenoteFeeder
                         Logger.Logger.Log("ConvertXmlToResponseObj", string.Format("fail to convert the xml to Response Object, ex:{0}", ex.Message), "GracenoteFeeder");
                         oResponse = null;
                     }
-                }
+                }        
+         
                 return oResponse;
             }
             catch (Exception ex)
