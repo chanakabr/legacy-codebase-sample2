@@ -770,6 +770,9 @@ namespace GracenoteFeeder
                 {
                     var data = Encoding.ASCII.GetBytes(postData);
                     request.Method = "POST";
+
+                    GetProxyConfig(request);
+
                     request.ContentLength = data.Length;
                     using (var stream = request.GetRequestStream())
                     {
@@ -791,8 +794,30 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("getXmlFromGracenote", string.Format("ex={0}", ex.Message), "GracenoteFeeder");
+                Logger.Logger.Log("getXmlFromGracenote", string.Format("ex={0}, uri={1}", ex.Message, uri), "GracenoteFeeder");
                 return string.Empty;
+            }
+        }
+
+        private static void GetProxyConfig(HttpWebRequest request)
+        {
+            try
+            {
+                // add proxy configuration - for KDG internat connection
+                WebProxy myProxy = new WebProxy();
+                string proxyAddress = TVinciShared.WS_Utils.GetTcmConfigValue("proxyAddressKDG");
+                string username = TVinciShared.WS_Utils.GetTcmConfigValue("proxyUsernameKDG");
+                string password = TVinciShared.WS_Utils.GetTcmConfigValue("proxyPasswordKDG");
+                if (!string.IsNullOrEmpty(proxyAddress))
+                {
+                    myProxy.Address = new Uri(proxyAddress);
+                    myProxy.Credentials = new NetworkCredential(username, password);
+                    request.Proxy = myProxy;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("GetProxyConfig", string.Format("fail to initialize proxy details ex={0}", ex.Message), "GracenoteFeeder");
             }
         }
 
