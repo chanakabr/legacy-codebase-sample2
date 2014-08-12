@@ -115,7 +115,7 @@ namespace Catalog
                 int.TryParse(this.m_oFilter.m_sPlatform, out nPlatform);
             }
 
-                        int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
+            int nCountryID = Catalog.GetCountryIDByIP(this.m_sUserIP);
             
             Catalog.GetMediaPlayData(this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nBillingTypeID, ref nMediaTypeID);
 
