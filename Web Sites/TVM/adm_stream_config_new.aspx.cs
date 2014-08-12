@@ -121,8 +121,8 @@ public partial class adm_stream_config_new : System.Web.UI.Page
         dr_cdn_salt.Initialize("SALT", "adm_table_header_nbg", "FormInput", "SALT", false);
         theRecord.AddRecord(dr_cdn_salt);
 
-        DataRecordDropDownField dr_tokenize = new DataRecordDropDownField("lu_token_impl", "FRIENDLY_NAME", "id", "", null, 60, false);
-        dr_tokenize.Initialize("Token Impl", "adm_table_header_nbg", "FormInput", "FRIENDLY_NAME", false);
+        DataRecordDropDownField dr_tokenize = new DataRecordDropDownField("lu_token_impl", "FRIENDLY_NAME", "id", "", null, 60, true);
+        dr_tokenize.Initialize("Token Impl", "adm_table_header_nbg", "FormInput", "TOKENIZE_IMPL_ID", false);
         theRecord.AddRecord(dr_tokenize);
 
         string sTable = theRecord.GetTableHTML("");
