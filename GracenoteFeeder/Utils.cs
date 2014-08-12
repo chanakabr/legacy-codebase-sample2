@@ -765,13 +765,12 @@ namespace GracenoteFeeder
             try
             {
                 var request = (HttpWebRequest)WebRequest.Create(uri);//"https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update");
+                GetProxyConfig(request);
 
                 if (method == "POST")
                 {
                     var data = Encoding.ASCII.GetBytes(postData);
                     request.Method = "POST";
-
-                    GetProxyConfig(request);
 
                     request.ContentLength = data.Length;
                     using (var stream = request.GetRequestStream())
