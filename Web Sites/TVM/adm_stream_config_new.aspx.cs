@@ -108,22 +108,22 @@ public partial class adm_stream_config_new : System.Web.UI.Page
             theRecord.AddRecord(dr_groups);
         }
 
-        //DataRecordShortTextField dr_base_adm_video_url = new DataRecordShortTextField("ltr", true, 60, 128);
-        //dr_base_adm_video_url.Initialize("Base video", "adm_table_header_nbg", "FormInput", "ADM_VIDEO_BASE_URL", true);
-        //theRecord.AddRecord(dr_base_adm_video_url);
-
-        //DataRecordShortTextField dr_base_tn_url = new DataRecordShortTextField("ltr", true, 60, 128);
-        //dr_base_tn_url.Initialize("כתובת בסיס - טאמבנייל", "adm_table_header_nbg", "FormInput", "THUMB_NAILS_BASE_URL", false);
-        //theRecord.AddRecord(dr_base_tn_url);
-
         DataRecordDropDownField dr_action_code = new DataRecordDropDownField("lu_cdn_type", "DESCRIPTION_VAL", "DESCRIPTION", "", null, 60, false);
         dr_action_code.Initialize("Action Type", "adm_table_header_nbg", "FormInput", "CDN_STR_ID", true);
         dr_action_code.SetFieldType("string");
         theRecord.AddRecord(dr_action_code);
 
-        //DataRecordShortTextField dr_cdn_str = new DataRecordShortTextField("ltr", true, 60, 128);
-        //dr_cdn_str.Initialize("Action Code", "adm_table_header_nbg", "FormInput", "CDN_STR_ID", false);
-        //theRecord.AddRecord(dr_cdn_str);
+        DataRecordShortIntField dr_cdn_ttl = new DataRecordShortIntField(true, 9, 9);
+        dr_cdn_ttl.Initialize("TTL (value in seconds)", "adm_table_header_nbg", "FormInput", "TTL", false);
+        theRecord.AddRecord(dr_cdn_ttl);
+
+        DataRecordShortTextField dr_cdn_salt = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_cdn_salt.Initialize("SALT", "adm_table_header_nbg", "FormInput", "SALT", false);
+        theRecord.AddRecord(dr_cdn_salt);
+
+        DataRecordDropDownField dr_tokenize = new DataRecordDropDownField("lu_token_impl", "FRIENDLY_NAME", "id", "", null, 60, false);
+        dr_tokenize.Initialize("Token Impl", "adm_table_header_nbg", "FormInput", "FRIENDLY_NAME", false);
+        theRecord.AddRecord(dr_tokenize);
 
         string sTable = theRecord.GetTableHTML("");
 
