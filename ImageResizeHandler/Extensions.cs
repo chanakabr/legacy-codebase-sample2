@@ -29,6 +29,21 @@ namespace ImageResizeHandler
             {
                 HttpWebRequest httpWebRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
 
+                string proxyAddress = TCMClient.Settings.Instance.GetValue<string>("proxyAddress");
+
+                if (!string.IsNullOrEmpty(proxyAddress))
+                {
+                    string username = TCMClient.Settings.Instance.GetValue<string>("proxyUsername");
+                    string password = TCMClient.Settings.Instance.GetValue<string>("proxyPassword");
+
+                    WebProxy webProxy = new WebProxy();
+
+                    webProxy.Address = new Uri(proxyAddress);
+                    webProxy.Credentials = new NetworkCredential(username, password);
+
+                    httpWebRequest.Proxy = webProxy;
+                }
+
                 httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
 
                 using (Stream stream = httpWebResponse.GetResponseStream())
