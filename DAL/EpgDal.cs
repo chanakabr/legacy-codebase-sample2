@@ -266,5 +266,17 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
+
+        public static DataTable Get_EPGTagValueTranslateIDs(int nGroupID, DataTable tagsAndValuesTranslate)
+        {
+            StoredProcedure spGetEPGTagValueID = new StoredProcedure("Get_EPGTagValueTranslteIDs");
+            spGetEPGTagValueID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetEPGTagValueID.AddDataTableParameter("@Tags", tagsAndValuesTranslate);
+            spGetEPGTagValueID.AddParameter("@GroupID", nGroupID);
+            DataSet ds = spGetEPGTagValueID.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
     }
 }

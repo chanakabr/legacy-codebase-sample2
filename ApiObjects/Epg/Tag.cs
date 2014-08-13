@@ -13,13 +13,20 @@ namespace ApiObjects.Epg
         public string TagType { get; set; }
 
         [JsonProperty("TagValues")]
-        public List<TagValues> TagValues { get; set; } //KeyValuePair<Language, tagValue>
+        public List<TagValues> TagValues { get; set; } 
     }
 
     [JsonObject(Title = "TagValues")]
     public class TagValues
-    {
-        [JsonProperty("TagTranslate")]
-        public List<KeyValuePair<string, string>> TagTranslate { get; set; } //KeyValuePair<Language, tagValue>
+    {   
+        [JsonProperty("Language")]
+        public string Language { get; set; }
+
+        [JsonProperty("TagValue")] // tag value specific language
+        public string TagValue { get; set; }
+
+        [JsonProperty("TagValueMain")] // tag value by main language
+        public string TagValueMain { get; set; }
     }
+
 }
