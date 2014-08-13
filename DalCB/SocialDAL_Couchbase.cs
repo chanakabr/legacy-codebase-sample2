@@ -76,19 +76,26 @@ namespace DalCB
 
                 if (dRetval != null && dRetval.Count > 0)
                 {
-                    object retObj;
+                    string retObj;
                     SocialActivityDoc socialDoc;
                     foreach (string sKey in dRetval.Keys)
                     {
-                        retObj = dRetval[sKey];
-                        if (retObj != null)
+                        retObj = dRetval[sKey] as string;
+                        if (!string.IsNullOrEmpty(retObj))
                         {
-                            socialDoc = retObj as SocialActivityDoc;
-
-                            if (socialDoc != null)
+                            try
                             {
-                                lRes.Add(socialDoc);
+                                socialDoc = Newtonsoft.Json.JsonConvert.DeserializeObject<SocialActivityDoc>(retObj);
+                                if (socialDoc != null)
+                                {
+                                    lRes.Add(socialDoc);
+                                }
                             }
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log("Error", string.Format("Deserialization of SocialActivityDoc failed. str obj={0}, ex={1}, stack={2}", retObj, ex.Message, ex.StackTrace), LOGGER_FILENAME);
+                            }
+                            
                         }
                     }
                 }
