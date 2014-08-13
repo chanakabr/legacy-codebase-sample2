@@ -614,7 +614,7 @@ public partial class MethodFinder
         protected override void ReplaceStratagy(ref string json, Type EnumType, object currValue)
         {
             int tEnum = 0;
-            if (int.TryParse(currValue.ToString(), out tEnum))
+            if (currValue != null && int.TryParse(currValue.ToString(), out tEnum))
             {
                 currValue = Enum.Parse(EnumType, currValue.ToString());
             }
