@@ -72,5 +72,8 @@ namespace TVPApiServices
 
         [OperationContract]
         FacebookResponseObject FBUserUnmerge(InitializationObject initObj, string token, string username, string password);
+
+        [OperationContract]
+        SocialActivityDoc[] GetUserActivityFeed(InitializationObject initObj, string siteGuid, int nPageSize, int nPageIndex, string sPicDimension);
     }
 }

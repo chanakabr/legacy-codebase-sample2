@@ -510,5 +510,20 @@ namespace TVPApiModule.Services
 
             return response;
         }
+
+        public SocialActivityDoc[] GetUserActivityFeed(string siteGuid, int nPageSize, int nPageIndex, string sPicDimension)
+        {
+            SocialActivityDoc[] response = null;
+            try
+            {
+                response = m_Module.GetUserActivityFeed(m_wsUserName, m_wsPassword, siteGuid, nPageSize, nPageIndex, sPicDimension);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error occurred in GetUserActivityFeed, Error : {0} Parameters: siteGuid: {1}, nPageSize: {2}, nPageIndex: {3}, sPicDimension: {4}", ex.Message, siteGuid, nPageSize, nPageIndex, sPicDimension);
+            }
+
+            return response;
+        }
     }
 }
