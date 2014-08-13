@@ -563,8 +563,9 @@ public partial class MethodFinder
                         {
                             InspectObjectForEnums(ref json, propInfo.PropertyType, propInfo.Name);
                         }
-                    }
-                }
+                    }                    
+                }                
+
             } while (false);
         }
 
@@ -612,6 +613,12 @@ public partial class MethodFinder
 
         protected override void ReplaceStratagy(ref string json, Type EnumType, object currValue)
         {
+            int tEnum = 0;
+            if (int.TryParse(currValue.ToString(), out tEnum))
+            {
+                currValue = Enum.Parse(EnumType, currValue.ToString());
+            }
+
             foreach (Enum e in Enum.GetValues(EnumType))
             {
                 if (currValue == null)
@@ -621,7 +628,7 @@ public partial class MethodFinder
                         json = Convert.ToInt32(e).ToString();
                         break;
                     }
-                }
+                }                
                 else if (e.ToString() == currValue.ToString())//.Replace("\"",""))
                 {
                     json = Convert.ToInt32(e).ToString();
