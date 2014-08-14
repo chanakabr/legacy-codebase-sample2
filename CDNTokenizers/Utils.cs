@@ -55,5 +55,20 @@ namespace CDNTokenizers
             else
                 uriBuilder.Query = queryStr;
         }
+
+        public static string GetConfigValue(string key)
+        {
+            string value = null;
+            try
+            {
+                value = TCMClient.Settings.Instance.GetValue<string>(key);
+            }
+            catch
+            {
+            }
+
+            return value;
+        }
+
     }
 }

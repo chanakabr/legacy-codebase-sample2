@@ -11,19 +11,20 @@ namespace CDNTokenizers.Tokenizers
 
         protected static readonly string ALPHA_NUMERIC_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         protected static readonly Random RANDOM_GEN = new Random();
-
+        protected static readonly string CONCURRENT_EXPIRATION_FORMAT = Utils.GetConfigValue("concurrent_expiration_format");
         protected byte[] m_sSaltBytes;
 
         public ConcurrentCDNTokenizer(int nGroupID, int nStreamingCompanyID)
             : base(nGroupID, nStreamingCompanyID)
         {
-
+            
         }
 
         internal override void Init()
         {
             base.Init();
             m_sSaltBytes = System.Text.Encoding.ASCII.GetBytes(m_sSalt);
+            
         }
 
         public override string GenerateToken(Dictionary<string, string> dParams)
@@ -38,12 +39,15 @@ namespace CDNTokenizers.Tokenizers
                 DateTime expiration = GetExpirationTime();
                 string sessionID = GenerateSessionID();
 
-                string strToSign = string.Format("{0};{1};{2};{3}", assetname, ip, sessionID, expiration.ToString());
+                string format = string.IsNullOrEmpty(CONCURRENT_EXPIRATION_FORMAT) ? "yyyy-MM-ddTHH:mm:ssZ" : CONCURRENT_EXPIRATION_FORMAT;
+                string expirationStr = expiration.ToString(format);
+
+                string strToSign = string.Format("{0};{1};{2};{3}", assetname, ip, sessionID,expirationStr);
 
                 string hashStr = SignString(strToSign);
 
                 //create query string as specified in spec.
-                string queryStr = string.Format("c={0}&s={1}&e={2}&t={3}", ip, sessionID, expiration, hashStr);
+                string queryStr = string.Format("c={0}&s={1}&e={2}&t={3}", ip, sessionID, expirationStr, hashStr);
                 #endregion
 
 
@@ -66,11 +70,13 @@ namespace CDNTokenizers.Tokenizers
         protected string GetAssetName(string sUrl)
         {
             string assetname = string.Empty;
-
-            if (Uri.CheckSchemeName(sUrl))
+            try
             {
                 Uri uri = new Uri(sUrl);
                 assetname = uri.Segments[uri.Segments.Length - 1];
+            }
+            catch
+            {
             }
 
             return assetname;
