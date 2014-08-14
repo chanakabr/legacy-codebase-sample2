@@ -167,4 +167,13 @@ namespace ApiObjects
         Collection
     }
 
+    public enum FieldTypes
+    {
+        Unknown,
+        Basic,
+        Meta,
+        Tag
+
+    }
+
 }
