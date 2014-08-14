@@ -49,6 +49,7 @@ namespace ElasticSearchFeeder
         {
             try
             {
+                Catalog.Bootstrapper.Bootstrap();
                 //If requested, reload index
                 if (m_bRebuildIndex || !checkIndexExists(eESFeeder))
                 {
