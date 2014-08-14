@@ -40,9 +40,9 @@ namespace CDNTokenizers.Tokenizers
                 string sessionID = GenerateSessionID();
 
                 string format = string.IsNullOrEmpty(CONCURRENT_EXPIRATION_FORMAT) ? "yyyy-MM-ddTHH:mm:ssZ" : CONCURRENT_EXPIRATION_FORMAT;
-                string expirationStr = expiration.ToString(format);
+                string expirationStr = expiration.ToString(format).ToLower();
 
-                string strToSign = string.Format("{0};{1};{2};{3}", assetname, ip, sessionID,expirationStr);
+                string strToSign = string.Format("{0};{1};{2};{3}", assetname, ip, sessionID, expirationStr);
 
                 string hashStr = SignString(strToSign);
 
@@ -54,7 +54,18 @@ namespace CDNTokenizers.Tokenizers
                 #region build uri with query
                 UriBuilder baseUri = new UriBuilder(url);
                 Utils.AddQueryStringParams(ref baseUri, queryStr);
-                resultURL = baseUri.Uri.ToString();
+                
+                var splitUrl = baseUri.Uri.ToString().Split('?');
+
+                if (splitUrl.Length > 1)
+                {
+                    resultURL = string.Format("{0}?{1}", splitUrl[0], splitUrl[1].Replace(":", "%3A"));
+                }
+                else
+                {
+                    resultURL = splitUrl[0];
+                }
+
                 #endregion
 
             }
@@ -94,8 +105,7 @@ namespace CDNTokenizers.Tokenizers
 
         protected string GenerateSessionID()
         {
-            string result = new string(Enumerable.Repeat(ALPHA_NUMERIC_CHARS, 8).Select(s => s[RANDOM_GEN.Next(s.Length)]).ToArray());
-
+            string result = RANDOM_GEN.Next(10000000, 99999999).ToString();
             return result;
         }
 
