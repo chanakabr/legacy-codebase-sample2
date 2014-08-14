@@ -25,24 +25,6 @@ namespace ApiObjects
                 }
             }
         }
-
-        public static readonly List<int> ActiveSocialActions = new List<int>() { (int)eUserAction.LIKE, (int)eUserAction.WATCHES, (int)eUserAction.FOLLOWS, (int)eUserAction.RATES, (int)eUserAction.SHARE };
-
-        public static List<int> GetSocialActionList(eUserAction eAction)
-        {
-            List<int> lActions = new List<int>();
-
-            if (eAction == eUserAction.UNKNOWN)
-            {
-                lActions = ActiveSocialActions;
-            }
-            else
-            {
-                lActions = new List<int>(){(int)eAction};
-            }
-
-            return lActions;
-        }
     }
 
     public enum eSocialPrivacy
