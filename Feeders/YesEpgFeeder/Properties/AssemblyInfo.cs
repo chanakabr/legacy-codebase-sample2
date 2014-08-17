@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GracenoteFeeder")]
+[assembly: AssemblyTitle("YesEpgFeeder")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GracenoteFeeder")]
+[assembly: AssemblyProduct("YesEpgFeeder")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("fa38f614-e595-4cfb-9ba2-bd408a64eff9")]
+[assembly: Guid("2520695b-6207-40da-8cb5-eff28c11eb3e")]
 
 // Version information for an assembly consists of the following four values:
 //

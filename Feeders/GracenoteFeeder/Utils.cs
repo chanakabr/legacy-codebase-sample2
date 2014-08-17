@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Xml;
 using ApiObjects;
+using Catalog.Cache;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using EnumProject;
@@ -29,8 +30,11 @@ namespace GracenoteFeeder
             {
                 List<FieldTypeEntity> AllFieldTypeMapping = new List<FieldTypeEntity>();
                 List<FieldTypeEntity> AllFieldType = new List<FieldTypeEntity>();
-                
-                DataSet ds = EpgDal.GetEpgMappingFields(new List<int>(), nGroupID);
+                GroupManager groupManager = new GroupManager();
+                List<int> lSubTree = new List<int>();
+                lSubTree = groupManager.GetSubGroup(nGroupID);
+
+                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 4)
                 {
