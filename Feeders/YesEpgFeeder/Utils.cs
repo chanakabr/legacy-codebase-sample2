@@ -6,7 +6,6 @@ using System.Text;
 using System.Xml;
 using ApiObjects;
 using ApiObjects.Epg;
-using Catalog.Cache;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using EpgBL;
@@ -28,11 +27,8 @@ namespace YesEpgFeeder
             {
                 List<FieldTypeEntity> AllFieldTypeMapping = new List<FieldTypeEntity>();
                 List<FieldTypeEntity> AllFieldType = new List<FieldTypeEntity>();
-                GroupManager groupManager = new GroupManager();
-                List<int> lSubTree = new List<int>();
-                lSubTree = groupManager.GetSubGroup(nGroupID);
-
-                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID);
+               
+                DataSet ds = EpgDal.GetEpgMappingFields(new List<int>(), nGroupID);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 4)
                 {
