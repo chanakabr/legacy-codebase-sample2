@@ -50,17 +50,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\ConfigType.cs" />
     <Compile Include="Enums\QueueType.cs" />
     <Compile Include="Queues\Enums.cs" />
+    <Compile Include="Queues\QueueObjects\PictureQueue.cs" />
     <Compile Include="Queues\QueueObjects\BaseQueue.cs" />
     <Compile Include="Queues\QueueObjects\CatalogQueue.cs" />
     <Compile Include="Interfaces\IQueueable.cs" />
     <Compile Include="Interfaces\IQueueImpl.cs" />
     <Compile Include="QueueImplFactory.cs" />
+    <Compile Include="Queues\QueueObjects\SocialQueue.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitConfigurationData.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitConnection.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queues\RabbitQueue\RabbitQueueSingleConnection.cs" />
+    <Compile Include="Queues\RabbitQueue\RabbitSingleConnection.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

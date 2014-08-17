@@ -21,7 +21,7 @@ namespace Logger
         private const string WS_URL_DEFAULT = "Web Service";
         private const string sKey = "APPLICATION_NAME";
         public DateTime ObjectCreationDate { get; set; }   // In UtcNow format
-        public double TimeSpan { get; set; }
+        public double TimeTaken { get; set; }
         public string Id { get; set; }
         public string Message { get; set; }
         public string Service
@@ -131,6 +131,16 @@ namespace Logger
             }
         }
 
+        // This function is used to clean any characters from the message given
+        private void formatJson(string json)
+        {
+            if (!this.Message.StartsWith("{"))
+            {
+                this.Message = this.Message.PadLeft(this.Message.Length + 1, '"');
+                this.Message = this.Message.PadRight(this.Message.Length + 1, '"');                                
+            }                        
+        }
+
         #endregion
 
         #region Public Functions
@@ -155,7 +165,7 @@ namespace Logger
 
         public void CalcTimeSpan(DateTime endOfOperationTime, DateTime startOperationTime)
         {
-            TimeSpan = (endOfOperationTime - startOperationTime).TotalMilliseconds;
+            TimeTaken = (endOfOperationTime - startOperationTime).TotalMilliseconds;
         }
 
         #endregion
@@ -178,25 +188,27 @@ namespace Logger
 
         public override string ToString()
         {
-            string[] lines = {"\"" + "Date" + "\"" + ":" + "\"" + "{0}" + "\"",
+            formatJson(this.Message);
+
+            string[] lines = {"\"" + "EventTime" + "\"" + ":" + "\"" + "{0}" + "\"",
                               "\"" + "Id"   + "\"" + ":" + "\"" + "{1}" + "\"", 
                               "\"" + "Service" + "\"" + ":" + "\"" + "{2}" + "\"",
                               "\"" + "Method" + "\"" + ":" + "\"" + "{3}" + "\"", 
                               "\"" + "Severity" + "\"" + ":" + "\"" + "{4}" + "\"", 
-                              "\"" + "Message" + "\"" + ":" + "\"" + "{5}" + "\"",
+                              "\"" + "message" + "\"" + ":" + "{5}",
                               "\"" + "Type" + "\"" + ":" + "\"" + "{6}" + "\"",
-                              "\"" + "Timespan" + "\"" + ":" + "{7}",
+                              "\"" + "TimeTaken" + "\"" + ":" + "{7}",
                               "\"" + "HostName" + "\"" + ":" + "\"" + "{8}" + "\"",
                               "\"" + "User Agent" + "\"" + ":" + "\"" + "{9}" + "\"",
                               "\"" + "IP" + "\"" + ":" + "\"" + "{10}" + "\""};
 
-            string log = string.Format(string.Join(",", lines), DateTime.UtcNow.ToString(datePattern), this.Id, this.Service, this.Method, this.Severity, this.Message.Replace("\"", "''"), this.Type.ToString(), this.TimeSpan, this.HostName, this.UserAgent, this.IP);
+            string log = string.Format(string.Join(",", lines), DateTime.UtcNow.ToString(datePattern), this.Id, this.Service, this.Method, this.Severity, this.Message/* this.Message.Replace("\"", "''")*/, this.Type.ToString(), this.TimeTaken, this.HostName, this.UserAgent, this.IP);
 
             log = log.PadLeft(log.Length + 1, '{');
             log = log.PadRight(log.Length + 1, '}');
 
             return log;
-        }
+        }        
 
         #endregion
 

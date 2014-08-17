@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QueueWrapper.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,8 @@ namespace QueueWrapper
 {
     public class RabbitQueue : IQueueImpl
     {
+        #region Members
+
         private string m_sHostName = string.Empty;
         private string m_sUserName = string.Empty;
         private string m_sPassword = string.Empty;
@@ -16,6 +19,10 @@ namespace QueueWrapper
         private string m_sQueue = string.Empty;
         private string m_sVirtualHost = string.Empty;
         private string m_sExchangeType = string.Empty;
+        private bool m_bSetContentType = false;
+        private ConfigType m_eConfigType = ConfigType.DefaultConfig;
+
+        #endregion
 
         #region CTOR
 
@@ -24,11 +31,19 @@ namespace QueueWrapper
             ReadRabbitParameters();
         }
 
+        //the parameter will ensure that the config values are the ones relevent for the speceific Queue Type 
+        public RabbitQueue(ConfigType eType, bool bSetContentType)
+        {
+            m_eConfigType = eType;
+            m_bSetContentType = bSetContentType;
+            ReadRabbitParameters();
+        }
+
         #endregion
 
         #region IQueuable Methods
 
-        public bool Enqueue(string sDataToIndex, string sRouteKey)
+        public virtual bool Enqueue(string sDataToIndex, string sRouteKey)
         {
             bool bIsEnqueueSucceeded = false;
             try
@@ -52,7 +67,7 @@ namespace QueueWrapper
             return bIsEnqueueSucceeded;
         }
 
-        public T Dequeue<T>(string sQueueName, out string sAckId)
+        public virtual T Dequeue<T>(string sQueueName, out string sAckId)
         {
             sAckId = string.Empty;
 
@@ -81,7 +96,7 @@ namespace QueueWrapper
             return sReturnedData;
         }
 
-        public bool Ack(string sQueueName, string sAckId)
+        public virtual bool Ack(string sQueueName, string sAckId)
         {
             bool bResult = false;
 
@@ -105,14 +120,42 @@ namespace QueueWrapper
             m_sUserName = Utils.GetConfigValue("userName");
             m_sPassword = Utils.GetConfigValue("password");
             m_sPort = Utils.GetConfigValue("port");
-            m_sRoutingKey = Utils.GetConfigValue("routingKey");
-            m_sExchange = Utils.GetConfigValue("exchange");
-            m_sQueue = Utils.GetConfigValue("queue");
-            m_sVirtualHost = Utils.GetConfigValue("virtualHost");
-            m_sExchangeType = Utils.GetConfigValue("exchangeType");
+
+            switch (m_eConfigType)
+            {
+                case ConfigType.DefaultConfig:
+                    {
+                        m_sRoutingKey = Utils.GetConfigValue("routingKey");
+                        m_sExchange = Utils.GetConfigValue("exchange");
+                        m_sQueue = Utils.GetConfigValue("queue");
+                        m_sVirtualHost = Utils.GetConfigValue("virtualHost");
+                        m_sExchangeType = Utils.GetConfigValue("exchangeType");
+                        break;
+                    }
+                case ConfigType.PictureConfig:
+                    {
+                        m_sRoutingKey = Utils.GetConfigValue("routingKeyPicture");
+                        m_sExchange = Utils.GetConfigValue("exchangePicture");
+                        m_sQueue = Utils.GetConfigValue("queuePicture");
+                        m_sVirtualHost = Utils.GetConfigValue("virtualHostPicture");
+                        m_sExchangeType = Utils.GetConfigValue("exchangeTypePicture");
+                        break;
+                    }
+                case ConfigType.SocialFeedConfig:
+                    {
+                        m_sRoutingKey = Utils.GetConfigValue("routingKeySocialFeed");
+                        m_sExchange = Utils.GetConfigValue("exchangeSocialFeed");
+                        m_sQueue = Utils.GetConfigValue("queueSocialFeed");
+                        m_sVirtualHost = Utils.GetConfigValue("virtualHostSocialFeed");
+                        m_sExchangeType = Utils.GetConfigValue("exchangeTypeSocialFeed");
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
-        private RabbitConfigurationData CreateRabbitConfigurationData()
+        protected virtual RabbitConfigurationData CreateRabbitConfigurationData()
         {
 
             RabbitConfigurationData configData = null;
@@ -122,12 +165,16 @@ namespace QueueWrapper
                 && !string.IsNullOrEmpty(this.m_sExchangeType))
             {
                 configData = new RabbitConfigurationData(m_sExchange, m_sQueue, m_sRoutingKey, m_sHostName, m_sPassword, m_sExchangeType, m_sVirtualHost, m_sUserName, m_sPort);
+                if (m_bSetContentType)
+                {
+                    configData.setContentType = true;
+                }
             }
 
             return configData;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             RabbitConnection.Instance.Dispose();
         }

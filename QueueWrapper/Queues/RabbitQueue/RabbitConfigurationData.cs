@@ -9,15 +9,16 @@ namespace QueueWrapper
     {
         #region Properties
 
-        public string Exchange {get; set;}
+        public string Exchange { get; set; }
         public string QueueName { get; set; }
-        public string RoutingKey { get; set; } 
+        public string RoutingKey { get; set; }
         public string Host { get; set; }
         public string Password { get; set; }
         public string ExchangeType { get; set; }
         public string Port { get; set; }
         public string VirtualHost { get; set; }
         public string Username { get; set; }
+        public bool setContentType { get; set; }
 
         #endregion
 
@@ -34,10 +35,13 @@ namespace QueueWrapper
             this.Username = sUsername;
             this.Port = sPort;
             this.VirtualHost = sVirtualPort;
+            this.setContentType = false;
         }
 
         public RabbitConfigurationData()
-        { }
+        {
+            this.setContentType = false;
+        }
 
         #endregion
 
