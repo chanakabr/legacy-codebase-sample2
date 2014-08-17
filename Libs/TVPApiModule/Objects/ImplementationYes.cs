@@ -79,7 +79,7 @@ namespace TVPApiModule.Objects
                     {
                         Domain domain = domainsService.GetDomainInfo(userResponseObject.m_user.m_domianID);
                         var deviceFamilyID = domain.m_deviceFamilies.Where(f => f.DeviceInstances != null && f.DeviceInstances.Length > 0).Select(f => f.DeviceInstances.Where(dev => dev.m_deviceName == sDeviceName).FirstOrDefault()).FirstOrDefault().m_deviceFamilyID;
-                        
+
                         YesObject yesObj = new YesObject()
                         {
                             AccountNumber = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "accNum").FirstOrDefault().m_sValue,
@@ -100,7 +100,7 @@ namespace TVPApiModule.Objects
 
                             resp = new DomainResponseObject() { m_oDomainResponseStatus = DomainResponseStatus.Error, m_oDomain = statusRemove.m_oDomain };
 
-                            logger.ErrorFormat("ITProxy->AddDevice Error. Params: AccountNumber={0}, UDID={1}, Username={2}, Exception: {3}", yesObj.AccountNumber, yesObj.UDID, yesObj.Username, (ex != null && ex.InnerException != null)? ex.InnerException.ToString() : ex.ToString()); 
+                            logger.ErrorFormat("ITProxy->AddDevice Error. Params: AccountNumber={0}, UDID={1}, Username={2}, Exception: {3}", yesObj.AccountNumber, yesObj.UDID, yesObj.Username, (ex != null && ex.InnerException != null) ? ex.InnerException.ToString() : ex.ToString());
                         }
                     }
                 }
@@ -151,9 +151,10 @@ namespace TVPApiModule.Objects
                 {
                     string sBundleID = mediaInfo.Item[0].GetChildRows("Item_Metas")[0]["BundleID"].ToString();
                     string sComponentID = mediaInfo.Files.Where(r => r.FileID.Equals(iMediaFileID.ToString())).FirstOrDefault().CoGuid;
-                    
+
                     // Error no file component ID
-                    if(string.IsNullOrEmpty(sComponentID)) {
+                    if (string.IsNullOrEmpty(sComponentID))
+                    {
                         sRet = string.Format(sError, 1002, "No ComponentID (coGUID) was found for File ID '" + iMediaFileID + "'");
                         logger.ErrorFormat("ImplementationYes::GetMediaLicenseData -> {0}", sRet);
 
@@ -161,7 +162,7 @@ namespace TVPApiModule.Objects
                     }
 
                     yes.tvinci.ITProxy.Entitlement[] ent = GetValidEntitlements(GetEntitlementForUserAndMedias(_initObj.SiteGuid, iMediaID));
-                    
+
                     if (ent != null && ent.Length > 0)
                     {
                         try
@@ -195,9 +196,9 @@ namespace TVPApiModule.Objects
             OrcaResponse retVal = new OrcaResponse();
 
             // get ORCA response
-            object orcaResponse = GetOrcaResponse(groupID, initObj.Platform, mediaID, maxParentalLevel, galleryType);
+            object orcaResponse = GetOrcaResponse(groupID, initObj.Platform, mediaID, maxParentalLevel, galleryType, initObj.Locale.LocaleLanguage);
 
-            if (orcaResponse == null || 
+            if (orcaResponse == null ||
                 (orcaResponse is List<VideoRecommendation> && (orcaResponse as List<VideoRecommendation>).Count == 0) ||
                 (orcaResponse is List<LiveRecommendation> && (orcaResponse as List<LiveRecommendation>).Count == 0))
             {
@@ -209,7 +210,7 @@ namespace TVPApiModule.Objects
                 int channelID;
 
                 if (orcaResponse is List<LiveRecommendation>)
-                    channelID = orcaConfiguration.Data.LiveFailOverChannelID;                    
+                    channelID = orcaConfiguration.Data.LiveFailOverChannelID;
                 else
                     channelID = orcaConfiguration.Data.VODFailOverChannelID;
 
@@ -218,16 +219,16 @@ namespace TVPApiModule.Objects
 
                 return retVal;
             }
-            
+
             switch (orcaResponse.GetType().ToString())
             {
                 case "System.Collections.Generic.List`1[TVPApiModule.Objects.ORCARecommendations.VideoRecommendation]":
                     // VOD recommendations - return medias
                     List<VideoRecommendation> videoRecommendations = orcaResponse as List<VideoRecommendation>;
-                    dsItemInfo medias = RecommendationsHelper.GetVodRecommendedMediasFromCatalog(groupID, initObj.Platform, picSize, videoRecommendations);
+                    dsItemInfo medias = RecommendationsHelper.GetVodRecommendedMediasFromCatalog(groupID, initObj.Platform, picSize, videoRecommendations, initObj.Locale.LocaleLanguage);
                     if (medias != null && medias.Item != null)
                     {
-                        Media [] orderedMedias = new Media[videoRecommendations.Count];
+                        Media[] orderedMedias = new Media[videoRecommendations.Count];
                         Media media;
                         int index;
                         string ibmsTitleID, ibmsSeriesID, offerID;
@@ -237,7 +238,7 @@ namespace TVPApiModule.Objects
                             ibmsTitleID = GetExternalID(media.Metas.Where(m => m.Key == "IBMSTitleID").FirstOrDefault().Value);
                             ibmsSeriesID = GetExternalID(media.Metas.Where(m => m.Key == "IBMSseriesID").FirstOrDefault().Value);
                             offerID = GetExternalID(media.Tags.Where(t => t.Key == "OfferID").FirstOrDefault().Value);
-                            index = videoRecommendations.FindIndex(r => r.ContentID.ToString() ==  ibmsTitleID || r.SeriesID == ibmsSeriesID ||
+                            index = videoRecommendations.FindIndex(r => r.ContentID.ToString() == ibmsTitleID || r.SeriesID == ibmsSeriesID ||
                                 r.ContentID.ToString() == offerID);
 
                             if (index != -1)
@@ -259,7 +260,7 @@ namespace TVPApiModule.Objects
                 default:
                     break;
             }
-            return retVal; 
+            return retVal;
         }
 
         private string GetExternalID(string src)
@@ -279,7 +280,7 @@ namespace TVPApiModule.Objects
             else return string.Empty;
         }
 
-        private object GetOrcaResponse(int groupID, PlatformType platform, int mediaID, int maxParentalLevel, eGalleryType galleryType)
+        private object GetOrcaResponse(int groupID, PlatformType platform, int mediaID, int maxParentalLevel, eGalleryType galleryType, string language)
         {
             object orcaResponse = null;
             string stringOrcaResponse = null;
@@ -292,13 +293,13 @@ namespace TVPApiModule.Objects
             int maxResults = orcaConfiguration.Data.MaxResults;
             int defaultParentalLevel = orcaConfiguration.Data.DefaultParentalLevel;
 
-            maxParentalLevel = maxParentalLevel == 0 ? defaultParentalLevel : maxParentalLevel; 
+            maxParentalLevel = maxParentalLevel == 0 ? defaultParentalLevel : maxParentalLevel;
 
             // get gallery configuration by gallery type
             Gallery galleryConfiguration = RecommendationsHelper.GetGalleryConfigurationByType(orcaConfiguration, galleryType);
             if (galleryConfiguration == null)
             {
-                logger.ErrorFormat("No configuration for gallery type: {0}", galleryType); 
+                logger.ErrorFormat("No configuration for gallery type: {0}", galleryType);
                 return null;
             }
 
@@ -307,7 +308,7 @@ namespace TVPApiModule.Objects
             string type = galleryConfiguration.GalleryTypeData.type;
             string genres = galleryConfiguration.GalleryTypeData.genres;
 
-            TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[]  extraParams = RecommendationsHelper.GetExtraParamsFromConfig(galleryConfiguration.GalleryTypeData.Params.ParamCollection, mediaID, groupID, platform);
+            TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] extraParams = RecommendationsHelper.GetExtraParamsFromConfig(galleryConfiguration.GalleryTypeData.Params.ParamCollection, mediaID, groupID, platform, language);
 
             try
             {
@@ -325,7 +326,7 @@ namespace TVPApiModule.Objects
                             // get start time and end time
                             long startTime = RecommendationsHelper.ConvertDateTimeToEpoch(DateTime.UtcNow.AddHours(orcaConfiguration.Data.GMTOffset));
                             long endTime = RecommendationsHelper.ConvertDateTimeToEpoch(RecommendationsHelper.GetEndTimeForLiveRequest(orcaConfiguration));
-                            
+
 
                             // get ORCA live response
                             stringOrcaResponse = proxy.GetLiveRecommendationList(userToken, maxResults, maxParentalLevel, blend, startTime, endTime);
@@ -347,7 +348,7 @@ namespace TVPApiModule.Objects
 
         }
 
-        
+
 
         //public override string MediaMark(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action eAction, int nMediaType, int nMediaID, int nFileID, int nLocationID)
         //{
@@ -464,10 +465,10 @@ namespace TVPApiModule.Objects
             using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
             {
                 string yesFamilyId = string.Empty;
-                switch(yObj.DeviceFamilyID)
+                switch (yObj.DeviceFamilyID)
                 {
-                    case 1: 
-                        yesFamilyId = "3"; 
+                    case 1:
+                        yesFamilyId = "3";
                         break;
                     case 2:
                     case 3:
@@ -524,42 +525,42 @@ namespace TVPApiModule.Objects
         }
         private bool YesCheckLogin(string sUserName, string sPassword)
         {
-        //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://192.116.126.212/justauth");
-        //    request.Method = "POST";
-        //    request.ContentType = "application/x-www-form-urlencoded";
-        //    string sPostData = string.Format("username=test1&password=YEStve1");//username={0}&password={1}", sUserName, sPassword);
-        //    ASCIIEncoding encoding = new ASCIIEncoding();
-        //    byte[] data = encoding.GetBytes(sPostData);
-        //    request.ContentLength = data.Length;
+            //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://192.116.126.212/justauth");
+            //    request.Method = "POST";
+            //    request.ContentType = "application/x-www-form-urlencoded";
+            //    string sPostData = string.Format("username=test1&password=YEStve1");//username={0}&password={1}", sUserName, sPassword);
+            //    ASCIIEncoding encoding = new ASCIIEncoding();
+            //    byte[] data = encoding.GetBytes(sPostData);
+            //    request.ContentLength = data.Length;
 
-        //    CookieContainer cookieJar = new CookieContainer();
-        //    request.CookieContainer = cookieJar;
+            //    CookieContainer cookieJar = new CookieContainer();
+            //    request.CookieContainer = cookieJar;
 
-        //    using (Stream writer = request.GetRequestStream())
-        //    {
-        //        writer.Write(data, 0, data.Length);
-        //    }
+            //    using (Stream writer = request.GetRequestStream())
+            //    {
+            //        writer.Write(data, 0, data.Length);
+            //    }
 
-        //    String sResponse = string.Empty;
-        //    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-        //    {
-        //        using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-        //        {
-        //            sResponse = reader.ReadToEnd();
-        //        }
+            //    String sResponse = string.Empty;
+            //    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            //    {
+            //        using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+            //        {
+            //            sResponse = reader.ReadToEnd();
+            //        }
 
-        //        foreach (Cookie cookie in response.Cookies)
-        //        {
-        //            HttpCookie httpCookie = new HttpCookie(cookie.Name);
-        //            httpCookie.Domain = cookie.Domain;
-        //            httpCookie.Expires = cookie.Expires;
-        //            httpCookie.HttpOnly = cookie.HttpOnly;
-        //            httpCookie.Path = cookie.Path;
-        //            httpCookie.Secure = cookie.Secure;
-        //            httpCookie.Value = cookie.Value;
-        //            HttpContext.Current.Response.Cookies.Add(httpCookie);
-        //        }
-        //    }
+            //        foreach (Cookie cookie in response.Cookies)
+            //        {
+            //            HttpCookie httpCookie = new HttpCookie(cookie.Name);
+            //            httpCookie.Domain = cookie.Domain;
+            //            httpCookie.Expires = cookie.Expires;
+            //            httpCookie.HttpOnly = cookie.HttpOnly;
+            //            httpCookie.Path = cookie.Path;
+            //            httpCookie.Secure = cookie.Secure;
+            //            httpCookie.Value = cookie.Value;
+            //            HttpContext.Current.Response.Cookies.Add(httpCookie);
+            //        }
+            //    }
 
             return true;
 
