@@ -79,7 +79,7 @@ public partial class MethodFinder
                     else
                     {
                         log.Info("No results found or null object returned", false);
-                    }
+                    }                    
 
                     WriteResponseBackToClient(SerializedReturnValue);
                 }
