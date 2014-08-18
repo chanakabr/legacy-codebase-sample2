@@ -567,7 +567,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_purchases");
-                updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                //updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", nIsActive);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
                 updateQuery += " WHERE ";
