@@ -98,6 +98,11 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
         //linkColumn1.AddQueryCounterValue("select count([id]) as val from groups_device_families_limitation_modules with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and id=", "field=id");
         theTable.AddLinkColumn(linkColumn1);
 
+        DataTableLinkColumn linkMCRule = new DataTableLinkColumn("adm_limitation_media_concurrency_rules.aspx", "Media Concurrency Rules", "");
+        linkMCRule.AddQueryStringValue("limit_module_id", "field=id");
+        linkMCRule.AddQueryCounterValue("select count(*) as val from groups_device_media_concurrency_rules with (nolock) where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID() + " and DEVICE_LIMITATION_ID=", "field=id");
+        theTable.AddLinkColumn(linkMCRule);
+
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn2 = new DataTableLinkColumn("adm_device_limitation_modules_new.aspx", "Edit", "");
