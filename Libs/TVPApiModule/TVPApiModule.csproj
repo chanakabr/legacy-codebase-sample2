@@ -264,10 +264,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://itproxy.tvinci.yes/service.asmx">
+    <WebReferenceUrl Include="http://localhost/YesProxy/service.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\yes.tvinci.ITProxy\</RelPath>
-      <UpdateFromURL>http://itproxy.tvinci.yes/service.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/YesProxy/service.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -294,6 +294,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Web References\yes.tvinci.ITProxy\Entitlement.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\yes.tvinci.ITProxy\GetMemirDetailsResult.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\yes.tvinci.ITProxy\OfferListTypeOffer.datasource">

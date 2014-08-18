@@ -2080,7 +2080,7 @@ namespace TVPApiServices
                 {
 
                     IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
-                    sResponse = impl.GetMediaLicenseLink(initObj, groupId, mediaFileID, baseLink);
+                    sResponse = impl.GetMediaLicenseLink(initObj, groupId, mediaFileID, baseLink, null);
                 }
                 catch (Exception ex)
                 {

@@ -27,8 +27,8 @@ namespace TVPApiModule.Interfaces
 
         TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType);
 
-        string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink);
+        string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink, string clientIP);
 
-        RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId);        
+        RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId);
     }
 }

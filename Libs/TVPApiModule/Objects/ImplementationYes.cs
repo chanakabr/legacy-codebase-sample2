@@ -78,7 +78,26 @@ namespace TVPApiModule.Objects
                     if (!string.IsNullOrEmpty(sAccountNumber) && userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
                     {
                         Domain domain = domainsService.GetDomainInfo(userResponseObject.m_user.m_domianID);
-                        var deviceFamilyID = domain.m_deviceFamilies.Where(f => f.DeviceInstances != null && f.DeviceInstances.Length > 0).Select(f => f.DeviceInstances.Where(dev => dev.m_deviceName == sDeviceName).FirstOrDefault()).FirstOrDefault().m_deviceFamilyID;
+                        int deviceFamilyID = 0;
+                        if (domain != null)
+                        {
+                            foreach (DeviceContainer dc in domain.m_deviceFamilies)
+                            {
+                                if (dc != null)
+                                {
+                                    foreach (TVPPro.SiteManager.TvinciPlatform.Domains.Device device in dc.DeviceInstances)
+                                    {
+                                        if (device.m_deviceUDID.ToLower().Equals(_initObj.UDID.ToLower()))
+                                        {
+                                            deviceFamilyID = device.m_deviceFamilyID;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (deviceFamilyID != 0) break;
+                            }
+
+                        }
 
                         YesObject yesObj = new YesObject()
                         {
@@ -92,7 +111,8 @@ namespace TVPApiModule.Objects
 
                         try
                         {
-                            YesAddDeviceToDomain(yesObj);
+                            if (!YesAddDeviceToDomain(yesObj))
+                                throw new Exception("Exception in YesProxy");
                         }
                         catch (Exception ex)
                         {
@@ -196,7 +216,7 @@ namespace TVPApiModule.Objects
             OrcaResponse retVal = new OrcaResponse();
 
             // get ORCA response
-            object orcaResponse = GetOrcaResponse(groupID, initObj.Platform, mediaID, maxParentalLevel, galleryType, initObj.Locale.LocaleLanguage);
+            object orcaResponse = GetOrcaResponse(groupID, initObj.Platform, mediaID, maxParentalLevel, galleryType);
 
             if (orcaResponse == null ||
                 (orcaResponse is List<VideoRecommendation> && (orcaResponse as List<VideoRecommendation>).Count == 0) ||
@@ -205,60 +225,49 @@ namespace TVPApiModule.Objects
                 logger.Error("ImplementationYes::GetRecommendedMediasByGallery -> No response from Orca");
 
                 // get data from configuration
-                var orcaConfiguration = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).OrcaRecommendationsConfiguration;
-                int maxResults = orcaConfiguration.Data.MaxResults;
-                int channelID;
-
-                if (orcaResponse is List<LiveRecommendation>)
-                    channelID = orcaConfiguration.Data.LiveFailOverChannelID;
-                else
-                    channelID = orcaConfiguration.Data.VODFailOverChannelID;
-
-                retVal.ContentType = eContentType.VOD;
-                retVal.Content = RecommendationsHelper.GetFailOverChannel(initObj, groupID, channelID, picSize, maxResults);
+                retVal = RecommendationsHelper.GetFailoverChannel(orcaResponse, groupID, initObj, picSize);
 
                 return retVal;
             }
 
-            switch (orcaResponse.GetType().ToString())
+
+            if (orcaResponse is List<VideoRecommendation>)
             {
-                case "System.Collections.Generic.List`1[TVPApiModule.Objects.ORCARecommendations.VideoRecommendation]":
-                    // VOD recommendations - return medias
-                    List<VideoRecommendation> videoRecommendations = orcaResponse as List<VideoRecommendation>;
-                    dsItemInfo medias = RecommendationsHelper.GetVodRecommendedMediasFromCatalog(groupID, initObj.Platform, picSize, videoRecommendations, initObj.Locale.LocaleLanguage);
-                    if (medias != null && medias.Item != null)
+                // VOD recommendations - return medias
+                List<VideoRecommendation> videoRecommendations = orcaResponse as List<VideoRecommendation>;
+                dsItemInfo medias = RecommendationsHelper.GetVodRecommendedMediasFromCatalog(groupID, initObj.Platform, picSize, initObj.Locale.LocaleLanguage, videoRecommendations);
+                if (medias != null && medias.Item != null)
+                {
+                    Media[] orderedMedias = new Media[videoRecommendations.Count];
+                    Media media;
+                    int index;
+                    string ibmsTitleID, ibmsSeriesID, offerID;
+                    foreach (dsItemInfo.ItemRow row in medias.Item.Rows)
                     {
-                        Media[] orderedMedias = new Media[videoRecommendations.Count];
-                        Media media;
-                        int index;
-                        string ibmsTitleID, ibmsSeriesID, offerID;
-                        foreach (dsItemInfo.ItemRow row in medias.Item.Rows)
-                        {
-                            media = new Media(row, initObj, groupID, false, medias.Item.Count);
-                            ibmsTitleID = GetExternalID(media.Metas.Where(m => m.Key == "IBMSTitleID").FirstOrDefault().Value);
-                            ibmsSeriesID = GetExternalID(media.Metas.Where(m => m.Key == "IBMSseriesID").FirstOrDefault().Value);
-                            offerID = GetExternalID(media.Tags.Where(t => t.Key == "OfferID").FirstOrDefault().Value);
-                            index = videoRecommendations.FindIndex(r => r.ContentID.ToString() == ibmsTitleID || r.SeriesID == ibmsSeriesID ||
-                                r.ContentID.ToString() == offerID);
+                        media = new Media(row, initObj, groupID, false, medias.Item.Count);
+                        ibmsTitleID = GetExternalID(media.Metas.Where(m => m.Key == "IBMSTitleID").FirstOrDefault().Value);
+                        ibmsSeriesID = GetExternalID(media.Metas.Where(m => m.Key == "IBMSseriesID").FirstOrDefault().Value);
+                        offerID = GetExternalID(media.Tags.Where(t => t.Key == "OfferID").FirstOrDefault().Value);
+                        index = videoRecommendations.FindIndex(r => r.ContentID.ToString() == ibmsTitleID || r.SeriesID == ibmsSeriesID ||
+                            r.ContentID.ToString() == offerID);
 
-                            if (index != -1)
-                                orderedMedias[index] = media;
-                        }
-
-                        retVal.ContentType = eContentType.VOD;
-                        retVal.Content = orderedMedias.Where(m => m != null).ToList();
+                        if (index != -1)
+                            orderedMedias[index] = media;
                     }
 
-                    break;
-                case "System.Collections.Generic.List`1[TVPApiModule.Objects.ORCARecommendations.LiveRecommendation]":
-                    // Live recommendations = return programme objects
-
-                    retVal.ContentType = eContentType.Live;
-                    retVal.Content = RecommendationsHelper.GetLiveRecommendedMedias(initObj.SiteGuid, groupID, initObj.Platform, initObj.Locale.LocaleLanguage, picSize, orcaResponse as List<LiveRecommendation>);
-
-                    break;
-                default:
-                    break;
+                    retVal.ContentType = eContentType.VOD;
+                    retVal.Content = orderedMedias.Where(m => m != null).ToList();
+                }
+            }
+            else if (orcaResponse is List<LiveRecommendation>)
+            {
+                retVal.ContentType = eContentType.Live;
+                retVal.Content = RecommendationsHelper.GetLiveRecommendedMedias(initObj.SiteGuid, groupID, initObj.Platform, initObj.Locale.LocaleLanguage, picSize, orcaResponse as List<LiveRecommendation>);
+            }
+            if (retVal == null || retVal.Content == null)
+            {
+                // get data from configuration
+                retVal = RecommendationsHelper.GetFailoverChannel(orcaResponse, groupID, initObj, picSize);
             }
             return retVal;
         }
@@ -280,7 +289,7 @@ namespace TVPApiModule.Objects
             else return string.Empty;
         }
 
-        private object GetOrcaResponse(int groupID, PlatformType platform, int mediaID, int maxParentalLevel, eGalleryType galleryType, string language)
+        private object GetOrcaResponse(int groupID, PlatformType platform, int mediaID, int maxParentalLevel, eGalleryType galleryType)
         {
             object orcaResponse = null;
             string stringOrcaResponse = null;
@@ -308,7 +317,7 @@ namespace TVPApiModule.Objects
             string type = galleryConfiguration.GalleryTypeData.type;
             string genres = galleryConfiguration.GalleryTypeData.genres;
 
-            TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] extraParams = RecommendationsHelper.GetExtraParamsFromConfig(galleryConfiguration.GalleryTypeData.Params.ParamCollection, mediaID, groupID, platform, language);
+            TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] extraParams = RecommendationsHelper.GetExtraParamsFromConfig(galleryConfiguration.GalleryTypeData.Params.ParamCollection, mediaID, groupID, platform);
 
             try
             {
@@ -459,7 +468,7 @@ namespace TVPApiModule.Objects
         //    }
         //}
 
-        private void YesAddDeviceToDomain(object obj)
+        private bool YesAddDeviceToDomain(object obj)
         {
             YesObject yObj = obj as YesObject;
             using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
@@ -468,22 +477,26 @@ namespace TVPApiModule.Objects
                 switch (yObj.DeviceFamilyID)
                 {
                     case 1:
-                        yesFamilyId = "3";
+                        yesFamilyId = ConfigurationManager.AppSettings["YesDeviceFamaliesMapping_1"];
                         break;
                     case 2:
+                        yesFamilyId = ConfigurationManager.AppSettings["YesDeviceFamaliesMapping_2"];
+                        break;
                     case 3:
-                    case 6:
-                        yesFamilyId = "4";
+                        yesFamilyId = ConfigurationManager.AppSettings["YesDeviceFamaliesMapping_3"];
                         break;
                     case 4:
-                        yesFamilyId = "2";
+                        yesFamilyId = ConfigurationManager.AppSettings["YesDeviceFamaliesMapping_4"];
                         break;
                     case 5:
-                        yesFamilyId = "1";
+                        yesFamilyId = ConfigurationManager.AppSettings["YesDeviceFamaliesMapping_5"];
+                        break;
+                    case 6:
+                        yesFamilyId = ConfigurationManager.AppSettings["YesDeviceFamaliesMapping_6"];
                         break;
                 }
 
-                proxy.AddDevice(yObj.AccountNumber, HttpUtility.UrlEncode(yObj.DeviceName), yObj.UDID, yesFamilyId, yObj.Username);
+                return proxy.AddDevice(yObj.AccountNumber, HttpUtility.UrlEncode(yObj.DeviceName), yObj.UDID, yesFamilyId, yObj.Username);
             }
         }
 
@@ -581,12 +594,15 @@ namespace TVPApiModule.Objects
 
         }
 
-        public override string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink)
+        public override string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink, string clientIP)
         {
             string retVal = null;
+
+            clientIP = string.IsNullOrEmpty(clientIP) ? SiteHelper.GetClientIP() : clientIP;
+
             using (yes.tvinci.ITProxy.Service proxy = new yes.tvinci.ITProxy.Service())
             {
-                retVal = proxy.GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, SiteHelper.GetClientIP(), initObj.UDID);
+                retVal = proxy.GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, clientIP, initObj.UDID);
             }
             return retVal;
         }
