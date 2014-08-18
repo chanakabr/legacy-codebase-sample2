@@ -159,7 +159,7 @@ namespace ElasticSearch.Searcher
 
             if (QueryType == eQueryType.EXACT)
             {
-                if (oSearchObject.m_oOrder.m_eOrderBy == OrderBy.RELATED)
+                if (oSearchObject.m_oOrder.m_eOrderBy != OrderBy.RELATED)
                 {
                     FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
                     FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
@@ -338,7 +338,7 @@ namespace ElasticSearch.Searcher
 
             if (QueryType == eQueryType.EXACT)
             {
-                if (oSearchObject.m_oOrder.m_eOrderBy == OrderBy.RELATED)
+                if (oSearchObject.m_oOrder.m_eOrderBy != OrderBy.RELATED)
                 {
                     FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
                     FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
