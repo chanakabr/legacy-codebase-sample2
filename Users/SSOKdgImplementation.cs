@@ -179,6 +179,7 @@ namespace Users
                     KdgLoginReq loginReq = new KdgLoginReq(username, password, clientIp);
                     using (WebClient client = new WebClient())
                     {
+                        client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
                         string reqStr = JsonConvert.SerializeObject(loginReq);
                         string kdgRespStr = client.UploadString(kdgUrl, reqStr);
                         kdgLoginRespObj = JsonConvert.DeserializeObject<KdgLoginResp>(kdgRespStr);
