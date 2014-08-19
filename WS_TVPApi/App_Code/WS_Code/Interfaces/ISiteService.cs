@@ -59,7 +59,7 @@ namespace TVPApiServices
         bool SendNewPassword(InitializationObject initObj, string sUserName);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject SSOSignIn(InitializationObject initObj, string userName, string password, int providerID);
+        TVPApiModule.Services.ApiUsersService.LogInResponseData SSOSignIn(InitializationObject initObj, string userName, string password, int providerID);
 
         [OperationContract]
         bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive);
