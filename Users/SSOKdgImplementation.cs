@@ -128,6 +128,8 @@ namespace Users
                         }
                     }
                     retResponse = user;
+                    if (user.m_RespStatus == ResponseStatus.OK)
+                        DAL.UsersDal.UpdateHitDate(int.Parse(user.m_user.m_sSiteGUID));
                 }
             }
             catch (Exception ex)
@@ -158,7 +160,7 @@ namespace Users
                         }
                     }
                 };
-                return usersImplementation.AddNewUser(userBasicData, userDynamicData, password);
+                return usersImplementation.AddNewUser(userBasicData, userDynamicData, Guid.NewGuid().ToString());
             }
             catch (Exception ex)
             {
