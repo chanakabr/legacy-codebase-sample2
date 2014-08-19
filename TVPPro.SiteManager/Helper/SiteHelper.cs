@@ -1466,7 +1466,7 @@ namespace TVPPro.SiteManager.Helper
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
             //if (ip.Equals("81.218.199.175")) ip = "127.0.0.1";
 
-            return ip;
+            return ip.Trim();
         }
 
         public static string FormatApostrophe(string str)
