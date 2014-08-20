@@ -137,7 +137,7 @@ namespace Logger
             if (!this.Message.StartsWith("{"))
             {
                 this.Message = this.Message.PadLeft(this.Message.Length + 1, '"');
-                this.Message = this.Message.PadRight(this.Message.Length + 1, '"');                                
+                this.Message = this.Message.PadRight(this.Message.Length + 1, '"');
             }                        
         }
 
