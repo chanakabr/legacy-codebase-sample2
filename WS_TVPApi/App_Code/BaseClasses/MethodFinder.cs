@@ -48,11 +48,11 @@ public partial class MethodFinder
             if (VerifyAllParametersCheck())
             {
                 using (BaseLog log = new BaseLog(eLogType.SoapRequest, DateTime.UtcNow, false))
-                {
+                {                    
                     log.Id = HttpContext.Current.ApplicationInstance.Session.SessionID;
                     log.IP = HttpContext.Current.Request.UserHostAddress;
                     log.UserAgent = HttpContext.Current.Request.UserAgent;
-                    log.Method = HttpContext.Current.Request.QueryString["m"];
+                    log.Method = HttpContext.Current.Request.QueryString["m"];                    
                     log.Info(sJsonFormatInput.Replace('\n', ' '), false);
 
                     string SerializedReturnValue = String.Empty;
