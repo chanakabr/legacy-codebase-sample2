@@ -138,7 +138,7 @@ namespace Tvinci.Configuration
             if (m_source != ConfigurationManager<TConfiguration>.eSource.File)
             {
                 string message = string.Format("Save operation is permitted only when monitoring file. current source type '{0}'", m_source);
-                logger.Error(message);
+                //logger.Error(message);
                 throw new Exception(message);
             }
 
@@ -147,7 +147,7 @@ namespace Tvinci.Configuration
                 throw new Exception("Invalid situation. if source is set to 'File' then path must be set");
             }
 
-            logger.InfoFormat("Attempting to save current configuration to file '{0}'", m_file);            
+            //logger.InfoFormat("Attempting to save current configuration to file '{0}'", m_file);            
             bool previousStatus = (m_watcher != null);
             string sourcePath = m_file;
             
@@ -155,7 +155,7 @@ namespace Tvinci.Configuration
             {                
                 if (((Behaivor & ConfigurationManager<TConfiguration>.eBehaivor.AllowWrite) != ConfigurationManager<TConfiguration>.eBehaivor.AllowWrite))
                 {
-                    logger.Error("Saving is disabled for this configuration. contact programmer to enable this action. Operation aborted");
+                    //logger.Error("Saving is disabled for this configuration. contact programmer to enable this action. Operation aborted");
                 }
                 else
                 {
@@ -173,18 +173,18 @@ namespace Tvinci.Configuration
             }
             catch (Exception ex)
             {
-                logger.Error(string.Format("Failed to save current configuration to file. user '{0}'",System.Security.Principal.WindowsIdentity.GetCurrent().Name),ex);                
+                //logger.Error(string.Format("Failed to save current configuration to file. user '{0}'",System.Security.Principal.WindowsIdentity.GetCurrent().Name),ex);                
             }
             finally
             {
-                logger.Info("Re-syncing configuration from file");
+                //logger.Info("Re-syncing configuration from file");
                 SyncFromFile(sourcePath,previousStatus);
             }           
         }
 
         public void SyncFromConfiguration(TConfiguration configuration)
         {
-            logger.InfoFormat("Handling request to read configuration from object");
+            //logger.InfoFormat("Handling request to read configuration from object");
 
             if (m_source != ConfigurationManager<TConfiguration>.eSource.None)
             {
@@ -193,7 +193,7 @@ namespace Tvinci.Configuration
             
             if (configuration == null)
             {
-                logger.ErrorFormat("Cannot handle null configuration object.");
+                //logger.ErrorFormat("Cannot handle null configuration object.");
                 return;
             }
 
@@ -203,13 +203,13 @@ namespace Tvinci.Configuration
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("failed handling sync request from configuration object.",ex);                
+                //logger.ErrorFormat("failed handling sync request from configuration object.",ex);                
             }            
         }
 
         public void SyncFromFile(string virtualPath, bool shouldMonitor)
         {                        
-            logger.InfoFormat("Handling request to read configuration from file '{0}'", virtualPath);
+            //logger.InfoFormat("Handling request to read configuration from file '{0}'", virtualPath);
 
             if (m_source != ConfigurationManager<TConfiguration>.eSource.None)
             {
@@ -244,7 +244,7 @@ namespace Tvinci.Configuration
                     performSyncFromFile();
                 }), null, -1, -1);
 
-                logger.Info(string.Concat("Start monitoring file '", m_file, "'."));
+                //logger.Info(string.Concat("Start monitoring file '", m_file, "'."));
             }
         }
 
@@ -265,7 +265,7 @@ namespace Tvinci.Configuration
             }
             catch(Exception ex)
             {
-                logger.Error("Failed to perform the configuration sync from file");
+                //logger.Error("Failed to perform the configuration sync from file");
             }
         }
 
@@ -276,7 +276,7 @@ namespace Tvinci.Configuration
                 case ConfigurationManager<TConfiguration>.eSource.File:
                     if (m_watcher != null)
                     {
-                        logger.InfoFormat("Stop monitoring file '{0}'", m_file);
+                        //logger.InfoFormat("Stop monitoring file '{0}'", m_file);
                         m_watcher.EnableRaisingEvents = false;
                         m_watcher.Dispose();
                         m_watcher = null;
@@ -295,7 +295,7 @@ namespace Tvinci.Configuration
         
         void OnFileChanged(object sender, FileSystemEventArgs e)
         {
-            logger.InfoFormat("Change occured on file '{0}'. change type '{1}'", m_file, e.ChangeType);
+            //logger.InfoFormat("Change occured on file '{0}'. change type '{1}'", m_file, e.ChangeType);
             m_timer.Change(500, -1);
         }
 
@@ -315,13 +315,13 @@ namespace Tvinci.Configuration
 
                 if (configuration == null)
                 {
-                    logger.Info("Null configuration passed - Setting mode to 'Not synced'");
+                    //logger.Info("Null configuration passed - Setting mode to 'Not synced'");
                     SyncMode = eMode.NotSynced;                    
                     return;
                 }
                 else
                 {
-                    logger.Info("Valid configuration passed - Setting mode to 'Synced'");
+                    //logger.Info("Valid configuration passed - Setting mode to 'Synced'");
                     m_data = configuration;
                     SyncMode = eMode.Synced;
                 }
@@ -331,18 +331,18 @@ namespace Tvinci.Configuration
                     if (DataModified != null)
                     {
                         DataModified(m_data);
-                        logger.Info("Executing 'DataModified' finished sucessfully");
+                        //logger.Info("Executing 'DataModified' finished sucessfully");
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("Executing 'DataModified' finished sucessfully failed", ex);
+                    //logger.Error("Executing 'DataModified' finished sucessfully failed", ex);
                     throw;                    
                 }
             }
             catch
             {
-                logger.Error("Error occured - Setting mode to 'Not Synced'");
+                //logger.Error("Error occured - Setting mode to 'Not Synced'");
                 m_data = null;
                 SyncMode = eMode.NotSynced;                
             }
