@@ -476,7 +476,7 @@ namespace Tvinci.Core.DAL
             spNewMediaEoh.ExecuteNonQuery();
         }
 
-        public static void Insert_NewPlayCycleKey(int nGroupID, int nMediaID, int nMediaFileID, string sSiteGuid, int nPlatform, string sUDID, int nCountryID, string sPlayCycleKey)
+        public static void Insert_NewPlayCycleKey(int nGroupID, int nMediaID, int nMediaFileID, string sSiteGuid, int nPlatform, string sUDID, int nCountryID, string sPlayCycleKey, int nRuleID = 0)
         {
             ODBCWrapper.StoredProcedure spNewCycleKey = new ODBCWrapper.StoredProcedure("Insert_NewPlayCycleKey");
             spNewCycleKey.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -488,7 +488,9 @@ namespace Tvinci.Core.DAL
             spNewCycleKey.AddParameter("@Platform", nPlatform);
             spNewCycleKey.AddParameter("@DeviceUDID", sUDID);
             spNewCycleKey.AddParameter("@CountryID", nCountryID);
-            spNewCycleKey.AddParameter("@PlayCycleKey", sPlayCycleKey); 
+            spNewCycleKey.AddParameter("@PlayCycleKey", sPlayCycleKey);
+
+            spNewCycleKey.AddParameter("@RuleID", 0); 
 
             spNewCycleKey.ExecuteNonQuery();
         }
@@ -1444,6 +1446,32 @@ namespace Tvinci.Core.DAL
             return domainMarks.devices;
         }
 
+        //public static List<UserMediaMark> GetMediaConcurrencyByDomain(int nDomainID, int ttl)
+        //{
+        //    var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+
+        //    string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
+        //    var data = m_oClient.Get<string>(docKey);
+
+        //    if (data == null)
+        //        return null;
+
+        //    Random r = new Random();
+        //    var domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
+
+        //    //Cleaning old ones...
+        //    int limitRetries = RETRY_LIMIT;
+        //    while (limitRetries >= 0)
+        //    {
+        //        var marks = m_oClient.GetWithCas<string>(docKey);
+
+        //        DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks.Result);
+        //        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
+        //    }
+
+        //    return domainMarks.devices;
+        //}
+
         public static Dictionary<int, int> GetMediaMarkUserCount(List<int> usersList)
         {
             Dictionary<int, int> dictMediaUsersCount = new Dictionary<int, int>(); // key: media id , value: users count
@@ -1636,5 +1664,30 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+
+        public static int Get_MediaIDByMediaFileID(int nMediaFileID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaIDByMediaFileID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", nMediaFileID);
+            int mediaID = sp.ExecuteReturnValue<int>();
+            return mediaID;
+
+        }
+
+        public static int GetRuleIDPlayCycleKey(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nPlatform)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRuleIDPlayCycleKey");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            sp.AddParameter("@SiteGuid", sSiteGuid);
+            sp.AddParameter("@MediaID", nMediaID);
+            sp.AddParameter("@MediaFileID", nMediaFileID);
+            sp.AddParameter("@DeviceUDID", sUDID);
+            sp.AddParameter("@Platform", nPlatform);
+
+            int mediaID = sp.ExecuteReturnValue<int>();
+            return mediaID;
+        }
     }
 }

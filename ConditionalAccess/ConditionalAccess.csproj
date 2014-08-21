@@ -269,6 +269,9 @@
     <None Include="Web References\TvinciAPI\GroupRule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\MediaConcurrencyRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\MediaInfoStructObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -308,10 +311,19 @@
     <None Include="Web References\TvinciDomains\DomainResponseStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciDomains\HomeNetwork.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\module.wsdl" />
+    <None Include="Web References\TvinciDomains\NetworkResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\TvinciDomains\ValidationResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciPricing\Collection.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -335,10 +347,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_NotificationService_NotificationService</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_domains_2/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciDomains\</RelPath>
-      <UpdateFromURL>http://localhost/ws_domains_2/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -346,10 +358,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WSApi/api.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciAPI\</RelPath>
-      <UpdateFromURL>http://localhost/WSApi/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

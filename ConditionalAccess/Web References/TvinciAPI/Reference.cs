@@ -162,6 +162,8 @@ namespace ConditionalAccess.TvinciAPI {
         
         private System.Threading.SendOrPostCallback GetProgramDetailsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetMediaConcurrencyRulesOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -397,6 +399,9 @@ namespace ConditionalAccess.TvinciAPI {
         
         /// <remarks/>
         public event GetProgramDetailsCompletedEventHandler GetProgramDetailsCompleted;
+        
+        /// <remarks/>
+        public event GetMediaConcurrencyRulesCompletedEventHandler GetMediaConcurrencyRulesCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/TVAPI_GetTvinciGUID", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2781,6 +2786,45 @@ namespace ConditionalAccess.TvinciAPI {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetMediaConcurrencyRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public MediaConcurrencyRule[] GetMediaConcurrencyRules(string sWSUserName, string sWSPassword, int nMediaID, string sIP, int bmID, eBusinessModule eType) {
+            object[] results = this.Invoke("GetMediaConcurrencyRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaID,
+                        sIP,
+                        bmID,
+                        eType});
+            return ((MediaConcurrencyRule[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetMediaConcurrencyRulesAsync(string sWSUserName, string sWSPassword, int nMediaID, string sIP, int bmID, eBusinessModule eType) {
+            this.GetMediaConcurrencyRulesAsync(sWSUserName, sWSPassword, nMediaID, sIP, bmID, eType, null);
+        }
+        
+        /// <remarks/>
+        public void GetMediaConcurrencyRulesAsync(string sWSUserName, string sWSPassword, int nMediaID, string sIP, int bmID, eBusinessModule eType, object userState) {
+            if ((this.GetMediaConcurrencyRulesOperationCompleted == null)) {
+                this.GetMediaConcurrencyRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetMediaConcurrencyRulesOperationCompleted);
+            }
+            this.InvokeAsync("GetMediaConcurrencyRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nMediaID,
+                        sIP,
+                        bmID,
+                        eType}, this.GetMediaConcurrencyRulesOperationCompleted, userState);
+        }
+        
+        private void OnGetMediaConcurrencyRulesOperationCompleted(object arg) {
+            if ((this.GetMediaConcurrencyRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetMediaConcurrencyRulesCompleted(this, new GetMediaConcurrencyRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -3014,6 +3058,99 @@ namespace ConditionalAccess.TvinciAPI {
             }
             set {
                 this.m_sFileQualityField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class MediaConcurrencyRule {
+        
+        private int ruleIDField;
+        
+        private string nameField;
+        
+        private int tagTypeIDField;
+        
+        private string tagTypeField;
+        
+        private string[] allTagValuesField;
+        
+        private int bmIdField;
+        
+        private bool isActiveField;
+        
+        /// <remarks/>
+        public int RuleID {
+            get {
+                return this.ruleIDField;
+            }
+            set {
+                this.ruleIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TagTypeID {
+            get {
+                return this.tagTypeIDField;
+            }
+            set {
+                this.tagTypeIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string TagType {
+            get {
+                return this.tagTypeField;
+            }
+            set {
+                this.tagTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string[] AllTagValues {
+            get {
+                return this.allTagValuesField;
+            }
+            set {
+                this.allTagValuesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int bmId {
+            get {
+                return this.bmIdField;
+            }
+            set {
+                this.bmIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
             }
         }
     }
@@ -3476,7 +3613,31 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class KeyValuePairOfStringString {
+    public partial class KeyValuePair {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -3522,7 +3683,7 @@ namespace ConditionalAccess.TvinciAPI {
         
         private UIData uIDataField;
         
-        private KeyValuePairOfStringString[] groups_operators_menusField;
+        private KeyValuePair[] groups_operators_menusField;
         
         private int idField;
         
@@ -3559,8 +3720,7 @@ namespace ConditionalAccess.TvinciAPI {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public KeyValuePairOfStringString[] Groups_operators_menus {
+        public KeyValuePair[] Groups_operators_menus {
             get {
                 return this.groups_operators_menusField;
             }
@@ -3874,6 +4034,8 @@ namespace ConditionalAccess.TvinciAPI {
         
         private eGroupRuleType groupRuleTypeField;
         
+        private bool blockAnonymousField;
+        
         /// <remarks/>
         public int RuleID {
             get {
@@ -3963,6 +4125,16 @@ namespace ConditionalAccess.TvinciAPI {
                 this.groupRuleTypeField = value;
             }
         }
+        
+        /// <remarks/>
+        public bool BlockAnonymous {
+            get {
+                return this.blockAnonymousField;
+            }
+            set {
+                this.blockAnonymousField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -3988,6 +4160,9 @@ namespace ConditionalAccess.TvinciAPI {
         
         /// <remarks/>
         UserType,
+        
+        /// <remarks/>
+        AnonymousAccessBlock,
     }
     
     /// <remarks/>
@@ -4046,21 +4221,21 @@ namespace ConditionalAccess.TvinciAPI {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -4244,153 +4419,6 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class AddUserMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sMasterUsernameField;
-        
-        private string m_sNewUsernameField;
-        
-        private string m_sNewFirstNameField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sMasterUsername {
-            get {
-                return this.m_sMasterUsernameField;
-            }
-            set {
-                this.m_sMasterUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewUsername {
-            get {
-                return this.m_sNewUsernameField;
-            }
-            set {
-                this.m_sNewUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewFirstName {
-            get {
-                return this.m_sNewFirstNameField;
-            }
-            set {
-                this.m_sNewFirstNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sUsernameField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUsername {
-            get {
-                return this.m_sUsernameField;
-            }
-            set {
-                this.m_sUsernameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class SendAdminTokenRequest : MailRequestObj {
         
         private string m_sTokenField;
@@ -4436,13 +4464,9 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangedPinMailRequest : MailRequestObj {
+    public partial class ChangePasswordMailRequest : MailRequestObj {
         
         private string m_sTokenField;
-        
-        private string m_sSiteGuidField;
-        
-        private string m_sRuleNameField;
         
         /// <remarks/>
         public string m_sToken {
@@ -4451,26 +4475,6 @@ namespace ConditionalAccess.TvinciAPI {
             }
             set {
                 this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sSiteGuid {
-            get {
-                return this.m_sSiteGuidField;
-            }
-            set {
-                this.m_sSiteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sRuleName {
-            get {
-                return this.m_sRuleNameField;
-            }
-            set {
-                this.m_sRuleNameField = value;
             }
         }
     }
@@ -4481,53 +4485,137 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class AddDeviceMailRequest : MailRequestObj {
+    public partial class PreviewModuleCancelOrRefundRequest : MailRequestObj {
         
-        private string m_sTokenField;
+        private string m_sPurchaseDateField;
         
-        private string m_sMasterUsernameField;
+        private string m_sItemNameField;
         
-        private string m_sNewDeviceUdidField;
+        private string m_sPriceField;
         
-        private string m_sNewDeviceNameField;
+        private string m_sTransactionNumberField;
+        
+        private string m_sPaymentMethodField;
+        
+        private string m_sTaxValField;
+        
+        private string m_sTaxSubtotalField;
+        
+        private string m_sTaxAmountField;
+        
+        private string m_sInvoiceNumField;
+        
+        private string m_sExternalTransationNumField;
+        
+        private string m_sAddressField;
         
         /// <remarks/>
-        public string m_sToken {
+        public string m_sPurchaseDate {
             get {
-                return this.m_sTokenField;
+                return this.m_sPurchaseDateField;
             }
             set {
-                this.m_sTokenField = value;
+                this.m_sPurchaseDateField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sMasterUsername {
+        public string m_sItemName {
             get {
-                return this.m_sMasterUsernameField;
+                return this.m_sItemNameField;
             }
             set {
-                this.m_sMasterUsernameField = value;
+                this.m_sItemNameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sNewDeviceUdid {
+        public string m_sPrice {
             get {
-                return this.m_sNewDeviceUdidField;
+                return this.m_sPriceField;
             }
             set {
-                this.m_sNewDeviceUdidField = value;
+                this.m_sPriceField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sNewDeviceName {
+        public string m_sTransactionNumber {
             get {
-                return this.m_sNewDeviceNameField;
+                return this.m_sTransactionNumberField;
             }
             set {
-                this.m_sNewDeviceNameField = value;
+                this.m_sTransactionNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPaymentMethod {
+            get {
+                return this.m_sPaymentMethodField;
+            }
+            set {
+                this.m_sPaymentMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxVal {
+            get {
+                return this.m_sTaxValField;
+            }
+            set {
+                this.m_sTaxValField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxSubtotal {
+            get {
+                return this.m_sTaxSubtotalField;
+            }
+            set {
+                this.m_sTaxSubtotalField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxAmount {
+            get {
+                return this.m_sTaxAmountField;
+            }
+            set {
+                this.m_sTaxAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sInvoiceNum {
+            get {
+                return this.m_sInvoiceNumField;
+            }
+            set {
+                this.m_sInvoiceNumField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sExternalTransationNum {
+            get {
+                return this.m_sExternalTransationNumField;
+            }
+            set {
+                this.m_sExternalTransationNumField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sAddress {
+            get {
+                return this.m_sAddressField;
+            }
+            set {
+                this.m_sAddressField = value;
             }
         }
     }
@@ -4679,28 +4767,7 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PreviewModuleCancelOrRefundRequest : MailRequestObj {
+    public partial class PurchaseFailRequest : MailRequestObj {
         
         private string m_sPurchaseDateField;
         
@@ -4982,6 +5049,96 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
+        
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
+        
+        private string m_sPriceField;
+        
+        private string m_sUsernameField;
+        
+        /// <remarks/>
+        public string m_sPurchaseDate {
+            get {
+                return this.m_sPurchaseDateField;
+            }
+            set {
+                this.m_sPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPrice {
+            get {
+                return this.m_sPriceField;
+            }
+            set {
+                this.m_sPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUsername {
+            get {
+                return this.m_sUsernameField;
+            }
+            set {
+                this.m_sUsernameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
+        
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
+        
+        /// <remarks/>
+        public string m_sPurchaseDate {
+            get {
+                return this.m_sPurchaseDateField;
+            }
+            set {
+                this.m_sPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class PurchaseMailRequest : MailRequestObj {
         
         private string m_sPurchaseDateField;
@@ -5123,137 +5280,119 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseFailRequest : MailRequestObj {
+    public partial class SendPasswordMailRequest : MailRequestObj {
         
-        private string m_sPurchaseDateField;
+        private string m_sTokenField;
         
-        private string m_sItemNameField;
+        private string m_sUsernameField;
         
-        private string m_sPriceField;
-        
-        private string m_sTransactionNumberField;
-        
-        private string m_sPaymentMethodField;
-        
-        private string m_sTaxValField;
-        
-        private string m_sTaxSubtotalField;
-        
-        private string m_sTaxAmountField;
-        
-        private string m_sInvoiceNumField;
-        
-        private string m_sExternalTransationNumField;
-        
-        private string m_sAddressField;
+        private string m_sPasswordField;
         
         /// <remarks/>
-        public string m_sPurchaseDate {
+        public string m_sToken {
             get {
-                return this.m_sPurchaseDateField;
+                return this.m_sTokenField;
             }
             set {
-                this.m_sPurchaseDateField = value;
+                this.m_sTokenField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sItemName {
+        public string m_sUsername {
             get {
-                return this.m_sItemNameField;
+                return this.m_sUsernameField;
             }
             set {
-                this.m_sItemNameField = value;
+                this.m_sUsernameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sPrice {
+        public string m_sPassword {
             get {
-                return this.m_sPriceField;
+                return this.m_sPasswordField;
             }
             set {
-                this.m_sPriceField = value;
+                this.m_sPasswordField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class AddDeviceMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sMasterUsernameField;
+        
+        private string m_sNewDeviceUdidField;
+        
+        private string m_sNewDeviceNameField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sTransactionNumber {
+        public string m_sMasterUsername {
             get {
-                return this.m_sTransactionNumberField;
+                return this.m_sMasterUsernameField;
             }
             set {
-                this.m_sTransactionNumberField = value;
+                this.m_sMasterUsernameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sPaymentMethod {
+        public string m_sNewDeviceUdid {
             get {
-                return this.m_sPaymentMethodField;
+                return this.m_sNewDeviceUdidField;
             }
             set {
-                this.m_sPaymentMethodField = value;
+                this.m_sNewDeviceUdidField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sTaxVal {
+        public string m_sNewDeviceName {
             get {
-                return this.m_sTaxValField;
+                return this.m_sNewDeviceNameField;
             }
             set {
-                this.m_sTaxValField = value;
+                this.m_sNewDeviceNameField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ForgotPasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
         
         /// <remarks/>
-        public string m_sTaxSubtotal {
+        public string m_sToken {
             get {
-                return this.m_sTaxSubtotalField;
+                return this.m_sTokenField;
             }
             set {
-                this.m_sTaxSubtotalField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxAmount {
-            get {
-                return this.m_sTaxAmountField;
-            }
-            set {
-                this.m_sTaxAmountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sInvoiceNum {
-            get {
-                return this.m_sInvoiceNumField;
-            }
-            set {
-                this.m_sInvoiceNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sExternalTransationNum {
-            get {
-                return this.m_sExternalTransationNumField;
-            }
-            set {
-                this.m_sExternalTransationNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sAddress {
-            get {
-                return this.m_sAddressField;
-            }
-            set {
-                this.m_sAddressField = value;
+                this.m_sTokenField = value;
             }
         }
     }
@@ -5309,9 +5448,13 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ForgotPasswordMailRequest : MailRequestObj {
+    public partial class ChangedPinMailRequest : MailRequestObj {
         
         private string m_sTokenField;
+        
+        private string m_sSiteGuidField;
+        
+        private string m_sRuleNameField;
         
         /// <remarks/>
         public string m_sToken {
@@ -5320,6 +5463,26 @@ namespace ConditionalAccess.TvinciAPI {
             }
             set {
                 this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sSiteGuid {
+            get {
+                return this.m_sSiteGuidField;
+            }
+            set {
+                this.m_sSiteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sRuleName {
+            get {
+                return this.m_sRuleNameField;
+            }
+            set {
+                this.m_sRuleNameField = value;
             }
         }
     }
@@ -5330,13 +5493,15 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendPasswordMailRequest : MailRequestObj {
+    public partial class AddUserMailRequest : MailRequestObj {
         
         private string m_sTokenField;
         
-        private string m_sUsernameField;
+        private string m_sMasterUsernameField;
         
-        private string m_sPasswordField;
+        private string m_sNewUsernameField;
+        
+        private string m_sNewFirstNameField;
         
         /// <remarks/>
         public string m_sToken {
@@ -5349,22 +5514,32 @@ namespace ConditionalAccess.TvinciAPI {
         }
         
         /// <remarks/>
-        public string m_sUsername {
+        public string m_sMasterUsername {
             get {
-                return this.m_sUsernameField;
+                return this.m_sMasterUsernameField;
             }
             set {
-                this.m_sUsernameField = value;
+                this.m_sMasterUsernameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sPassword {
+        public string m_sNewUsername {
             get {
-                return this.m_sPasswordField;
+                return this.m_sNewUsernameField;
             }
             set {
-                this.m_sPasswordField = value;
+                this.m_sNewUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewFirstName {
+            get {
+                return this.m_sNewFirstNameField;
+            }
+            set {
+                this.m_sNewFirstNameField = value;
             }
         }
     }
@@ -8045,6 +8220,19 @@ namespace ConditionalAccess.TvinciAPI {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eBusinessModule {
+        
+        /// <remarks/>
+        PPV,
+        
+        /// <remarks/>
+        Subscription,
+    }
+    
+    /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
     public delegate void TVAPI_GetTvinciGUIDCompletedEventHandler(object sender, TVAPI_GetTvinciGUIDCompletedEventArgs e);
     
@@ -9788,6 +9976,32 @@ namespace ConditionalAccess.TvinciAPI {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((EPGChannelProgrammeObject)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    public delegate void GetMediaConcurrencyRulesCompletedEventHandler(object sender, GetMediaConcurrencyRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.18408")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetMediaConcurrencyRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetMediaConcurrencyRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public MediaConcurrencyRule[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((MediaConcurrencyRule[])(this.results[0]));
             }
         }
     }

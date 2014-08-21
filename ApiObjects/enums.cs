@@ -167,4 +167,10 @@ namespace ApiObjects
         Collection
     }
 
+    public enum eBusinessModule
+    {
+        PPV = 1,
+        Subscription = 2
+    }
+
 }

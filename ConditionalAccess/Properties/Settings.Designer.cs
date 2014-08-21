@@ -36,7 +36,7 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WSApi/api.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_api/api.asmx")]
         public string ConditionalAccess_TvinciAPI_API {
             get {
                 return ((string)(this["ConditionalAccess_TvinciAPI_API"]));
@@ -76,7 +76,7 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_domains_2/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_domains/module.asmx")]
         public string ConditionalAccess_TvinciDomains_module {
             get {
                 return ((string)(this["ConditionalAccess_TvinciDomains_module"]));

@@ -356,10 +356,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://192.168.16.40/WS_Domains/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Domains/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\WS_Domains\</RelPath>
-      <UpdateFromURL>http://192.168.16.40/WS_Domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Domains/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

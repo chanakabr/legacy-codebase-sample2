@@ -1831,6 +1831,36 @@ namespace Users
 
         #endregion
 
+        /***************************************************************************************************************
+         * This method get MediaConcurrencyLimit (int) , domain and mediaID 
+         * Get from CB all media play at the last 
+         ************************************************************************************************************* */
+        internal DomainResponseStatus ValidateMediaConcurrency(int nRuleID, int nMediaConcurrencyLimit, long lDomainID, int nMediaID)
+        {
+            DomainResponseStatus res = DomainResponseStatus.OK;
+            if (nMediaConcurrencyLimit == 0)
+            {
+                // get limitation from DB
+               DataTable dt = ApiDAL.GetMCRulesByID(nRuleID);
+               if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+               {
+                   nMediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
+               }
+            }
 
+            if (nMediaConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
+            {  
+                List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                if (lUserMediaMark != null)
+                {
+                    List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => c.MediaID == nMediaID && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
+                    if (lMediaConcurrency != null && lMediaConcurrency.Count >= nMediaConcurrencyLimit)
+                    {
+                        res = DomainResponseStatus.ConcurrencyLimitation;
+                    }
+                }
+            }
+            return res;
+        }
     }
 }

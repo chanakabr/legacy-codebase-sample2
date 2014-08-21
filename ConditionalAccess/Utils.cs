@@ -3382,5 +3382,28 @@ namespace ConditionalAccess
 
             return res;
         }
+
+        internal static int GetCountryIDByIP(string sIP)
+        {         
+            int retCountryID = 0;
+
+            if (!string.IsNullOrEmpty(sIP))
+            {
+                long nIPVal = 0;
+                string[] splited = sIP.Split('.');
+
+                if (splited != null && splited.Length >= 3)
+                {
+                    nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
+                }
+
+                DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
+                if (dtCountry != null && dtCountry.Rows.Count > 0)
+                {
+                    retCountryID = ODBCWrapper.Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
+                }
+            }
+            return retCountryID;
+        }
     }
 }

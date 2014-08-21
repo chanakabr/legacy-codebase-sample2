@@ -203,7 +203,8 @@ namespace Catalog
                 case MediaPlayActions.PLAY:
                     {
                         nPlay = 1;
-                        if (Catalog.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID))
+                        if (Catalog.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID, this.m_oMediaPlayRequestData.m_nMediaID,
+                            this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID))
                         {
                             isConcurrent = true;
                         }
@@ -257,14 +258,13 @@ namespace Catalog
                 case MediaPlayActions.FIRST_PLAY:
                     {
                         nFirstPlay = 1;
-                        if (Catalog.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID))
+                        if (Catalog.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID, this.m_oMediaPlayRequestData.m_nMediaID,
+                            this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID))
                         {
                             isConcurrent = true;
                         }
                         else
-                        {
-                            sPlayCycleKey = Guid.NewGuid().ToString();
-                            CatalogDAL.Insert_NewPlayCycleKey(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sSiteGuid, nPlatform, this.m_oMediaPlayRequestData.m_sUDID, nCountryID, sPlayCycleKey);
+                        {   
                             Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, nDomainID);
                         }
                         break;

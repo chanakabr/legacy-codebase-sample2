@@ -1096,6 +1096,21 @@ namespace Catalog
             return retVal;
         }
 
+        public static int GetMediaConcurrencyRuleID(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
+        {
+            try
+            {
+                int retVal = 0;
+                retVal = CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
+                return retVal;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+
         public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int nDomainID = 0)
         {
             int opID = 0;
@@ -2572,7 +2587,7 @@ namespace Catalog
             return CatalogDAL.GetLastPosition(mediaID, userID);
         }
 
-        internal static bool IsConcurrent(string sSiteGuid, string sUDID, int nGroupID, ref int nDomainID)
+        internal static bool IsConcurrent(string sSiteGuid, string sUDID, int nGroupID, ref int nDomainID, int nMediaID, int nMediaFileID, int nPlatform, int nCountryID)
         {
             bool res = true;
             long lSiteGuid = 0;
@@ -2580,6 +2595,9 @@ namespace Catalog
             {
                 throw new Exception(GetIsConcurrentLogMsg("SiteGuid is in incorrect format.", sSiteGuid, sUDID, nGroupID));
             }
+
+            // get the rule id by play_cycle_keys
+            int nMCRuleID = GetMediaConcurrencyRuleID(sSiteGuid, nMediaID, nMediaFileID, sUDID, nGroupID, nPlatform, nCountryID);
 
             string sWSUsername = string.Empty;
             string sWSPassword = string.Empty;
@@ -2597,7 +2615,7 @@ namespace Catalog
             {
                 if (sWSUrl.Length > 0)
                     domains.Url = sWSUrl;
-                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency);
+                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0,nMediaID);
                 if (domainsResp != null)
                 {
                     nDomainID = (int)domainsResp.m_lDomainID;

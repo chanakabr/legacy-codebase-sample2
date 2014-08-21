@@ -6,7 +6,7 @@
       <Value Profile="(Default)">https://platform-us.tvinci.com/billing/module.asmx</Value>
     </Setting>
     <Setting Name="ConditionalAccess_TvinciAPI_API" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/WSApi/api.asmx</Value>
+      <Value Profile="(Default)">http://localhost/ws_api/api.asmx</Value>
     </Setting>
     <Setting Name="ConditionalAccess_TvinciPricing_mdoule" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost/WS_Pricing/module.asmx</Value>
@@ -18,7 +18,7 @@
       <Value Profile="(Default)">https://www.sinema.com/wswebtv/Service.asmx</Value>
     </Setting>
     <Setting Name="ConditionalAccess_TvinciDomains_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/ws_domains_2/module.asmx</Value>
+      <Value Profile="(Default)">http://localhost/ws_domains/module.asmx</Value>
     </Setting>
     <Setting Name="ConditionalAccess_NotificationService_NotificationService" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost/WS_Notification/NotificationService.svc</Value>

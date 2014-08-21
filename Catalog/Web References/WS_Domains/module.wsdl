@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://domains.tvinci.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://domains.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://domains.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://domains.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://domains.tvinci.com/">
       <s:element name="AddDomain">
@@ -723,6 +723,9 @@
             <s:element minOccurs="1" maxOccurs="1" name="lSiteGuid" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="lDomainID" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="eValidation" type="tns:ValidationType" />
+            <s:element minOccurs="1" maxOccurs="1" name="nRuleID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaConcurrencyLimit" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaID" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1236,6 +1239,9 @@
     <wsdl:part name="lSiteGuid" type="s:string" />
     <wsdl:part name="lDomainID" type="s:string" />
     <wsdl:part name="eValidation" type="s:string" />
+    <wsdl:part name="nRuleID" type="s:string" />
+    <wsdl:part name="nMediaConcurrencyLimit" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ValidateLimitationModuleHttpPostOut">
     <wsdl:part name="Body" element="tns:ValidationResponseObject" />
@@ -2340,13 +2346,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.16.40/WS_Domains/module.asmx" />
+      <soap:address location="http://localhost/WS_Domains/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.16.40/WS_Domains/module.asmx" />
+      <soap12:address location="http://localhost/WS_Domains/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.16.40/WS_Domains/module.asmx" />
+      <http:address location="http://localhost/WS_Domains/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
