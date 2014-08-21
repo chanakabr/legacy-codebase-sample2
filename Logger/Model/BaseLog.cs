@@ -132,7 +132,7 @@ namespace Logger
         }
 
         // This function is used to clean any characters from the message given
-        private void formatJson(string json)
+        private void formatJson()
         {
             if (!this.Message.StartsWith("{"))
             {
@@ -188,7 +188,7 @@ namespace Logger
 
         public override string ToString()
         {
-            formatJson(this.Message);
+            formatJson();
 
             string[] lines = {"\"" + "EventTime" + "\"" + ":" + "\"" + "{0}" + "\"",
                               "\"" + "Id"   + "\"" + ":" + "\"" + "{1}" + "\"", 
