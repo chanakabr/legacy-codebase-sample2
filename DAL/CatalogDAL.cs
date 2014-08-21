@@ -490,7 +490,7 @@ namespace Tvinci.Core.DAL
             spNewCycleKey.AddParameter("@CountryID", nCountryID);
             spNewCycleKey.AddParameter("@PlayCycleKey", sPlayCycleKey);
 
-            spNewCycleKey.AddParameter("@RuleID", 0); 
+            spNewCycleKey.AddParameter("@RuleID", nRuleID); 
 
             spNewCycleKey.ExecuteNonQuery();
         }

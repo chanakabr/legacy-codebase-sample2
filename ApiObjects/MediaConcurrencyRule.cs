@@ -28,7 +28,7 @@ namespace ApiObjects
             IsActive = false;
         }
 
-        public MediaConcurrencyRule(int ruleID, int tagTypeID, string tagVal, string name, int isActive)
+        public MediaConcurrencyRule(int ruleID, int tagTypeID, string tagVal, string name, int isActive, int nBmID)
         {
             RuleID = ruleID;
             TagTypeID = tagTypeID;
@@ -36,7 +36,7 @@ namespace ApiObjects
             Name = name;
 
             AllTagValues = new List<string>();
-            bmId =  0;
+            bmId = nBmID;
             if (isActive == 1)
             {
                 IsActive = true;
