@@ -14,6 +14,7 @@ namespace GracenoteFeeder
     public class BaseGracenoteFeeder 
     {
         #region members
+        
         public int groupID { get; set; }
         public int parentGroupID { get; set; }
         public int UpdaterID { get; set; }
@@ -22,7 +23,11 @@ namespace GracenoteFeeder
         public string URL { get; set; }
         public string ChannelXml { get; set; }
         public string CategoryXml { get; set; }
+
+        public static Dictionary<string, string> dCategoryToDefaultPic = new Dictionary<string, string>();
+
         #endregion
+
 
         public BaseGracenoteFeeder(string sClient, string sUser, int nGroupID, string sURL, string sChannelXml, string sCategoryXml, int nParentGroupID = 0, int nUpdaterID = 0)
         {
@@ -162,9 +167,17 @@ namespace GracenoteFeeder
 
                         // get the pic Url - if there is none , get the default picture from GraceNote API
                         string epg_url = GetSingleNodeValue(node, "URLGROUP/URL"); // pic url
+
                         if (string.IsNullOrEmpty(epg_url))
                         {
-                            epg_url = GetImageFromGN(node, EPGGuid);
+                            string category = GetSingleAttributeValue(node.SelectSingleNode("IPGCATEGORY/IPGCATEGORY_L1"), "ID");
+
+                            if (!dCategoryToDefaultPic.TryGetValue(category, out epg_url) || string.IsNullOrEmpty(epg_url))
+                            {
+                                epg_url = GetImageFromGN(node, EPGGuid);
+
+                                dCategoryToDefaultPic[category] = epg_url;
+                            }
                         }
 
                         #region Set field mapping valus
