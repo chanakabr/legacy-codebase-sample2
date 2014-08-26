@@ -4824,6 +4824,10 @@ namespace ConditionalAccess
                                     sPPVModuleCode = oModules[0].m_oPPVModules[0].m_sObjectCode;
                                     dPrice = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_dPrice;
                                     sCurrency = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                                    if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
+                                    { // Cinepolis patch
+                                        dPrice = 0d;
+                                    }
                                 }
                             }
                         }
@@ -4951,17 +4955,14 @@ namespace ConditionalAccess
                 if (u != null)
                 {
                     u.Dispose();
-                    u = null;
                 }
                 if (m != null)
                 {
                     m.Dispose();
-                    m = null;
                 }
                 if (bm != null)
                 {
                     bm.Dispose();
-                    bm = null;
                 }
                 #endregion
             }
@@ -6018,6 +6019,11 @@ namespace ConditionalAccess
         protected virtual bool IsTakePriceFromBundleFinalPrice(bool isDummy, Price p)
         {
             return isDummy && p != null;
+        }
+
+        protected virtual bool IsTakePriceFromMediaFileFinalPrice(bool isDummy)
+        {
+            return true;
         }
 
         private TvinciBilling.BillingResponse ExecuteCCSubscriprionPurchaseFlow(TvinciPricing.Subscription theSub, string sBundleCode, string sSiteGUID, double dPrice,

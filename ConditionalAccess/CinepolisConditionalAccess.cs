@@ -528,7 +528,7 @@ namespace ConditionalAccess
 
         protected override bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
         {
-            return bIsCouponUsedAndValid && reason == PriceReason.Free;
+            return (bIsCouponUsedAndValid && reason == PriceReason.Free) || bDummy;
         }
 
         protected override bool IsTakePriceFromBundleFinalPrice(bool isDummy, TvinciPricing.Price p)
@@ -539,6 +539,11 @@ namespace ConditionalAccess
         protected override double InitializePriceForBundlePurchase(double inputPrice, bool isDummy)
         {
             return isDummy ? 0d : inputPrice;
+        }
+
+        protected override bool IsTakePriceFromMediaFileFinalPrice(bool isDummy)
+        {
+            return !isDummy;
         }
 
     }
