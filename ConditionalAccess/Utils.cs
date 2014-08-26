@@ -1603,7 +1603,7 @@ namespace ConditionalAccess
         }
 
         //***********************************************
-        static public TvinciPricing.Price GetSubscriptionFinalPrice(Int32 nGroupID, string sSubCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Subscription theSub,
+        internal static TvinciPricing.Price GetSubscriptionFinalPrice(Int32 nGroupID, string sSubCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Subscription theSub,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
         {
             TvinciPricing.Price p = null;
@@ -1640,14 +1640,10 @@ namespace ConditionalAccess
 
                 DataTable dt = ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, sSubCode);
 
-                if (dt != null && dt.Rows != null)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    Int32 nCount = dt.Rows.Count;
-                    if (nCount > 0)
-                    {
-                        p.m_dPrice = 0.0;
-                        theReason = PriceReason.SubscriptionPurchased;
-                    }
+                    p.m_dPrice = 0.0;
+                    theReason = PriceReason.SubscriptionPurchased;
                 }
                 if (theReason != PriceReason.SubscriptionPurchased)
                 {
@@ -1666,7 +1662,7 @@ namespace ConditionalAccess
             return p;
         }
 
-        static public TvinciPricing.Price GetCollectionFinalPrice(Int32 nGroupID, string sColCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Collection theCol,
+        internal static TvinciPricing.Price GetCollectionFinalPrice(Int32 nGroupID, string sColCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Collection theCol,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
         {
             TvinciPricing.Price price = null;
@@ -1701,16 +1697,13 @@ namespace ConditionalAccess
 
                 List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, nGroupID);
 
-                DataTable dt = DAL.ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode);
+                DataTable dt = ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode);
 
-                if (dt != null)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    Int32 nCount = dt.Rows.Count;
-                    if (nCount > 0)
-                    {
-                        price.m_dPrice = 0.0;
-                        theReason = PriceReason.CollectionPurchased;
-                    }
+                    price.m_dPrice = 0.0;
+                    theReason = PriceReason.CollectionPurchased;
+
                 }
                 if (theReason != PriceReason.CollectionPurchased)
                 {
@@ -3342,7 +3335,7 @@ namespace ConditionalAccess
             {
                 using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
                 {
-                    res = m.GetUsageModuleData(wsUsername, wsPassword, usageModuleCodeStr,countryCode, langCode, deviceName);
+                    res = m.GetUsageModuleData(wsUsername, wsPassword, usageModuleCodeStr, countryCode, langCode, deviceName);
                     if (res != null)
                     {
                         CachingManager.CachingManager.SetCachedData(cacheKey, res, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
@@ -3353,7 +3346,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID) 
+        internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID)
         {
             bool res = false;
             WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();

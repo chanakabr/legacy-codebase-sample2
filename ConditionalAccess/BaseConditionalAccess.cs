@@ -48,7 +48,7 @@ namespace ConditionalAccess
         protected abstract bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, TvinciPricing.Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, string sCustomData,
-            bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID);
+            bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy);
 
         protected abstract bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, TvinciPricing.Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
@@ -4294,15 +4294,15 @@ namespace ConditionalAccess
 
                 string transactionName = Enum.GetName(typeof(eTransactionType), transaction);
 
-            if (CachingManager.CachingManager.Exist("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString()) == true)
-                oUsageModule = (TvinciPricing.UsageModule)(CachingManager.CachingManager.GetCachedData("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString()));
-            else
-            {
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUsageModule", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                TvinciPricing.eTransactionType enumPricing = (TvinciPricing.eTransactionType)Enum.Parse(typeof(TvinciPricing.eTransactionType), transactionName);
-                oUsageModule = m.GetUsageModule(sWSUserName, sWSPass, sAssetCode, enumPricing);
-                CachingManager.CachingManager.SetCachedData("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString(), oUsageModule, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-            }
+                if (CachingManager.CachingManager.Exist("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString()) == true)
+                    oUsageModule = (TvinciPricing.UsageModule)(CachingManager.CachingManager.GetCachedData("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString()));
+                else
+                {
+                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUsageModule", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                    TvinciPricing.eTransactionType enumPricing = (TvinciPricing.eTransactionType)Enum.Parse(typeof(TvinciPricing.eTransactionType), transactionName);
+                    oUsageModule = m.GetUsageModule(sWSUserName, sWSPass, sAssetCode, enumPricing);
+                    CachingManager.CachingManager.SetCachedData("GetUsageModule" + transactionName + sAssetCode + "_" + m_nGroupID.ToString(), oUsageModule, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                }
 
                 if (oUsageModule != null)
                 {
@@ -5821,6 +5821,11 @@ namespace ConditionalAccess
             return CC_BaseChargeUserForBundle(sSiteGUID, dPrice, sCurrency, sBundleCode, sCouponCode, sUserIP, sExtraParams, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bDummy, sPaymentMethodID, sEncryptedCVV, bundleType);
         }
 
+        protected virtual double InitializePriceForBundlePurchase(double inputPrice, bool isDummy)
+        {
+            return inputPrice;
+        }
+
         protected TvinciBilling.BillingResponse CC_BaseChargeUserForBundle
            (string sSiteGUID, double dPrice, string sCurrency, string sBundleCode, string sCouponCode, string sUserIP, string sExtraParams,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV, eBundleType bundleType)
@@ -5863,6 +5868,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
+                        dPrice = InitializePriceForBundlePurchase(dPrice, bDummy);
                         if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
@@ -5892,9 +5898,11 @@ namespace ConditionalAccess
                                     theBundle = theCol;
                                     break;
                                 }
+                            default:
+                                break;
                         }
 
-                        if (bDummy && p != null)
+                        if (IsTakePriceFromBundleFinalPrice(bDummy, p))
                         {
                             dPrice = p.m_dPrice;
                             sCurrency = p.m_oCurrency.m_sCurrencyCD3;
@@ -5931,6 +5939,8 @@ namespace ConditionalAccess
 
                                             break;
                                         }
+                                    default:
+                                        break;
                                 }
 
                             }
@@ -5995,16 +6005,19 @@ namespace ConditionalAccess
                 if (u != null)
                 {
                     u.Dispose();
-                    u = null;
                 }
                 if (bm != null)
                 {
                     bm.Dispose();
-                    bm = null;
                 }
                 #endregion
             }
             return ret;
+        }
+
+        protected virtual bool IsTakePriceFromBundleFinalPrice(bool isDummy, Price p)
+        {
+            return isDummy && p != null;
         }
 
         private TvinciBilling.BillingResponse ExecuteCCSubscriprionPurchaseFlow(TvinciPricing.Subscription theSub, string sBundleCode, string sSiteGUID, double dPrice,
@@ -6040,7 +6053,7 @@ namespace ConditionalAccess
                 long lPurchaseID = 0;
                 HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency, sCouponCode,
                     sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
-                    bIsRecurring, ref lBillingTransactionID, ref lPurchaseID);
+                    bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
             }
             else
             {
@@ -8266,7 +8279,7 @@ namespace ConditionalAccess
                         DateTime dNow = DateTime.UtcNow;
                         List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID);
 
-                        
+
                         if (ConditionalAccessDAL.Get_LatestFileUse(lUsersIds, nMediaFileID, ref sPPVMCode, ref isOfflineStatus, ref dNow,
                             ref dPurchaseDate))
                         {
@@ -8402,7 +8415,7 @@ namespace ConditionalAccess
             sb.Append(String.Concat(" Device Name: ", deviceName));
 
             return sb.ToString();
-            
+
         }
 
         private eTransactionType GetBusinessModuleType(string sPPVModuleCode)
@@ -8869,7 +8882,7 @@ namespace ConditionalAccess
                                     long lPurchaseID = 0;
                                     HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency, sCouponCode,
                                                                                   sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sSubscriptionCode, sCustomData,
-                                                                                  bIsRecurring, ref lBillingTransactionID, ref lPurchaseID);
+                                                                                  bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
 
                                 }
                                 else
@@ -9080,7 +9093,7 @@ namespace ConditionalAccess
                             return ChangeSubscriptionStatus.NewSubNotRenewable;
                         }
 
-                        return setSubscriptionChange(sSiteGuid, userSubNew, userSubOld);
+                        return SetSubscriptionChange(sSiteGuid, userSubNew, userSubOld);
                     }
                     else
                     {
@@ -9103,24 +9116,24 @@ namespace ConditionalAccess
 
         //the new subscription is dummy charged and its end date is set according the previous subscriptions end date
         //the previous  subscription is cancled and its end date is set to 'now'
-        private ChangeSubscriptionStatus setSubscriptionChange(string sSiteGuid, Subscription subNew, PermittedSubscriptionContainer userSubOld)
+        private ChangeSubscriptionStatus SetSubscriptionChange(string sSiteGuid, Subscription subNew, PermittedSubscriptionContainer userSubOld)
         {
             ChangeSubscriptionStatus status = ChangeSubscriptionStatus.Error;
             try
             {
                 #region Initialize
-                string sCurrency = "";
+                string sCurrency = string.Empty;
                 double dPrice = 0;
-                string sCouponCode = "";
-                string sUserIP = "";
-                string sCountry = "";
-                string sLanguage = "";
-                string sDeviceName = "";
+                string sCouponCode = string.Empty;
+                string sUserIP = string.Empty;
+                string sCountry = string.Empty;
+                string sLanguage = string.Empty;
+                string sDeviceName = string.Empty;
                 string sSubscriptionCode = subNew.m_SubscriptionCode;
                 bool isDummyCharge = true;
-                string extraParams = "";
-                string sBillingMethod = "";//used only in real billing and not dummy
-                string sEncryptedCVV = "";//used only in real billing and not dummy                  
+                string extraParams = string.Empty;
+                string sBillingMethod = string.Empty;//used only in real billing and not dummy
+                string sEncryptedCVV = string.Empty;//used only in real billing and not dummy                  
 
                 if (subNew.m_oPriceCode != null && subNew.m_oPriceCode.m_oPrise != null)
                 {
@@ -9134,10 +9147,11 @@ namespace ConditionalAccess
                     sCouponCode = subNew.m_oSubscriptionUsageModule.m_coupon_id.ToString();
                 }
 
-                string sCouponCodeOld = "";
+                string sCouponCodeOld = string.Empty;
                 #endregion
-
+                WriteSubChangeToUserLog(sSiteGuid, subNew, userSubOld);
                 //charge the user for the new subscription with dummy charge
+                dPrice = 0d; // Patch for Cinepolis. price == 0 && string.IsNullOrEmpty(encryptedCVV) && string.IsNullOrEmpty(paymentMethodID) will cause billing to dummy charge.
                 TvinciBilling.BillingResponse billResp = CC_BaseChargeUserForBundle(sSiteGuid, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, extraParams, sCountry, sLanguage, sDeviceName,
                     isDummyCharge, sBillingMethod, sEncryptedCVV, eBundleType.SUBSCRIPTION);
 
@@ -9149,13 +9163,11 @@ namespace ConditionalAccess
                     Subscription subOld = new Subscription();
                     //the 'sCouponCodeOld' is empty, so the 'price' itself does not include a discount, if one was given
                     Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, userSubOld.m_sSubscriptionCode, sSiteGuid, sCouponCodeOld, ref reason, ref subOld, sCountry, sLanguage, userSubOld.m_sDeviceName);
-                    bool bIsEntitledToPreviewModule = false;
-                    if (reason == PriceReason.EntitledToPreviewModule)
-                        bIsEntitledToPreviewModule = true;
+                    bool bIsEntitledToPreviewModule = reason == PriceReason.EntitledToPreviewModule;
                     DateTime dtSubEndDate = CalcSubscriptionEndDate(subOld, bIsEntitledToPreviewModule, DateTime.UtcNow);
 
                     int nBillingTransID = 0;
-                    bool parseSucceeded = int.TryParse(billResp.m_sRecieptCode, out nBillingTransID);
+                    bool parseSucceeded = Int32.TryParse(billResp.m_sRecieptCode, out nBillingTransID);
                     if (parseSucceeded)
                     {
                         //update the new subscription End Date and Billing Method                                                                
@@ -9164,7 +9176,7 @@ namespace ConditionalAccess
                         bool updateBillingTrans = ConditionalAccessDAL.Update_BillingMethodInBillingTransactions(nBillingTransID, nBillingMethod);
 
                         //update the old subscription : is_recurring_status = 0, end_date = 'now'               
-                        bool bCancel = DAL.ConditionalAccessDAL.CancelSubscription(userSubOld.m_nSubscriptionPurchaseID, m_nGroupID, sSiteGuid, userSubOld.m_sSubscriptionCode) != 0 ? false : true;
+                        bool bCancel = ConditionalAccessDAL.CancelSubscription(userSubOld.m_nSubscriptionPurchaseID, m_nGroupID, sSiteGuid, userSubOld.m_sSubscriptionCode) != 0 ? false : true;
                         bool updateEndDateOld = ConditionalAccessDAL.Update_SubscriptionPurchaseEndDate(userSubOld.m_nSubscriptionPurchaseID, sSiteGuid, null, DateTime.UtcNow);
 
                         if (updateEndDateNew && updateBillingTrans && bCancel && updateEndDateOld)
@@ -9185,10 +9197,40 @@ namespace ConditionalAccess
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("setSubscriptionChange", "Exception: " + exc.Message + "In: " + exc.StackTrace, "BaseConditionalAccess");
-                return ChangeSubscriptionStatus.Error;
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception in SetSubscriptionChange. ");
+                sb.Append(String.Concat("Ex Msg: ", exc.Message));
+                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+                sb.Append(String.Concat(" Stack Trace: ", exc.StackTrace));
+                Logger.Logger.Log("SetSubscriptionChange", sb.ToString(), GetLogFilename());
+                #endregion
+                status = ChangeSubscriptionStatus.Error;
             }
             return status;
+        }
+
+        private void WriteSubChangeToUserLog(string sSiteGuid, Subscription subNew, PermittedSubscriptionContainer userSubOld)
+        {
+            StringBuilder sb = new StringBuilder("Subscription Change Request.");
+            sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+            if (subNew != null)
+            {
+                sb.Append(String.Concat(" Sub New ID: ", subNew.m_SubscriptionCode));
+            }
+            else
+            {
+                sb.Append(" Sub New ID is null.");
+            }
+            if (userSubOld != null)
+            {
+                sb.Append(String.Concat(" Sub Old ID: ", userSubOld.m_sSubscriptionCode));
+            }
+            else
+            {
+                sb.Append(" Sub Old ID is null.");
+            }
+
+            WriteToUserLog(sSiteGuid, sb.ToString());
         }
 
 
@@ -9205,7 +9247,6 @@ namespace ConditionalAccess
                 // get the usage module for the asset id 
                 bool bCancellationWindow = GetCancellationWindow(sSiteGuid, nAssetID, transactionType, nGroupID, ref dt);
                 if (bCancellationWindow)
-
                 {
                     switch (transactionType)
                     {

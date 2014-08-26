@@ -459,15 +459,21 @@ namespace ConditionalAccess
             return bm.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
         }
 
-        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, TvinciPricing.Subscription theSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID)
+        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, TvinciPricing.Subscription theSub, 
+            double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, 
+            string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, 
+            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
             bool res = base.HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, theSub, dPrice, sCurrency,
                 sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, br, bIsEntitledToPreviewModule, sSubscriptionCode,
-                sCustomData, bIsRecurring, ref lBillingTransactionID, ref lPurchaseID);
+                sCustomData, bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, isDummy);
 
             if (res && lPurchaseID > 0 && lBillingTransactionID > 0)
             {
-                HandleSendOperationConfirmToCinepolis(lPurchaseID, lBillingTransactionID, BillingItemsType.Subscription, sSiteGUID);
+                if (IsSendOperationConfirmToCinepolis(isDummy, dPrice))
+                {
+                    HandleSendOperationConfirmToCinepolis(lPurchaseID, lBillingTransactionID, BillingItemsType.Subscription, sSiteGUID);
+                }
             }
             else
             {
@@ -485,6 +491,11 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private bool IsSendOperationConfirmToCinepolis(bool isDummy, double price)
+        {
+            return !isDummy || price != 0d;
         }
 
         protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, TvinciPricing.Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID)
@@ -518,6 +529,16 @@ namespace ConditionalAccess
         protected override bool RecalculateDummyIndicatorForChargeMediaFile(bool bDummy, PriceReason reason, bool bIsCouponUsedAndValid)
         {
             return bIsCouponUsedAndValid && reason == PriceReason.Free;
+        }
+
+        protected override bool IsTakePriceFromBundleFinalPrice(bool isDummy, TvinciPricing.Price p)
+        {
+            return false;
+        }
+
+        protected override double InitializePriceForBundlePurchase(double inputPrice, bool isDummy)
+        {
+            return isDummy ? 0d : inputPrice;
         }
 
     }
