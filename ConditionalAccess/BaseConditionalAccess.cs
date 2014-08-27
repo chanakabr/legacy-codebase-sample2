@@ -9432,41 +9432,36 @@ namespace ConditionalAccess
 
         private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref System.Data.DataTable dt)
         {
-            try
+
+            TvinciPricing.UsageModule oUsageModule = null;
+            bool bCancellationWindow = false;
+            DateTime dCreateDate = DateTime.MinValue;
+            int nSiteGuid = 0;
+            string assetCode = string.Empty;
+            bool bParse = int.TryParse(sSiteGuid, out nSiteGuid);
+            switch (transactionType)
             {
-                TvinciPricing.UsageModule oUsageModule = null;
-                bool bCancellationWindow = false;
-                DateTime dCreateDate = DateTime.MinValue;
-                int nSiteGuid = 0;
-                string assetCode = string.Empty;
-                bool bParse = int.TryParse(sSiteGuid, out  nSiteGuid);
-                switch (transactionType)
-                {
-                    case eTransactionType.PPV:
-                        dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
-                        break;
-                    case eTransactionType.Subscription:
-                        dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
-                        break;
-                    case eTransactionType.Collection:
-                        dt = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
-                        break;
-                    default:
-                        bCancellationWindow = false;
-                        break;
-                }
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
-                    assetCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "assetCode"); // ppvCode/SubscriptionCode/CollectionCode
-                    IsCancellationWindow(ref oUsageModule, assetCode, dCreateDate, ref bCancellationWindow, transactionType);
-                }
-                return bCancellationWindow;
+                case eTransactionType.PPV:
+                    dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
+                    break;
+                case eTransactionType.Subscription:
+                    dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
+                    break;
+                case eTransactionType.Collection:
+                    dt = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
+                    break;
+                default:
+                    bCancellationWindow = false;
+                    break;
             }
-            catch (Exception)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                return false;
+                dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
+                assetCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "assetCode"); // ppvCode/SubscriptionCode/CollectionCode
+                IsCancellationWindow(ref oUsageModule, assetCode, dCreateDate, ref bCancellationWindow, transactionType);
             }
+            return bCancellationWindow;
+
         }
 
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
