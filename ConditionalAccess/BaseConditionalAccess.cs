@@ -2348,10 +2348,6 @@ namespace ConditionalAccess
                         throw new Exception("Subscription returned from pricing module is null");
                     }
                 }
-                catch (Exception ex)
-                {
-                    throw;
-                }
                 finally
                 {
                     #region Disposing
@@ -2500,7 +2496,7 @@ namespace ConditionalAccess
         {
             string sCouponCode = "";
             TvinciBilling.BillingResponse ret = new ConditionalAccess.TvinciBilling.BillingResponse();
-            if (sSiteGUID == "")
+            if (string.IsNullOrEmpty(sSiteGUID))
             {
                 #region terminate if site guid id empty
                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -2517,7 +2513,7 @@ namespace ConditionalAccess
                 string sWSPass = "";
                 TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL != "")
+                if (sWSURL.Length > 0)
                     u.Url = sWSURL;
                 #endregion
 
@@ -2528,8 +2524,7 @@ namespace ConditionalAccess
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                     ret.m_sRecieptCode = "";
                     ret.m_sStatusDescription = "Cant charge an unknown user";
-                    try { WriteToUserLog(sSiteGUID, "Subscription auto renewal: " + sSubscriptionCode.ToString() + " error returned: " + ret.m_sStatusDescription); }
-                    catch { }
+                    WriteToUserLog(sSiteGUID, "Subscription auto renewal: " + sSubscriptionCode.ToString() + " error returned: " + ret.m_sStatusDescription);
 
                     //Increase subscription purchase fail count
                     ODBCWrapper.DirectQuery directQuery2 = new ODBCWrapper.DirectQuery();
@@ -2548,8 +2543,9 @@ namespace ConditionalAccess
                 {
                     #region Init Tvinci Pricing web service
                     TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule();
-                    if (Utils.GetWSURL("pricing_ws") != "")
-                        m.Url = Utils.GetWSURL("pricing_ws");
+                    string pricingUrl = Utils.GetWSURL("pricing_ws");
+                    if (pricingUrl.Length > 0)
+                        m.Url = pricingUrl;
                     #endregion
 
                     TvinciPricing.Subscription theSub = null;
@@ -9480,13 +9476,13 @@ namespace ConditionalAccess
                     switch (transactionType)
                     {
                         case eTransactionType.PPV:
-                            bRes = DAL.ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                            bRes = ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);
                             break;
                         case eTransactionType.Subscription:
-                            bRes = DAL.ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                            bRes = ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
                             break;
                         case eTransactionType.Collection:
-                            bRes = DAL.ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                            bRes = ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
                             break;
                         default:
                             return false;
@@ -9663,63 +9659,6 @@ namespace ConditionalAccess
 
             return res;
         }
-
-        //public virtual string GetLicensedLink(string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
-        //{
-        //    Int32[] nMediaFileIDs = { nMediaFileID };
-        //    int nStreamingCoID = 0;
-
-        //    if (sBasicLink.Contains(string.Format("||{0}", nMediaFileID)))
-        //    {
-        //        sBasicLink = Utils.GetBasicLink(m_nGroupID, nMediaFileIDs, nMediaFileID, sBasicLink, out nStreamingCoID);
-        //    }
-        //    else
-        //    {
-        //        //nStreamingCoID = Utils.GetStreamingCoIDByMediaFileID(nMediaFileID.ToString(), false);
-        //        nStreamingCoID = ConditionalAccessDAL.Get_MediaFileStreamingCoID(nMediaFileID.ToString(), false);
-        //    }
-
-        //    bool isDeviceRecognized = isDevicePlayValid(sSiteGUID, sDEVICE_NAME);
-
-        //    if (!isDeviceRecognized)
-        //    {
-        //        Logger.Logger.Log("Device Not Recognized", string.Format("User:{0}, MediaFile:{1}, Device:{2}", sSiteGUID, nMediaFileID.ToString(), sDEVICE_NAME), "LicensedLink");
-        //        return string.Empty;
-        //    }
-
-        //    Dictionary<string, string> dLicensedLinkParams = new Dictionary<string, string>();
-        //    #region add license link params to dictionary
-        //    dLicensedLinkParams.Add("site_guid", sSiteGUID);
-        //    dLicensedLinkParams.Add("media_file_id", nMediaFileID.ToString());
-        //    dLicensedLinkParams.Add("url", sBasicLink);
-        //    dLicensedLinkParams.Add("ip", sUserIP);
-        //    dLicensedLinkParams.Add("country_code", sCOUNTRY_CODE);
-        //    dLicensedLinkParams.Add("lang_code", sLANGUAGE_CODE);
-        //    dLicensedLinkParams.Add("device_name", sDEVICE_NAME);
-        //    dLicensedLinkParams.Add("cupon_code", couponCode);
-        //    #endregion
-
-        //    MediaFileItemPricesContainer[] prices = GetItemsPrices(nMediaFileIDs, sSiteGUID, couponCode, true, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sUserIP);
-        //    if (prices == null || prices.Length == 0)
-        //    {
-        //        return string.Empty;
-        //    }
-        //    if (prices[0].m_oItemPrices == null || prices[0].m_oItemPrices.Length == 0 || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.Free)
-        //    {
-        //        return GetLicensedLink(nStreamingCoID, dLicensedLinkParams);
-        //    }
-
-        //    if (prices[0].m_oItemPrices[0].m_oPrice.m_dPrice == 0 && (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PrePaidPurchased || prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.CollectionPurchased))
-        //    {
-        //        if (Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink) == true)
-        //        {
-        //            HandlePlayUses(prices[0], sSiteGUID, nMediaFileID, sUserIP, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, couponCode);
-        //            return GetLicensedLink(nStreamingCoID, dLicensedLinkParams);
-        //        }
-        //    }
-
-        //    return GetErrorLicensedLink(sBasicLink);
-        //}
 
         private Dictionary<string, string> GetLicensedLinkParamsDict(string sSiteGuid, string mediaFileIDStr, string basicLink,
             string userIP, string countryCode, string langCode,
