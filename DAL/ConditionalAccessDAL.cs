@@ -633,21 +633,6 @@ namespace DAL
             return null;
         }
 
-        //public static DataTable Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
-        //{
-        //    ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_MediaFileByID");
-        //    spGet_MediaFileByID.SetConnectionKey("MAIN_CONNECTION_STRING");
-        //    spGet_MediaFileByID.AddParameter("@mediaFileID", nMediaFileID);
-        //    spGet_MediaFileByID.AddIDListParameter<int>("@fileTypes", relFileTypesStr, "Id");
-        //    spGet_MediaFileByID.AddParameter("@isThereFileTypes", isThereFileTypes);
-
-        //    DataSet ds = spGet_MediaFileByID.ExecuteDataSet();
-
-        //    if (ds != null)
-        //        return ds.Tables[0];
-        //    return null;
-        //}
-
         public static List<int> Get_MediaFileByID(List<int> relFileTypesStr, Int32 nMediaFileID, bool isThereFileTypes)
         {
             List<int> res = null;
@@ -759,7 +744,7 @@ namespace DAL
         }
 
         public static bool Get_AllUsersPurchases(List<int> UserIDs, List<int> FileIds, int fileID, ref int ppvID, ref string subCode,
-            ref string ppCode, ref int nWaiver, ref DateTime dCreateDate)
+            ref string ppCode, ref int nWaiver, ref DateTime dCreateDate, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
@@ -779,6 +764,8 @@ namespace DAL
                     ppvID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
                     subCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["subscription_code"]);
                     ppCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["rel_pp"]);
+                    purchasedBySiteGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["SITE_USER_GUID"]);
+                    purchasedAsMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["MEDIA_FILE_ID"]);
                     //cancellation window 
                     nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "WAIVER");
                     dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE");
@@ -1712,6 +1699,45 @@ namespace DAL
             }
 
             return res;
+        }
+
+        public static bool Get_IsLastViewData(long ppvPurchaseID, ref int numOfUses, ref int maxNumOfUses, ref DateTime endDate)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_IsLastViewData");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PPVPurchaseID", ppvPurchaseID);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    endDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["END_DATE"]);
+                    numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["NUM_OF_USES"]);
+                    maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["MAX_NUM_OF_USES"]);
+                }
+            }
+
+            return res;
+        }
+
+        public static bool Update_PPVNumOfUses(long ppvPurchaseID, DateTime? newEndDate)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_PPVNumOfUses");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@PPVPurchaseID", ppvPurchaseID);
+            if (newEndDate == null)
+            {
+                sp.AddParameter("@NewEndDate", DBNull.Value);
+            }
+            else
+            {
+                sp.AddParameter("@NewEndDate", newEndDate.Value);
+            }
+
+            return sp.ExecuteReturnValue<bool>();
         }
     }
 }

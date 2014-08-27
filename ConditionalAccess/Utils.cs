@@ -1731,8 +1731,8 @@ namespace ConditionalAccess
         {
             TvinciPricing.Price p = null;
             string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
             if (thePrePaid == null)
             {
                 using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
@@ -1812,7 +1812,7 @@ namespace ConditionalAccess
         static public Int32 GetMediaIDFeomFileID(string sProductCode, Int32 nGroupID, ref int nMediaFileID)
         {
 
-            DataTable dt = DAL.ConditionalAccessDAL.Get_MediaFileByProductCode(nGroupID, sProductCode);
+            DataTable dt = ConditionalAccessDAL.Get_MediaFileByProductCode(nGroupID, sProductCode);
 
             if (dt != null && dt.DefaultView.Count > 0)
             {
@@ -1996,9 +1996,17 @@ namespace ConditionalAccess
                 mediaFileTypesMapping = new Dictionary<int, int>(0);
             }
             bool bCancellationWindow = false;
+            
+            // purchasedBySiteGuid and purchasedAsMediaFileID are only needed in GetItemsPrices.
+            string purchasedBySiteGuid = string.Empty;
+            int purchasedAsMediaFileID = 0;
+            // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
+            List<int> relatedMediaFileIDs = new List<int>();
+
             return GetMediaFileFinalPrice(nMediaFileID, ppvModule, sSiteGUID, sCouponCode, nGroupID, ref theReason, ref relevantSub,
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
-                mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow);
+                mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, 
+                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs);
         }
 
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,
@@ -2079,12 +2087,18 @@ namespace ConditionalAccess
             return sSubCode.Length == 0 && sPrePaidCode.Length == 0;
         }
 
+        private static bool IsAnonymousUser(string siteGuid)
+        {
+            return string.IsNullOrEmpty(siteGuid) || siteGuid.Trim().Equals("0");
+        }
+
         internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, TvinciPricing.PPVModule ppvModule, string sSiteGUID,
             string sCouponCode, Int32 nGroupID, ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub,
             ref TvinciPricing.Collection relevantCol, ref TvinciPricing.PrePaidModule relevantPP, ref string sFirstDeviceNameFound,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
-            string sPricingPassword, ref bool bCancellationWindow)
+            string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
+            ref List<int> relatedMediaFileIDs)
         {
             if (ppvModule == null)
             {
@@ -2103,17 +2117,17 @@ namespace ConditionalAccess
             int[] fileTypes = new int[1] { nMediaFileTypeID };
             int mediaID = ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID);
 
-            if (!string.IsNullOrEmpty(sSiteGUID))
+            if (!IsAnonymousUser(sSiteGUID))
             {
                 TvinciPricing.mdoule m = null;
                 try
                 {
-                    string relFileTypesStr = string.Empty;
                     int[] ppvRelatedFileTypes = ppvModule.m_relatedFileTypes;
                     bool isMultiMediaTypes = false;
                     List<int> mediaFilesList = GetMediaTypesOfPPVRelatedFileTypes(nGroupID, ppvRelatedFileTypes, mediaFileTypesMapping, ref isMultiMediaTypes);
 
                     List<int> FileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes);
+                    relatedMediaFileIDs.AddRange(FileIDs);
 
                     p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
 
@@ -2124,8 +2138,10 @@ namespace ConditionalAccess
                     string sPPCode = string.Empty;
                     int nWaiver = 0;
                     DateTime dPurchaseDate = DateTime.MinValue;
-
-                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate))
+                    int tempPurchasedAsMediaFileID = 0;
+                    string tempPurchasedBySiteGuid = string.Empty;
+                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ref ppvID, 
+                        ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID))
                     {
                         p.m_dPrice = 0;
                         // Cancellation Window check by ppvUsageModule + purchase date
@@ -2133,11 +2149,15 @@ namespace ConditionalAccess
 
                         if (IsPurchasedAsPurePPV(sSubCode, sPPCode))
                         {
-                            theReason = PriceReason.PPVPurchased;
-
+                            purchasedBySiteGuid = tempPurchasedBySiteGuid;
+                            purchasedAsMediaFileID = tempPurchasedAsMediaFileID;
                             if (ppvModule.m_bFirstDeviceLimitation && !IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, allUserIDsInDomain, sDEVICE_NAME, ref sFirstDeviceNameFound))
                             {
                                 theReason = PriceReason.FirstDeviceLimitation;
+                            }
+                            else
+                            {
+                                theReason = PriceReason.PPVPurchased;
                             }
                         }
                         else
