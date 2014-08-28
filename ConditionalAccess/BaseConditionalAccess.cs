@@ -9502,7 +9502,7 @@ namespace ConditionalAccess
             return bRes;
         }
 
-        private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref System.Data.DataTable dt)
+        private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref DataTable dt)
         {
 
             TvinciPricing.UsageModule oUsageModule = null;
@@ -9514,13 +9514,13 @@ namespace ConditionalAccess
             switch (transactionType)
             {
                 case eTransactionType.PPV:
-                    dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
+                    dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(nAssetID, new List<int>(1) { nSiteGuid }, nGroupID);
                     break;
                 case eTransactionType.Subscription:
-                    dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
+                    dt = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(nAssetID, new List<int>(1) { nSiteGuid }, nGroupID);
                     break;
                 case eTransactionType.Collection:
-                    dt = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(nAssetID, new List<int>() { nSiteGuid }, nGroupID);
+                    dt = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(nAssetID, new List<int>(1) { nSiteGuid }, nGroupID);
                     break;
                 default:
                     bCancellationWindow = false;
