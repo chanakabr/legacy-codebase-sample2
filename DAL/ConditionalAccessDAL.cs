@@ -263,143 +263,6 @@ namespace DAL
 
         }
 
-        public static int GetPPVPurchase(string sSiteGUID, int nMediaFileID, string relFileTypesStr, ref string sSubCode, ref string sPPCode)
-        {
-            int ppvID = 0;
-
-            try
-            {
-
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetCachedSec(0);
-                selectQuery += "select ID, subscription_code, rel_pp from ppv_purchases with (nolock) where is_active=1 and status=1 and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                selectQuery += " and (";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
-                if (!string.IsNullOrEmpty(relFileTypesStr))
-                {
-                    selectQuery += " or MEDIA_FILE_ID in (";
-                    selectQuery += "select ID from Tvinci.dbo.media_files with (nolock) where MEDIA_ID = (";
-                    selectQuery += "select MEDIA_ID from Tvinci.dbo.media_files with (nolock) where ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaFileID);
-                    selectQuery += ") and media_type_id in (";
-                    selectQuery += relFileTypesStr.ToString();
-                    selectQuery += ")";
-                    selectQuery += "))";
-                }
-                else
-                {
-                    selectQuery += " or MEDIA_FILE_ID in (";
-                    selectQuery += "select ID from Tvinci.dbo.media_files with (nolock) where MEDIA_ID = (";
-                    selectQuery += "select MEDIA_ID from Tvinci.dbo.media_files with (nolock) where ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaFileID);
-                    selectQuery += ")))";
-                }
-                selectQuery += " and (MAX_NUM_OF_USES>=NUM_OF_USES OR MAX_NUM_OF_USES=0) and START_DATE<getdate() and (end_date is null or end_date>getdate()) ";
-
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        ppvID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-
-                        //string sSubCode = "";
-                        if (selectQuery.Table("query").DefaultView[0].Row["subscription_code"] != DBNull.Value &&
-                            selectQuery.Table("query").DefaultView[0].Row["subscription_code"] != null)
-                        {
-                            sSubCode = selectQuery.Table("query").DefaultView[0].Row["subscription_code"].ToString();
-                        }
-
-                        //string sPPCode = "";
-                        if (selectQuery.Table("query").DefaultView[0].Row["rel_pp"] != DBNull.Value &&
-                            selectQuery.Table("query").DefaultView[0].Row["rel_pp"] != null)
-                        {
-                            sPPCode = selectQuery.Table("query").DefaultView[0].Row["rel_pp"].ToString();
-                        }
-                    }
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return ppvID;
-        }
-
-        public static List<int> GetMediaTypeIDs(int[] ppvRelatedFileTypes)
-        {
-            List<int> lMediaTypeIDs = new List<int>();
-
-            try
-            {
-                ODBCWrapper.DataSetSelectQuery fileTypesSelectQuery = new ODBCWrapper.DataSetSelectQuery();
-                fileTypesSelectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-
-                if (ppvRelatedFileTypes != null && ppvRelatedFileTypes.Length > 0)
-                {
-                    string[] sPpvRelatedFileTypes = ppvRelatedFileTypes.Select(x => x.ToString()).ToArray();
-                    fileTypesSelectQuery += string.Format(" SELECT MEDIA_TYPE_ID FROM GROUPS_MEDIA_TYPE WITH (NOLOCK) WHERE ID IN ({0})", string.Join(",", sPpvRelatedFileTypes));
-                }
-                else
-                {
-                    fileTypesSelectQuery += "SELECT MEDIA_TYPE_ID FROM GROUPS_MEDIA_TYPE WITH (NOLOCK)";
-                }
-
-                if (fileTypesSelectQuery.Execute("query", true) != null)
-                {
-                    int count = fileTypesSelectQuery.Table("query").DefaultView.Count;
-
-                    for (int i = 0; i < count; i++)
-                    {
-                        int mediaTypeID = int.Parse(fileTypesSelectQuery.Table("query").DefaultView[i].Row["MEDIA_TYPE_ID"].ToString());
-                        lMediaTypeIDs.Add(mediaTypeID);
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return lMediaTypeIDs;
-        }
-
-
-        public static object GetCurrentDBTime()
-        {
-            object res = null;
-
-            try
-            {
-
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "SELECT GETDATE() AS T FROM GROUPS_MODULES_IPS WITH (NOLOCK)";
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        res = selectQuery.Table("query").DefaultView[0].Row["T"];
-                    }
-                }
-                selectQuery.Finish();
-                selectQuery = null;
-
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return res;
-        }
-
-
         public static bool UpdateSubPurchase(int nGroupID, string sSiteGUID, string sSubscriptionCode, int nIsRecurring, int nSubscriptionPurchaseID = 0)
         {
             bool updated = false;
@@ -708,7 +571,7 @@ namespace DAL
 
             DataSet ds = spGet_allDomainsPPVUsesUsingCollection.ExecuteDataSet();
 
-            if (ds != null)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
         }
@@ -723,7 +586,7 @@ namespace DAL
 
             DataSet ds = spGet_MediaFileByID.ExecuteDataSet();
 
-            if (ds != null)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
         }
@@ -738,7 +601,7 @@ namespace DAL
 
             DataSet ds = spGet_AllUsersPurchases.ExecuteDataSet();
 
-            if (ds != null)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
         }
@@ -858,13 +721,10 @@ namespace DAL
 
             DataSet ds = spGet_AllPPVPurchasesByUserIDsAndMediaFileID.ExecuteDataSet();
 
-            if (ds != null)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
         }
-
-       
-
 
         public static DataTable Get_SubUsesByUserListFileIDAndSubCode(List<int> UserIDs, string subCode, int nMediaFileID, int nGroupID)
         {
@@ -878,87 +738,9 @@ namespace DAL
 
             DataSet ds = spGet_PPVUsesByUserListFileIDAndSubCode.ExecuteDataSet();
 
-            if (ds != null)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
-        }
-
-
-        public static IEnumerable<int> GetSubscriptionPurchaseIDs(int nGroupID, string sSiteGUID, string sSubscriptionCode, int nSubscriptionPurchaseID = 0)
-        {
-            List<int> lSubPurchaseIDs = new List<int>();
-
-            try
-            {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("CONNECTION_STRING");
-
-                selectQuery += "SELECT ID FROM SUBSCRIPTIONS_PURCHASES WITH (NOLOCK) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
-                selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-
-                if (nGroupID != 0)
-                {
-                    selectQuery += "and";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-                }
-
-                if (nSubscriptionPurchaseID > 0)
-                {
-                    selectQuery += "and";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nSubscriptionPurchaseID);
-                }
-
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    int nCount = selectQuery.Table("query").DefaultView.Count;
-
-                    for (int i = 0; i < nCount; i++)
-                    {
-                        int nID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
-                        lSubPurchaseIDs.Add(nID);
-                    }
-                }
-
-                selectQuery.Finish();
-                selectQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return lSubPurchaseIDs;
-
-        }
-
-        public static bool InsertSubStatusChange(int m_nGroupID, string sSubscriptionCode, string sSiteGUID, int nIsActive, int nStatus, int nNewRenewableStatus, string sCountryCode, string sLanguageCode, string sDeviceName)
-        {
-            bool res = false;
-
-            try
-            {
-                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("subscriptions_status_changes");
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NEW_RENEWABLE_STATUS", "=", 0);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", "");
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", "");
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", "");
-                res = insertQuery.Execute();
-                insertQuery.Finish();
-                insertQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return res;
         }
 
         public static bool Get_LatestFileUse(List<int> userIDs, int mediaFileID, ref string ppvModuleCode,
@@ -1739,5 +1521,36 @@ namespace DAL
 
             return sp.ExecuteReturnValue<bool>();
         }
+
+        public static DataTable Get_AllPPVPurchasesByUserIDsAndMediaFileIDs(long groupID, List<int> relatedMediaFileIDs,
+            List<int> userIDs)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AllPPVPurchasesByUserIDsAndMediaFileIDs");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@RelatedMediaFileIDs", relatedMediaFileIDs, "Id");
+            sp.AddIDListParameter<int>("@UserIDs", userIDs, "Id");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
+        //public static DataTable Get_AllPPVPurchasesByUserIDsAndMediaFileID(int nMediaFileID, List<int> UserIDs, int nGroupID)
+        //{
+        //    ODBCWrapper.StoredProcedure spGet_AllPPVPurchasesByUserIDsAndMediaFileID = new ODBCWrapper.StoredProcedure("Get_AllPPVPurchasesByUserIDsAndMediaFileID");
+        //    spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CONNECTION_STRING");
+        //    spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@nMediaFileID", nMediaFileID);
+        //    spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
+        //    spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@groupID", nGroupID);
+
+
+        //    DataSet ds = spGet_AllPPVPurchasesByUserIDsAndMediaFileID.ExecuteDataSet();
+
+        //    if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+        //        return ds.Tables[0];
+        //    return null;
+        //}
     }
 }
