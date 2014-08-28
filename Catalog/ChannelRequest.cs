@@ -76,15 +76,15 @@ namespace Catalog
                 try
                 {
                     GroupManager groupManager = new GroupManager();
-                    groupManager.GetGroupAndChannel(request.m_nChannelID, request.m_nGroupID, ref group, ref channel);                  
-                   
+                    groupManager.GetGroupAndChannel(request.m_nChannelID, request.m_nGroupID, ref group, ref channel);
+
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("ChannelRequest", string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1}",request.m_nChannelID,ex.Message), "Catalog");
+                    Logger.Logger.Log("ChannelRequest", string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1}", request.m_nChannelID, ex.Message), "Catalog");
                     group = null;
                     channel = null;
-                }             
+                }
 
 
                 if (group != null && channel != null)
@@ -110,7 +110,7 @@ namespace Catalog
                         return response;
                     }
                     int nTotalItems = 0;
-                                      
+
                     SearchResultsObj oSearchResults = searcher.SearchMedias(channel.m_nGroupID, channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_nGroupID);
                     List<SearchResult> lMediaRes = null;
                     if (oSearchResults != null && oSearchResults.m_resultIDs != null && oSearchResults.m_resultIDs.Count > 0)
@@ -124,13 +124,13 @@ namespace Catalog
                             lMediaRes = oSearchResults.m_resultIDs.Select(item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
                         }
                     }
-
-                    if (!IsSlidingWindow(channel))
-                    {
-                        OrderMediasByOrderNum(ref medias, channel.m_lManualMedias, channel.m_OrderObject);
-                    }
                     else
-                    {                       
+                    {
+                        return response;
+                    }
+
+                    if (IsSlidingWindow(channel))
+                    {
                         medias = OrderMediaBySlidingWindow(group.m_nParentGroupID, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
 
                         nTotalItems = 0;
@@ -154,21 +154,21 @@ namespace Catalog
 
                     if (channel.m_nChannelTypeID == 2)
                     {
-                        List<int> manualMediasReturned = medias.ToList();
+                        OrderMediasByOrderNum(ref medias, channel, channelSearchObject.m_oOrder);
+
                         int nValidNumberOfMediasRange = nPageSize;
-                        if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(manualMediasReturned.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                        if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(medias.Count, nPageIndex, ref nValidNumberOfMediasRange))
                         {
                             if (nValidNumberOfMediasRange > 0)
                             {
-                                manualMediasReturned = manualMediasReturned.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                                medias = medias.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
                             }
                         }
                         else
                         {
-                            manualMediasReturned.Clear();
+                            medias.Clear();
                         }
 
-                        medias = manualMediasReturned;
                         if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)) && medias != null && medias.Count > 0)
                         {
                             Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
@@ -270,30 +270,29 @@ namespace Catalog
             return result;
         }
 
-        protected void OrderMediasByOrderNum(ref List<int> medias, List<ManualMedia> lManualMedias, ApiObjects.SearchObjects.OrderObj oOrderObj)
+        protected void OrderMediasByOrderNum(ref List<int> medias, Channel channel, ApiObjects.SearchObjects.OrderObj oOrderObj)
         {
-            // Indicates that the channel is manual
-            if (medias != null && medias.Count > 0 && lManualMedias != null && lManualMedias.Count > 0)
+            if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
             {
-                if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
+                IEnumerable<int> ids;
+                if (oOrderObj.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
                 {
-                    var orderedByIDList = from m in medias
-                                          join manual in lManualMedias
-                                          on m.ToString() equals manual.m_sMediaId
-                                          orderby manual.m_nOrderNum, oOrderObj.m_eOrderDir
-                                          select manual.m_sMediaId;
-
-                    if (orderedByIDList != null)
-                    {
-                        List<int> ids = new List<int>();
-                        foreach (var mediaId in orderedByIDList)
-                        {
-                            ids.Add(int.Parse(mediaId.ToString()));
-                        }
-
-                        medias = ids;
-                    }
+                    ids = from m in medias
+                          join manual in channel.m_lManualMedias
+                          on m.ToString() equals manual.m_sMediaId
+                          orderby manual.m_nOrderNum descending
+                          select int.Parse(manual.m_sMediaId);
                 }
+                else
+                {
+                    ids = from m in medias
+                          join manual in channel.m_lManualMedias
+                          on m.ToString() equals manual.m_sMediaId
+                          orderby manual.m_nOrderNum
+                          select int.Parse(manual.m_sMediaId);
+                }
+
+                medias = ids.ToList();
             }
         }
 
