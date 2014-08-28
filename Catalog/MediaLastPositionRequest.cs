@@ -69,14 +69,18 @@ namespace Catalog
         {
             MediaLastPositionResponse response = new MediaLastPositionResponse();
             int nSiteGuid = 0;
+            int pos = 0;
 
-            if (request.data.m_nMediaID == 0 || string.IsNullOrEmpty(request.data.m_sSiteGuid) || !Int32.TryParse(request.data.m_sSiteGuid, out nSiteGuid) || nSiteGuid == 0)
+            if (request.data.m_nMediaID == 0  )
             {
                 response.m_sStatus = "INVALID_PARAMS";
-                return response;
+            }
+                //non-anonymous user
+            else if (!string.IsNullOrEmpty(request.data.m_sSiteGuid) && Int32.TryParse(request.data.m_sSiteGuid, out nSiteGuid) || nSiteGuid != 0)
+            {
+                pos = Catalog.GetLastPosition(request.data.m_nMediaID, nSiteGuid);
             }
 
-            var pos = Catalog.GetLastPosition(request.data.m_nMediaID, nSiteGuid);
             response.Location = pos;
 
             return response;
