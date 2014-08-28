@@ -576,21 +576,6 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_allDomainsPPVUses(List<int> usersList, int groupID, int MediaFileID)
-        {
-            ODBCWrapper.StoredProcedure spGet_MediaFileByID = new ODBCWrapper.StoredProcedure("Get_allDomainsPPVUses");
-            spGet_MediaFileByID.SetConnectionKey("CONNECTION_STRING");
-            spGet_MediaFileByID.AddIDListParameter<int>("@usersList", usersList, "Id");
-            spGet_MediaFileByID.AddParameter("@groupID", groupID);
-            spGet_MediaFileByID.AddParameter("@MediaFileID", MediaFileID);
-
-            DataSet ds = spGet_MediaFileByID.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                return ds.Tables[0];
-            return null;
-        }
-
         public static DataTable Get_AllUsersPurchases(List<int> UserIDs, List<int> FileIds, int fileID)
         {
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
@@ -741,34 +726,6 @@ namespace DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
-        }
-
-        public static bool Get_LatestFileUse(List<int> userIDs, int mediaFileID, ref string ppvModuleCode,
-            ref bool isOfflineStatus, ref DateTime dateNow, ref DateTime purchaseDate)
-        {
-            bool res = false;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestFileUse");
-            sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddIDListParameter<int>("@usersList", userIDs, "Id");
-            sp.AddParameter("@MediaFileID", mediaFileID);
-
-            DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    res = true;
-                    ppvModuleCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ppvmodule_code"]);
-                    isOfflineStatus = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["offline_status"]) == 1;
-                    dateNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
-                    purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
-
-                }
-            }
-            return res;
         }
 
         public static DataTable Get_PreviewModuleDataForEntitlementCalc(int nGroupID, string sSiteGuid, string sSubCode)
@@ -1536,6 +1493,74 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
+
+        public static DataTable Get_AllDomainPPVUsesByMediaFiles(long groupID, List<int> usersInDomain, List<int> relatedMediaFileIDs)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AllDomainPPVUsesByMediaFiles");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@UsersInDomain", usersInDomain, "Id");
+            sp.AddIDListParameter<int>("@RelatedMediaFileIDs", relatedMediaFileIDs, "Id");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static bool Get_LatestMediaFilesUse(List<int> usersList, List<int> mediaFileIDs, ref string ppvModuleCode,
+            ref bool isOfflineStatus, ref DateTime dateNow, ref DateTime purchaseDate)
+        {
+            bool res = false;
+            StoredProcedure sp = new StoredProcedure("Get_LatestMediaFilesUse");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@UsersList", usersList, "Id");
+            sp.AddIDListParameter<int>("@MediaFileIDs", mediaFileIDs, "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = true;
+                    ppvModuleCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ppvmodule_code"]);
+                    isOfflineStatus = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["offline_status"]) == 1;
+                    dateNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
+                    purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
+                }
+            }
+
+            return res;
+        }
+
+    //    public static bool Get_LatestFileUse(List<int> userIDs, int mediaFileID, ref string ppvModuleCode,
+    //ref bool isOfflineStatus, ref DateTime dateNow, ref DateTime purchaseDate)
+    //    {
+    //        bool res = false;
+    //        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestFileUse");
+    //        sp.SetConnectionKey("CONNECTION_STRING");
+    //        sp.AddIDListParameter<int>("@usersList", userIDs, "Id");
+    //        sp.AddParameter("@MediaFileID", mediaFileID);
+
+    //        DataSet ds = sp.ExecuteDataSet();
+
+    //        if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+    //        {
+    //            DataTable dt = ds.Tables[0];
+
+    //            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+    //            {
+    //                res = true;
+    //                ppvModuleCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ppvmodule_code"]);
+    //                isOfflineStatus = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["offline_status"]) == 1;
+    //                dateNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
+    //                purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["CREATE_DATE"]);
+
+    //            }
+    //        }
+    //        return res;
+    //    }
 
     }
 }

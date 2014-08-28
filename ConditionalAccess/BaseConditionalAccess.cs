@@ -3181,7 +3181,7 @@ namespace ConditionalAccess
             if (price.m_oItemPrices[0].m_relevantSub == null && price.m_oItemPrices[0].m_relevantCol == null)
             {
                 string sPPVMCd = price.m_oItemPrices[0].m_sPPVModuleCode;
-                Int32 nIsCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, sSiteGUID, nMediaFileID, null, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
+                Int32 nIsCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, nMediaFileID, null, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
                 //ppv_uses
                 UpdatePPVUses(nMediaFileID, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID, nIsCreditDownloaded, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID);
                 //ppv_purchases
@@ -3192,7 +3192,7 @@ namespace ConditionalAccess
                     //sRelSub - the subscription that caused the price to be lower
                     //nPPVID = GetActivePPVPurchaseID(nMediaFileID, sSiteGUID, ref sRelSub, lUsersIds);
 
-                    nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lRelatedMediaFileIDs != null ? price.m_oItemPrices[0].m_lRelatedMediaFileIDs.ToList() : new List<int>(1) { nMediaFileID }, sSiteGUID, ref sRelSub, lUsersIds);
+                    nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, sSiteGUID, ref sRelSub, lUsersIds);
                     if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
                     {
                         InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
@@ -3220,13 +3220,13 @@ namespace ConditionalAccess
                     UpdateSubscriptionPurchases(price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID);
                 }
 
-                Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded("s: " + price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_relevantSub, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
+                Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded("s: " + price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, nMediaFileID, price.m_oItemPrices[0].m_relevantSub, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
                 UpdatePPVUses(nMediaFileID, "s: " + price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, sSiteGUID, nIsCreditDownloaded1, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID);
                 Int32 nPPVID = 0;
                 if (nIsCreditDownloaded1 == 1)
                 {
                     string sRelSub = string.Empty;
-                    nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lRelatedMediaFileIDs != null ? price.m_oItemPrices[0].m_lRelatedMediaFileIDs.ToList() : new List<int>(1) { nMediaFileID }, sSiteGUID, ref sRelSub, lUsersIds);
+                    nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, sSiteGUID, ref sRelSub, lUsersIds);
 
                     if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
                     {
@@ -3251,13 +3251,13 @@ namespace ConditionalAccess
                     UpdateCollectionPurchases(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, sSiteGUID);
                 }
 
-                Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded("b: " + price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, sSiteGUID, nMediaFileID, null, price.m_oItemPrices[0].m_relevantCol, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
+                Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded("b: " + price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, nMediaFileID, null, price.m_oItemPrices[0].m_relevantCol, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds);
                 UpdatePPVUses(nMediaFileID, "b: " + price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, sSiteGUID, nIsCreditDownloaded1, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID);
                 Int32 nPPVID = 0;
                 if (nIsCreditDownloaded1 == 1)
                 {
                     string sRelCol = string.Empty;
-                    nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lRelatedMediaFileIDs != null ? price.m_oItemPrices[0].m_lRelatedMediaFileIDs.ToList() : new List<int>(1) { nMediaFileID }, sSiteGUID, ref sRelCol, lUsersIds);
+                    nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, sSiteGUID, ref sRelCol, lUsersIds);
 
                     if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
                     {
@@ -3576,36 +3576,36 @@ namespace ConditionalAccess
             return nRet;
         }
 
-        /// <summary>
-        /// PPV Does Credit Need To Downloaded
-        /// </summary>
-        protected Int32 PPV_DoesCreditNeedToDownloaded(string sPPVMCd, string sSiteGUID, Int32 nMediaFileID, TvinciPricing.Subscription theSub, TvinciPricing.Collection theCol, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, List<int> lUsersIds)
+
+        protected int PPV_DoesCreditNeedToDownloaded(string sPPVMCd, TvinciPricing.Subscription theSub, 
+            TvinciPricing.Collection theCol, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, 
+            List<int> lUsersIds, List<int> mediaFileIDs)
         {
             Int32 nIsCreditDownloaded = 1;
             Int32 nViewLifeCycle = 0;
             int OfflineStatus = 0;
             TvinciPricing.mdoule m = null;
-            ODBCWrapper.DataSetSelectQuery selectOfflineQuery = null;
+            //ODBCWrapper.DataSetSelectQuery selectOfflineQuery = null;
             try
             {
-                #region Check if the file is offline type
-                selectOfflineQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectOfflineQuery += "select top 1 gmt.DESCRIPTION, gmt.GROUP_ID, OFFLINE_STATUS from TVinci.dbo.media_files mf with (nolock) inner join TVinci.dbo.groups_media_type gmt with";
-                selectOfflineQuery += "on mf.Media_Type_ID = gmt.MEDIA_TYPE_ID";
-                selectOfflineQuery += "where mf.IS_ACTIVE=1 and mf.STATUS=1 and gmt.IS_ACTIVE=1 and gmt.STATUS=1 ";
-                selectOfflineQuery += "and";
-                selectOfflineQuery += ODBCWrapper.Parameter.NEW_PARAM("mf.id", "=", nMediaFileID);
-                selectOfflineQuery += "and";
-                selectOfflineQuery += " gmt.GROUP_ID " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
-                if (selectOfflineQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectOfflineQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        OfflineStatus = int.Parse(selectOfflineQuery.Table("query").DefaultView[0].Row["OFFLINE_STATUS"].ToString());
+                #region Check if the file is offline type. Commented out. Used only in Elisa
+                //selectOfflineQuery = new ODBCWrapper.DataSetSelectQuery();
+                //selectOfflineQuery += "select top 1 gmt.DESCRIPTION, gmt.GROUP_ID, OFFLINE_STATUS from TVinci.dbo.media_files mf with (nolock) inner join TVinci.dbo.groups_media_type gmt with";
+                //selectOfflineQuery += "on mf.Media_Type_ID = gmt.MEDIA_TYPE_ID";
+                //selectOfflineQuery += "where mf.IS_ACTIVE=1 and mf.STATUS=1 and gmt.IS_ACTIVE=1 and gmt.STATUS=1 ";
+                //selectOfflineQuery += "and";
+                //selectOfflineQuery += ODBCWrapper.Parameter.NEW_PARAM("mf.id", "=", nMediaFileID);
+                //selectOfflineQuery += "and";
+                //selectOfflineQuery += " gmt.GROUP_ID " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+                //if (selectOfflineQuery.Execute("query", true) != null)
+                //{
+                //    Int32 nCount = selectOfflineQuery.Table("query").DefaultView.Count;
+                //    if (nCount > 0)
+                //    {
+                //        OfflineStatus = int.Parse(selectOfflineQuery.Table("query").DefaultView[0].Row["OFFLINE_STATUS"].ToString());
 
-                    }
-                }
+                //    }
+                //}
                 #endregion
 
 
@@ -3656,22 +3656,19 @@ namespace ConditionalAccess
                     nViewLifeCycle = theCol.m_oCollectionUsageModule.m_tsViewLifeCycle;
                 }
 
-                DataTable dtPPVUses = ConditionalAccessDAL.Get_allDomainsPPVUses(lUsersIds, m_nGroupID, nMediaFileID);
+                //DataTable dtPPVUses = ConditionalAccessDAL.Get_allDomainsPPVUses(lUsersIds, m_nGroupID, nMediaFileID);
+                DataTable dtPPVUses = ConditionalAccessDAL.Get_AllDomainPPVUsesByMediaFiles(m_nGroupID, lUsersIds, mediaFileIDs);
 
-                if (dtPPVUses != null)
+                if (dtPPVUses != null && dtPPVUses.Rows != null && dtPPVUses.Rows.Count > 0)
                 {
-                    Int32 nCount = dtPPVUses.Rows.Count;
-                    if (nCount > 0)
-                    {
-                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["dNow"]);
-                        DateTime dUsed = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["CREATE_DATE"]);
+                    DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["dNow"]);
+                    DateTime dUsed = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["CREATE_DATE"]);
 
-                        DateTime dEndDate = Utils.GetEndDateTime(dUsed, nViewLifeCycle);
+                    DateTime dEndDate = Utils.GetEndDateTime(dUsed, nViewLifeCycle);
 
-                        if (dNow < dEndDate)
-                            nIsCreditDownloaded = 0;
+                    if (dNow < dEndDate)
+                        nIsCreditDownloaded = 0;
 
-                    }
                 }
             }
             finally
@@ -3680,13 +3677,20 @@ namespace ConditionalAccess
                 {
                     m.Dispose();
                 }
-                if (selectOfflineQuery != null)
-                {
-                    selectOfflineQuery.Finish();
-                }
+                //if (selectOfflineQuery != null)
+                //{
+                //    selectOfflineQuery.Finish();
+                //}
             }
 
             return nIsCreditDownloaded;
+        }
+        /// <summary>
+        /// PPV Does Credit Need To Downloaded
+        /// </summary>
+        protected Int32 PPV_DoesCreditNeedToDownloaded(string sPPVMCd, Int32 nMediaFileID, TvinciPricing.Subscription theSub, TvinciPricing.Collection theCol, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, List<int> lUsersIds)
+        {
+            return PPV_DoesCreditNeedToDownloaded(sPPVMCd, theSub, theCol, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, new List<int>(1) { nMediaFileID });
         }
 
         /// <summary>
@@ -8490,9 +8494,9 @@ namespace ConditionalAccess
                         DateTime dPurchaseDate = new DateTime();
                         DateTime dNow = DateTime.UtcNow;
                         List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID);
+                        int[] relatedMediaFiles = prices[0].m_oItemPrices[0].m_lRelatedMediaFileIDs;
 
-
-                        if (ConditionalAccessDAL.Get_LatestFileUse(lUsersIds, nMediaFileID, ref sPPVMCode, ref isOfflineStatus, ref dNow,
+                        if (ConditionalAccessDAL.Get_LatestMediaFilesUse(lUsersIds, relatedMediaFiles != null && relatedMediaFiles.Length > 0 ? relatedMediaFiles.ToList() : new List<int>(1) { nMediaFileID }, ref sPPVMCode, ref isOfflineStatus, ref dNow,
                             ref dPurchaseDate))
                         {
                             string pricingUsername = string.Empty, pricingPassword = string.Empty;
