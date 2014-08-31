@@ -715,7 +715,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, string sSiteGUID, int mediaFileID, int groupID, eBundleType bundleType)
+        internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, List<int> usersInDomain, List<int> relatedMediaFiles, int groupID, eBundleType bundleType)
         {
             bool bIsSub = true;
             bool nIsCreditDownloaded = true;
@@ -780,7 +780,7 @@ namespace ConditionalAccess
                 DateTime dtCreateDateOfLatestBundleUse = ODBCWrapper.Utils.FICTIVE_DATE;
                 DateTime dtNow = ODBCWrapper.Utils.FICTIVE_DATE;
 
-                if (ConditionalAccessDAL.Get_LatestCreateDateOfBundleUses(sBundleCd, groupID, sSiteGUID, mediaFileID, bIsSub,
+                if (ConditionalAccessDAL.Get_LatestCreateDateOfBundleUses(sBundleCd, groupID, usersInDomain, relatedMediaFiles, bIsSub,
                     ref dtCreateDateOfLatestBundleUse, ref dtNow)
                     && !dtCreateDateOfLatestBundleUse.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
                     && !dtNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
@@ -1117,156 +1117,6 @@ namespace ConditionalAccess
         {
             return ds != null && ds.Tables != null && ds.Tables.Count == 2;
         }
-
-        internal static TvinciPricing.PPVModule[] GetUserValidBundlesFromList(string sSiteGUID, int mediaID, int mediaFileID, int groupID, int[] nFileTypes, List<int> lUsersIds, eBundleType bundleType)
-        {
-
-            TvinciPricing.PPVModule[] ret = null;
-            TvinciPricing.PPVModule[] actualRet = null;
-            int numOfActualBundles = 0;
-            using (TvinciPricing.mdoule pricingModule = new TvinciPricing.mdoule())
-            {
-                string pricingWSUser = string.Empty;
-                string pricingWSPass = string.Empty;
-                string pricingUrl = GetWSURL("pricing_ws");
-                if (pricingUrl.Length > 0)
-                    pricingModule.Url = pricingUrl;
-
-                DataTable dt = null;
-
-                switch (bundleType)
-                {
-                    case eBundleType.SUBSCRIPTION:
-                        {
-                            dt = ConditionalAccessDAL.Get_AllSubscriptionInfoByUsersIDs(lUsersIds, nFileTypes.ToList<int>());
-                            break;
-                        }
-                    case eBundleType.COLLECTION:
-                        {
-                            dt = ConditionalAccessDAL.Get_AllCollectionInfoByUsersIDs(lUsersIds);
-                            break;
-                        }
-                    default:
-                        break;
-                }
-
-
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    ret = new ConditionalAccess.TvinciPricing.PPVModule[dt.Rows.Count];
-                    using (TvinciAPI.API api = new ConditionalAccess.TvinciAPI.API())
-                    {
-                        string sWSURL = Utils.GetWSURL("api_ws");
-                        if (sWSURL.Length > 0)
-                            api.Url = sWSURL;
-                        string sWSUser = string.Empty;
-                        string sWSPass = string.Empty;
-                        TVinciShared.WS_Utils.GetWSUNPass(groupID, "DoesMediaBelongToSubscription", "api", "1.1.1.1", ref sWSUser, ref sWSPass);
-
-                        for (int i = 0; i < dt.Rows.Count; i++)
-                        {
-                            bool bundleValid = false;
-                            int id = 0;
-                            string sCode = string.Empty;
-                            int numOfUses = 0;
-                            int maxNumOfUses = 0;
-
-                            id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]);
-
-                            if (bundleType == eBundleType.SUBSCRIPTION)
-                            {
-                                sCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["SUBSCRIPTION_CODE"]);
-                            }
-                            else if (bundleType == eBundleType.COLLECTION)
-                            {
-                                sCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COLLECTION_CODE"]);
-                            }
-
-                            numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["NUM_OF_USES"]);
-                            maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["MAX_NUM_OF_USES"]);
-
-
-                            if (!(maxNumOfUses != 0 && numOfUses >= maxNumOfUses && Bundle_DoesCreditNeedToDownloaded(sCode, sSiteGUID, mediaFileID, groupID, bundleType)))
-                            {
-                                try
-                                {
-                                    if (bundleType == eBundleType.SUBSCRIPTION)
-                                    {
-                                        bundleValid = api.DoesMediaBelongToSubscription(sWSUser, sWSPass, int.Parse(sCode), nFileTypes, mediaID, "");
-                                    }
-                                    else if (bundleType == eBundleType.COLLECTION)
-                                    {
-                                        bundleValid = api.DoesMediaBelongToCollection(sWSUser, sWSPass, int.Parse(sCode), nFileTypes, mediaID, "");
-                                        if (bundleValid)
-                                        {
-                                            bundleValid = !PPV_DoesCreditNeedToDownloadedUsingCollection(groupID, mediaFileID, lUsersIds, sCode);
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    bundleValid = false;
-
-                                    #region Logging
-                                    StringBuilder sb = new StringBuilder(String.Concat("Exception. Msg: ", ex.Message));
-                                    sb.Append(String.Concat(" SiteGuid: ", sSiteGUID));
-                                    sb.Append(String.Concat(" Media ID: ", mediaID));
-                                    sb.Append(String.Concat(" MF ID: ", mediaFileID));
-                                    sb.Append(String.Concat(" Bundle Type: ", bundleType.ToString()));
-                                    sb.Append(String.Concat(" Iter num: ", i));
-                                    sb.Append(String.Concat(" id: ", id));
-                                    sb.Append(String.Concat(" Code: ", sCode));
-                                    sb.Append(String.Concat(" numOfUses: ", numOfUses));
-                                    sb.Append(String.Concat(" maxNumOfUses: ", maxNumOfUses));
-                                    sb.Append(String.Concat(" Trace: ", ex.StackTrace));
-
-                                    Logger.Logger.Log("Exception", sb.ToString(), "GetUserValidBundlesFromList");
-
-                                    #endregion
-                                }
-                            }
-
-                            if (bundleValid)
-                            {
-
-                                if (string.IsNullOrEmpty(pricingWSUser))
-                                {
-                                    TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetUserValidSubscriptions", "pricing", "1.1.1.1", ref pricingWSUser, ref pricingWSPass);
-                                }
-
-                                if (bundleType == eBundleType.SUBSCRIPTION)
-                                {
-                                    ret[i] = pricingModule.GetSubscriptionData(pricingWSUser, pricingWSPass, sCode, string.Empty, string.Empty, string.Empty, false);
-                                }
-                                else if (bundleType == eBundleType.COLLECTION)
-                                {
-                                    ret[i] = pricingModule.GetCollectionData(pricingWSUser, pricingWSPass, sCode, string.Empty, string.Empty, string.Empty, false);
-                                }
-
-                                numOfActualBundles++;
-
-                            }
-                        }
-                    }
-                } // end if dt != null
-                if (numOfActualBundles > 0)
-                {
-                    actualRet = new ConditionalAccess.TvinciPricing.PPVModule[numOfActualBundles];
-                    int addedBundles = 0;
-                    for (int i = 0; i < ret.Length; i++)
-                    {
-                        if (ret[i] != null)
-                        {
-                            actualRet[addedBundles] = ret[i];
-                            addedBundles++;
-                        }
-                    }
-                }
-            }
-            return actualRet;
-        }
-
-
 
         internal static TvinciPricing.Price CopyPrice(TvinciPricing.Price toCopy)
         {

@@ -307,7 +307,6 @@ namespace ConditionalAccess
                 if (bm != null)
                 {
                     bm.Dispose();
-                    bm = null;
                 }
                 #endregion
             }
