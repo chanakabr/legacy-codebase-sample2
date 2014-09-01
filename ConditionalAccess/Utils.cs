@@ -125,10 +125,6 @@ namespace ConditionalAccess
             return retVal;
         }
 
-
-
-
-
         static public TvinciPricing.Price GetPriceAfterDiscount(TvinciPricing.Price price, TvinciPricing.DiscountModule disc, Int32 nUseTime)
         {
             TvinciPricing.Price discRetPrice = new ConditionalAccess.TvinciPricing.Price();
@@ -304,7 +300,6 @@ namespace ConditionalAccess
                 if (m != null)
                 {
                     m.Dispose();
-                    m = null;
                 }
                 #endregion
 
@@ -394,65 +389,6 @@ namespace ConditionalAccess
                     dict.Add(lstCollectionCodes[i], false);
                 }
             }
-        }
-
-        /// <summary>
-        /// PPV Does Credit Need To Downloaded
-        /// </summary>
-        static public bool PPV_DoesCreditNeedToDownloadedUsingCollection(int groupID, Int32 nMediaFileID, List<int> lUsersIds, string sCollectionCode)
-        {
-            bool nIsCreditDownloaded = true;
-            string sIP = "1.1.1.1";
-            string sWSUserName = string.Empty;
-            string sWSPass = string.Empty;
-
-            using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
-            {
-                string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
-                    m.Url = sWSURL;
-
-                TvinciPricing.UsageModule u = null;
-                TvinciPricing.Collection theCol = null;
-
-                if (CachingManager.CachingManager.Exist("GetCollectionData" + sCollectionCode + "_" + groupID.ToString()) == true)
-                    theCol = (TvinciPricing.Collection)(CachingManager.CachingManager.GetCachedData("GetCollectionData" + sCollectionCode + "_" + groupID.ToString()));
-                else
-                {
-                    TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                    theCol = m.GetCollectionData(sWSUserName, sWSPass, sCollectionCode, String.Empty, String.Empty, String.Empty, false);
-                    CachingManager.CachingManager.SetCachedData("GetCollectionData" + sCollectionCode + "_" + groupID.ToString(), theCol, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-                }
-
-                u = theCol.m_oCollectionUsageModule;
-
-                Int32 nViewLifeCycle = u.m_tsViewLifeCycle;
-
-                int nCollectionID = 0;
-                Int32.TryParse(sCollectionCode, out nCollectionID);
-                DataTable dtPPVUses = ConditionalAccessDAL.Get_allDomainsPPVUsesUsingCollection(lUsersIds, groupID, nMediaFileID, nCollectionID);
-
-                if (dtPPVUses != null)
-                {
-                    Int32 nCount = dtPPVUses.Rows.Count;
-                    if (nCount > 0)
-                    {
-                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["dNow"]);
-                        DateTime dUsed = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["CREATE_DATE"]);
-
-                        DateTime dEndDate = Utils.GetEndDateTime(dUsed, nViewLifeCycle);
-
-                        if (dNow < dEndDate)
-                            nIsCreditDownloaded = false;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return nIsCreditDownloaded;
         }
 
         // pass string or numeric as T
@@ -2399,7 +2335,7 @@ namespace ConditionalAccess
             {
                 string pricingUrl = Utils.GetWSURL("pricing_ws");
                 if (pricingUrl.Length > 0)
-                    m.Url = Utils.GetWSURL("pricing_ws");
+                    m.Url = pricingUrl;
 
                 TvinciPricing.CouponData theCouponData = null;
 
@@ -2417,20 +2353,6 @@ namespace ConditionalAccess
             }
 
             return dCouponDiscountPercent;
-        }
-
-        internal static Int32 GetMediaFileIDWithCoGuid(Int32 nGroupID, string sMediaFileCoGuid)
-        {
-            int nMediaFileID = 0;
-
-            DataTable dt = DAL.ConditionalAccessDAL.Get_MediaFileFromCoGuid(nGroupID, sMediaFileCoGuid);
-
-            if (dt != null && dt.DefaultView.Count > 0)
-            {
-                nMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
-            }
-
-            return nMediaFileID;
         }
 
         static public string GetMediaFileCoGuid(int nGroupID, int nMediaFileID)
