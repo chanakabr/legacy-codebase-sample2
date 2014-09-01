@@ -1080,7 +1080,7 @@ namespace DAL
             sp.AddParameter("@AssetID", nAssetID);
 
             return sp.ExecuteReturnValue<bool>();
-        }    
+        }
 
         public static Dictionary<int, int> Get_GroupMediaTypesIDs(int nGroupID, string sConnKey)
         {
@@ -1159,7 +1159,7 @@ namespace DAL
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@BundleCode", sBundleCode);
             sp.AddParameter("@GroupID", nGroupID);
-            sp.AddIDListParameter<int>("@UsersInDomain", userIDs, "Id");
+            sp.AddIDListParameter<string>("@UsersInDomain", userIDs.Select(item => item.ToString()).ToList<string>(), "Id");
             sp.AddIDListParameter<int>("@RelatedMediaFiles", relatedMediaFiles, "Id");
             sp.AddParameter("@IsSubscription", bIsSub);
 
@@ -1189,7 +1189,7 @@ namespace DAL
         }
 
         public static bool Get_LatestCreateDateOfBundlesUses(List<string> subscriptionsIDs, List<string> collectionsIDs,
-            List<string> domainUserIDs, long mediaFileID, int nGroupID, ref Dictionary<string, DateTime> subsToCreateDateMapping,
+            List<string> domainUserIDs, List<int> relatedMediaFileIDs, int nGroupID, ref Dictionary<string, DateTime> subsToCreateDateMapping,
             ref Dictionary<string, DateTime> colsToCreateDateMapping, ref DateTime dateNowDBTime)
         {
             bool res = false;
@@ -1198,7 +1198,7 @@ namespace DAL
             sp.AddIDListParameter("@Subscriptions", subscriptionsIDs, "ID");
             sp.AddIDListParameter("@Collections", collectionsIDs, "ID");
             sp.AddIDListParameter("@DomainUserIDs", domainUserIDs, "ID");
-            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddIDListParameter("@RelatedMediaFileIDs", relatedMediaFileIDs, "ID");
             sp.AddParameter("@GroupID", nGroupID);
 
 
@@ -1652,6 +1652,17 @@ namespace DAL
                 sp.AddParameter("@DeviceName", string.Empty);
 
             return sp.ExecuteReturnValue<long>();
+        }
+
+        public static bool Update_ColPurchaseNumOfUses(string colCode, string siteGuid, long groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_ColPurchaseNumOfUses");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@ColCode", colCode);
+            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@GroupID", groupID);
+
+            return sp.ExecuteReturnValue<bool>();
         }
 
     }

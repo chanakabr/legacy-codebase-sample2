@@ -633,7 +633,7 @@ namespace ConditionalAccess
 
         // bulk version of Bundle_DoesCreditNeedToDownloaded
         internal static void DoBundlesCreditNeedToBeDownloaded(List<string> lstSubCodes, List<string> lstColCodes,
-            int nMediaFileID, int nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword,
+            int nMediaFileID, int nGroupID, List<int> allUsersInDomain, List<int> relatedMediaFiles, string sPricingUsername, string sPricingPassword,
             ref Dictionary<string, bool> subsRes, ref Dictionary<string, bool> collsRes)
         {
             Subscription[] subs = null;
@@ -657,7 +657,7 @@ namespace ConditionalAccess
             List<string> subsLst = GetSubCodesForDBQuery(subs);
             List<string> colsLst = GetColCodesForDBQuery(colls);
             List<string> domainUsers = allUsersInDomain.Select(item => item.ToString()).ToList<string>();
-            if (ConditionalAccessDAL.Get_LatestCreateDateOfBundlesUses(subsLst, colsLst, domainUsers, nMediaFileID, nGroupID,
+            if (ConditionalAccessDAL.Get_LatestCreateDateOfBundlesUses(subsLst, colsLst, domainUsers, relatedMediaFiles, nGroupID,
                 ref subsToCreateDateMapping, ref colsToCreateDateMapping, ref dbTimeNow))
             {
                 if (subs != null && subs.Length > 0)
@@ -833,8 +833,8 @@ namespace ConditionalAccess
         }
 
 
-        internal static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
-            int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword,
+        private static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
+            int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword, List<int> relatedMediaFiles,
             ref Subscription[] subsRes, ref Collection[] collsRes,
             ref  Dictionary<string, KeyValuePair<int, DateTime>> subsPurchase, ref Dictionary<string, KeyValuePair<int, DateTime>> collPurchase)
         {
@@ -932,7 +932,7 @@ namespace ConditionalAccess
                 }
 
                 HandleBundleCreditNeedToDownloadedQuery(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery,
-                    nMediaFileID, nGroupID, lstUserIDs, sPricingUsername, sPricingPassword, ref subsToSendToCatalog,
+                    nMediaFileID, nGroupID, lstUserIDs, relatedMediaFiles, sPricingUsername, sPricingPassword, ref subsToSendToCatalog,
                     ref collsToSendToCatalog);
 
                 // get distinct subs from subs list, same for collection
@@ -1021,7 +1021,7 @@ namespace ConditionalAccess
         }
 
         private static void HandleBundleCreditNeedToDownloadedQuery(List<string> subsToBundleCreditDownloadedQuery,
-            List<string> colsToBundleCreditDownloadedQuery, int nMediaFileID, int nGroupID, List<int> lstUserIDs,
+            List<string> colsToBundleCreditDownloadedQuery, int nMediaFileID, int nGroupID, List<int> lstUserIDs, List<int> relatedMediaFileIDs,
             string sPricingUsername, string sPricingPassword, ref List<int> subsToSendToCatalog,
             ref List<int> collsToSendToCatalog)
         {
@@ -1030,7 +1030,7 @@ namespace ConditionalAccess
                 Dictionary<string, bool> subsRes = null;
                 Dictionary<string, bool> colsRes = null;
                 DoBundlesCreditNeedToBeDownloaded(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery, nMediaFileID,
-                    nGroupID, lstUserIDs, sPricingUsername, sPricingPassword, ref subsRes, ref colsRes);
+                    nGroupID, lstUserIDs, relatedMediaFileIDs, sPricingUsername, sPricingPassword, ref subsRes, ref colsRes);
                 if (subsRes.Count > 0)
                 {
                     foreach (KeyValuePair<string, bool> kvp in subsRes)
@@ -1978,7 +1978,7 @@ namespace ConditionalAccess
 
                     List<int> FileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes);
                     relatedMediaFileIDs.AddRange(FileIDs);
-
+                    relatedMediaFileIDs = relatedMediaFileIDs.Distinct().ToList();
                     p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
 
                     bool bEnd = false;
@@ -2052,7 +2052,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        if (ppvModule.m_bSubscriptionOnly)
+                        if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
                         {
                             theReason = PriceReason.ForPurchaseSubscriptionOnly;
                         }
@@ -2070,7 +2070,7 @@ namespace ConditionalAccess
                     Dictionary<string, KeyValuePair<int, DateTime>> subsPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();/*dictionary(subscriptionCode, KeyValuePair<nWaiver, dPurchaseDate>)*/
                     Dictionary<string, KeyValuePair<int, DateTime>> collPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();
 
-                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword,
+                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs,
                         ref relevantValidSubscriptions, ref relevantValidCollections, ref subsPurchase, ref collPurchase);
 
                     if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
@@ -2189,17 +2189,23 @@ namespace ConditionalAccess
             {
                 p = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
                     sPricingUsername, sPricingPassword);
-                if (ppvModule != null && ppvModule.m_bSubscriptionOnly)
+
+                if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
                 {
                     theReason = PriceReason.ForPurchaseSubscriptionOnly;
                 }
-                if (theReason != PriceReason.ForPurchaseSubscriptionOnly)
+                else
                 {
                     theReason = PriceReason.ForPurchase;
                 }
             }
 
             return p;
+        }
+
+        private static bool IsPPVModuleToBePurchasedAsSubOnly(PPVModule ppvModule)
+        {
+            return ppvModule != null && ppvModule.m_bSubscriptionOnly;
         }
 
         private static bool IsCancellationWindowPerPurchase(TvinciPricing.UsageModule oUsageModule, bool bCancellationWindow, int nWaiver, DateTime dCreateDate)
