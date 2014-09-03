@@ -97,6 +97,10 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TCMClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External\TCMClient.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseDevice.cs" />
@@ -128,8 +132,9 @@
     <Compile Include="Saml\SamlUtils.cs" />
     <Compile Include="Encrypters\SHA256Encrypter.cs" />
     <Compile Include="Encrypters\SHA384Encrypter.cs" />
+    <Compile Include="SSOKdgImplementation.cs" />
     <Compile Include="SSOOAuthImplementation.cs" />
-    <Compile Include="ISSOProviderImplementation.cs" />
+    <Compile Include="ISSOProvider.cs" />
     <Compile Include="SSOOSamlImplementation.cs" />
     <Compile Include="SSOTvinciImplementation.cs" />
     <Compile Include="SSOUsers.cs" />

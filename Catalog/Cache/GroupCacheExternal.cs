@@ -154,7 +154,7 @@ namespace Catalog.Cache
                                 {
                                     //try insert to CB
                                     tempGroup.m_oGroupChannels.TryAdd(nChannelId, tempChannel);
-                                    bInsert = cache.Insert(group.m_nParentGroupID.ToString(), tempGroup, DateTime.UtcNow.AddDays(GROUP_CACHE_EXPIRY), casResult.Cas);
+                                    bInsert = cache.Update(group.m_nParentGroupID.ToString(), tempGroup, DateTime.UtcNow.AddDays(GROUP_CACHE_EXPIRY), casResult.Cas);
                                     if (bInsert)
                                     {
                                         group = tempGroup;

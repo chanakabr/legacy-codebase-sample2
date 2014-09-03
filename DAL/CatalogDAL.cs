@@ -650,7 +650,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure spMetas= new ODBCWrapper.StoredProcedure("Get_MetasByGroup");
             spMetas.SetConnectionKey("MAIN_CONNECTION_STRING");
             spMetas.AddParameter("@GroupId", groupID);
-            spMetas.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+            spMetas.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id"); 
 
             DataSet ds = spMetas.ExecuteDataSet();
 
@@ -1242,13 +1242,13 @@ namespace Tvinci.Core.DAL
 
             return new List<int>(0);
         }
-
+        
 
         public static List<LanguageObj> GetGroupLanguages(int nGroupID)
         {
             List<LanguageObj> lLanguages = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupLanguages");
-            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@groupID", nGroupID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
@@ -1619,6 +1619,21 @@ namespace Tvinci.Core.DAL
             }
 
             return res;
+        }
+
+        public static DataTable Get_MediaFilesDetails(List<int> groupTree, List<int> mediaFileIDs, string mediaFileCoGuid)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_MediaFilesDetails");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter("@GroupTree", groupTree, "ID");
+            sp.AddIDListParameter("@MediaFileIDs", mediaFileIDs, "ID");
+            sp.AddParameter("@CoGuid", mediaFileCoGuid);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
         }
 
     }

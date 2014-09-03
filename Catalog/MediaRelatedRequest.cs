@@ -26,8 +26,8 @@ namespace Catalog
         [DataMember]
         public List<Int32> m_nMediaTypes;
 
-        public MediaRelatedRequest() 
-            : base ()
+        public MediaRelatedRequest()
+            : base()
         {
             m_nMediaTypes = new List<Int32>();
         }
@@ -41,40 +41,40 @@ namespace Catalog
         }
 
         public MediaRelatedRequest(MediaRelatedRequest m)
-            : base(m.m_nPageSize,m.m_nPageIndex,m.m_sUserIP,m.m_nGroupID,m.m_oFilter,m.m_sSignature, m.m_sSignString)
+            : base(m.m_nPageSize, m.m_nPageIndex, m.m_sUserIP, m.m_nGroupID, m.m_oFilter, m.m_sSignature, m.m_sSignString)
         {
             m_nMediaID = m.m_nMediaID;
             m_nMediaTypes = m.m_nMediaTypes;
             m_nMediaTypes = new List<Int32>();
         }
-   
+
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            MediaSearchRequest  oMediaRequest;
-            MediaIdsResponse    oMediaResponse = new MediaIdsResponse();
-            MediaRelatedRequest request        = (MediaRelatedRequest)oBaseRequest;
-            
+            MediaSearchRequest oMediaRequest;
+            MediaIdsResponse oMediaResponse = new MediaIdsResponse();
+            MediaRelatedRequest request = oBaseRequest as MediaRelatedRequest;
+
             Filter oFilter = new Filter();
             try
             {
                 //Build  MediaSearchRequest object
                 if (request == null || request.m_nMediaID == 0 || request.m_oFilter == null)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentException("request object is null or Required variables is null");
 
                 CheckSignature(request);
 
                 bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
                 oMediaRequest = Catalog.BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref oFilter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid);
 
-                oMediaRequest.m_oFilter     = oFilter;
-                oMediaRequest.m_nMediaID    = request.m_nMediaID;
+                oMediaRequest.m_oFilter = oFilter;
+                oMediaRequest.m_nMediaID = request.m_nMediaID;
                 oMediaRequest.m_sSignString = request.m_sSignString;
-                oMediaRequest.m_sSignature  = request.m_sSignature;
-                oMediaRequest.m_nPageSize   = request.m_nPageSize;
-                oMediaRequest.m_nPageIndex  = request.m_nPageIndex;
-                oMediaRequest.m_sUserIP     = request.m_sUserIP;
-                oMediaRequest.m_bAnd        = false;
-                oMediaRequest.m_bExact      = true;
+                oMediaRequest.m_sSignature = request.m_sSignature;
+                oMediaRequest.m_nPageSize = request.m_nPageSize;
+                oMediaRequest.m_nPageIndex = request.m_nPageIndex;
+                oMediaRequest.m_sUserIP = request.m_sUserIP;
+                oMediaRequest.m_bAnd = false;
+                oMediaRequest.m_bExact = true;
 
                 //GetMediaIds With Searcher service
                 int nTotalItems = 0;

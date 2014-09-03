@@ -35,7 +35,7 @@ namespace DAL
 
         private const string SP_REMOVE_DOMAIN = "sp_RemoveDomain";
         private const string SP_RESET_DOMAIN_FREQUENCY = "sp_ResetDomainFrequency";
-
+        private const string SP_UPDATE_DOMAIN_CoGuid = "Update_DomainCoGuid";
         #endregion
 
 
@@ -825,6 +825,25 @@ namespace DAL
             spUpdateDomain.AddParameter("@name", sName);
             spUpdateDomain.AddParameter("@description", sDescription);
             spUpdateDomain.AddParameter("@restriction", nDomainRestriciton);
+
+            int rowCount = spUpdateDomain.ExecuteReturnValue<int>();
+            res = rowCount > 0;
+
+
+
+            return res;
+        }
+
+        public static bool UpdateDomainCoGuid(int nDomainID, int nGroupID, string coGuid)
+        {
+            bool res = false;
+
+            ODBCWrapper.StoredProcedure spUpdateDomain = new ODBCWrapper.StoredProcedure(SP_UPDATE_DOMAIN_CoGuid);
+            spUpdateDomain.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            spUpdateDomain.AddParameter("@domainID", nDomainID);
+            spUpdateDomain.AddParameter("@groupID", nGroupID);
+            spUpdateDomain.AddParameter("@coGuid", coGuid);
 
             int rowCount = spUpdateDomain.ExecuteReturnValue<int>();
             res = rowCount > 0;

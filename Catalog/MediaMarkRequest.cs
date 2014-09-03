@@ -62,7 +62,7 @@ namespace Catalog
 
                 }
 
-                return (BaseResponse)oMediaMarkResponse;
+                return oMediaMarkResponse;
             }
             catch (Exception ex)
             {

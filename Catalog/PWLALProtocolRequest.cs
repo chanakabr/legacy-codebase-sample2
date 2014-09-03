@@ -90,7 +90,7 @@ namespace Catalog
         private void GetProtocolData(BaseRequest oRequest, ref int nGroupID, ref int nMediaID, ref string sSiteGuid,
             ref int nSocialAction, ref int nSocialPlatform, ref int nMediaFileID, ref int nCountryID)
         {
-            PWLALProtocolRequest request = (PWLALProtocolRequest)oRequest;
+            PWLALProtocolRequest request = oRequest as PWLALProtocolRequest;
             if (request == null)
                 throw new Exception("Request object is null");
             nGroupID = request.m_nGroupID;

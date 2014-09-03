@@ -17,10 +17,8 @@ namespace ODBCWrapper
 			m_myDataSet = new System.Data.DataSet();
             m_myDataSet.RemotingFormat = System.Data.SerializationFormat.Binary;
 			command = null;
-
-
              
-            if (Utils.GetTcmConfigValue("ODBC_CACH_SEC") != string.Empty) 
+            if (!string.IsNullOrEmpty(Utils.GetTcmConfigValue("ODBC_CACH_SEC"))) 
             {
                 m_nCachedSec = int.Parse(Utils.GetTcmConfigValue("ODBC_CACH_SEC"));
             }

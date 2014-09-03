@@ -105,6 +105,12 @@
     <Compile Include="enums.cs" />
     <Compile Include="EPGChannelObject.cs" />
     <Compile Include="EpgRes.cs" />
+    <Compile Include="Epg\EpgObject.cs" />
+    <Compile Include="Epg\EpgTagTranslate.cs" />
+    <Compile Include="Epg\FieldTypeEntity.cs" />
+    <Compile Include="Epg\Meta.cs" />
+    <Compile Include="Epg\ProgramObject.cs" />
+    <Compile Include="Epg\Tag.cs" />
     <Compile Include="ExtraRequestObject.cs" />
     <Compile Include="FileRequestObject.cs" />
     <Compile Include="FileTypeContainer.cs" />

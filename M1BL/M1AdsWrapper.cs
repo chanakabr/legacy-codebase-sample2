@@ -22,7 +22,7 @@ namespace M1BL
 
 
         private const string PROXIMITY_WS_FACADE_USER_NAME = "ToggleUser";
-        private const string PROXIMITY_WS_FACADE_PASSWORD = "ZX9MZICLcFt8bwH8";
+        private const string PROXIMITY_WS_FACADE_PASSWORD = "wbX8OBRoedf73qnR";
         private const string PROXIMITY_WS_FACADE_ACCOUNT_TYPE = "SSOWebServices";
 
         private const string PROXIMITY_WS_INTERFACE_CHANNEL_ID = "CM101";

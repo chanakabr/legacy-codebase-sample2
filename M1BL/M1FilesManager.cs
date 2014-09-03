@@ -327,7 +327,7 @@ namespace M1BL
                     sbData.Append(sChargedNumber.PadRight(PPVFileStructure.BODY_SPARE_FIELD , ' ')); // Spare field
                     sbData.Append(Environment.NewLine);
 
-                    totalPrice += nPrice;
+                    totalPrice += Math.Round(nPrice, 2);
                     totalRecords++;
                     transactionsIDsList.Add(nM1TransactionID);
                 }            
@@ -399,7 +399,7 @@ namespace M1BL
                     sbData.Append(sChargedNumber.PadRight(SubscriptionFileStructure.BODY_SPARE_FIELD_2, ' '));
                     sbData.Append(Environment.NewLine);
 
-                    totalPrice += nPrice;
+                    totalPrice += Math.Round(nPrice, 2);
                     totalRecords++;
                     transactionsIDsList.Add(nTransactionID);
                 }

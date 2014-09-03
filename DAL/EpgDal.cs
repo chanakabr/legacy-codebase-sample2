@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using ODBCWrapper;
 
 namespace Tvinci.Core.DAL
 {
     public class EpgDal : BaseDal
-    {   
+    {
         public static DataTable GetEpgScheduleDataTable(int? topRowsNumber, int groupID, DateTime? fromUTCDay, DateTime? toUTCDay, int epgChannelID)
         {
-            ODBCWrapper.StoredProcedure spGetEpgSchedule = new ODBCWrapper.StoredProcedure("Get_EpgChannelsSchedule");
+            StoredProcedure spGetEpgSchedule = new StoredProcedure("Get_EpgChannelsSchedule");
             spGetEpgSchedule.SetConnectionKey("CONNECTION_STRING");
 
             spGetEpgSchedule.AddParameter("@groupID", groupID);
@@ -49,7 +50,7 @@ namespace Tvinci.Core.DAL
 
         public static int DeleteProgramsOnDate(DateTime dStartDate, string sGroupID, int nEPGChannelID)
         {
-            ODBCWrapper.StoredProcedure spDeleteProgramsOnDate = new ODBCWrapper.StoredProcedure("sp_DeleteEPGProgramsOnDate");
+            StoredProcedure spDeleteProgramsOnDate = new StoredProcedure("sp_DeleteEPGProgramsOnDate");
             spDeleteProgramsOnDate.SetConnectionKey("CONNECTION_STRING");
             spDeleteProgramsOnDate.AddParameter("@GroupID", sGroupID);
             spDeleteProgramsOnDate.AddParameter("@EpgChannelID", nEPGChannelID);
@@ -63,7 +64,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable GetEpgMultiScheduleDataTable(int? topRowsNumber, int groupID, DateTime? fromUTCDay, DateTime? toUTCDay, string[] sEPGChannelIDs)
         {
-            ODBCWrapper.StoredProcedure spGetEpgSchedule = new ODBCWrapper.StoredProcedure("Get_EpgMultiChannelsSchedule");
+            StoredProcedure spGetEpgSchedule = new StoredProcedure("Get_EpgMultiChannelsSchedule");
             spGetEpgSchedule.SetConnectionKey("CONNECTION_STRING");
 
             spGetEpgSchedule.AddParameter("@groupID", groupID);
@@ -102,7 +103,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable GetEpgProgramInfo(int nGroupID, int nProgramID)
         {
-            ODBCWrapper.StoredProcedure spGetEpgProgramInfo = new ODBCWrapper.StoredProcedure("Get_EpgProgramInfo");
+            StoredProcedure spGetEpgProgramInfo = new StoredProcedure("Get_EpgProgramInfo");
             spGetEpgProgramInfo.SetConnectionKey("CONNECTION_STRING");
             spGetEpgProgramInfo.AddParameter("@groupID", nGroupID);
             spGetEpgProgramInfo.AddParameter("@programID", nProgramID);
@@ -119,7 +120,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable GetEpgProgramTags(int nGroupID, int nProgID)
         {
-            ODBCWrapper.StoredProcedure spGetEpgProgramTags = new ODBCWrapper.StoredProcedure("Get_EpgProgramTags");
+            StoredProcedure spGetEpgProgramTags = new StoredProcedure("Get_EpgProgramTags");
             spGetEpgProgramTags.SetConnectionKey("CONNECTION_STRING");
             spGetEpgProgramTags.AddParameter("@groupID", nGroupID);
             spGetEpgProgramTags.AddParameter("@programID", nProgID);
@@ -136,7 +137,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetEpgProgramDetails(int nGroupID, int nProgramID)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EpgProgramDetails");
+            StoredProcedure sp = new StoredProcedure("Get_EpgProgramDetails");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", nGroupID);
             sp.AddParameter("@programID", nProgramID);
@@ -145,12 +146,15 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static DataSet Get_GroupsTagsAndMetas(int nGroupID, List<int> lSubGroupTree)
+
+        public static DataSet Get_GroupsTagsAndMetas(int nGroupID, List<int> lSubGroupTree, int nIsSearchable = 1)
         {
-            ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupsTagsAndMetas");
+            StoredProcedure GroupMedias = new StoredProcedure("Get_GroupsTagsAndMetas");
             GroupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
             GroupMedias.AddParameter("@GroupID", nGroupID);
             GroupMedias.AddIDListParameter<int>("@SubGroupTree", lSubGroupTree, "Id");
+            GroupMedias.AddParameter("@IsSearchable", nIsSearchable);
+
 
             DataSet ds = GroupMedias.ExecuteDataSet();
             return ds;
@@ -158,7 +162,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet Get_EpgPrograms(int nGroupID, DateTime? dDateTime, int nEpgID)
         {
-            ODBCWrapper.StoredProcedure GroupEpgs = new ODBCWrapper.StoredProcedure("Get_GroupEpgs");
+            StoredProcedure GroupEpgs = new StoredProcedure("Get_GroupEpgs");
             GroupEpgs.SetConnectionKey("MAIN_CONNECTION_STRING");
             GroupEpgs.AddParameter("@GroupID", nGroupID);
             GroupEpgs.AddParameter("@EpgID", nEpgID);
@@ -174,7 +178,7 @@ namespace Tvinci.Core.DAL
         public static DataTable GetParentGroupIdByGroupId(int nGroupId)
         {
             DataTable data = null;
-            ODBCWrapper.StoredProcedure spGetParentGroupId = new ODBCWrapper.StoredProcedure("Get_groupsParentID");
+            StoredProcedure spGetParentGroupId = new StoredProcedure("Get_groupsParentID");
 
             spGetParentGroupId.SetConnectionKey("CONNECTION_STRING");
             spGetParentGroupId.AddParameter("@groupID", nGroupId);
@@ -191,7 +195,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_EpgIDbyEPGIdentifier(List<string> EPGIdentifiers)
         {
-            ODBCWrapper.StoredProcedure spGetEpgIDbyEPGIdentifier = new ODBCWrapper.StoredProcedure("Get_EpgIDbyEPGIdentifier");
+            StoredProcedure spGetEpgIDbyEPGIdentifier = new StoredProcedure("Get_EpgIDbyEPGIdentifier");
             spGetEpgIDbyEPGIdentifier.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGetEpgIDbyEPGIdentifier.AddIDListParameter<string>("@EPGIdentifiers", EPGIdentifiers, "Id");
             DataSet ds = spGetEpgIDbyEPGIdentifier.ExecuteDataSet();
@@ -202,7 +206,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_EPGTagValueIDs(int nGroupID, Dictionary<int, List<string>> lTagTypeAndValues)
         {
-            ODBCWrapper.StoredProcedure spGetEPGTagValueID = new ODBCWrapper.StoredProcedure("Get_EPGTagValueIDs");
+            StoredProcedure spGetEPGTagValueID = new StoredProcedure("Get_EPGTagValueIDs");
             spGetEPGTagValueID.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGetEPGTagValueID.AddKeyValueListParameter<int, string>("@TagTypeAndValue", lTagTypeAndValues, "key", "value");
             spGetEPGTagValueID.AddParameter("@GroupID", nGroupID);
@@ -214,7 +218,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_EPGAllValuesPerTagType(int nGroupID, List<int> lTagTypes)
         {
-            ODBCWrapper.StoredProcedure spGetEPGAllValues = new ODBCWrapper.StoredProcedure("Get_EPGAllValuesPerTagType");
+            StoredProcedure spGetEPGAllValues = new StoredProcedure("Get_EPGAllValuesPerTagType");
             spGetEPGAllValues.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGetEPGAllValues.AddIDListParameter<int>("@TagTypes", lTagTypes, "Id");
             spGetEPGAllValues.AddParameter("@GroupID", nGroupID);
@@ -222,7 +226,94 @@ namespace Tvinci.Core.DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
-        }  
+        }
 
+
+        /*Get all metas and tags for EPGs by groupID And it's mapping in the xml file*/
+        public static DataSet GetEpgMappingFields(List<int> lSubTree, int groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("GetEpgMappingFields");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@SubGroupTree", lSubTree, "Id");
+            sp.AddParameter("@GroupID", groupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
+        }
+
+        /*return channel id by CHANNEL_ID (external gracenote channel id)*/
+        public static int GetChannelByChannelID(int groupID, string sChannelID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_ChannelByChannelID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@ChannelID", sChannelID);
+
+            int retVal = sp.ExecuteReturnValue<int>();
+
+            return retVal;
+        }
+        /*Return all channel list by group_id*/
+        public static DataTable GetAllEpgChannelsList(int GroupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AllEpgChannelsList");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", GroupID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static int InsertNewChannel(int GroupID, string ChannelID, string Name)
+        {
+            StoredProcedure sp = new StoredProcedure("InsertNewChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", GroupID);
+            sp.AddParameter("@ChannelID", ChannelID);
+            sp.AddParameter("@Name", Name);
+
+            int retVal = sp.ExecuteReturnValue<int>();
+
+            return retVal;
+        }
+
+        public static int UpdateEpgChannel(int GroupID, string channelID, int ID)            
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateEpgChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", GroupID);
+            sp.AddParameter("@ChannelID", channelID);
+            sp.AddParameter("@ID", ID);
+
+            
+            int retVal = sp.ExecuteReturnValue<int>();
+            return retVal;
+        }
+
+        public static int GetExistMedia(int GroupID, int EPG_IDENTIFIER)
+        {
+            StoredProcedure sp = new StoredProcedure("GetExistMedia");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", GroupID);
+            sp.AddParameter("@EpgIdentifier", EPG_IDENTIFIER);
+
+            int retVal = sp.ExecuteReturnValue<int>();
+            return retVal;
+        }
+
+        public static DataTable Get_parental_rating()
+        {
+            StoredProcedure sp = new StoredProcedure("Get_parental_rating");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
     }
 }

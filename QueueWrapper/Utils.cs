@@ -44,9 +44,11 @@ namespace QueueWrapper
 
         internal static T JsonToObject<T>(string json)
         {
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            T obj = js.Deserialize<T>(json);
-            return (T)obj;  
+            if (!string.IsNullOrEmpty(json))
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+            else
+                return default(T);
+            
         }
     }
 }

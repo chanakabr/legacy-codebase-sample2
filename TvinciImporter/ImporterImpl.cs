@@ -2796,7 +2796,8 @@ namespace TvinciImporter
             string sPreRule, string sPostRule, string sBreakRule,
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, DateTime? fileStartDate, DateTime? fileEndDate)
+            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode, 
+            DateTime? fileStartDate, DateTime? fileEndDate, string sAltCoGuid, string sAltCDN, string sAltCDNID, string sAltCDNCode)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
 
@@ -2804,12 +2805,17 @@ namespace TvinciImporter
 
             Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
 
-            Int32 nCDNId;
+            Int32 nCDNId = 0, nAltCDNId = 0;
 
             if (String.IsNullOrEmpty(sCDNId))
                 nCDNId = GetCDNIdByName(sCDN, nGroupID);
             else
-                nCDNId = int.Parse(sCDNId);
+                Int32.TryParse(sCDNId, out nCDNId);
+
+            if (string.IsNullOrEmpty(sAltCDNID))
+                nAltCDNId = GetCDNIdByName(sAltCDN, nGroupID);
+            else
+                Int32.TryParse(sAltCDNID, out nAltCDNId);
 
 
             Int32 nBillingCodeID = GetBillingCodeIDByName(sBillingType);
@@ -2871,6 +2877,21 @@ namespace TvinciImporter
 
                 if (nOverridePlayerTypeID != 0)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("OVERRIDE_PLAYER_TYPE_ID", "=", nOverridePlayerTypeID);
+
+                if(!string.IsNullOrEmpty(sAltCDNCode))
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_CODE", sAltCDNCode);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_CODE", DBNull.Value);
+
+                if(nAltCDNId > 0)
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_SUPLIER_ID", nAltCDNId);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_STREAMING_SUPLIER_ID", DBNull.Value);
+
+                if (!string.IsNullOrEmpty(sAltCoGuid))
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_CO_GUID", sAltCoGuid);
+                else
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ALT_CO_GUID", DBNull.Value);
 
                 updateQuery += "where";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaFileID);
@@ -3537,6 +3558,12 @@ namespace TvinciImporter
                 int nIsDefaultLanguage = sIsDefaultLanguage.ToLower() == "true" ? 1 : 0;
                 string sProductCode = GetItemParameterVal(ref theItem, "product_code");
 
+                // adding support for alternative cdn
+                string sAltCDNCode = GetItemParameterVal(ref theItem, "alt_cdn_code");
+                string sAltCoGuid = GetItemParameterVal(ref theItem, "alt_co_guid");
+                string sAltCDNID = GetItemParameterVal(ref theItem, "alt_cdn_id");
+                string sAltCDN = GetItemParameterVal(ref theItem, "alt_cdn_name");
+
                 // try to parse the files date correctly
                 DateTime? dStartDate = null;
                 DateTime? dEndDate = null;
@@ -3574,7 +3601,8 @@ namespace TvinciImporter
                     EnterClipMediaFile(sFormat, nMediaID, 0, nGroupID, sQuality, sCDN, sCDNId, sCDNCode, sBillingType,
                         sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
                         bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
-                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode, dStartDate, dEndDate);
+                        sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode, dStartDate, dEndDate,
+                        sAltCoGuid, sAltCDN, sAltCDNID, sCDNCode);
                 }
 
 
@@ -4495,10 +4523,11 @@ namespace TvinciImporter
 
                     try
                     {
+                        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
                         client = GetWCFSvc("WS_Catalog");
-                        if (lMediaIds != null && lMediaIds.Count > 0 && nGroupId > 0)
+                        if (lMediaIds != null && lMediaIds.Count > 0 && nParentGroupID > 0)
                         {
-                            string sWSURL = GetCatalogUrl(nGroupId);
+                            string sWSURL = GetCatalogUrl(nParentGroupID);
                             if (!string.IsNullOrEmpty(sWSURL))
                             {
                                 string[] addresses = sWSURL.Split(';');
@@ -4508,7 +4537,7 @@ namespace TvinciImporter
                                     try
                                     {
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
-                                        isUpdateIndexSucceeded = client.UpdateIndex(ids, nGroupId, eAction);
+                                        isUpdateIndexSucceeded = client.UpdateIndex(ids, nParentGroupID, eAction);
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         Logger.Logger.Log("UpdateIndex", string.Format("{0} res {1}", endPointAddress, sInfo), "UpdateIndex");
                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
@@ -4565,10 +4594,11 @@ namespace TvinciImporter
                 {
                     try
                     {
+                        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
                         client = GetWCFSvc("WS_Catalog");
-                        if (lChannelIds != null && lChannelIds.Count > 0 && nGroupId > 0)
+                        if (lChannelIds != null && lChannelIds.Count > 0 && nParentGroupID > 0)
                         {
-                            string sWSURL = GetCatalogUrl(nGroupId);
+                            string sWSURL = GetCatalogUrl(nParentGroupID);
                             if (!string.IsNullOrEmpty(sWSURL))
                             {
                                 string[] addresses = sWSURL.Split(';');
@@ -4578,7 +4608,7 @@ namespace TvinciImporter
                                     try
                                     {
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
-                                        isUpdateChannelIndexSucceeded = client.UpdateChannelIndex(ids, nGroupId, eAction);
+                                        isUpdateChannelIndexSucceeded = client.UpdateChannelIndex(ids, nParentGroupID, eAction);
                                         string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         updateChannelLog.Info(string.Format("Update channel index {0} in catalog '{1}'", sInfo, endPointAddress));
 
@@ -4621,7 +4651,8 @@ namespace TvinciImporter
             WSCatalog.IserviceClient client = null;
             try
             {
-                string sWSURL = GetCatalogUrl(nGroupID);
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
+                string sWSURL = GetCatalogUrl(nParentGroupID);
                 if (!string.IsNullOrEmpty(sWSURL))
                 {
                     string[] addresses = sWSURL.Split(';');
@@ -4632,7 +4663,7 @@ namespace TvinciImporter
                         for (int i = 0; i < length; i++)
                         {
                             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(addresses[i]);
-                            res &= client.UpdateOperator(nGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
+                            res &= client.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
                         }
                     }
                 }
@@ -4675,10 +4706,11 @@ namespace TvinciImporter
 
                     try
                     {
+                        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
                         client = GetWCFSvc("WS_Catalog");
-                        if (lepgIds != null && lepgIds.Count > 0 && nGroupId > 0)
+                        if (lepgIds != null && lepgIds.Count > 0 && nParentGroupID > 0)
                         {
-                            string sWSURL = GetCatalogUrl(nGroupId);
+                            string sWSURL = GetCatalogUrl(nParentGroupID);
                             if (!string.IsNullOrEmpty(sWSURL))
                             {
                                 string[] addresses = sWSURL.Split(';');
@@ -4696,7 +4728,7 @@ namespace TvinciImporter
                                     try
                                     {
                                         client.Endpoint.Address = new System.ServiceModel.EndpointAddress(endPointAddress);
-                                        isUpdateIndexSucceeded = client.UpdateEpgIndex(ids, nGroupId, eAction);
+                                        isUpdateIndexSucceeded = client.UpdateEpgIndex(ids, nParentGroupID, eAction);
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, endPointAddress));
                                     }

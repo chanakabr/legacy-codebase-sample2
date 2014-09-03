@@ -20,15 +20,13 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(string sBasicLink, string sUserIP, string sRefferer)
+        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string,string> dParams)
         {
-            object oSecretCode = ODBCWrapper.Utils.GetTableSingleVal("groups_ll_parameters", "SECRET_CODE", "group_id", "=", m_nGroupID);
-            string sSecretCode = "";
-            if (oSecretCode != null && oSecretCode != DBNull.Value)
-                sSecretCode = oSecretCode.ToString();
-            if (sSecretCode != "")
-                return MediaVault.GetHashedURL(sSecretCode, sBasicLink, sUserIP, sRefferer);
-            return sBasicLink;
+
+            CDNTokenizers.Tokenizers.ICDNTokenizer tokenizer = CDNTokenizers.CDNTokenizerFactory.GetTokenizerInstance(m_nGroupID, nStreamingCompany);
+            string sLicenseLink = tokenizer == null ? string.Empty : tokenizer.GenerateToken(dParams);
+
+            return sLicenseLink;
         }
 
         protected override bool GetUserCASubStatus(string sSiteGUID, ref UserCAStatus oUserCAStatus)
@@ -49,67 +47,71 @@ namespace ConditionalAccess
 
         protected override string GetErrorLicensedLink(string sBasicLink)
         {
-            return "";
+            return string.Empty;
         }
 
         public override bool ActivateCampaign(int campaignID, CampaignActionInfo cai)
         {
             bool retVal = false;
             string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
-            string sWSURL = Utils.GetWSURL("pricing_ws");
-            if (sWSURL != "")
-                m.Url = sWSURL;
-
-            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
-            TvinciPricing.Campaign camp = m.GetCampaignData(sWSUserName, sWSPass, campaignID);
-            if (camp != null)
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
+            using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
             {
-                BaseCampaignActionImpl campImpl = Utils.GetCampaignActionByType(camp.m_CampaignResult);
-                if (campImpl != null)
+                string sWSURL = Utils.GetWSURL("pricing_ws");
+                if (sWSURL.Length > 0)
+                    m.Url = sWSURL;
+
+                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                TvinciPricing.Campaign camp = m.GetCampaignData(sWSUserName, sWSPass, campaignID);
+                if (camp != null)
                 {
-                    retVal = campImpl.ActivateCampaign(camp, cai, m_nGroupID);
+                    BaseCampaignActionImpl campImpl = Utils.GetCampaignActionByType(camp.m_CampaignResult);
+                    if (campImpl != null)
+                    {
+                        retVal = campImpl.ActivateCampaign(camp, cai, m_nGroupID);
+                    }
                 }
+                return retVal;
             }
-            return retVal;
         }
 
         public override CampaignActionInfo ActivateCampaignWithInfo(int campaignID, CampaignActionInfo cai)
         {
             CampaignActionInfo retVal = null;
             string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
-            string sWSURL = Utils.GetWSURL("pricing_ws");
-            if (sWSURL != "")
-                m.Url = sWSURL;
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
+            using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
+            {
+                string sWSURL = Utils.GetWSURL("pricing_ws");
+                if (sWSURL.Length > 0)
+                    m.Url = sWSURL;
 
-            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
-            TvinciPricing.Campaign camp = null;
-            if (campaignID > 0)
-            {
-                camp = m.GetCampaignData(sWSUserName, sWSPass, campaignID);
-            }
-            else
-            {
-                if (cai != null && !string.IsNullOrEmpty(cai.m_socialInviteInfo.m_hashCode))
+                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                TvinciPricing.Campaign camp = null;
+                if (campaignID > 0)
                 {
-                    camp = m.GetCampaignsByHash(sWSUserName, sWSPass, cai.m_socialInviteInfo.m_hashCode);
+                    camp = m.GetCampaignData(sWSUserName, sWSPass, campaignID);
                 }
-            }
-            if (camp != null)
-            {
-                BaseCampaignActionImpl campImpl = Utils.GetCampaignActionByTriggerType(camp.m_CampaignTrigger);
+                else
+                {
+                    if (cai != null && !string.IsNullOrEmpty(cai.m_socialInviteInfo.m_hashCode))
+                    {
+                        camp = m.GetCampaignsByHash(sWSUserName, sWSPass, cai.m_socialInviteInfo.m_hashCode);
+                    }
+                }
+                if (camp != null)
+                {
+                    BaseCampaignActionImpl campImpl = Utils.GetCampaignActionByTriggerType(camp.m_CampaignTrigger);
 
-                if (campImpl != null)
-                {
-                    retVal = campImpl.ActivateCampaignWithInfo(camp, cai, m_nGroupID);
+                    if (campImpl != null)
+                    {
+                        retVal = campImpl.ActivateCampaignWithInfo(camp, cai, m_nGroupID);
+                    }
                 }
+                return retVal;
             }
-            return retVal;
         }
 
         protected override TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider bp)
@@ -151,7 +153,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -223,7 +225,7 @@ namespace ConditionalAccess
         protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, TvinciPricing.Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode,
-            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID)
+            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
             bool res = true;
             HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);

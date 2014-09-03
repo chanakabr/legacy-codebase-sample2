@@ -10,20 +10,18 @@ using TVinciShared;
 
 namespace Users
 {
-    public class SSOOAuthImplementation : SSOUsers, ISSOProviderImplementation
+    public class SSOOAuthImplementation : SSOUsers, ISSOProvider
     {
         ProviderObject prov = null;
         CredentialObject creds = null;
         AuthenticationObject authObj = null;
         OAuthUserDetails userDetails = null;
 
-        public SSOOAuthImplementation(int nGroupID)
-            : base(nGroupID)
+        public SSOOAuthImplementation(int nGroupID, int operatorId)
+            : base(nGroupID, operatorId)
         {
-
+            
         }
-
-
 
 
 
@@ -99,10 +97,9 @@ namespace Users
                 }
             }
             else return new UserResponseObject() { m_RespStatus = ResponseStatus.UserDoesNotExist };
-
         }
 
-
+    
         public UserResponseObject CheckLogin(string sUserName, int nOperatorID)
         {
             return this.SignIn(sUserName, string.Empty, nOperatorID, 0, 0, string.Empty, string.Empty, string.Empty, false);

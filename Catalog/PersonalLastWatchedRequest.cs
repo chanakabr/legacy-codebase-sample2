@@ -37,7 +37,7 @@ namespace Catalog
         {
             try
             {
-                PersonalLastWatchedRequest request = (PersonalLastWatchedRequest)oBaseRequest;
+                PersonalLastWatchedRequest request = oBaseRequest as PersonalLastWatchedRequest;
                 MediaIdsResponse response = new MediaIdsResponse();
                 SearchResult oMediaObj;
 
@@ -48,11 +48,9 @@ namespace Catalog
                 _logger.Info(string.Format("{0}: {1}", "PersonalLastWatchedRequest Start At", DateTime.Now));
 
                 if (request == null)
-                    throw new Exception("request object is null or Required variables is null");
+                    throw new ArgumentNullException("request object is null or Required variables is null");
 
-                string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
-                if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                CheckSignature(request);
 
                 GroupManager groupManager = new GroupManager();
                 List<int> lSubGroupTree = groupManager.GetSubGroup(request.m_nGroupID);
@@ -83,7 +81,7 @@ namespace Catalog
                     xmlresult = SerializeToXML<MediaIdsResponse>(response);
                 }
                 _logger.Info(xmlresult);
-                return (BaseResponse)response;
+                return response;
             }
             catch (Exception ex)
             {
