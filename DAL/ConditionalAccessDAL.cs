@@ -1416,8 +1416,10 @@ namespace DAL
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@BundleCode", sBundleCode);
             sp.AddParameter("@GroupID", nGroupID);
-            sp.AddParameter("@SiteGuid", sSiteGuid);
-            sp.AddParameter("@MediaFileID", lMediaFileID);
+            //sp.AddParameter("@SiteGuid", sSiteGuid);
+            //sp.AddParameter("@MediaFileID", lMediaFileID);
+            sp.AddIDListParameter<string>("@UsersInDomain", new List<string>(1) { sSiteGuid }, "ID");
+            sp.AddIDListParameter<long>("@RelatedMediaFiles", new List<long>(1) { lMediaFileID }, "ID");
             sp.AddParameter("@IsSubscription", bIsSub);
 
 
@@ -1455,7 +1457,8 @@ namespace DAL
             sp.AddIDListParameter("@Subscriptions", subscriptionsIDs, "ID");
             sp.AddIDListParameter("@Collections", collectionsIDs, "ID");
             sp.AddIDListParameter("@DomainUserIDs", domainUserIDs, "ID");
-            sp.AddParameter("@MediaFileID", mediaFileID);
+            //sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddIDListParameter<long>("@RelatedMediaFileIDs", new List<long>(1) { mediaFileID }, "ID");
             sp.AddParameter("@GroupID", nGroupID);
 
 
