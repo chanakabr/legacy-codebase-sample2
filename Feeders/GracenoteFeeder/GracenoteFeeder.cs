@@ -63,11 +63,15 @@ namespace GracenoteFeeder
 
                 // run over and insert the programs
                 bool res = InsertProgramsPerChannel(lResponse);
+
+                // Clear pic urls to support pic updates
+                BaseGracenoteFeeder.dCategoryToDefaultPic.Clear();
             }
             catch (Exception ex)
             {
                 Logger.Logger.Log("Error", string.Format("group:{0}, ex:{1}", GroupID, ex.Message), "GracenoteFeeder");
             }
+
             return true;
         }
 
