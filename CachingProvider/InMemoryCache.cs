@@ -11,6 +11,7 @@ namespace CachingProvider
     {
         private static readonly Dictionary<string, InMemoryCache> m_CacheInstances = new Dictionary<string, InMemoryCache>();
         private static ReaderWriterLockSlim m_CacheLocker = new ReaderWriterLockSlim();
+        private static readonly string IN_MEM_CACHE_LOG_FILE = "InMemoryCache";
 
         private ObjectCache m_Cache;
 
@@ -21,6 +22,27 @@ namespace CachingProvider
         }
         #endregion
 
+
+
+        private void LogError(string methodName, string key, object value, Exception ex, double? minOffset = null)
+        {
+            StringBuilder sb = new StringBuilder(String.Concat("Exception at: ", methodName));
+            sb.Append(String.Concat(" Key: ", key != null ? key : "null"));
+            sb.Append(String.Concat(" Val: ", value != null ? value.ToString() : "null"));
+            sb.Append(String.Concat(" MinOffset: ", minOffset ?? Double.NaN));
+            if (ex != null)
+            {
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+            }
+            else
+            {
+                sb.Append(" Exception is null");
+            }
+
+            Logger.Logger.Log("Error", sb.ToString(), IN_MEM_CACHE_LOG_FILE);
+        }
 
         public bool Add(string sKey, object oValue, double nMinuteOffset)
         {
@@ -54,6 +76,7 @@ namespace CachingProvider
             catch (Exception ex)
             {
                 bRes = false;
+                LogError("Set", sKey, oValue, ex, nMinuteOffset);
             }
 
             return bRes;
@@ -69,6 +92,7 @@ namespace CachingProvider
             catch (Exception ex)
             {
                 bRes = false;
+                LogError("Set", sKey, oValue, ex);
             }
 
             return bRes;
@@ -108,6 +132,15 @@ namespace CachingProvider
                     }
                     catch (Exception ex)
                     {
+                        #region Logging
+                        StringBuilder sb = new StringBuilder("Exception during initialization of GetInstance. ");
+                        sb.Append(String.Concat("Cache name: ", sCacheName));
+                        sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                        sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                        sb.Append(String.Concat(" ST: ", ex.StackTrace));
+
+                        Logger.Logger.Log("Error", sb.ToString(), IN_MEM_CACHE_LOG_FILE);
+                        #endregion
                     }
                     finally
                     {
@@ -125,7 +158,15 @@ namespace CachingProvider
                 }
                 catch (Exception ex)
                 {
-                    //logger.Error("GetSiteMapInstance->", ex);
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at GetInstance while trying to retrieve a value. ");
+                    sb.Append(String.Concat("Cache name: ", sCacheName));
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+
+                    Logger.Logger.Log("Error", sb.ToString(), IN_MEM_CACHE_LOG_FILE);
+                    #endregion
                 }
                 finally
                 {
