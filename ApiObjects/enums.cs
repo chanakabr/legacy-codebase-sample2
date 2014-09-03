@@ -173,4 +173,13 @@ namespace ApiObjects
         Subscription = 2
     }
 
+    public enum FieldTypes
+    {
+        Unknown,
+        Basic,
+        Meta,
+        Tag
+
+    }
+
 }

@@ -125,10 +125,6 @@ namespace ConditionalAccess
             return retVal;
         }
 
-
-
-
-
         static public TvinciPricing.Price GetPriceAfterDiscount(TvinciPricing.Price price, TvinciPricing.DiscountModule disc, Int32 nUseTime)
         {
             TvinciPricing.Price discRetPrice = new ConditionalAccess.TvinciPricing.Price();
@@ -304,7 +300,6 @@ namespace ConditionalAccess
                 if (m != null)
                 {
                     m.Dispose();
-                    m = null;
                 }
                 #endregion
 
@@ -394,65 +389,6 @@ namespace ConditionalAccess
                     dict.Add(lstCollectionCodes[i], false);
                 }
             }
-        }
-
-        /// <summary>
-        /// PPV Does Credit Need To Downloaded
-        /// </summary>
-        static public bool PPV_DoesCreditNeedToDownloadedUsingCollection(int groupID, Int32 nMediaFileID, List<int> lUsersIds, string sCollectionCode)
-        {
-            bool nIsCreditDownloaded = true;
-            string sIP = "1.1.1.1";
-            string sWSUserName = string.Empty;
-            string sWSPass = string.Empty;
-
-            using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
-            {
-                string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
-                    m.Url = sWSURL;
-
-                TvinciPricing.UsageModule u = null;
-                TvinciPricing.Collection theCol = null;
-
-                if (CachingManager.CachingManager.Exist("GetCollectionData" + sCollectionCode + "_" + groupID.ToString()) == true)
-                    theCol = (TvinciPricing.Collection)(CachingManager.CachingManager.GetCachedData("GetCollectionData" + sCollectionCode + "_" + groupID.ToString()));
-                else
-                {
-                    TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                    theCol = m.GetCollectionData(sWSUserName, sWSPass, sCollectionCode, String.Empty, String.Empty, String.Empty, false);
-                    CachingManager.CachingManager.SetCachedData("GetCollectionData" + sCollectionCode + "_" + groupID.ToString(), theCol, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-                }
-
-                u = theCol.m_oCollectionUsageModule;
-
-                Int32 nViewLifeCycle = u.m_tsViewLifeCycle;
-
-                int nCollectionID = 0;
-                Int32.TryParse(sCollectionCode, out nCollectionID);
-                DataTable dtPPVUses = ConditionalAccessDAL.Get_allDomainsPPVUsesUsingCollection(lUsersIds, groupID, nMediaFileID, nCollectionID);
-
-                if (dtPPVUses != null)
-                {
-                    Int32 nCount = dtPPVUses.Rows.Count;
-                    if (nCount > 0)
-                    {
-                        DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["dNow"]);
-                        DateTime dUsed = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["CREATE_DATE"]);
-
-                        DateTime dEndDate = Utils.GetEndDateTime(dUsed, nViewLifeCycle);
-
-                        if (dNow < dEndDate)
-                            nIsCreditDownloaded = false;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return nIsCreditDownloaded;
         }
 
         // pass string or numeric as T
@@ -633,7 +569,7 @@ namespace ConditionalAccess
 
         // bulk version of Bundle_DoesCreditNeedToDownloaded
         internal static void DoBundlesCreditNeedToBeDownloaded(List<string> lstSubCodes, List<string> lstColCodes,
-            int nMediaFileID, int nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword,
+            int nMediaFileID, int nGroupID, List<int> allUsersInDomain, List<int> relatedMediaFiles, string sPricingUsername, string sPricingPassword,
             ref Dictionary<string, bool> subsRes, ref Dictionary<string, bool> collsRes)
         {
             Subscription[] subs = null;
@@ -657,7 +593,7 @@ namespace ConditionalAccess
             List<string> subsLst = GetSubCodesForDBQuery(subs);
             List<string> colsLst = GetColCodesForDBQuery(colls);
             List<string> domainUsers = allUsersInDomain.Select(item => item.ToString()).ToList<string>();
-            if (ConditionalAccessDAL.Get_LatestCreateDateOfBundlesUses(subsLst, colsLst, domainUsers, nMediaFileID, nGroupID,
+            if (ConditionalAccessDAL.Get_LatestCreateDateOfBundlesUses(subsLst, colsLst, domainUsers, relatedMediaFiles, nGroupID,
                 ref subsToCreateDateMapping, ref colsToCreateDateMapping, ref dbTimeNow))
             {
                 if (subs != null && subs.Length > 0)
@@ -715,7 +651,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, string sSiteGUID, int mediaFileID, int groupID, eBundleType bundleType)
+        internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, List<int> usersInDomain, List<int> relatedMediaFiles, int groupID, eBundleType bundleType)
         {
             bool bIsSub = true;
             bool nIsCreditDownloaded = true;
@@ -780,7 +716,7 @@ namespace ConditionalAccess
                 DateTime dtCreateDateOfLatestBundleUse = ODBCWrapper.Utils.FICTIVE_DATE;
                 DateTime dtNow = ODBCWrapper.Utils.FICTIVE_DATE;
 
-                if (ConditionalAccessDAL.Get_LatestCreateDateOfBundleUses(sBundleCd, groupID, sSiteGUID, mediaFileID, bIsSub,
+                if (ConditionalAccessDAL.Get_LatestCreateDateOfBundleUses(sBundleCd, groupID, usersInDomain, relatedMediaFiles, bIsSub,
                     ref dtCreateDateOfLatestBundleUse, ref dtNow)
                     && !dtCreateDateOfLatestBundleUse.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
                     && !dtNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
@@ -833,8 +769,8 @@ namespace ConditionalAccess
         }
 
 
-        internal static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
-            int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword,
+        private static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
+            int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword, List<int> relatedMediaFiles,
             ref Subscription[] subsRes, ref Collection[] collsRes,
             ref  Dictionary<string, KeyValuePair<int, DateTime>> subsPurchase, ref Dictionary<string, KeyValuePair<int, DateTime>> collPurchase)
         {
@@ -932,7 +868,7 @@ namespace ConditionalAccess
                 }
 
                 HandleBundleCreditNeedToDownloadedQuery(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery,
-                    nMediaFileID, nGroupID, lstUserIDs, sPricingUsername, sPricingPassword, ref subsToSendToCatalog,
+                    nMediaFileID, nGroupID, lstUserIDs, relatedMediaFiles, sPricingUsername, sPricingPassword, ref subsToSendToCatalog,
                     ref collsToSendToCatalog);
 
                 // get distinct subs from subs list, same for collection
@@ -1021,7 +957,7 @@ namespace ConditionalAccess
         }
 
         private static void HandleBundleCreditNeedToDownloadedQuery(List<string> subsToBundleCreditDownloadedQuery,
-            List<string> colsToBundleCreditDownloadedQuery, int nMediaFileID, int nGroupID, List<int> lstUserIDs,
+            List<string> colsToBundleCreditDownloadedQuery, int nMediaFileID, int nGroupID, List<int> lstUserIDs, List<int> relatedMediaFileIDs,
             string sPricingUsername, string sPricingPassword, ref List<int> subsToSendToCatalog,
             ref List<int> collsToSendToCatalog)
         {
@@ -1030,7 +966,7 @@ namespace ConditionalAccess
                 Dictionary<string, bool> subsRes = null;
                 Dictionary<string, bool> colsRes = null;
                 DoBundlesCreditNeedToBeDownloaded(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery, nMediaFileID,
-                    nGroupID, lstUserIDs, sPricingUsername, sPricingPassword, ref subsRes, ref colsRes);
+                    nGroupID, lstUserIDs, relatedMediaFileIDs, sPricingUsername, sPricingPassword, ref subsRes, ref colsRes);
                 if (subsRes.Count > 0)
                 {
                     foreach (KeyValuePair<string, bool> kvp in subsRes)
@@ -1117,156 +1053,6 @@ namespace ConditionalAccess
         {
             return ds != null && ds.Tables != null && ds.Tables.Count == 2;
         }
-
-        internal static TvinciPricing.PPVModule[] GetUserValidBundlesFromList(string sSiteGUID, int mediaID, int mediaFileID, int groupID, int[] nFileTypes, List<int> lUsersIds, eBundleType bundleType)
-        {
-
-            TvinciPricing.PPVModule[] ret = null;
-            TvinciPricing.PPVModule[] actualRet = null;
-            int numOfActualBundles = 0;
-            using (TvinciPricing.mdoule pricingModule = new TvinciPricing.mdoule())
-            {
-                string pricingWSUser = string.Empty;
-                string pricingWSPass = string.Empty;
-                string pricingUrl = GetWSURL("pricing_ws");
-                if (pricingUrl.Length > 0)
-                    pricingModule.Url = pricingUrl;
-
-                DataTable dt = null;
-
-                switch (bundleType)
-                {
-                    case eBundleType.SUBSCRIPTION:
-                        {
-                            dt = ConditionalAccessDAL.Get_AllSubscriptionInfoByUsersIDs(lUsersIds, nFileTypes.ToList<int>());
-                            break;
-                        }
-                    case eBundleType.COLLECTION:
-                        {
-                            dt = ConditionalAccessDAL.Get_AllCollectionInfoByUsersIDs(lUsersIds);
-                            break;
-                        }
-                    default:
-                        break;
-                }
-
-
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    ret = new ConditionalAccess.TvinciPricing.PPVModule[dt.Rows.Count];
-                    using (TvinciAPI.API api = new ConditionalAccess.TvinciAPI.API())
-                    {
-                        string sWSURL = Utils.GetWSURL("api_ws");
-                        if (sWSURL.Length > 0)
-                            api.Url = sWSURL;
-                        string sWSUser = string.Empty;
-                        string sWSPass = string.Empty;
-                        TVinciShared.WS_Utils.GetWSUNPass(groupID, "DoesMediaBelongToSubscription", "api", "1.1.1.1", ref sWSUser, ref sWSPass);
-
-                        for (int i = 0; i < dt.Rows.Count; i++)
-                        {
-                            bool bundleValid = false;
-                            int id = 0;
-                            string sCode = string.Empty;
-                            int numOfUses = 0;
-                            int maxNumOfUses = 0;
-
-                            id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["ID"]);
-
-                            if (bundleType == eBundleType.SUBSCRIPTION)
-                            {
-                                sCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["SUBSCRIPTION_CODE"]);
-                            }
-                            else if (bundleType == eBundleType.COLLECTION)
-                            {
-                                sCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["COLLECTION_CODE"]);
-                            }
-
-                            numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["NUM_OF_USES"]);
-                            maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["MAX_NUM_OF_USES"]);
-
-
-                            if (!(maxNumOfUses != 0 && numOfUses >= maxNumOfUses && Bundle_DoesCreditNeedToDownloaded(sCode, sSiteGUID, mediaFileID, groupID, bundleType)))
-                            {
-                                try
-                                {
-                                    if (bundleType == eBundleType.SUBSCRIPTION)
-                                    {
-                                        bundleValid = api.DoesMediaBelongToSubscription(sWSUser, sWSPass, int.Parse(sCode), nFileTypes, mediaID, "");
-                                    }
-                                    else if (bundleType == eBundleType.COLLECTION)
-                                    {
-                                        bundleValid = api.DoesMediaBelongToCollection(sWSUser, sWSPass, int.Parse(sCode), nFileTypes, mediaID, "");
-                                        if (bundleValid)
-                                        {
-                                            bundleValid = !PPV_DoesCreditNeedToDownloadedUsingCollection(groupID, mediaFileID, lUsersIds, sCode);
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    bundleValid = false;
-
-                                    #region Logging
-                                    StringBuilder sb = new StringBuilder(String.Concat("Exception. Msg: ", ex.Message));
-                                    sb.Append(String.Concat(" SiteGuid: ", sSiteGUID));
-                                    sb.Append(String.Concat(" Media ID: ", mediaID));
-                                    sb.Append(String.Concat(" MF ID: ", mediaFileID));
-                                    sb.Append(String.Concat(" Bundle Type: ", bundleType.ToString()));
-                                    sb.Append(String.Concat(" Iter num: ", i));
-                                    sb.Append(String.Concat(" id: ", id));
-                                    sb.Append(String.Concat(" Code: ", sCode));
-                                    sb.Append(String.Concat(" numOfUses: ", numOfUses));
-                                    sb.Append(String.Concat(" maxNumOfUses: ", maxNumOfUses));
-                                    sb.Append(String.Concat(" Trace: ", ex.StackTrace));
-
-                                    Logger.Logger.Log("Exception", sb.ToString(), "GetUserValidBundlesFromList");
-
-                                    #endregion
-                                }
-                            }
-
-                            if (bundleValid)
-                            {
-
-                                if (string.IsNullOrEmpty(pricingWSUser))
-                                {
-                                    TVinciShared.WS_Utils.GetWSUNPass(groupID, "GetUserValidSubscriptions", "pricing", "1.1.1.1", ref pricingWSUser, ref pricingWSPass);
-                                }
-
-                                if (bundleType == eBundleType.SUBSCRIPTION)
-                                {
-                                    ret[i] = pricingModule.GetSubscriptionData(pricingWSUser, pricingWSPass, sCode, string.Empty, string.Empty, string.Empty, false);
-                                }
-                                else if (bundleType == eBundleType.COLLECTION)
-                                {
-                                    ret[i] = pricingModule.GetCollectionData(pricingWSUser, pricingWSPass, sCode, string.Empty, string.Empty, string.Empty, false);
-                                }
-
-                                numOfActualBundles++;
-
-                            }
-                        }
-                    }
-                } // end if dt != null
-                if (numOfActualBundles > 0)
-                {
-                    actualRet = new ConditionalAccess.TvinciPricing.PPVModule[numOfActualBundles];
-                    int addedBundles = 0;
-                    for (int i = 0; i < ret.Length; i++)
-                    {
-                        if (ret[i] != null)
-                        {
-                            actualRet[addedBundles] = ret[i];
-                            addedBundles++;
-                        }
-                    }
-                }
-            }
-            return actualRet;
-        }
-
-
 
         internal static TvinciPricing.Price CopyPrice(TvinciPricing.Price toCopy)
         {
@@ -1603,7 +1389,7 @@ namespace ConditionalAccess
         }
 
         //***********************************************
-        static public TvinciPricing.Price GetSubscriptionFinalPrice(Int32 nGroupID, string sSubCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Subscription theSub,
+        internal static TvinciPricing.Price GetSubscriptionFinalPrice(Int32 nGroupID, string sSubCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Subscription theSub,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
         {
             TvinciPricing.Price p = null;
@@ -1640,14 +1426,10 @@ namespace ConditionalAccess
 
                 DataTable dt = ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, sSubCode);
 
-                if (dt != null && dt.Rows != null)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    Int32 nCount = dt.Rows.Count;
-                    if (nCount > 0)
-                    {
-                        p.m_dPrice = 0.0;
-                        theReason = PriceReason.SubscriptionPurchased;
-                    }
+                    p.m_dPrice = 0.0;
+                    theReason = PriceReason.SubscriptionPurchased;
                 }
                 if (theReason != PriceReason.SubscriptionPurchased)
                 {
@@ -1666,7 +1448,7 @@ namespace ConditionalAccess
             return p;
         }
 
-        static public TvinciPricing.Price GetCollectionFinalPrice(Int32 nGroupID, string sColCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Collection theCol,
+        internal static TvinciPricing.Price GetCollectionFinalPrice(Int32 nGroupID, string sColCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Collection theCol,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
         {
             TvinciPricing.Price price = null;
@@ -1701,16 +1483,13 @@ namespace ConditionalAccess
 
                 List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, nGroupID);
 
-                DataTable dt = DAL.ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode);
+                DataTable dt = ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode);
 
-                if (dt != null)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    Int32 nCount = dt.Rows.Count;
-                    if (nCount > 0)
-                    {
-                        price.m_dPrice = 0.0;
-                        theReason = PriceReason.CollectionPurchased;
-                    }
+                    price.m_dPrice = 0.0;
+                    theReason = PriceReason.CollectionPurchased;
+
                 }
                 if (theReason != PriceReason.CollectionPurchased)
                 {
@@ -1738,8 +1517,8 @@ namespace ConditionalAccess
         {
             TvinciPricing.Price p = null;
             string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
             if (thePrePaid == null)
             {
                 using (TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule())
@@ -1819,7 +1598,7 @@ namespace ConditionalAccess
         static public Int32 GetMediaIDFeomFileID(string sProductCode, Int32 nGroupID, ref int nMediaFileID)
         {
 
-            DataTable dt = DAL.ConditionalAccessDAL.Get_MediaFileByProductCode(nGroupID, sProductCode);
+            DataTable dt = ConditionalAccessDAL.Get_MediaFileByProductCode(nGroupID, sProductCode);
 
             if (dt != null && dt.DefaultView.Count > 0)
             {
@@ -2003,9 +1782,17 @@ namespace ConditionalAccess
                 mediaFileTypesMapping = new Dictionary<int, int>(0);
             }
             bool bCancellationWindow = false;
+            
+            // purchasedBySiteGuid and purchasedAsMediaFileID are only needed in GetItemsPrices.
+            string purchasedBySiteGuid = string.Empty;
+            int purchasedAsMediaFileID = 0;
+            // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
+            List<int> relatedMediaFileIDs = new List<int>();
+
             return GetMediaFileFinalPrice(nMediaFileID, ppvModule, sSiteGUID, sCouponCode, nGroupID, ref theReason, ref relevantSub,
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
-                mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow);
+                mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, 
+                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs);
         }
 
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,
@@ -2086,12 +1873,18 @@ namespace ConditionalAccess
             return sSubCode.Length == 0 && sPrePaidCode.Length == 0;
         }
 
+        private static bool IsAnonymousUser(string siteGuid)
+        {
+            return string.IsNullOrEmpty(siteGuid) || siteGuid.Trim().Equals("0");
+        }
+
         internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, TvinciPricing.PPVModule ppvModule, string sSiteGUID,
             string sCouponCode, Int32 nGroupID, ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub,
             ref TvinciPricing.Collection relevantCol, ref TvinciPricing.PrePaidModule relevantPP, ref string sFirstDeviceNameFound,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
-            string sPricingPassword, ref bool bCancellationWindow)
+            string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
+            ref List<int> relatedMediaFileIDs)
         {
             if (ppvModule == null)
             {
@@ -2110,18 +1903,18 @@ namespace ConditionalAccess
             int[] fileTypes = new int[1] { nMediaFileTypeID };
             int mediaID = ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID);
 
-            if (!string.IsNullOrEmpty(sSiteGUID))
+            if (!IsAnonymousUser(sSiteGUID))
             {
                 TvinciPricing.mdoule m = null;
                 try
                 {
-                    string relFileTypesStr = string.Empty;
                     int[] ppvRelatedFileTypes = ppvModule.m_relatedFileTypes;
                     bool isMultiMediaTypes = false;
                     List<int> mediaFilesList = GetMediaTypesOfPPVRelatedFileTypes(nGroupID, ppvRelatedFileTypes, mediaFileTypesMapping, ref isMultiMediaTypes);
 
                     List<int> FileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes);
-
+                    relatedMediaFileIDs.AddRange(FileIDs);
+                    relatedMediaFileIDs = relatedMediaFileIDs.Distinct().ToList();
                     p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
 
                     bool bEnd = false;
@@ -2131,8 +1924,10 @@ namespace ConditionalAccess
                     string sPPCode = string.Empty;
                     int nWaiver = 0;
                     DateTime dPurchaseDate = DateTime.MinValue;
-
-                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate))
+                    int tempPurchasedAsMediaFileID = 0;
+                    string tempPurchasedBySiteGuid = string.Empty;
+                    if (FileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, FileIDs, nMediaFileID, ref ppvID, 
+                        ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID))
                     {
                         p.m_dPrice = 0;
                         // Cancellation Window check by ppvUsageModule + purchase date
@@ -2140,11 +1935,15 @@ namespace ConditionalAccess
 
                         if (IsPurchasedAsPurePPV(sSubCode, sPPCode))
                         {
-                            theReason = PriceReason.PPVPurchased;
-
+                            purchasedBySiteGuid = tempPurchasedBySiteGuid;
+                            purchasedAsMediaFileID = tempPurchasedAsMediaFileID;
                             if (ppvModule.m_bFirstDeviceLimitation && !IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, allUserIDsInDomain, sDEVICE_NAME, ref sFirstDeviceNameFound))
                             {
                                 theReason = PriceReason.FirstDeviceLimitation;
+                            }
+                            else
+                            {
+                                theReason = PriceReason.PPVPurchased;
                             }
                         }
                         else
@@ -2189,7 +1988,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        if (ppvModule.m_bSubscriptionOnly)
+                        if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
                         {
                             theReason = PriceReason.ForPurchaseSubscriptionOnly;
                         }
@@ -2207,7 +2006,7 @@ namespace ConditionalAccess
                     Dictionary<string, KeyValuePair<int, DateTime>> subsPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();/*dictionary(subscriptionCode, KeyValuePair<nWaiver, dPurchaseDate>)*/
                     Dictionary<string, KeyValuePair<int, DateTime>> collPurchase = new Dictionary<string, KeyValuePair<int, DateTime>>();
 
-                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword,
+                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs,
                         ref relevantValidSubscriptions, ref relevantValidCollections, ref subsPurchase, ref collPurchase);
 
                     if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
@@ -2326,17 +2125,23 @@ namespace ConditionalAccess
             {
                 p = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
                     sPricingUsername, sPricingPassword);
-                if (ppvModule != null && ppvModule.m_bSubscriptionOnly)
+
+                if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
                 {
                     theReason = PriceReason.ForPurchaseSubscriptionOnly;
                 }
-                if (theReason != PriceReason.ForPurchaseSubscriptionOnly)
+                else
                 {
                     theReason = PriceReason.ForPurchase;
                 }
             }
 
             return p;
+        }
+
+        private static bool IsPPVModuleToBePurchasedAsSubOnly(PPVModule ppvModule)
+        {
+            return ppvModule != null && ppvModule.m_bSubscriptionOnly;
         }
 
         private static bool IsCancellationWindowPerPurchase(TvinciPricing.UsageModule oUsageModule, bool bCancellationWindow, int nWaiver, DateTime dCreateDate)
@@ -2530,7 +2335,7 @@ namespace ConditionalAccess
             {
                 string pricingUrl = Utils.GetWSURL("pricing_ws");
                 if (pricingUrl.Length > 0)
-                    m.Url = Utils.GetWSURL("pricing_ws");
+                    m.Url = pricingUrl;
 
                 TvinciPricing.CouponData theCouponData = null;
 
@@ -2548,20 +2353,6 @@ namespace ConditionalAccess
             }
 
             return dCouponDiscountPercent;
-        }
-
-        internal static Int32 GetMediaFileIDWithCoGuid(Int32 nGroupID, string sMediaFileCoGuid)
-        {
-            int nMediaFileID = 0;
-
-            DataTable dt = DAL.ConditionalAccessDAL.Get_MediaFileFromCoGuid(nGroupID, sMediaFileCoGuid);
-
-            if (dt != null && dt.DefaultView.Count > 0)
-            {
-                nMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
-            }
-
-            return nMediaFileID;
         }
 
         static public string GetMediaFileCoGuid(int nGroupID, int nMediaFileID)
@@ -3342,7 +3133,7 @@ namespace ConditionalAccess
             {
                 using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
                 {
-                    res = m.GetUsageModuleData(wsUsername, wsPassword, usageModuleCodeStr,countryCode, langCode, deviceName);
+                    res = m.GetUsageModuleData(wsUsername, wsPassword, usageModuleCodeStr, countryCode, langCode, deviceName);
                     if (res != null)
                     {
                         CachingManager.CachingManager.SetCachedData(cacheKey, res, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
@@ -3353,7 +3144,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID) 
+        internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID)
         {
             bool res = false;
             WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();

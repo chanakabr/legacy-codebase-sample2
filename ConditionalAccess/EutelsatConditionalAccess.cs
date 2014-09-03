@@ -107,7 +107,7 @@ namespace ConditionalAccess
                 }
 
                 // Get Household ID (UID) 
-                string sHouseholdUID = DAL.DomainDal.GetDomainCoGuid(0, sSiteGUID);
+                string sHouseholdUID = DomainDal.GetDomainCoGuid(0, sSiteGUID);
                 if (string.IsNullOrEmpty(sHouseholdUID))
                 {
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
