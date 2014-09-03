@@ -2591,9 +2591,16 @@ namespace Catalog
         {
             bool res = true;
             long lSiteGuid = 0;
-            if (!Int64.TryParse(sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
+            if (!Int64.TryParse(sSiteGuid, out lSiteGuid))
             {
                 throw new Exception(GetIsConcurrentLogMsg("SiteGuid is in incorrect format.", sSiteGuid, sUDID, nGroupID));
+            }
+
+            if (lSiteGuid == 0)
+            {
+                // concurrency limitation does not apply for anonymous users.
+                // anonymous user is identified by receiving SiteGuid=0 from the clients.
+                return false;
             }
 
             // get the rule id by play_cycle_keys
