@@ -2912,80 +2912,121 @@ namespace ConditionalAccess
             string sCouponCode = "";
             //create billing response resault object 
             TvinciBilling.BillingResponse ret = new ConditionalAccess.TvinciBilling.BillingResponse();
-
-            #region Init useres web service
-            TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService();
-            string sIP = "1.1.1.1";
-            string sWSUserName = string.Empty;
-            string sWSPass = string.Empty;
-            TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = Utils.GetWSURL("users_ws");
-            if (sWSURL.Length > 0)
-                u.Url = sWSURL;
-            #endregion
-
-            #region Check Exist User Guid ,terminate if site guid id empty or response status dose not OK.
-            if (string.IsNullOrEmpty(sSiteGUID))
+            TvinciUsers.UsersService u = null;
+            TvinciPricing.mdoule m = null;
+            ODBCWrapper.DirectQuery directQuery = null;
+            try
             {
+                #region Init useres web service
+                u = new ConditionalAccess.TvinciUsers.UsersService();
+                string sIP = "1.1.1.1";
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
+                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = Utils.GetWSURL("users_ws");
+                if (sWSURL.Length > 0)
+                    u.Url = sWSURL;
+                #endregion
 
-                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
-                ret.m_sRecieptCode = "";
-                ret.m_sStatusDescription = "Cant charge an unknown user";
-
-            }
-            else
-            {
-
-
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
-                if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                #region Check Exist User Guid ,terminate if site guid id empty or response status dose not OK.
+                if (string.IsNullOrEmpty(sSiteGUID))
                 {
-                    #region terminate if ResponseStatus NOT Ok.
+
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                     ret.m_sRecieptCode = "";
                     ret.m_sStatusDescription = "Cant charge an unknown user";
-                    try { WriteToUserLog(sSiteGUID, "Subscription auto renewal: " + sSubscriptionCode.ToString() + " error returned: " + ret.m_sStatusDescription); }
-                    catch { }
-                    #endregion
+
                 }
-            }
-            #endregion
-
-            #region Init Tvinci Pricing web service
-            TvinciPricing.mdoule m = new ConditionalAccess.TvinciPricing.mdoule();
-            string pricingUrl = Utils.GetWSURL("pricing_ws");
-            if (pricingUrl.Length > 0)
-                m.Url = pricingUrl;
-            #endregion
-
-            TvinciPricing.Subscription theSub = null;
-            string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-            if (CachingManager.CachingManager.Exist("GetSubscriptionData" + sSubscriptionCode + "_" + m_nGroupID.ToString() + sLocaleForCache) == true)
-                theSub = (TvinciPricing.Subscription)(CachingManager.CachingManager.GetCachedData("GetSubscriptionData" + sSubscriptionCode + "_" + m_nGroupID.ToString() + sLocaleForCache));
-            else
-            {
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetSubscriptionData", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
-                CachingManager.CachingManager.SetCachedData("GetSubscriptionData" + sSubscriptionCode + "_" + m_nGroupID.ToString() + sLocaleForCache, theSub, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-            }
-            if (theSub != null && theSub.m_nNumberOfRecPeriods != 0 && theSub.m_nNumberOfRecPeriods <= nPaymentNumber)
-            {
+                else
+                {
 
 
-                #region Update subscription purchase to is recurring status = 0
-                ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
-                directQuery.SetConnectionKey("CA_CONNECTION_STRING");
-                directQuery += "update subscriptions_purchases set ";
-                directQuery += "IS_RECURRING_STATUS = 0 ";
-                directQuery += " where ";
-                directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
-                directQuery.Execute();
-                directQuery.Finish();
-                directQuery = null;
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    {
+                        #region terminate if ResponseStatus NOT Ok.
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
+                        ret.m_sRecieptCode = "";
+                        ret.m_sStatusDescription = "Cant charge an unknown user";
+                        WriteToUserLog(sSiteGUID, "Subscription auto renewal: " + sSubscriptionCode.ToString() + " error returned: " + ret.m_sStatusDescription);
+                        #endregion
+                    }
+                }
                 #endregion
 
-            }
+                #region Init Tvinci Pricing web service
+                m = new ConditionalAccess.TvinciPricing.mdoule();
+                string pricingUrl = Utils.GetWSURL("pricing_ws");
+                if (pricingUrl.Length > 0)
+                    m.Url = pricingUrl;
+                #endregion
 
+                TvinciPricing.Subscription theSub = null;
+                string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                if (CachingManager.CachingManager.Exist("GetSubscriptionData" + sSubscriptionCode + "_" + m_nGroupID.ToString() + sLocaleForCache) == true)
+                    theSub = (TvinciPricing.Subscription)(CachingManager.CachingManager.GetCachedData("GetSubscriptionData" + sSubscriptionCode + "_" + m_nGroupID.ToString() + sLocaleForCache));
+                else
+                {
+                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetSubscriptionData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                    theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                    CachingManager.CachingManager.SetCachedData("GetSubscriptionData" + sSubscriptionCode + "_" + m_nGroupID.ToString() + sLocaleForCache, theSub, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                }
+                if (theSub != null && theSub.m_nNumberOfRecPeriods != 0 && theSub.m_nNumberOfRecPeriods <= nPaymentNumber)
+                {
+
+
+                    #region Update subscription purchase to is recurring status = 0
+                    directQuery = new ODBCWrapper.DirectQuery();
+                    directQuery.SetConnectionKey("CA_CONNECTION_STRING");
+                    directQuery += "update subscriptions_purchases set ";
+                    directQuery += "IS_RECURRING_STATUS = 0 ";
+                    directQuery += " where ";
+                    directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
+                    directQuery.Execute();
+                    #endregion
+
+                }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at CC_BaseMultiRenewSubscription. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Price: ", dPrice));
+                sb.Append(String.Concat(" Curr: ", sCurrency));
+                sb.Append(String.Concat(" Sub Cd: ", sSubscriptionCode));
+                sb.Append(String.Concat(" User IP: ", sUserIP));
+                sb.Append(String.Concat(" Extra Params: ", sExtraParams));
+                sb.Append(String.Concat(" Purchase ID: ", nPurchaseID));
+                sb.Append(String.Concat(" BM: ", nBillingMethod));
+                sb.Append(String.Concat(" Payment num: ", nPaymentNumber));
+                sb.Append(String.Concat(" Cntry Cd: ", sCountryCd));
+                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
+                sb.Append(String.Concat(" Device Name: ", sDEVICE_NAME));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
+            }
+            finally
+            {
+                #region Disposing
+                if (u != null)
+                {
+                    u.Dispose();
+                }
+                if (m != null)
+                {
+                    m.Dispose();
+                }
+                if (directQuery != null)
+                {
+                    directQuery.Finish();
+                }
+                #endregion
+            }
             return ret;
         }
         /// <summary>
@@ -4065,25 +4106,11 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             TvinciBilling.BillingResponse ret = new ConditionalAccess.TvinciBilling.BillingResponse();
-            if (sSiteGUID == "")
+            TvinciUsers.UsersService u = null;
+            TvinciBilling.module bm = null;
+            try
             {
-                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
-                ret.m_sRecieptCode = "";
-                ret.m_sStatusDescription = "Cant charge an unknown user";
-            }
-            else
-            {
-                TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService();
-                string sIP = "1.1.1.1";
-                string sWSUserName = "";
-                string sWSPass = "";
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL != "")
-                    u.Url = sWSURL;
-
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
-                if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                if (string.IsNullOrEmpty(sSiteGUID))
                 {
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                     ret.m_sRecieptCode = "";
@@ -4091,70 +4118,119 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    PriceReason theReason = PriceReason.UnKnown;
-                    TvinciPricing.Subscription theSub = null;
-                    TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                    if (theReason == PriceReason.ForPurchase)
+                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    string sIP = "1.1.1.1";
+                    string sWSUserName = string.Empty;
+                    string sWSPass = string.Empty;
+                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
+                    string sWSURL = Utils.GetWSURL("users_ws");
+                    if (sWSURL.Length > 0)
+                        u.Url = sWSURL;
+
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
-                        if (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
+                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
+                        ret.m_sRecieptCode = "";
+                        ret.m_sStatusDescription = "Cant charge an unknown user";
+                    }
+                    else
+                    {
+                        PriceReason theReason = PriceReason.UnKnown;
+                        TvinciPricing.Subscription theSub = null;
+                        TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        if (theReason == PriceReason.ForPurchase)
                         {
-                            if (p.m_dPrice != 0)
+                            if (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
                             {
-                                TvinciBilling.module bm = new ConditionalAccess.TvinciBilling.module();
-                                sWSUserName = "";
-                                sWSPass = "";
-                                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "SMS_SendCode", "billing", sIP, ref sWSUserName, ref sWSPass);
-                                sWSURL = Utils.GetWSURL("billing_ws");
-                                if (sWSURL != "")
-                                    bm.Url = sWSURL;
-                                if (theSub != null)
+                                if (p.m_dPrice != 0)
                                 {
-                                    bool bIsRecurring = theSub.m_bIsRecurring;
-                                    Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
+                                    bm = new ConditionalAccess.TvinciBilling.module();
+                                    sWSUserName = string.Empty;
+                                    sWSPass = string.Empty;
+                                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "SMS_SendCode", "billing", sIP, ref sWSUserName, ref sWSPass);
+                                    sWSURL = Utils.GetWSURL("billing_ws");
+                                    if (sWSURL.Length > 0)
+                                        bm.Url = sWSURL;
+                                    if (theSub != null)
+                                    {
+                                        bool bIsRecurring = theSub.m_bIsRecurring;
+                                        Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
 
 
 
-                                    string sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
-                                    sCouponCode, string.Empty, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                        string sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
+                                        sCouponCode, string.Empty, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                    Logger.Logger.Log("SMS CustomData", sCustomData, "CustomDataForSubsrpition");
+                                        Logger.Logger.Log("SMS CustomData", sCustomData, "CustomDataForSubsrpition");
 
-                                    ret = bm.SMS_SendCode(sWSUserName, sWSPass, sSiteGUID, sCellPhone, sCustomData, sExtraParameters);
-                                    try { WriteToUserLog(sSiteGUID, "While trying to purchase subscription(SMS): " + sSubscriptionCode + " SMS code sent to: " + sCellPhone); }
-                                    catch { }
+                                        ret = bm.SMS_SendCode(sWSUserName, sWSPass, sSiteGUID, sCellPhone, sCustomData, sExtraParameters);
+                                        WriteToUserLog(sSiteGUID, "While trying to purchase subscription(SMS): " + sSubscriptionCode + " SMS code sent to: " + sCellPhone);
+                                    }
                                 }
+                            }
+                            else
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
+                                ret.m_sRecieptCode = "";
+                                ret.m_sStatusDescription = "The price of the request is not the actual price";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase subscription(SMS): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
                             }
                         }
                         else
                         {
-                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
-                            ret.m_sRecieptCode = "";
-                            ret.m_sStatusDescription = "The price of the request is not the actual price";
-                            try { WriteToUserLog(sSiteGUID, "While trying to purchase subscription(SMS): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription); }
-                            catch { }
+                            if (theReason == PriceReason.SubscriptionPurchased)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = "";
+                                ret.m_sStatusDescription = "The subscription is already purchased";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase subscription(SMS): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            if (theReason == PriceReason.Free)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = "";
+                                ret.m_sStatusDescription = "The subscription is free";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase subscription(SMS): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
+                            }
                         }
                     }
-                    else
-                    {
-                        if (theReason == PriceReason.SubscriptionPurchased)
-                        {
-                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                            ret.m_sRecieptCode = "";
-                            ret.m_sStatusDescription = "The subscription is already purchased";
-                            try { WriteToUserLog(sSiteGUID, "While trying to purchase subscription(SMS): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription); }
-                            catch { }
-                        }
-                        if (theReason == PriceReason.Free)
-                        {
-                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                            ret.m_sRecieptCode = "";
-                            ret.m_sStatusDescription = "The subscription is free";
-                            try { WriteToUserLog(sSiteGUID, "While trying to purchase subscription(SMS): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription); }
-                            catch { }
-                        }
-                    }
-                }
 
+                }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at SMS_ChargeUserForSubscription. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
+                sb.Append(String.Concat(" Cell Phone: ", sCellPhone));
+                sb.Append(String.Concat(" Price: ", dPrice));
+                sb.Append(String.Concat(" Curr: ", sCurrency));
+                sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
+                sb.Append(String.Concat(" Cpn Cd: ", sCouponCode));
+                sb.Append(String.Concat(" Extra Params: ", sExtraParameters));
+                sb.Append(String.Concat(" Cntry Cd: ", sCountryCd));
+                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
+                sb.Append(String.Concat(" Device Name: ", sDEVICE_NAME));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
+            }
+            finally
+            {
+                #region Disposing
+                if (u != null)
+                {
+                    u.Dispose();
+                }
+                if (bm != null)
+                {
+                    bm.Dispose();
+                }
+                #endregion
             }
             return ret;
         }
@@ -4465,65 +4541,95 @@ namespace ConditionalAccess
         public virtual PermittedCollectionContainer[] GetUserPermittedCollections(List<int> lUsersIDs, bool isExpired, int numOfItems)
         {
             PermittedCollectionContainer[] ret = null;
-            DataTable allCollectionsPurchases = ConditionalAccessDAL.Get_UsersPermittedCollections(lUsersIDs, isExpired);
-
-            if (allCollectionsPurchases != null)
+            try
             {
-                Int32 nCount = allCollectionsPurchases.Rows.Count;
-                if (numOfItems == 0)
+                DataTable allCollectionsPurchases = ConditionalAccessDAL.Get_UsersPermittedCollections(lUsersIDs, isExpired);
+
+                if (allCollectionsPurchases != null)
                 {
-                    numOfItems = nCount;
-                }
-                else if (numOfItems != 0 && numOfItems < nCount)
-                {
-                    nCount = numOfItems;
-                }
-                if (nCount > 0)
-                {
-                    ret = new PermittedCollectionContainer[nCount];
-                }
-                int i = 0;
-                TvinciPricing.UsageModule oUsageModule = null;
-                foreach (DataRow dataRow in allCollectionsPurchases.Rows)
-                {
-                    //take care of numOfItem< nCount 
-                    if (numOfItems <= i)
+                    Int32 nCount = allCollectionsPurchases.Rows.Count;
+                    if (numOfItems == 0)
                     {
-                        break;
+                        numOfItems = nCount;
                     }
-                    string sCollectionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["COLLECTION_CODE"]);
-                    Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
-                    Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
-                    int billingTransID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
-
-                    DateTime dEnd = ODBCWrapper.Utils.GetDateSafeVal(dataRow["END_DATE"]);
-                    DateTime dCurrent = ODBCWrapper.Utils.GetDateSafeVal(dataRow["cDate"]);
-                    DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["CREATE_DATE"]);
-                    DateTime dLastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
-
-                    if (isExpired && nMaxUses != 0 && nCurrentUses >= nMaxUses)
+                    else if (numOfItems != 0 && numOfItems < nCount)
                     {
-                        dEnd = dLastViewDate;
+                        nCount = numOfItems;
                     }
-
-                    Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
-                    PaymentMethod payMet = GetBillingTransMethod(billingTransID);
-                    string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
-
-                    bool bCancellationWindow = false;
-                    #region Cancellation Window
-                    int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
-                    if (nWaiver == 0) // user didn't waiver yet
+                    if (nCount > 0)
                     {
-                        IsCancellationWindow(ref oUsageModule, sCollectionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Collection);
+                        ret = new PermittedCollectionContainer[nCount];
                     }
-                    #endregion
+                    int i = 0;
+                    TvinciPricing.UsageModule oUsageModule = null;
+                    foreach (DataRow dataRow in allCollectionsPurchases.Rows)
+                    {
+                        //take care of numOfItem< nCount 
+                        if (numOfItems <= i)
+                        {
+                            break;
+                        }
+                        string sCollectionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["COLLECTION_CODE"]);
+                        Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
+                        Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
+                        int billingTransID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
 
-                    PermittedCollectionContainer pcc = new PermittedCollectionContainer();
-                    pcc.Initialize(sCollectionCode, dEnd, dCurrent, dLastViewDate, dCreateDate, nID, payMet, sDeviceUDID, bCancellationWindow);
-                    ret[i] = pcc;
-                    ++i;
+                        DateTime dEnd = ODBCWrapper.Utils.GetDateSafeVal(dataRow["END_DATE"]);
+                        DateTime dCurrent = ODBCWrapper.Utils.GetDateSafeVal(dataRow["cDate"]);
+                        DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["CREATE_DATE"]);
+                        DateTime dLastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
+
+                        if (isExpired && nMaxUses != 0 && nCurrentUses >= nMaxUses)
+                        {
+                            dEnd = dLastViewDate;
+                        }
+
+                        Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
+                        PaymentMethod payMet = GetBillingTransMethod(billingTransID);
+                        string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
+
+                        bool bCancellationWindow = false;
+                        #region Cancellation Window
+                        int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
+                        if (nWaiver == 0) // user didn't waiver yet
+                        {
+                            IsCancellationWindow(ref oUsageModule, sCollectionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Collection);
+                        }
+                        #endregion
+
+                        PermittedCollectionContainer pcc = new PermittedCollectionContainer();
+                        pcc.Initialize(sCollectionCode, dEnd, dCurrent, dLastViewDate, dCreateDate, nID, payMet, sDeviceUDID, bCancellationWindow);
+                        ret[i] = pcc;
+                        ++i;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at GetUserPermittedCollections. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                if (lUsersIDs != null && lUsersIDs.Count > 0)
+                {
+                    sb.Append(" User IDs: ");
+                    for (int i = 0; i < lUsersIDs.Count; i++)
+                    {
+                        sb.Append(String.Concat(" ", lUsersIDs[i], " "));
+                    }
+                }
+                else
+                {
+                    sb.Append(" No users. ");
+                }
+                sb.Append(String.Concat(" IsExpired: ", isExpired.ToString().ToLower()));
+                sb.Append(String.Concat(" NumOfItems: ", numOfItems));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
+
             }
             return ret;
         }
@@ -4571,84 +4677,113 @@ namespace ConditionalAccess
         public virtual PermittedSubscriptionContainer[] GetUserPermittedSubscriptions(List<int> lUsersIDs, bool isExpired, int numOfItems)
         {
             PermittedSubscriptionContainer[] ret = null;
-            DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(lUsersIDs, isExpired);
-
-            if (allSubscriptionsPurchases != null)
+            try
             {
-                Int32 nCount = allSubscriptionsPurchases.Rows.Count;
-                if (numOfItems == 0)
+                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(lUsersIDs, isExpired);
+
+                if (allSubscriptionsPurchases != null)
                 {
-                    numOfItems = nCount;
+                    Int32 nCount = allSubscriptionsPurchases.Rows.Count;
+                    if (numOfItems == 0)
+                    {
+                        numOfItems = nCount;
+                    }
+                    else if (numOfItems != 0 && numOfItems < nCount)
+                    {
+                        nCount = numOfItems;
+                    }
+                    if (nCount > 0)
+                    {
+                        ret = new PermittedSubscriptionContainer[nCount];
+                    }
+                    int i = 0;
+
+                    TvinciPricing.UsageModule oUsageModule = null;
+
+                    foreach (DataRow dataRow in allSubscriptionsPurchases.Rows)
+                    {
+                        //take care of numOfItem< nCount 
+                        if (numOfItems <= i)
+                        {
+                            break;
+                        }
+                        DateTime dNextRenewalDate = DateTime.MaxValue;
+                        bool bRecurringStatus = false;
+                        bool bIsSubRenewable = false;
+                        int nPurchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
+                        string sSubscriptionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["SUBSCRIPTION_CODE"]);
+
+                        Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
+                        Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
+                        int billingTransID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
+
+                        DateTime dEnd = ODBCWrapper.Utils.GetDateSafeVal(dataRow["END_DATE"]);
+                        DateTime dCurrent = ODBCWrapper.Utils.GetDateSafeVal(dataRow["cDate"]);
+                        DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["CREATE_DATE"]);
+                        DateTime dLastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
+
+                        Int32 nIsRecurringStatus = ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING_STATUS"]);
+                        if (nIsRecurringStatus == 1)
+                        {
+                            bRecurringStatus = true;
+                            dNextRenewalDate = dEnd;
+                        }
+
+                        if (isExpired && nMaxUses != 0 && nCurrentUses >= nMaxUses)
+                        {
+                            dEnd = dLastViewDate;
+                        }
+
+                        Int32 nIsSubRenewable = ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING"]);
+                        if (nIsSubRenewable == 1)
+                            bIsSubRenewable = true;
+
+                        Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
+                        PaymentMethod payMet = GetBillingTransMethod(billingTransID);
+                        string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
+
+
+                        bool bCancellationWindow = false;
+                        #region Cancellation Window
+                        int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
+                        if (nWaiver == 0) // user didn't waiver yet
+                        {
+                            IsCancellationWindow(ref oUsageModule, sSubscriptionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Subscription);
+                        }
+                        #endregion
+
+                        PermittedSubscriptionContainer p = new PermittedSubscriptionContainer();
+                        p.Initialize(sSubscriptionCode, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, dNextRenewalDate, bRecurringStatus, bIsSubRenewable, nID, payMet, sDeviceUDID, bCancellationWindow);
+                        ret[i] = p;
+                        ++i;
+                    }
                 }
-                else if (numOfItems != 0 && numOfItems < nCount)
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at GetUserPermittedSubscriptions. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                if (lUsersIDs != null && lUsersIDs.Count > 0)
                 {
-                    nCount = numOfItems;
+                    sb.Append(" User IDs: ");
+                    for (int i = 0; i < lUsersIDs.Count; i++)
+                    {
+                        sb.Append(String.Concat(" ", lUsersIDs[i], " "));
+                    }
                 }
-                if (nCount > 0)
+                else
                 {
-                    ret = new PermittedSubscriptionContainer[nCount];
+                    sb.Append(String.Concat(" No users. "));
                 }
-                int i = 0;
+                sb.Append(String.Concat(" IsExpired: ", isExpired));
+                sb.Append(String.Concat(" NumOfItems: ", numOfItems));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                TvinciPricing.UsageModule oUsageModule = null;
-
-                foreach (DataRow dataRow in allSubscriptionsPurchases.Rows)
-                {
-                    //take care of numOfItem< nCount 
-                    if (numOfItems <= i)
-                    {
-                        break;
-                    }
-                    DateTime dNextRenewalDate = DateTime.MaxValue;
-                    bool bRecurringStatus = false;
-                    bool bIsSubRenewable = false;
-                    int nPurchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
-                    string sSubscriptionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["SUBSCRIPTION_CODE"]);
-
-                    Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
-                    Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
-                    int billingTransID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
-
-                    DateTime dEnd = ODBCWrapper.Utils.GetDateSafeVal(dataRow["END_DATE"]);
-                    DateTime dCurrent = ODBCWrapper.Utils.GetDateSafeVal(dataRow["cDate"]);
-                    DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["CREATE_DATE"]);
-                    DateTime dLastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
-
-                    Int32 nIsRecurringStatus = ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING_STATUS"]);
-                    if (nIsRecurringStatus == 1)
-                    {
-                        bRecurringStatus = true;
-                        dNextRenewalDate = dEnd;
-                    }
-
-                    if (isExpired && nMaxUses != 0 && nCurrentUses >= nMaxUses)
-                    {
-                        dEnd = dLastViewDate;
-                    }
-
-                    Int32 nIsSubRenewable = ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING"]);
-                    if (nIsSubRenewable == 1)
-                        bIsSubRenewable = true;
-
-                    Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
-                    PaymentMethod payMet = GetBillingTransMethod(billingTransID);
-                    string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
-
-
-                    bool bCancellationWindow = false;
-                    #region Cancellation Window
-                    int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
-                    if (nWaiver == 0) // user didn't waiver yet
-                    {
-                        IsCancellationWindow(ref oUsageModule, sSubscriptionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Subscription);
-                    }
-                    #endregion
-
-                    PermittedSubscriptionContainer p = new PermittedSubscriptionContainer();
-                    p.Initialize(sSubscriptionCode, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, dNextRenewalDate, bRecurringStatus, bIsSubRenewable, nID, payMet, sDeviceUDID, bCancellationWindow);
-                    ret[i] = p;
-                    ++i;
-                }
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
             }
             return ret;
         }
