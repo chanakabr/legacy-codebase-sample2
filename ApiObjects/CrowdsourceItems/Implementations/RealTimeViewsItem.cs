@@ -1,5 +1,6 @@
 ﻿using ApiObjects.CrowdsourceItems.Base;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace ApiObjects.CrowdsourceItems.Implementations
 {
@@ -14,6 +15,7 @@ namespace ApiObjects.CrowdsourceItems.Implementations
         [JsonProperty("Views")]
         public int Views { get; set; }
 
+        [JsonProperty("type"), JsonConverter(typeof(StringEnumConverter))]
         public override eItemType Type
         {
             get { return eItemType.LinearViews; }
