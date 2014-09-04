@@ -924,7 +924,7 @@ namespace DAL
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SiteGUID", sSiteGUID);
             sp.AddParameter("@SubscriptionCode", nSubscriptionCode);
-            sp.ExecuteDataSet();
+            
 
             return sp.ExecuteReturnValue<long>();
         }
