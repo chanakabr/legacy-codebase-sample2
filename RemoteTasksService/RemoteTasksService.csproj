@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <None Include="Properties\PublishProfiles\remote tasks.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -101,6 +102,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\TvmCore\Logger\Logger.csproj">
+      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
+      <Name>Logger</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ESIndexRebuildHandler\ESIndexRebuildHandler.csproj">
       <Project>{4f2abad8-e96e-4687-b8bc-210b44f4aa59}</Project>
       <Name>ESIndexRebuildHandler</Name>
