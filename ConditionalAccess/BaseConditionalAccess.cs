@@ -9287,7 +9287,7 @@ namespace ConditionalAccess
                 if (ExistUser != null && ExistUser.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                 {
                     PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(sSiteGuid);//get all the valid subscriptions that this user has
-                    Subscription userSubNew;
+                    Subscription userSubNew = null;
                     PermittedSubscriptionContainer userSubOld = new PermittedSubscriptionContainer();
                     List<PermittedSubscriptionContainer> userOldSubList = new List<PermittedSubscriptionContainer>();
                     //check if old sub exists
@@ -9320,9 +9320,13 @@ namespace ConditionalAccess
                         Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is already attached to this user. Subscription was not changed", "BaseConditionalAccess");
                         return ChangeSubscriptionStatus.UserHadNewSub;
                     }
-
-                    userSubNew = Utils.GetSubscriptionData(nNewSub.ToString(), m_nGroupID);
-
+                    string pricingUsername = string.Empty, pricingPassword = string.Empty;
+                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetSubscriptionData", "pricing", "1.1.1.1", ref pricingUsername, ref pricingPassword);
+                    Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(new List<int>(1) { nNewSub }, pricingUsername, pricingPassword, m_nGroupID);
+                    if (subs != null && subs.Length > 0)
+                    {
+                        userSubNew = subs[0];
+                    }
                     //set new subscprion
                     if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
                     {
@@ -9348,7 +9352,18 @@ namespace ConditionalAccess
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("ChangeSubscription", "Exception: " + exc.Message + "In: " + exc.StackTrace, "BaseConditionalAccess");
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at ChangeSubscription. ");
+                sb.Append(String.Concat(" Ex Msg: ", exc.Message));
+                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+                sb.Append(String.Concat(" New Sub: ", nNewSub));
+                sb.Append(String.Concat(" Old Sub: ", nOldSub));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Ex Type: ", exc.GetType().Name));
+                sb.Append(String.Concat(" ST: ", exc.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
+
                 return ChangeSubscriptionStatus.Error;
             }
         }
@@ -9406,8 +9421,7 @@ namespace ConditionalAccess
                     DateTime dtSubEndDate = CalcSubscriptionEndDate(subOld, bIsEntitledToPreviewModule, DateTime.UtcNow);
 
                     int nBillingTransID = 0;
-                    bool parseSucceeded = Int32.TryParse(billResp.m_sRecieptCode, out nBillingTransID);
-                    if (parseSucceeded)
+                    if (Int32.TryParse(billResp.m_sRecieptCode, out nBillingTransID) && nBillingTransID > 0)
                     {
                         //update the new subscription End Date and Billing Method                                                                
                         bool updateEndDateNew = ConditionalAccessDAL.Update_SubscriptionPurchaseEndDate(null, sSiteGuid, nBillingTransID, dtSubEndDate);
@@ -9415,7 +9429,7 @@ namespace ConditionalAccess
                         bool updateBillingTrans = ConditionalAccessDAL.Update_BillingMethodInBillingTransactions(nBillingTransID, nBillingMethod);
 
                         //update the old subscription : is_recurring_status = 0, end_date = 'now'               
-                        bool bCancel = ConditionalAccessDAL.CancelSubscription(userSubOld.m_nSubscriptionPurchaseID, m_nGroupID, sSiteGuid, userSubOld.m_sSubscriptionCode) != 0 ? false : true;
+                        bool bCancel = ConditionalAccessDAL.CancelSubscription(userSubOld.m_nSubscriptionPurchaseID, m_nGroupID, sSiteGuid, userSubOld.m_sSubscriptionCode) > 0;
                         bool updateEndDateOld = ConditionalAccessDAL.Update_SubscriptionPurchaseEndDate(userSubOld.m_nSubscriptionPurchaseID, sSiteGuid, null, DateTime.UtcNow);
 
                         if (updateEndDateNew && updateBillingTrans && bCancel && updateEndDateOld)
@@ -9424,13 +9438,49 @@ namespace ConditionalAccess
                         }
                         else
                         {
-                            Logger.Logger.Log("setSubscriptionChange", "Update of new subscription: " + sSubscriptionCode + "and previous subcsription:" + userSubOld.m_sSubscriptionCode + "for User: " + sSiteGuid + " failed.", "BaseConditionalAccess");
+                            status = ChangeSubscriptionStatus.Error;
+                            #region Logging
+                            StringBuilder sb = new StringBuilder(String.Concat("SetSubscriptionChange. Update of new subscription: ", sSubscriptionCode, " from prev sub: ", userSubOld.m_sSubscriptionCode, " for user: ", sSiteGuid, " failed."));
+                            sb.Append(String.Concat(" updateEndDateNew: ", updateEndDateNew.ToString().ToLower()));
+                            sb.Append(String.Concat(" updateBillingTrans: ", updateBillingTrans.ToString().ToLower()));
+                            sb.Append(String.Concat(" bCancel: ", bCancel.ToString().ToLower()));
+                            sb.Append(String.Concat(" updateEndDateOld: ", updateEndDateOld.ToString().ToLower()));
+
+                            Logger.Logger.Log("CriticalError", sb.ToString(), GetLogFilename());
+
+                            #endregion
                         }
+                    }
+                    else
+                    {
+                        status = ChangeSubscriptionStatus.Error;
+                        #region Logging
+                        StringBuilder parseMsg = new StringBuilder(String.Concat("SetSubscriptionChange. Failed to parse billing trans id: ", billResp.m_sRecieptCode));
+                        parseMsg.Append(String.Concat(" Site Guid: ", sSiteGuid));
+                        parseMsg.Append(String.Concat(" New Sub: ", sSubscriptionCode));
+                        parseMsg.Append(String.Concat(" Old Sub: ", userSubOld.m_sSubscriptionCode));
+                        Logger.Logger.Log("Error", parseMsg.ToString(), GetLogFilename());
+                        #endregion
                     }
                 }
                 else
                 {
-                    Logger.Logger.Log("setSubscriptionChange", "User with siteGuid: " + sSiteGuid + " was not dummy charged for new Subscription: " + sSubscriptionCode + ". Subscription was not changed", "BaseConditionalAccess");
+                    status = ChangeSubscriptionStatus.Error;
+                    #region Logging
+                    StringBuilder billingErr = new StringBuilder(String.Concat("SiteGuid: ", sSiteGuid, " did not receive success from WS_Billing while trying to change subscription. "));
+                    billingErr.Append(String.Concat("New Sub: ", sSubscriptionCode));
+                    billingErr.Append(String.Concat(" Price: ", dPrice));
+                    billingErr.Append(String.Concat(" Curr: ", sCurrency));
+                    billingErr.Append(String.Concat(" Coupon Cd: ", sCouponCode));
+                    billingErr.Append(String.Concat(" User IP: ", sUserIP));
+                    billingErr.Append(String.Concat(" Extra Params: ", extraParams));
+                    billingErr.Append(String.Concat(" Cntry: ", sCountry));
+                    billingErr.Append(String.Concat(" Lng: ", sLanguage));
+                    billingErr.Append(String.Concat(" Device Nm: ", sDeviceName));
+                    billingErr.Append(String.Concat(" Is Dummy: ", isDummyCharge.ToString().ToLower()));
+                    billingErr.Append(String.Concat(" Bill Resp Status: ", billResp.m_oStatus.ToString()));
+                    Logger.Logger.Log("Error", billingErr.ToString(), GetLogFilename());
+                    #endregion
                 }
 
             }
