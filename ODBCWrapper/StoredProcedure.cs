@@ -73,6 +73,11 @@ namespace ODBCWrapper
             }                       
         }
 
+        public void AddXMLParameter<T>(string sKey, List<T> oListValue, string colName)
+        {
+            m_Parameters.Add(sKey, CreateXML<T>(oListValue, colName));
+        }
+
 
         public void AddIDListParameter<T>(string sKey, List<T> oListValue , string colName)
         {
@@ -162,6 +167,25 @@ namespace ODBCWrapper
             return table;
         }
 
+        private string CreateXML<T>(IEnumerable<T> ids, string colName)
+        {
+            try
+            {
+                string sXml = "<ROOT>";
+                string sNode = "<row " + colName + "=\"X\"/>";
+                foreach (T id in ids)
+                {
+                    sXml = string.Format("{0}{1}", sXml, sNode.Replace("X", id.ToString()));
+                }
+
+                sXml = string.Format("{0}{1}", sXml, "</ROOT>");
+                return sXml;
+            }
+            catch (Exception ex)
+            {
+                return string.Empty;
+            }
+        }
 
         public void SetConnectionKey(string sKey)
         {
