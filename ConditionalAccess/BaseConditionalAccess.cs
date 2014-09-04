@@ -1601,28 +1601,53 @@ namespace ConditionalAccess
         /// </summary>
         public virtual bool CancelSubscription(string sSiteGUID, string sSubscriptionCode, Int32 nSubscriptionPurchaseID)
         {
-            bool bRet = true;
+            bool bRet = false;
             TvinciPricing.Subscription theSub = null;
             PriceReason theReason = PriceReason.UnKnown;
-
-            TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, string.Empty, ref theReason, ref theSub, "", "", "");
-
-            if (theSub != null && theSub.m_oUsageModule != null && theSub.m_bIsRecurring)
+            try
             {
-                DataTable dt = DAL.ConditionalAccessDAL.GetSubscriptionPurchaseID(nSubscriptionPurchaseID);
-                if (dt != null)
+                TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, string.Empty, ref theReason, ref theSub, "", "", "");
+
+                if (theSub != null && theSub.m_oUsageModule != null && theSub.m_bIsRecurring)
                 {
-                    Int32 nCount = dt.Rows.Count;
-                    if (nCount > 0)
+                    DataTable dt = ConditionalAccessDAL.GetSubscriptionPurchaseID(nSubscriptionPurchaseID);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        DataRow dr = dt.Rows[0];
-                        Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dr["ID"]);
+                        Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
 
-                        bRet = ConditionalAccessDAL.CancelSubscription(nID, m_nGroupID, sSiteGUID, sSubscriptionCode) != 0 ? false : bRet;
+                        bRet = ConditionalAccessDAL.CancelSubscription(nID, m_nGroupID, sSiteGUID, sSubscriptionCode) > 0;
+                        if (bRet)
+                        {
+                            WriteToUserLog(sSiteGUID, String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
+                        }
+                        else
+                        {
+                            #region Logging
+                            StringBuilder sb = new StringBuilder("CancelSubscription. Probably failed to cancel subscription against DB. ");
+                            sb.Append(String.Concat("Site Guid: ", sSiteGUID));
+                            sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
+                            sb.Append(String.Concat(" Sub Purchase ID: ", nSubscriptionPurchaseID));
 
-                        WriteToUserLog(sSiteGUID, "Subscription: " + sSubscriptionCode.ToString() + " renew cancelled");
+                            Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                            #endregion
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at CancelSubscription. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
+                sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
+                sb.Append(String.Concat(" Sub Purchase ID: ", nSubscriptionPurchaseID));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
             }
             return bRet;
         }
@@ -9403,7 +9428,7 @@ namespace ConditionalAccess
 
                 string sCouponCodeOld = string.Empty;
                 #endregion
-                WriteSubChangeToUserLog(sSiteGuid, subNew, userSubOld);
+
                 //charge the user for the new subscription with dummy charge
                 dPrice = 0d; // Patch for Cinepolis. price == 0 && string.IsNullOrEmpty(encryptedCVV) && string.IsNullOrEmpty(paymentMethodID) will cause billing to dummy charge.
                 TvinciBilling.BillingResponse billResp = CC_BaseChargeUserForBundle(sSiteGuid, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, extraParams, sCountry, sLanguage, sDeviceName,
@@ -9412,19 +9437,11 @@ namespace ConditionalAccess
                 //check if the charge was succesful: if so update relevant parameters and cancel the subsciption  
                 if (billResp.m_oStatus == TvinciBilling.BillingResponseStatus.Success)
                 {
-                    //get the end_date of previous subsciption - with considuration of a free trial, if one was assigned to it 
-                    PriceReason reason = new PriceReason();
-                    Subscription subOld = new Subscription();
-                    //the 'sCouponCodeOld' is empty, so the 'price' itself does not include a discount, if one was given
-                    Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, userSubOld.m_sSubscriptionCode, sSiteGuid, sCouponCodeOld, ref reason, ref subOld, sCountry, sLanguage, userSubOld.m_sDeviceName);
-                    bool bIsEntitledToPreviewModule = reason == PriceReason.EntitledToPreviewModule;
-                    DateTime dtSubEndDate = CalcSubscriptionEndDate(subOld, bIsEntitledToPreviewModule, DateTime.UtcNow);
-
                     int nBillingTransID = 0;
                     if (Int32.TryParse(billResp.m_sRecieptCode, out nBillingTransID) && nBillingTransID > 0)
                     {
-                        //update the new subscription End Date and Billing Method                                                                
-                        bool updateEndDateNew = ConditionalAccessDAL.Update_SubscriptionPurchaseEndDate(null, sSiteGuid, nBillingTransID, dtSubEndDate);
+                        //update the new subscription End Date and Billing Method
+                        bool updateEndDateNew = ConditionalAccessDAL.Update_SubscriptionPurchaseEndDate(null, sSiteGuid, nBillingTransID, userSubOld.m_dEndDate); // set new sub end date to be the end date of the old sub
                         int nBillingMethod = (int)PaymentMethod.ChangeSubscription;
                         bool updateBillingTrans = ConditionalAccessDAL.Update_BillingMethodInBillingTransactions(nBillingTransID, nBillingMethod);
 
@@ -9435,6 +9452,7 @@ namespace ConditionalAccess
                         if (updateEndDateNew && updateBillingTrans && bCancel && updateEndDateOld)
                         {
                             status = ChangeSubscriptionStatus.OK;
+                            WriteSubChangeToUserLog(sSiteGuid, subNew, userSubOld);
                         }
                         else
                         {
@@ -9482,7 +9500,6 @@ namespace ConditionalAccess
                     Logger.Logger.Log("Error", billingErr.ToString(), GetLogFilename());
                     #endregion
                 }
-
             }
             catch (Exception exc)
             {
