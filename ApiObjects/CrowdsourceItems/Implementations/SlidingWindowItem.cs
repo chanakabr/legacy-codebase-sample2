@@ -11,6 +11,7 @@ namespace ApiObjects.CrowdsourceItems.Implementations
         [JsonProperty("actionVal")]
         public double ActionVal { get; set; }
 
+        [JsonProperty("type"), JsonConverter(typeof(StringEnumConverter))]
         public override eItemType Type
         {
             get { return eItemType.VOD; }
