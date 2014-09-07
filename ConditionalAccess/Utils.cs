@@ -2990,17 +2990,12 @@ namespace ConditionalAccess
 
                 res = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
             }
-            catch (Exception ex)
-            {
-                res = null;
-            }
             finally
             {
                 #region Disposing
                 if (u != null)
                 {
                     u.Dispose();
-                    u = null;
                 }
                 #endregion
             }
@@ -3042,26 +3037,8 @@ namespace ConditionalAccess
                 if (p != null)
                 {
                     p.Dispose();
-                    p = null;
                 }
                 #endregion
-            }
-            return result;
-        }
-
-        static public eBillingProvider GetBiilingProvider(int nBillingProvider)
-        {
-            eBillingProvider result = eBillingProvider.Unknown;
-            try
-            {
-                if (Enum.IsDefined(typeof(eBillingProvider), nBillingProvider))
-                {
-                    result = (eBillingProvider)nBillingProvider;
-                }
-            }
-            catch
-            {
-                result = eBillingProvider.Unknown;
             }
             return result;
         }
@@ -3075,23 +3052,6 @@ namespace ConditionalAccess
             if (numOfRowsReturned == 0)
                 return true;
             return sCurrentDeviceName.Equals(sFirstDeviceName);
-        }
-
-        public static TvinciPricing.Subscription GetSubscriptionData(string sSubscriptionCode, int nGroupID)
-        {
-            using (TvinciPricing.mdoule p = new TvinciPricing.mdoule())
-            {
-                string sIP = "1.1.1.1";
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-                TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetSubscriptionByProductCode", "pricing", sIP, ref sWSUserName, ref sWSPass);
-
-                string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (sWSURL.Length > 0)
-                    p.Url = sWSURL;
-
-                return p.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
-            }
         }
 
         internal static TvinciPricing.PPVModule GetPPVModuleDataWithCaching<T>(T ppvCode, string wsUsername, string wsPassword,
