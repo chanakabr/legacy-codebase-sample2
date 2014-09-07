@@ -328,6 +328,9 @@
     <None Include="Web References\TvinciPricing\Collection.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPricing\MediaFilePPVContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciPricing\PreviewModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
