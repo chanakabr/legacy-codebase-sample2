@@ -119,6 +119,7 @@ namespace YesEpgFeeder
                     }
                     foreach (string sChannel in lChannelIds)
                     {
+                        URL = TVinciShared.WS_Utils.GetTcmConfigValue("epgURL");
                         ChannelID = sChannel;
                         SaveChannelByXML();
                     }
@@ -190,6 +191,8 @@ namespace YesEpgFeeder
                     #region Basic xml Data
 
                     string EPGGuid = TVinciShared.XmlUtils.GetNodeValue(ref node, "pid");
+                    string scid = TVinciShared.XmlUtils.GetNodeValue(ref node, "scid");
+
                     #region  basic (name)
                     string name = TVinciShared.XmlUtils.GetNodeValue(ref node, "ts");
                     if (string.IsNullOrEmpty(name))
@@ -233,11 +236,13 @@ namespace YesEpgFeeder
                     DateTime dProgStartDate = DateTime.ParseExact(start_date, format, null);
                     DateTime dProgEndDate = DateTime.ParseExact(end_date, format, null);
 
-                    EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID, EPGGuid, dProgStartDate, dProgEndDate, node, GroupID, ParentGroupID, FieldEntityMapping);
+                    EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID,scid /*EPGGuid*/, dProgStartDate, dProgEndDate, node, GroupID, ParentGroupID, FieldEntityMapping);
 
                     #endregion
-
-                    epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
+                    if (!epgDic.ContainsKey(scid))
+                    {
+                        epgDic.Add(scid, newEpgItem);
+                    }
                 }
 
                 //insert EPGs to DB in batches
