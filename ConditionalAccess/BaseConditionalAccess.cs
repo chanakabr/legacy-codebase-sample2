@@ -5718,7 +5718,7 @@ namespace ConditionalAccess
                                     {
                                         case eBundleType.SUBSCRIPTION:
                                             {
-                                                sCustomData = GetCustomDataForSubscription(theBundle as TvinciPricing.Subscription, relevantCamp, sBundleCode, sCampaignCode, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEnddate, sPreviewModuleID);
+                                                sCustomData = GetCustomDataForSubscription(theBundle as TvinciPricing.Subscription, relevantCamp, sBundleCode, sCampaignCode, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEnddate, sPreviewModuleID, theReason == PriceReason.EntitledToPreviewModule);
                                                 break;
                                             }
                                         case eBundleType.COLLECTION:
@@ -6419,7 +6419,7 @@ namespace ConditionalAccess
 
             //Create the Custom Data
             sCustomData = GetCustomDataForSubscription(theSub, null, sBundleCode, string.Empty, sSiteGUID, dPrice, sCurrency,
-                sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, bIsEntitledToPreviewModule ? theSub.m_oPreviewModule.m_nID + "" : string.Empty);
+                sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, bIsEntitledToPreviewModule ? theSub.m_oPreviewModule.m_nID + "" : string.Empty, bIsEntitledToPreviewModule);
 
             Logger.Logger.Log("CustomData", string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
 
@@ -7591,7 +7591,7 @@ namespace ConditionalAccess
         /// </summary>
         protected virtual string GetCustomDataForSubscription(TvinciPricing.Subscription theSub, TvinciPricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode,
     string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
-    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID)
+    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID, bool previewEntitled)
         {
 
 
@@ -7666,6 +7666,12 @@ namespace ConditionalAccess
             sb.Append("<cu>");
             sb.Append(sCurrency);
             sb.Append("</cu>");
+            if (theSub != null && theSub.m_oPreviewModule != null &&  theSub.m_oPreviewModule.m_tsFullLifeCycle != null && previewEntitled)
+            {
+                sb.Append("<prevlc>");
+                sb.Append(theSub.m_oPreviewModule.m_tsFullLifeCycle);
+                sb.Append("</prevlc>");
+            }
             sb.Append("</customdata>");
             return sb.ToString();
 
@@ -7739,7 +7745,7 @@ namespace ConditionalAccess
 
             return GetCustomDataForSubscription(theSub, campaign, sSubscriptionCode, sCampaignCode,
            sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP,
-           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty);
+           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty, false);
 
         }
 
@@ -9254,7 +9260,7 @@ namespace ConditionalAccess
                                 }
                                 //Create the Custom Data
                                 sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
-                                    sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, bIsEntitledToPreviewModule ? theSub.m_oPreviewModule.m_nID + "" : string.Empty);
+                                    sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, bIsEntitledToPreviewModule ? theSub.m_oPreviewModule.m_nID + "" : string.Empty, bIsEntitledToPreviewModule);
 
                                 Logger.Logger.Log("CustomData", string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
 
