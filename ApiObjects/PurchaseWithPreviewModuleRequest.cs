@@ -5,19 +5,9 @@ using System.Text;
 
 namespace ApiObjects
 {
-    public class PurchaseWithPreviewModuleRequest : MailRequestObj
+    public class PurchaseWithPreviewModuleRequest : PurchaseMailRequest
     {
-        public string m_sPurchaseDate;
-        public string m_sItemName;
-        public string m_sPrice;
-        public string m_sTransactionNumber;
-        public string m_sPaymentMethod;
-        public string m_sTaxVal;
-        public string m_sTaxSubtotal;
-        public string m_sTaxAmount;
-        public string m_sInvoiceNum;
-        public string m_sExternalTransationNum;
-        public string m_sAddress;
+        public string m_sPreviewModuleEndDate;
 
         public override List<MCGlobalMergeVars> getRequestMergeObj()
         {
@@ -78,6 +68,10 @@ namespace ApiObjects
                         addressNumMergeVar.name = "ADDRESS";
                         addressNumMergeVar.content = this.m_sAddress;
                         retVal.Add(addressNumMergeVar);
+                        MCGlobalMergeVars previewEndVar = new MCGlobalMergeVars();
+                        addressNumMergeVar.name = "PREVIEWEND";
+                        addressNumMergeVar.content = this.m_sPreviewModuleEndDate;
+                        retVal.Add(previewEndVar);
                         break;
                     }
                 default:
