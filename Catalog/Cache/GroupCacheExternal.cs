@@ -89,6 +89,15 @@ namespace Catalog.Cache
                                         {
                                             List<int> lSubGroups = GroupCacheUtils.Get_SubGroupsTree(nGroupID);
                                             tempGroup.m_nSubGroup = lSubGroups;
+
+                                            // add all subGroupTo ChacingManager
+                                            foreach (int subGroup in lSubGroups)
+                                            {
+                                                if (CachingManager.CachingManager.Exist("ParentGroupCache_" + subGroup.ToString()) != true)
+                                                {
+                                                    CachingManager.CachingManager.SetCachedData("ParentGroupCache_" + subGroup.ToString(), nGroupID, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                                                }
+                                            }
                                         }
                                         //try insert to CB
                                         bInsert = cache.Insert(nGroupID.ToString(), tempGroup, DateTime.UtcNow.AddDays(GROUP_CACHE_EXPIRY), casResult.Cas);
