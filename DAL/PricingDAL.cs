@@ -23,6 +23,20 @@ namespace DAL
             return null;
         }
 
+        public static DataTable Get_PPVModuleListForMediaFilesWithExpired(int nGroupID, List<int> mediaFileList)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PPVModuleListForMediaFilesWithExpired");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddIDListParameter("@MediaFileList", mediaFileList, "id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
         public static DataTable Get_ChannelsBySubscription(int nGroupID, int nSubscriptionID)
         {
             ODBCWrapper.StoredProcedure spUserSocial = new ODBCWrapper.StoredProcedure("Get_ChannelsBySubscription");

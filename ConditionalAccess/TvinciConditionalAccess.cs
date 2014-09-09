@@ -370,7 +370,7 @@ namespace ConditionalAccess
         protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID,
             TvinciPricing.Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
             string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData,
-            TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID)
+            TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
             bool res = true;
 

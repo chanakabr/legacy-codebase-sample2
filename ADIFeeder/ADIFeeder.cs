@@ -334,7 +334,7 @@ namespace ADIFeeder
                     currFileList.type = kvp.Key;
                     currFileList.quality = "HIGH";
                     currFileList.billing_type = "Tvinci";
-                    currFileList.cdn_name = "Direct Link";
+                    currFileList.cdn_name = string.IsNullOrEmpty(kvp.Value.m_CDN) ? "Direct Link" : kvp.Value.m_CDN;
                     currFileList.cdn_code = kvp.Value.m_url;
                     currFileList.co_guid = kvp.Value.m_id;
                     currFileList.pre_rule = kvp.Value.m_PreProviderID;
@@ -496,6 +496,8 @@ namespace ADIFeeder
                                     string assetName = XmlUtils.GetNodeParameterVal(ref fileNode, "Metadata/AMS", "Asset_Name");
                                     string fileURL = XmlUtils.GetNodeParameterVal(ref fileNode, "Content", "Value");
 
+                                    string cdn = string.Empty;
+
                                     if (assetType.ToLower().Equals("encrypted") && nGroupID == 149 ||
                                         assetType.ToLower().Equals("movie") && nGroupID == 149 ||
                                         assetType.ToLower().Equals("preview") && nGroupID == 149)
@@ -507,31 +509,27 @@ namespace ADIFeeder
                                     int prevDurationSec = 0;
                                     if (fileAppData != null && fileAppData.Count > 0)
                                     {
-                                        SetMetasFromFilesContant(fileAppData, ref prevDurationSec);
+                                        SetMetasFromFilesContant(fileAppData, ref prevDurationSec, ref cdn);
                                     }
 
                                     int durationSec = (int)ts.TotalSeconds;
                                     string fileType = string.Empty;
-                                    string cdn = string.Empty;
                                     sPCode = string.Empty;
                                     switch (assetType.ToLower())
                                     {
                                         case "encrypted":
                                             {
                                                 fileType = GetFileType(assetID);
-                                                cdn = "Akamai";
                                                 break;
                                             }
                                         case "movie":
                                             {
                                                 fileType = "iOS Clear";
-                                                cdn = "Direct Link";
                                                 break;
                                             }
                                         case "preview":
                                             {
                                                 fileType = "Trailer";
-                                                cdn = "Direct Link";
                                                 durationSec = prevDurationSec;
                                                 break;
                                             }
@@ -548,7 +546,7 @@ namespace ADIFeeder
                                             }
                                     }
 
-                                    FileStruct file = createFileStruct(assetID, fileURL, durationSec.ToString(), "Akamai", sBreakpoints, string.Empty, true, sPCode);
+                                    FileStruct file = createFileStruct(assetID, fileURL, durationSec.ToString(), cdn, sBreakpoints, string.Empty, true, sPCode);
                                     if (!m_filesDict.ContainsKey(fileType))
                                     {
                                         m_filesDict.Add(fileType, file);
@@ -583,7 +581,7 @@ namespace ADIFeeder
             return retVal;
         }
 
-        private void SetMetasFromFilesContant(XmlNodeList fileAppData, ref int prevDurationSec)
+        private void SetMetasFromFilesContant(XmlNodeList fileAppData, ref int prevDurationSec, ref string cdn)
         {
             for (int t = 0; t < fileAppData.Count; t++)
             {
@@ -591,52 +589,64 @@ namespace ADIFeeder
                 string sFileNameData = XmlUtils.GetItemParameterVal(ref fileAppDataNode, "Name");
                 string sFileValueData = XmlUtils.GetItemParameterVal(ref fileAppDataNode, "Value");
 
-                if (sFileNameData.ToLower().Equals("run_time"))
+                switch (sFileNameData.ToLower())
                 {
-                    string[] prevDurArr = sFileValueData.Split(':');
-                    TimeSpan prevTS = new TimeSpan(int.Parse(prevDurArr[0]), int.Parse(prevDurArr[1]), int.Parse(prevDurArr[2]));
-                    prevDurationSec = (int)prevTS.TotalSeconds;
-
-                }
-                else if (sFileNameData.ToLower().Equals("languages"))
-                {
-                    string[] isoLangsArr = sFileValueData.Split(';');
-                    if (isoLangsArr != null && isoLangsArr.Length > 0)
-                    {
-                        foreach (string str in isoLangsArr)
+                    case "run_time":
                         {
-                            string langStr = getFullLanguageStr(str);
-
-                            if (!m_tagsDict.ContainsKey("Audio language"))
-                            {
-                                AddTag("Audio language", langStr);
-                            }
-                            else if (!m_tagsDict["Audio language"].Contains(langStr))
-                            {
-                                AddTag("Audio language", langStr);
-                            }
+                            string[] prevDurArr = sFileValueData.Split(':');
+                            TimeSpan prevTS = new TimeSpan(int.Parse(prevDurArr[0]), int.Parse(prevDurArr[1]), int.Parse(prevDurArr[2]));
+                            prevDurationSec = (int)prevTS.TotalSeconds;
+                            break;
                         }
-                    }
-                }
-                else if (sFileNameData.ToLower().Equals("subtitle_languages"))
-                {
-                    string[] isoLangsArr = sFileValueData.Split(';');
-                    if (isoLangsArr != null && isoLangsArr.Length > 0)
-                    {
-                        foreach (string str in isoLangsArr)
+                    case "cdn_name":
                         {
-                            string langStr = getFullLanguageStr(str);
-
-                            if (!m_tagsDict.ContainsKey("Subtitle language"))
-                            {
-                                AddTag("Subtitle language", langStr);
-                            }
-                            else if (!m_tagsDict["Subtitle language"].Contains(langStr))
-                            {
-                                AddTag("Subtitle language", langStr);
-                            }
+                            cdn = sFileValueData;
+                            break;
                         }
-                    }
+                    case "languages":
+                        {
+                            string[] isoLangsArr = sFileValueData.Split(';');
+                            if (isoLangsArr != null && isoLangsArr.Length > 0)
+                            {
+                                foreach (string str in isoLangsArr)
+                                {
+                                    string langStr = getFullLanguageStr(str);
+
+                                    if (!m_tagsDict.ContainsKey("Audio language"))
+                                    {
+                                        AddTag("Audio language", langStr);
+                                    }
+                                    else if (!m_tagsDict["Audio language"].Contains(langStr))
+                                    {
+                                        AddTag("Audio language", langStr);
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    case "subtitle_languages":
+                        {
+                            string[] isoLangsArr = sFileValueData.Split(';');
+                            if (isoLangsArr != null && isoLangsArr.Length > 0)
+                            {
+                                foreach (string str in isoLangsArr)
+                                {
+                                    string langStr = getFullLanguageStr(str);
+
+                                    if (!m_tagsDict.ContainsKey("Subtitle language"))
+                                    {
+                                        AddTag("Subtitle language", langStr);
+                                    }
+                                    else if (!m_tagsDict["Subtitle language"].Contains(langStr))
+                                    {
+                                        AddTag("Subtitle language", langStr);
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    default:
+                        break;
                 }
             }
         }

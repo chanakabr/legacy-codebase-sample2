@@ -497,15 +497,21 @@ namespace ConditionalAccess
             return !isDummy || price != 0d;
         }
 
-        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, TvinciPricing.Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID)
+        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, TvinciPricing.Subscription relevantSub, 
+            double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, 
+            TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule, long lMediaFileID, 
+            ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
             bool res = base.HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, relevantSub, dPrice, sCurrency,
                 sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, br, sCustomData, thePPVModule, lMediaFileID,
-                ref lBillingTransactionID, ref lPurchaseID);
+                ref lBillingTransactionID, ref lPurchaseID, isDummy);
 
             if (res && lPurchaseID > 0 && lBillingTransactionID > 0)
             {
-                HandleSendOperationConfirmToCinepolis(lPurchaseID, lBillingTransactionID, BillingItemsType.PPV, sSiteGUID);
+                if (IsSendOperationConfirmToCinepolis(isDummy, dPrice))
+                {
+                    HandleSendOperationConfirmToCinepolis(lPurchaseID, lBillingTransactionID, BillingItemsType.PPV, sSiteGUID);
+                }
             }
             else
             {
