@@ -12,7 +12,6 @@ namespace CachingProvider
          * Pay attention !
          * 1. MemoryCache is threadsafe, however the references it holds are not necessarily thread safe.
          * 2. MemoryCache should be properly disposed.
-         * 
          */
         private static readonly string SINGLE_IN_MEM_CACHE_LOG_FILE = "SingleInMemoryCache";
         private MemoryCache cache = null;
@@ -75,17 +74,17 @@ namespace CachingProvider
 
         public object Get(string sKey)
         {
-            throw new NotImplementedException();
+            return cache.Get(sKey);
         }
 
         public object Remove(string sKey)
         {
-            throw new NotImplementedException();
+            return cache.Remove(sKey);
         }
 
         public T Get<T>(string sKey) where T : class
         {
-            throw new NotImplementedException();
+            return cache.Get(sKey) as T;
         }
 
         public void Dispose()
