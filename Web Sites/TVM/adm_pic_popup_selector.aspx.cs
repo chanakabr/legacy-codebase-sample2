@@ -235,6 +235,12 @@ public partial class adm_pic_popup_selector : System.Web.UI.Page
         dr_pic_ratio.SetDefault(0);
         theRecord.AddRecord(dr_pic_ratio);
 
+        // checkBox for thumbnail pic size 
+        DataRecordCheckBoxField dr_thumbnail = new DataRecordCheckBoxField(true);
+        dr_thumbnail.Initialize("Thumbnail ","adm_table_header_nbg", "FormInput", "", false);
+        theRecord.AddRecord(dr_thumbnail);
+
+
         DataRecordShortTextField dr_credit = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_credit.Initialize("Credit", "adm_table_header_nbg", "FormInput", "CREDIT", false);
         theRecord.AddRecord(dr_credit);
