@@ -129,6 +129,10 @@ namespace Users
 
                     monkeyUser.m_sSiteGUID = string.Empty;
                     monkeyUser.m_oBasicData.m_sUserName = "{" + resDomain.m_nDomainID + "}_{Household}"; // (resDomain.m_nDomainID + "||" + Guid.NewGuid().ToString());
+                    monkeyUser.m_oBasicData.m_sFacebookID = string.Empty;
+                    monkeyUser.m_oBasicData.m_sFacebookImage = string.Empty;
+                    monkeyUser.m_oBasicData.m_sFacebookToken = string.Empty;
+
                     int monkeyID = monkeyUser.Save(resDomain.m_nGroupID, true);
 
                     if ((monkeyID <= 0) || (string.IsNullOrEmpty(monkeyUser.m_sSiteGUID)))
