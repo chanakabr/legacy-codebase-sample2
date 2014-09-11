@@ -170,7 +170,7 @@ namespace GracenoteFeeder
 
                         if (string.IsNullOrEmpty(epg_url))
                         {
-                            string category = GetSingleAttributeValue(node.SelectSingleNode("IPGCATEGORY/IPGCATEGORY_L1"), "ID");
+                            string category = GetSingleAttributeValue(node.SelectSingleNode("IPGCATEGORY/IPGCATEGORY_L2"), "ID");
 
                             if (!dCategoryToDefaultPic.TryGetValue(category, out epg_url) || string.IsNullOrEmpty(epg_url))
                             {
