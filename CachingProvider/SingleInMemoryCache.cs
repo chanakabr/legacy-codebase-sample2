@@ -35,6 +35,8 @@ namespace CachingProvider
 
         public bool Add(string sKey, object oValue, double nMinuteOffset)
         {
+            if (string.IsNullOrEmpty(sKey))
+                return false;
             return cache.Add(sKey, oValue, DateTime.Now.AddMinutes(nMinuteOffset));
         }
 
@@ -46,6 +48,8 @@ namespace CachingProvider
         public bool Set(string sKey, object oValue, double nMinuteOffset)
         {
             bool res = false;
+            if (string.IsNullOrEmpty(sKey))
+                return false;
             try
             {
                 cache.Set(sKey, oValue, DateTime.Now.AddMinutes(nMinuteOffset));
@@ -74,6 +78,8 @@ namespace CachingProvider
 
         public object Get(string sKey)
         {
+            if (string.IsNullOrEmpty(sKey))
+                return null;
             return cache.Get(sKey);
         }
 
@@ -84,6 +90,8 @@ namespace CachingProvider
 
         public T Get<T>(string sKey) where T : class
         {
+            if (string.IsNullOrEmpty(sKey))
+                return default(T);
             return cache.Get(sKey) as T;
         }
 
@@ -93,6 +101,19 @@ namespace CachingProvider
             {
                 cache.Dispose();
             }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("SingleInMemoryCache. ");
+            sb.Append(String.Concat(" Cache Name: ", CacheName));
+            sb.Append(String.Concat(" DefaultMinOffset: ", DefaultMinOffset));
+            sb.Append(String.Concat(" Items in cache: ", cache.GetCount()));
+            sb.Append(String.Concat(" Total amt of bytes on machine the cache can use: ", cache.CacheMemoryLimit));
+            sb.Append(String.Concat(" Total percentage of physical memory the cache can use: ", cache.PhysicalMemoryLimit));
+            sb.Append(String.Concat(" Polling Interval: ", cache.PollingInterval.ToString()));
+
+            return sb.ToString();
         }
     }
 }
