@@ -1657,5 +1657,53 @@ namespace DAL
 
             return retOperatorId;
         }
+
+        public static DataTable getUserMinMaxID(int nGroupID, int nBalk, ref int minUserID, ref int maxUserID)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+              
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                selectQuery.SetCachedSec(0);
+
+                selectQuery += "SELECT  min (id) as minUserID, max(id) as maxUserID from  users u (nolock) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";               
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        minUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["minUserID"].ToString());
+                        maxUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["maxUserID"].ToString());
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                if (minUserID > 0 || maxUserID > 0)
+                {
+                    dt.Columns.Add("id", typeof(int));
+                    dt.Columns.Add("txt", typeof(string));
+                    
+                    int div = (maxUserID - minUserID) / nBalk;
+                    int mod = (maxUserID - minUserID) % nBalk > 0 ? 1 : 0;
+                    int maxGap =  div + mod;
+
+                    for (int i = 0; i < maxGap; i ++)
+                    {
+                        dt.Rows.Add(i, (i * nBalk).ToString() + " - " + ((i + 1) * nBalk).ToString());                        
+                    }
+                }
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     } 
 }
