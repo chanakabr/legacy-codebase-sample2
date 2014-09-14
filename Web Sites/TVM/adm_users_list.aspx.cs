@@ -127,13 +127,26 @@ public partial class adm_users_list : System.Web.UI.Page
         selectQuery += "on u.status = lcs.id and u.status<>2";
         selectQuery += "left join users_types ut(nolock) on u.User_Type = ut.ID and u.group_id = ut.group_id and ut.is_active = 1 and ut.status = 1 ";
         selectQuery += "where";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);               
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);
+        selectQuery += "  and  u.USERNAME NOT LIKE '%{Household}%'  ";               
  
         if (Session["search_free_ul"] != null && Session["search_free_ul"].ToString() != "")
         {
             string sLike = "like(N'%" + Session["search_free_ul"].ToString() + "%')";
             selectQuery += " and (u.USERNAME " + sLike + " or u.FIRST_NAME " + sLike + " or u.LAST_NAME " + sLike + " or u.EMAIL_ADD " + sLike + ")";
         }
+
+        if (Session["start_user_id"] != null && Session["start_user_id"].ToString() != "")
+        {
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("u.id", ">=", int.Parse(Session["start_user_id"].ToString()));
+        }
+        if (Session["end_user_id"] != null && Session["end_user_id"].ToString() != "")
+        {
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("u.id", "<=", int.Parse(Session["end_user_id"].ToString()));
+        }
+
         selectQuery.SetConnectionKey("users_connection");
         if (selectQuery.Execute("query", true) != null)
         {
@@ -218,15 +231,29 @@ public partial class adm_users_list : System.Web.UI.Page
         theTable += "inner join lu_content_status lcs (nolock)";
         theTable += "on u.status = lcs.id and u.status<>2";
         theTable += "left join users_types ut(nolock) on u.User_Type = ut.ID and u.group_id = ut.group_id and ut.is_active = 1 and ut.status = 1 ";
-        theTable += "where";
+        theTable += "where  ";
         
         theTable += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);
+
+        theTable += " and		u.USERNAME NOT LIKE '%{Household}%' ";
 
         if (Session["search_free_ul"] != null && Session["search_free_ul"].ToString() != "")
         {
             string sLike = "like(N'%" + Session["search_free_ul"].ToString() + "%')";
             theTable += " and (u.USERNAME " + sLike + " or u.FIRST_NAME " + sLike + " or u.LAST_NAME " + sLike + " or u.EMAIL_ADD " + sLike + ")";
         }
+
+        //if ( Session["start_user_id"] != null && Session["start_user_id"].ToString() != "" )
+        //{
+        //    theTable += " and ";
+        //    theTable += ODBCWrapper.Parameter.NEW_PARAM("u.id", ">=", int.Parse(Session["start_user_id"].ToString()));
+        //}
+        //if (Session["end_user_id"] != null && Session["end_user_id"].ToString() != "")
+        //{
+        //    theTable += " and ";
+        //    theTable += ODBCWrapper.Parameter.NEW_PARAM("u.id", "<=", int.Parse(Session["end_user_id"].ToString()));
+        //}
+
         if (Session["search_only_open_tickets"] != null && Session["search_only_open_tickets"].ToString() != "" && Session["search_only_open_tickets"].ToString() != "-1")
         {
             theTable += " and ";
@@ -355,8 +382,30 @@ public partial class adm_users_list : System.Web.UI.Page
     public string GetPageContent(string sOrderBy, string sPageNum, string search_free_ul, string search_only_paid_users, string search_only_open_tickets)
     {
         Session["search_free_ul"] = search_free_ul.Replace("'", "''");
+
+        //if (string.IsNullOrEmpty(start_user_id))
+        //{
+        //    // get deafult value  =  0
+        //    start_user_id = "0";
+        //}
+        //Session["start_user_id"] = start_user_id;
+
+        //string config_end_user_id = WS_Utils.GetTcmConfigValue("end_user_id_list");
+        
+        //if (string.IsNullOrEmpty(end_user_id))
+        //{
+        //    // get deafult value  from confuguration          
+        //    end_user_id = (int.Parse(start_user_id) + int.Parse(config_end_user_id)).ToString();
+        //}
+        //else  
+        //{  
+        //    end_user_id = Math.Min( int.Parse(start_user_id) + int.Parse(config_end_user_id) , int.Parse(end_user_id)).ToString();
+        //}
+        //Session["end_user_id"] = end_user_id;
+
         if (search_only_paid_users != "")
             Session["search_only_paid_users"] = search_only_paid_users.Replace("'", "''");
+
         if (search_only_open_tickets != "")
             Session["search_only_open_tickets"] = search_only_open_tickets.Replace("'", "''");
         else if (Session["search_save"] == null)
@@ -379,6 +428,7 @@ public partial class adm_users_list : System.Web.UI.Page
         DBTableWebEditor theTable = new DBTableWebEditor(true, true, bNewButton, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         theTable.SetConnectionKey("users_connection");
         FillTheTableEditor(ref theTable, sOrderBy);
+
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
 
