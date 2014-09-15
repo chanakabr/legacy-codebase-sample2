@@ -238,10 +238,7 @@
     function create_csv()
     {
         search_free = GetSafeDocumentIDVal("search_free");
-
         window.open("adm_users_list_excel.aspx?search_free=" + search_free, "_blank", "toolbar=yes, scrollbars=yes, resizable=yes, top=500, left=500, width=550, height=400");
-        
-        //RS.Execute("adm_users_list.aspx", "GetTableCSV", callback_create_csv, errorCallback);
     }
 </script>
 </head>

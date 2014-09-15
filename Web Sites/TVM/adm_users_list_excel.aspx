@@ -38,32 +38,7 @@
             <div id="users">
 	            <div class="h1">
 		            <h1>User List</h1>
-	            </div>
-	            <!--/h1 -->
-	         <%--   <div class="find"><b class="top"><b></b></b>
-
-		            <b class="bot"><b></b></b></div>--%>
-		    
-	            <!--/picSelected -->
-	           <%-- <div class="butLine">
-	                <table>
-                        <tr>
-                            <td>
-                                <a  class="btn_confirm" title="Print To Excel" href="create_csv()"></a></td><td>&nbsp;
-                            </td>
-                            <td>
-                                <a class="btn_cancel" href="javascript:window.close();" title="Cancel"></a>
-                            </td>
-
-                             <td>
-                                <a class="btn_test" href="javascript:window.open();" title="test"></a>
-                            </td>
-
-                        </tr>
-	                </table>
-	            </div>	          
-	            <br />
-	        </div>--%>
+	            </div>           
 
               <div id="page_content"></div>	     
         </div>
