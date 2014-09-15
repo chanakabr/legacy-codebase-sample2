@@ -1664,7 +1664,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UsersListByBulk");
-                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.SetConnectionKey("users_connection_heart");
                 sp.AddParameter("@GroupId", groupId);
                 sp.AddParameter("@FreeTxt", sFreeTxt);
                 sp.AddParameter("@Top", top);
