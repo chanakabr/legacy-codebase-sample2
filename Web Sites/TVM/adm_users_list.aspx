@@ -230,13 +230,15 @@
     
     function GetPageTable(orderBy , pageNum) {
         search_free = GetSafeDocumentIDVal("search_free");
+      
         search_only_unapproved_comments = GetSafeDocumentIDVal("search_only_unapproved_comments");
         search_only_paid_users = "-1";
-        RS.Execute("adm_users_list.aspx", "GetPageContent", orderBy, pageNum, search_free, search_only_paid_users, search_only_unapproved_comments, callback_page_content, errorCallback);
+        RS.Execute("adm_users_list.aspx", "GetPageContent", orderBy, pageNum, search_free,  search_only_paid_users, search_only_unapproved_comments, callback_page_content, errorCallback);
     }
     function create_csv()
     {
-        RS.Execute("adm_users_list.aspx", "GetTableCSV", callback_create_csv, errorCallback);
+        search_free = GetSafeDocumentIDVal("search_free");
+        window.open("adm_users_list_excel.aspx?search_free=" + search_free, "_blank", "toolbar=yes, scrollbars=yes, resizable=yes, top=500, left=500, width=550, height=400");
     }
 </script>
 </head>
@@ -323,6 +325,7 @@
 															<tr>
 																<td><% TVinciShared.DBTableWebEditor.GetSearchFree("Free", "search_free", "ltr"); %></td>
 																<td class="space01">&nbsp;&nbsp;</td>
+
 																<td><% TVinciShared.DBTableWebEditor.GetSearchSelectOptions("Open Tickets", "search_only_unapproved_comments", "lu_only_paid", "id", "DESCRIPTION", "ID", "---", "-1", true, ""); %></td>
 																
 																<td>

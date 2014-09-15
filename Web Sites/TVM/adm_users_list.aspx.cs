@@ -30,8 +30,7 @@ public partial class adm_users_list : System.Web.UI.Page
             }
         }
         selectQuery.Finish();
-        selectQuery = null;
-        // Logger.Logger.Log("Module Impl", "Implementation :" + nImplID + " Group ID :" + LoginManager.GetLoginGroupID().ToString(), "Users Impl");
+        selectQuery = null;       
         if (nImplID > 0)
             return true;
         return false;
@@ -92,118 +91,9 @@ public partial class adm_users_list : System.Web.UI.Page
     protected void GetSubMenu()
     {
         Response.Write(m_sSubMenu);
-    }
+    }   
 
-    public string GetTableCSV1()
-    {
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOldOrderBy);
-
-        string sCSVFile = theTable.OpenCSV();
-        theTable.Finish();
-        theTable = null;
-        return sCSVFile;
-    }
-
-    public string GetTableCSV()
-    {
-
-        Int32 nGroupID = LoginManager.GetLoginGroupID();
-
-        DataTable dtUsers = new DataTable();
-        Dictionary<int, string> dUserDD = new Dictionary<int, string>();
-
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-
-        selectQuery += "select ";
-        selectQuery += "u.is_active,u.id as id,u.id as 'User ID',u.status,u.fail_count,u.Password,u.USERNAME as 'Username',u.FIRST_NAME as 'First Name',u.LAST_NAME as 'Last Name',";
-        selectQuery += "u.EMAIL_ADD as 'Email Address',u.REG_AFF as 'Affiliate',u.HANDLING_STATUS as 'Open Ticket',lcs.description as 'State',ut.ID as 'User Type ID',ut.description as 'User Type'";
-        selectQuery += "from ";
-        selectQuery += "users u (nolock) ";
-        selectQuery += "inner join lu_content_status lcs (nolock)";
-        selectQuery += "on u.status = lcs.id and u.status<>2";
-        selectQuery += "left join users_types ut(nolock) on u.User_Type = ut.ID and u.group_id = ut.group_id and ut.is_active = 1 and ut.status = 1 ";
-        selectQuery += "where";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);               
- 
-        if (Session["search_free_ul"] != null && Session["search_free_ul"].ToString() != "")
-        {
-            string sLike = "like(N'%" + Session["search_free_ul"].ToString() + "%')";
-            selectQuery += " and (u.USERNAME " + sLike + " or u.FIRST_NAME " + sLike + " or u.LAST_NAME " + sLike + " or u.EMAIL_ADD " + sLike + ")";
-        }
-        selectQuery.SetConnectionKey("users_connection");
-        if (selectQuery.Execute("query", true) != null)
-        {
-            int nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
-            {
-                int nUserID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", i);
-                dUserDD.Add(nUserID, string.Empty);
-            }
-
-            dtUsers = selectQuery.Table("query");
-
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-
-        if (dUserDD.Keys.Count == 0)
-        {
-            return "";
-        }
-
-        DataColumn colDD = new DataColumn();
-        colDD.DataType = System.Type.GetType("System.String");
-        colDD.ColumnName = "Dynamic_Data";
-        dtUsers.Columns.Add(colDD);
-
-        selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select user_id, DATA_TYPE, DATA_VALUE from users_dynamic_data (nolock) where is_active=1 and status=1 and";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-        selectQuery += "and user_id in (" + string.Join(",", dUserDD.Keys.Select(x => x.ToString()).ToArray()) + ")";
-        selectQuery.SetConnectionKey("users_connection");
-        if (selectQuery.Execute("query", true) != null)
-        {
-            int nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
-            {
-                int nUserID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "user_id", i);
-                string sKey = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "DATA_TYPE", i);
-                string sVal = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "DATA_VALUE", i);
-                dUserDD[nUserID] += string.Format("<{0}:{1}> ", sKey, sVal);
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-
-        for (int i = 0; i < dtUsers.Rows.Count; i++)
-        {
-            int nUserID = int.Parse(dtUsers.Rows[i]["id"].ToString());
-
-            dtUsers.Rows[i]["Dynamic_Data"] = dUserDD[nUserID];
-
-        }
-
-        GridView gv = new GridView();
-
-        gv.DataSource = dtUsers;
-        gv.DataBind();
-        HttpContext.Current.Response.Clear();
-        HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=myFileName.xls");
-        HttpContext.Current.Response.Charset = "UTF-8";
-        HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
-        System.IO.StringWriter stringWrite = new System.IO.StringWriter();
-        HtmlTextWriter htmlWrite = new HtmlTextWriter(stringWrite);
-
-        gv.RenderControl(htmlWrite);
-        HttpContext.Current.Response.Write(stringWrite.ToString());
-        HttpContext.Current.Response.End();
-
-        return "";
-    }
+  
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
@@ -218,15 +108,18 @@ public partial class adm_users_list : System.Web.UI.Page
         theTable += "inner join lu_content_status lcs (nolock)";
         theTable += "on u.status = lcs.id and u.status<>2";
         theTable += "left join users_types ut(nolock) on u.User_Type = ut.ID and u.group_id = ut.group_id and ut.is_active = 1 and ut.status = 1 ";
-        theTable += "where";
+        theTable += "where  ";
         
         theTable += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);
+
+        theTable += " and		u.USERNAME NOT LIKE '%{Household}%' ";
 
         if (Session["search_free_ul"] != null && Session["search_free_ul"].ToString() != "")
         {
             string sLike = "like(N'%" + Session["search_free_ul"].ToString() + "%')";
             theTable += " and (u.USERNAME " + sLike + " or u.FIRST_NAME " + sLike + " or u.LAST_NAME " + sLike + " or u.EMAIL_ADD " + sLike + ")";
         }
+
         if (Session["search_only_open_tickets"] != null && Session["search_only_open_tickets"].ToString() != "" && Session["search_only_open_tickets"].ToString() != "-1")
         {
             theTable += " and ";
@@ -354,9 +247,11 @@ public partial class adm_users_list : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum, string search_free_ul, string search_only_paid_users, string search_only_open_tickets)
     {
-        Session["search_free_ul"] = search_free_ul.Replace("'", "''");
+        Session["search_free_ul"] = search_free_ul.Replace("'", "''");      
+
         if (search_only_paid_users != "")
             Session["search_only_paid_users"] = search_only_paid_users.Replace("'", "''");
+
         if (search_only_open_tickets != "")
             Session["search_only_open_tickets"] = search_only_open_tickets.Replace("'", "''");
         else if (Session["search_save"] == null)
@@ -379,6 +274,7 @@ public partial class adm_users_list : System.Web.UI.Page
         DBTableWebEditor theTable = new DBTableWebEditor(true, true, bNewButton, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         theTable.SetConnectionKey("users_connection");
         FillTheTableEditor(ref theTable, sOrderBy);
+
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
 
