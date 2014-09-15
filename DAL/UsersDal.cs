@@ -1658,52 +1658,28 @@ namespace DAL
             return retOperatorId;
         }
 
-        public static DataTable getUserMinMaxID(int nGroupID, int nBalk, ref int minUserID, ref int maxUserID)
-        {
-            DataTable dt = new DataTable();
+
+        public static DataSet Get_UsersListByBulk(int groupId, string sFreeTxt , int top , int page)
+        {   
             try
             {
-              
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                selectQuery.SetCachedSec(0);
-
-                selectQuery += "SELECT  min (id) as minUserID, max(id) as maxUserID from  users u (nolock) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";               
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-
-                if (selectQuery.Execute("query", true) != null)
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UsersListByBulk");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@FreeTxt", sFreeTxt);
+                sp.AddParameter("@Top", top);
+                sp.AddParameter("@Page", page);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null)
                 {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        minUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["minUserID"].ToString());
-                        maxUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["maxUserID"].ToString());
-                    }
+                    return ds;
                 }
-                selectQuery.Finish();
-                selectQuery = null;
-
-                if (minUserID > 0 || maxUserID > 0)
-                {
-                    dt.Columns.Add("id", typeof(int));
-                    dt.Columns.Add("txt", typeof(string));
-                    
-                    int div = (maxUserID - minUserID) / nBalk;
-                    int mod = (maxUserID - minUserID) % nBalk > 0 ? 1 : 0;
-                    int maxGap =  div + mod;
-
-                    for (int i = 0; i < maxGap; i ++)
-                    {
-                        dt.Rows.Add(i, (i * nBalk).ToString() + " - " + ((i + 1) * nBalk).ToString());                        
-                    }
-                }
-
-                return dt;
+                return null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
-        }
+        }       
     } 
 }
