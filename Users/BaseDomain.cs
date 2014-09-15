@@ -512,7 +512,8 @@ namespace Users
                 candidate, existingNetwork, dtLastDeactivationDate, ref res);
         }
 
-        public virtual ValidationResponseObject ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType, Domain domain = null)
+        public virtual ValidationResponseObject ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType,
+            int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0, Domain domain = null )
         {
             ValidationResponseObject res = new ValidationResponseObject();
             if (domain == null)
@@ -524,7 +525,14 @@ namespace Users
                 {
                     case ValidationType.Concurrency:
                         {
-                            res.m_eStatus = domain.ValidateConcurrency(sUDID, nDeviceBrandID, res.m_lDomainID);
+                            if (nRuleID > 0)
+                            {
+                                res.m_eStatus = domain.ValidateMediaConcurrency(nRuleID, nMediaConcurrencyLimit, res.m_lDomainID, nMediaID);
+                            }
+                            if (res.m_eStatus == DomainResponseStatus.OK) // if it's MediaConcurrencyLimitation no need to check this one 
+                            {
+                                res.m_eStatus = domain.ValidateConcurrency(sUDID, nDeviceBrandID, res.m_lDomainID);
+                            }
                             break;
                         }
                     case ValidationType.Frequency:

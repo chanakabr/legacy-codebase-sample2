@@ -1657,5 +1657,29 @@ namespace DAL
 
             return retOperatorId;
         }
+
+
+        public static DataSet Get_UsersListByBulk(int groupId, string sFreeTxt , int top , int page)
+        {   
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UsersListByBulk");
+                sp.SetConnectionKey("users_connection_heart");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@FreeTxt", sFreeTxt);
+                sp.AddParameter("@Top", top);
+                sp.AddParameter("@Page", page);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null)
+                {
+                    return ds;
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }       
     } 
 }

@@ -247,6 +247,8 @@ namespace TVinciShared
                         }
                         Logger.Logger.Log("Ratio index found", "Ratio index is " + ratioIndex, "Ratio");
                         string selectedRatioVal = string.Empty;
+                        
+                        
                         if (coll[ratioIndex + "_val"] != null && coll[ratioIndex + "_val"].Trim().ToString() != "")
                         {
                             selectedRatioVal = coll[ratioIndex + "_val"].Trim().ToString();
@@ -335,6 +337,10 @@ namespace TVinciShared
                                     {
                                         List<string> lSizes = new List<string>();
                                         lSizes.Add("full");
+                                        if (coll["6_val"] == "on")
+                                        {
+                                            lSizes.Add("tn");
+                                        }
 
                                         Int32 nI = 0;
                                         bool bCont1 = true;
@@ -402,7 +408,6 @@ namespace TVinciShared
                                     if (mediaID > 0)
                                     {
                                         sPicBaseName = ImageUtils.GetDateImageName(mediaID);
-                                        //isOverridePic = true;
                                     }
                                     else
                                     {
@@ -414,7 +419,7 @@ namespace TVinciShared
                                         Directory.CreateDirectory(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString());
                                     }
 
-                                    //sPicBaseName = ImageUtils.GetDateImageName();
+                                   
                                     sUploadedFile = theFile.FileName;
                                     int nExtractPos = sUploadedFile.LastIndexOf(".");
                                     if (nExtractPos > 0)
@@ -441,23 +446,26 @@ namespace TVinciShared
                                     }
                                     else
                                     {
-                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
+                                        
+                                       
+                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;                                            
                                         bool bExists = System.IO.File.Exists(sTmpImage);
-                                        Int32 nAdd = 0;
-                                        //while (bExists)
-                                        //{
-                                        //    if (sPicBaseName.IndexOf("_") != -1)
-                                        //        sPicBaseName = sPicBaseName.Substring(0, sPicBaseName.IndexOf("_"));
-                                        //    sPicBaseName += "_" + nAdd.ToString();
-                                        //    sTmpImage = sBasePath + "/" + sDirectory + "/" + sPicBaseName + "_full" + sUploadedFileExt;
-                                        //    bExists = System.IO.File.Exists(sTmpImage);
-                                        //    nAdd++;
-                                        //}
                                         theFile.SaveAs(sTmpImage);
-
                                         UploadPicToGroup(nGroupID, sTmpImage);
+                                        
+                                        
+                                        //add a "tn" size upload to pictre size at FTP 
+                                        if (coll["6_val"] == "on")
+                                        {
+                                            if (sPicBaseName != "")
+                                            {
+                                                string sTmpImage_tn = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt;
+                                                ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage_tn, 90, 65, true, true);
+                                                UploadPicToGroup(nGroupID, sTmpImage_tn);
+                                            }
+                                        }
 
-                                        Int32 nI = 0;
+                                       Int32 nI = 0;
                                         bool bCont1 = true;
                                         while (bCont1 && sPicBaseName != "")
                                         {
@@ -501,6 +509,9 @@ namespace TVinciShared
                                             else
                                                 bCont1 = false;
                                         }
+
+                                       
+
                                     }
                                     #endregion
                                 }
@@ -1579,6 +1590,11 @@ namespace TVinciShared
                                     {
                                         List<string> lSizes = new List<string>();
                                         lSizes.Add("full");
+                                        // add checkbox value if needed 
+                                        if (coll["6_val"] == "on")
+                                        {
+                                            lSizes.Add("tn");
+                                        }
 
                                         Int32 nI = 0;
                                         bool bCont1 = true;
@@ -1657,11 +1673,10 @@ namespace TVinciShared
                                     }
                                     else
                                     {
-                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt;
+                                        //FULL 
+                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_full" + sUploadedFileExt; ;
                                         bool bExists = System.IO.File.Exists(sTmpImage);
-
-
-                                        Int32 nAdd = 0;
+                                        int nAdd = 0;
                                         while (bExists)
                                         {
                                             if (sPicBaseName.IndexOf("_") != -1)
@@ -1673,6 +1688,17 @@ namespace TVinciShared
                                         }
                                         theFile.SaveAs(sTmpImage);
                                         UploadPicToGroup(nGroupID, sTmpImage);
+
+                                        nAdd = 0;
+                                        if (coll["6_val"] == "on") //tn size
+                                        {
+                                            if (sPicBaseName != "")
+                                            {
+                                                string sTmpImage_tn = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + "_tn" + sUploadedFileExt;
+                                                ImageUtils.ResizeImageAndSave(sTmpImage, sTmpImage_tn, 90, 65, true);
+                                                UploadPicToGroup(nGroupID, sTmpImage_tn);
+                                            }
+                                        }
 
                                         Int32 nI = 0;
                                         bool bCont1 = true;

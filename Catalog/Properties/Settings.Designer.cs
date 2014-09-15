@@ -36,7 +36,7 @@ namespace Catalog.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.16.40/WS_Domains/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Domains/module.asmx")]
         public string Catalog_WS_Domains_module {
             get {
                 return ((string)(this["Catalog_WS_Domains_module"]));

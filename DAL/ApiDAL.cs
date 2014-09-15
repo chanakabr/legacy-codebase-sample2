@@ -1331,6 +1331,32 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-       
+
+
+        public static DataSet GetMCRules(int bmID, int groupID, int type)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMCRulesByBM");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BMID", bmID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Type", type);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null)
+                return ds;
+            return null;
+        }
+
+        public static DataTable GetMCRulesByID(int ruleID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMCRule");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@RuleID", ruleID);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
     }
 }

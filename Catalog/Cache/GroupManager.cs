@@ -22,9 +22,9 @@ namespace Catalog.Cache
         }
 
         #region Public
-        public void GetGroupAndChannel(int nChannelId, int nParentGroupId, ref Group group, ref Channel channel)
+        public void GetGroupAndChannel(int nChannelId, int nGroupId, ref Group group, ref Channel channel)
         {
-            group = this.GetGroup(nParentGroupId);
+            group = this.GetGroup(nGroupId);
 
             if (group != null)
             {
@@ -40,82 +40,12 @@ namespace Catalog.Cache
                 BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
                 if (groupCache != null)
                 {
-                    group = groupCache.GetGroup(nGroupID);                    
+                    int nParentGroupId = GetParentGroup(nGroupID); // get parent group id first 
+
+                    group = groupCache.GetGroup(nParentGroupId);                    
                 }
                 return group;
-            }
-
-            #region OLD CODE
-            /*
-            try
-            {  
-              
-                //get group by id from CB
-                ICache<Group> cache = Bootstrapper.GetInstance<ICache<Group>>();
-                cache.Init();
-                group = cache.Get(nGroupID.ToString());
-                if (group != null)
-                {
-                    return group;
-                }
-
-                else //Group dosn't exsits ==> Build it 
-                {
-                    bool bInsert = false;                    
-
-                    if (cache.GetType() == typeof(CouchBaseCacheWrapper<Group>))
-                    {
-                        for (int i = 0; i < 3 && !bInsert; i++)
-                        {
-                            CouchBaseCacheWrapper<Group> cbCache = cache as CouchBaseCacheWrapper<Group>;
-                            CasResult<Group> casResult = cbCache.GetWithCas(nGroupID.ToString());
-
-                            if (casResult.StatusCode == 0 && casResult.Result != null)
-                            {
-                                group = casResult.Result;
-                            }
-                            else
-                            {
-                                bool createdNew = false;
-                                var mutexSecurity = Utils.CreateMutex();
-                                using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", nGroupID), out createdNew, mutexSecurity))
-                                {
-                                    try
-                                    {
-                                        mutex.WaitOne(-1);
-
-                                        Group tempGroup = BuildGroup(nGroupID, true);
-                                        if (tempGroup != null)
-                                        {
-                                            List<int> lSubGroups = Get_SubGroupsTree(nGroupID);
-                                            tempGroup.m_nSubGroup = lSubGroups;
-                                        }
-                                        //try insert to CB
-                                        bInsert = cache.Insert(nGroupID.ToString(), tempGroup, DateTime.UtcNow.AddDays(GROUP_CACHE_EXPIRY), casResult.Cas);
-                                        if (bInsert)
-                                        {
-                                            group = tempGroup;
-                                        }
-                                    }
-
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "Catalog");
-                                    }
-                                    finally
-                                    {
-                                        mutex.ReleaseMutex();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return group;
-            }
-             * */
-            #endregion
+            }         
 
             catch (Exception ex)
             {
@@ -184,7 +114,6 @@ namespace Catalog.Cache
                 Group group = null;
 
                 //get group by id 
-
                 group = this.GetGroup(nGroupID);
 
                 if (group != null)
@@ -210,7 +139,8 @@ namespace Catalog.Cache
                 BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
                 if (groupCache != null)
                 {
-                    isRemovingChannelSucceded = groupCache.RemoveChannel(nGroupID, nChannelId);
+                    int nParentGroupId = GetParentGroup(nGroupID); // get parent group id first 
+                    isRemovingChannelSucceded = groupCache.RemoveChannel(nParentGroupId, nChannelId);
                 }
                 return isRemovingChannelSucceded;
             }
@@ -229,7 +159,8 @@ namespace Catalog.Cache
                 BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
                 if (groupCache != null)
                 {
-                    bDelete = groupCache.RemoveGroup(nGroupID);
+                    int nParentGroupId = GetParentGroup(nGroupID); // get parent group id first 
+                    bDelete = groupCache.RemoveGroup(nParentGroupId);
                 }
                 return bDelete;
             }
@@ -245,23 +176,24 @@ namespace Catalog.Cache
             bool res = false;
             if (Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
             {
+                int nParentGroupId = GetParentGroup(nGroupID); // get parent group id first 
                 switch (oe)
                 {
                     case eOperatorEvent.ChannelAddedToSubscription:
                         {
-                            res = HandleChannelAddedToSubscription(nGroupID, nSubscriptionID, lChannelID);
+                            res = HandleChannelAddedToSubscription(nParentGroupId, nSubscriptionID, lChannelID);
                             break;
                         }
                     case eOperatorEvent.SubscriptionAddedToOperator:
                         {
-                            res = HandleSubscriptionAddedToOperator(nGroupID, nOperatorID, nSubscriptionID);
+                            res = HandleSubscriptionAddedToOperator(nParentGroupId, nOperatorID, nSubscriptionID);
                             break;
                         }
                     default:
                         {
                             // same logic in removal. since subscriptions are not disjoint, it is hard to calculate the channels
                             // after removal. so we'd better just remove the operator data and let it get initialized in the next call
-                            res = HandleRemoval(nGroupID, nOperatorID);
+                            res = HandleRemoval(nParentGroupId, nOperatorID);
                             break;
                         }
                 }
@@ -337,6 +269,29 @@ namespace Catalog.Cache
             }
         }
 
+        private int GetParentGroup(int nGroupID)
+        {
+            int nParentGroup = 0;
+            try
+            {
+                if (CachingManager.CachingManager.Exist("ParentGroupCache_" + nGroupID.ToString()) == true)
+                {
+                    nParentGroup = int.Parse(CachingManager.CachingManager.GetCachedData("ParentGroupCache_" + nGroupID.ToString()).ToString());
+                }
+                else
+                {
+                    //GetParentGroup
+                    nParentGroup = UtilsDal.GetParentGroupID(nGroupID);
+                    CachingManager.CachingManager.SetCachedData("ParentGroupCache_" + nGroupID.ToString(), nParentGroup, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                }
+
+                return nParentGroup;
+            }
+            catch (Exception ex)
+            {
+                return nGroupID;
+            }
+        }
         #endregion
 
         #region Internal
@@ -348,7 +303,8 @@ namespace Catalog.Cache
                 BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
                 if (groupCache != null)
                 {
-                    bUpdate = groupCache.UpdateoOperatorChannels(nGroupID, nOperatorID, channelIDs, true);
+                    int nParentGroupId = GetParentGroup(nGroupID); // get parent group id first 
+                    bUpdate = groupCache.UpdateoOperatorChannels(nParentGroupId, nOperatorID, channelIDs, true);
                 }
                 return bUpdate;
             }
@@ -366,7 +322,7 @@ namespace Catalog.Cache
             {
                 BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
                 if (groupCache != null)
-                {
+                {  
                     bDelete = groupCache.DeleteOperator(nGroupID, nOperatorID);
                 }
                 return bDelete;               
@@ -384,7 +340,7 @@ namespace Catalog.Cache
             {
                 BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
                 if (groupCache != null)
-                {
+                {                   
                     bAdd = groupCache.AddOperatorChannels(nGroupID, nOperatorID, channelIDs, bAddNewOperator);
                 }
                 return bAdd;
@@ -404,7 +360,8 @@ namespace Catalog.Cache
                 BaseGroupCache groupCache = GroupCacheUtils.GetGroupCacheInstance(cacheGroupType);
                 if (groupCache != null)
                 {
-                    bInsert = groupCache.InsertChannels(lNewCreatedChannels, nGroupID);
+                    int nParentGroupId = GetParentGroup(nGroupID); // get parent group id first 
+                    bInsert = groupCache.InsertChannels(lNewCreatedChannels, nParentGroupId);
                 }
                 return bInsert;
             }

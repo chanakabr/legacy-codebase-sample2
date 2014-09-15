@@ -5,20 +5,8 @@ using System.Text;
 
 namespace ApiObjects
 {
-    public class PurchaseFailRequest : MailRequestObj
+    public class PurchaseFailRequest : PurchaseMailRequest
     {
-        public string m_sPurchaseDate;
-        public string m_sItemName;
-        public string m_sPrice;
-        public string m_sTransactionNumber;
-        public string m_sPaymentMethod;
-        public string m_sTaxVal;
-        public string m_sTaxSubtotal;
-        public string m_sTaxAmount;
-        public string m_sInvoiceNum;
-        public string m_sExternalTransationNum;
-        public string m_sAddress;
-
         public override List<MCGlobalMergeVars> getRequestMergeObj()
         {
             List<MCGlobalMergeVars> retVal = new List<MCGlobalMergeVars>();

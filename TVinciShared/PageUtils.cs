@@ -522,7 +522,7 @@ namespace TVinciShared
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select mps.width, mps.height, mps.TO_CROP, mps.ratio_id from media_pics_sizes mps where mps.status=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mps.GROUP_ID", "=", LoginManager.GetLoginGroupID());
-            dr_upload.AddPicDimension(90, 65, "tn", true);
+           //dr_upload.AddPicDimension(90, 65, "tn", true);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -549,7 +549,7 @@ namespace TVinciShared
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select eps.width, eps.height from EPG_pics_sizes eps where eps.status=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("eps.GROUP_ID", "=", LoginManager.GetLoginGroupID());
-            dr_upload.AddPicDimension(90, 65, "tn", true);
+            //dr_upload.AddPicDimension(90, 65, "tn", true);
             if (selectQuery.Execute("query", true) != null)
             {
                 int nCount = selectQuery.Table("query").DefaultView.Count;
