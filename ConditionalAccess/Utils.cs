@@ -406,7 +406,7 @@ namespace ConditionalAccess
                     m.Url = pricingUrl;
 
                 string[] colls = lstCollsCodes.Select((item) => item.ToString()).Distinct().ToArray();
-                return m.GetCollectionsData(sWSUsername, sWSPassword, colls.ToArray(), string.Empty, string.Empty, string.Empty);
+                return m.GetCollectionsData(sWSUsername, sWSPassword, colls, string.Empty, string.Empty, string.Empty);
             }
 
         }
