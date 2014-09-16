@@ -19,25 +19,53 @@
 		<script type="text/javascript" language="JavaScript" src="js/adm_utils.js"></script>
 		<script type="text/javascript" language="JavaScript" src="js/utils.js"></script>
 		<script type="text/javascript" language="JavaScript" src="js/AnchorPosition.js"></script>
-		<script type="text/javascript" language="JavaScript" src="js/dom-drag.js"></script>
-		<script type="text/javascript">
-		    function create_csv() {
-		        RS.Execute("adm_users_list_excel.aspx", "GetTableCSV", callback_create_csv, errorCallback);
-		    }
-
-		    function GetPageTable(orderBy, pageNum) {
-		        RS.Execute("adm_users_list_excel.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
-		    }
-		</script>
+		<script type="text/javascript" language="JavaScript" src="js/dom-drag.js"></script>		
 </HEAD>
-<body onload="GetPageTable('' , 0)">
+<body <%--onload="GetPageTable('' , 0)"--%>>
     <form method="post"  id="form1" runat="server">     
         <input type="file" runat=server id="file_marker" name="file_marker" style="width: 0px; height: 0px; display: none;" />
 
         <div class="wrapper">
             <div id="users">
 	            <div class="h1">
-		            <h1>User List</h1>
+		            <h1>User List</h1>     
+                    <h2>
+                    <table>
+                        <tr>
+                            <td style="text-align: left; padding-bottom: 5px;">
+							    <span class="small_header">Total Records :</span>                                
+							    <span class="small_text"><% GetTotalRecords(); %></span> 
+							    </td>                            
+                    	    <td class="space01">&nbsp;&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left; padding-bottom: 5px;">
+							    <span class="small_header">Each Section Total Records :</span>                               
+							    <span class="small_text"><% GetBulkSize(); %></span> 
+							    </td>
+                            <td class="space01">&nbsp;&nbsp;</td>
+                        </tr>
+                        
+                        <tr>                                        
+                            <td>
+                                <span style="font-size:13px; font-weight:bold;line-height:28px;">Select Section :&nbsp;
+                                <asp:DropDownList ID="dropSectionsList" runat="server" Width="200px"></asp:DropDownList>&nbsp;
+                            </td>                                                                        
+                        </tr>
+                        <tr>                                        
+                            <td>
+                                <span style="font-size:13px; font-weight:bold;line-height:28px;">Free :&nbsp;
+                                <asp:TextBox ID="txtFree" runat="server" Width="260px"></asp:TextBox>&nbsp;
+                            </td>                                                                        
+                        </tr>
+                        <tr>
+                            <td>
+                                <asp:Button ID="ButtonGenerator" runat="server" onclick="GetExcel"   CssClass="btn_generate" BorderStyle="None" 
+                                    PostBackUrl="~/adm_users_list_excel.aspx" />
+                            </td>
+                        </tr>
+                    </table>
+                    </h2>
 	            </div>           
 
               <div id="page_content"></div>	     
