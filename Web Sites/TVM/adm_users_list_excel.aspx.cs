@@ -20,40 +20,34 @@ public partial class adm_users_list_excel : System.Web.UI.Page
 
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
-        if (Request.QueryString["search_free"] != null && !string.IsNullOrEmpty(Request.QueryString["search_free"].ToString()))
-        {
-            Session["searchFree"] = Request.QueryString["search_free"].ToString();
-        }
         if (!IsPostBack)
         {
-            if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
-            {               
-                GetTableCSV();
-                return;
+            int nTotalRows = 0;
+            DataTable dt = BuildUserGapTable(ref nTotalRows);
+            dropSectionsList.DataSource = dt;
+            dropSectionsList.DataTextField = "txt";
+            dropSectionsList.DataValueField = "id";
+            dropSectionsList.DataBind();
+
+            if (Request.QueryString["search_free"] != null && !string.IsNullOrEmpty(Request.QueryString["search_free"].ToString()))
+            {
+                Session["searchFree"] = Request.QueryString["search_free"].ToString();
+                txtFree.Text = Session["searchFree"].ToString();
             }
         }
-
     }
 
-    public string GetTableCSV()
+    protected void GetExcel(object sender, EventArgs e)
     {
- 
+        Int32 nGroupID = LoginManager.GetLoginGroupID();
         DataTable dtUsers = new DataTable();
         Dictionary<int, string> dUserDD = new Dictionary<int, string>();
-        
-        Int32 nGroupID = LoginManager.GetLoginGroupID();
-        string sFreeText = string.Empty;
-        int gap_between_user_ids = WS_Utils.GetTcmIntValue("gap_between_user_ids");
-        int page = 0;
-        if (Request.Form["0_val"] != null && !string.IsNullOrEmpty(Request.Form["0_val"].ToString())) // bulk for ids 
-        {
-            page = int.Parse(Request.Form["0_val"].ToString());
-        }
-        if (Request.Form["1_val"] != null && !string.IsNullOrEmpty(Request.Form["1_val"].ToString())) // Free text for username 
-        {
-            sFreeText = Request.Form["1_val"].ToString();
-        }
 
+        int page = dropSectionsList.SelectedIndex;
+        string sFreeText = txtFree.Text;
+
+        int gap_between_user_ids = WS_Utils.GetTcmIntValue("gap_between_user_ids");
+       
         DataSet ds = DAL.UsersDal.Get_UsersListByBulk(nGroupID, sFreeText, gap_between_user_ids, page);
 
         if (ds != null && ds.Tables != null && ds.Tables.Count >= 1)
@@ -71,7 +65,7 @@ public partial class adm_users_list_excel : System.Web.UI.Page
                     {
                         dUserDD.Add(nUserID, string.Empty);
                     }
-                    dUserDD[nUserID] += string.Format("<{0}:{1}> ", sKey, sVal);                    
+                    dUserDD[nUserID] += string.Format("<{0}:{1}> ", sKey, sVal);
                 }
 
                 for (int i = 0; i < dtUsers.Rows.Count; i++)
@@ -86,7 +80,7 @@ public partial class adm_users_list_excel : System.Web.UI.Page
 
 
         }
- 
+
         GridView gv = new GridView();
 
         gv.DataSource = dtUsers;
@@ -102,56 +96,8 @@ public partial class adm_users_list_excel : System.Web.UI.Page
         HttpContext.Current.Response.Write(stringWrite.ToString());
         HttpContext.Current.Response.End();
 
-        return "";
-    }
-
-
-    public string GetPageContent(string sOrderBy, string sPageNum)
-    {
-        if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
-        {
-            Session["error_msg"] = "";
-            return Session["last_page_html"].ToString();
-        }
-
-        object t = null;
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("users", "adm_table_pager", "adm_users_list_excel.aspx", "", "ID", t, "javascript:window.close();", "");
-        theRecord.SetConnectionKey("users_connection");
-             
-        // get the default gap from confuguration
-        int nTotalRows = 0;
-        DataTable dt = BuildUserGapTable(ref nTotalRows);
-       
-        int nBulk = WS_Utils.GetTcmIntValue("gap_between_user_ids");
-
-        //DataRecordShortTextField dr_total_records = new DataRecordShortTextField("ltr", false, 60, 60);
-        //dr_total_records.Initialize("Total Records", "adm_table_header_nbg", "FormInput", "", false);
-        //dr_total_records.SetValue(nTotalRows.ToString());
-        //theRecord.AddRecord(dr_total_records);
-
-     
-        //DataRecordShortTextField dr_bulk = new DataRecordShortTextField("ltr", false, 60, 60);
-        //dr_bulk.Initialize("Each Section", "adm_table_header_nbg", "FormInput", "", false);        
-        //dr_bulk.SetValue(nBulk.ToString() + " Records");
-        //theRecord.AddRecord(dr_bulk);
-        
-        DataRecordDropDownField dr_use_list = new DataRecordDropDownField("", "txt", "ID", string.Empty, string.Empty, 60, true);
-        dr_use_list.SetSelectsDT(dt);
-        dr_use_list.Initialize("Select Section", "adm_table_header_nbg", "FormInput", "gapList", false);
-        dr_use_list.SetDefault(0);
-        theRecord.AddRecord(dr_use_list);
-
-        DataRecordShortTextField dr_free = new DataRecordShortTextField("ltr", true, 60, 100);
-        dr_free.Initialize("Free", "adm_table_header_nbg", "FormInput", "username", false);
-        if (Session["searchFree"] != null && !string.IsNullOrEmpty(Session["searchFree"].ToString()))
-        {
-            dr_free.SetValue(Session["searchFree"].ToString());
-        }
-        theRecord.AddRecord(dr_free);        
-
-        string sTable = theRecord.GetTableHTML("adm_users_list_excel.aspx?submited=1");
-        return sTable;
-    }
+    } 
+   
 
 
     protected void GetTotalRecords()
@@ -241,6 +187,5 @@ public partial class adm_users_list_excel : System.Web.UI.Page
             return new DataTable();
         }
     }
-
 
 }
