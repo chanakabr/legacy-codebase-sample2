@@ -119,15 +119,30 @@ public partial class adm_users_list_excel : System.Web.UI.Page
         theRecord.SetConnectionKey("users_connection");
              
         // get the default gap from confuguration
-        DataTable dt = BuildUserGapTable();        
+        int nTotalRows = 0;
+        DataTable dt = BuildUserGapTable(ref nTotalRows);
+       
+        int nBulk = WS_Utils.GetTcmIntValue("gap_between_user_ids");
+
+        //DataRecordShortTextField dr_total_records = new DataRecordShortTextField("ltr", false, 60, 60);
+        //dr_total_records.Initialize("Total Records", "adm_table_header_nbg", "FormInput", "", false);
+        //dr_total_records.SetValue(nTotalRows.ToString());
+        //theRecord.AddRecord(dr_total_records);
+
+     
+        //DataRecordShortTextField dr_bulk = new DataRecordShortTextField("ltr", false, 60, 60);
+        //dr_bulk.Initialize("Each Section", "adm_table_header_nbg", "FormInput", "", false);        
+        //dr_bulk.SetValue(nBulk.ToString() + " Records");
+        //theRecord.AddRecord(dr_bulk);
+        
         DataRecordDropDownField dr_use_list = new DataRecordDropDownField("", "txt", "ID", string.Empty, string.Empty, 60, true);
         dr_use_list.SetSelectsDT(dt);
-        dr_use_list.Initialize("user gap list", "adm_table_header_nbg", "FormInput", "gapList", false);
+        dr_use_list.Initialize("Select Section", "adm_table_header_nbg", "FormInput", "gapList", false);
         dr_use_list.SetDefault(0);
         theRecord.AddRecord(dr_use_list);
 
-        DataRecordShortTextField dr_free = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_free.Initialize("free", "adm_table_header_nbg", "FormInput", "username", false);
+        DataRecordShortTextField dr_free = new DataRecordShortTextField("ltr", true, 60, 100);
+        dr_free.Initialize("Free", "adm_table_header_nbg", "FormInput", "username", false);
         if (Session["searchFree"] != null && !string.IsNullOrEmpty(Session["searchFree"].ToString()))
         {
             dr_free.SetValue(Session["searchFree"].ToString());
@@ -135,11 +150,53 @@ public partial class adm_users_list_excel : System.Web.UI.Page
         theRecord.AddRecord(dr_free);        
 
         string sTable = theRecord.GetTableHTML("adm_users_list_excel.aspx?submited=1");
-
         return sTable;
     }
 
-    private DataTable BuildUserGapTable()
+
+    protected void GetTotalRecords()
+    {
+        try
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+            selectQuery.SetCachedSec(0);
+            selectQuery += "SELECT  count (id) as numOfIDs  from  users u (nolock) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    int numOfIDs = int.Parse(selectQuery.Table("query").DefaultView[0].Row["numOfIDs"].ToString());
+
+                    HttpContext.Current.Response.Write(numOfIDs.ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+        catch (Exception ex)
+        {
+            HttpContext.Current.Response.Write("0"); 
+        }
+    }
+
+    protected void GetBulkSize()
+    {
+        try
+        {
+             int nBulk = WS_Utils.GetTcmIntValue("gap_between_user_ids");
+             HttpContext.Current.Response.Write(nBulk.ToString());
+        }
+        catch (Exception)
+        {
+            HttpContext.Current.Response.Write("0"); 
+        }
+    }
+
+    private DataTable BuildUserGapTable(ref int  nTotalRecord)
     {
         try
         {
@@ -157,8 +214,9 @@ public partial class adm_users_list_excel : System.Web.UI.Page
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                 if (nCount > 0)
-                {
+                {  
                     numOfIDs = int.Parse(selectQuery.Table("query").DefaultView[0].Row["numOfIDs"].ToString());
+                    nTotalRecord = numOfIDs;
                 }
             }
             selectQuery.Finish();
