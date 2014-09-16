@@ -92,9 +92,6 @@ namespace ConditionalAccess
             ret.m_sRecieptCode = string.Empty;
             ret.m_sStatusDescription = string.Empty;
 
-            #region User and Household validations
-
-
             try
             {
                 if (string.IsNullOrEmpty(sSiteGUID))
@@ -145,8 +142,6 @@ namespace ConditionalAccess
                 // Domain Description is used as Arvato Contract ID
                 string sArvatoContractID = DAL.DomainDal.GetDomainDesc(m_nGroupID, nDomainID);
 
-            #endregion
-
 
                 // Check coupon validity
                 if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
@@ -157,9 +152,6 @@ namespace ConditionalAccess
                     WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                     return ret;
                 }
-
-
-                #region Validate Media File PPV Module
 
                 sIP = "1.1.1.1";
                 sWSUserName = string.Empty;
@@ -173,20 +165,10 @@ namespace ConditionalAccess
                 }
 
                 int[] nMediaFiles = { nMediaFileID };
-                string sMediaFileForCache = Utils.ConvertArrayIntToStr(nMediaFiles);
                 TvinciPricing.MediaFilePPVModule[] oModules = null;
-                string sLocaleForCache = Utils.GetLocaleStringForCache(sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
-                if (CachingManager.CachingManager.Exist("GetPPVModuleListForMediaFiles" + sMediaFileForCache + "_" + m_nGroupID.ToString() + sLocaleForCache) == true)
-                {
-                    oModules = (TvinciPricing.MediaFilePPVModule[])(CachingManager.CachingManager.GetCachedData("GetPPVModuleListForMediaFiles" + sMediaFileForCache + "_" + m_nGroupID.ToString() + sLocaleForCache));
-                }
-                else
-                {
-                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleListForMediaFiles", "pricing", sIP, ref sWSUserName, ref sWSPass);
-                    oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
-                    CachingManager.CachingManager.SetCachedData("GetPPVModuleListForMediaFiles" + sMediaFileForCache + "_" + m_nGroupID.ToString() + sLocaleForCache, oModules, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-                }
 
+                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleListForMediaFiles", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
 
                 int nCount = 0;
                 if (oModules[0].m_oPPVModules != null)
@@ -218,8 +200,6 @@ namespace ConditionalAccess
                     return ret;
                 }
 
-                #endregion
-
 
 
                 // User and PPV Module OK, let's try to charge the user 
@@ -246,7 +226,7 @@ namespace ConditionalAccess
                     TvinciPricing.Collection relevantCol = null;
                     TvinciPricing.PrePaidModule relevantPP = null;
 
-                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetPPVModuleData", "pricing", sIP, ref sWSUserName, ref sWSPass);
+                    
                     TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
 
                     if (thePPVModule != null)
@@ -379,8 +359,8 @@ namespace ConditionalAccess
 
                                         if (!transNotificationRes.Success)
                                         {
-                                            bool canceledTransaction = DAL.ConditionalAccessDAL.CancelTransaction(transactionID);
-                                            bool canceled = canceledTransaction && DAL.ConditionalAccessDAL.CancelPpvPurchase(m_nGroupID, nPurchaseID, sSiteGUID, nMediaFileID, 0, 2);
+                                            bool canceledTransaction = ConditionalAccessDAL.CancelTransaction(transactionID);
+                                            bool canceled = canceledTransaction && ConditionalAccessDAL.CancelPpvPurchase(m_nGroupID, nPurchaseID, sSiteGUID, nMediaFileID, 0, 2);
 
                                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                             ret.m_sRecieptCode = sReceipt;

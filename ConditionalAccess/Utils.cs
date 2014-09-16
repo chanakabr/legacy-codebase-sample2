@@ -3080,28 +3080,22 @@ namespace ConditionalAccess
             return res;
         }
 
+        /*
+         * 1. Caching of pricing items in CAS is deprecated. Now all caching is done on Pricing side.
+         */ 
         internal static TvinciPricing.UsageModule GetUsageModuleDataWithCaching<T>(T usageModuleCode, string wsUsername, string wsPassword,
             string countryCode, string langCode, string deviceName, int groupID, string methodName)
         {
-            UsageModule res = null;
-            string usageModuleCodeStr = usageModuleCode.ToString();
-            string cacheKey = GetCachingManagerKey(string.IsNullOrEmpty(methodName) ? "GetUsageModuleData" : methodName, usageModuleCodeStr, groupID);
 
-            if (CachingManager.CachingManager.Exist(cacheKey))
-                res = (TvinciPricing.UsageModule)(CachingManager.CachingManager.GetCachedData(cacheKey));
-            else
+            using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
             {
-                using (TvinciPricing.mdoule m = new TvinciPricing.mdoule())
-                {
-                    res = m.GetUsageModuleData(wsUsername, wsPassword, usageModuleCodeStr, countryCode, langCode, deviceName);
-                    if (res != null)
-                    {
-                        CachingManager.CachingManager.SetCachedData(cacheKey, res, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
-                    }
-                }
+                string pricingUrl = Utils.GetWSURL("pricing_ws");
+                if (pricingUrl.Length > 0)
+                    m.Url = pricingUrl;
+
+                return m.GetUsageModuleData(wsUsername, wsPassword, usageModuleCode.ToString(), countryCode, langCode, deviceName);
             }
 
-            return res;
         }
 
         internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID)
