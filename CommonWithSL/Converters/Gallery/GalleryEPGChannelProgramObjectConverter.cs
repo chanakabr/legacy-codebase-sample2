@@ -8,6 +8,7 @@ namespace CommonWithSL.Converters.Gallery
 {
     public class GalleryEPGChannelProgramObjectConverter : IGalleryItemConverter
     {
+
         public object ConvertItem(object inputObject, string picSize = null)
         {
             Dictionary<string, object> inputObjectDic = (Dictionary<string, object>)(inputObject);
@@ -28,7 +29,10 @@ namespace CommonWithSL.Converters.Gallery
                     EpgId = inputObjectDic["EPG_ID"].ToString(),
                     TemplateName = "GalleryEPGItemTemplate",
                     ChannelCode = inputObjectDic["EPG_CHANNEL_ID"].ToString(),
-                    IsBlackout = isBlackOut(tagsDic)
+                    IsBlackout = isBlackOut(tagsDic),
+                    StartTime = inputObjectDic["START_DATE"].ToString(),
+                    EndTime = inputObjectDic["END_DATE"].ToString(),
+                    Description = inputObjectDic["DESCRIPTION"].ToString()
                 };
             }
             catch { }
