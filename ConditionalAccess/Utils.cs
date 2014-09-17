@@ -1305,7 +1305,7 @@ namespace ConditionalAccess
             return price;
         }
 
-        static public TvinciPricing.Price GetPrePaidFinalPrice(Int32 nGroupID, string sPrePaidCode, string sSiteGUID, ref PriceReason theReason, ref TvinciPricing.PrePaidModule thePrePaid,
+        internal static TvinciPricing.Price GetPrePaidFinalPrice(Int32 nGroupID, string sPrePaidCode, string sSiteGUID, ref PriceReason theReason, ref TvinciPricing.PrePaidModule thePrePaid,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
         {
             return GetPrePaidFinalPrice(nGroupID, sPrePaidCode, sSiteGUID, ref theReason, ref thePrePaid,
