@@ -3062,7 +3062,7 @@ namespace ConditionalAccess
 
 
 
-        protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME)
+        protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref TvinciDomains.Domain userDomain)
         {
             TvinciUsers.UsersService u = null;
             TvinciDomains.module domainsWS = null;
@@ -3088,7 +3088,7 @@ namespace ConditionalAccess
                         sWSURL = Utils.GetWSURL("domains_ws");
                         if (!string.IsNullOrEmpty(sWSURL))
                             domainsWS.Url = sWSURL;
-                        TvinciDomains.Domain userDomain = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
+                        userDomain = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
                         if (userDomain != null)
                         {
                             TvinciDomains.DeviceContainer[] deviceContainers = userDomain.m_deviceFamilies;
@@ -9876,7 +9876,9 @@ namespace ConditionalAccess
             {
                 int[] mediaFiles = new int[1] { nMediaFileID };
                 int streamingCoID = 0;
-                if (IsGetLicensedLinksInputValid(sSiteGuid, nMediaFileID, sBasicLink) && isDevicePlayValid(sSiteGuid, sDeviceName))
+                TvinciDomains.Domain userDomain = null;
+                                
+                if ( (sBasicLink != null && nMediaFileID > 0)  && ( Utils.IsAnonymousUser(sSiteGuid) || isDevicePlayValid(sSiteGuid, sDeviceName, ref userDomain)) )
                 {
                     if (IsAlterBasicLink(sBasicLink, nMediaFileID))
                     {
@@ -9891,7 +9893,7 @@ namespace ConditionalAccess
                         int nMediaID = 0;
                         int nRuleID = 0;
                         List<int> lRuleIDS = new List<int>();
-                        TvinciDomains.DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, ref nMediaID, ref lRuleIDS);
+                        TvinciDomains.DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, ref nMediaID, ref lRuleIDS, userDomain);
                         
                         string fileMainUrl = string.Empty;
                         string fileAltUrl = string.Empty;
@@ -10019,11 +10021,16 @@ namespace ConditionalAccess
             Tvinci.Core.DAL.CatalogDAL.Insert_NewPlayCycleKey(this.m_nGroupID, nMediaID, nMediaFileID, sSiteGuid, 0, sDeviceName, nCountryID, sPlayCycleKey, nRuleID);           
         }
 
-        private TvinciDomains.DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices, ref int nMediaID, ref  List<int> lRuleIDS)
+        private TvinciDomains.DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices, ref int nMediaID, ref  List<int> lRuleIDS, TvinciDomains.Domain userDomain)
         {
             TvinciDomains.DomainResponseStatus response = TvinciDomains.DomainResponseStatus.OK;
             try
             {
+                if (Utils.IsAnonymousUser(sSiteGuid))
+                {
+                    return response;
+                }
+
                 TvinciDomains.module domainsWS = new TvinciDomains.module();
                 string sIP = "1.1.1.1";
                 string sWSUserName = string.Empty;
@@ -10059,12 +10066,8 @@ namespace ConditionalAccess
                     if (!string.IsNullOrEmpty(sWSURL))
                         domainsWS.Url = sWSURL;
 
-                    int nDeviceFamilyBrand = 0;
-                    int nSiteGuid = 0;
-                    int.TryParse(sSiteGuid, out nSiteGuid);
-                    bool tempIsMaster = false;
-                    int tempOperatorID = 0;
-                    int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, nSiteGuid, ref tempOperatorID, ref tempIsMaster);
+                    int nDeviceFamilyBrand = 0;                 
+                    int domainID = userDomain.m_nDomainID;
                     long lSiteGuid = 0;
                     long.TryParse(sSiteGuid, out lSiteGuid);
                     int nRuleID = 0;
@@ -10075,7 +10078,7 @@ namespace ConditionalAccess
                         nRuleID = mcRule.RuleID;
                         lRuleIDS.Add(nRuleID); // for future use
                         TvinciDomains.ValidationResponseObject validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
-                            TvinciDomains.ValidationType.Concurrency, nRuleID, 0, nMediaID);
+                            TvinciDomains.ValidationType.Concurrency, nRuleID, 0, nMediaID, userDomain);
                         if (response == TvinciDomains.DomainResponseStatus.OK) // if response is not OK keep it that way
                         {
                             response = validationResponse.m_eStatus;
