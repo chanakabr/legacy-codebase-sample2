@@ -7,6 +7,11 @@ using System.Threading;
 
 namespace CachingProvider
 {
+    /*
+     * 1. This class is deprecated. Use SingleInMemoryCache instead.
+     * 2. Reason for deprecation: It used multiple MemoryCache objects. This is not recommended by Microsoft.
+     * 3. MemoryCache object is a heavy object. 
+     */ 
     public class InMemoryCache : ICachingService
     {
 
