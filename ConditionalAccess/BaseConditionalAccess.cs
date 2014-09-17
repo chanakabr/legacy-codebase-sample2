@@ -10128,7 +10128,7 @@ namespace ConditionalAccess
                 string sIP = "1.1.1.1";
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                nMediaID = CatalogDAL.Get_MediaIDByMediaFileID(nMediaFileID); /*get mediaID by mediaFileID*/
+                nMediaID = Utils.GetMediaIDFeomFileID(nMediaFileID, m_nGroupID);
 
                 /*Get Media Concurrency Rules*/
                 apiWs = new TvinciAPI.API();
@@ -10138,14 +10138,13 @@ namespace ConditionalAccess
                     apiWs.Url = sWSURL;
                 int bmID = 0;
                 TvinciAPI.eBusinessModule eBM = TvinciAPI.eBusinessModule.PPV;
-                bool bSuccess = false;
                 if (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
                 {
-                    bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
+                    int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
                 }
                 else if (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased)
                 {
-                    bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
+                    int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
                     eBM = TvinciAPI.eBusinessModule.Subscription;
                 }
 
@@ -10165,16 +10164,13 @@ namespace ConditionalAccess
                     bool tempIsMaster = false;
                     int tempOperatorID = 0;
                     int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, nSiteGuid, ref tempOperatorID, ref tempIsMaster);
-                    long lSiteGuid = 0;
-                    long.TryParse(sSiteGuid, out lSiteGuid);
                     int nRuleID = 0;
-
 
                     foreach (TvinciAPI.MediaConcurrencyRule mcRule in mcRules)
                     {
                         nRuleID = mcRule.RuleID;
                         lRuleIDS.Add(nRuleID); // for future use
-                        TvinciDomains.ValidationResponseObject validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
+                        TvinciDomains.ValidationResponseObject validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, nSiteGuid, domainID,
                             TvinciDomains.ValidationType.Concurrency, nRuleID, 0, nMediaID);
                         if (response == TvinciDomains.DomainResponseStatus.OK) // if response is not OK keep it that way
                         {

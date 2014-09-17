@@ -1354,7 +1354,7 @@ namespace ConditionalAccess
             return p;
         }
 
-        static public string ConvertArrayIntToStr(int[] theArray)
+        internal static string ConvertArrayIntToStr(int[] theArray)
         {
 
             StringBuilder sb = new StringBuilder();
@@ -1368,7 +1368,7 @@ namespace ConditionalAccess
             return sb.ToString();
         }
 
-        static public Int32 GetMediaIDFeomFileID(Int32 nMediaFileID, Int32 nGroupID)
+        public static Int32 GetMediaIDFeomFileID(Int32 nMediaFileID, Int32 nGroupID)
         {
             Int32[] nMediaFilesIDs = { nMediaFileID };
             TvinciAPI.MeidaMaper[] mapper = null;
