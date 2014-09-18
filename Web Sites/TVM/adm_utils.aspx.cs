@@ -274,6 +274,37 @@ public partial class adm_utils : System.Web.UI.Page
         directQuery.Finish();
         directQuery = null;
 
+        //Update Catalog group-cache
+        if (sTable.Equals("channels_media"))
+        {
+            Int32 nGroupID = LoginManager.GetLoginGroupID();
+
+            int nChannelID = 0;
+            int nMediaID = 0;
+            int nOrderNum = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select CHANNEL_ID, MEDIA_ID, ORDER_NUM from channels_media where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", int.Parse(sID));
+            if (sConnKey != "")
+                selectQuery.SetConnectionKey(sConnKey);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                nChannelID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "CHANNEL_ID", 0);
+                nMediaID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "MEDIA_ID", 0);
+                nOrderNum = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ORDER_NUM", 0);
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            if (nChannelID > 0)
+            {
+                bool result = false;
+                result = ImporterImpl.UpdateChannelIndex(nGroupID, new List<int>() { nChannelID }, eAction.Update);
+                Logger.Logger.Log("ChangeOrderNumRow", string.Format("cahnnel:{0}, media:{1}, orderNum:{2}, res:{3}", nChannelID, nMediaID, nOrderNum, result), "UpdateChannel");
+            }
+        }
+
         string sCurrentVal = ODBCWrapper.Utils.GetTableSingleVal(sTable, sFieldName, int.Parse(sID) , sConnKey).ToString();
         string sRet = sFieldName + "_" + sID.ToString() + "~~|~~";
         sRet += "<td valign=\"top\" nowrap id=\"" + sFieldName + "_" + sID.ToString() + "\" align=\"center\" nowrap=\"nowrap\" style=\"margin: 0 0 0 0; padding: 0 0 0 0;\">";
