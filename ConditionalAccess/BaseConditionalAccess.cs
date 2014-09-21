@@ -8200,259 +8200,296 @@ namespace ConditionalAccess
         {
             //string sCouponCode = "";
             PrePaidResponse ret = new PrePaidResponse();
-            if (sSiteGUID == "")
+            TvinciUsers.UsersService u = null;
+            ODBCWrapper.UpdateQuery updateQuery1 = null;
+            ODBCWrapper.InsertQuery insertQuery = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            ODBCWrapper.UpdateQuery updateQuery = null;
+            try
             {
-                ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
-                ret.m_sStatusDescription = "Cant charge an unknown user";
-            }
-            else
-            {
-                TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService();
-                string sIP = "1.1.1.1";
-                string sWSUserName = "";
-                string sWSPass = "";
-                TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL != "")
-                    u.Url = sWSURL;
-
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
-                if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                if (string.IsNullOrEmpty(sSiteGUID))
                 {
                     ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                     ret.m_sStatusDescription = "Cant charge an unknown user";
                 }
                 else
                 {
-                    //Get User Valid PP
-                    UserPrePaidContainer userPPs = new UserPrePaidContainer();
-                    userPPs.Initialize(sSiteGUID, sCurrency);
+                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    string sIP = "1.1.1.1";
+                    string sWSUserName = "";
+                    string sWSPass = "";
+                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
+                    string sWSURL = Utils.GetWSURL("users_ws");
+                    if (sWSURL.Length > 0)
+                        u.Url = sWSURL;
 
-                    //UserPrePaidObject relUppo = null; 
-
-                    PriceReason theReason = PriceReason.UnKnown;
-                    TvinciPricing.Subscription theSub = null;
-                    TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                    if (p != null)
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
-                        dPrice = p.m_dPrice;
-                        sCurrency = p.m_oCurrency.m_sCurrencyCD3;
+                        ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
+                        ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    if (theReason == PriceReason.ForPurchase)
+                    else
                     {
-                        if ((p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
+                        //Get User Valid PP
+                        UserPrePaidContainer userPPs = new UserPrePaidContainer();
+                        userPPs.Initialize(sSiteGUID, sCurrency);
+
+                        //UserPrePaidObject relUppo = null; 
+
+                        PriceReason theReason = PriceReason.UnKnown;
+                        TvinciPricing.Subscription theSub = null;
+                        TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        if (p != null)
                         {
-                            if (p.m_dPrice != 0)
+                            dPrice = p.m_dPrice;
+                            sCurrency = p.m_oCurrency.m_sCurrencyCD3;
+                        }
+                        if (theReason == PriceReason.ForPurchase)
+                        {
+                            if ((p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
                             {
-                                bool bIsRecurring = theSub.m_bIsRecurring;
-                                Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
-
-                                //Check For Credit
-                                if (p.m_dPrice <= userPPs.m_nTotalAmount - userPPs.m_nAmountUsed)
+                                if (p.m_dPrice != 0)
                                 {
+                                    bool bIsRecurring = theSub.m_bIsRecurring;
+                                    Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
 
-                                    if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
-                                    {
-                                        sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
-                                    }
-
-                                    HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP,
-                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
-
-                                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
-                                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
-                                    updateQuery += " where ";
-                                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                                    updateQuery += " and ";
-                                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
-                                    updateQuery += " and ";
-                                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                    updateQuery.Execute();
-                                    updateQuery.Finish();
-                                    updateQuery = null;
-
-                                    ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("subscriptions_purchases");
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", string.Empty);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
-                                    if (theSub != null &&
-                                        theSub.m_oUsageModule != null)
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", theSub.m_oUsageModule.m_nMaxNumberOfViews);
-                                    else
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-
-                                    if (theSub != null &&
-                                        theSub.m_oUsageModule != null)
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", theSub.m_oUsageModule.m_tsViewLifeCycle);
-                                    else
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", 0);
-
-                                    if (bIsRecurring == true)
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
-                                    else
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", 0);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                                    if (theSub != null &&
-                                        theSub.m_oSubscriptionUsageModule != null)
-                                    {
-                                        DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
-                                        //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", GetCurrentDBTime().AddSeconds(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle));
-                                    }
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);
-                                    insertQuery.Execute();
-                                    insertQuery.Finish();
-                                    insertQuery = null;
-
-
-                                    Int32 nPurchaseID = 0;
-
-                                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                                    selectQuery += " select id from subscriptions_purchases where ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                                    selectQuery += " and ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
-                                    selectQuery += " and ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                    selectQuery += " and ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                    selectQuery += " and ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                    selectQuery += " and ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                    selectQuery += " and ";
-                                    if (theSub != null &&
-                                        theSub.m_oUsageModule != null)
-                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", theSub.m_oUsageModule.m_nMaxNumberOfViews);
-                                    else
-                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-                                    selectQuery += " and ";
-                                    if (theSub != null &&
-                                        theSub.m_oUsageModule != null)
-                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", theSub.m_oUsageModule.m_tsViewLifeCycle);
-                                    else
-                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", 0);
-
-                                    selectQuery += " and ";
-                                    if (bIsRecurring == true)
-                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
-                                    else
-                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
-                                    selectQuery += " and ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                    selectQuery += " and ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                                    selectQuery += " and ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);
-                                    selectQuery += " order by id desc";
-                                    if (selectQuery.Execute("query", true) != null)
-                                    {
-                                        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                                        if (nCount > 0)
-                                        {
-                                            nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                                        }
-                                    }
-                                    selectQuery.Finish();
-                                    selectQuery = null;
-
-                                    double sum = 0;
-                                    double credit = (userPPs.m_nTotalAmount - userPPs.m_nAmountUsed);
-
-                                    double dMaxAmount = 0.0;
-                                    Int32 nRelPrePaidID = 0;
-
-                                    foreach (UserPrePaidObject uppo in userPPs.m_oUserPPs)
+                                    //Check For Credit
+                                    if (p.m_dPrice <= userPPs.m_nTotalAmount - userPPs.m_nAmountUsed)
                                     {
 
-                                        double diff = p.m_dPrice - sum;
-                                        if ((uppo.m_nTotalAmount - uppo.m_nAmountUsed) < diff)
+                                        if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                         {
-                                            diff = (uppo.m_nTotalAmount - uppo.m_nAmountUsed);
+                                            sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
                                         }
 
-                                        if (diff > dMaxAmount)
+                                        HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP,
+                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+
+                                        updateQuery1 = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
+                                        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
+                                        updateQuery1 += " where ";
+                                        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                                        updateQuery1 += " and ";
+                                        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
+                                        updateQuery1 += " and ";
+                                        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                        updateQuery1.Execute();
+
+                                        insertQuery = new ODBCWrapper.InsertQuery("subscriptions_purchases");
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", string.Empty);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
+                                        if (theSub != null &&
+                                            theSub.m_oUsageModule != null)
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", theSub.m_oUsageModule.m_nMaxNumberOfViews);
+                                        else
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
+
+                                        if (theSub != null &&
+                                            theSub.m_oUsageModule != null)
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", theSub.m_oUsageModule.m_tsViewLifeCycle);
+                                        else
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", 0);
+
+                                        if (bIsRecurring == true)
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
+                                        else
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", 0);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                                        if (theSub != null &&
+                                            theSub.m_oSubscriptionUsageModule != null)
                                         {
-                                            dMaxAmount = diff;
-                                            nRelPrePaidID = uppo.m_nPPModuleID;
+                                            DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
+
+                                        }
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);
+                                        insertQuery.Execute();
+
+
+                                        Int32 nPurchaseID = 0;
+
+                                        selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                                        selectQuery += " select id from subscriptions_purchases where ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                                        selectQuery += " and ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
+                                        selectQuery += " and ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                        selectQuery += " and ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
+                                        selectQuery += " and ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
+                                        selectQuery += " and ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
+                                        selectQuery += " and ";
+                                        if (theSub != null &&
+                                            theSub.m_oUsageModule != null)
+                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", theSub.m_oUsageModule.m_nMaxNumberOfViews);
+                                        else
+                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
+                                        selectQuery += " and ";
+                                        if (theSub != null &&
+                                            theSub.m_oUsageModule != null)
+                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", theSub.m_oUsageModule.m_tsViewLifeCycle);
+                                        else
+                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", 0);
+
+                                        selectQuery += " and ";
+                                        if (bIsRecurring == true)
+                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
+                                        else
+                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
+                                        selectQuery += " and ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                                        selectQuery += " and ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                                        selectQuery += " and ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);
+                                        selectQuery += " order by id desc";
+                                        if (selectQuery.Execute("query", true) != null)
+                                        {
+                                            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                                            if (nCount > 0)
+                                            {
+                                                nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                                            }
                                         }
 
-                                        credit -= diff;
-                                        UpdatePPPurchase(uppo.m_nPPPurchaseID, diff, uppo.m_nAmountUsed);
-                                        InsertPPUsesRecord(nPurchaseID, int.Parse(sSubscriptionCode), BillingItemsType.Subscription, sSiteGUID, sCurrency, uppo.m_nPPModuleID, uppo.m_nPPPurchaseID, diff, credit, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                        double sum = 0;
+                                        double credit = (userPPs.m_nTotalAmount - userPPs.m_nAmountUsed);
 
-                                        sum += diff;
+                                        double dMaxAmount = 0.0;
+                                        Int32 nRelPrePaidID = 0;
 
-                                        if (sum == p.m_dPrice)
+                                        foreach (UserPrePaidObject uppo in userPPs.m_oUserPPs)
                                         {
-                                            ret.m_oStatus = PrePaidResponseStatus.Success;
 
-                                            updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
-                                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", nRelPrePaidID);
-                                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
-                                            updateQuery += "where";
-                                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPurchaseID);
-                                            updateQuery.Execute();
-                                            updateQuery.Finish();
-                                            updateQuery = null;
+                                            double diff = p.m_dPrice - sum;
+                                            if ((uppo.m_nTotalAmount - uppo.m_nAmountUsed) < diff)
+                                            {
+                                                diff = (uppo.m_nTotalAmount - uppo.m_nAmountUsed);
+                                            }
 
-                                            break;
+                                            if (diff > dMaxAmount)
+                                            {
+                                                dMaxAmount = diff;
+                                                nRelPrePaidID = uppo.m_nPPModuleID;
+                                            }
+
+                                            credit -= diff;
+                                            UpdatePPPurchase(uppo.m_nPPPurchaseID, diff, uppo.m_nAmountUsed);
+                                            InsertPPUsesRecord(nPurchaseID, int.Parse(sSubscriptionCode), BillingItemsType.Subscription, sSiteGUID, sCurrency, uppo.m_nPPModuleID, uppo.m_nPPPurchaseID, diff, credit, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+
+                                            sum += diff;
+
+                                            if (sum == p.m_dPrice)
+                                            {
+                                                ret.m_oStatus = PrePaidResponseStatus.Success;
+
+                                                updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
+                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", nRelPrePaidID);
+                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                                                updateQuery += "where";
+                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPurchaseID);
+                                                updateQuery.Execute();
+
+                                                break;
+                                            }
                                         }
+
                                     }
-
+                                    else
+                                    {
+                                        ret.m_oStatus = PrePaidResponseStatus.NoCredit;
+                                    }
+                                }
+                                if (ret.m_oStatus == PrePaidResponseStatus.Success)
+                                {
+                                    WriteToUserLog(sSiteGUID, "Subscription purchase (PP): " + sSubscriptionCode);
                                 }
                                 else
                                 {
-                                    ret.m_oStatus = PrePaidResponseStatus.NoCredit;
+                                    ret.m_sStatusDescription = "No Credit";
+                                    WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
                                 }
-                            }
-                            if (ret.m_oStatus == PrePaidResponseStatus.Success)
-                            {
-                                try { WriteToUserLog(sSiteGUID, "Subscription purchase (PP): " + sSubscriptionCode); }
-                                catch { }
                             }
                             else
                             {
-                                ret.m_sStatusDescription = "No Credit";
-                                try { WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription); }
-                                catch { }
+                                ret.m_oStatus = PrePaidResponseStatus.PriceNotCorrect;
+                                ret.m_sStatusDescription = "The price of the request is not the actual price";
+                                WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + " error returned: " + ret.m_sStatusDescription);
                             }
                         }
                         else
                         {
-                            ret.m_oStatus = PrePaidResponseStatus.PriceNotCorrect;
-                            ret.m_sStatusDescription = "The price of the request is not the actual price";
-                            try { WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + " error returned: " + ret.m_sStatusDescription); }
-                            catch { }
-                        }
-                    }
-                    else
-                    {
-                        if (theReason == PriceReason.Free)
-                        {
-                            ret.m_oStatus = PrePaidResponseStatus.Fail;
-                            ret.m_sStatusDescription = "The subscription is free";
-                            try { WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + " error returned: " + ret.m_sStatusDescription); }
-                            catch { }
-                        }
-                        if (theReason == PriceReason.SubscriptionPurchased)
-                        {
-                            ret.m_oStatus = PrePaidResponseStatus.Fail;
-                            ret.m_sStatusDescription = "The subscription is already purchased";
-                            try { WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + " error returned: " + ret.m_sStatusDescription); }
-                            catch { }
+                            if (theReason == PriceReason.Free)
+                            {
+                                ret.m_oStatus = PrePaidResponseStatus.Fail;
+                                ret.m_sStatusDescription = "The subscription is free";
+                                WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            if (theReason == PriceReason.SubscriptionPurchased)
+                            {
+                                ret.m_oStatus = PrePaidResponseStatus.Fail;
+                                ret.m_sStatusDescription = "The subscription is already purchased";
+                                WriteToUserLog(sSiteGUID, "while trying to purchase subscription(PP): " + " error returned: " + ret.m_sStatusDescription);
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("Exception at PP_BaseChargeUserForSubscription. ");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
+                sb.Append(String.Concat(" Price: ", dPrice));
+                sb.Append(String.Concat(" Currency: ", sCurrency));
+                sb.Append(String.Concat(" Sub Cd: ", sSubscriptionCode));
+                sb.Append(String.Concat(" User IP: ", sUserIP));
+                sb.Append(String.Concat(" Extra Params: ", sExtraParams));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                #endregion
+            }
+            finally
+            {
+                #region Disposing
+                if (u != null)
+                {
+                    u.Dispose();
+                }
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
+                if (insertQuery != null)
+                {
+                    insertQuery.Finish();
+                }
+                if (updateQuery != null)
+                {
+                    updateQuery.Finish();
+                }
+                if (updateQuery1 != null)
+                {
+                    updateQuery1.Finish();
+                }
+                #endregion
             }
             return ret;
         }
@@ -9478,22 +9515,30 @@ namespace ConditionalAccess
         {
             int nExternalTransactionID = 0;
             int nBillingProvider = 0;
-
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-            selectQuery += "select billing_provider_refference,billing_provider from billing_transactions(nolock) where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", lBillingTransactionID);
-            if (selectQuery.Execute("query", true) != null)
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            try
             {
-                int count = selectQuery.Table("query").DefaultView.Count;
-                if (count > 0)
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                selectQuery += "select billing_provider_refference,billing_provider from billing_transactions(nolock) where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", lBillingTransactionID);
+                if (selectQuery.Execute("query", true) != null)
                 {
-                    nExternalTransactionID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").Rows[0]["billing_provider_refference"]);
-                    nBillingProvider = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").Rows[0]["billing_provider"]);
+                    int count = selectQuery.Table("query").DefaultView.Count;
+                    if (count > 0)
+                    {
+                        nExternalTransactionID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").Rows[0]["billing_provider_refference"]);
+                        nBillingProvider = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").Rows[0]["billing_provider"]);
+                    }
                 }
             }
-            selectQuery.Finish();
-            selectQuery = null;
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
+            }
 
             if (nExternalTransactionID > 0 && nBillingProvider > 0 && Enum.IsDefined(typeof(eBillingProvider), nBillingProvider))
             {
@@ -9517,16 +9562,25 @@ namespace ConditionalAccess
                 }
                 if (sTableName.Length > 0)
                 {
-                    ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
-                    directQuery.SetConnectionKey("BILLING_CONNECTION");
-                    directQuery += "update  " + sTableName + " set  ";
-                    directQuery += ODBCWrapper.Parameter.NEW_PARAM("purchase_id", "=", lPurchaseID);
-                    directQuery += "where";
-                    directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nExternalTransactionID);
+                    ODBCWrapper.DirectQuery directQuery = null;
+                    try
+                    {
+                        directQuery = new ODBCWrapper.DirectQuery();
+                        directQuery.SetConnectionKey("BILLING_CONNECTION");
+                        directQuery += "update  " + sTableName + " set  ";
+                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("purchase_id", "=", lPurchaseID);
+                        directQuery += "where";
+                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nExternalTransactionID);
 
-                    directQuery.Execute();
-                    directQuery.Finish();
-                    directQuery = null;
+                        directQuery.Execute();
+                    }
+                    finally
+                    {
+                        if (directQuery != null)
+                        {
+                            directQuery.Finish();
+                        }
+                    }
                 }
             }
             else
