@@ -1666,7 +1666,7 @@ namespace ConditionalAccess
             return sSubCode.Length == 0 && sPrePaidCode.Length == 0;
         }
 
-        private static bool IsAnonymousUser(string siteGuid)
+        internal static bool IsAnonymousUser(string siteGuid)
         {
             return string.IsNullOrEmpty(siteGuid) || siteGuid.Trim().Equals("0");
         }

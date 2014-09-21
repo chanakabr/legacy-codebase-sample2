@@ -1296,7 +1296,7 @@ namespace ConditionalAccess.TvinciDomains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/ValidateLimitationModule", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ValidationResponseObject ValidateLimitationModule(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID) {
+        public ValidationResponseObject ValidateLimitationModule(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID, Domain domain) {
             object[] results = this.Invoke("ValidateLimitationModule", new object[] {
                         sWSUsername,
                         sWSPassword,
@@ -1307,17 +1307,18 @@ namespace ConditionalAccess.TvinciDomains {
                         eValidation,
                         nRuleID,
                         nMediaConcurrencyLimit,
-                        nMediaID});
+                        nMediaID,
+                        domain});
             return ((ValidationResponseObject)(results[0]));
         }
         
         /// <remarks/>
-        public void ValidateLimitationModuleAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID) {
-            this.ValidateLimitationModuleAsync(sWSUsername, sWSPassword, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, nRuleID, nMediaConcurrencyLimit, nMediaID, null);
+        public void ValidateLimitationModuleAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID, Domain domain) {
+            this.ValidateLimitationModuleAsync(sWSUsername, sWSPassword, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, nRuleID, nMediaConcurrencyLimit, nMediaID, domain, null);
         }
         
         /// <remarks/>
-        public void ValidateLimitationModuleAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID, object userState) {
+        public void ValidateLimitationModuleAsync(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID, int nMediaConcurrencyLimit, int nMediaID, Domain domain, object userState) {
             if ((this.ValidateLimitationModuleOperationCompleted == null)) {
                 this.ValidateLimitationModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidateLimitationModuleOperationCompleted);
             }
@@ -1331,7 +1332,8 @@ namespace ConditionalAccess.TvinciDomains {
                         eValidation,
                         nRuleID,
                         nMediaConcurrencyLimit,
-                        nMediaID}, this.ValidateLimitationModuleOperationCompleted, userState);
+                        nMediaID,
+                        domain}, this.ValidateLimitationModuleOperationCompleted, userState);
         }
         
         private void OnValidateLimitationModuleOperationCompleted(object arg) {
@@ -1361,7 +1363,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1394,7 +1396,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1679,7 +1681,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1748,7 +1750,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1889,7 +1891,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DeviceState {
@@ -1914,7 +1916,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1947,7 +1949,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DomainResponseStatus {
@@ -2029,7 +2031,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2062,7 +2064,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum NetworkResponseStatus {
@@ -2090,7 +2092,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2123,7 +2125,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DeviceResponseStatus {
@@ -2145,7 +2147,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2214,7 +2216,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DomainStatus {
@@ -2254,7 +2256,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DomainRestriction {
@@ -2273,7 +2275,7 @@ namespace ConditionalAccess.TvinciDomains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.18408")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum ValidationType {
