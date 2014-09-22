@@ -10045,8 +10045,8 @@ namespace ConditionalAccess
                         int nMediaID = 0;
                         int nRuleID = 0;
                         List<int> lRuleIDS = new List<int>();
-                        TvinciDomains.DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, ref nMediaID, ref lRuleIDS, userDomain);
-                        
+                        TvinciDomains.DomainResponseStatus mediaConcurrencyResponse;
+
                         string fileMainUrl = string.Empty;
                         string fileAltUrl = string.Empty;
                         int fileMainStreamingCoID = 0;
@@ -10060,6 +10060,7 @@ namespace ConditionalAccess
 
                             if (IsFreeItem(prices[0]))
                             {
+                                mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, ref nMediaID, ref lRuleIDS, userDomain);
                                 if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
                                 {
                                     res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
@@ -10078,6 +10079,7 @@ namespace ConditionalAccess
                             {
                                 if (IsItemPurchased(prices[0]) && Utils.ValidateBaseLink(m_nGroupID, nMediaFileID, sBasicLink))
                                 {
+                                    mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, ref nMediaID, ref lRuleIDS, userDomain);
                                     if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
                                     {
                                         HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode,
@@ -10201,15 +10203,21 @@ namespace ConditionalAccess
                 if (sWSURL.Length > 0)
                     apiWs.Url = sWSURL;
                 int bmID = 0;
+                bool bSuccess = false;
                 TvinciAPI.eBusinessModule eBM = TvinciAPI.eBusinessModule.PPV;
-                if (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
+                if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
                 {
-                    int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
+                    bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
                 }
-                else if (prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased)
+                else if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased)
                 {
-                    int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
+                    bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
                     eBM = TvinciAPI.eBusinessModule.Subscription;
+                }
+                
+                if (!bSuccess)                
+                {
+                    return response;
                 }
 
                 TvinciAPI.MediaConcurrencyRule[] mcRules = apiWs.GetMediaConcurrencyRules(sWSUserName, sWSPass, nMediaID, sIP, bmID, eBM);
@@ -10227,17 +10235,14 @@ namespace ConditionalAccess
                     int domainID = userDomain.m_nDomainID;
                     long lSiteGuid = 0;
                     long.TryParse(sSiteGuid, out lSiteGuid);
-
-                    int nRuleID = 0;
-
+                    
                     foreach (TvinciAPI.MediaConcurrencyRule mcRule in mcRules)
-                    {
-                        nRuleID = mcRule.RuleID;
-                        lRuleIDS.Add(nRuleID); // for future use
+                    {   
+                        lRuleIDS.Add(mcRule.RuleID); // for future use
 
                         TvinciDomains.ValidationResponseObject validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
-                            TvinciDomains.ValidationType.Concurrency, nRuleID, 0, nMediaID, userDomain);
-                        if (response == TvinciDomains.DomainResponseStatus.OK) // if response is not OK keep it that way
+                            TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID, userDomain);
+                        if (response == TvinciDomains.DomainResponseStatus.OK) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
                         {
                             response = validationResponse.m_eStatus;
                         }
@@ -10245,7 +10250,7 @@ namespace ConditionalAccess
                 }
             }
             catch (Exception ex)
-            {
+            {                
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at CheckMediaConcurrency. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
